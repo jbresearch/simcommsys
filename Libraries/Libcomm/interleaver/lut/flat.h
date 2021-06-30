@@ -26,7 +26,8 @@
 #include "interleaver/lut_interleaver.h"
 #include "serializer.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Flat Interleaver.
@@ -35,29 +36,23 @@ namespace libcomm {
  */
 
 template <class real>
-class flat : public lut_interleaver<real> {
+class flat : public lut_interleaver<real>
+{
 protected:
-   void init(const int tau);
-   flat()
-      {
-      }
+    void init(const int tau);
+    flat() {}
+
 public:
-   flat(const int tau)
-      {
-      init(tau);
-      }
-   ~flat()
-      {
-      }
+    flat(const int tau) { init(tau); }
+    ~flat() {}
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(flat)
+    // Serialization Support
+    DECLARE_SERIALIZER(flat)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

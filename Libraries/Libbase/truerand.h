@@ -26,13 +26,14 @@
 #include "random.h"
 
 #ifdef _WIN32
-#include <windows.h>
-#include <wincrypt.h>
+#    include <wincrypt.h>
+#    include <windows.h>
 #else
-#include <unistd.h>
+#    include <unistd.h>
 #endif
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   True Random Number Generator.
@@ -49,41 +50,34 @@ namespace libbase {
  * \note Idea suggested by Vangelis Koukis <vkoukis@cslab.ece.ntua.gr>
  */
 
-class truerand : public random {
+class truerand : public random
+{
 private:
-   /*! \name Object representation */
+    /*! \name Object representation */
 #ifdef _WIN32
-   HCRYPTPROV hCryptProv;
+    HCRYPTPROV hCryptProv;
 #else
-   int fd;
+    int fd;
 #endif
-   //! Last generated random value
-   int32u x;
-   // @}
+    //! Last generated random value
+    int32u x;
+    // @}
 
 protected:
-   // Interface with random
-   void init(int32u s)
-      {
-      }
-   void advance();
-   int32u get_value() const
-      {
-      return x;
-      }
-   int32u get_max() const
-      {
-      return 0xffffffff;
-      }
+    // Interface with random
+    void init(int32u s) {}
+    void advance();
+    int32u get_value() const { return x; }
+    int32u get_max() const { return 0xffffffff; }
 
 public:
-   /*! \name Constructors / Destructors */
-   //! Principal constructor
-   truerand();
-   ~truerand();
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Principal constructor
+    truerand();
+    ~truerand();
+    // @}
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif

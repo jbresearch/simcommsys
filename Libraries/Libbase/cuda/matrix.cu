@@ -28,27 +28,29 @@
 #include "cuda-all.h"
 #include "gf.h"
 
-namespace cuda {
+namespace cuda
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-#define USING_GF(r, x, type) \
-      using libbase::type;
+#define USING_GF(r, x, type) using libbase::type;
 
 BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
+// clang-format off
 #define TYPE_SEQ \
    (bool)(int)(float)(double) \
    GF_TYPE_SEQ
+// clang-format on
 
-#define INSTANTIATE(r, x, type) \
-      template class matrix<type>; \
-      template class matrix<vector<type> >; \
-      template class matrix<vector_reference<type> >; \
-      template class matrix<vector_auto<type> >;
+#define INSTANTIATE(r, x, type)                                                \
+    template class matrix<type>;                                               \
+    template class matrix<vector<type>>;                                       \
+    template class matrix<vector_reference<type>>;                             \
+    template class matrix<vector_auto<type>>;
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, TYPE_SEQ)
 
-} // end namespace
+} // namespace cuda

@@ -27,10 +27,11 @@
 #include "codec_softout.h"
 #include "fsm.h"
 #include "serializer.h"
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Memoryless Encoding (simple mapping, with or without repetition).
@@ -43,114 +44,104 @@ namespace libcomm {
  */
 
 template <class dbl = double>
-class memoryless : public codec_softout<libbase::vector, dbl> {
+class memoryless : public codec_softout<libbase::vector, dbl>
+{
 private:
-   // Shorthand for class hierarchy
-   typedef memoryless<dbl> This;
-   typedef codec_softout<libbase::vector, dbl> Base;
+    // Shorthand for class hierarchy
+    typedef memoryless<dbl> This;
+    typedef codec_softout<libbase::vector, dbl> Base;
+
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<int> array1i_t;
-   typedef libbase::vector<dbl> array1d_t;
-   typedef libbase::vector<array1d_t> array1vd_t;
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<int> array1i_t;
+    typedef libbase::vector<dbl> array1d_t;
+    typedef libbase::vector<array1d_t> array1vd_t;
+    // @}
 private:
-   /*! \name User-specified parameters */
-   //! FSM specifying input-output mapping; must have no memory
-   std::shared_ptr<fsm> encoder;
-   int tau; //!< Number of time-steps
-   // @}
-   /*! \name Computed parameters */
-   array1vd_t rp; //!< Intrinsic source statistics
-   array1vd_t R; //!< Intrinsic output statistics
-   // @}
+    /*! \name User-specified parameters */
+    //! FSM specifying input-output mapping; must have no memory
+    std::shared_ptr<fsm> encoder;
+    int tau; //!< Number of time-steps
+    // @}
+    /*! \name Computed parameters */
+    array1vd_t rp; //!< Intrinsic source statistics
+    array1vd_t R;  //!< Intrinsic output statistics
+                   // @}
 protected:
-   /*! \name Internal functions */
-   void init();
-   // @}
-   /*! \name Codec information functions - internal */
-   //! Number of encoder input symbols / timestep
-   int enc_inputs() const
-      {
-      assert(encoder);
-      return encoder->num_inputs();
-      }
-   //! Number of encoder output symbols / timestep
-   int enc_outputs() const
-      {
-      assert(encoder);
-      return encoder->num_outputs();
-      }
-   // @}
-   // Internal codec operations
-   void resetpriors();
-   void setpriors(const array1vd_t& ptable);
-   void setreceiver(const array1vd_t& ptable);
-   // Interface with derived classes
-   void do_encode(const array1i_t& source, array1i_t& encoded);
-   void do_init_decoder(const array1vd_t& ptable)
-      {
-      setreceiver(ptable);
-      resetpriors();
-      }
-   void do_init_decoder(const array1vd_t& ptable, const array1vd_t& app)
-      {
-      setreceiver(ptable);
-      setpriors(app);
-      }
+    /*! \name Internal functions */
+    void init();
+    // @}
+    /*! \name Codec information functions - internal */
+    //! Number of encoder input symbols / timestep
+    int enc_inputs() const
+    {
+        assert(encoder);
+        return encoder->num_inputs();
+    }
+    //! Number of encoder output symbols / timestep
+    int enc_outputs() const
+    {
+        assert(encoder);
+        return encoder->num_outputs();
+    }
+    // @}
+    // Internal codec operations
+    void resetpriors();
+    void setpriors(const array1vd_t& ptable);
+    void setreceiver(const array1vd_t& ptable);
+    // Interface with derived classes
+    void do_encode(const array1i_t& source, array1i_t& encoded);
+    void do_init_decoder(const array1vd_t& ptable)
+    {
+        setreceiver(ptable);
+        resetpriors();
+    }
+    void do_init_decoder(const array1vd_t& ptable, const array1vd_t& app)
+    {
+        setreceiver(ptable);
+        setpriors(app);
+    }
+
 public:
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   memoryless()
-      {
-      }
-   //! Copy constructor
-   memoryless(const memoryless<dbl>& x) :
-         encoder(std::dynamic_pointer_cast<fsm>(x.encoder->clone())), tau(
-               x.tau), rp(x.rp), R(x.R)
-      {
-      }
-   memoryless(const fsm& encoder, const int tau);
-   ~memoryless()
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Default constructor
+    memoryless() {}
+    //! Copy constructor
+    memoryless(const memoryless<dbl>& x)
+        : encoder(std::dynamic_pointer_cast<fsm>(x.encoder->clone())),
+          tau(x.tau), rp(x.rp), R(x.R)
+    {
+    }
+    memoryless(const fsm& encoder, const int tau);
+    ~memoryless() {}
+    // @}
 
-   // Codec operations
-   void softdecode(array1vd_t& ri);
-   void softdecode(array1vd_t& ri, array1vd_t& ro);
+    // Codec operations
+    void softdecode(array1vd_t& ri);
+    void softdecode(array1vd_t& ri, array1vd_t& ro);
 
-   // Codec information functions - fundamental
-   libbase::size_type<libbase::vector> input_block_size() const
-      {
-      const int k = enc_inputs();
-      return libbase::size_type<libbase::vector>(tau * k);
-      }
-   libbase::size_type<libbase::vector> output_block_size() const
-      {
-      const int n = enc_outputs();
-      return libbase::size_type<libbase::vector>(tau * n);
-      }
-   int num_inputs() const
-      {
-      return encoder->num_symbols();
-      }
-   int num_outputs() const
-      {
-      return encoder->num_symbols();
-      }
-   int num_iter() const
-      {
-      return 1;
-      }
+    // Codec information functions - fundamental
+    libbase::size_type<libbase::vector> input_block_size() const
+    {
+        const int k = enc_inputs();
+        return libbase::size_type<libbase::vector>(tau * k);
+    }
+    libbase::size_type<libbase::vector> output_block_size() const
+    {
+        const int n = enc_outputs();
+        return libbase::size_type<libbase::vector>(tau * n);
+    }
+    int num_inputs() const { return encoder->num_symbols(); }
+    int num_outputs() const { return encoder->num_symbols(); }
+    int num_iter() const { return 1; }
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(memoryless)
+    // Serialization Support
+    DECLARE_SERIALIZER(memoryless)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

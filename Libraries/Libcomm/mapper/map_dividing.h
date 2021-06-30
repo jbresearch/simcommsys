@@ -25,7 +25,8 @@
 #include "mapper.h"
 #include "symbol_converter.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Dividing Mapper - Template base.
@@ -38,8 +39,11 @@ namespace libcomm {
  * \tparam dbl2 Floating-point type for internal computation (pre-normalization)
  */
 
-template <template <class > class C = libbase::vector, class dbl = double, class dbl2 = double>
-class map_dividing : public mapper<C, dbl> {
+template <template <class> class C = libbase::vector,
+          class dbl = double,
+          class dbl2 = double>
+class map_dividing : public mapper<C, dbl>
+{
 };
 
 /*!
@@ -56,40 +60,43 @@ class map_dividing : public mapper<C, dbl> {
  */
 
 template <class dbl, class dbl2>
-class map_dividing<libbase::vector, dbl, dbl2> : public mapper<libbase::vector, dbl> {
+class map_dividing<libbase::vector, dbl, dbl2>
+    : public mapper<libbase::vector, dbl>
+{
 private:
-   // Shorthand for class hierarchy
-   typedef mapper<libbase::vector, dbl> Base;
-   typedef map_dividing<libbase::vector, dbl, dbl2> This;
+    // Shorthand for class hierarchy
+    typedef mapper<libbase::vector, dbl> Base;
+    typedef map_dividing<libbase::vector, dbl, dbl2> This;
+
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<dbl> array1d_t;
-   typedef libbase::vector<int> array1i_t;
-   typedef libbase::vector<array1d_t> array1vd_t;
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<dbl> array1d_t;
+    typedef libbase::vector<int> array1i_t;
+    typedef libbase::vector<array1d_t> array1vd_t;
+    // @}
 
 protected:
-   // Interface with mapper
-   void dotransform(const array1i_t& in, array1i_t& out) const;
-   void dotransform(const array1vd_t& pin, array1vd_t& pout) const;
-   void doinverse(const array1vd_t& pin, array1vd_t& pout) const;
+    // Interface with mapper
+    void dotransform(const array1i_t& in, array1i_t& out) const;
+    void dotransform(const array1vd_t& pin, array1vd_t& pout) const;
+    void doinverse(const array1vd_t& pin, array1vd_t& pout) const;
 
 public:
-   // Informative functions
-   libbase::size_type<libbase::vector> output_block_size() const
-      {
-      const int k = libbase::symbol_converter<dbl, dbl2>::get_rate(Base::M,
-            Base::q);
-      return libbase::size_type<libbase::vector>(this->size * k);
-      }
+    // Informative functions
+    libbase::size_type<libbase::vector> output_block_size() const
+    {
+        const int k =
+            libbase::symbol_converter<dbl, dbl2>::get_rate(Base::M, Base::q);
+        return libbase::size_type<libbase::vector>(this->size * k);
+    }
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(map_dividing)
+    // Serialization Support
+    DECLARE_SERIALIZER(map_dividing)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

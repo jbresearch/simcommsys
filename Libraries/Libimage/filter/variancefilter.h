@@ -35,43 +35,31 @@
  * defined class and associated data within "libimage" namespace.
  */
 
-namespace libimage {
+namespace libimage
+{
 
 template <class T>
-class variancefilter : public filter<T> {
+class variancefilter : public filter<T>
+{
 protected:
-   int m_d;
+    int m_d;
+
 public:
-   variancefilter()
-      {
-      }
-   variancefilter(const int d)
-      {
-      init(d);
-      }
-   virtual ~variancefilter()
-      {
-      }
-   // initialization
-   void init(const int d);
-   // progress display
-   void display_progress(const int done, const int total) const
-      {
-      }
-   // parameter estimation (updates internal statistics)
-   void reset()
-      {
-      }
-   void update(const libbase::matrix<T>& in)
-      {
-      }
-   void estimate()
-      {
-      }
-   // filter process loop (only updates output matrix)
-   void process(const libbase::matrix<T>& in, libbase::matrix<T>& out) const;
+    variancefilter() {}
+    variancefilter(const int d) { init(d); }
+    virtual ~variancefilter() {}
+    // initialization
+    void init(const int d);
+    // progress display
+    void display_progress(const int done, const int total) const {}
+    // parameter estimation (updates internal statistics)
+    void reset() {}
+    void update(const libbase::matrix<T>& in) {}
+    void estimate() {}
+    // filter process loop (only updates output matrix)
+    void process(const libbase::matrix<T>& in, libbase::matrix<T>& out) const;
 };
 
-} // end namespace
+} // namespace libimage
 
 #endif

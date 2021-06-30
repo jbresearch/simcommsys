@@ -23,23 +23,23 @@
 
 #include <cstdlib>
 
-namespace libbase {
+namespace libbase
+{
 
 // Private functions
 
 void bitfield::set_fromstring(const std::string s)
-   {
-   bits = 0;
-   field = 0;
-   for (std::string::const_iterator it = s.begin(); it != s.end(); ++it)
-      {
-      // check for invalid characters
-      assertalways(*it == '0' || *it == '1');
-      field <<= 1;
-      field |= (*it == '1');
-      bits++;
-      }
-   }
+{
+    bits = 0;
+    field = 0;
+    for (std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
+        // check for invalid characters
+        assertalways(*it == '0' || *it == '1');
+        field <<= 1;
+        field |= (*it == '1');
+        bits++;
+    }
+}
 
 // Conversion operations
 
@@ -47,12 +47,15 @@ void bitfield::set_fromstring(const std::string s)
  * \brief Convert bitfield to a string representation
  */
 std::string bitfield::asstring() const
-   {
-   std::string s;
-   for (int i = bits - 1; i >= 0; i--)
-      s += '0' + ((field >> i) & 1);
-   return s;
-   }
+{
+    std::string s;
+
+    for (int i = bits - 1; i >= 0; i--) {
+        s += '0' + ((field >> i) & 1);
+    }
+
+    return s;
+}
 
 // Creation and Destruction
 
@@ -66,24 +69,29 @@ std::string bitfield::asstring() const
  * representation in fsm.
  */
 bitfield::bitfield(const vector<bool>& v)
-   {
-   bits = v.size();
-   check_fieldsize(bits);
-   field = 0;
-   for (int i = 0; i < bits; i++)
-      field |= v(i) << i;
-   }
+{
+    bits = v.size();
+    check_fieldsize(bits);
+    field = 0;
+
+    for (int i = 0; i < bits; i++) {
+        field |= v(i) << i;
+    }
+}
 
 /*!
  * \brief Convert bitfield to a vector representation
  * \sa bitfield()
  */
 vector<bool> bitfield::asvector() const
-   {
-   vector<bool> result(bits);
-   for (int i = 0; i < bits; i++)
-      result(i) = ((field >> i) & 1);
-   return result;
-   }
+{
+    vector<bool> result(bits);
 
-} // end namespace
+    for (int i = 0; i < bits; i++) {
+        result(i) = ((field >> i) & 1);
+    }
+
+    return result;
+}
+
+} // namespace libbase

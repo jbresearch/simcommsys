@@ -22,63 +22,67 @@
 #include "shift_lut.h"
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // initialisation functions
 
 template <class real>
 void shift_lut<real>::init(const int amount, const int tau)
-   {
-   shift_lut<real>::amount = amount;
+{
+    shift_lut<real>::amount = amount;
 
-   this->lut.init(tau);
-   for (int i = 0; i < tau; i++)
-      this->lut(i) = (i + amount) % tau;
-   }
+    this->lut.init(tau);
+    for (int i = 0; i < tau; i++) {
+        this->lut(i) = (i + amount) % tau;
+    }
+}
 
 // description output
 
 template <class real>
 std::string shift_lut<real>::description() const
-   {
-   std::ostringstream sout;
-   sout << "Shift by " << amount << " Interleaver";
-   return sout.str();
-   }
+{
+    std::ostringstream sout;
+    sout << "Shift by " << amount << " Interleaver";
+    return sout.str();
+}
 
 // object serialization - saving
 
 template <class real>
 std::ostream& shift_lut<real>::serialize(std::ostream& sout) const
-   {
-   sout << this->lut.size() << std::endl;
-   sout << amount << std::endl;
-   return sout;
-   }
+{
+    sout << this->lut.size() << std::endl;
+    sout << amount << std::endl;
+    return sout;
+}
 
 // object serialization - loading
 
 template <class real>
 std::istream& shift_lut<real>::serialize(std::istream& sin)
-   {
-   int tau, amount;
-   sin >> libbase::eatcomments >> tau >> libbase::verify;
-   sin >> libbase::eatcomments >> amount >> libbase::verify;
-   init(amount, tau);
-   return sin;
-   }
+{
+    int tau, amount;
+    sin >> libbase::eatcomments >> tau >> libbase::verify;
+    sin >> libbase::eatcomments >> amount >> libbase::verify;
+    init(amount, tau);
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-using libbase::serializer;
 using libbase::logrealfast;
+using libbase::serializer;
 
+// clang-format off
 #define REAL_TYPE_SEQ \
    (float)(double)(logrealfast)
 
@@ -94,7 +98,8 @@ using libbase::logrealfast;
          "interleaver", \
          "shift_lut<" BOOST_PP_STRINGIZE(type) ">", \
          shift_lut<type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

@@ -23,12 +23,13 @@
 #define __source_uniform_h
 
 #include "config.h"
-#include "source.h"
-#include "serializer.h"
 #include "field_utils.h"
+#include "serializer.h"
+#include "source.h"
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Uniform random source.
@@ -38,35 +39,30 @@ namespace libcomm {
  * from the given alphabet.
  */
 
-template <class S, template <class > class C = libbase::vector>
-class uniform : public source<S, C> {
+template <class S, template <class> class C = libbase::vector>
+class uniform : public source<S, C>
+{
 private:
-   /*! \name Internal representation */
-   libbase::randgen r; //!< Data sequence generator
-   // @}
+    /*! \name Internal representation */
+    libbase::randgen r; //!< Data sequence generator
+                        // @}
 public:
-   //! Generate a single source element
-   S generate_single()
-      {
-      return S(r.ival(field_utils<S>::elements()));
-      }
+    //! Generate a single source element
+    S generate_single() { return S(r.ival(field_utils<S>::elements())); }
 
-   //! Seeds any random generators from a pseudo-random sequence
-   void seedfrom(libbase::random& r)
-      {
-      this->r.seed(r.ival());
-      }
+    //! Seeds any random generators from a pseudo-random sequence
+    void seedfrom(libbase::random& r) { this->r.seed(r.ival()); }
 
-   //! Description
-   std::string description() const
-      {
-      std::ostringstream sout;
-      sout << field_utils<S>::elements() << "-ary uniform random source";
-      return sout.str();
-      }
+    //! Description
+    std::string description() const
+    {
+        std::ostringstream sout;
+        sout << field_utils<S>::elements() << "-ary uniform random source";
+        return sout.str();
+    }
 
-   // Serialization Support
-DECLARE_SERIALIZER(uniform)
+    // Serialization Support
+    DECLARE_SERIALIZER(uniform)
 };
 
 /*!
@@ -78,52 +74,46 @@ DECLARE_SERIALIZER(uniform)
  * alphabet size from serialization).
  */
 
-template <template <class > class C>
-class uniform<int, C> : public source<int, C> {
+template <template <class> class C>
+class uniform<int, C> : public source<int, C>
+{
 private:
-   /*! \name Internal representation */
-   libbase::randgen r; //!< Data sequence generator
-   int alphabet_size; //!< Number of elements in alphabet
-   // @}
+    /*! \name Internal representation */
+    libbase::randgen r; //!< Data sequence generator
+    int alphabet_size;  //!< Number of elements in alphabet
+                        // @}
 public:
-   //! Constructor
-   uniform(int alphabet_size=0) : alphabet_size(alphabet_size)
-      {
-      assert(alphabet_size >= 0);
-      }
+    //! Constructor
+    uniform(int alphabet_size = 0) : alphabet_size(alphabet_size)
+    {
+        assert(alphabet_size >= 0);
+    }
 
-   //! Set alphabet size
-   void set_alphabet_size(int n)
-      {
-      alphabet_size = n;
-      assert(alphabet_size >= 0);
-      }
+    //! Set alphabet size
+    void set_alphabet_size(int n)
+    {
+        alphabet_size = n;
+        assert(alphabet_size >= 0);
+    }
 
-   //! Generate a single source element
-   int generate_single()
-      {
-      return r.ival(alphabet_size);
-      }
+    //! Generate a single source element
+    int generate_single() { return r.ival(alphabet_size); }
 
-   //! Seeds any random generators from a pseudo-random sequence
-   void seedfrom(libbase::random& r)
-      {
-      this->r.seed(r.ival());
-      }
+    //! Seeds any random generators from a pseudo-random sequence
+    void seedfrom(libbase::random& r) { this->r.seed(r.ival()); }
 
-   //! Description
-   std::string description() const
-      {
-      std::ostringstream sout;
-      sout << alphabet_size << "-ary uniform random source";
-      return sout.str();
-      }
+    //! Description
+    std::string description() const
+    {
+        std::ostringstream sout;
+        sout << alphabet_size << "-ary uniform random source";
+        return sout.str();
+    }
 
-   // Serialization Support
-DECLARE_SERIALIZER(uniform)
+    // Serialization Support
+    DECLARE_SERIALIZER(uniform)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

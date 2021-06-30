@@ -26,7 +26,8 @@
 #include "lut_modulator.h"
 #include "serializer.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   M-PSK Modulator.
@@ -36,28 +37,23 @@ namespace libcomm {
  * adjacent points on the constellation.
  */
 
-class mpsk : public lut_modulator {
+class mpsk : public lut_modulator
+{
 protected:
-   mpsk()
-      {
-      }
-   void init(const int m);
+    mpsk() {}
+    void init(const int m);
+
 public:
-   mpsk(const int m)
-      {
-      init(m);
-      }
-   ~mpsk()
-      {
-      }
+    mpsk(const int m) { init(m); }
+    ~mpsk() {}
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(mpsk)
+    // Serialization Support
+    DECLARE_SERIALIZER(mpsk)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

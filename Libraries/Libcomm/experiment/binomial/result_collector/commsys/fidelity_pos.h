@@ -24,10 +24,11 @@
 
 #include "config.h"
 #include "vector.h"
-#include <string>
 #include <sstream>
+#include <string>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   CommSys Results - Codeword Boundary Fidelity.
@@ -36,50 +37,44 @@ namespace libcomm {
  * Implements computation of the fidelity metric at frame and codeword
  * boundary positions.
  */
-class fidelity_pos {
+class fidelity_pos
+{
 protected:
-   /*! \name System Interface */
-   //! The number of information symbols per frame (ie modem input)
-   virtual int get_symbolsperframe() const = 0;
-   // @}
+    /*! \name System Interface */
+    //! The number of information symbols per frame (ie modem input)
+    virtual int get_symbolsperframe() const = 0;
+    // @}
 public:
-   virtual ~fidelity_pos()
-      {
-      }
-   /*! \name Public interface */
-   void updateresults(libbase::vector<double>& result, const libbase::vector<
-         int>& act_drift, const libbase::vector<int>& est_drift) const;
-   /*! \copydoc experiment::count()
-    * For each iteration, we count the fidelity at codeword boundary positions.
-    * \warning This assumes that the codec and modem output sizes are the same!
-    */
-   int count() const
-      {
-      return get_symbolsperframe() + 1;
-      }
-   /*! \copydoc experiment::get_multiplicity()
-    * Only one result can be incremented for every position.
-    */
-   int get_multiplicity(int i) const
-      {
-      return 1;
-      }
-   /*! \copydoc experiment::result_description()
-    *
-    * The description is a string FID_X, where 'X' is the symbol position
-    * (starting at zero), denoting the fidelity at the start of the
-    * corresponding symbol.
-    */
-   std::string result_description(int i) const
-      {
-      assert(i >= 0 && i < count());
-      std::ostringstream sout;
-      sout << "FID_" << i;
-      return sout.str();
-      }
-   // @}
+    virtual ~fidelity_pos() {}
+    /*! \name Public interface */
+    void updateresults(libbase::vector<double>& result,
+                       const libbase::vector<int>& act_drift,
+                       const libbase::vector<int>& est_drift) const;
+    /*! \copydoc experiment::count()
+     * For each iteration, we count the fidelity at codeword boundary positions.
+     * \warning This assumes that the codec and modem output sizes are the same!
+     */
+    int count() const { return get_symbolsperframe() + 1; }
+    /*! \copydoc experiment::get_multiplicity()
+     * Only one result can be incremented for every position.
+     */
+    int get_multiplicity(int i) const { return 1; }
+    /*! \copydoc experiment::result_description()
+     *
+     * The description is a string FID_X, where 'X' is the symbol position
+     * (starting at zero), denoting the fidelity at the start of the
+     * corresponding symbol.
+     */
+    std::string result_description(int i) const
+    {
+        assert(i >= 0 && i < count());
+        std::ostringstream sout;
+        sout << "FID_" << i;
+        return sout.str();
+    }
+    // @}
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

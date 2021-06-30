@@ -19,29 +19,32 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* \note This file contains some of the explicit realizations for fba2-implementation.h.
- * For this module it was necessary to split the realizations over separate
- * units, or ptxas would complain with excessive cmem usage.
+/* \note This file contains some of the explicit realizations for
+ * fba2-implementation.h. For this module it was necessary to split the
+ * realizations over separate units, or ptxas would complain with excessive cmem
+ * usage.
  */
 #include "fba2-implementation.h"
 
 // Explicit Realizations
-#include "modem/tvb-receiver.h"
 #include "gf.h"
-#include "mpgnu.h"
 #include "logrealfast.h"
+#include "modem/tvb-receiver.h"
+#include "mpgnu.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
-#include <boost/preprocessor/seq/for_each.hpp>
-#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/elem.hpp>
 #include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/seq/first_n.hpp>
-#include <boost/preprocessor/seq/elem.hpp>
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
 
-using libbase::mpgnu;
 using libbase::logrealfast;
+using libbase::mpgnu;
 
+// clang-format off
 #define USING_GF(r, x, type) \
       using libbase::type;
 
@@ -71,8 +74,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
 #define INSTANTIATE1(r, flags) \
       BOOST_PP_SEQ_FOR_EACH(INSTANTIATE2, flags, REAL_PAIRS_SEQ)
+// clang-format on
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE1,
-      (FLAG_SEQ)(FLAG_SEQ)(FLAG_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE1, (FLAG_SEQ)(FLAG_SEQ)(FLAG_SEQ))
 
-} // end namespace
+} // namespace libcomm

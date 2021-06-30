@@ -24,42 +24,42 @@
 #include <cmath>
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // description output
 
 template <class S>
 std::string lsb<S>::description() const
-   {
-   std::ostringstream sout;
-   switch (algorithm)
-      {
-      case AL_REPLACEMENT:
-         sout << "LSB Replacement";
-         break;
-      case AL_MATCHING:
-         sout << "LSB Matching";
-         break;
-      default:
-         failwith("Unknown algorithm");
-      }
-   sout << " embedder (M=" << M << ")";
-   return sout.str();
-   }
+{
+    std::ostringstream sout;
+    switch (algorithm) {
+    case AL_REPLACEMENT:
+        sout << "LSB Replacement";
+        break;
+    case AL_MATCHING:
+        sout << "LSB Matching";
+        break;
+    default:
+        failwith("Unknown algorithm");
+    }
+    sout << " embedder (M=" << M << ")";
+    return sout.str();
+}
 
 // object serialization - saving
 
 template <class S>
 std::ostream& lsb<S>::serialize(std::ostream& sout) const
-   {
-   sout << "# Version" << std::endl;
-   sout << 2;
-   sout << "# M" << std::endl;
-   sout << M << std::endl;
-   sout << "# Algorithm (0=replacement, 1=matching)" << std::endl;
-   sout << algorithm << std::endl;
-   return sout;
-   }
+{
+    sout << "# Version" << std::endl;
+    sout << 2;
+    sout << "# M" << std::endl;
+    sout << M << std::endl;
+    sout << "# Algorithm (0=replacement, 1=matching)" << std::endl;
+    sout << algorithm << std::endl;
+    return sout;
+}
 
 // object serialization - loading
 
@@ -73,25 +73,27 @@ std::ostream& lsb<S>::serialize(std::ostream& sout) const
 
 template <class S>
 std::istream& lsb<S>::serialize(std::istream& sin)
-   {
-   int version;
-   sin >> libbase::eatcomments >> version >> libbase::verify;
-   sin >> libbase::eatcomments >> M >> libbase::verify;
-   if (version >= 2)
-      {
-      int temp;
-      sin >> libbase::eatcomments >> temp >> libbase::verify;
-      assertalways(temp >=0 && temp < AL_UNDEFINED);
-      algorithm = static_cast<al_enum> (temp);
-      }
-   else
-      algorithm = AL_REPLACEMENT;
-   return sin;
-   }
+{
+    int version;
+    sin >> libbase::eatcomments >> version >> libbase::verify;
+    sin >> libbase::eatcomments >> M >> libbase::verify;
 
-} // end namespace
+    if (version >= 2) {
+        int temp;
+        sin >> libbase::eatcomments >> temp >> libbase::verify;
+        assertalways(temp >= 0 && temp < AL_UNDEFINED);
+        algorithm = static_cast<al_enum>(temp);
+    } else {
+        algorithm = AL_REPLACEMENT;
+    }
 
-namespace libcomm {
+    return sin;
+}
+
+} // namespace libcomm
+
+namespace libcomm
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
@@ -99,6 +101,7 @@ namespace libcomm {
 
 using libbase::serializer;
 
+// clang-format off
 #define SYMBOL_TYPE_SEQ \
    (int)
 
@@ -113,7 +116,8 @@ using libbase::serializer;
             "embedder", \
             "lsb<" BOOST_PP_STRINGIZE(type) ">", \
             lsb<type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, SYMBOL_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

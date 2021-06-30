@@ -26,7 +26,8 @@
 #include <cmath>
 #include <iostream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Signal Space point.
@@ -40,12 +41,13 @@ namespace libcomm {
  * moved most functions to the implementation file instead of here.
  *
  * \version 1.10 (27 Mar 2002)
- * added two functions to make multiplication with double commutative. Also, made
- * passing of all double parameters direct, not by reference.
+ * added two functions to make multiplication with double commutative. Also,
+ * made passing of all double parameters direct, not by reference.
  *
  * \version 1.20 (30 Oct 2006)
  * - defined class and associated data within "libcomm" namespace.
- * - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+ * - removed use of "using namespace std", replacing by tighter "using"
+ * statements as needed.
  *
  * \version 1.30 (14-15 Nov 2007)
  * - moved most functions here and made them inline.
@@ -53,124 +55,108 @@ namespace libcomm {
  * - added unary '-' operator
  */
 
-class sigspace {
-   double inphase, quad;
+class sigspace
+{
+    double inphase, quad;
+
 public:
-   // creator / destructor
-   sigspace(const double i = 0, const double q = 0) :
-         inphase(i), quad(q)
-      {
-      }
+    // creator / destructor
+    sigspace(const double i = 0, const double q = 0) : inphase(i), quad(q) {}
 
-   double i() const
-      {
-      return inphase;
-      }
-   double q() const
-      {
-      return quad;
-      }
-   double r() const
-      {
-      return sqrt(i() * i() + q() * q());
-      }
-   double p() const
-      {
-      return atan2(q(), i());
-      }
-   operator double() const
-      {
-      return r();
-      }
+    double i() const { return inphase; }
+    double q() const { return quad; }
+    double r() const { return sqrt(i() * i() + q() * q()); }
+    double p() const { return atan2(q(), i()); }
+    operator double() const { return r(); }
 
-   // arithmetic operations
-   sigspace& operator+=(const sigspace& a)
-      {
-      inphase += a.inphase;
-      quad += a.quad;
-      return *this;
-      }
-   sigspace& operator-=(const sigspace& a)
-      {
-      inphase -= a.inphase;
-      quad -= a.quad;
-      return *this;
-      }
-   sigspace& operator*=(const double a)
-      {
-      inphase *= a;
-      quad *= a;
-      return *this;
-      }
-   sigspace& operator/=(const double a)
-      {
-      inphase /= a;
-      quad /= a;
-      return *this;
-      }
+    // arithmetic operations
+    sigspace& operator+=(const sigspace& a)
+    {
+        inphase += a.inphase;
+        quad += a.quad;
+        return *this;
+    }
+    sigspace& operator-=(const sigspace& a)
+    {
+        inphase -= a.inphase;
+        quad -= a.quad;
+        return *this;
+    }
+    sigspace& operator*=(const double a)
+    {
+        inphase *= a;
+        quad *= a;
+        return *this;
+    }
+    sigspace& operator/=(const double a)
+    {
+        inphase /= a;
+        quad /= a;
+        return *this;
+    }
 
-   // arithmetic operations - friends
+    // arithmetic operations - friends
 
-   // comparison operations
-   friend bool operator==(const sigspace& a, const sigspace& b)
-      {
-      return (a.inphase == b.inphase && a.quad == b.quad);
-      }
+    // comparison operations
+    friend bool operator==(const sigspace& a, const sigspace& b)
+    {
+        return (a.inphase == b.inphase && a.quad == b.quad);
+    }
 
-   friend bool operator!=(const sigspace& a, const sigspace& b)
-      {
-      return (a.inphase != b.inphase || a.quad != b.quad);
-      }
+    friend bool operator!=(const sigspace& a, const sigspace& b)
+    {
+        return (a.inphase != b.inphase || a.quad != b.quad);
+    }
 
-   // arithmetic operations - unary
-   friend sigspace operator-(const sigspace& a)
-      {
-      return sigspace(-a.inphase, -a.quad);
-      }
+    // arithmetic operations - unary
+    friend sigspace operator-(const sigspace& a)
+    {
+        return sigspace(-a.inphase, -a.quad);
+    }
 
-   // arithmetic operations - friends
-   friend sigspace operator+(const sigspace& a, const sigspace& b)
-      {
-      sigspace c = a;
-      c += b;
-      return c;
-      }
-   friend sigspace operator-(const sigspace& a, const sigspace& b)
-      {
-      sigspace c = a;
-      c -= b;
-      return c;
-      }
-   friend sigspace operator*(const sigspace& a, const double b)
-      {
-      sigspace c = a;
-      c *= b;
-      return c;
-      }
-   friend sigspace operator/(const sigspace& a, const double b)
-      {
-      sigspace c = a;
-      c /= b;
-      return c;
-      }
-   friend sigspace operator*(const double a, const sigspace& b)
-      {
-      sigspace c = b;
-      c *= a;
-      return c;
-      }
-   friend sigspace operator/(const double a, const sigspace& b)
-      {
-      sigspace c = b;
-      c /= a;
-      return c;
-      }
+    // arithmetic operations - friends
+    friend sigspace operator+(const sigspace& a, const sigspace& b)
+    {
+        sigspace c = a;
+        c += b;
+        return c;
+    }
+    friend sigspace operator-(const sigspace& a, const sigspace& b)
+    {
+        sigspace c = a;
+        c -= b;
+        return c;
+    }
+    friend sigspace operator*(const sigspace& a, const double b)
+    {
+        sigspace c = a;
+        c *= b;
+        return c;
+    }
+    friend sigspace operator/(const sigspace& a, const double b)
+    {
+        sigspace c = a;
+        c /= b;
+        return c;
+    }
+    friend sigspace operator*(const double a, const sigspace& b)
+    {
+        sigspace c = b;
+        c *= a;
+        return c;
+    }
+    friend sigspace operator/(const double a, const sigspace& b)
+    {
+        sigspace c = b;
+        c /= a;
+        return c;
+    }
 
-   // stream input / output
-   friend std::ostream& operator<<(std::ostream& s, const sigspace& x);
-   friend std::istream& operator>>(std::istream& s, sigspace& x);
+    // stream input / output
+    friend std::ostream& operator<<(std::ostream& s, const sigspace& x);
+    friend std::istream& operator>>(std::istream& s, sigspace& x);
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

@@ -25,7 +25,8 @@
 #include "config.h"
 #include "repacc.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Systematic Repeat-Accumulate (SRA) codes.
@@ -36,51 +37,53 @@ namespace libcomm {
  */
 
 template <class real, class dbl = double>
-class sysrepacc : public repacc<real, dbl> {
+class sysrepacc : public repacc<real, dbl>
+{
 private:
-   // Shorthand for class hierarchy
-   typedef sysrepacc<real, dbl> This;
-   typedef repacc<real, dbl> Base;
+    // Shorthand for class hierarchy
+    typedef sysrepacc<real, dbl> This;
+    typedef repacc<real, dbl> Base;
+
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<int> array1i_t;
-   typedef libbase::vector<dbl> array1d_t;
-   typedef libbase::matrix<dbl> array2d_t;
-   typedef libbase::vector<array1d_t> array1vd_t;
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<int> array1i_t;
+    typedef libbase::vector<dbl> array1d_t;
+    typedef libbase::matrix<dbl> array2d_t;
+    typedef libbase::vector<array1d_t> array1vd_t;
+    // @}
 
 private:
-   // Grant access to inherited fields and methods
-   using Base::ra;
-   using Base::rp;
-   using Base::R;
-   using Base::initialised;
-   using Base::allocate;
-   using Base::reset;
+    // Grant access to inherited fields and methods
+    using Base::allocate;
+    using Base::initialised;
+    using Base::R;
+    using Base::ra;
+    using Base::reset;
+    using Base::rp;
 
 protected:
-   // Interface with derived classes
-   void do_encode(const array1i_t& source, array1i_t& encoded);
-   void do_init_decoder(const array1vd_t& ptable);
-   void do_init_decoder(const array1vd_t& ptable, const array1vd_t& app);
+    // Interface with derived classes
+    void do_encode(const array1i_t& source, array1i_t& encoded);
+    void do_init_decoder(const array1vd_t& ptable);
+    void do_init_decoder(const array1vd_t& ptable, const array1vd_t& app);
 
 public:
-   // Codec information functions - fundamental
-   libbase::size_type<libbase::vector> output_block_size() const
-      {
-      // Inherit sizes
-      const int Ns = Base::input_block_size();
-      const int Np = Base::output_block_size();
-      return libbase::size_type<libbase::vector>(Ns + Np);
-      }
+    // Codec information functions - fundamental
+    libbase::size_type<libbase::vector> output_block_size() const
+    {
+        // Inherit sizes
+        const int Ns = Base::input_block_size();
+        const int Np = Base::output_block_size();
+        return libbase::size_type<libbase::vector>(Ns + Np);
+    }
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(sysrepacc)
+    // Serialization Support
+    DECLARE_SERIALIZER(sysrepacc)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

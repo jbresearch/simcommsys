@@ -21,25 +21,26 @@
 
 #include "exit_computer.h"
 
-#include "modem/informed_modulator.h"
 #include "codec/codec_softout.h"
-#include "vector_itfunc.h"
-#include "symbol_converter.h"
 #include "fsm.h"
 #include "itfunc.h"
-#include "secant.h"
-#include "timer.h"
+#include "modem/informed_modulator.h"
 #include "rvstatistics.h"
+#include "secant.h"
+#include "symbol_converter.h"
+#include "timer.h"
+#include "vector_itfunc.h"
 #include <iostream>
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Determine debug level:
 // 1 - Normal debug output only
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG 1
+#    undef DEBUG
+#    define DEBUG 1
 #endif
 
 // *** Templated Common Base ***
@@ -54,38 +55,42 @@ namespace libcomm {
  * \param[in] q         Alphabet size
  */
 template <class S>
-libbase::vector<libbase::vector<double> > exit_computer<S>::createpriors(
-      const array1i_t& tx, const int N, const int q)
-   {
-   // determine sizes
-   const int k = int(log2(q));
-   assert(q == (1<<k));
-   assert(tx.size() == N);
-   // constants
-   const double mu = sigma * sigma / 2;
-   // convert transmitted sequence to binary
-   array1i_t tx_b;
-   libbase::symbol_converter<double, double> converter(2, q);
-   converter.divide_symbols(tx, tx_b);
-   // allocate space for binary results
-   array1vd_t priors_b;
-   libbase::allocate(priors_b, N * k, 2);
-   // determine random binary priors
-   for (int i = 0; i < N * k; i++)
-      {
-      // generate random LLR for given bit
-      // Note: LLR is interpreted as ln(Pr(0)/Pr(1))
-      const double llr = r.gval(sigma) + (tx_b(i) == 0 ? mu : -mu);
-      // determine binary priors from LLR
-      const double lr = exp(llr); // = p0/p1 = p0/(1-p0) = (1-p1)/p1
-      priors_b(i)(0) = lr / (1 + lr); // = p0
-      priors_b(i)(1) = 1 / (1 + lr); // = p1
-      }
-   // convert priors to non-binary
-   array1vd_t priors;
-   converter.aggregate_probabilities(priors_b, priors);
-   return priors;
-   }
+libbase::vector<libbase::vector<double>>
+exit_computer<S>::createpriors(const array1i_t& tx, const int N, const int q)
+{
+    // determine sizes
+    const int k = int(log2(q));
+    assert(q == (1 << k));
+    assert(tx.size() == N);
+
+    // constants
+    const double mu = sigma * sigma / 2;
+
+    // convert transmitted sequence to binary
+    array1i_t tx_b;
+    libbase::symbol_converter<double, double> converter(2, q);
+    converter.divide_symbols(tx, tx_b);
+
+    // allocate space for binary results
+    array1vd_t priors_b;
+    libbase::allocate(priors_b, N * k, 2);
+
+    // determine random binary priors
+    for (int i = 0; i < N * k; i++) {
+        // generate random LLR for given bit
+        // Note: LLR is interpreted as ln(Pr(0)/Pr(1))
+        const double llr = r.gval(sigma) + (tx_b(i) == 0 ? mu : -mu);
+        // determine binary priors from LLR
+        const double lr = exp(llr);     // = p0/p1 = p0/(1-p0) = (1-p1)/p1
+        priors_b(i)(0) = lr / (1 + lr); // = p0
+        priors_b(i)(1) = 1 / (1 + lr);  // = p1
+    }
+
+    // convert priors to non-binary
+    array1vd_t priors;
+    converter.aggregate_probabilities(priors_b, priors);
+    return priors;
+}
 
 /*!
  * \brief Determine the mutual information between x and y
@@ -100,24 +105,26 @@ libbase::vector<libbase::vector<double> > exit_computer<S>::createpriors(
  */
 template <class S>
 double exit_computer<S>::compute_mutual_information(const array1i_t& x,
-      const array1vd_t& y)
-   {
-   // determine sizes
-   const int N = y.size();
-   assert(N > 0);
-   const int q = y(0).size();
-   assert(q > 1);
-   assert(x.size() == y.size());
-   // compute mutual information
-   double I = 0;
-   for (int i = 0; i < N; i++)
-      {
-      const int d = x(i);
-      if (y(i)(d) > 0)
-         I += log2(y(i).sum() / y(i)(d));
-      }
-   return log2(q) - I / double(N);
-   }
+                                                    const array1vd_t& y)
+{
+    // determine sizes
+    const int N = y.size();
+    assert(N > 0);
+    const int q = y(0).size();
+    assert(q > 1);
+    assert(x.size() == y.size());
+
+    // compute mutual information
+    double I = 0;
+    for (int i = 0; i < N; i++) {
+        const int d = x(i);
+        if (y(i)(d) > 0) {
+            I += log2(y(i).sum() / y(i)(d));
+        }
+    }
+
+    return log2(q) - I / double(N);
+}
 
 /*!
  * \brief Determine the distribution statistics for 'p' where the binary
@@ -130,37 +137,41 @@ double exit_computer<S>::compute_mutual_information(const array1i_t& x,
  */
 template <class S>
 void exit_computer<S>::compute_statistics(const array1i_t& x,
-      const array1vd_t& p, const int value, double& sigma, double& mu)
-   {
-   // determine sizes
-   const int N = p.size();
-   assert(N > 0);
-   const int q = p(0).size();
-   assert(q > 1);
-   assert(x.size() == N);
-   const int k = int(log2(q));
-   assert(q == (1<<k));
-   // obtain binary decomposition of symbols and probabilities
-   array1i_t xb;
-   array1vd_t pb;
-   libbase::symbol_converter<double, double> converter(2, q);
-   converter.divide_symbols(x, xb);
-   converter.divide_probabilities(p, pb);
-   // iterate through each bit in the table
-   libbase::rvstatistics rv;
-   for (int i = 0; i < k * N; i++)
-      {
-      if(xb(i) == value)
-         {
-         // compute LLR from probabilities
-         const double llr = log(pb(i)(0)/pb(i)(1));
-         rv.insert(llr);
-         }
-      }
-   // store results
-   sigma = rv.sigma();
-   mu = rv.mean();
-   }
+                                          const array1vd_t& p,
+                                          const int value,
+                                          double& sigma,
+                                          double& mu)
+{
+    // determine sizes
+    const int N = p.size();
+    assert(N > 0);
+    const int q = p(0).size();
+    assert(q > 1);
+    assert(x.size() == N);
+    const int k = int(log2(q));
+    assert(q == (1 << k));
+
+    // obtain binary decomposition of symbols and probabilities
+    array1i_t xb;
+    array1vd_t pb;
+    libbase::symbol_converter<double, double> converter(2, q);
+    converter.divide_symbols(x, xb);
+    converter.divide_probabilities(p, pb);
+
+    // iterate through each bit in the table
+    libbase::rvstatistics rv;
+    for (int i = 0; i < k * N; i++) {
+        if (xb(i) == value) {
+            // compute LLR from probabilities
+            const double llr = log(pb(i)(0) / pb(i)(1));
+            rv.insert(llr);
+        }
+    }
+
+    // store results
+    sigma = rv.sigma();
+    mu = rv.mean();
+}
 
 /*!
  * \brief Calculate results
@@ -171,237 +182,237 @@ void exit_computer<S>::compute_statistics(const array1i_t& x,
  */
 template <class S>
 void exit_computer<S>::compute_results(const array1i_t& x,
-      const array1vd_t& pin, const array1vd_t& pout, array1d_t& result) const
-   {
-   assert(result.size() == count());
-   // Compute results
-   result(0) = compute_mutual_information(x, pin);
-   result(1) = compute_mutual_information(x, pout);
-   if (compute_llr_statistics)
-      {
-      compute_statistics(x, pin, 0, result(2), result(3));
-      compute_statistics(x, pin, 1, result(4), result(5));
-      compute_statistics(x, pout, 0, result(6), result(7));
-      compute_statistics(x, pout, 1, result(8), result(9));
-      }
-   }
+                                       const array1vd_t& pin,
+                                       const array1vd_t& pout,
+                                       array1d_t& result) const
+{
+    assert(result.size() == count());
+    // Compute results
+    result(0) = compute_mutual_information(x, pin);
+    result(1) = compute_mutual_information(x, pout);
+    if (compute_llr_statistics) {
+        compute_statistics(x, pin, 0, result(2), result(3));
+        compute_statistics(x, pin, 1, result(4), result(5));
+        compute_statistics(x, pout, 0, result(6), result(7));
+        compute_statistics(x, pout, 1, result(8), result(9));
+    }
+}
 
 // Experiment handling
 
 /*!
- * \brief Determine mutual information at input and output of inner and outer decoders
- * \param[out] result   Vector containing the set of results to be updated
+ * \brief Determine mutual information at input and output of inner and outer
+ * decoders \param[out] result   Vector containing the set of results to be
+ * updated
  *
  * Results are organized as ...
  */
 template <class S>
 void exit_computer<S>::sample(array1d_t& result)
-   {
-   // Initialise result vector
-   result.init(count());
+{
+    // Initialise result vector
+    result.init(count());
 
-   // Create source stream
-   src.set_alphabet_size(sys->num_inputs());
-   const array1i_t source = src.generate_sequence(sys->input_block_size());
-   // Encode
-   array1i_t encoded;
-   sys->getcodec()->encode(source, encoded);
-   // Map
-   array1i_t mapped;
-   sys->getmapper()->transform(encoded, mapped);
-   // Modulate
-   array1s_t transmitted;
-   sys->getmodem()->modulate(sys->getmodem()->num_symbols(), mapped,
-         transmitted);
-   // Transmit
-   const array1s_t received = sys->transmit(transmitted);
+    // Create source stream
+    src.set_alphabet_size(sys->num_inputs());
+    const array1i_t source = src.generate_sequence(sys->input_block_size());
+    // Encode
+    array1i_t encoded;
+    sys->getcodec()->encode(source, encoded);
+    // Map
+    array1i_t mapped;
+    sys->getmapper()->transform(encoded, mapped);
+    // Modulate
+    array1s_t transmitted;
+    sys->getmodem()->modulate(
+        sys->getmodem()->num_symbols(), mapped, transmitted);
+    // Transmit
+    const array1s_t received = sys->transmit(transmitted);
 
-   switch(exit_type)
-      {
-      case exit_parallel_codec:
-         {
-         // Demodulate
-         array1vd_t ptable_mapped;
-         sys->getmodem()->demodulate(*sys->getrxchan(), received, ptable_mapped);
-         // Inverse Map
-         array1vd_t ptable_encoded;
-         sys->getmapper()->inverse(ptable_mapped, ptable_encoded);
+    switch (exit_type) {
+    case exit_parallel_codec: {
+        // Demodulate
+        array1vd_t ptable_mapped;
+        sys->getmodem()->demodulate(*sys->getrxchan(), received, ptable_mapped);
+        // Inverse Map
+        array1vd_t ptable_encoded;
+        sys->getmapper()->inverse(ptable_mapped, ptable_encoded);
 
-         // Create random priors for message sequence
-         const int N = sys->getcodec()->input_block_size();
-         const int q = sys->getcodec()->num_inputs();
-         array1vd_t priors_source = createpriors(source, N, q);
-         // Translate (using given priors)
-         codec_softout<libbase::vector>& c = dynamic_cast<codec_softout<
-               libbase::vector>&>(*sys->getcodec());
-         c.init_decoder(ptable_encoded, priors_source);
-         // Perform soft-output decoding for as many iterations as required
-         array1vd_t ri;
-         for (int i = 0; i < c.num_iter(); i++)
+        // Create random priors for message sequence
+        const int N = sys->getcodec()->input_block_size();
+        const int q = sys->getcodec()->num_inputs();
+        array1vd_t priors_source = createpriors(source, N, q);
+        // Translate (using given priors)
+        codec_softout<libbase::vector>& c =
+            dynamic_cast<codec_softout<libbase::vector>&>(*sys->getcodec());
+        c.init_decoder(ptable_encoded, priors_source);
+        // Perform soft-output decoding for as many iterations as required
+        array1vd_t ri;
+        for (int i = 0; i < c.num_iter(); i++) {
             c.softdecode(ri);
-         // Compute extrinsic information
-         libbase::compute_extrinsic(ri, ri, priors_source);
-         libbase::normalize_results(ri, ri);
+        }
 
-         // compute results
-         compute_results(source, priors_source, ri, result);
-         }
-         break;
+        // Compute extrinsic information
+        libbase::compute_extrinsic(ri, ri, priors_source);
+        libbase::normalize_results(ri, ri);
 
-      case exit_serial_codec:
-         {
-         // Create random priors for encoded sequence
-         // (no need to do actual demodulation and inverse mapping)
-         const int N = sys->getcodec()->output_block_size();
-         const int q = sys->getcodec()->num_outputs();
-         array1vd_t priors_encoded = createpriors(encoded, N, q);
-         // Translate (using given priors)
-         codec_softout<libbase::vector>& c = dynamic_cast<codec_softout<
-               libbase::vector>&>(*sys->getcodec());
-         c.init_decoder(priors_encoded);
-         // Perform soft-output decoding for as many iterations as required
-         array1vd_t ri;
-         array1vd_t ro;
-         for (int i = 0; i < c.num_iter(); i++)
+        // compute results
+        compute_results(source, priors_source, ri, result);
+    } break;
+
+    case exit_serial_codec: {
+        // Create random priors for encoded sequence
+        // (no need to do actual demodulation and inverse mapping)
+        const int N = sys->getcodec()->output_block_size();
+        const int q = sys->getcodec()->num_outputs();
+        array1vd_t priors_encoded = createpriors(encoded, N, q);
+        // Translate (using given priors)
+        codec_softout<libbase::vector>& c =
+            dynamic_cast<codec_softout<libbase::vector>&>(*sys->getcodec());
+        c.init_decoder(priors_encoded);
+        // Perform soft-output decoding for as many iterations as required
+        array1vd_t ri;
+        array1vd_t ro;
+        for (int i = 0; i < c.num_iter(); i++) {
             c.softdecode(ri, ro);
-         // Compute extrinsic information
-         libbase::compute_extrinsic(ro, ro, priors_encoded);
-         libbase::normalize_results(ro, ro);
+        }
 
-         // compute results
-         compute_results(encoded, priors_encoded, ro, result);
-         }
-         break;
+        // Compute extrinsic information
+        libbase::compute_extrinsic(ro, ro, priors_encoded);
+        libbase::normalize_results(ro, ro);
 
-      case exit_serial_modem:
-         {
-         // Create random priors for mapped (demodulated) sequence
-         const int N = sys->getmodem()->input_block_size();
-         const int q = sys->getmodem()->num_symbols();
-         array1vd_t priors_mapped = createpriors(mapped, N, q);
-         // Demodulate
-         array1vd_t ptable_mapped;
-         informed_modulator<S>& m =
-               dynamic_cast<informed_modulator<S>&> (*sys->getmodem());
-         m.demodulate(*sys->getrxchan(), received, priors_mapped, ptable_mapped);
-         // Compute extrinsic information for passing to codec
-         libbase::compute_extrinsic(ptable_mapped, ptable_mapped, priors_mapped);
-         libbase::normalize_results(ptable_mapped, ptable_mapped);
+        // compute results
+        compute_results(encoded, priors_encoded, ro, result);
+    } break;
 
-         // [technically we don't need to do any of the remaining steps]
-         // Inverse Map
-         array1vd_t ptable_encoded;
-         sys->getmapper()->inverse(ptable_mapped, ptable_encoded);
-         // Translate (using given priors)
-         codec_softout<libbase::vector>& c = dynamic_cast<codec_softout<
-               libbase::vector>&>(*sys->getcodec());
-         c.init_decoder(ptable_encoded);
-         // Perform soft-output decoding for as many iterations as required
-         array1vd_t ri;
-         array1vd_t ro;
-         for (int i = 0; i < c.num_iter(); i++)
+    case exit_serial_modem: {
+        // Create random priors for mapped (demodulated) sequence
+        const int N = sys->getmodem()->input_block_size();
+        const int q = sys->getmodem()->num_symbols();
+        array1vd_t priors_mapped = createpriors(mapped, N, q);
+        // Demodulate
+        array1vd_t ptable_mapped;
+        informed_modulator<S>& m =
+            dynamic_cast<informed_modulator<S>&>(*sys->getmodem());
+        m.demodulate(*sys->getrxchan(), received, priors_mapped, ptable_mapped);
+        // Compute extrinsic information for passing to codec
+        libbase::compute_extrinsic(ptable_mapped, ptable_mapped, priors_mapped);
+        libbase::normalize_results(ptable_mapped, ptable_mapped);
+
+        // [technically we don't need to do any of the remaining steps]
+        // Inverse Map
+        array1vd_t ptable_encoded;
+        sys->getmapper()->inverse(ptable_mapped, ptable_encoded);
+        // Translate (using given priors)
+        codec_softout<libbase::vector>& c =
+            dynamic_cast<codec_softout<libbase::vector>&>(*sys->getcodec());
+        c.init_decoder(ptable_encoded);
+        // Perform soft-output decoding for as many iterations as required
+        array1vd_t ri;
+        array1vd_t ro;
+        for (int i = 0; i < c.num_iter(); i++) {
             c.softdecode(ri, ro);
+        }
 
-         // compute results
-         compute_results(mapped, priors_mapped, ptable_mapped, result);
-         }
-         break;
+        // compute results
+        compute_results(mapped, priors_mapped, ptable_mapped, result);
+    } break;
 
-      case exit_serial_mapped_codec:
-         {
-         // Create random priors for encoded sequence
-         // (no need to do actual demodulation)
-         const int N = sys->getmapper()->output_block_size();
-         const int q = sys->getmodem()->num_symbols();
-         array1vd_t priors_mapped = createpriors(mapped, N, q);
-         // Inverse Map
-         array1vd_t ptable_encoded;
-         sys->getmapper()->inverse(priors_mapped, ptable_encoded);
-         // Translate (using given priors)
-         codec_softout<libbase::vector>& c = dynamic_cast<codec_softout<
-               libbase::vector>&>(*sys->getcodec());
-         c.init_decoder(ptable_encoded);
-         // Perform soft-output decoding for as many iterations as required
-         array1vd_t ri_codec;
-         array1vd_t ro_codec;
-         for (int i = 0; i < c.num_iter(); i++)
+    case exit_serial_mapped_codec: {
+        // Create random priors for encoded sequence
+        // (no need to do actual demodulation)
+        const int N = sys->getmapper()->output_block_size();
+        const int q = sys->getmodem()->num_symbols();
+        array1vd_t priors_mapped = createpriors(mapped, N, q);
+        // Inverse Map
+        array1vd_t ptable_encoded;
+        sys->getmapper()->inverse(priors_mapped, ptable_encoded);
+        // Translate (using given priors)
+        codec_softout<libbase::vector>& c =
+            dynamic_cast<codec_softout<libbase::vector>&>(*sys->getcodec());
+        c.init_decoder(ptable_encoded);
+        // Perform soft-output decoding for as many iterations as required
+        array1vd_t ri_codec;
+        array1vd_t ro_codec;
+        for (int i = 0; i < c.num_iter(); i++) {
             c.softdecode(ri_codec, ro_codec);
-         // Map the soft-output
-         array1vd_t ro_modem;
-         sys->getmapper()->transform(ro_codec, ro_modem);
-         // Compute extrinsic information
-         libbase::compute_extrinsic(ro_modem, ro_modem, priors_mapped);
-         libbase::normalize_results(ro_modem, ro_modem);
+        }
+        // Map the soft-output
+        array1vd_t ro_modem;
+        sys->getmapper()->transform(ro_codec, ro_modem);
+        // Compute extrinsic information
+        libbase::compute_extrinsic(ro_modem, ro_modem, priors_mapped);
+        libbase::normalize_results(ro_modem, ro_modem);
 
-         // compute results
-         compute_results(mapped, priors_mapped, ro_modem, result);
-         }
-         break;
+        // compute results
+        compute_results(mapped, priors_mapped, ro_modem, result);
+    } break;
 
-      default:
-         failwith("Unknown EXIT chart type");
-         break;
-      }
-   }
+    default:
+        failwith("Unknown EXIT chart type");
+        break;
+    }
+}
 
 // Description & Serialization
 
 template <class S>
 std::string exit_computer<S>::description() const
-   {
-   std::ostringstream sout;
-   sout << "EXIT Chart Computer for " << sys->description() << ", ";
-   // EXIT chart type
-   switch(exit_type)
-      {
-      case exit_parallel_codec:
-         sout << "parallel concatenated codec";
-         break;
+{
+    std::ostringstream sout;
+    sout << "EXIT Chart Computer for " << sys->description() << ", ";
+    // EXIT chart type
+    switch (exit_type) {
+    case exit_parallel_codec:
+        sout << "parallel concatenated codec";
+        break;
 
-      case exit_serial_codec:
-         sout << "serial concatenated codec";
-         break;
+    case exit_serial_codec:
+        sout << "serial concatenated codec";
+        break;
 
-      case exit_serial_modem:
-         sout << "serial concatenated modem";
-         break;
+    case exit_serial_modem:
+        sout << "serial concatenated modem";
+        break;
 
-      case exit_serial_mapped_codec:
-         sout << "serial concatenated codec+mapper";
-         break;
+    case exit_serial_mapped_codec:
+        sout << "serial concatenated codec+mapper";
+        break;
 
-      default:
-         failwith("Unknown EXIT chart type");
-         break;
-      }
-   // system parameter
-   const double p = sys->gettxchan()->get_parameter();
-   assert(p == sys->getrxchan()->get_parameter());
-   sout << ", system parameter = " << p;
-   return sout.str();
-   }
+    default:
+        failwith("Unknown EXIT chart type");
+        break;
+    }
+    // system parameter
+    const double p = sys->gettxchan()->get_parameter();
+    assert(p == sys->getrxchan()->get_parameter());
+    sout << ", system parameter = " << p;
+    return sout.str();
+}
 
 // object serialization - saving
 
 template <class S>
 std::ostream& exit_computer<S>::serialize(std::ostream& sout) const
-   {
-   // format version
-   sout << "# Version" << std::endl;
-   sout << 2 << std::endl;
-   sout << "# EXIT chart type (0=parallel/codec, 1=serial/codec, 2=serial/modem, 3=serial/codec+mapper)" << std::endl;
-   sout << exit_type << std::endl;
-   sout << "# Compute binary LLR statistics?" << std::endl;
-   sout << compute_llr_statistics << std::endl;
-   // system parameter
-   const double p = sys->gettxchan()->get_parameter();
-   assert(p == sys->getrxchan()->get_parameter());
-   sout << "# System parameter" << std::endl;
-   sout << p << std::endl;
-   // underlying system
-   sout << sys;
-   return sout;
-   }
+{
+    // format version
+    sout << "# Version" << std::endl;
+    sout << 2 << std::endl;
+    sout << "# EXIT chart type (0=parallel/codec, 1=serial/codec, "
+            "2=serial/modem, 3=serial/codec+mapper)"
+         << std::endl;
+    sout << exit_type << std::endl;
+    sout << "# Compute binary LLR statistics?" << std::endl;
+    sout << compute_llr_statistics << std::endl;
+    // system parameter
+    const double p = sys->gettxchan()->get_parameter();
+    assert(p == sys->getrxchan()->get_parameter());
+    sout << "# System parameter" << std::endl;
+    sout << p << std::endl;
+    // underlying system
+    sout << sys;
+    return sout;
+}
 
 // object serialization - loading
 
@@ -413,36 +424,39 @@ std::ostream& exit_computer<S>::serialize(std::ostream& sout) const
 
 template <class S>
 std::istream& exit_computer<S>::serialize(std::istream& sin)
-   {
-   assertalways(sin.good());
-   // get format version
-   int version;
-   sin >> libbase::eatcomments >> version >> libbase::verify;
-   // read type of EXIT chart to compute
-   int temp;
-   sin >> libbase::eatcomments >> temp >> libbase::verify;
-   exit_type = (exit_t) temp;
-   // get switch for computing binary LLR statistics
-   if (version >= 2)
-      sin >> libbase::eatcomments >> compute_llr_statistics >> libbase::verify;
-   else
-      compute_llr_statistics = true;
-   // get system parameter
-   double p;
-   sin >> libbase::eatcomments >> p >> libbase::verify;
-   // underlying system
-   sin >> libbase::eatcomments >> sys >> libbase::verify;
-   // setup
-   sys->gettxchan()->set_parameter(p);
-   sys->getrxchan()->set_parameter(p);
-   return sin;
-   }
+{
+    assertalways(sin.good());
+    // get format version
+    int version;
+    sin >> libbase::eatcomments >> version >> libbase::verify;
+    // read type of EXIT chart to compute
+    int temp;
+    sin >> libbase::eatcomments >> temp >> libbase::verify;
+    exit_type = (exit_t)temp;
+    // get switch for computing binary LLR statistics
+    if (version >= 2) {
+        sin >> libbase::eatcomments >> compute_llr_statistics >>
+            libbase::verify;
+    } else {
+        compute_llr_statistics = true;
+    }
+    // get system parameter
+    double p;
+    sin >> libbase::eatcomments >> p >> libbase::verify;
+    // underlying system
+    sin >> libbase::eatcomments >> sys >> libbase::verify;
+    // setup
+    sys->gettxchan()->set_parameter(p);
+    sys->getrxchan()->set_parameter(p);
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
 #include "gf.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
@@ -450,6 +464,7 @@ namespace libcomm {
 
 using libbase::serializer;
 
+// clang-format off
 #define USING_GF(r, x, type) \
       using libbase::type;
 
@@ -472,7 +487,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             "experiment", \
             "exit_computer<" BOOST_PP_STRINGIZE(type) ">", \
             exit_computer<type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, SYMBOL_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

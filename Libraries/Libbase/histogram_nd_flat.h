@@ -25,7 +25,8 @@
 #include "config.h"
 #include "vector.h"
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Histogram of multi-variate sequence.
@@ -38,45 +39,42 @@ namespace libbase {
  * \tparam dims The number of dimensions to use
  */
 
-class histogram_nd_flat {
+class histogram_nd_flat
+{
 private:
-   /*! \name User-defined parameters */
-   double min; //!< The left edge of the first bin in each dimension
-   double max; //!< The right edge of the last bin in each dimension
-   int bins; //!< The number of bins in each dimension
-   // @}
-   /*! \name Internal state */
-   vector<int> count; //!< The occurrence count for each bin as a flat array
-   int N; //! The total number of occurrences over all bins
-   // @}
+    /*! \name User-defined parameters */
+    double min; //!< The left edge of the first bin in each dimension
+    double max; //!< The right edge of the last bin in each dimension
+    int bins;   //!< The number of bins in each dimension
+    // @}
+    /*! \name Internal state */
+    vector<int> count; //!< The occurrence count for each bin as a flat array
+    int N;             //! The total number of occurrences over all bins
+                       // @}
 
 private:
-   double get_step() const
-      {
-      return (max - min) / double(bins);
-      }
+    double get_step() const { return (max - min) / double(bins); }
 
 public:
-   //! Principal constructor
-   histogram_nd_flat(const vector<vector<double> >& a, const int dims,
-         const double min, const double max, const int bins);
-   //! Returns the absolute frequency count for each bin
-   const vector<int>& get_frequency()
-      {
-      return count;
-      }
-   //! Returns the relative frequency (empirical probability) for each bin
-   const vector<double> get_probability()
-      {
-      vector<double> result(count);
-      result /= double(N);
-      return result;
-      }
-   const vector<double> get_bin_edges();
-   const vector<double> get_bin_centres();
+    //! Principal constructor
+    histogram_nd_flat(const vector<vector<double>>& a,
+                      const int dims,
+                      const double min,
+                      const double max,
+                      const int bins);
+    //! Returns the absolute frequency count for each bin
+    const vector<int>& get_frequency() { return count; }
+    //! Returns the relative frequency (empirical probability) for each bin
+    const vector<double> get_probability()
+    {
+        vector<double> result(count);
+        result /= double(N);
+        return result;
+    }
+    const vector<double> get_bin_edges();
+    const vector<double> get_bin_centres();
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif
-

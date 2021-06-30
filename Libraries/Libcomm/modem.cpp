@@ -24,13 +24,15 @@
 #include <cstdlib>
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // *** Common Modulator Interface ***
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
 
+// clang-format off
 #define USING_GF(r, x, type) \
       using libbase::type;
 
@@ -42,7 +44,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
 #define INSTANTIATE(r, x, type) \
       template class basic_modem<type>;
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, SYMBOL_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

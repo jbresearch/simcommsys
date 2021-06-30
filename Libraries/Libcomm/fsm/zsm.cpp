@@ -23,13 +23,14 @@
 #include <iostream>
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Determine debug level:
 // 1 - Normal debug output only
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG 1
+#    undef DEBUG
+#    define DEBUG 1
 #endif
 
 // Internal functions
@@ -38,49 +39,49 @@ namespace libcomm {
 
 template <class S>
 libbase::vector<int> zsm<S>::output(const libbase::vector<int>& input) const
-   {
-   assert(input.size() == 1);
-   // Compute output
-   libbase::vector<int> op(r);
-   for (int j = 0; j < r; j++)
-      {
-      op(j) = input(0);
-      }
-   return op;
-   }
+{
+    assert(input.size() == 1);
+    // Compute output
+    libbase::vector<int> op(r);
+    for (int j = 0; j < r; j++) {
+        op(j) = input(0);
+    }
+    return op;
+}
 
 // Description & Serialization
 
 //! Description output - common part only, must be preceded by specific name
 template <class S>
 std::string zsm<S>::description() const
-   {
-   std::ostringstream sout;
-   sout << "Repetition code (q=" << S::elements() << ", r=" << r << ")";
-   return sout.str();
-   }
+{
+    std::ostringstream sout;
+    sout << "Repetition code (q=" << S::elements() << ", r=" << r << ")";
+    return sout.str();
+}
 
 template <class S>
 std::ostream& zsm<S>::serialize(std::ostream& sout) const
-   {
-   sout << "#: Repetition count" << std::endl;
-   sout << r << std::endl;
-   return sout;
-   }
+{
+    sout << "#: Repetition count" << std::endl;
+    sout << r << std::endl;
+    return sout;
+}
 
 template <class S>
 std::istream& zsm<S>::serialize(std::istream& sin)
-   {
-   sin >> libbase::eatcomments >> r >> libbase::verify;
-   return sin;
-   }
+{
+    sin >> libbase::eatcomments >> r >> libbase::verify;
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
 #include "gf.h"
 #include "symbol.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
@@ -89,6 +90,7 @@ namespace libcomm {
 using libbase::serializer;
 using libbase::symbol;
 
+// clang-format off
 #define USING_GF(r, x, type) \
       using libbase::type;
 
@@ -109,7 +111,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
          "fsm", \
          "zsm<" BOOST_PP_STRINGIZE(type) ">", \
          zsm<type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, ALL_SYMBOL_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

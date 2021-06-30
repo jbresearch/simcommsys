@@ -23,12 +23,12 @@
 #define __channel_h
 
 #include "config.h"
+#include "instrumented.h"
+#include "matrix.h"
 #include "parametric.h"
 #include "serializer.h"
 #include "vector.h"
-#include "matrix.h"
 #include "vectorutils.h"
-#include "instrumented.h"
 
 #include "randgen.h"
 #include "sigspace.h"
@@ -36,7 +36,8 @@
 #include <iostream>
 #include <string>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Common Channel Interface.
@@ -55,107 +56,105 @@ namespace libcomm {
  * which should be specific to the various channels
  */
 
-template <class S, template <class > class C>
-class basic_channel_interface : public instrumented, public parametric {
+template <class S, template <class> class C>
+class basic_channel_interface : public instrumented, public parametric
+{
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<S> array1s_t;
-   typedef libbase::vector<double> array1d_t;
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<S> array1s_t;
+    typedef libbase::vector<double> array1d_t;
+    // @}
 protected:
-   /*! \name Derived channel representation */
-   libbase::randgen r;
-   // @}
+    /*! \name Derived channel representation */
+    libbase::randgen r;
+    // @}
 protected:
-   /*! \name Channel function overrides */
-   /*!
-    * \brief Pass a single symbol through the substitution channel
-    * \param   s  Input (Tx) symbol
-    * \return  Output (Rx) symbol
-    */
-   virtual S corrupt(const S& s) = 0;
-   /*!
-    * \brief Determine the conditional likelihood for the received symbol
-    * \param   tx  Transmitted symbol being considered
-    * \param   rx  Received symbol
-    * \return  Likelihood \f$ P(rx|tx) \f$
-    */
-   virtual double pdf(const S& tx, const S& rx) const = 0;
-   // @}
+    /*! \name Channel function overrides */
+    /*!
+     * \brief Pass a single symbol through the substitution channel
+     * \param   s  Input (Tx) symbol
+     * \return  Output (Rx) symbol
+     */
+    virtual S corrupt(const S& s) = 0;
+    /*!
+     * \brief Determine the conditional likelihood for the received symbol
+     * \param   tx  Transmitted symbol being considered
+     * \param   rx  Received symbol
+     * \return  Likelihood \f$ P(rx|tx) \f$
+     */
+    virtual double pdf(const S& tx, const S& rx) const = 0;
+    // @}
 public:
-   /*! \name Constructors / Destructors */
-   virtual ~basic_channel_interface()
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    virtual ~basic_channel_interface() {}
+    // @}
 
-   /*! \name Channel parameter handling */
-   //! Seeds any random generators from a pseudo-random sequence
-   void seedfrom(libbase::random& r)
-      {
-      this->r.seed(r.ival());
-      }
-   // @}
+    /*! \name Channel parameter handling */
+    //! Seeds any random generators from a pseudo-random sequence
+    void seedfrom(libbase::random& r) { this->r.seed(r.ival()); }
+    // @}
 
-   /*! \name Channel functions */
-   /*!
-    * \brief Pass a sequence of modulation symbols through the channel
-    * \param[in]  tx  Transmitted sequence of modulation symbols
-    * \param[out] rx  Received sequence of modulation symbols
-    *
-    * Default implementation is suitable for substitution channels, and
-    * performs channel-specific operation through the corrupt() override.
-    *
-    * \note It is possible that the \c tx and \c rx parameters actually point
-    * to the same vector.
-    *
-    * \callergraph
-    */
-   virtual void transmit(const C<S>& tx, C<S>& rx) = 0;
-   /*!
-    * \brief Determine the per-symbol likelihoods of a sequence of received
-    * modulation symbols
-    * \param[in]  tx       Set of possible transmitted symbols
-    * \param[in]  rx       Received sequence of modulation symbols
-    * \param[out] ptable   Sequence of probability tables, one for each
-    * received symbol, giving prob of each possible transmitted symbol
-    *
-    * Default implementation is suitable for substitution channels, and
-    * performs channel-specific operation through the pdf() override.
-    *
-    * \note Only suitable when the modulation scheme is time-invariant
-    *
-    * \note Not suitable for non-substitution channels
-    *
-    * \note Used by direct_blockmodem, lut_modulator
-    */
-   virtual void receive(const array1s_t& tx, const C<S>& rx,
-         C<array1d_t>& ptable) const = 0;
-   /*!
-    * \brief Determine the per-symbol likelihoods of a sequence of received
-    * modulation symbols
-    * \param[in]  tx       Set of possible transmitted symbols at each timestep
-    * \param[in]  rx       Received sequence of modulation symbols
-    * \param[out] ptable   Likelihoods corresponding to each possible
-    * transmitted symbol
-    *
-    * Default implementation is suitable for substitution channels, and
-    * performs channel-specific operation through the pdf() override.
-    *
-    * \note Suitable for time-variant modulation schemes
-    *
-    * \note Not suitable for non-substitution channels
-    *
-    * \note Used by direct_blockembedder, ssis
-    */
-   virtual void receive(const C<array1s_t>& tx, const C<S>& rx,
-         C<array1d_t>& ptable) const = 0;
-   // @}
+    /*! \name Channel functions */
+    /*!
+     * \brief Pass a sequence of modulation symbols through the channel
+     * \param[in]  tx  Transmitted sequence of modulation symbols
+     * \param[out] rx  Received sequence of modulation symbols
+     *
+     * Default implementation is suitable for substitution channels, and
+     * performs channel-specific operation through the corrupt() override.
+     *
+     * \note It is possible that the \c tx and \c rx parameters actually point
+     * to the same vector.
+     *
+     * \callergraph
+     */
+    virtual void transmit(const C<S>& tx, C<S>& rx) = 0;
+    /*!
+     * \brief Determine the per-symbol likelihoods of a sequence of received
+     * modulation symbols
+     * \param[in]  tx       Set of possible transmitted symbols
+     * \param[in]  rx       Received sequence of modulation symbols
+     * \param[out] ptable   Sequence of probability tables, one for each
+     * received symbol, giving prob of each possible transmitted symbol
+     *
+     * Default implementation is suitable for substitution channels, and
+     * performs channel-specific operation through the pdf() override.
+     *
+     * \note Only suitable when the modulation scheme is time-invariant
+     *
+     * \note Not suitable for non-substitution channels
+     *
+     * \note Used by direct_blockmodem, lut_modulator
+     */
+    virtual void receive(const array1s_t& tx,
+                         const C<S>& rx,
+                         C<array1d_t>& ptable) const = 0;
+    /*!
+     * \brief Determine the per-symbol likelihoods of a sequence of received
+     * modulation symbols
+     * \param[in]  tx       Set of possible transmitted symbols at each timestep
+     * \param[in]  rx       Received sequence of modulation symbols
+     * \param[out] ptable   Likelihoods corresponding to each possible
+     * transmitted symbol
+     *
+     * Default implementation is suitable for substitution channels, and
+     * performs channel-specific operation through the pdf() override.
+     *
+     * \note Suitable for time-variant modulation schemes
+     *
+     * \note Not suitable for non-substitution channels
+     *
+     * \note Used by direct_blockembedder, ssis
+     */
+    virtual void receive(const C<array1s_t>& tx,
+                         const C<S>& rx,
+                         C<array1d_t>& ptable) const = 0;
+    // @}
 
-   /*! \name Description */
-   //! Description output
-   virtual std::string description() const = 0;
-   // @}
+    /*! \name Description */
+    //! Description output
+    virtual std::string description() const = 0;
+    // @}
 };
 
 /*!
@@ -166,8 +165,9 @@ public:
  * specialization of the container.
  */
 
-template <class S, template <class > class C>
-class basic_channel : public basic_channel_interface<S, C> {
+template <class S, template <class> class C>
+class basic_channel : public basic_channel_interface<S, C>
+{
 };
 
 /*!
@@ -178,70 +178,82 @@ class basic_channel : public basic_channel_interface<S, C> {
  */
 
 template <class S>
-class basic_channel<S, libbase::vector> : public basic_channel_interface<S,
-      libbase::vector> {
+class basic_channel<S, libbase::vector>
+    : public basic_channel_interface<S, libbase::vector>
+{
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<S> array1s_t;
-   typedef libbase::vector<array1s_t> array1vs_t;
-   typedef libbase::vector<double> array1d_t;
-   typedef libbase::vector<array1d_t> array1vd_t;
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<S> array1s_t;
+    typedef libbase::vector<array1s_t> array1vs_t;
+    typedef libbase::vector<double> array1d_t;
+    typedef libbase::vector<array1d_t> array1vd_t;
+    // @}
 public:
-   void transmit(const array1s_t& tx, array1s_t& rx);
-   void
-   receive(const array1s_t& tx, const array1s_t& rx, array1vd_t& ptable) const;
-   void
-   receive(const array1vs_t& tx, const array1s_t& rx, array1vd_t& ptable) const;
+    void transmit(const array1s_t& tx, array1s_t& rx);
+    void
+    receive(const array1s_t& tx, const array1s_t& rx, array1vd_t& ptable) const;
+    void receive(const array1vs_t& tx,
+                 const array1s_t& rx,
+                 array1vd_t& ptable) const;
 };
 
 // channel functions
 
 template <class S>
 void basic_channel<S, libbase::vector>::transmit(const array1s_t& tx,
-      array1s_t& rx)
-   {
-   // Initialize results vector
-   rx.init(tx.size());
-   // Corrupt the modulation symbols (simulate the channel)
-   for (int i = 0; i < tx.size(); i++)
-      rx(i) = this->corrupt(tx(i));
-   }
+                                                 array1s_t& rx)
+{
+    // Initialize results vector
+    rx.init(tx.size());
+
+    // Corrupt the modulation symbols (simulate the channel)
+    for (int i = 0; i < tx.size(); i++) {
+        rx(i) = this->corrupt(tx(i));
+    }
+}
 
 template <class S>
 void basic_channel<S, libbase::vector>::receive(const array1s_t& tx,
-      const array1s_t& rx, array1vd_t& ptable) const
-   {
-   // Compute sizes
-   const int tau = rx.size();
-   const int M = tx.size();
-   // Initialize results vector
-   libbase::allocate(ptable, tau, M);
-   // Work out the probabilities of each possible signal
-   for (int t = 0; t < tau; t++)
-      for (int x = 0; x < M; x++)
-         ptable(t)(x) = this->pdf(tx(x), rx(t));
-   }
+                                                const array1s_t& rx,
+                                                array1vd_t& ptable) const
+{
+    // Compute sizes
+    const int tau = rx.size();
+    const int M = tx.size();
+
+    // Initialize results vector
+    libbase::allocate(ptable, tau, M);
+
+    // Work out the probabilities of each possible signal
+    for (int t = 0; t < tau; t++) {
+        for (int x = 0; x < M; x++) {
+            ptable(t)(x) = this->pdf(tx(x), rx(t));
+        }
+    }
+}
 
 template <class S>
 void basic_channel<S, libbase::vector>::receive(const array1vs_t& tx,
-      const array1s_t& rx, array1vd_t& ptable) const
-   {
-   // Compute sizes
-   const int tau = rx.size();
-   assert(tx.size() == tau);
-   assert(tau > 0);
-   const int M = tx(0).size();
-   // Initialize results vector
-   libbase::allocate(ptable, tau, M);
-   // Work out the probabilities of each possible signal
-   for (int t = 0; t < tau; t++)
-      {
-      assert(tx(t).size() == M);
-      for (int x = 0; x < M; x++)
-         ptable(t)(x) = this->pdf(tx(t)(x), rx(t));
-      }
-   }
+                                                const array1s_t& rx,
+                                                array1vd_t& ptable) const
+{
+    // Compute sizes
+    const int tau = rx.size();
+    assert(tx.size() == tau);
+    assert(tau > 0);
+    const int M = tx(0).size();
+
+    // Initialize results vector
+    libbase::allocate(ptable, tau, M);
+
+    // Work out the probabilities of each possible signal
+    for (int t = 0; t < tau; t++) {
+        assert(tx(t).size() == M);
+        for (int x = 0; x < M; x++) {
+            ptable(t)(x) = this->pdf(tx(t)(x), rx(t));
+        }
+    }
+}
 
 /*!
  * \brief   Common Channel Base Specialization.
@@ -251,55 +263,71 @@ void basic_channel<S, libbase::vector>::receive(const array1vs_t& tx,
  */
 
 template <class S>
-class basic_channel<S, libbase::matrix> : public basic_channel_interface<S,
-      libbase::matrix> {
+class basic_channel<S, libbase::matrix>
+    : public basic_channel_interface<S, libbase::matrix>
+{
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<S> array1s_t;
-   typedef libbase::vector<double> array1d_t;
-   typedef libbase::matrix<S> array2s_t;
-   typedef libbase::matrix<array1s_t> array2vs_t;
-   typedef libbase::matrix<array1d_t> array2vd_t;
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<S> array1s_t;
+    typedef libbase::vector<double> array1d_t;
+    typedef libbase::matrix<S> array2s_t;
+    typedef libbase::matrix<array1s_t> array2vs_t;
+    typedef libbase::matrix<array1d_t> array2vd_t;
+    // @}
 public:
-   void transmit(const array2s_t& tx, array2s_t& rx)
-      {
-      // Initialize results vector
-      rx.init(tx.size());
-      // Corrupt the modulation symbols (simulate the channel)
-      for (int i = 0; i < tx.size().rows(); i++)
-         for (int j = 0; j < tx.size().cols(); j++)
-            rx(i, j) = this->corrupt(tx(i, j));
-      }
-   void receive(const array1s_t& tx, const array2s_t& rx, array2vd_t& ptable) const
-      {
-      // Compute sizes
-      const int M = tx.size();
-      // Initialize results vector
-      libbase::allocate(ptable, rx.size().rows(), rx.size().cols(), M);
-      // Work out the probabilities of each possible signal
-      for (int i = 0; i < rx.size().rows(); i++)
-         for (int j = 0; j < rx.size().cols(); j++)
-            for (int x = 0; x < M; x++)
-               ptable(i, j)(x) = this->pdf(tx(x), rx(i, j));
-      }
-   void receive(const array2vs_t& tx, const array2s_t& rx, array2vd_t& ptable) const
-      {
-      // Compute sizes
-      assert(tx.size() == rx.size());
-      assert(tx.size() > 0);
-      const int M = tx(0, 0).size();
-      // Initialize results vector
-      libbase::allocate(ptable, rx.size().rows(), rx.size().cols(), M);
-      // Work out the probabilities of each possible signal
-      for (int i = 0; i < rx.size().rows(); i++)
-         for (int j = 0; j < rx.size().cols(); j++)
-            {
-            assert(tx(i, j).size() == M);
-            for (int x = 0; x < M; x++)
-               ptable(i, j)(x) = this->pdf(tx(i, j)(x), rx(i, j));
+    void transmit(const array2s_t& tx, array2s_t& rx)
+    {
+        // Initialize results vector
+        rx.init(tx.size());
+
+        // Corrupt the modulation symbols (simulate the channel)
+        for (int i = 0; i < tx.size().rows(); i++) {
+            for (int j = 0; j < tx.size().cols(); j++) {
+                rx(i, j) = this->corrupt(tx(i, j));
             }
-      }
+        }
+    }
+
+    void
+    receive(const array1s_t& tx, const array2s_t& rx, array2vd_t& ptable) const
+    {
+        // Compute sizes
+        const int M = tx.size();
+
+        // Initialize results vector
+        libbase::allocate(ptable, rx.size().rows(), rx.size().cols(), M);
+
+        // Work out the probabilities of each possible signal
+        for (int i = 0; i < rx.size().rows(); i++) {
+            for (int j = 0; j < rx.size().cols(); j++) {
+                for (int x = 0; x < M; x++) {
+                    ptable(i, j)(x) = this->pdf(tx(x), rx(i, j));
+                }
+            }
+        }
+    }
+
+    void
+    receive(const array2vs_t& tx, const array2s_t& rx, array2vd_t& ptable) const
+    {
+        // Compute sizes
+        assert(tx.size() == rx.size());
+        assert(tx.size() > 0);
+        const int M = tx(0, 0).size();
+
+        // Initialize results vector
+        libbase::allocate(ptable, rx.size().rows(), rx.size().cols(), M);
+
+        // Work out the probabilities of each possible signal
+        for (int i = 0; i < rx.size().rows(); i++) {
+            for (int j = 0; j < rx.size().cols(); j++) {
+                assert(tx(i, j).size() == M);
+                for (int x = 0; x < M; x++) {
+                    ptable(i, j)(x) = this->pdf(tx(i, j)(x), rx(i, j));
+                }
+            }
+        }
+    }
 };
 
 /*!
@@ -309,10 +337,11 @@ public:
  * Templated base channel model.
  */
 
-template <class S, template <class > class C = libbase::vector>
-class channel : public basic_channel<S, C> , public libbase::serializable {
-   // Serialization Support
-DECLARE_BASE_SERIALIZER(channel)
+template <class S, template <class> class C = libbase::vector>
+class channel : public basic_channel<S, C>, public libbase::serializable
+{
+    // Serialization Support
+    DECLARE_BASE_SERIALIZER(channel)
 };
 
 /*!
@@ -323,89 +352,80 @@ DECLARE_BASE_SERIALIZER(channel)
  * channel model.
  */
 
-template <template <class > class C>
-class channel<sigspace, C> : public basic_channel<sigspace, C> ,
-      public libbase::serializable {
+template <template <class> class C>
+class channel<sigspace, C> : public basic_channel<sigspace, C>,
+                             public libbase::serializable
+{
 private:
-   /*! \name User-defined parameters */
-   double snr_db; //!< Equal to \f$ 10 \log_{10} ( \frac{E_b}{N_0} ) \f$
-   // @}
-   /*! \name Internal representation */
-   double Eb; //!< Average signal energy per information bit \f$ E_b \f$
-   double No; //!< Half the noise energy/modulation symbol for a normalised signal \f$ N_0 \f$.
-   // @}
+    /*! \name User-defined parameters */
+    double snr_db; //!< Equal to \f$ 10 \log_{10} ( \frac{E_b}{N_0} ) \f$
+    // @}
+    /*! \name Internal representation */
+    double Eb; //!< Average signal energy per information bit \f$ E_b \f$
+    double No; //!< Half the noise energy/modulation symbol for a normalised
+               //!< signal \f$ N_0 \f$.
+               // @}
 private:
-   /*! \name Internal functions */
-   void compute_noise()
-      {
-      No = 0.5 * pow(10.0, -snr_db / 10.0);
-      // call derived class handle
-      compute_parameters(Eb, No);
-      }
-   // @}
+    /*! \name Internal functions */
+    void compute_noise()
+    {
+        No = 0.5 * pow(10.0, -snr_db / 10.0);
+        // call derived class handle
+        compute_parameters(Eb, No);
+    }
+    // @}
 protected:
-   /*! \name Channel function overrides */
-   /*!
-    * \brief Determine channel-specific parameters based on given SNR
-    *
-    * \note \f$ E_b \f$ is fixed by the overall modulation and coding system.
-    * The simulator determines \f$ N_0 \f$ according to the given SNR
-    * (assuming unit signal energy), so that the actual band-limited
-    * noise energy is given by \f$ E_b N_0 \f$.
-    */
-   virtual void compute_parameters(const double Eb, const double No)
-      {
-      }
-   // @}
+    /*! \name Channel function overrides */
+    /*!
+     * \brief Determine channel-specific parameters based on given SNR
+     *
+     * \note \f$ E_b \f$ is fixed by the overall modulation and coding system.
+     * The simulator determines \f$ N_0 \f$ according to the given SNR
+     * (assuming unit signal energy), so that the actual band-limited
+     * noise energy is given by \f$ E_b N_0 \f$.
+     */
+    virtual void compute_parameters(const double Eb, const double No) {}
+    // @}
 public:
-   /*! \name Constructors / Destructors */
-   channel()
-      {
-      Eb = 1;
-      set_parameter(0);
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    channel()
+    {
+        Eb = 1;
+        set_parameter(0);
+    }
+    // @}
 
-   /*! \name Channel parameter handling */
-   //! Set the bit-equivalent signal energy
-   void set_eb(const double Eb)
-      {
-      channel::Eb = Eb;
-      compute_noise();
-      }
-   //! Set the normalized noise energy
-   void set_no(const double No)
-      {
-      snr_db = -10.0 * log10(2 * No);
-      compute_noise();
-      }
-   //! Get the bit-equivalent signal energy
-   double get_eb() const
-      {
-      return Eb;
-      }
-   //! Get the normalized noise energy
-   double get_no() const
-      {
-      return No;
-      }
-   //! Set the signal-to-noise ratio
-   void set_parameter(const double snr_db)
-      {
-      channel::snr_db = snr_db;
-      compute_noise();
-      }
-   //! Get the signal-to-noise ratio
-   double get_parameter() const
-      {
-      return snr_db;
-      }
-   // @}
+    /*! \name Channel parameter handling */
+    //! Set the bit-equivalent signal energy
+    void set_eb(const double Eb)
+    {
+        channel::Eb = Eb;
+        compute_noise();
+    }
+    //! Set the normalized noise energy
+    void set_no(const double No)
+    {
+        snr_db = -10.0 * log10(2 * No);
+        compute_noise();
+    }
+    //! Get the bit-equivalent signal energy
+    double get_eb() const { return Eb; }
+    //! Get the normalized noise energy
+    double get_no() const { return No; }
+    //! Set the signal-to-noise ratio
+    void set_parameter(const double snr_db)
+    {
+        channel::snr_db = snr_db;
+        compute_noise();
+    }
+    //! Get the signal-to-noise ratio
+    double get_parameter() const { return snr_db; }
+    // @}
 
-   // Serialization Support
-DECLARE_BASE_SERIALIZER(channel)
+    // Serialization Support
+    DECLARE_BASE_SERIALIZER(channel)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

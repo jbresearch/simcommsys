@@ -22,7 +22,8 @@
 #include "mpgnu.h"
 #include <cstdlib>
 
-namespace libbase {
+namespace libbase
+{
 
 #ifdef USE_GMP
 mpf_t mpgnu::dblmin;
@@ -30,20 +31,20 @@ mpf_t mpgnu::dblmax;
 #endif
 
 void mpgnu::init()
-   {
+{
 #ifndef USE_GMP
-   std::cerr
-         << "FATAL ERROR (mpgnu): GNU Multi-Precision not implemented - cannot initialise." << std::endl;
-   exit(1);
+    std::cerr << "FATAL ERROR (mpgnu): GNU Multi-Precision not implemented - "
+                 "cannot initialise."
+              << std::endl;
+    exit(1);
 #else
-   static bool ready = false;
-   if(!ready)
-      {
-      mpf_init_set_d(dblmin, DBL_MIN);
-      mpf_init_set_d(dblmax, DBL_MAX);
-      ready = true;
-      }
+    static bool ready = false;
+    if (!ready) {
+        mpf_init_set_d(dblmin, DBL_MIN);
+        mpf_init_set_d(dblmax, DBL_MAX);
+        ready = true;
+    }
 #endif
-   }
+}
 
-} // end namespace
+} // namespace libbase

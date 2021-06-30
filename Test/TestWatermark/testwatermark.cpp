@@ -19,10 +19,10 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "bitfield.h"
+#include "itfunc.h"
 #include "logrealfast.h"
 #include "modem/dminner.h"
-#include "itfunc.h"
-#include "bitfield.h"
 
 #include <iostream>
 
@@ -31,43 +31,45 @@
  * \author  Johann Briffa
  */
 
-int main(int argc, char *argv[])
-   {
-   using std::cin;
-   using std::cout;
-   using std::cerr;
+int main(int argc, char* argv[])
+{
+    using std::cerr;
+    using std::cin;
+    using std::cout;
 
-   // create a watermark code to start with
-   libcomm::dminner<libbase::logrealfast> mdm;
-   // get a new watermark from stdin
-   cerr << "Enter watermark code details:" << std::endl;
-   mdm.serialize(cin);
-   cout << mdm.description() << std::endl;
+    // create a watermark code to start with
+    libcomm::dminner<libbase::logrealfast> mdm;
+    // get a new watermark from stdin
+    cerr << "Enter watermark code details:" << std::endl;
+    mdm.serialize(cin);
+    cout << mdm.description() << std::endl;
 
-   // compute distance table
-   const int n = mdm.get_symbolsize(0);
-   const int q = mdm.num_symbols();
-   libbase::matrix<int> c(q, n);
-   c = 0;
-   for (int i = 0; i < q; i++)
-      for (int j = i + 1; j < q; j++)
-         {
-         int t = libbase::weight(mdm.get_symbol(0, i) ^ mdm.get_symbol(0, j));
-         c(i, t - 1)++;
-         c(j, t - 1)++;
-         }
+    // compute distance table
+    const int n = mdm.get_symbolsize(0);
+    const int q = mdm.num_symbols();
+    libbase::matrix<int> c(q, n);
+    c = 0;
+    for (int i = 0; i < q; i++) {
+        for (int j = i + 1; j < q; j++) {
+            int t =
+                libbase::weight(mdm.get_symbol(0, i) ^ mdm.get_symbol(0, j));
+            c(i, t - 1)++;
+            c(j, t - 1)++;
+        }
+    }
 
-   // display codebook and distance table
-   cout << "d\ts\t";
-   for (int t = 1; t <= n; t++)
-      cout << "c_" << t << (t == n ? '\n' : '\t');
-   for (int i = 0; i < q; i++)
-      {
-      cout << i << '\t';
-      cout << libbase::bitfield(mdm.get_symbol(0, i), n) << '\t';
-      for (int t = 1; t <= n; t++)
-         cout << c(i, t - 1) << (t == n ? '\n' : '\t');
-      }
+    // display codebook and distance table
+    cout << "d\ts\t";
+    for (int t = 1; t <= n; t++) {
+        cout << "c_" << t << (t == n ? '\n' : '\t');
+    }
+    for (int i = 0; i < q; i++) {
+        cout << i << '\t';
+        cout << libbase::bitfield(mdm.get_symbol(0, i), n) << '\t';
+        for (int t = 1; t <= n; t++) {
+            cout << c(i, t - 1) << (t == n ? '\n' : '\t');
+        }
+    }
 
-   return 0;
-   }
+    return 0;
+}

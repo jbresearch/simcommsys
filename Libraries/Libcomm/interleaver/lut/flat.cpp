@@ -23,60 +23,64 @@
 #include <cstdlib>
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // initialization
 
 template <class real>
 void flat<real>::init(const int tau)
-   {
-   this->lut.init(tau);
-   for (int i = 0; i < tau; i++)
-      this->lut(i) = i;
-   }
+{
+    this->lut.init(tau);
+    for (int i = 0; i < tau; i++) {
+        this->lut(i) = i;
+    }
+}
 
 // description output
 
 template <class real>
 std::string flat<real>::description() const
-   {
-   std::ostringstream sout;
-   sout << "Flat Interleaver";
-   return sout.str();
-   }
+{
+    std::ostringstream sout;
+    sout << "Flat Interleaver";
+    return sout.str();
+}
 
 // object serialization - saving
 
 template <class real>
 std::ostream& flat<real>::serialize(std::ostream& sout) const
-   {
-   sout << "# Interleaver size" << std::endl;
-   sout << this->lut.size() << std::endl;
-   return sout;
-   }
+{
+    sout << "# Interleaver size" << std::endl;
+    sout << this->lut.size() << std::endl;
+    return sout;
+}
 
 // object serialization - loading
 
 template <class real>
 std::istream& flat<real>::serialize(std::istream& sin)
-   {
-   int tau;
-   sin >> libbase::eatcomments >> tau >> libbase::verify;
-   init(tau);
-   return sin;
-   }
+{
+    int tau;
+    sin >> libbase::eatcomments >> tau >> libbase::verify;
+    init(tau);
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-using libbase::serializer;
 using libbase::logrealfast;
+using libbase::serializer;
 
+// clang-format off
 #define REAL_TYPE_SEQ \
    (float)(double)(logrealfast)
 
@@ -92,7 +96,8 @@ using libbase::logrealfast;
          "interleaver", \
          "flat<" BOOST_PP_STRINGIZE(type) ">", \
          flat<type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

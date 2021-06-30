@@ -19,22 +19,18 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "stdafx.h"
 #include "StringStreamBuf.h"
+#include "stdafx.h"
 
-namespace libwin {
+namespace libwin
+{
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CStringStreamBuf::CStringStreamBuf(CString *string)
-   {
-   buffer = string;
-   }
+CStringStreamBuf::CStringStreamBuf(CString* string) { buffer = string; }
 
-CStringStreamBuf::~CStringStreamBuf()
-   {
-   }
+CStringStreamBuf::~CStringStreamBuf() {}
 
-} // end namespace
+} // namespace libwin

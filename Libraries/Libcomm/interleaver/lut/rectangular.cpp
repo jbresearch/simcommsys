@@ -23,81 +23,84 @@
 #include <cstdlib>
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // initialisation functions
 
 template <class real>
 void rectangular<real>::init(const int tau, const int rows, const int cols)
-   {
-   rectangular<real>::rows = rows;
-   rectangular<real>::cols = cols;
+{
+    rectangular<real>::rows = rows;
+    rectangular<real>::cols = cols;
 
-   int blklen = rows * cols;
-   if (blklen > tau)
-      {
-      std::cerr
-            << "FATAL ERROR (rectangular): Interleaver block size cannot be greater than BCJR block." << std::endl;
-      exit(1);
-      }
-   this->lut.init(tau);
-   int row = 0, col = 0;
-   int i;
-   for (i = 0; i < blklen; i++)
-      {
-      row = i % rows;
-      col = i / rows;
-      this->lut(i) = row * cols + col;
-      }
-   for (i = blklen; i < tau; i++)
-      this->lut(i) = i;
-   }
+    int blklen = rows * cols;
+    if (blklen > tau) {
+        std::cerr << "FATAL ERROR (rectangular): Interleaver block size cannot "
+                     "be greater than BCJR block."
+                  << std::endl;
+        exit(1);
+    }
+    this->lut.init(tau);
+    int row = 0, col = 0;
+    int i;
+    for (i = 0; i < blklen; i++) {
+        row = i % rows;
+        col = i / rows;
+        this->lut(i) = row * cols + col;
+    }
+    for (i = blklen; i < tau; i++) {
+        this->lut(i) = i;
+    }
+}
 
 // description output
 
 template <class real>
 std::string rectangular<real>::description() const
-   {
-   std::ostringstream sout;
-   sout << "Rectangular " << rows << "×" << cols << " Interleaver";
-   return sout.str();
-   }
+{
+    std::ostringstream sout;
+    sout << "Rectangular " << rows << "×" << cols << " Interleaver";
+    return sout.str();
+}
 
 // object serialization - saving
 
 template <class real>
 std::ostream& rectangular<real>::serialize(std::ostream& sout) const
-   {
-   sout << this->lut.size() << std::endl;
-   sout << rows << std::endl;
-   sout << cols << std::endl;
-   return sout;
-   }
+{
+    sout << this->lut.size() << std::endl;
+    sout << rows << std::endl;
+    sout << cols << std::endl;
+    return sout;
+}
 
 // object serialization - loading
 
 template <class real>
 std::istream& rectangular<real>::serialize(std::istream& sin)
-   {
-   int tau;
-   sin >> libbase::eatcomments >> tau >> libbase::verify;
-   sin >> libbase::eatcomments >> rows >> libbase::verify;
-   sin >> libbase::eatcomments >> cols >> libbase::verify;
-   init(tau, rows, cols);
-   return sin;
-   }
+{
+    int tau;
+    sin >> libbase::eatcomments >> tau >> libbase::verify;
+    sin >> libbase::eatcomments >> rows >> libbase::verify;
+    sin >> libbase::eatcomments >> cols >> libbase::verify;
+    init(tau, rows, cols);
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-using libbase::serializer;
 using libbase::logrealfast;
+using libbase::serializer;
 
+// clang-format off
 #define REAL_TYPE_SEQ \
    (float)(double)(logrealfast)
 
@@ -113,7 +116,8 @@ using libbase::logrealfast;
          "interleaver", \
          "rectangular<" BOOST_PP_STRINGIZE(type) ">", \
          rectangular<type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

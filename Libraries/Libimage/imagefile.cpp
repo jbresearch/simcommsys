@@ -21,14 +21,11 @@
 
 #include "imagefile.h"
 
-namespace libimage {
+namespace libimage
+{
 
-imagefile::imagefile()
-   {
-   }
+imagefile::imagefile() {}
 
-imagefile::~imagefile()
-   {
-   }
+imagefile::~imagefile() {}
 
-} // end namespace
+} // namespace libimage

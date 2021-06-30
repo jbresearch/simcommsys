@@ -25,7 +25,8 @@
 #include "config.h"
 #include "interleaver/lut/named_lut.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Matt Valenti's Interleaver.
@@ -34,14 +35,13 @@ namespace libcomm {
  */
 
 template <class real>
-class vale96int : public named_lut<real> {
+class vale96int : public named_lut<real>
+{
 public:
-   vale96int();
-   ~vale96int()
-      {
-      }
+    vale96int();
+    ~vale96int() {}
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

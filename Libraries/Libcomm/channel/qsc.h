@@ -22,13 +22,14 @@
 #ifndef __qsc_h
 #define __qsc_h
 
-#include "config.h"
 #include "channel.h"
+#include "config.h"
 #include "field_utils.h"
 #include "serializer.h"
 #include <cmath>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   q-ary symmetric channel.
@@ -38,49 +39,45 @@ namespace libcomm {
  */
 
 template <class G>
-class qsc : public channel<G> {
+class qsc : public channel<G>
+{
 private:
-   /*! \name User-defined parameters */
-   double Ps; //!< Symbol-substitution probability \f$ P_s \f$
-   // @}
+    /*! \name User-defined parameters */
+    double Ps; //!< Symbol-substitution probability \f$ P_s \f$
+               // @}
 protected:
-   // Channel function overrides
-   G corrupt(const G& s);
-   double pdf(const G& tx, const G& rx) const
-      {
-      return (tx == rx) ? 1 - Ps : Ps / field_utils<G>::elements();
-      }
+    // Channel function overrides
+    G corrupt(const G& s);
+    double pdf(const G& tx, const G& rx) const
+    {
+        return (tx == rx) ? 1 - Ps : Ps / field_utils<G>::elements();
+    }
+
 public:
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   qsc()
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Default constructor
+    qsc() {}
+    // @}
 
-   /*! \name Channel parameter handling */
-   //! Set the substitution probability
-   void set_parameter(const double Ps)
-      {
-      const double q = field_utils<G>::elements();
-      assertalways(Ps >=0 && Ps <= (q-1)/q);
-      qsc::Ps = Ps;
-      }
-   //! Get the substitution probability
-   double get_parameter() const
-      {
-      return Ps;
-      }
-   // @}
+    /*! \name Channel parameter handling */
+    //! Set the substitution probability
+    void set_parameter(const double Ps)
+    {
+        const double q = field_utils<G>::elements();
+        assertalways(Ps >= 0 && Ps <= (q - 1) / q);
+        qsc::Ps = Ps;
+    }
+    //! Get the substitution probability
+    double get_parameter() const { return Ps; }
+    // @}
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(qsc)
+    // Serialization Support
+    DECLARE_SERIALIZER(qsc)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

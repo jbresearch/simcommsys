@@ -24,7 +24,8 @@
 
 #include "config.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Block-Processed Interface.
@@ -34,65 +35,57 @@ namespace libcomm {
  * blockwise fashion.
  */
 
-class blockprocess {
+class blockprocess
+{
 protected:
-   /*! \name Internal representation */
-   mutable bool dirty; //!< Flag indicating this block has been processed
-   // @}
+    /*! \name Internal representation */
+    mutable bool dirty; //!< Flag indicating this block has been processed
+                        // @}
 
 protected:
-   /*! \name Interface with derived classes */
-   //! Sets up object for the next block
-   virtual void advance() const
-      {
-      }
-   //! Hook for processes when status changes
-   virtual void status_changed() const
-      {
-      }
-   // @}
+    /*! \name Interface with derived classes */
+    //! Sets up object for the next block
+    virtual void advance() const {}
+    //! Hook for processes when status changes
+    virtual void status_changed() const {}
+    // @}
 
 public:
-   /*! \name Constructors / Destructors */
-   blockprocess() : dirty(true)
-      {
-      }
-   virtual ~blockprocess()
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    blockprocess() : dirty(true) {}
+    virtual ~blockprocess() {}
+    // @}
 
-   /*! \name Block-processing operations */
-   //! Always advance to the next block
-   void advance_always() const
-      {
-      advance();
-      mark_as_clean();
-      }
-   //! Advance to the next block only if this block is 'dirty'
-   void advance_if_dirty() const
-      {
-      if (dirty)
-         {
-         advance();
-         mark_as_clean();
-         }
-      }
-   //! Mark this block as 'dirty'
-   void mark_as_dirty() const
-      {
-      dirty = true;
-      status_changed();
-      }
-   //! Mark this block as not 'dirty'
-   void mark_as_clean() const
-      {
-      dirty = false;
-      status_changed();
-      }
-   // @}
+    /*! \name Block-processing operations */
+    //! Always advance to the next block
+    void advance_always() const
+    {
+        advance();
+        mark_as_clean();
+    }
+    //! Advance to the next block only if this block is 'dirty'
+    void advance_if_dirty() const
+    {
+        if (dirty) {
+            advance();
+            mark_as_clean();
+        }
+    }
+    //! Mark this block as 'dirty'
+    void mark_as_dirty() const
+    {
+        dirty = true;
+        status_changed();
+    }
+    //! Mark this block as not 'dirty'
+    void mark_as_clean() const
+    {
+        dirty = false;
+        status_changed();
+    }
+    // @}
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

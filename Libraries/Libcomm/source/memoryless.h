@@ -23,11 +23,12 @@
 #define __source_memoryless_h
 
 #include "config.h"
-#include "source.h"
 #include "serializer.h"
+#include "source.h"
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Memoryless source.
@@ -37,63 +38,60 @@ namespace libcomm {
  * given distribution.
  */
 
-template <class S, template <class > class C = libbase::vector>
-class memoryless : public source<S, C> {
+template <class S, template <class> class C = libbase::vector>
+class memoryless : public source<S, C>
+{
 private:
-   /*! \name Internal representation */
-   libbase::randgen r; //!< Data sequence generator
-   libbase::vector<float> cpt; //!< Cumulative symbol probability table
-   // @}
+    /*! \name Internal representation */
+    libbase::randgen r;         //!< Data sequence generator
+    libbase::vector<float> cpt; //!< Cumulative symbol probability table
+                                // @}
 private:
-   /*! \name Internal functions */
-   //! Obtain cumulative probabilities from symbol probabilities
-   libbase::vector<float> to_cumulative(libbase::vector<float> symbol_probabilities) const;
-   //! Obtain symbol probabilities from cumulative probabilities
-   libbase::vector<float> to_probabilities(libbase::vector<float> cpt) const;
-   // @}
+    /*! \name Internal functions */
+    //! Obtain cumulative probabilities from symbol probabilities
+    libbase::vector<float>
+    to_cumulative(libbase::vector<float> symbol_probabilities) const;
+    //! Obtain symbol probabilities from cumulative probabilities
+    libbase::vector<float> to_probabilities(libbase::vector<float> cpt) const;
+    // @}
 public:
-   //! Default constructor
-   memoryless()
-      {
-      }
-   //! Main constructor
-   memoryless(libbase::vector<float> symbol_probabilities)
-      {
-      cpt = to_cumulative(symbol_probabilities);
-      }
+    //! Default constructor
+    memoryless() {}
+    //! Main constructor
+    memoryless(libbase::vector<float> symbol_probabilities)
+    {
+        cpt = to_cumulative(symbol_probabilities);
+    }
 
-   //! Generate a single source element
-   S generate_single()
-      {
-      const float p = r.fval_halfopen();
-      int value = cpt.size() - 1;
-      while(value > 0 && p < cpt(value-1))
-         value--;
-      return S(value);
-      }
+    //! Generate a single source element
+    S generate_single()
+    {
+        const float p = r.fval_halfopen();
+        int value = cpt.size() - 1;
+        while (value > 0 && p < cpt(value - 1)) {
+            value--;
+        }
+        return S(value);
+    }
 
-   //! Seeds any random generators from a pseudo-random sequence
-   void seedfrom(libbase::random& r)
-      {
-      this->r.seed(r.ival());
-      }
+    //! Seeds any random generators from a pseudo-random sequence
+    void seedfrom(libbase::random& r) { this->r.seed(r.ival()); }
 
-   //! Description
-   std::string description() const
-      {
-      std::ostringstream sout;
-      sout << "Memoryless source [p=";
-      libbase::vector<float> symbol_probabilities = to_probabilities(cpt);
-      symbol_probabilities.serialize(sout, ',');
-      sout << "]";
-      return sout.str();
-      }
+    //! Description
+    std::string description() const
+    {
+        std::ostringstream sout;
+        sout << "Memoryless source [p=";
+        libbase::vector<float> symbol_probabilities = to_probabilities(cpt);
+        symbol_probabilities.serialize(sout, ',');
+        sout << "]";
+        return sout.str();
+    }
 
-   // Serialization Support
-DECLARE_SERIALIZER(memoryless)
+    // Serialization Support
+    DECLARE_SERIALIZER(memoryless)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

@@ -21,55 +21,59 @@
 
 #include "laplacian.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // *** general template ***
 
 // object serialization
 
-template <class S, template <class > class C>
+template <class S, template <class> class C>
 std::ostream& laplacian<S, C>::serialize(std::ostream& sout) const
-   {
-   return sout;
-   }
+{
+    return sout;
+}
 
-template <class S, template <class > class C>
+template <class S, template <class> class C>
 std::istream& laplacian<S, C>::serialize(std::istream& sin)
-   {
-   return sin;
-   }
+{
+    return sin;
+}
 
 // *** sigspace partial specialization ***
 
 // object serialization
 
-template <template <class > class C>
+template <template <class> class C>
 std::ostream& laplacian<sigspace, C>::serialize(std::ostream& sout) const
-   {
-   return sout;
-   }
+{
+    return sout;
+}
 
-template <template <class > class C>
+template <template <class> class C>
 std::istream& laplacian<sigspace, C>::serialize(std::istream& sin)
-   {
-   return sin;
-   }
+{
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
+#include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/seq/for_each_product.hpp>
-#include <boost/preprocessor/seq/enum.hpp>
 
-using libbase::serializer;
 using libbase::matrix;
+using libbase::serializer;
 using libbase::vector;
 
+// clang-format off
 #define SYMBOL_TYPE_SEQ \
    (int)(float)(double)(sigspace)
+
 #define CONTAINER_TYPE_SEQ \
    (vector)(matrix)
 
@@ -86,7 +90,9 @@ using libbase::vector;
             "laplacian<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
             laplacian<BOOST_PP_SEQ_ENUM(args)>::create);
+// clang-format on
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
+                              (SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ))
 
-} // end namespace
+} // namespace libcomm

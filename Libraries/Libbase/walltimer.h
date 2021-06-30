@@ -26,13 +26,14 @@
 
 #include <ctime>
 #ifdef _WIN32
-#  include <sys/types.h>
-#  include <sys/timeb.h>
+#    include <sys/timeb.h>
+#    include <sys/types.h>
 #else
-#  include <sys/time.h>
+#    include <sys/time.h>
 #endif
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Wallclock Timer.
@@ -44,86 +45,84 @@ namespace libbase {
  * \todo Extract common base class for walltimer and cputimer
  */
 
-class walltimer : public timer {
+class walltimer : public timer
+{
 private:
-   /*! \name Internal representation */
+    /*! \name Internal representation */
 #ifdef _WIN32
-   struct _timeb event_start; //!< Start event time object
-   mutable struct _timeb event_stop; //!< Stop event time object
+    struct _timeb event_start;        //!< Start event time object
+    mutable struct _timeb event_stop; //!< Stop event time object
 #else
-   struct timeval event_start; //!< Start event time object
-   mutable struct timeval event_stop; //!< Stop event time object
+    struct timeval event_start;        //!< Start event time object
+    mutable struct timeval event_stop; //!< Stop event time object
 #endif
-   // @}
+    // @}
 
 private:
-   /*! \name Internal helper methods */
+    /*! \name Internal helper methods */
 #ifdef _WIN32
-   static double convert(const struct _timeb& tb)
-      {
-      return tb.time + double(tb.millitm) * 1E-3;
-      }
+    static double convert(const struct _timeb& tb)
+    {
+        return tb.time + double(tb.millitm) * 1E-3;
+    }
 #else
-   static double convert(const struct timeval& tv)
-      {
-      return tv.tv_sec + double(tv.tv_usec) * 1E-6;
-      }
+    static double convert(const struct timeval& tv)
+    {
+        return tv.tv_sec + double(tv.tv_usec) * 1E-6;
+    }
 #endif
-   // @}
+    // @}
 
 protected:
-   /*! \name Interface with derived class */
-   void do_start()
-      {
+    /*! \name Interface with derived class */
+    void do_start()
+    {
 #ifdef _WIN32
-      _ftime(&event_start);
+        _ftime(&event_start);
 #else
-      struct timezone tz;
-      gettimeofday(&event_start, &tz);
+        struct timezone tz;
+        gettimeofday(&event_start, &tz);
 #endif
-      }
-   void do_stop() const
-      {
+    }
+    void do_stop() const
+    {
 #ifdef _WIN32
-      _ftime(&event_stop);
+        _ftime(&event_stop);
 #else
-      struct timezone tz;
-      gettimeofday(&event_stop, &tz);
+        struct timezone tz;
+        gettimeofday(&event_stop, &tz);
 #endif
-      }
-   double get_elapsed() const
-      {
-      return convert(event_stop) - convert(event_start);
-      }
-   // @}
+    }
+    double get_elapsed() const
+    {
+        return convert(event_stop) - convert(event_start);
+    }
+    // @}
 
 public:
-   /*! \name Constructors / Destructors */
-   //! Main constructor
-   explicit walltimer(const std::string& name = "", const bool running = true) :
-      timer(name)
-      {
-      init(running);
-      }
-   //! Destructor
-   ~walltimer()
-      {
-      expire();
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Main constructor
+    explicit walltimer(const std::string& name = "", const bool running = true)
+        : timer(name)
+    {
+        init(running);
+    }
+    //! Destructor
+    ~walltimer() { expire(); }
+    // @}
 
-   /*! \name Timer information */
-   double resolution() const
-      {
+    /*! \name Timer information */
+    double resolution() const
+    {
 #ifdef _WIN32
-      return 1e-3;
+        return 1e-3;
 #else
-      return 1e-6;
+        return 1e-6;
 #endif
-      }
-   // @}
+    }
+    // @}
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif

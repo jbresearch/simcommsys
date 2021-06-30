@@ -26,7 +26,8 @@
 #include "interleaver/lut_interleaver.h"
 #include "serializer.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Rectangular Interleaver.
@@ -35,29 +36,28 @@ namespace libcomm {
  */
 
 template <class real>
-class rectangular : public lut_interleaver<real> {
-   int rows, cols;
+class rectangular : public lut_interleaver<real>
+{
+    int rows, cols;
+
 protected:
-   void init(const int tau, const int rows, const int cols);
-   rectangular()
-      {
-      }
+    void init(const int tau, const int rows, const int cols);
+    rectangular() {}
+
 public:
-   rectangular(const int tau, const int rows, const int cols)
-      {
-      init(tau, rows, cols);
-      }
-   ~rectangular()
-      {
-      }
+    rectangular(const int tau, const int rows, const int cols)
+    {
+        init(tau, rows, cols);
+    }
+    ~rectangular() {}
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(rectangular)
+    // Serialization Support
+    DECLARE_SERIALIZER(rectangular)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

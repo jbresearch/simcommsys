@@ -21,11 +21,12 @@
 
 #include "errors_levenshtein.h"
 #include "fsm.h"
-#include "itfunc.h"
 #include "hamming.h"
+#include "itfunc.h"
 #include "levenshtein.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief Update result set
@@ -38,17 +39,18 @@ namespace libcomm {
  * Eventually these will be divided by the respective multiplicity to get the
  * average error rates.
  */
-void errors_levenshtein::updateresults(libbase::vector<double>& result,
-      const libbase::vector<int>& source, const libbase::vector<
-            int>& decoded) const
-   {
-   // Count errors
-   const int hd = libbase::hamming(source, decoded);
-   const int ld = libbase::levenshtein(source, decoded);
-   // Estimate the SER, LD, FER
-   result(0) += hd;
-   result(1) += ld;
-   result(2) += hd ? 1 : 0;
-   }
+void errors_levenshtein::updateresults(
+    libbase::vector<double>& result,
+    const libbase::vector<int>& source,
+    const libbase::vector<int>& decoded) const
+{
+    // Count errors
+    const int hd = libbase::hamming(source, decoded);
+    const int ld = libbase::levenshtein(source, decoded);
+    // Estimate the SER, LD, FER
+    result(0) += hd;
+    result(1) += ld;
+    result(2) += hd ? 1 : 0;
+}
 
-} // end namespace
+} // namespace libcomm

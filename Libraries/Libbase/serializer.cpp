@@ -20,89 +20,102 @@
  */
 
 #include "serializer.h"
-#include <set>
-#include <iostream>
-#include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <iostream>
+#include <set>
 
-namespace libbase {
+namespace libbase
+{
 
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Trace calls
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG 1
+#    undef DEBUG
+#    define DEBUG 1
 #endif
 
 // static variables
 
-std::shared_ptr<std::map<std::string, serializer::fptr> > serializer::cmap;
+std::shared_ptr<std::map<std::string, serializer::fptr>> serializer::cmap;
 
 // static functions
 
 std::shared_ptr<serializable> serializer::call(const std::string& base,
-      const std::string& derived)
-   {
-   fptr func = (*cmap)[base + ":" + derived];
-#if DEBUG>=2
-   trace << "DEBUG (serializer): call(" << base+":"+derived << ") = " << (void *)func << "." << std::endl;
+                                               const std::string& derived)
+{
+    fptr func = (*cmap)[base + ":" + derived];
+
+#if DEBUG >= 2
+    trace << "DEBUG (serializer): call(" << base + ":" + derived
+          << ") = " << (void*)func << "." << std::endl;
 #endif
-   if (func == NULL)
-      return std::shared_ptr<serializable>();
-   return (*func)();
-   }
+
+    if (func == NULL) {
+        return std::shared_ptr<serializable>();
+    }
+
+    return (*func)();
+}
 
 std::list<std::string> serializer::get_base_classes()
-   {
-   std::set < std::string > result;
+{
+    std::set<std::string> result;
 
-   for (std::map<std::string, fptr>::const_iterator i = cmap->begin();
-         i != cmap->end(); i++)
-      {
-      // split the key into base:derived
-      std::vector < std::string > current;
-      boost::split(current, i->first, boost::is_any_of(":"));
-      assert(current.size() == 2);
-      // add to list of base classes
-      result.insert(current[0]);
-      }
+    for (std::map<std::string, fptr>::const_iterator i = cmap->begin();
+         i != cmap->end();
+         i++) {
+        // split the key into base:derived
+        std::vector<std::string> current;
+        boost::split(current, i->first, boost::is_any_of(":"));
+        assert(current.size() == 2);
+        // add to list of base classes
+        result.insert(current[0]);
+    }
 
-   return std::list < std::string > (result.begin(), result.end());
-   }
+    return std::list<std::string>(result.begin(), result.end());
+}
 
 std::list<std::string> serializer::get_derived_classes(const std::string& base)
-   {
-   std::list < std::string > result;
+{
+    std::list<std::string> result;
 
-   for (std::map<std::string, fptr>::const_iterator i = cmap->begin();
-         i != cmap->end(); i++)
-      {
-      // split the key into base:derived
-      std::vector < std::string > current;
-      boost::split(current, i->first, boost::is_any_of(":"));
-      assert(current.size() == 2);
-      // if the base matches, add to list of derived classes
-      if (current[0] == base)
-         result.push_back(current[1]);
-      }
+    for (std::map<std::string, fptr>::const_iterator i = cmap->begin();
+         i != cmap->end();
+         i++) {
+        // split the key into base:derived
+        std::vector<std::string> current;
+        boost::split(current, i->first, boost::is_any_of(":"));
+        assert(current.size() == 2);
 
-   return result;
-   }
+        // if the base matches, add to list of derived classes
+        if (current[0] == base) {
+            result.push_back(current[1]);
+        }
+    }
+
+    return result;
+}
 
 // constructor / destructor
 
-serializer::serializer(const std::string& base, const std::string& derived,
-      fptr func)
-   {
-   if (!cmap)
-      cmap.reset(new std::map<std::string, fptr>);
-#if DEBUG>=2
-   trace << "DEBUG (serializer): map count = " << count << "." << std::endl;
-   trace << "DEBUG (serializer): new map entry for (" << base+":"+derived << ") = " << (void *)func << "." << std::endl;
-#endif
-   (*cmap)[base + ":" + derived] = func;
-   classname = derived;
-   }
+serializer::serializer(const std::string& base,
+                       const std::string& derived,
+                       fptr func)
+{
+    if (!cmap) {
+        cmap.reset(new std::map<std::string, fptr>);
+    }
 
-} // end namespace
+#if DEBUG >= 2
+    trace << "DEBUG (serializer): map count = " << count << "." << std::endl;
+    trace << "DEBUG (serializer): new map entry for (" << base + ":" + derived
+          << ") = " << (void*)func << "." << std::endl;
+#endif
+
+    (*cmap)[base + ":" + derived] = func;
+    classname = derived;
+}
+
+} // namespace libbase

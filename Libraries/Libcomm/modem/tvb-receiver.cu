@@ -23,13 +23,15 @@
 
 #include "gf.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
+#include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/seq/for_each_product.hpp>
-#include <boost/preprocessor/seq/enum.hpp>
 
+// clang-format off
 #define USING_GF(r, x, type) \
       using libbase::type;
 
@@ -48,8 +50,9 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
 #define INSTANTIATE1(r, symbol) \
       BOOST_PP_SEQ_FOR_EACH(INSTANTIATE2, symbol, REAL_PAIRS_SEQ)
+// clang-format on
 
 // NOTE: we *have* to use for-each product here as we cannot nest for-each
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE1, (GF_TYPE_SEQ))
 
-} // end namespace
+} // namespace libcomm

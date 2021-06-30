@@ -23,14 +23,15 @@
 #include <cstdlib>
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // *** Common Data Embedder/Extractor Interface ***
 
 // Explicit Realizations
 
-template class basic_embedder<int> ;
-template class basic_embedder<float> ;
-template class basic_embedder<double> ;
+template class basic_embedder<int>;
+template class basic_embedder<float>;
+template class basic_embedder<double>;
 
-} // end namespace
+} // namespace libcomm

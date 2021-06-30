@@ -22,11 +22,12 @@
 #ifndef __cuda_vector_h
 #define __cuda_vector_h
 
+#include "../vector.h"
 #include "config.h"
 #include "cuda-all.h"
-#include "../vector.h"
 
-namespace cuda {
+namespace cuda
+{
 
 // Determine debug level:
 // 1 - Normal debug output only
@@ -35,8 +36,8 @@ namespace cuda {
 // NOTE: since this is a header, it may be included in other classes as well;
 //       to avoid problems, the debug level is reset at the end of this file.
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG 1
+#    undef DEBUG
+#    define DEBUG 1
 #endif
 
 template <class T>
@@ -60,372 +61,373 @@ class vector_reference;
  */
 
 template <class T>
-class vector {
+class vector
+{
 private:
-   // Class friends
-   friend class vector_reference<T> ;
+    // Class friends
+    friend class vector_reference<T>;
 
 protected:
-   /*! \name Object representation */
-   T* data __attribute__((aligned(8))); //!< Pointer to allocated memory in global device space
-   int length __attribute__((aligned(8))); //!< Length of vector in elements
-   // @}
+    /*! \name Object representation */
+    T* data __attribute__((
+        aligned(8))); //!< Pointer to allocated memory in global device space
+    int length __attribute__((aligned(8))); //!< Length of vector in elements
+                                            // @}
 
 protected:
-   /*! \name Test functions */
-   /*! \brief Test the validity of the internal representation (host only)
-    *
-    * There are two possible internal states, determined by the 'data' element:
-    * an empty vector or an allocated one.
-    */
-   void test_invariant() const
-      {
-      if (data == NULL)
-         {
-         assert(length == 0);
-         }
-      else
-         {
-         assert(length > 0);
-         }
-      }
-   //! Outputs a standard debug header, identifying object type and address
-   std::ostream& debug_header(std::ostream& sout) const
-      {
-      sout << "DEBUG (cuda::vector<" << typeid(T).name() << "> at " << this
-            << "):";
-      return sout;
-      }
-   //! Outputs a standard debug trailer, identifying object contents
-   std::ostream& debug_trailer(std::ostream& sout) const
-      {
-      if (data == NULL)
-         sout << "empty vector" << std::endl;
-      else
-         sout << length << " elements (size " << sizeof(T) << ") at " << data
-               << std::endl;
-      return sout;
-      }
-   // @}
+    /*! \name Test functions */
+    /*! \brief Test the validity of the internal representation (host only)
+     *
+     * There are two possible internal states, determined by the 'data' element:
+     * an empty vector or an allocated one.
+     */
+    void test_invariant() const
+    {
+        if (data == NULL) {
+            assert(length == 0);
+        } else {
+            assert(length > 0);
+        }
+    }
+    //! Outputs a standard debug header, identifying object type and address
+    std::ostream& debug_header(std::ostream& sout) const
+    {
+        sout << "DEBUG (cuda::vector<" << typeid(T).name() << "> at " << this
+             << "):";
+        return sout;
+    }
+    //! Outputs a standard debug trailer, identifying object contents
+    std::ostream& debug_trailer(std::ostream& sout) const
+    {
+        if (data == NULL) {
+            sout << "empty vector" << std::endl;
+        } else {
+            sout << length << " elements (size " << sizeof(T) << ") at " << data
+                 << std::endl;
+        }
 
-   /*! \name Data setting functions */
-   //! shallow copy from an equivalent object
-#ifdef __CUDACC__
-   __device__ __host__
-#endif
-   void copyfrom(const vector<T>& x)
-      {
-      data = x.data;
-      length = x.length;
-#if DEBUG>=2 && !defined(__CUDA_ARCH__)
-      debug_header(std::cerr);
-      std::cerr << " copyfrom(" << &x << ") - ";
-      debug_trailer(std::cerr);
-#endif
-      }
-   //! reset to a null vector
-#ifdef __CUDACC__
-   __device__ __host__
-#endif
-   void reset()
-      {
-#if DEBUG>=2 && !defined(__CUDA_ARCH__)
-      debug_header(std::cerr);
-      std::cerr << " reset()" << std::endl;
-#endif
-      data = NULL;
-      length = 0;
-      }
-   // @}
+        return sout;
+    }
+    // @}
 
-   /*! \name Memory allocation functions */
-   //! allocate requested number of elements
-   void allocate(int n);
-   //! free memory
-   void free();
-   // @}
+    /*! \name Data setting functions */
+    //! shallow copy from an equivalent object
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
+    void copyfrom(const vector<T>& x)
+    {
+        data = x.data;
+        length = x.length;
+#if DEBUG >= 2 && !defined(__CUDA_ARCH__)
+        debug_header(std::cerr);
+        std::cerr << " copyfrom(" << &x << ") - ";
+        debug_trailer(std::cerr);
+#endif
+    }
+    //! reset to a null vector
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
+    void reset()
+    {
+#if DEBUG >= 2 && !defined(__CUDA_ARCH__)
+        debug_header(std::cerr);
+        std::cerr << " reset()" << std::endl;
+#endif
+        data = NULL;
+        length = 0;
+    }
+    // @}
+
+    /*! \name Memory allocation functions */
+    //! allocate requested number of elements
+    void allocate(int n);
+    //! free memory
+    void free();
+    // @}
 
 public:
-   /*! \name Constructors */
-   /*! \brief Default constructor
-    * Does not allocate space.
-    */
+    /*! \name Constructors */
+    /*! \brief Default constructor
+     * Does not allocate space.
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   vector() :
-      data(NULL), length(0)
-      {
-#if DEBUG>=2 && !defined(__CUDA_ARCH__)
-      debug_header(std::cerr);
-      std::cerr << " new ";
-      debug_trailer(std::cerr);
+    vector() : data(NULL), length(0)
+    {
+#if DEBUG >= 2 && !defined(__CUDA_ARCH__)
+        debug_header(std::cerr);
+        std::cerr << " new ";
+        debug_trailer(std::cerr);
 #endif
-      }
-   // @}
+    }
+    // @}
 
-   /*! \name Law of the Big Three */
-   //! Destructor
+    /*! \name Law of the Big Three */
+    //! Destructor
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   ~vector()
-      {
+    ~vector()
+    {
 #ifndef __CUDA_ARCH__ // Host code path
-      free();
+        free();
 #endif
-#if DEBUG>=2 && !defined(__CUDA_ARCH__)
-      debug_header(std::cerr);
-      std::cerr << " destroyed" << std::endl;
+#if DEBUG >= 2 && !defined(__CUDA_ARCH__)
+        debug_header(std::cerr);
+        std::cerr << " destroyed" << std::endl;
 #endif
-      }
-   /*! \brief Copy constructor
-    * \note Copy construction on a host is a deep copy.
-    * \note Copy construction on a device is a shallow copy.
-    */
+    }
+    /*! \brief Copy constructor
+     * \note Copy construction on a host is a deep copy.
+     * \note Copy construction on a device is a shallow copy.
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   vector(const vector<T>& x);
-   /*! \brief Copy assignment operator
-    * \note Copy assignment on a host is a deep copy.
-    * \note Copy assignment on a device is a shallow copy.
-    */
+    vector(const vector<T>& x);
+    /*! \brief Copy assignment operator
+     * \note Copy assignment on a host is a deep copy.
+     * \note Copy assignment on a device is a shallow copy.
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   vector<T>& operator=(const vector<T>& x);
-   // @}
+    vector<T>& operator=(const vector<T>& x);
+    // @}
 
-   /*! \name Memory operations */
-   /*! \brief Set to given size, freeing if and as required
-    *
-    * This method leaves the object as it is if the size was already correct,
-    * and frees/reallocates if necessary. This helps reduce redundant free/alloc
-    * operations on objects which keep the same size.
-    */
-   void init(const int n)
-      {
-#if DEBUG>=2
-      debug_header(std::cerr);
-      std::cerr << " set size to " << n << " for ";
-      debug_trailer(std::cerr);
+    /*! \name Memory operations */
+    /*! \brief Set to given size, freeing if and as required
+     *
+     * This method leaves the object as it is if the size was already correct,
+     * and frees/reallocates if necessary. This helps reduce redundant
+     * free/alloc operations on objects which keep the same size.
+     */
+    void init(const int n)
+    {
+#if DEBUG >= 2
+        debug_header(std::cerr);
+        std::cerr << " set size to " << n << " for ";
+        debug_trailer(std::cerr);
 #endif
-      if (n == length)
-         return;
-      free();
-      allocate(n);
-      }
-   /*! \brief Set device memory to the given byte value
-    *
-    * This method assumes the device object has been allocated.
-    */
-   void fill(const unsigned char value)
-      {
-#if DEBUG>=2
-      debug_header(std::cerr);
-      std::cerr << " fill with " << int(value) << " for ";
-      debug_trailer(std::cerr);
-#endif
-      cudaSafeMemset(data, value, length);
-      }
-   // @}
+        if (n == length) {
+            return;
+        }
 
-   /*! \name Information functions */
-   //! Total number of elements
-#ifdef __CUDACC__
-   __device__ __host__
+        free();
+        allocate(n);
+    }
+    /*! \brief Set device memory to the given byte value
+     *
+     * This method assumes the device object has been allocated.
+     */
+    void fill(const unsigned char value)
+    {
+#if DEBUG >= 2
+        debug_header(std::cerr);
+        std::cerr << " fill with " << int(value) << " for ";
+        debug_trailer(std::cerr);
 #endif
-   int size() const
-      {
-      return length;
-      }
-   // @}
+        cudaSafeMemset(data, value, length);
+    }
+    // @}
 
-   /*! \name Conversion to/from equivalent host objects */
-   //! copy from standard vector
-   vector<T>& operator=(const libbase::vector<T>& x);
-   //! copy to standard vector
-   operator libbase::vector<T>() const;
-   // @}
-
-   /*! \name Element access */
-   /*! \brief Extract a sub-vector as a reference into this vector
-    * This allows read access to sub-vector data without array copying.
-    * \note Performs boundary checking if used on host.
-    */
+    /*! \name Information functions */
+    //! Total number of elements
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   const vector_reference<T> extract(const int start, const int n) const
-      {
-      cuda_assert(start >= 0);
-      cuda_assert(n >= 0);
-      cuda_assert(start + n <= length);
-      return vector_reference<T> (const_cast<T*> (data + start), n);
-      }
-   /*! \brief Access part of this vector as a sub-vector
-    * This allows write access to sub-vector data without array copying.
-    * \note Performs boundary checking if used on host.
-    */
-#ifdef __CUDACC__
-   __device__ __host__
-#endif
-   vector_reference<T> segment(const int start, const int n)
-      {
-      cuda_assert(start >= 0);
-      cuda_assert(n >= 0);
-      cuda_assert(start + n <= length);
-      return vector_reference<T> (data + start, n);
-      }
-   // @}
+    int size() const { return length; }
+    // @}
 
-   // Methods for device code only
+    /*! \name Conversion to/from equivalent host objects */
+    //! copy from standard vector
+    vector<T>& operator=(const libbase::vector<T>& x);
+    //! copy to standard vector
+    operator libbase::vector<T>() const;
+    // @}
+
+    /*! \name Element access */
+    /*! \brief Extract a sub-vector as a reference into this vector
+     * This allows read access to sub-vector data without array copying.
+     * \note Performs boundary checking if used on host.
+     */
 #ifdef __CUDACC__
-   /*! \name Element access */
-   /*! \brief Index operator (write-access)
-    * \note Does not perform boundary checking.
-    */
-   __device__
-   T& operator()(const int x)
-      {
-      cuda_assert(x >= 0 && x < length);
-      return data[x];
-      }
-   /*! \brief Index operator (read-only access)
-    * \note Does not performs boundary checking.
-    */
-   __device__
-   const T& operator()(const int x) const
-      {
-      cuda_assert(x >= 0 && x < length);
-      return data[x];
-      }
-   // @}
+    __device__
+    __host__
+#endif
+    const vector_reference<T> extract(const int start, const int n) const
+    {
+        cuda_assert(start >= 0);
+        cuda_assert(n >= 0);
+        cuda_assert(start + n <= length);
+        return vector_reference<T>(const_cast<T*>(data + start), n);
+    }
+    /*! \brief Access part of this vector as a sub-vector
+     * This allows write access to sub-vector data without array copying.
+     * \note Performs boundary checking if used on host.
+     */
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
+    vector_reference<T> segment(const int start, const int n)
+    {
+        cuda_assert(start >= 0);
+        cuda_assert(n >= 0);
+        cuda_assert(start + n <= length);
+        return vector_reference<T>(data + start, n);
+    }
+    // @}
+
+    // Methods for device code only
+#ifdef __CUDACC__
+    /*! \name Element access */
+    /*! \brief Index operator (write-access)
+     * \note Does not perform boundary checking.
+     */
+    __device__
+    T& operator()(const int x)
+    {
+        cuda_assert(x >= 0 && x < length);
+        return data[x];
+    }
+    /*! \brief Index operator (read-only access)
+     * \note Does not performs boundary checking.
+     */
+    __device__
+    const T& operator()(const int x) const
+    {
+        cuda_assert(x >= 0 && x < length);
+        return data[x];
+    }
+    // @}
 #endif
 };
 
 #ifdef __CUDACC__
 template <class T>
 inline void vector<T>::allocate(int n)
-   {
-   test_invariant();
-   // check input parameters
-   assert(n >= 0);
-   // only allocate on an empty matrix
-   assert(data == NULL);
-   // if there is something to allocate, do it
-   if (n > 0)
-      {
-      length = n;
-      data = cudaSafeMalloc<T>(length);
-#if DEBUG>=2
-      debug_header(std::cerr);
-      std::cerr << " allocated ";
-      debug_trailer(std::cerr);
-#endif
-      }
-   test_invariant();
-   }
+{
+    test_invariant();
+    // check input parameters
+    assert(n >= 0);
+    // only allocate on an empty matrix
+    assert(data == NULL);
+    // if there is something to allocate, do it
+    if (n > 0) {
+        length = n;
+        data = cudaSafeMalloc<T>(length);
+#    if DEBUG >= 2
+        debug_header(std::cerr);
+        std::cerr << " allocated ";
+        debug_trailer(std::cerr);
+#    endif
+    }
+    test_invariant();
+}
 
 template <class T>
 inline void vector<T>::free()
-   {
-   test_invariant();
-   // if there is something allocated, free it
-   if (data != NULL)
-      {
-#if DEBUG>=2
-      debug_header(std::cerr);
-      std::cerr << " deallocating ";
-      debug_trailer(std::cerr);
-#endif
-      // free device memory
-      cudaSafeFree(data);
-      // reset variables
-      reset();
-      }
-   test_invariant();
-   }
+{
+    test_invariant();
+    // if there is something allocated, free it
+    if (data != NULL) {
+#    if DEBUG >= 2
+        debug_header(std::cerr);
+        std::cerr << " deallocating ";
+        debug_trailer(std::cerr);
+#    endif
+        // free device memory
+        cudaSafeFree(data);
+        // reset variables
+        reset();
+    }
+    test_invariant();
+}
 
 template <class T>
-inline vector<T>::vector(const vector<T>& x) :
-data(NULL), length(0)
-   {
-#ifdef __CUDA_ARCH__ // Device code path (for all compute capabilities)
-   copyfrom(x);
-#else // Host code path
-   // allocate memory if needed
-   allocate(x.length);
-   // copy data from device to device if necessary
-   if (data != NULL)
-      {
-      cudaSafeMemcpy(data, x.data, length, cudaMemcpyDeviceToDevice);
-      }
-#if DEBUG>=2
-   debug_header(std::cerr);
-   std::cerr << " copy construction from " << &x << " - new ";
-   debug_trailer(std::cerr);
-#endif
-#endif
-   }
+inline vector<T>::vector(const vector<T>& x) : data(NULL), length(0)
+{
+#    ifdef __CUDA_ARCH__ // Device code path (for all compute capabilities)
+    copyfrom(x);
+#    else // Host code path
+    // allocate memory if needed
+    allocate(x.length);
+    // copy data from device to device if necessary
+    if (data != NULL) {
+        cudaSafeMemcpy(data, x.data, length, cudaMemcpyDeviceToDevice);
+    }
+#        if DEBUG >= 2
+    debug_header(std::cerr);
+    std::cerr << " copy construction from " << &x << " - new ";
+    debug_trailer(std::cerr);
+#        endif
+#    endif
+}
 
 template <class T>
 inline vector<T>& vector<T>::operator=(const vector<T>& x)
-   {
-#ifdef __CUDA_ARCH__ // Device code path (for all compute capabilities)
-   copyfrom(x);
-   return *this;
-#else // Host code path
-   // (re-)allocate memory if needed
-   init(x.length);
-   // copy data from device to device if necessary
-   if (data != NULL)
-      {
-      cudaSafeMemcpy(data, x.data, length, cudaMemcpyDeviceToDevice);
-      }
-#if DEBUG>=2
-   debug_header(std::cerr);
-   std::cerr << " copy assignment from " << &x << " - new ";
-   debug_trailer(std::cerr);
-#endif
-   return *this;
-#endif
-   }
+{
+#    ifdef __CUDA_ARCH__ // Device code path (for all compute capabilities)
+    copyfrom(x);
+    return *this;
+#    else // Host code path
+    // (re-)allocate memory if needed
+    init(x.length);
+    // copy data from device to device if necessary
+    if (data != NULL) {
+        cudaSafeMemcpy(data, x.data, length, cudaMemcpyDeviceToDevice);
+    }
+#        if DEBUG >= 2
+    debug_header(std::cerr);
+    std::cerr << " copy assignment from " << &x << " - new ";
+    debug_trailer(std::cerr);
+#        endif
+    return *this;
+#    endif
+}
 
 template <class T>
 inline vector<T>& vector<T>::operator=(const libbase::vector<T>& x)
-   {
-#if DEBUG>=2
-   debug_header(std::cerr);
-   std::cerr << " copy from host object " << &x << std::endl;
-#endif
-   // (re-)allocate memory if needed
-   init(x.size().length());
-   // copy data from host to device if necessary
-   if (data != NULL)
-      {
-      cudaSafeMemcpy(data, &x(0), length, cudaMemcpyHostToDevice);
-      }
-   return *this;
-   }
+{
+#    if DEBUG >= 2
+    debug_header(std::cerr);
+    std::cerr << " copy from host object " << &x << std::endl;
+#    endif
+    // (re-)allocate memory if needed
+    init(x.size().length());
+    // copy data from host to device if necessary
+    if (data != NULL) {
+        cudaSafeMemcpy(data, &x(0), length, cudaMemcpyHostToDevice);
+    }
+    return *this;
+}
 
 template <class T>
 inline vector<T>::operator libbase::vector<T>() const
-   {
-#if DEBUG>=2
-   debug_header(std::cerr);
-   std::cerr << " copy to host object" << std::endl;
-#endif
-   // allocate place for result
-   libbase::vector<T> x(length);
-   // copy data from device to host if necessary
-   if (data != NULL)
-      {
-      cudaSafeMemcpy(&x(0), data, length, cudaMemcpyDeviceToHost);
-      }
-   return x;
-   }
+{
+#    if DEBUG >= 2
+    debug_header(std::cerr);
+    std::cerr << " copy to host object" << std::endl;
+#    endif
+    // allocate place for result
+    libbase::vector<T> x(length);
+    // copy data from device to host if necessary
+    if (data != NULL) {
+        cudaSafeMemcpy(&x(0), data, length, cudaMemcpyDeviceToHost);
+    }
+    return x;
+}
 #endif
 
 // Prior definition of matrix class
@@ -453,185 +455,191 @@ class matrix;
  * happen only through a normal vector's methods.
  */
 template <class T>
-class vector_reference : public vector<T> {
+class vector_reference : public vector<T>
+{
 private:
-   // Class friends
-   friend class vector<T> ;
-   friend class matrix<T> ;
-   // Shorthand for class hierarchy
-   typedef vector<T> Base;
+    // Class friends
+    friend class vector<T>;
+    friend class matrix<T>;
+    // Shorthand for class hierarchy
+    typedef vector<T> Base;
+
 protected:
-   /*! \name Test and debug functions */
-   //! Outputs a standard debug header, identifying object type and address
-   std::ostream& debug_header(std::ostream& sout) const
-      {
-      sout << "DEBUG (cuda::vector_reference<" << typeid(T).name() << "> at "
-            << this << "):";
-      return sout;
-      }
-   //! Outputs a standard debug trailer, identifying object contents
-   std::ostream& debug_trailer(std::ostream& sout) const
-      {
-      return Base::debug_trailer(sout);
-      }
-   // @}
+    /*! \name Test and debug functions */
+    //! Outputs a standard debug header, identifying object type and address
+    std::ostream& debug_header(std::ostream& sout) const
+    {
+        sout << "DEBUG (cuda::vector_reference<" << typeid(T).name() << "> at "
+             << this << "):";
+        return sout;
+    }
+    //! Outputs a standard debug trailer, identifying object contents
+    std::ostream& debug_trailer(std::ostream& sout) const
+    {
+        return Base::debug_trailer(sout);
+    }
+    // @}
 
-   /*! \name Resizing operations */
-   /*! \brief Set to given size, freeing if and as required
-    *
-    * This method is disabled in vector references.
-    */
-   void init(const int n)
-      {
-      failwith("Not supported.");
-      }
-   // @}
+    /*! \name Resizing operations */
+    /*! \brief Set to given size, freeing if and as required
+     *
+     * This method is disabled in vector references.
+     */
+    void init(const int n) { failwith("Not supported."); }
+    // @}
 public:
-   /*! \name Constructors */
-   /*! \brief Principal constructor
-    */
+    /*! \name Constructors */
+    /*! \brief Principal constructor
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   vector_reference()
-      {
-#if DEBUG>=2 && !defined(__CUDA_ARCH__)
-      debug_header(std::cerr);
-      std::cerr << " new ";
-      debug_trailer(std::cerr);
+    vector_reference()
+    {
+#if DEBUG >= 2 && !defined(__CUDA_ARCH__)
+        debug_header(std::cerr);
+        std::cerr << " new ";
+        debug_trailer(std::cerr);
 #endif
-      }
-   /*! \brief Automatic conversion from normal vector
-    * \warning This allows modification of 'const' vectors
-    */
+    }
+    /*! \brief Automatic conversion from normal vector
+     * \warning This allows modification of 'const' vectors
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   vector_reference(const vector<T>& x)
-      {
-      // do not invoke the base constructor, to avoid a deep copy
-      // note: this operation requires this class to be a friend of vector
-      Base::copyfrom(x);
-#if DEBUG>=2 && !defined(__CUDA_ARCH__)
-      debug_header(std::cerr);
-      std::cerr << " copy construction from base object " << &x << " - new ";
-      debug_trailer(std::cerr);
+    vector_reference(const vector<T>& x)
+    {
+        // do not invoke the base constructor, to avoid a deep copy
+        // note: this operation requires this class to be a friend of vector
+        Base::copyfrom(x);
+#if DEBUG >= 2 && !defined(__CUDA_ARCH__)
+        debug_header(std::cerr);
+        std::cerr << " copy construction from base object " << &x << " - new ";
+        debug_trailer(std::cerr);
 #endif
-      }
-   //! Unique constructor
+    }
+    //! Unique constructor
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   vector_reference(T* start, const int n)
-      {
-      // update base class by shallow copy, as needed
-      if (n > 0)
-         {
-         Base::length = n;
-         Base::data = start;
-         }
-#if DEBUG>=2 && !defined(__CUDA_ARCH__)
-      debug_header(std::cerr);
-      std::cerr << " new ";
-      debug_trailer(std::cerr);
+    vector_reference(T* start, const int n)
+    {
+        // update base class by shallow copy, as needed
+        if (n > 0) {
+            Base::length = n;
+            Base::data = start;
+        }
+#if DEBUG >= 2 && !defined(__CUDA_ARCH__)
+        debug_header(std::cerr);
+        std::cerr << " new ";
+        debug_trailer(std::cerr);
 #endif
-      }
-   // @}
-   /*! \brief Assignment from normal vector
-    * \note Assignment is a shallow copy.
-    * \warning This allows modification of 'const' vectors
-    */
+    }
+    // @}
+    /*! \brief Assignment from normal vector
+     * \note Assignment is a shallow copy.
+     * \warning This allows modification of 'const' vectors
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   vector_reference<T>& operator=(const vector<T>& x)
-      {
-      Base::copyfrom(x);
-#if DEBUG>=2 && !defined(__CUDA_ARCH__)
-      debug_header(std::cerr);
-      std::cerr << " copy assignment from base object " << &x << " - new ";
-      debug_trailer(std::cerr);
+    vector_reference<T>& operator=(const vector<T>& x)
+    {
+        Base::copyfrom(x);
+#if DEBUG >= 2 && !defined(__CUDA_ARCH__)
+        debug_header(std::cerr);
+        std::cerr << " copy assignment from base object " << &x << " - new ";
+        debug_trailer(std::cerr);
 #endif
-      return *this;
-      }
+        return *this;
+    }
 
-   /*! \name Law of the Big Three */
-   //! Destructor
+    /*! \name Law of the Big Three */
+    //! Destructor
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   ~vector_reference()
-      {
-      // reset base class, in preparation for eventual destruction
-      Base::reset();
-#if DEBUG>=2 && !defined(__CUDA_ARCH__)
-      debug_header(std::cerr);
-      std::cerr << " destroyed" << std::endl;
+    ~vector_reference()
+    {
+        // reset base class, in preparation for eventual destruction
+        Base::reset();
+#if DEBUG >= 2 && !defined(__CUDA_ARCH__)
+        debug_header(std::cerr);
+        std::cerr << " destroyed" << std::endl;
 #endif
-      }
-   /*! \brief Copy constructor
-    * \note Copy construction is a shallow copy.
-    */
+    }
+    /*! \brief Copy constructor
+     * \note Copy construction is a shallow copy.
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   vector_reference(const vector_reference<T>& x)
-      {
-      // do not invoke the base constructor, to avoid a deep copy
-      Base::copyfrom(x);
-#if DEBUG>=2 && !defined(__CUDA_ARCH__)
-      debug_header(std::cerr);
-      std::cerr << " copy construction from " << &x << " - new ";
-      debug_trailer(std::cerr);
+    vector_reference(const vector_reference<T>& x)
+    {
+        // do not invoke the base constructor, to avoid a deep copy
+        Base::copyfrom(x);
+#if DEBUG >= 2 && !defined(__CUDA_ARCH__)
+        debug_header(std::cerr);
+        std::cerr << " copy construction from " << &x << " - new ";
+        debug_trailer(std::cerr);
 #endif
-      }
-   /*! \brief Copy assignment operator
-    * \note Copy assignment is a shallow copy.
-    */
+    }
+    /*! \brief Copy assignment operator
+     * \note Copy assignment is a shallow copy.
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   vector_reference<T>& operator=(const vector_reference<T>& x)
-      {
-      Base::copyfrom(x);
-#if DEBUG>=2 && !defined(__CUDA_ARCH__)
-      debug_header(std::cerr);
-      std::cerr << " copy assignment from " << &x << " - new ";
-      debug_trailer(std::cerr);
+    vector_reference<T>& operator=(const vector_reference<T>& x)
+    {
+        Base::copyfrom(x);
+#if DEBUG >= 2 && !defined(__CUDA_ARCH__)
+        debug_header(std::cerr);
+        std::cerr << " copy assignment from " << &x << " - new ";
+        debug_trailer(std::cerr);
 #endif
-      return *this;
-      }
-   // @}
+        return *this;
+    }
+    // @}
 
-   /*! \name Conversion to/from equivalent host objects */
-   //! copy from standard vector
-   vector_reference<T>& operator=(const libbase::vector<T>& x);
-   //! copy to standard vector
-   operator libbase::vector<T>() const
-      {
-#if DEBUG>=2
-      debug_header(std::cerr);
-      std::cerr << " copy to host object" << std::endl;
+    /*! \name Conversion to/from equivalent host objects */
+    //! copy from standard vector
+    vector_reference<T>& operator=(const libbase::vector<T>& x);
+    //! copy to standard vector
+    operator libbase::vector<T>() const
+    {
+#if DEBUG >= 2
+        debug_header(std::cerr);
+        std::cerr << " copy to host object" << std::endl;
 #endif
-      return Base::operator libbase::vector<T>();
-      }
-   // @}
+        return Base::operator libbase::vector<T>();
+    }
+    // @}
 };
 
 #ifdef __CUDACC__
 
 template <class T>
-inline vector_reference<T>& vector_reference<T>::operator=(const libbase::vector<T>& x)
-   {
-#if DEBUG>=2
-   debug_header(std::cerr);
-   std::cerr << " copy from host object " << &x << std::endl;
-#endif
-   assert(x.size() == Base::length);
-   // copy data from host to device
-   cudaSafeMemcpy(Base::data, &x(0), Base::length, cudaMemcpyHostToDevice);
-   return *this;
-   }
+inline vector_reference<T>&
+vector_reference<T>::operator=(const libbase::vector<T>& x)
+{
+#    if DEBUG >= 2
+    debug_header(std::cerr);
+    std::cerr << " copy from host object " << &x << std::endl;
+#    endif
+    assert(x.size() == Base::length);
+    // copy data from host to device
+    cudaSafeMemcpy(Base::data, &x(0), Base::length, cudaMemcpyHostToDevice);
+    return *this;
+}
 
 #endif
 
@@ -644,201 +652,207 @@ inline vector_reference<T>& vector_reference<T>::operator=(const libbase::vector
  * (references to the same memory) on the device.
  */
 template <class T>
-class vector_auto : public vector<T> {
+class vector_auto : public vector<T>
+{
 private:
-   // Shorthand for class hierarchy
-   typedef vector<T> Base;
+    // Shorthand for class hierarchy
+    typedef vector<T> Base;
+
 private:
-   bool isowner __attribute__((aligned(8)));
+    bool isowner __attribute__((aligned(8)));
+
 protected:
-   /*! \name Test and debug functions */
-   //! Outputs a standard debug header, identifying object type and address
-   std::ostream& debug_header(std::ostream& sout) const
-      {
-      sout << "DEBUG (cuda::vector_auto<" << typeid(T).name() << "> at "
-            << this << "):";
-      return sout;
-      }
-   //! Outputs a standard debug trailer, identifying object contents
-   std::ostream& debug_trailer(std::ostream& sout) const
-      {
-      if (!isowner)
-         sout << "link to ";
-      return Base::debug_trailer(sout);
-      }
-   // @}
+    /*! \name Test and debug functions */
+    //! Outputs a standard debug header, identifying object type and address
+    std::ostream& debug_header(std::ostream& sout) const
+    {
+        sout << "DEBUG (cuda::vector_auto<" << typeid(T).name() << "> at "
+             << this << "):";
+        return sout;
+    }
+    //! Outputs a standard debug trailer, identifying object contents
+    std::ostream& debug_trailer(std::ostream& sout) const
+    {
+        if (!isowner) {
+            sout << "link to ";
+        }
+
+        return Base::debug_trailer(sout);
+    }
+    // @}
 
 private:
-   /*! \name Memory allocation functions */
-   //! allocate requested number of elements (host only)
-   void allocate(int n)
-      {
-      // this should only be called on an owned object
-      assert(isowner);
-      Base::allocate(n);
-#if DEBUG>=2
-      debug_header(std::cerr);
-      std::cerr << " allocated ";
-      debug_trailer(std::cerr);
+    /*! \name Memory allocation functions */
+    //! allocate requested number of elements (host only)
+    void allocate(int n)
+    {
+        // this should only be called on an owned object
+        assert(isowner);
+        Base::allocate(n);
+#if DEBUG >= 2
+        debug_header(std::cerr);
+        std::cerr << " allocated ";
+        debug_trailer(std::cerr);
 #endif
-      }
-   //! free memory if we own it, and reset pointer (host only)
-   void free()
-      {
-      if (isowner)
-         {
-#if DEBUG>=2
-         debug_header(std::cerr);
-         std::cerr << " deallocating ";
-         debug_trailer(std::cerr);
+    }
+    //! free memory if we own it, and reset pointer (host only)
+    void free()
+    {
+        if (isowner) {
+#if DEBUG >= 2
+            debug_header(std::cerr);
+            std::cerr << " deallocating ";
+            debug_trailer(std::cerr);
 #endif
-         Base::free();
-         }
-      else
-         {
-#if DEBUG>=2
-         debug_header(std::cerr);
-         std::cerr << " unlinking ";
-         debug_trailer(std::cerr);
+            Base::free();
+        } else {
+#if DEBUG >= 2
+            debug_header(std::cerr);
+            std::cerr << " unlinking ";
+            debug_trailer(std::cerr);
 #endif
-         Base::reset();
-         isowner = true;
-         }
-      }
-   // @}
+            Base::reset();
+            isowner = true;
+        }
+    }
+    // @}
 public:
-   /*! \name Law of the Big Three */
-   //! Destructor
+    /*! \name Law of the Big Three */
+    //! Destructor
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   ~vector_auto()
-      {
+    ~vector_auto()
+    {
 #ifndef __CUDA_ARCH__ // Host code path
-      // decide what to do before the base object is destroyed
-      free();
+        // decide what to do before the base object is destroyed
+        free();
 #endif
-      }
-   /*! \brief Copy constructor
-    * \note Copy construction is a shallow copy.
-    */
+    }
+    /*! \brief Copy constructor
+     * \note Copy construction is a shallow copy.
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   vector_auto(const vector_auto<T>& x) :
-      isowner(false)
-      {
-      // do not invoke the base constructor, to avoid a deep copy
-      Base::copyfrom(x);
-#if DEBUG>=2 && !defined(__CUDA_ARCH__)
-      debug_header(std::cerr);
-      std::cerr << " copy construction from " << &x << " - new ";
-      debug_trailer(std::cerr);
+    vector_auto(const vector_auto<T>& x) : isowner(false)
+    {
+        // do not invoke the base constructor, to avoid a deep copy
+        Base::copyfrom(x);
+#if DEBUG >= 2 && !defined(__CUDA_ARCH__)
+        debug_header(std::cerr);
+        std::cerr << " copy construction from " << &x << " - new ";
+        debug_trailer(std::cerr);
 #endif
-      }
-   /*! \brief Copy assignment operator
-    * \note Copy assignment is a shallow copy.
-    */
+    }
+    /*! \brief Copy assignment operator
+     * \note Copy assignment is a shallow copy.
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   vector_auto<T>& operator=(const vector_auto<T>& x)
-      {
+    vector_auto<T>& operator=(const vector_auto<T>& x)
+    {
 #ifndef __CUDA_ARCH__
-      // decide what to do before copying
-      free();
+        // decide what to do before copying
+        free();
 #endif
-      // do not invoke the base copy assignment, to avoid a deep copy
-      Base::copyfrom(x);
-      // determine if this should be an owner (only own an empty object)
-      isowner = (Base::data == NULL);
-#if DEBUG>=2 && !defined(__CUDA_ARCH__)
-      debug_header(std::cerr);
-      std::cerr << " copy assignment from " << &x << " - new ";
-      debug_trailer(std::cerr);
+        // do not invoke the base copy assignment, to avoid a deep copy
+        Base::copyfrom(x);
+        // determine if this should be an owner (only own an empty object)
+        isowner = (Base::data == NULL);
+#if DEBUG >= 2 && !defined(__CUDA_ARCH__)
+        debug_header(std::cerr);
+        std::cerr << " copy assignment from " << &x << " - new ";
+        debug_trailer(std::cerr);
 #endif
-      return *this;
-      }
-   // @}
+        return *this;
+    }
+    // @}
 
-   /*! \name Other Constructors */
-   /*! \brief Default constructor
-    * Does not allocate space.
-    */
+    /*! \name Other Constructors */
+    /*! \brief Default constructor
+     * Does not allocate space.
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   vector_auto() :
-      isowner(true)
-      {
-#if DEBUG>=2 && !defined(__CUDA_ARCH__)
-      debug_header(std::cerr);
-      std::cerr << " new ";
-      debug_trailer(std::cerr);
+    vector_auto() : isowner(true)
+    {
+#if DEBUG >= 2 && !defined(__CUDA_ARCH__)
+        debug_header(std::cerr);
+        std::cerr << " new ";
+        debug_trailer(std::cerr);
 #endif
-      }
-   // @}
+    }
+    // @}
 
-   /*! \name Memory operations */
-   /*! \brief Set to given size, freeing if and as required (host only)
-    *
-    * This method leaves the object as it is if the size was already correct,
-    * and frees/reallocates if necessary. This helps reduce redundant free/alloc
-    * operations on objects which keep the same size.
-    *
-    * If re-allocation is necessary:
-    * - the old memory is only freed if this object is not a reference.
-    * - the object becomes the owner of the newly allocated memory, even if it
-    *   was only a reference to the old memory.
-    */
-   void init(const int n)
-      {
-#if DEBUG>=2
-      debug_header(std::cerr);
-      std::cerr << " set size to " << n << " for ";
-      debug_trailer(std::cerr);
+    /*! \name Memory operations */
+    /*! \brief Set to given size, freeing if and as required (host only)
+     *
+     * This method leaves the object as it is if the size was already correct,
+     * and frees/reallocates if necessary. This helps reduce redundant
+     * free/alloc operations on objects which keep the same size.
+     *
+     * If re-allocation is necessary:
+     * - the old memory is only freed if this object is not a reference.
+     * - the object becomes the owner of the newly allocated memory, even if it
+     *   was only a reference to the old memory.
+     */
+    void init(const int n)
+    {
+#if DEBUG >= 2
+        debug_header(std::cerr);
+        std::cerr << " set size to " << n << " for ";
+        debug_trailer(std::cerr);
 #endif
-      if (n == Base::length)
-         return;
-      free();
-      allocate(n);
-      }
-   // @}
+        if (n == Base::length) {
+            return;
+        }
 
-   /*! \name Conversion to/from equivalent host objects */
-   /*! \brief Copy from standard vector
-    *
-    * This method re-allocates memory, taking ownership, if necessary
-    */
-   vector_auto<T>& operator=(const libbase::vector<T>& x)
-      {
-#if DEBUG>=2
-      debug_header(std::cerr);
-      std::cerr << " copy from host object " << &x << std::endl;
+        free();
+        allocate(n);
+    }
+    // @}
+
+    /*! \name Conversion to/from equivalent host objects */
+    /*! \brief Copy from standard vector
+     *
+     * This method re-allocates memory, taking ownership, if necessary
+     */
+    vector_auto<T>& operator=(const libbase::vector<T>& x)
+    {
+#if DEBUG >= 2
+        debug_header(std::cerr);
+        std::cerr << " copy from host object " << &x << std::endl;
 #endif
-      // (re-)allocate memory if needed
-      init(x.size().length());
-      Base::operator=(x);
-      return *this;
-      }
-   //! copy to standard vector
-   operator libbase::vector<T>() const
-      {
-#if DEBUG>=2
-      debug_header(std::cerr);
-      std::cerr << " copy to host object" << std::endl;
+        // (re-)allocate memory if needed
+        init(x.size().length());
+        Base::operator=(x);
+        return *this;
+    }
+    //! copy to standard vector
+    operator libbase::vector<T>() const
+    {
+#if DEBUG >= 2
+        debug_header(std::cerr);
+        std::cerr << " copy to host object" << std::endl;
 #endif
-      return Base::operator libbase::vector<T>();
-      }
-   // @}
+        return Base::operator libbase::vector<T>();
+    }
+    // @}
 };
 
 // Reset debug level, to avoid affecting other files
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG
+#    undef DEBUG
+#    define DEBUG
 #endif
 
-} // end namespace
+} // namespace cuda
 
 #endif

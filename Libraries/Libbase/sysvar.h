@@ -23,10 +23,11 @@
 #define __sysvar_h
 
 #include "config.h"
-#include <string>
 #include <sstream>
+#include <string>
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   System variable.
@@ -36,82 +37,69 @@ namespace libbase {
  * as a string. Also provides automatic conversion to int and float.
  */
 
-class sysvar {
+class sysvar
+{
 private:
-   /*! \name Internal representation */
-   std::string name; //!< Variable name
-   std::string value; //!< Variable contents as a string
-   bool defined; //!< Flag indicating the variable is defined
-   // @}
+    /*! \name Internal representation */
+    std::string name;  //!< Variable name
+    std::string value; //!< Variable contents as a string
+    bool defined;      //!< Flag indicating the variable is defined
+                       // @}
 
 public:
-   /*! \name Constructors / Destructors */
-   //! Main constructor
-   explicit sysvar(const std::string& name) :
-      name(name)
-      {
-      const char *s = getenv(name.c_str());
-      if (s == NULL)
-         defined = false;
-      else
-         {
-         value = s;
-         defined = true;
-         }
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Main constructor
+    explicit sysvar(const std::string& name) : name(name)
+    {
+        const char* s = getenv(name.c_str());
+        if (s == NULL) {
+            defined = false;
+        } else {
+            value = s;
+            defined = true;
+        }
+    }
+    // @}
 
-   /*! \name Information */
-   bool is_defined() const
-      {
-      return defined;
-      }
-   // @}
+    /*! \name Information */
+    bool is_defined() const { return defined; }
+    // @}
 
-   /*! \name Explicit Conversion */
-   //! Return value as string
-   std::string as_string() const
-      {
-      assert(defined);
-      return value;
-      }
-   //! Return value as integer
-   int as_int() const
-      {
-      assert(defined);
-      int r;
-      std::istringstream(value) >> r;
-      return r;
-      }
-   //! Return value as float
-   double as_double() const
-      {
-      assert(defined);
-      double r;
-      std::istringstream(value) >> r;
-      return r;
-      }
-   // @}
+    /*! \name Explicit Conversion */
+    //! Return value as string
+    std::string as_string() const
+    {
+        assert(defined);
+        return value;
+    }
+    //! Return value as integer
+    int as_int() const
+    {
+        assert(defined);
+        int r;
+        std::istringstream(value) >> r;
+        return r;
+    }
+    //! Return value as float
+    double as_double() const
+    {
+        assert(defined);
+        double r;
+        std::istringstream(value) >> r;
+        return r;
+    }
+    // @}
 
-   /*! \name Automatic Conversion */
-   //! Return value as string
-   operator std::string() const
-      {
-      return as_string();
-      }
-   //! Return value as integer
-   operator int() const
-      {
-      return as_int();
-      }
-   //! Return value as float
-   operator double() const
-      {
-      return as_double();
-      }
-   // @}
+    /*! \name Automatic Conversion */
+    //! Return value as string
+    operator std::string() const { return as_string(); }
+    //! Return value as integer
+    operator int() const { return as_int(); }
+    //! Return value as float
+    operator double() const { return as_double(); }
+    // @}
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif

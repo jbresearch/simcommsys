@@ -26,7 +26,8 @@
 #include "random.h"
 #include <iostream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Simulated Annealing System base.
@@ -42,8 +43,8 @@ namespace libcomm {
  * added a virtual destroy function (see interleaver.h)
  *
  * \version 1.20 (4 Nov 2001)
- * added a stream << operator and modified the regular output routine accordingly
- * (so that this now returns the stream, and is a pure virtual).
+ * added a stream << operator and modified the regular output routine
+ * accordingly (so that this now returns the stream, and is a pure virtual).
  *
  * \version 1.21 (6 Mar 2002)
  * changed vcs version variable from a global to a static class variable.
@@ -57,27 +58,28 @@ namespace libcomm {
  *
  * \version 1.30 (27 Oct 2006)
  * - defined class and associated data within "libcomm" namespace.
- * - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+ * - removed use of "using namespace std", replacing by tighter "using"
+ * statements as needed.
  */
 
-class anneal_system {
+class anneal_system
+{
 public:
-   virtual ~anneal_system()
-      {
-      }
-   //! Seeds any random generators from a pseudo-random sequence
-   virtual void seedfrom(libbase::random& r) = 0;
-   //! Perturbs the state and returns the difference in energy due to perturbation
-   virtual double perturb() = 0;
-   //! Undoes the last perturbation (guaranteed only for one stage)
-   virtual void unperturb() = 0;
-   //! Returns the system's energy content
-   virtual double energy() = 0;
-   //! Outputs the system to an output stream
-   virtual std::ostream& output(std::ostream& sout) const = 0;
-   friend std::ostream& operator<<(std::ostream& sout, const anneal_system& x);
+    virtual ~anneal_system() {}
+    //! Seeds any random generators from a pseudo-random sequence
+    virtual void seedfrom(libbase::random& r) = 0;
+    //! Perturbs the state and returns the difference in energy due to
+    //! perturbation
+    virtual double perturb() = 0;
+    //! Undoes the last perturbation (guaranteed only for one stage)
+    virtual void unperturb() = 0;
+    //! Returns the system's energy content
+    virtual double energy() = 0;
+    //! Outputs the system to an output stream
+    virtual std::ostream& output(std::ostream& sout) const = 0;
+    friend std::ostream& operator<<(std::ostream& sout, const anneal_system& x);
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

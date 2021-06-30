@@ -22,13 +22,14 @@
 #ifndef __awgn_h
 #define __awgn_h
 
-#include "config.h"
 #include "channel.h"
+#include "config.h"
 #include "itfunc.h"
 #include "serializer.h"
 #include <cmath>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Additive White Gaussian Noise Channel.
@@ -42,13 +43,14 @@ namespace libcomm {
  * changed vcs version variable from a global to a static class variable.
  *
  * \version 1.20 (13 Mar 2002)
- * updated the system to conform with the completed serialization protocol (in conformance
- * with channel 1.10), by adding the necessary name() function, and also by adding a static
- * serializer member and initialize it with this class's name and the static constructor
- * (adding that too). Also made the channel object a public base class, rather than a
- * virtual public one, since this was affecting the transfer of virtual functions within
- * the class (causing access violations). Also moved most functions into the implementation
- * file rather than here.
+ * updated the system to conform with the completed serialization protocol (in
+ * conformance with channel 1.10), by adding the necessary name() function, and
+ * also by adding a static serializer member and initialize it with this class's
+ * name and the static constructor (adding that too). Also made the channel
+ * object a public base class, rather than a virtual public one, since this was
+ * affecting the transfer of virtual functions within the class (causing access
+ * violations). Also moved most functions into the implementation file rather
+ * than here.
  *
  * \version 1.30 (27 Mar 2002)
  * changed descriptive output function to conform with channel 1.30.
@@ -66,30 +68,33 @@ namespace libcomm {
  * changed class to conform with channel 1.52.
  *
  * \version 1.53 (29 Oct 2007)
- * - updated clone() to return this object's type, rather than its base class type. [cf. Stroustrup 15.6.2]
+ * - updated clone() to return this object's type, rather than its base class
+ * type. [cf. Stroustrup 15.6.2]
  *
  * \version 1.54 (24 Jan 2008)
  * - Changed derivation from channel to channel<sigspace>
  */
 
-class awgn : public channel<sigspace> {
-   // channel paremeters
-   double sigma;
-protected:
-   // handle functions
-   void compute_parameters(const double Eb, const double No);
-   // channel handle functions
-   sigspace corrupt(const sigspace& s);
-   double pdf(const sigspace& tx, const sigspace& rx) const;
-public:
-   // Description
-   std::string description() const;
+class awgn : public channel<sigspace>
+{
+    // channel paremeters
+    double sigma;
 
-   // Serialization Support
-DECLARE_SERIALIZER(awgn)
+protected:
+    // handle functions
+    void compute_parameters(const double Eb, const double No);
+    // channel handle functions
+    sigspace corrupt(const sigspace& s);
+    double pdf(const sigspace& tx, const sigspace& rx) const;
+
+public:
+    // Description
+    std::string description() const;
+
+    // Serialization Support
+    DECLARE_SERIALIZER(awgn)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

@@ -19,18 +19,19 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "stdafx.h"
 #include "ArchiveStreamBuf.h"
+#include "stdafx.h"
 
-namespace libwin {
+namespace libwin
+{
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
 CArchiveStreamBuf::CArchiveStreamBuf(CArchive* ar)
-   {
-   CArchiveStreamBuf::ar = ar;
-   }
+{
+    CArchiveStreamBuf::ar = ar;
+}
 
-} // end namespace
+} // namespace libwin

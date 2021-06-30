@@ -21,22 +21,23 @@
 
 #include "logreal.h"
 
-namespace libbase {
+namespace libbase
+{
 
 // Input/Output Operations
 
 std::ostream& operator<<(std::ostream& s, const logreal& x)
-   {
-   const double lg = -x.logval / log(10.0);
+{
+    const double lg = -x.logval / log(10.0);
 
-   const std::ios::fmtflags flags = s.flags();
-   s.setf(std::ios::fixed, std::ios::floatfield);
-   s << pow(10.0, lg - floor(lg));
-   s.setf(std::ios::showpos);
-   s << "e" << int(floor(lg));
-   s.flags(flags);
+    const std::ios::fmtflags flags = s.flags();
+    s.setf(std::ios::fixed, std::ios::floatfield);
+    s << pow(10.0, lg - floor(lg));
+    s.setf(std::ios::showpos);
+    s << "e" << int(floor(lg));
+    s.flags(flags);
 
-   return s;
-   }
+    return s;
+}
 
-} // end namespace
+} // namespace libbase

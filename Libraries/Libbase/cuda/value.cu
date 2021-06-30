@@ -27,13 +27,14 @@
 
 #include "cuda-all.h"
 
-namespace cuda {
+namespace cuda
+{
 
 // explicit instantiations
 
-template class value<bool> ;
-template class value<int> ;
-template class value<float> ;
-template class value<double> ;
+template class value<bool>;
+template class value<int>;
+template class value<float>;
+template class value<double>;
 
-} // end namespace
+} // namespace cuda

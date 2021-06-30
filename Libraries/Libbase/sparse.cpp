@@ -21,48 +21,61 @@
 
 #include "sparse.h"
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief Set up LUT with the lowest weight codewords
  */
 int sparse::fill(int i, bitfield suffix, int weight)
-   {
-   // stop here if we've reached the end
-   if (i >= lut.size())
-      return i;
-   // otherwise, it all depends on the weight we're considering
-   bitfield b;
+{
+    // stop here if we've reached the end
+    if (i >= lut.size()) {
+        return i;
+    }
+
+    // otherwise, it all depends on the weight we're considering
+    bitfield b;
 #ifndef NDEBUG
-   if (lut.size() > 2)
-      trace << "Starting fill with:\t" << suffix << "\t" << weight << std::endl;
+    if (lut.size() > 2) {
+        trace << "Starting fill with:\t" << suffix << "\t" << weight
+              << std::endl;
+    }
 #endif
-   if (weight == 0)
-      lut(i++) = suffix;
-   else
-      {
-      weight--;
-      if (suffix.size() == 0)
-         i = fill(i, suffix, weight);
-      for (b = bitfield("1"); b.size() + suffix.size() + weight <= n; b = b
-            + bitfield("0"))
-         i = fill(i, b + suffix, weight);
-      }
-   return i;
-   }
+
+    if (weight == 0) {
+        lut(i++) = suffix;
+    } else {
+        weight--;
+
+        if (suffix.size() == 0) {
+            i = fill(i, suffix, weight);
+        }
+
+        for (b = bitfield("1"); b.size() + suffix.size() + weight <= n;
+             b = b + bitfield("0")) {
+            i = fill(i, b + suffix, weight);
+        }
+    }
+
+    return i;
+}
 
 void sparse::init(const int q, const int n)
-   {
-   assert(q >= 0);
-   assert(q <= (1 << n));
-   // set codeword size
-   this->n = n;
-   // initialize array to hold permuted positions
-   lut.init(q);
-   if (q == 0)
-      return;
-   // set up codebook
-   fill(0, bitfield(""), n);
-   }
+{
+    assert(q >= 0);
+    assert(q <= (1 << n));
+    // set codeword size
+    this->n = n;
 
-} // end namespace
+    // initialize array to hold permuted positions
+    lut.init(q);
+    if (q == 0) {
+        return;
+    }
+
+    // set up codebook
+    fill(0, bitfield(""), n);
+}
+
+} // namespace libbase

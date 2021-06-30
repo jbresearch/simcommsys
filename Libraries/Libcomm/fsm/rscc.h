@@ -25,39 +25,40 @@
 #include "ccbfsm.h"
 #include "serializer.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Recursive Systematic Convolutional Coder.
  * \author  Johann Briffa
  */
 
-class rscc : public ccbfsm {
+class rscc : public ccbfsm
+{
 protected:
-   libbase::vector<int> determineinput(const libbase::vector<int>& input) const;
-   libbase::bitfield determinefeedin(const libbase::vector<int>& input) const;
-   rscc()
-      {
-      }
+    libbase::vector<int>
+    determineinput(const libbase::vector<int>& input) const;
+    libbase::bitfield determinefeedin(const libbase::vector<int>& input) const;
+    rscc() {}
+
 public:
-   /*! \name Constructors / Destructors */
-   rscc(libbase::matrix<libbase::bitfield> const &generator) :
-      ccbfsm(generator)
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    rscc(libbase::matrix<libbase::bitfield> const& generator)
+        : ccbfsm(generator)
+    {
+    }
+    // @}
 
-   // FSM state operations (getting and resetting)
-   void resetcircular(const libbase::vector<int>& zerostate, int n);
+    // FSM state operations (getting and resetting)
+    void resetcircular(const libbase::vector<int>& zerostate, int n);
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(rscc)
+    // Serialization Support
+    DECLARE_SERIALIZER(rscc)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

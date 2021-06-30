@@ -19,13 +19,13 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "stdafx.h"
-#include "FilterEnergy.h"
 #include "FilterEnergyDlg.h"
+#include "FilterEnergy.h"
+#include "stdafx.h"
 
 #ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
+#    define new DEBUG_NEW
+#    undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
 
@@ -33,17 +33,17 @@ static char THIS_FILE[] = __FILE__;
 // CAboutDlg dialog used for App About
 
 CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
-   {
-   //{{AFX_DATA_INIT(CAboutDlg)
-   //}}AFX_DATA_INIT
-   }
+{
+    //{{AFX_DATA_INIT(CAboutDlg)
+    //}}AFX_DATA_INIT
+}
 
 void CAboutDlg::DoDataExchange(CDataExchange* pDX)
-   {
-   CDialog::DoDataExchange(pDX);
-   //{{AFX_DATA_MAP(CAboutDlg)
-   //}}AFX_DATA_MAP
-   }
+{
+    CDialog::DoDataExchange(pDX);
+    //{{AFX_DATA_MAP(CAboutDlg)
+    //}}AFX_DATA_MAP
+}
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
 //{{AFX_MSG_MAP(CAboutDlg)
@@ -55,70 +55,68 @@ END_MESSAGE_MAP()
 // CFilterEnergyDlg dialog
 
 CFilterEnergyDlg::CFilterEnergyDlg(CWnd* pParent /*=NULL*/)
-: CDialog(CFilterEnergyDlg::IDD, pParent)
-   {
-   //{{AFX_DATA_INIT(CFilterEnergyDlg)
-        m_bAppend = FALSE;
-        m_bDisplayEnergy = FALSE;
-        m_bDisplayPixelCount = FALSE;
-        m_bDisplayVariance = FALSE;
-        m_sFileName = _T("");
-        m_bScreenOnly = FALSE;
-        //}}AFX_DATA_INIT
-   }
-
+    : CDialog(CFilterEnergyDlg::IDD, pParent)
+{
+    //{{AFX_DATA_INIT(CFilterEnergyDlg)
+    m_bAppend = FALSE;
+    m_bDisplayEnergy = FALSE;
+    m_bDisplayPixelCount = FALSE;
+    m_bDisplayVariance = FALSE;
+    m_sFileName = _T("");
+    m_bScreenOnly = FALSE;
+    //}}AFX_DATA_INIT
+}
 
 void CFilterEnergyDlg::DoDataExchange(CDataExchange* pDX)
-   {
-   CDialog::DoDataExchange(pDX);
-   //{{AFX_DATA_MAP(CFilterEnergyDlg)
-        DDX_Check(pDX, IDC_APPEND, m_bAppend);
-        DDX_Check(pDX, IDC_DISPLAY_ENERGY, m_bDisplayEnergy);
-        DDX_Check(pDX, IDC_DISPLAY_PIXELCOUNT, m_bDisplayPixelCount);
-        DDX_Check(pDX, IDC_DISPLAY_VARIANCE, m_bDisplayVariance);
-        DDX_Text(pDX, IDC_FILENAME, m_sFileName);
-        DDX_Check(pDX, IDC_SCREENONLY, m_bScreenOnly);
-        //}}AFX_DATA_MAP
-   }
-
+{
+    CDialog::DoDataExchange(pDX);
+    //{{AFX_DATA_MAP(CFilterEnergyDlg)
+    DDX_Check(pDX, IDC_APPEND, m_bAppend);
+    DDX_Check(pDX, IDC_DISPLAY_ENERGY, m_bDisplayEnergy);
+    DDX_Check(pDX, IDC_DISPLAY_PIXELCOUNT, m_bDisplayPixelCount);
+    DDX_Check(pDX, IDC_DISPLAY_VARIANCE, m_bDisplayVariance);
+    DDX_Text(pDX, IDC_FILENAME, m_sFileName);
+    DDX_Check(pDX, IDC_SCREENONLY, m_bScreenOnly);
+    //}}AFX_DATA_MAP
+}
 
 BEGIN_MESSAGE_MAP(CFilterEnergyDlg, CDialog)
 //{{AFX_MSG_MAP(CFilterEnergyDlg)
-        ON_BN_CLICKED(IDC_SCREENONLY, OnScreenOnly)
-        ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
-        //}}AFX_MSG_MAP
+ON_BN_CLICKED(IDC_SCREENONLY, OnScreenOnly)
+ON_BN_CLICKED(IDC_BROWSE, OnBrowse)
+//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CFilterEnergyDlg message handlers
 
 BOOL CFilterEnergyDlg::OnInitDialog()
-   {
-   CDialog::OnInitDialog();
+{
+    CDialog::OnInitDialog();
 
-   // set scale (cf OnScreenOnly)
-   GetDlgItem(IDC_FILENAME)->EnableWindow(!m_bScreenOnly);
-   GetDlgItem(IDC_BROWSE)->EnableWindow(!m_bScreenOnly);
-   GetDlgItem(IDC_APPEND)->EnableWindow(!m_bScreenOnly);
+    // set scale (cf OnScreenOnly)
+    GetDlgItem(IDC_FILENAME)->EnableWindow(!m_bScreenOnly);
+    GetDlgItem(IDC_BROWSE)->EnableWindow(!m_bScreenOnly);
+    GetDlgItem(IDC_APPEND)->EnableWindow(!m_bScreenOnly);
 
-   return TRUE;  // return TRUE unless you set the focus to a control
-   // EXCEPTION: OCX Property Pages should return FALSE
-   }
+    return TRUE; // return TRUE unless you set the focus to a control
+    // EXCEPTION: OCX Property Pages should return FALSE
+}
 
 void CFilterEnergyDlg::OnScreenOnly()
-   {
-   m_bScreenOnly = ((CButton*)GetDlgItem(IDC_SCREENONLY))->GetCheck();
-   GetDlgItem(IDC_FILENAME)->EnableWindow(!m_bScreenOnly);
-   GetDlgItem(IDC_BROWSE)->EnableWindow(!m_bScreenOnly);
-   GetDlgItem(IDC_APPEND)->EnableWindow(!m_bScreenOnly);
-   }
+{
+    m_bScreenOnly = ((CButton*)GetDlgItem(IDC_SCREENONLY))->GetCheck();
+    GetDlgItem(IDC_FILENAME)->EnableWindow(!m_bScreenOnly);
+    GetDlgItem(IDC_BROWSE)->EnableWindow(!m_bScreenOnly);
+    GetDlgItem(IDC_APPEND)->EnableWindow(!m_bScreenOnly);
+}
 
 void CFilterEnergyDlg::OnBrowse()
-   {
-   CFileDialog dlg(FALSE, NULL, m_sFileName.IsEmpty() ? "results.txt" : m_sFileName);
-   if(dlg.DoModal() == IDOK)
-      {
-      m_sFileName = dlg.GetPathName();
-      SetDlgItemText(IDC_FILENAME, m_sFileName);
-      }
-   }
+{
+    CFileDialog dlg(
+        FALSE, NULL, m_sFileName.IsEmpty() ? "results.txt" : m_sFileName);
+    if (dlg.DoModal() == IDOK) {
+        m_sFileName = dlg.GetPathName();
+        SetDlgItemText(IDC_FILENAME, m_sFileName);
+    }
+}

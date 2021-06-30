@@ -22,57 +22,58 @@
 #include "secant.h"
 
 #include <algorithm>
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
 
-namespace libbase {
+namespace libbase
+{
 
 // exported functions
 
-secant::secant(double(*func)(double))
-   {
-   bind(func);
-   init(0, 1);
-   accuracy(1e-10);
-   maxiter(1000);
-   }
+secant::secant(double (*func)(double))
+{
+    bind(func);
+    init(0, 1);
+    accuracy(1e-10);
+    maxiter(1000);
+}
 
 void secant::init(const double x1, const double x2)
-   {
-   init_x1 = x1;
-   init_x2 = x2;
-   }
+{
+    init_x1 = x1;
+    init_x2 = x2;
+}
 
 double secant::solve(const double y)
-   {
-   assertalways(f != NULL);
+{
+    assertalways(f != NULL);
 
-   // Initialise
-   double x1 = init_x1;
-   double x2 = init_x2;
-   double y1 = (*f)(x1) - y;
-   double y2 = (*f)(x2) - y;
+    // Initialise
+    double x1 = init_x1;
+    double x2 = init_x2;
+    double y1 = (*f)(x1)-y;
+    double y2 = (*f)(x2)-y;
 
-   if (fabs(y2) < fabs(y1))
-      {
-      std::swap(x1, x2);
-      std::swap(y1, y2);
-      }
+    if (fabs(y2) < fabs(y1)) {
+        std::swap(x1, x2);
+        std::swap(y1, y2);
+    }
 
-   for (int i = 0; i < max_iter; i++)
-      {
-      double dx = (x2 - x1) * y1 / (y1 - y2);
-      x2 = x1;
-      y2 = y1;
-      x1 += dx;
-      y1 = (*f)(x1) - y;
-      if (y1 == 0.0 || fabs(dx) < min_dx)
-         return x1;
-      }
+    for (int i = 0; i < max_iter; i++) {
+        double dx = (x2 - x1) * y1 / (y1 - y2);
+        x2 = x1;
+        y2 = y1;
+        x1 += dx;
+        y1 = (*f)(x1)-y;
 
-   std::cerr
-         << "FATAL ERROR (secant): Maximum number of iterations exceeded." << std::endl;
-   exit(1);
-   }
+        if (y1 == 0.0 || fabs(dx) < min_dx) {
+            return x1;
+        }
+    }
 
-} // end namespace
+    std::cerr << "FATAL ERROR (secant): Maximum number of iterations exceeded."
+              << std::endl;
+    exit(1);
+}
+
+} // namespace libbase

@@ -22,13 +22,14 @@
 #include "map_aggregating.h"
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Determine debug level:
 // 1 - Normal debug output only
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG 1
+#    undef DEBUG
+#    define DEBUG 1
 #endif
 
 /*** Vector Specialization ***/
@@ -36,81 +37,83 @@ namespace libcomm {
 // Interface with mapper
 
 template <class dbl, class dbl2>
-void map_aggregating<libbase::vector, dbl, dbl2>::dotransform(const array1i_t& in,
-      array1i_t& out) const
-   {
-   // Confirm input sequence to be of the correct length
-   assertalways(in.size() == this->input_block_size());
-   // Create converter object and perform necessary transform
-   libbase::symbol_converter<dbl,dbl2> converter(Base::q, Base::M);
-   converter.aggregate_symbols(in, out);
-   }
+void map_aggregating<libbase::vector, dbl, dbl2>::dotransform(
+    const array1i_t& in, array1i_t& out) const
+{
+    // Confirm input sequence to be of the correct length
+    assertalways(in.size() == this->input_block_size());
+    // Create converter object and perform necessary transform
+    libbase::symbol_converter<dbl, dbl2> converter(Base::q, Base::M);
+    converter.aggregate_symbols(in, out);
+}
 
 template <class dbl, class dbl2>
-void map_aggregating<libbase::vector, dbl, dbl2>::dotransform(const array1vd_t& pin,
-      array1vd_t& pout) const
-   {
-   // Confirm input sequence to be of the correct length
-   assertalways(pin.size() == this->input_block_size());
-   // Create converter object and perform necessary transform
-   libbase::symbol_converter<dbl,dbl2> converter(Base::q, Base::M);
-   converter.aggregate_probabilities(pin, pout);
-   }
+void map_aggregating<libbase::vector, dbl, dbl2>::dotransform(
+    const array1vd_t& pin, array1vd_t& pout) const
+{
+    // Confirm input sequence to be of the correct length
+    assertalways(pin.size() == this->input_block_size());
+    // Create converter object and perform necessary transform
+    libbase::symbol_converter<dbl, dbl2> converter(Base::q, Base::M);
+    converter.aggregate_probabilities(pin, pout);
+}
 
 template <class dbl, class dbl2>
-void map_aggregating<libbase::vector, dbl, dbl2>::doinverse(const array1vd_t& pin,
-      array1vd_t& pout) const
-   {
-   // Confirm input sequence to be of the correct length
-   assertalways(pin.size() == This::output_block_size());
-   // Create converter object and perform necessary transform
-   libbase::symbol_converter<dbl,dbl2> converter(Base::q, Base::M);
-   converter.divide_probabilities(pin, pout);
-   }
+void map_aggregating<libbase::vector, dbl, dbl2>::doinverse(
+    const array1vd_t& pin, array1vd_t& pout) const
+{
+    // Confirm input sequence to be of the correct length
+    assertalways(pin.size() == This::output_block_size());
+    // Create converter object and perform necessary transform
+    libbase::symbol_converter<dbl, dbl2> converter(Base::q, Base::M);
+    converter.divide_probabilities(pin, pout);
+}
 
 // Description
 
 template <class dbl, class dbl2>
 std::string map_aggregating<libbase::vector, dbl, dbl2>::description() const
-   {
-   std::ostringstream sout;
-   sout << "Aggregating Mapper (Vector)";
-   sout << " [" << this->input_block_size() << "<->"
+{
+    std::ostringstream sout;
+    sout << "Aggregating Mapper (Vector)";
+    sout << " [" << this->input_block_size() << "<->"
          << this->output_block_size() << "]";
-   return sout.str();
-   }
+    return sout.str();
+}
 
 // Serialization Support
 
 template <class dbl, class dbl2>
-std::ostream& map_aggregating<libbase::vector, dbl, dbl2>::serialize(
-      std::ostream& sout) const
-   {
-   return sout;
-   }
+std::ostream&
+map_aggregating<libbase::vector, dbl, dbl2>::serialize(std::ostream& sout) const
+{
+    return sout;
+}
 
 template <class dbl, class dbl2>
-std::istream& map_aggregating<libbase::vector, dbl, dbl2>::serialize(
-      std::istream& sin)
-   {
-   return sin;
-   }
+std::istream&
+map_aggregating<libbase::vector, dbl, dbl2>::serialize(std::istream& sin)
+{
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
 #include "logrealfast.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
-#include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-using libbase::serializer;
 using libbase::logrealfast;
+using libbase::serializer;
 using libbase::vector;
 
+// clang-format off
 #define CONTAINER_TYPE_SEQ \
    (vector)
 #define REAL_TYPE_SEQ \
@@ -133,7 +136,9 @@ using libbase::vector;
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2,args)) ">", \
             map_aggregating<BOOST_PP_SEQ_ENUM(args)>::create);
+// clang-format on
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (CONTAINER_TYPE_SEQ)(REAL_TYPE_SEQ)(REAL_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(
+    INSTANTIATE, (CONTAINER_TYPE_SEQ)(REAL_TYPE_SEQ)(REAL_TYPE_SEQ))
 
-} // end namespace
+} // namespace libcomm

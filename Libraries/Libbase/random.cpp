@@ -21,51 +21,50 @@
 
 #include "random.h"
 
-namespace libbase {
+namespace libbase
+{
 
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Track reseeding
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG 1
+#    undef DEBUG
+#    define DEBUG 1
 #endif
 
 void random::seed(int32u s)
-   {
-#if DEBUG>=2
-   std::cerr << "DEBUG: random (" << this << ") reseeded with " << s
-         << " after " << counter << " steps." << std::endl;
+{
+#if DEBUG >= 2
+    std::cerr << "DEBUG: random (" << this << ") reseeded with " << s
+              << " after " << counter << " steps." << std::endl;
 #endif
 #ifndef NDEBUG
-   counter = 0;
-   initialized = true;
+    counter = 0;
+    initialized = true;
 #endif
-   // this makes sure any stored gval is discarded
-   next_gval_available = false;
-   // initialize underlying generator
-   init(s);
-   }
+    // this makes sure any stored gval is discarded
+    next_gval_available = false;
+    // initialize underlying generator
+    init(s);
+}
 
 double random::gval()
-   {
-   if (next_gval_available)
-      {
-      next_gval_available = false;
-      return next_gval;
-      }
+{
+    if (next_gval_available) {
+        next_gval_available = false;
+        return next_gval;
+    }
 
-   double v1, v2, rsq;
-   do
-      {
-      v1 = 2.0 * fval_closed() - 1.0;
-      v2 = 2.0 * fval_closed() - 1.0;
-      rsq = (v1 * v1) + (v2 * v2);
-      } while (rsq >= 1.0 || rsq == 0.0);
-   double fac = sqrt(-2.0 * log(rsq) / rsq);
-   next_gval = v2 * fac;
-   next_gval_available = true;
-   return (v1 * fac);
-   }
+    double v1, v2, rsq;
+    do {
+        v1 = 2.0 * fval_closed() - 1.0;
+        v2 = 2.0 * fval_closed() - 1.0;
+        rsq = (v1 * v1) + (v2 * v2);
+    } while (rsq >= 1.0 || rsq == 0.0);
+    double fac = sqrt(-2.0 * log(rsq) / rsq);
+    next_gval = v2 * fac;
+    next_gval_available = true;
+    return (v1 * fac);
+}
 
-} // end namespace
+} // namespace libbase

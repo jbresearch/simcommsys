@@ -23,64 +23,67 @@
 
 #include <cstdlib>
 
-namespace libbase {
+namespace libbase
+{
 
 // Internal functions
 
 /*!
  * \brief Conversion from string
- * \param   s     String representation of element by its polynomial coefficients (binary)
+ * \param   s     String representation of element by its polynomial
+ * coefficients (binary)
  *
  * This function converts the string to an integer and calls init().
  * The string must only contain 1's and 0's.
  */
 template <int m, int poly>
 void gf<m, poly>::init(const std::string s)
-   {
-   int32u value = 0;
-   for (std::string::const_iterator it = s.begin(); it != s.end(); ++it)
-      {
-      // check for invalid characters
-      assertalways(*it == '0' || *it == '1');
-      value <<= 1;
-      if (*it == '1')
-         value |= 1;
-      }
-   this->init(value);
-   }
+{
+    int32u value = 0;
+    for (std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
+        // check for invalid characters
+        assertalways(*it == '0' || *it == '1');
+        value <<= 1;
+        if (*it == '1') {
+            value |= 1;
+        }
+    }
+    this->init(value);
+}
 
 // Conversion operations
 
 template <int m, int poly>
 gf<m, poly>::operator std::string() const
-   {
-   std::string sTemp;
-   for (int i = m - 1; i >= 0; i--)
-      sTemp += '0' + ((value >> i) & 1);
-   return sTemp;
-   }
+{
+    std::string sTemp;
+    for (int i = m - 1; i >= 0; i--) {
+        sTemp += '0' + ((value >> i) & 1);
+    }
+    return sTemp;
+}
 
 // Explicit Realizations
 
 // Degenerate case GF(2)
 
-template class gf<1, 0x3> ; // 1 { 1 }
+template class gf<1, 0x3>; // 1 { 1 }
 
 // cf. Lin & Costello, 2004, App. A
 
-template class gf<2, 0x7> ; // 1 { 11 }
-template class gf<3, 0xB> ; // 1 { 011 }
-template class gf<4, 0x13> ; // 1 { 0011 }
-template class gf<5, 0x25> ; // 1 { 0 0101 }
-template class gf<6, 0x43> ; // 1 { 00 0011 }
-template class gf<7, 0x89> ; // 1 { 000 1001 }
-template class gf<8, 0x11D> ; // 1 { 0001 1101 }
-template class gf<9, 0x211> ; // 1 { 0 0001 0001 }
-template class gf<10, 0x409> ; // 1 { 00 0000 1001 }
+template class gf<2, 0x7>;    // 1 { 11 }
+template class gf<3, 0xB>;    // 1 { 011 }
+template class gf<4, 0x13>;   // 1 { 0011 }
+template class gf<5, 0x25>;   // 1 { 0 0101 }
+template class gf<6, 0x43>;   // 1 { 00 0011 }
+template class gf<7, 0x89>;   // 1 { 000 1001 }
+template class gf<8, 0x11D>;  // 1 { 0001 1101 }
+template class gf<9, 0x211>;  // 1 { 0 0001 0001 }
+template class gf<10, 0x409>; // 1 { 00 0000 1001 }
 
 // Rijndael field cf. Gladman, 2003, p.5
 
-template class gf<8, 0x11B> ; // 1 { 0001 1011 }
+template class gf<8, 0x11B>; // 1 { 0001 1011 }
 
 /* NOTE: We cannot use the following loop because C++ does not allow explicit
  * instantiation using typedefs...
@@ -92,4 +95,4 @@ template class gf<8, 0x11B> ; // 1 { 0001 1011 }
    BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, GF_TYPE_SEQ)
  */
 
-} // end namespace
+} // namespace libbase

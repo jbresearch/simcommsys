@@ -23,9 +23,9 @@
 #define __ssissimulator_h
 
 #include "config.h"
+#include "image.h"
 #include "matrix.h"
 #include "stegosystem.h"
-#include "image.h"
 
 #include <string>
 
@@ -52,38 +52,41 @@
 
 class CSSISsimulator : protected libcomm::stegosystem
 {
-// Variables
+    // Variables
 private:
-   // command-line
-   std::string   m_sCommand;
-   // User parameters
-   std::string   m_sFileInput, m_sFileOutput;
-   int      m_nFormat, m_nQuality;        // Format: 0 - TIF/None, 1 - TIF/LZW, 2 - JPG
-   double   m_dStrength;
-   int      m_nKeySeed, m_nMessageSeed;
-   // Internal variables
-   int      m_nPixels;
-   libbase::vector<double> m_vdMessage;
+    // command-line
+    std::string m_sCommand;
+    // User parameters
+    std::string m_sFileInput, m_sFileOutput;
+    int m_nFormat, m_nQuality; // Format: 0 - TIF/None, 1 - TIF/LZW, 2 - JPG
+    double m_dStrength;
+    int m_nKeySeed, m_nMessageSeed;
+    // Internal variables
+    int m_nPixels;
+    libbase::vector<double> m_vdMessage;
 
-// Functions
+    // Functions
 private:
-   // required by StegoSystem
-   int GetImagePixels() const { return m_nPixels; };
-   void DisplayProgress(const int nComplete, const int nTotal, const int nIteration, const int nTotalIterations) const {};
+    // required by StegoSystem
+    int GetImagePixels() const { return m_nPixels; };
+    void DisplayProgress(const int nComplete,
+                         const int nTotal,
+                         const int nIteration,
+                         const int nTotalIterations) const {};
 
-   // pre- and post-embedding processing (creation of data sequence, etc)
-   void PreEmbedding();
-   void PostEmbedding();
-   // complete image process (loop over all channels)
-   void ProcessImage(libimage::image& iImage);
+    // pre- and post-embedding processing (creation of data sequence, etc)
+    void PreEmbedding();
+    void PostEmbedding();
+    // complete image process (loop over all channels)
+    void ProcessImage(libimage::image& iImage);
 
 public:
-   // Constructor / Destructor
-        CSSISsimulator();
-        virtual ~CSSISsimulator();
-   // Main interface functions
-   void InterpretParameters(int argc, char *argv[]);
-   int MainProcess();
+    // Constructor / Destructor
+    CSSISsimulator();
+    virtual ~CSSISsimulator();
+    // Main interface functions
+    void InterpretParameters(int argc, char* argv[]);
+    int MainProcess();
 };
 
 #endif

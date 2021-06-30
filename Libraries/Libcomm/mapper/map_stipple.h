@@ -24,7 +24,8 @@
 
 #include "mapper.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Stipple Mapper - Template base.
@@ -35,8 +36,9 @@ namespace libcomm {
  * here.
  */
 
-template <template <class > class C = libbase::vector, class dbl = double>
-class map_stipple : public mapper<C, dbl> {
+template <template <class> class C = libbase::vector, class dbl = double>
+class map_stipple : public mapper<C, dbl>
+{
 };
 
 /*!
@@ -53,59 +55,58 @@ class map_stipple : public mapper<C, dbl> {
  */
 
 template <class dbl>
-class map_stipple<libbase::vector, dbl> : public mapper<libbase::vector, dbl> {
+class map_stipple<libbase::vector, dbl> : public mapper<libbase::vector, dbl>
+{
 private:
-   // Shorthand for class hierarchy
-   typedef mapper<libbase::vector, dbl> Base;
-   typedef map_stipple<libbase::vector, dbl> This;
-public:
-   /*! \name Type definitions */
-   typedef libbase::vector<dbl> array1d_t;
-   typedef libbase::vector<int> array1i_t;
-   typedef libbase::vector<array1d_t> array1vd_t;
-   // @}
-
-private:
-   /*! \name User-defined parameters */
-   int sets; //!< Number of turbo code parallel sets
-   // @}
-   /*! \name Internal object representation */
-   mutable libbase::vector<bool> pattern; //!< Pre-computed puncturing pattern
-   // @}
-
-protected:
-   // Pull in base class variables
-   using Base::size;
-   using Base::q;
-   using Base::M;
-
-protected:
-   // Interface with mapper
-   void advance() const;
-   void dotransform(const array1i_t& in, array1i_t& out) const;
-   void dotransform(const array1vd_t& pin, array1vd_t& pout) const;
-   void doinverse(const array1vd_t& pin, array1vd_t& pout) const;
+    // Shorthand for class hierarchy
+    typedef mapper<libbase::vector, dbl> Base;
+    typedef map_stipple<libbase::vector, dbl> This;
 
 public:
-   // Informative functions
-   double rate() const
-      {
-      return (sets + 1) / 2.0;
-      }
-   libbase::size_type<libbase::vector> output_block_size() const
-      {
-      const int tau = size.length() / (sets + 1);
-      assert(size.length() == tau * (sets + 1));
-      return libbase::size_type<libbase::vector>(tau * 2);
-      }
+    /*! \name Type definitions */
+    typedef libbase::vector<dbl> array1d_t;
+    typedef libbase::vector<int> array1i_t;
+    typedef libbase::vector<array1d_t> array1vd_t;
+    // @}
 
-   // Description
-   std::string description() const;
+private:
+    /*! \name User-defined parameters */
+    int sets; //!< Number of turbo code parallel sets
+    // @}
+    /*! \name Internal object representation */
+    mutable libbase::vector<bool> pattern; //!< Pre-computed puncturing pattern
+                                           // @}
 
-   // Serialization Support
-DECLARE_SERIALIZER(map_stipple)
+protected:
+    // Pull in base class variables
+    using Base::M;
+    using Base::q;
+    using Base::size;
+
+protected:
+    // Interface with mapper
+    void advance() const;
+    void dotransform(const array1i_t& in, array1i_t& out) const;
+    void dotransform(const array1vd_t& pin, array1vd_t& pout) const;
+    void doinverse(const array1vd_t& pin, array1vd_t& pout) const;
+
+public:
+    // Informative functions
+    double rate() const { return (sets + 1) / 2.0; }
+    libbase::size_type<libbase::vector> output_block_size() const
+    {
+        const int tau = size.length() / (sets + 1);
+        assert(size.length() == tau * (sets + 1));
+        return libbase::size_type<libbase::vector>(tau * 2);
+    }
+
+    // Description
+    std::string description() const;
+
+    // Serialization Support
+    DECLARE_SERIALIZER(map_stipple)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

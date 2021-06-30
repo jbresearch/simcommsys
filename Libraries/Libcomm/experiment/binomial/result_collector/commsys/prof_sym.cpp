@@ -23,22 +23,24 @@
 #include "fsm.h"
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // commsys functions
 
 void prof_sym::updateresults(libbase::vector<double>& result,
-      const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
-   {
-   // Update the count for every bit in error
-   assert(source.size() == get_symbolsperblock());
-   assert(decoded.size() == get_symbolsperblock());
-   for (int t = 0; t < get_symbolsperblock(); t++)
-      {
-      assert(source(t) != fsm::tail);
-      if (source(t) != decoded(t))
-         result(source(t))++;
-      }
-   }
+                             const libbase::vector<int>& source,
+                             const libbase::vector<int>& decoded) const
+{
+    // Update the count for every bit in error
+    assert(source.size() == get_symbolsperblock());
+    assert(decoded.size() == get_symbolsperblock());
+    for (int t = 0; t < get_symbolsperblock(); t++) {
+        assert(source(t) != fsm::tail);
+        if (source(t) != decoded(t)) {
+            result(source(t))++;
+        }
+    }
+}
 
-} // end namespace
+} // namespace libcomm

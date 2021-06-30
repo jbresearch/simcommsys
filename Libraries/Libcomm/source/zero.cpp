@@ -22,40 +22,43 @@
 #include "zero.h"
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // object serialization - saving
 
-template <class S, template <class > class C>
+template <class S, template <class> class C>
 std::ostream& zero<S, C>::serialize(std::ostream& sout) const
-   {
-   return sout;
-   }
+{
+    return sout;
+}
 
 // object serialization - loading
 
-template <class S, template <class > class C>
+template <class S, template <class> class C>
 std::istream& zero<S, C>::serialize(std::istream& sin)
-   {
-   return sin;
-   }
+{
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
 #include "gf.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
+#include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/seq/for_each_product.hpp>
-#include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-using libbase::serializer;
 using libbase::matrix;
+using libbase::serializer;
 using libbase::vector;
 
+// clang-format off
 #define USING_GF(r, x, type) \
       using libbase::type;
 
@@ -81,7 +84,9 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             "zero<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
             zero<BOOST_PP_SEQ_ENUM(args)>::create);
+// clang-format on
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
+                              (SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ))
 
-} // end namespace
+} // namespace libcomm

@@ -24,14 +24,15 @@
 #include <cstdlib>
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Matrix: show input/output sizes on transform/inverse
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG 1
+#    undef DEBUG
+#    define DEBUG 1
 #endif
 
 /*** Vector Specialization ***/
@@ -40,26 +41,27 @@ namespace libcomm {
 
 template <class dbl>
 std::string map_straight<libbase::vector, dbl>::description() const
-   {
-   std::ostringstream sout;
-   sout << "Straight Mapper (Vector)";
-   sout << " [" << this->input_block_size() << "]";
-   return sout.str();
-   }
+{
+    std::ostringstream sout;
+    sout << "Straight Mapper (Vector)";
+    sout << " [" << this->input_block_size() << "]";
+    return sout.str();
+}
 
 // Serialization Support
 
 template <class dbl>
-std::ostream& map_straight<libbase::vector, dbl>::serialize(std::ostream& sout) const
-   {
-   return sout;
-   }
+std::ostream&
+map_straight<libbase::vector, dbl>::serialize(std::ostream& sout) const
+{
+    return sout;
+}
 
 template <class dbl>
 std::istream& map_straight<libbase::vector, dbl>::serialize(std::istream& sin)
-   {
-   return sin;
-   }
+{
+    return sin;
+}
 
 /*** Matrix Specialization ***/
 
@@ -67,44 +69,47 @@ std::istream& map_straight<libbase::vector, dbl>::serialize(std::istream& sin)
 
 template <class dbl>
 std::string map_straight<libbase::matrix, dbl>::description() const
-   {
-   std::ostringstream sout;
-   sout << "Straight Mapper (Matrix) ";
-   sout << " [" << this->input_block_size().rows() << "×"
+{
+    std::ostringstream sout;
+    sout << "Straight Mapper (Matrix) ";
+    sout << " [" << this->input_block_size().rows() << "×"
          << this->input_block_size().cols() << "]";
-   return sout.str();
-   }
+    return sout.str();
+}
 
 // Serialization Support
 
 template <class dbl>
-std::ostream& map_straight<libbase::matrix, dbl>::serialize(std::ostream& sout) const
-   {
-   return sout;
-   }
+std::ostream&
+map_straight<libbase::matrix, dbl>::serialize(std::ostream& sout) const
+{
+    return sout;
+}
 
 template <class dbl>
 std::istream& map_straight<libbase::matrix, dbl>::serialize(std::istream& sin)
-   {
-   return sin;
-   }
+{
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
 #include "logrealfast.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
-#include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-using libbase::serializer;
 using libbase::logrealfast;
 using libbase::matrix;
+using libbase::serializer;
 using libbase::vector;
 
+// clang-format off
 #define CONTAINER_TYPE_SEQ \
    (vector)(matrix)
 #define REAL_TYPE_SEQ \
@@ -124,7 +129,8 @@ using libbase::vector;
             "map_straight<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
             map_straight<BOOST_PP_SEQ_ENUM(args)>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (CONTAINER_TYPE_SEQ)(REAL_TYPE_SEQ))
 
-} // end namespace
+} // namespace libcomm

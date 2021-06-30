@@ -24,7 +24,8 @@
 
 #include "mapper.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Straight Mapper - Template base.
@@ -35,8 +36,9 @@ namespace libcomm {
  * here.
  */
 
-template <template <class > class C = libbase::vector, class dbl = double>
-class map_straight : public mapper<C, dbl> {
+template <template <class> class C = libbase::vector, class dbl = double>
+class map_straight : public mapper<C, dbl>
+{
 };
 
 /*!
@@ -48,47 +50,43 @@ class map_straight : public mapper<C, dbl> {
  */
 
 template <class dbl>
-class map_straight<libbase::vector, dbl> : public mapper<libbase::vector, dbl> {
+class map_straight<libbase::vector, dbl> : public mapper<libbase::vector, dbl>
+{
 private:
-   // Shorthand for class hierarchy
-   typedef mapper<libbase::vector, dbl> Base;
-   typedef map_straight<libbase::vector, dbl> This;
+    // Shorthand for class hierarchy
+    typedef mapper<libbase::vector, dbl> Base;
+    typedef map_straight<libbase::vector, dbl> This;
+
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<dbl> array1d_t;
-   typedef libbase::vector<int> array1i_t;
-   typedef libbase::vector<array1d_t> array1vd_t;
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<dbl> array1d_t;
+    typedef libbase::vector<int> array1i_t;
+    typedef libbase::vector<array1d_t> array1vd_t;
+    // @}
 
 protected:
-   // Interface with mapper
-   /*! \copydoc mapper::setup()
-    *
-    * \note Symbol alphabets must be the same size
-    */
-   void setup()
-      {
-      assertalways(Base::M == Base::q);
-      }
-   void dotransform(const array1i_t& in, array1i_t& out) const
-      {
-      out = in;
-      }
-   void dotransform(const array1vd_t& pin, array1vd_t& pout) const
-      {
-      pout = pin;
-      }
-   void doinverse(const array1vd_t& pin, array1vd_t& pout) const
-      {
-      pout = pin;
-      }
+    // Interface with mapper
+    /*! \copydoc mapper::setup()
+     *
+     * \note Symbol alphabets must be the same size
+     */
+    void setup() { assertalways(Base::M == Base::q); }
+    void dotransform(const array1i_t& in, array1i_t& out) const { out = in; }
+    void dotransform(const array1vd_t& pin, array1vd_t& pout) const
+    {
+        pout = pin;
+    }
+    void doinverse(const array1vd_t& pin, array1vd_t& pout) const
+    {
+        pout = pin;
+    }
 
 public:
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-   DECLARE_SERIALIZER (map_straight)
+    // Serialization Support
+    DECLARE_SERIALIZER(map_straight)
 };
 
 /*!
@@ -102,49 +100,45 @@ public:
  */
 
 template <class dbl>
-class map_straight<libbase::matrix, dbl> : public mapper<libbase::matrix, dbl> {
+class map_straight<libbase::matrix, dbl> : public mapper<libbase::matrix, dbl>
+{
 private:
-   // Shorthand for class hierarchy
-   typedef mapper<libbase::matrix, dbl> Base;
-   typedef map_straight<libbase::matrix, dbl> This;
+    // Shorthand for class hierarchy
+    typedef mapper<libbase::matrix, dbl> Base;
+    typedef map_straight<libbase::matrix, dbl> This;
+
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<dbl> array1d_t;
-   typedef libbase::matrix<int> array2i_t;
-   typedef libbase::matrix<array1d_t> array2vd_t;
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<dbl> array1d_t;
+    typedef libbase::matrix<int> array2i_t;
+    typedef libbase::matrix<array1d_t> array2vd_t;
+    // @}
 
 protected:
-   // Interface with mapper
-   /*! \copydoc mapper::setup()
-    *
-    * \note Symbol alphabets must be the same size
-    */
-   void setup()
-      {
-      assertalways(Base::M == Base::q);
-      }
-   void dotransform(const array2i_t& in, array2i_t& out) const
-      {
-      out = in;
-      }
-   void dotransform(const array2vd_t& pin, array2vd_t& pout) const
-      {
-      pout = pin;
-      }
-   void doinverse(const array2vd_t& pin, array2vd_t& pout) const
-      {
-      pout = pin;
-      }
+    // Interface with mapper
+    /*! \copydoc mapper::setup()
+     *
+     * \note Symbol alphabets must be the same size
+     */
+    void setup() { assertalways(Base::M == Base::q); }
+    void dotransform(const array2i_t& in, array2i_t& out) const { out = in; }
+    void dotransform(const array2vd_t& pin, array2vd_t& pout) const
+    {
+        pout = pin;
+    }
+    void doinverse(const array2vd_t& pin, array2vd_t& pout) const
+    {
+        pout = pin;
+    }
 
 public:
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-   DECLARE_SERIALIZER (map_straight)
+    // Serialization Support
+    DECLARE_SERIALIZER(map_straight)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

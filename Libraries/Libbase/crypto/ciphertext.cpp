@@ -22,10 +22,11 @@
 #include "ciphertext.h"
 
 #ifdef USE_GMP
-#include "math/gmp_bigint.h"
+#    include "math/gmp_bigint.h"
 #endif
 
-namespace libbase {
+namespace libbase
+{
 
 // explicit instantiations
 
@@ -33,4 +34,4 @@ namespace libbase {
 template class ciphertext<gmp_bigint>;
 #endif
 
-} // end namespace
+} // namespace libbase

@@ -25,7 +25,8 @@
 #include "blockembedder.h"
 #include "embedder.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Spread Spectrum Image Steganography Embedder/Extractor.
@@ -36,9 +37,11 @@ namespace libcomm {
  * defaults are provided here.
  */
 
-template <class S, template <class > class C = libbase::matrix,
-      class dbl = double>
-class ssis : public blockembedder<S, C, dbl> {
+template <class S,
+          template <class> class C = libbase::matrix,
+          class dbl = double>
+class ssis : public blockembedder<S, C, dbl>
+{
 };
 
 /*!
@@ -50,80 +53,83 @@ class ssis : public blockembedder<S, C, dbl> {
  */
 
 template <class S, class dbl>
-class ssis<S, libbase::matrix, dbl> : public blockembedder<S, libbase::matrix,
-      dbl> {
+class ssis<S, libbase::matrix, dbl>
+    : public blockembedder<S, libbase::matrix, dbl>
+{
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<dbl> array1d_t;
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<dbl> array1d_t;
+    // @}
 private:
-   /*! \name User-defined parameters */
-   double A; //!< Embedding strength (amplitude)
-   enum pp_enum {
-      PP_NONE, //!< No pre-processing
-      PP_AW_EMBED, //!< Adaptive Wiener de-noising, use embedding strength
-      PP_AW_MATLAB,//!< Adaptive Wiener de-noising, Matlab estimator
-      PP_UNDEFINED
-   } preprocess;
-   // @}
-   /*! \name Internal representation */
-   mutable libbase::randgen r; //!< Uniform sequence generator
-   mutable libbase::matrix<dbl> u; //!< Uniform sequence for current block
+    /*! \name User-defined parameters */
+    double A; //!< Embedding strength (amplitude)
+    enum pp_enum {
+        PP_NONE,      //!< No pre-processing
+        PP_AW_EMBED,  //!< Adaptive Wiener de-noising, use embedding strength
+        PP_AW_MATLAB, //!< Adaptive Wiener de-noising, Matlab estimator
+        PP_UNDEFINED
+    } preprocess;
+    // @}
+    /*! \name Internal representation */
+    mutable libbase::randgen r;     //!< Uniform sequence generator
+    mutable libbase::matrix<dbl> u; //!< Uniform sequence for current block
 #ifndef NDEBUG
-   mutable int frame; //!< Frame counter since seeding
+    mutable int frame; //!< Frame counter since seeding
 #endif
-   // @}
+    // @}
 protected:
-   /*! \name Internal helper operations */
-   //! Piece-wise Linear Modulator
-   static double plmod(const dbl u);
-   /*!
-    * \brief Embed a single symbol
-    * \param   data Index into the symbol alphabet (data to embed)
-    * \param   host Host value into which to embed data
-    * \param   u    Value from uniform sequence corresponding to this position
-    * \return  Stego-value, encoding the given data
-    */
-   static const S embed(const int data, const S host, const dbl u, const dbl A);
-   /*!
-    * \brief Extract a single symbol
-    * \param   rx Received (possibly corrupted) stego-value
-    * \return  Index corresponding to most-likely transmitted symbol
-    */
-   //const int extract(const S& rx) const;
-   // @}
-   // Interface with derived classes
-   void advance() const;
-   void doembed(const int N, const libbase::matrix<int>& data,
-         const libbase::matrix<S>& host, libbase::matrix<S>& tx);
-   void doextract(const channel<S, libbase::matrix>& chan,
-         const libbase::matrix<S>& rx, libbase::matrix<array1d_t>& ptable);
+    /*! \name Internal helper operations */
+    //! Piece-wise Linear Modulator
+    static double plmod(const dbl u);
+    /*!
+     * \brief Embed a single symbol
+     * \param   data Index into the symbol alphabet (data to embed)
+     * \param   host Host value into which to embed data
+     * \param   u    Value from uniform sequence corresponding to this position
+     * \return  Stego-value, encoding the given data
+     */
+    static const S
+    embed(const int data, const S host, const dbl u, const dbl A);
+    /*!
+     * \brief Extract a single symbol
+     * \param   rx Received (possibly corrupted) stego-value
+     * \return  Index corresponding to most-likely transmitted symbol
+     */
+    // const int extract(const S& rx) const;
+    // @}
+    // Interface with derived classes
+    void advance() const;
+    void doembed(const int N,
+                 const libbase::matrix<int>& data,
+                 const libbase::matrix<S>& host,
+                 libbase::matrix<S>& tx);
+    void doextract(const channel<S, libbase::matrix>& chan,
+                   const libbase::matrix<S>& rx,
+                   libbase::matrix<array1d_t>& ptable);
+
 public:
-   // Setup functions
-   void seedfrom(libbase::random& r)
-      {
-      libbase::int32u seed = r.ival();
+    // Setup functions
+    void seedfrom(libbase::random& r)
+    {
+        libbase::int32u seed = r.ival();
 #ifndef NDEBUG
-      frame = 0;
-      libbase::trace << "DEBUG (ssis): Seeding with " << seed << std::endl;
+        frame = 0;
+        libbase::trace << "DEBUG (ssis): Seeding with " << seed << std::endl;
 #endif
-      this->r.seed(seed);
-      advance();
-      }
+        this->r.seed(seed);
+        advance();
+    }
 
-   // Informative functions
-   int num_symbols() const
-      {
-      return 2;
-      }
+    // Informative functions
+    int num_symbols() const { return 2; }
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(ssis)
+    // Serialization Support
+    DECLARE_SERIALIZER(ssis)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

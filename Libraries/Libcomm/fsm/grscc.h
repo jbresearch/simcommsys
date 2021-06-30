@@ -25,7 +25,8 @@
 #include "ccfsm.h"
 #include "serializer.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Generalized Recursive Systematic Convolutional Code.
@@ -36,48 +37,47 @@ namespace libcomm {
  */
 
 template <class G>
-class grscc : public ccfsm<G> {
+class grscc : public ccfsm<G>
+{
 private:
-   /*! \name Object representation */
-   libbase::matrix<int> csct; //!< Circulation state correspondence table
-   // @}
-   /*! \name Internal functions */
-   libbase::matrix<G> getstategen() const;
-   // TODO: Separate circulation state stuff from this class
-   // (not all RSC codes are suitable)
-   void initcsct();
-   // @}
+    /*! \name Object representation */
+    libbase::matrix<int> csct; //!< Circulation state correspondence table
+    // @}
+    /*! \name Internal functions */
+    libbase::matrix<G> getstategen() const;
+    // TODO: Separate circulation state stuff from this class
+    // (not all RSC codes are suitable)
+    void initcsct();
+    // @}
 protected:
-   /*! \name FSM helper operations */
-   libbase::vector<int> determineinput(const libbase::vector<int>& input) const;
-   libbase::vector<G> determinefeedin(const libbase::vector<int>& input) const;
-   // @}
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   grscc()
-      {
-      }
-   // @}
+    /*! \name FSM helper operations */
+    libbase::vector<int>
+    determineinput(const libbase::vector<int>& input) const;
+    libbase::vector<G> determinefeedin(const libbase::vector<int>& input) const;
+    // @}
+    /*! \name Constructors / Destructors */
+    //! Default constructor
+    grscc() {}
+    // @}
 public:
-   /*! \name Constructors / Destructors */
-   grscc(const libbase::matrix<libbase::vector<G> >& generator) :
-      ccfsm<G> (generator)
-      {
-      initcsct();
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    grscc(const libbase::matrix<libbase::vector<G>>& generator)
+        : ccfsm<G>(generator)
+    {
+        initcsct();
+    }
+    // @}
 
-   // FSM state operations (getting and resetting)
-   void resetcircular(const libbase::vector<int>& zerostate, int n);
+    // FSM state operations (getting and resetting)
+    void resetcircular(const libbase::vector<int>& zerostate, int n);
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(grscc)
+    // Serialization Support
+    DECLARE_SERIALIZER(grscc)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

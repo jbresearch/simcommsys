@@ -23,10 +23,11 @@
 #define __counter_h
 
 #include "config.h"
-#include <string>
 #include <iostream>
+#include <string>
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Simple counter class
@@ -35,57 +36,43 @@ namespace libbase {
  * A class for counters which can be used to count general events.
  */
 
-class counter {
+class counter
+{
 private:
-   /*! \name Internal representation */
-   std::string name; //!< Counter name
-   size_t count; //!< Internal count
-   // @}
+    /*! \name Internal representation */
+    std::string name; //!< Counter name
+    size_t count;     //!< Internal count
+                      // @}
 
 public:
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   counter(const std::string& name = "") :
-      name(name), count(0)
-      {
-      }
-   //! Virtual destructor
-   virtual ~counter()
-      {
-      std::clog << "Counter";
-      if (name != "")
-         std::clog << " (" << name << ")";
-      std::clog << ": " << count << std::endl;
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Default constructor
+    counter(const std::string& name = "") : name(name), count(0) {}
+    //! Virtual destructor
+    virtual ~counter()
+    {
+        std::clog << "Counter";
+        if (name != "") {
+            std::clog << " (" << name << ")";
+        }
+        std::clog << ": " << count << std::endl;
+    }
+    // @}
 
-   /*! \name Counter operation */
-   //! Resets the counter
-   void reset()
-      {
-      count = 0;
-      }
-   //! Increments the counter
-   void increment()
-      {
-      count++;
-      }
-   // @}
+    /*! \name Counter operation */
+    //! Resets the counter
+    void reset() { count = 0; }
+    //! Increments the counter
+    void increment() { count++; }
+    // @}
 
-   /*! \name Timer information */
-   //! Return current count
-   size_t get_count() const
-      {
-      return count;
-      }
-   //! Return counter name
-   std::string get_name() const
-      {
-      return name;
-      }
-   // @}
+    /*! \name Timer information */
+    //! Return current count
+    size_t get_count() const { return count; }
+    //! Return counter name
+    std::string get_name() const { return name; }
+    // @}
 };
-
 
 /*!
  * \brief   Matching counter class
@@ -95,73 +82,59 @@ public:
  * cases in a series of events.
  */
 
-class matching_counter {
+class matching_counter
+{
 private:
-   /*! \name Internal representation */
-   std::string name; //!< Counter name
-   size_t matches; //!< Internal count of matches
-   size_t events; //!< Internal count of events
-   // @}
+    /*! \name Internal representation */
+    std::string name; //!< Counter name
+    size_t matches;   //!< Internal count of matches
+    size_t events;    //!< Internal count of events
+                      // @}
 
 public:
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   matching_counter(const std::string& name = "") :
-      name(name), matches(0), events(0)
-      {
-      }
-   //! Virtual destructor
-   virtual ~matching_counter()
-      {
-      // only show count if there was at least an event
-      if (events > 0)
-         {
-         std::clog << "Counter";
-         if (name != "")
-            std::clog << " (" << name << ")";
-         std::clog << ": " << matches << " of " << events << std::endl;
-         }
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Default constructor
+    matching_counter(const std::string& name = "")
+        : name(name), matches(0), events(0)
+    {
+    }
+    //! Virtual destructor
+    virtual ~matching_counter()
+    {
+        // only show count if there was at least an event
+        if (events > 0) {
+            std::clog << "Counter";
+            if (name != "") {
+                std::clog << " (" << name << ")";
+            }
+            std::clog << ": " << matches << " of " << events << std::endl;
+        }
+    }
+    // @}
 
-   /*! \name Counter operation */
-   //! Resets the counter
-   void reset()
-      {
-      matches = 0;
-      events = 0;
-      }
-   //! Increments the match counter
-   void increment_matches()
-      {
-      matches++;
-      }
-   //! Increments the event counter
-   void increment_events()
-      {
-      events++;
-      }
-   // @}
+    /*! \name Counter operation */
+    //! Resets the counter
+    void reset()
+    {
+        matches = 0;
+        events = 0;
+    }
+    //! Increments the match counter
+    void increment_matches() { matches++; }
+    //! Increments the event counter
+    void increment_events() { events++; }
+    // @}
 
-   /*! \name Timer information */
-   //! Return current count of events
-   size_t get_matches() const
-      {
-      return matches;
-      }
-   //! Return current count of events
-   size_t get_events() const
-      {
-      return events;
-      }
-   //! Return counter name
-   std::string get_name() const
-      {
-      return name;
-      }
-   // @}
+    /*! \name Timer information */
+    //! Return current count of events
+    size_t get_matches() const { return matches; }
+    //! Return current count of events
+    size_t get_events() const { return events; }
+    //! Return counter name
+    std::string get_name() const { return name; }
+    // @}
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif

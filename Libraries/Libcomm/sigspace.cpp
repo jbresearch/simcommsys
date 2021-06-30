@@ -21,44 +21,48 @@
 
 #include "sigspace.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // stream input / output
 
 std::ostream& operator<<(std::ostream& s, const sigspace& x)
-   {
-   s.setf(std::ios::fixed, std::ios::floatfield);
-   s.precision(6);
-   s << '[' << x.inphase << ',';
-   s.setf(std::ios::fixed, std::ios::floatfield);
-   s.precision(6);
-   s << x.quad << ']';
-   return s;
-   }
+{
+    s.setf(std::ios::fixed, std::ios::floatfield);
+    s.precision(6);
+    s << '[' << x.inphase << ',';
+    s.setf(std::ios::fixed, std::ios::floatfield);
+    s.precision(6);
+    s << x.quad << ']';
+    return s;
+}
 
 std::istream& operator>>(std::istream& s, sigspace& x)
-   {
-   double i = 0, q = 0;
-   char c = 0;
+{
+    double i = 0, q = 0;
+    char c = 0;
 
-   s >> c;
-   if (c == '[')
-      {
-      s >> i >> c;
-      if (c == ',')
-         s >> q >> c;
-      else
-         s.clear(std::ios::failbit);
-      if (c != ']')
-         s.clear(std::ios::failbit);
-      }
-   else
-      s.clear(std::ios::failbit);
+    s >> c;
+    if (c == '[') {
+        s >> i >> c;
+        if (c == ',') {
+            s >> q >> c;
+        } else {
+            s.clear(std::ios::failbit);
+        }
 
-   if (s)
-      x = sigspace(i, q);
+        if (c != ']') {
+            s.clear(std::ios::failbit);
+        }
+    } else {
+        s.clear(std::ios::failbit);
+    }
 
-   return s;
-   }
+    if (s) {
+        x = sigspace(i, q);
+    }
 
-} // end namespace
+    return s;
+}
+
+} // namespace libcomm

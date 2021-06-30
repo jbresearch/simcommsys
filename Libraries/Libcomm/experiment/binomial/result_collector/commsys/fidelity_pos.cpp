@@ -21,7 +21,8 @@
 
 #include "fidelity_pos.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief Update result set
@@ -34,16 +35,17 @@ namespace libcomm {
  * divided by the respective multiplicity to get the average error rates.
  */
 void fidelity_pos::updateresults(libbase::vector<double>& result,
-      const libbase::vector<int>& act_drift,
-      const libbase::vector<int>& est_drift) const
-   {
-   const int N = count();
-   assert(result.size() == N);
-   assert(act_drift.size() == N);
-   assert(est_drift.size() == N);
-   // Accumulate fidelity errors
-   for (int t = 0; t < N; t++)
-      result(t) += (act_drift(t) == est_drift(t)) ? 1 : 0;
-   }
+                                 const libbase::vector<int>& act_drift,
+                                 const libbase::vector<int>& est_drift) const
+{
+    const int N = count();
+    assert(result.size() == N);
+    assert(act_drift.size() == N);
+    assert(est_drift.size() == N);
+    // Accumulate fidelity errors
+    for (int t = 0; t < N; t++) {
+        result(t) += (act_drift(t) == est_drift(t)) ? 1 : 0;
+    }
+}
 
-} // end namespace
+} // namespace libcomm

@@ -20,11 +20,11 @@
  */
 
 #include "config.h"
-#include "randgen.h"
-#include "truerand.h"
-#include "serializer_libcomm.h"
-#include "experiment/binomial/commsys_simulator.h"
 #include "cputimer.h"
+#include "experiment/binomial/commsys_simulator.h"
+#include "randgen.h"
+#include "serializer_libcomm.h"
+#include "truerand.h"
 
 #include <boost/program_options.hpp>
 
@@ -33,125 +33,134 @@
 // Determine debug level:
 // 1 - Normal debug output only
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG 1
+#    undef DEBUG
+#    define DEBUG 1
 #endif
 
-using std::cout;
 using std::cerr;
+using std::cout;
 namespace po = boost::program_options;
 
 std::shared_ptr<libcomm::experiment> createsystem(const std::string& fname)
-   {
-   const libcomm::serializer_libcomm my_serializer_libcomm;
-   // load system from string representation
-   std::shared_ptr<libcomm::experiment> system;
-   std::ifstream file(fname.c_str(), std::ios_base::in | std::ios_base::binary);
-   file >> system >> libbase::verifycomplete;
-   return system;
-   }
+{
+    const libcomm::serializer_libcomm my_serializer_libcomm;
+    // load system from string representation
+    std::shared_ptr<libcomm::experiment> system;
+    std::ifstream file(fname.c_str(),
+                       std::ios_base::in | std::ios_base::binary);
+    file >> system >> libbase::verifycomplete;
+    return system;
+}
 
 /*! \brief Seed the random generators in the experiment
  *
  * Use the given seed to initialize a PRNG for seeding the embedded system.
  */
-void seed_experiment(std::shared_ptr<libcomm::experiment> system, const libbase::int32u seed)
-   {
-   libbase::randgen prng;
-   prng.seed(seed);
-   system->seedfrom(prng);
-   cerr << "Seed: " << seed << std::endl;
-   }
+void seed_experiment(std::shared_ptr<libcomm::experiment> system,
+                     const libbase::int32u seed)
+{
+    libbase::randgen prng;
+    prng.seed(seed);
+    system->seedfrom(prng);
+    cerr << "Seed: " << seed << std::endl;
+}
 
 /*! \brief Randomly seed the random generators in the experiment
  *
  * Use a true RNG to determine the initial seed value, and seed the experiment.
  */
 void seed_experiment(std::shared_ptr<libcomm::experiment> system)
-   {
-   libbase::truerand trng;
-   libbase::int32u seed = trng.ival();
-   seed_experiment(system, seed);
-   }
+{
+    libbase::truerand trng;
+    libbase::int32u seed = trng.ival();
+    seed_experiment(system, seed);
+}
 
 void display_event(std::shared_ptr<libcomm::experiment> system)
-   {
-   libbase::vector<int> last_event = system->get_event();
-   const int tau = last_event.size() / 2;
-   for (int i = 0; i < tau; i++)
-      {
-      cout << i << '\t' << last_event(i) << '\t' << last_event(i + tau);
-      if (last_event(i) != last_event(i + tau))
-         cout << "\t*";
-      cout << std::endl;
-      }
-   }
+{
+    libbase::vector<int> last_event = system->get_event();
+    const int tau = last_event.size() / 2;
+    for (int i = 0; i < tau; i++) {
+        cout << i << '\t' << last_event(i) << '\t' << last_event(i + tau);
+        if (last_event(i) != last_event(i + tau)) {
+            cout << "\t*";
+        }
+        cout << std::endl;
+    }
+}
 
 /*!
  * \brief   Error Event Analysis for Experiments
  * \author  Johann Briffa
  */
 
-int main(int argc, char *argv[])
-   {
-   libbase::cputimer tmain("Main timer");
+int main(int argc, char* argv[])
+{
+    libbase::cputimer tmain("Main timer");
 
-   // Set up user parameters
-   po::options_description desc("Allowed options");
-   desc.add_options()("help", "print this help message");
-   desc.add_options()("system-file,i", po::value<std::string>(),
-         "input file containing system description");
-   desc.add_options()("parameter,r", po::value<double>(),
-         "simulation parameter");
-   desc.add_options()("seed,s", po::value<libbase::int32u>(),
-         "system initialization seed (random if not stated)");
-   desc.add_options()("show-all,a", po::bool_switch(),
-         "show all simulated frames (not just first error event)");
-   po::variables_map vm;
-   po::store(po::parse_command_line(argc, argv, desc), vm);
-   po::notify(vm);
+    // Set up user parameters
+    po::options_description desc("Allowed options");
+    desc.add_options()("help", "print this help message");
+    desc.add_options()("system-file,i",
+                       po::value<std::string>(),
+                       "input file containing system description");
+    desc.add_options()(
+        "parameter,r", po::value<double>(), "simulation parameter");
+    desc.add_options()("seed,s",
+                       po::value<libbase::int32u>(),
+                       "system initialization seed (random if not stated)");
+    desc.add_options()(
+        "show-all,a",
+        po::bool_switch(),
+        "show all simulated frames (not just first error event)");
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
 
-   // Validate user parameters
-   if (vm.count("help") || vm.count("system-file") == 0
-         || vm.count("parameter") == 0)
-      {
-      cout << desc << std::endl;
-      return 0;
-      }
+    // Validate user parameters
+    if (vm.count("help") || vm.count("system-file") == 0 ||
+        vm.count("parameter") == 0) {
+        cout << desc << std::endl;
+        return 0;
+    }
 
-   // Interpret user parameters
-   const bool showall = vm["show-all"].as<bool> ();
-   // Simulation system & parameters
-   std::shared_ptr<libcomm::experiment> system = createsystem(
-         vm["system-file"].as<std::string> ());
-   system->set_parameter(vm["parameter"].as<double> ());
-   // Initialise running values
-   system->reset();
-   if (vm.count("seed"))
-      seed_experiment(system, vm["seed"].as<libbase::int32u>());
-   else
-      seed_experiment(system);
-   cerr << "Simulating system at parameter = " << system->get_parameter()
+    // Interpret user parameters
+    const bool showall = vm["show-all"].as<bool>();
+
+    // Simulation system & parameters
+    std::shared_ptr<libcomm::experiment> system =
+        createsystem(vm["system-file"].as<std::string>());
+    system->set_parameter(vm["parameter"].as<double>());
+
+    // Initialise running values
+    system->reset();
+    if (vm.count("seed")) {
+        seed_experiment(system, vm["seed"].as<libbase::int32u>());
+    } else {
+        seed_experiment(system);
+    }
+    cerr << "Simulating system at parameter = " << system->get_parameter()
          << std::endl;
-   // Simulate, waiting for an error event
-   libbase::vector<double> result;
-   do
-      {
-      cerr << "Simulating sample " << system->get_samplecount() << std::endl;
-      system->sample(result);
-      system->accumulate(result);
-      if (showall)
-         {
-         cerr << "Event for sample " << system->get_samplecount() << ":"
-               << std::endl;
-         display_event(system);
-         }
-      } while (result.min() == 0);
-   cerr << "Event found after " << system->get_samplecount() << " samples"
-         << std::endl;
-   // Display results if necessary
-   if (!showall)
-      display_event(system);
 
-   return 0;
-   }
+    // Simulate, waiting for an error event
+    libbase::vector<double> result;
+    do {
+        cerr << "Simulating sample " << system->get_samplecount() << std::endl;
+        system->sample(result);
+        system->accumulate(result);
+        if (showall) {
+            cerr << "Event for sample " << system->get_samplecount() << ":"
+                 << std::endl;
+            display_event(system);
+        }
+    } while (result.min() == 0);
+    cerr << "Event found after " << system->get_samplecount() << " samples"
+         << std::endl;
+
+    // Display results if necessary
+    if (!showall) {
+        display_event(system);
+    }
+
+    return 0;
+}

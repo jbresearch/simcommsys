@@ -22,12 +22,13 @@
 #ifndef __commsys_stream_h
 #define __commsys_stream_h
 
-#include "commsys.h"
-#include "modem/stream_modulator.h"
 #include "channel_stream.h"
 #include "codec/codec_softout.h"
+#include "commsys.h"
+#include "modem/stream_modulator.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Communication System supporting stream synchronization.
@@ -52,105 +53,102 @@ namespace libcomm {
  * \tparam real Floating-point type for metric computer interface
  */
 
-template <class S, template <class > class C, class real>
-class commsys_stream : public commsys<S, C> {
+template <class S, template <class> class C, class real>
+class commsys_stream : public commsys<S, C>
+{
 private:
-   // Shorthand for class hierarchy
-   typedef commsys_stream<S, C, real> This;
-   typedef commsys<S, C> Base;
+    // Shorthand for class hierarchy
+    typedef commsys_stream<S, C, real> This;
+    typedef commsys<S, C> Base;
 
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<double> array1d_t;
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<double> array1d_t;
+    // @}
 
 private:
-   /*! \name User-defined parameters */
-   int iter; //!< number of full-system iterations to perform
-   // @}
+    /*! \name User-defined parameters */
+    int iter; //!< number of full-system iterations to perform
+    // @}
 
-   /*! \name Internally-used objects */
-   C<double> sof_post, eof_post;
-   // @}
+    /*! \name Internally-used objects */
+    C<double> sof_post, eof_post;
+    // @}
 
 public:
-   /*! \name Stream Utilities */
-   static libbase::size_type<C> estimate_drift(const C<double>& pdf,
-         const libbase::size_type<C> offset)
-      {
-      const int drift = libbase::index_of_max(pdf) - offset;
-      return libbase::size_type<C>(drift);
-      }
-   static C<double> centralize_pdf(const C<double>& pdf,
-         const libbase::size_type<C> drift)
-      {
-      C<double> newpdf(pdf.size());
-      newpdf = 0;
-      const int sh_a = std::max(0, -drift);
-      const int sh_b = std::max(0, int(drift));
-      const int sh_n = pdf.size() - abs(drift);
-      newpdf.segment(sh_a, sh_n) = pdf.extract(sh_b, sh_n);
-      return newpdf;
-      }
-   // @}
+    /*! \name Stream Utilities */
+    static libbase::size_type<C>
+    estimate_drift(const C<double>& pdf, const libbase::size_type<C> offset)
+    {
+        const int drift = libbase::index_of_max(pdf) - offset;
+        return libbase::size_type<C>(drift);
+    }
+    static C<double> centralize_pdf(const C<double>& pdf,
+                                    const libbase::size_type<C> drift)
+    {
+        C<double> newpdf(pdf.size());
+        newpdf = 0;
+        const int sh_a = std::max(0, -drift);
+        const int sh_b = std::max(0, int(drift));
+        const int sh_n = pdf.size() - abs(drift);
+        newpdf.segment(sh_a, sh_n) = pdf.extract(sh_b, sh_n);
+        return newpdf;
+    }
+    // @}
 
-   /*! \name Informative functions - Stream Extensions */
-   //! Number of full-system iterations to perform
-   int sys_iter() const
-      {
-      return iter;
-      }
-   // @}
+    /*! \name Informative functions - Stream Extensions */
+    //! Number of full-system iterations to perform
+    int sys_iter() const { return iter; }
+    // @}
 
-   /*! \name Communication System Setup - Stream Extensions */
-   //! Get modulation scheme in stream mode
-   stream_modulator<S, C>& getmodem_stream() const
-      {
-      return dynamic_cast<stream_modulator<S, C>&> (*this->mdm);
-      }
-   //! Get receiver channel model in stream mode
-   channel_stream<S, real>& getrxchan_stream() const
-      {
-      return dynamic_cast<channel_stream<S, real>&> (*this->rxchan);
-      }
-   //! Get transmit channel model in stream mode
-   channel_stream<S, real>& gettxchan_stream() const
-      {
-      return dynamic_cast<channel_stream<S, real>&> (*this->txchan);
-      }
-   //! Get codec in soft-output mode
-   codec_softout<C>& getcodec_softout() const
-      {
-      return dynamic_cast<codec_softout<C>&> (*this->cdc);
-      }
-   // @}
+    /*! \name Communication System Setup - Stream Extensions */
+    //! Get modulation scheme in stream mode
+    stream_modulator<S, C>& getmodem_stream() const
+    {
+        return dynamic_cast<stream_modulator<S, C>&>(*this->mdm);
+    }
+    //! Get receiver channel model in stream mode
+    channel_stream<S, real>& getrxchan_stream() const
+    {
+        return dynamic_cast<channel_stream<S, real>&>(*this->rxchan);
+    }
+    //! Get transmit channel model in stream mode
+    channel_stream<S, real>& gettxchan_stream() const
+    {
+        return dynamic_cast<channel_stream<S, real>&>(*this->txchan);
+    }
+    //! Get codec in soft-output mode
+    codec_softout<C>& getcodec_softout() const
+    {
+        return dynamic_cast<codec_softout<C>&>(*this->cdc);
+    }
+    // @}
 
-   /*! \name Communication System Interface - Stream Extensions */
-   void stream_advance(C<S>& received, const libbase::size_type<C>& oldoffset,
-         const libbase::size_type<C>& drift,
-         const libbase::size_type<C>& newoffset);
-   void compute_priors(const C<double>& eof_post,
-         const libbase::size_type<C> lookahead, C<double>& sof_prior,
-         C<double>& eof_prior, libbase::size_type<C>& offset) const;
-   void receive_path(const C<S>& received,
-         const libbase::size_type<C> lookahead, const C<double>& sof_prior,
-         const C<double>& eof_prior, const libbase::size_type<C> offset);
-   const C<double>& get_sof_post() const
-      {
-      return sof_post;
-      }
-   const C<double>& get_eof_post() const
-      {
-      return eof_post;
-      }
-   // @}
+    /*! \name Communication System Interface - Stream Extensions */
+    void stream_advance(C<S>& received,
+                        const libbase::size_type<C>& oldoffset,
+                        const libbase::size_type<C>& drift,
+                        const libbase::size_type<C>& newoffset);
+    void compute_priors(const C<double>& eof_post,
+                        const libbase::size_type<C> lookahead,
+                        C<double>& sof_prior,
+                        C<double>& eof_prior,
+                        libbase::size_type<C>& offset) const;
+    void receive_path(const C<S>& received,
+                      const libbase::size_type<C> lookahead,
+                      const C<double>& sof_prior,
+                      const C<double>& eof_prior,
+                      const libbase::size_type<C> offset);
+    const C<double>& get_sof_post() const { return sof_post; }
+    const C<double>& get_eof_post() const { return eof_post; }
+    // @}
 
-   // Description
-   std::string description() const;
-   // Serialization Support
-DECLARE_SERIALIZER(commsys_stream)
+    // Description
+    std::string description() const;
+    // Serialization Support
+    DECLARE_SERIALIZER(commsys_stream)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

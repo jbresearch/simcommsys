@@ -23,73 +23,76 @@
 #include <cstdlib>
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // initialization
 
 template <class real>
 void berrou<real>::init(const int M)
-   {
-   berrou<real>::M = M;
+{
+    berrou<real>::M = M;
 
-   if (libbase::weight(M) != 1)
-      {
-      std::cerr << "FATAL ERROR (berrou): M must be an integral power of 2." << std::endl;
-      exit(1);
-      }
-   int tau = M * M;
-   this->lut.init(tau);
-   const int P[] = {17, 37, 19, 29, 41, 23, 13, 7};
-   for (int i = 0; i < M; i++)
-      for (int j = 0; j < M; j++)
-         {
-         int ir = (M / 2 + 1) * (i + j) % M;
-         int xi = (i + j) % 8;
-         int jr = (P[xi] * (j + 1) - 1) % M;
-         this->lut(i * M + j) = ir * M + jr;
-         }
-   }
+    if (libbase::weight(M) != 1) {
+        std::cerr << "FATAL ERROR (berrou): M must be an integral power of 2."
+                  << std::endl;
+        exit(1);
+    }
+    int tau = M * M;
+    this->lut.init(tau);
+    const int P[] = {17, 37, 19, 29, 41, 23, 13, 7};
+    for (int i = 0; i < M; i++) {
+        for (int j = 0; j < M; j++) {
+            int ir = (M / 2 + 1) * (i + j) % M;
+            int xi = (i + j) % 8;
+            int jr = (P[xi] * (j + 1) - 1) % M;
+            this->lut(i * M + j) = ir * M + jr;
+        }
+    }
+}
 
 // description output
 
 template <class real>
 std::string berrou<real>::description() const
-   {
-   std::ostringstream sout;
-   sout << "Berrou Interleaver (" << M << "×" << M << ")";
-   return sout.str();
-   }
+{
+    std::ostringstream sout;
+    sout << "Berrou Interleaver (" << M << "×" << M << ")";
+    return sout.str();
+}
 
 // object serialization - saving
 
 template <class real>
 std::ostream& berrou<real>::serialize(std::ostream& sout) const
-   {
-   sout << M << std::endl;
-   return sout;
-   }
+{
+    sout << M << std::endl;
+    return sout;
+}
 
 // object serialization - loading
 
 template <class real>
 std::istream& berrou<real>::serialize(std::istream& sin)
-   {
-   sin >> libbase::eatcomments >> M >> libbase::verify;
-   init(M);
-   return sin;
-   }
+{
+    sin >> libbase::eatcomments >> M >> libbase::verify;
+    init(M);
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-using libbase::serializer;
 using libbase::logrealfast;
+using libbase::serializer;
 
+// clang-format off
 #define REAL_TYPE_SEQ \
    (float)(double)(logrealfast)
 
@@ -105,7 +108,8 @@ using libbase::logrealfast;
          "interleaver", \
          "berrou<" BOOST_PP_STRINGIZE(type) ">", \
          berrou<type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

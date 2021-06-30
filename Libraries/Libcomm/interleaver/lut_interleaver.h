@@ -23,11 +23,12 @@
 #define __lut_interleaver_h
 
 #include "config.h"
+#include "fsm.h"
 #include "interleaver.h"
 #include "serializer.h"
-#include "fsm.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Lookup Table Interleaver.
@@ -37,33 +38,27 @@ namespace libcomm {
  */
 
 template <class real>
-class lut_interleaver : public interleaver<real> {
+class lut_interleaver : public interleaver<real>
+{
 protected:
-   lut_interleaver()
-      {
-      }
-   libbase::vector<int> lut;
+    lut_interleaver() {}
+    libbase::vector<int> lut;
+
 public:
-   virtual ~lut_interleaver()
-      {
-      }
+    virtual ~lut_interleaver() {}
 
-   // Transform functions
-   void
-   transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
-   void
-   transform(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
-   void
-   inverse(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
+    // Transform functions
+    void transform(const libbase::vector<int>& in,
+                   libbase::vector<int>& out) const;
+    void transform(const libbase::matrix<real>& in,
+                   libbase::matrix<real>& out) const;
+    void inverse(const libbase::matrix<real>& in,
+                 libbase::matrix<real>& out) const;
 
-   // Information functions
-   int size() const
-      {
-      return lut.size();
-      }
+    // Information functions
+    int size() const { return lut.size(); }
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

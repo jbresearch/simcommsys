@@ -22,68 +22,73 @@
 #include "experiment_normal.h"
 #include <limits>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Normally-distributed sample experiment
 
 void experiment_normal::derived_reset()
-   {
-   // Initialise running values only if space is allocated
-   if (sum.size() > 0)
-      sum = 0;
-   if (sumsq.size() > 0)
-      sumsq = 0;
-   }
+{
+    // Initialise running values only if space is allocated
+    if (sum.size() > 0) {
+        sum = 0;
+    }
+    if (sumsq.size() > 0) {
+        sumsq = 0;
+    }
+}
 
 void experiment_normal::derived_accumulate(
-      const libbase::vector<double>& result)
-   {
-   assert(result.size() > 0);
-   // accumulate results
-   libbase::vector<double> sample = result;
-   safe_accumulate(sum, sample);
-   sample.apply(square);
-   safe_accumulate(sumsq, sample);
-   }
+    const libbase::vector<double>& result)
+{
+    assert(result.size() > 0);
+    // accumulate results
+    libbase::vector<double> sample = result;
+    safe_accumulate(sum, sample);
+    sample.apply(square);
+    safe_accumulate(sumsq, sample);
+}
 
 void experiment_normal::accumulate_state(const libbase::vector<double>& state)
-   {
-   assert(state.size() > 0);
-   // divide state into constituent components and accumulate
-   const int n = state.size() / 2;
-   assert(state.size() == 2 * n);
-   safe_accumulate(sum, state.extract(0, n));
-   safe_accumulate(sumsq, state.extract(n, n));
-   }
+{
+    assert(state.size() > 0);
+    // divide state into constituent components and accumulate
+    const int n = state.size() / 2;
+    assert(state.size() == 2 * n);
+    safe_accumulate(sum, state.extract(0, n));
+    safe_accumulate(sumsq, state.extract(n, n));
+}
 
 void experiment_normal::get_state(libbase::vector<double>& state) const
-   {
-   assert(count() == sum.size());
-   assert(count() == sumsq.size());
-   state.init(2 * count());
-   for (int i = 0; i < count(); i++)
-      {
-      state(i) = sum(i);
-      state(count() + i) = sumsq(i);
-      }
-   }
+{
+    assert(count() == sum.size());
+    assert(count() == sumsq.size());
+    state.init(2 * count());
+    for (int i = 0; i < count(); i++) {
+        state(i) = sum(i);
+        state(count() + i) = sumsq(i);
+    }
+}
 
 void experiment_normal::estimate(libbase::vector<double>& estimate,
-      libbase::vector<double>& stderror) const
-   {
-   assert(count() == sum.size());
-   assert(count() == sumsq.size());
-   // estimate is the mean value
-   assert(get_samplecount() > 0);
-   estimate = sum / double(get_samplecount());
-   // standard error is sigma/sqrt(n)
-   stderror.init(count());
-   if (get_samplecount() > 1)
-      for (int i = 0; i < count(); i++)
-         stderror(i) = sqrt((sumsq(i) / double(get_samplecount()) - estimate(i)
-               * estimate(i)) / double(get_samplecount() - 1));
-   else
-      stderror = std::numeric_limits<double>::max();
-   }
+                                 libbase::vector<double>& stderror) const
+{
+    assert(count() == sum.size());
+    assert(count() == sumsq.size());
+    // estimate is the mean value
+    assert(get_samplecount() > 0);
+    estimate = sum / double(get_samplecount());
+    // standard error is sigma/sqrt(n)
+    stderror.init(count());
+    if (get_samplecount() > 1) {
+        for (int i = 0; i < count(); i++) {
+            stderror(i) = sqrt((sumsq(i) / double(get_samplecount()) -
+                                estimate(i) * estimate(i)) /
+                               double(get_samplecount() - 1));
+        }
+    } else {
+        stderror = std::numeric_limits<double>::max();
+    }
+}
 
-} // end namespace
+} // namespace libcomm

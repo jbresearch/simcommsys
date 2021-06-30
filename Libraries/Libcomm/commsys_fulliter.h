@@ -25,7 +25,8 @@
 #include "commsys.h"
 #include "hard_decision.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Communication System with Full-System Iteration.
@@ -45,52 +46,53 @@ namespace libcomm {
  * non-straight mappers
  */
 
-template <class S, template <class > class C = libbase::vector>
-class commsys_fulliter : public commsys<S, C> {
+template <class S, template <class> class C = libbase::vector>
+class commsys_fulliter : public commsys<S, C>
+{
 private:
-   // Shorthand for class hierarchy
-   typedef commsys<S, C> Base;
-   typedef commsys_fulliter<S, C> This;
-public:
-   /*! \name Type definitions */
-   typedef libbase::vector<double> array1d_t;
-   // @}
-private:
-   /*! \name User parameters */
-   int iter; //!< Number of full-system iterations
-   // @}
-   /*! \name Internal state */
-   int cur_cdc_iter; //!< Current decoder iteration
-   int cur_mdm_iter; //!< Current modem iteration
-   C<S> last_received; //!< Last received block
-   C<array1d_t> ptable_ext_modem; //!< Extrinsic information vector (modem alphabet)
-   C<array1d_t> ptable_ext_codec; //!< Extrinsic information vector (codec alphabet)
-   hard_decision<C, double, int> hd_functor; //!< Hard-decision box
-   // @}
-public:
-   // Communication System Setup
-   void seedfrom(libbase::random& r)
-      {
-      // Call base method first
-      Base::seedfrom(r);
-      // Seed hard-decision box
-      hd_functor.seedfrom(r);
-      }
-   // Communication System Interface
-   void receive_path(const C<S>& received);
-   void decode(C<int>& decoded);
-   // Informative functions
-   int num_iter() const
-      {
-      return this->cdc->num_iter() * iter;
-      }
+    // Shorthand for class hierarchy
+    typedef commsys<S, C> Base;
+    typedef commsys_fulliter<S, C> This;
 
-   // Description
-   std::string description() const;
-   // Serialization Support
-DECLARE_SERIALIZER(commsys_fulliter)
+public:
+    /*! \name Type definitions */
+    typedef libbase::vector<double> array1d_t;
+    // @}
+private:
+    /*! \name User parameters */
+    int iter; //!< Number of full-system iterations
+    // @}
+    /*! \name Internal state */
+    int cur_cdc_iter;   //!< Current decoder iteration
+    int cur_mdm_iter;   //!< Current modem iteration
+    C<S> last_received; //!< Last received block
+    C<array1d_t>
+        ptable_ext_modem; //!< Extrinsic information vector (modem alphabet)
+    C<array1d_t>
+        ptable_ext_codec; //!< Extrinsic information vector (codec alphabet)
+    hard_decision<C, double, int> hd_functor; //!< Hard-decision box
+                                              // @}
+public:
+    // Communication System Setup
+    void seedfrom(libbase::random& r)
+    {
+        // Call base method first
+        Base::seedfrom(r);
+        // Seed hard-decision box
+        hd_functor.seedfrom(r);
+    }
+    // Communication System Interface
+    void receive_path(const C<S>& received);
+    void decode(C<int>& decoded);
+    // Informative functions
+    int num_iter() const { return this->cdc->num_iter() * iter; }
+
+    // Description
+    std::string description() const;
+    // Serialization Support
+    DECLARE_SERIALIZER(commsys_fulliter)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

@@ -24,7 +24,8 @@
 
 #include "config.h"
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Finite q-ary symbol.
@@ -36,67 +37,56 @@ namespace libbase {
  */
 
 template <int q>
-class symbol {
+class symbol
+{
 private:
-   /*! \name Object representation */
-   //! Representation of this element as an index into the alphabet
-   int value;
-   // @}
+    /*! \name Object representation */
+    //! Representation of this element as an index into the alphabet
+    int value;
+    // @}
 
 private:
-   /*! \name Internal functions */
-   /*!
-    * \brief Initialization
-    * \param   value Integer representation of element
-    */
-   void init(int value)
-      {
-      assert(value >= 0 && value < q);
-      this->value = value;
-      }
-   // @}
+    /*! \name Internal functions */
+    /*!
+     * \brief Initialization
+     * \param   value Integer representation of element
+     */
+    void init(int value)
+    {
+        assert(value >= 0 && value < q);
+        this->value = value;
+    }
+    // @}
 
 public:
-   /*! \name Constructors / Destructors */
-   //! Principal constructor
-   explicit symbol(int value = 0)
-      {
-      init(value);
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Principal constructor
+    explicit symbol(int value = 0) { init(value); }
+    // @}
 
-   /*! \name Type conversion */
-   operator int() const
-      {
-      return value;
-      }
-   symbol& operator=(const int value)
-      {
-      init(value);
-      return *this;
-      }
-   // @}
+    /*! \name Type conversion */
+    operator int() const { return value; }
+    symbol& operator=(const int value)
+    {
+        init(value);
+        return *this;
+    }
+    // @}
 
-   /*! \name Class parameters */
-   //! Number of elements in the finite alphabet
-   static int elements()
-      {
-      return q;
-      }
-   // @}
+    /*! \name Class parameters */
+    //! Number of elements in the finite alphabet
+    static int elements() { return q; }
+    // @}
 };
 
-} // end namespace
-
+} // namespace libbase
 
 // Pre-processor sequence for explicit instantiations
 
 #include <boost/preprocessor/repetition/repeat_from_to.hpp>
 
-#define SYMBOL_TYPE(z, n, text) \
-   (symbol<n>)
+#define SYMBOL_TYPE(z, n, text) (symbol<n>)
 
-#define SYMBOL_TYPE_SEQ \
-   BOOST_PP_REPEAT_FROM_TO(2, 101, SYMBOL_TYPE, _)
+#define SYMBOL_TYPE_SEQ BOOST_PP_REPEAT_FROM_TO(2, 101, SYMBOL_TYPE, _)
 
 #endif

@@ -24,7 +24,8 @@
 
 #include "commsys.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Communication System with Iterative Demodulation.
@@ -42,27 +43,28 @@ namespace libcomm {
  * \todo Move iterative codec nature into this class (requires codec split).
  */
 
-template <class S, template <class > class C = libbase::vector>
-class commsys_iterative : public commsys<S, C> {
+template <class S, template <class> class C = libbase::vector>
+class commsys_iterative : public commsys<S, C>
+{
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<double> array1d_t;
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<double> array1d_t;
+    // @}
 
 private:
-   /*! \name User parameters */
-   int iter; //!< Number of demodulation iterations
-   // @}
+    /*! \name User parameters */
+    int iter; //!< Number of demodulation iterations
+              // @}
 public:
-   // Communication System Interface
-   void receive_path(const C<S>& received);
+    // Communication System Interface
+    void receive_path(const C<S>& received);
 
-   // Description
-   std::string description() const;
-   // Serialization Support
-DECLARE_SERIALIZER(commsys_iterative)
+    // Description
+    std::string description() const;
+    // Serialization Support
+    DECLARE_SERIALIZER(commsys_iterative)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
