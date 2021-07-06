@@ -404,3 +404,7 @@ $(TARGETS_MAIN) $(TARGETS_TEST):	$(TARGETS_LIBS) FORCE
 $(TARGETS_LIBS):	FORCE
 	@echo "----> Making library \"$(notdir $@)\" [$(BUILDID): $(RELEASE)]."
 	@$(MAKE) -C "$(ROOTDIR)/$@" $(DOTARGET)
+
+# Format the entire source code using clang-format
+format:
+	find . -iname "*.h" -o -iname "*.cpp" -o -iname "*.cu" | xargs clang-format -i --style=file
