@@ -318,11 +318,12 @@ bcjr<real, dbl, norm>::work_alpha()
         // now start computing the summations
         // tail conditions are automatically handled by zeros in the gamma
         // matrix
-        for (int mdash = 0; mdash < M; mdash++)
+        for (int mdash = 0; mdash < M; mdash++) {
             for (int i = 0; i < K; i++) {
                 int m = lut_m(mdash, i);
                 alpha(t, m) += alpha(t - 1, mdash) * gamma(t - 1, mdash, i);
             }
+        }
 
         // normalize
         if (norm) {
@@ -439,7 +440,7 @@ bcjr<real, dbl, norm>::work_results(array2d_t& ri)
     }
 
     // Work out final results
-    for (int t = 1; t <= tau; t++)
+    for (int t = 1; t <= tau; t++) {
         for (int i = 0; i < K; i++) {
             // for each possible input, given present state
             // compute results
@@ -451,6 +452,7 @@ bcjr<real, dbl, norm>::work_results(array2d_t& ri)
             // copy results into their final place
             ri(t - 1, i) = dbl(delta / Py);
         }
+    }
 }
 
 // Internal helper functions
