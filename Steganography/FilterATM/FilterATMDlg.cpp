@@ -19,13 +19,13 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "stdafx.h"
-#include "FilterATM.h"
 #include "FilterATMDlg.h"
+#include "FilterATM.h"
+#include "stdafx.h"
 
 #ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
+#    define new DEBUG_NEW
+#    undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
 
@@ -33,17 +33,18 @@ static char THIS_FILE[] = __FILE__;
 // CAboutDlg dialog used for App About
 
 CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
-   {
-   //{{AFX_DATA_INIT(CAboutDlg)
-   //}}AFX_DATA_INIT
-   }
+{
+    //{{AFX_DATA_INIT(CAboutDlg)
+    //}}AFX_DATA_INIT
+}
 
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
-   {
-   CDialog::DoDataExchange(pDX);
-   //{{AFX_DATA_MAP(CAboutDlg)
-   //}}AFX_DATA_MAP
-   }
+void
+CAboutDlg::DoDataExchange(CDataExchange* pDX)
+{
+    CDialog::DoDataExchange(pDX);
+    //{{AFX_DATA_MAP(CAboutDlg)
+    //}}AFX_DATA_MAP
+}
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
 //{{AFX_MSG_MAP(CAboutDlg)
@@ -55,78 +56,82 @@ END_MESSAGE_MAP()
 // CFilterATMDlg dialog
 
 CFilterATMDlg::CFilterATMDlg(CWnd* pParent /*=NULL*/)
-: CDialog(CFilterATMDlg::IDD, pParent)
-   {
-   //{{AFX_DATA_INIT(CFilterATMDlg)
-        m_nAlpha = 0;
-        m_nRadius = 0;
-        m_bKeepNoise = FALSE;
-        //}}AFX_DATA_INIT
-   }
+    : CDialog(CFilterATMDlg::IDD, pParent)
+{
+    //{{AFX_DATA_INIT(CFilterATMDlg)
+    m_nAlpha = 0;
+    m_nRadius = 0;
+    m_bKeepNoise = FALSE;
+    //}}AFX_DATA_INIT
+}
 
-
-void CFilterATMDlg::DoDataExchange(CDataExchange* pDX)
-   {
-   CDialog::DoDataExchange(pDX);
-   //{{AFX_DATA_MAP(CFilterATMDlg)
-        DDX_Control(pDX, IDC_SLIDER, m_scSlider);
-        DDX_Text(pDX, IDC_ALPHA, m_nAlpha);
-        DDX_Text(pDX, IDC_RADIUS, m_nRadius);
-        DDX_Check(pDX, IDC_KEEPNOISE, m_bKeepNoise);
-        //}}AFX_DATA_MAP
-   }
-
+void
+CFilterATMDlg::DoDataExchange(CDataExchange* pDX)
+{
+    CDialog::DoDataExchange(pDX);
+    //{{AFX_DATA_MAP(CFilterATMDlg)
+    DDX_Control(pDX, IDC_SLIDER, m_scSlider);
+    DDX_Text(pDX, IDC_ALPHA, m_nAlpha);
+    DDX_Text(pDX, IDC_RADIUS, m_nRadius);
+    DDX_Check(pDX, IDC_KEEPNOISE, m_bKeepNoise);
+    //}}AFX_DATA_MAP
+}
 
 BEGIN_MESSAGE_MAP(CFilterATMDlg, CDialog)
 //{{AFX_MSG_MAP(CFilterATMDlg)
-        ON_EN_CHANGE(IDC_RADIUS, OnChangeRadius)
-        ON_EN_CHANGE(IDC_ALPHA, OnChangeAlpha)
-        ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER, OnCustomdrawSlider)
-        //}}AFX_MSG_MAP
+ON_EN_CHANGE(IDC_RADIUS, OnChangeRadius)
+ON_EN_CHANGE(IDC_ALPHA, OnChangeAlpha)
+ON_NOTIFY(NM_CUSTOMDRAW, IDC_SLIDER, OnCustomdrawSlider)
+//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
 // CFilterATMDlg message handlers
 
-BOOL CFilterATMDlg::OnInitDialog()
-   {
-   CDialog::OnInitDialog();
+BOOL
+CFilterATMDlg::OnInitDialog()
+{
+    CDialog::OnInitDialog();
 
-   // set region (cf OnChangeRadius)
-   CString sTemp;
-   sTemp.Format(" Region: %dx%d", 2*m_nRadius+1, 2*m_nRadius+1);
-   SetDlgItemText(IDC_REGION, sTemp);
-   m_scSlider.SetRange(0, 2*m_nRadius*(m_nRadius+1));
-   m_scSlider.SetPos(m_nAlpha);
+    // set region (cf OnChangeRadius)
+    CString sTemp;
+    sTemp.Format(" Region: %dx%d", 2 * m_nRadius + 1, 2 * m_nRadius + 1);
+    SetDlgItemText(IDC_REGION, sTemp);
+    m_scSlider.SetRange(0, 2 * m_nRadius * (m_nRadius + 1));
+    m_scSlider.SetPos(m_nAlpha);
 
-   return TRUE;  // return TRUE unless you set the focus to a control
-   // EXCEPTION: OCX Property Pages should return FALSE
-   }
+    return TRUE; // return TRUE unless you set the focus to a control
+    // EXCEPTION: OCX Property Pages should return FALSE
+}
 
-void CFilterATMDlg::OnChangeRadius()
-   {
-   m_nRadius = GetDlgItemInt(IDC_RADIUS);
-   CString sTemp;
-   sTemp.Format(" Region: %dx%d", 2*m_nRadius+1, 2*m_nRadius+1);
-   SetDlgItemText(IDC_REGION, sTemp);
-   m_scSlider.SetRange(0, 2*m_nRadius*(m_nRadius+1));
-   m_scSlider.SetPos(m_nAlpha);
-   m_scSlider.RedrawWindow();
-   }
+void
+CFilterATMDlg::OnChangeRadius()
+{
+    m_nRadius = GetDlgItemInt(IDC_RADIUS);
+    CString sTemp;
+    sTemp.Format(" Region: %dx%d", 2 * m_nRadius + 1, 2 * m_nRadius + 1);
+    SetDlgItemText(IDC_REGION, sTemp);
+    m_scSlider.SetRange(0, 2 * m_nRadius * (m_nRadius + 1));
+    m_scSlider.SetPos(m_nAlpha);
+    m_scSlider.RedrawWindow();
+}
 
-void CFilterATMDlg::OnChangeAlpha()
-   {
-   m_nAlpha = GetDlgItemInt(IDC_ALPHA);
-   if(m_scSlider.GetPos() != m_nAlpha)
-      {
-      m_scSlider.SetPos(m_nAlpha);
-      m_scSlider.RedrawWindow();
-      }
-   }
+void
+CFilterATMDlg::OnChangeAlpha()
+{
+    m_nAlpha = GetDlgItemInt(IDC_ALPHA);
+    if (m_scSlider.GetPos() != m_nAlpha) {
+        m_scSlider.SetPos(m_nAlpha);
+        m_scSlider.RedrawWindow();
+    }
+}
 
-void CFilterATMDlg::OnCustomdrawSlider(NMHDR* pNMHDR, LRESULT* pResult)
-   {
-   if(m_scSlider.GetPos() != m_nAlpha && m_scSlider.GetRangeMax() >= m_nAlpha)
-      SetDlgItemInt(IDC_ALPHA, m_scSlider.GetPos());
-   *pResult = 0;
-   }
+void
+CFilterATMDlg::OnCustomdrawSlider(NMHDR* pNMHDR, LRESULT* pResult)
+{
+    if (m_scSlider.GetPos() != m_nAlpha &&
+        m_scSlider.GetRangeMax() >= m_nAlpha) {
+        SetDlgItemInt(IDC_ALPHA, m_scSlider.GetPos());
+    }
+    *pResult = 0;
+}

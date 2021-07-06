@@ -26,7 +26,8 @@
 
 #include <iostream>
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Group.
@@ -41,82 +42,70 @@ namespace libbase {
  */
 
 template <class BigInteger>
-class group {
+class group
+{
 private:
-   BigInteger p;
-   BigInteger q;
-   BigInteger g;
+    BigInteger p;
+    BigInteger q;
+    BigInteger g;
 
 public:
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   group()
-      {
-      }
-   explicit group(BigInteger p, BigInteger q, BigInteger g) :
-      p(p), q(q), g(g)
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Default constructor
+    group() {}
+    explicit group(BigInteger p, BigInteger q, BigInteger g) : p(p), q(q), g(g)
+    {
+    }
+    // @}
 
-   void init(BigInteger p, BigInteger q, BigInteger g)
-      {
-      this->p = p;
-      this->q = q;
-      this->g = g;
-      }
+    void init(BigInteger p, BigInteger q, BigInteger g)
+    {
+        this->p = p;
+        this->q = q;
+        this->g = g;
+    }
 
-   /*! \name Getters */
-   const BigInteger& get_p() const
-      {
-      return p;
-      }
-   const BigInteger& get_q() const
-      {
-      return q;
-      }
-   const BigInteger& get_g() const
-      {
-      return g;
-      }
-   // @}
+    /*! \name Getters */
+    const BigInteger& get_p() const { return p; }
+    const BigInteger& get_q() const { return q; }
+    const BigInteger& get_g() const { return g; }
+    // @}
 
-   static BigInteger get_random_integer(BigInteger n)
-      {
-      BigInteger r;
-      int maxbits = n.size();
-      do
-         {
-         r.random(maxbits);
-         } while (r >= n);
-      return r;
-      }
+    static BigInteger get_random_integer(BigInteger n)
+    {
+        BigInteger r;
+        int maxbits = n.size();
+        do {
+            r.random(maxbits);
+        } while (r >= n);
+        return r;
+    }
 
-   BigInteger sample()
-      {
-      BigInteger r = get_random_integer(q);
-      return g.pow_mod(r, p);
-      }
+    BigInteger sample()
+    {
+        BigInteger r = get_random_integer(q);
+        return g.pow_mod(r, p);
+    }
 
-   /*! \name Stream I/O */
-   friend std::ostream& operator<<(std::ostream& sout, const group& x)
-      {
-      sout << x.p << std::endl;
-      sout << x.q << std::endl;
-      sout << x.g << std::endl;
-      return sout;
-      }
+    /*! \name Stream I/O */
+    friend std::ostream& operator<<(std::ostream& sout, const group& x)
+    {
+        sout << x.p << std::endl;
+        sout << x.q << std::endl;
+        sout << x.g << std::endl;
+        return sout;
+    }
 
-   friend std::istream& operator>>(std::istream& sin, group& x)
-      {
-      sin >> x.p;
-      sin >> x.q;
-      sin >> x.g;
-      return sin;
-      }
-   // @}
+    friend std::istream& operator>>(std::istream& sin, group& x)
+    {
+        sin >> x.p;
+        sin >> x.q;
+        sin >> x.g;
+        return sin;
+    }
+    // @}
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif

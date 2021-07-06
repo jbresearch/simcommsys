@@ -25,7 +25,8 @@
 #include "config.h"
 #include "random.h"
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Knuth's Subtractive Random Generator.
@@ -42,29 +43,24 @@ namespace libbase {
  * use with a variable number of bits/code in the data stream)
  */
 
-class randgen : public random {
+class randgen : public random
+{
 private:
-   /*! \name Object representation */
-   static const int32s mbig;
-   static const int32s mseed;
-   int32s next, nextp;
-   int32s ma[56], mj;
-   // @}
+    /*! \name Object representation */
+    static const int32s mbig;
+    static const int32s mseed;
+    int32s next, nextp;
+    int32s ma[56], mj;
+    // @}
 
 protected:
-   // Interface with random
-   void init(int32u s);
-   void advance();
-   int32u get_value() const
-      {
-      return mj;
-      }
-   int32u get_max() const
-      {
-      return mbig;
-      }
+    // Interface with random
+    void init(int32u s);
+    void advance();
+    int32u get_value() const { return mj; }
+    int32u get_max() const { return mbig; }
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif

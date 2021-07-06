@@ -23,17 +23,18 @@
 #define __fba_h
 
 #include "config.h"
-#include "vector.h"
+#include "fsm.h"
 #include "matrix.h"
 #include "matrix3.h"
-#include "fsm.h"
 #include "multi_array.h"
+#include "vector.h"
 
 #include <cmath>
-#include <iostream>
 #include <fstream>
+#include <iostream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Bit-Level Forward-Backward Algorithm (for Davey-MacKay codes).
@@ -61,66 +62,68 @@ namespace libcomm {
  */
 
 template <class sig, class real>
-class fba {
+class fba
+{
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<sig> array1s_t;
-   typedef boost::assignable_multi_array<real, 2> array2r_t;
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<sig> array1s_t;
+    typedef boost::assignable_multi_array<real, 2> array2r_t;
+    // @}
 private:
-   /*! \name User-defined parameters */
-   int tau; //!< The (transmitted) block size in channel symbols
-   int mtau_min; //!< The largest negative drift within a whole frame is \f$ m_\tau^{-} \f$
-   int mtau_max; //!< The largest positive drift within a whole frame is \f$ m_\tau^{+} \f$
-   int m1_min; //!< The largest negative drift over a single channel symbol is \f$ m_1^{-} \f$
-   int m1_max; //!< The largest positive drift over a single channel symbol is \f$ m_1^{+} \f$
-   real th_inner; //!< Threshold factor for inner cycle
-   bool norm; //!< Flag to indicate if metrics should be normalized between time-steps
-   // @}
-   /*! \name Internally-used objects */
-   bool initialised; //!< Flag to indicate when memory is allocated
-   array2r_t F; //!< Forward recursion metric
-   array2r_t B; //!< Backward recursion metric
-   // @}
+    /*! \name User-defined parameters */
+    int tau;      //!< The (transmitted) block size in channel symbols
+    int mtau_min; //!< The largest negative drift within a whole frame is \f$
+                  //!< m_\tau^{-} \f$
+    int mtau_max; //!< The largest positive drift within a whole frame is \f$
+                  //!< m_\tau^{+} \f$
+    int m1_min; //!< The largest negative drift over a single channel symbol is
+                //!< \f$ m_1^{-} \f$
+    int m1_max; //!< The largest positive drift over a single channel symbol is
+                //!< \f$ m_1^{+} \f$
+    real th_inner; //!< Threshold factor for inner cycle
+    bool norm;     //!< Flag to indicate if metrics should be normalized between
+                   //!< time-steps
+    // @}
+    /*! \name Internally-used objects */
+    bool initialised; //!< Flag to indicate when memory is allocated
+    array2r_t F;      //!< Forward recursion metric
+    array2r_t B;      //!< Backward recursion metric
+                      // @}
 private:
-   /*! \name Internal functions */
-   void allocate();
-   void free();
-   // @}
+    /*! \name Internal functions */
+    void allocate();
+    void free();
+    // @}
 protected:
-   /*! \name Internal functions */
-   // handles for channel-specific metrics - to be implemented by derived classes
-   virtual real R(const int i, const array1s_t& r) = 0;
-   // @}
+    /*! \name Internal functions */
+    // handles for channel-specific metrics - to be implemented by derived
+    // classes
+    virtual real R(const int i, const array1s_t& r) = 0;
+    // @}
 public:
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   fba() :
-         initialised(false)
-      {
-      }
-   virtual ~fba()
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Default constructor
+    fba() : initialised(false) {}
+    virtual ~fba() {}
+    // @}
 
-   // main initialization routine
-   void init(int tau, int mtau_min, int mtau_max, int m1_min, int m1_max, double th_inner, bool norm);
-   // getters for forward and backward metrics
-   real getF(const int j, const int y) const
-      {
-      return F[j][y];
-      }
-   real getB(const int j, const int y) const
-      {
-      return B[j][y];
-      }
-   // decode functions
-   void work_forward(const array1s_t& r);
-   void work_backward(const array1s_t& r);
-   void prepare(const array1s_t& r);
+    // main initialization routine
+    void init(int tau,
+              int mtau_min,
+              int mtau_max,
+              int m1_min,
+              int m1_max,
+              double th_inner,
+              bool norm);
+    // getters for forward and backward metrics
+    real getF(const int j, const int y) const { return F[j][y]; }
+    real getB(const int j, const int y) const { return B[j][y]; }
+    // decode functions
+    void work_forward(const array1s_t& r);
+    void work_backward(const array1s_t& r);
+    void prepare(const array1s_t& r);
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

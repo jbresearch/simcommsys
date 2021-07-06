@@ -28,24 +28,24 @@
 class CAboutDlg : public CDialog
 {
 public:
-   CAboutDlg();
+    CAboutDlg();
 
-   // Dialog Data
-   //{{AFX_DATA(CAboutDlg)
-   enum { IDD = IDD_ABOUTBOX };
-   //}}AFX_DATA
+    // Dialog Data
+    //{{AFX_DATA(CAboutDlg)
+    enum { IDD = IDD_ABOUTBOX };
+    //}}AFX_DATA
 
-   // ClassWizard generated virtual function overrides
-   //{{AFX_VIRTUAL(CAboutDlg)
+    // ClassWizard generated virtual function overrides
+    //{{AFX_VIRTUAL(CAboutDlg)
 protected:
-   virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-   //}}AFX_VIRTUAL
+    virtual void DoDataExchange(CDataExchange* pDX); // DDX/DDV support
+                                                     //}}AFX_VIRTUAL
 
-   // Implementation
+    // Implementation
 protected:
-   //{{AFX_MSG(CAboutDlg)
-   //}}AFX_MSG
-   DECLARE_MESSAGE_MAP()
+    //{{AFX_MSG(CAboutDlg)
+    //}}AFX_MSG
+    DECLARE_MESSAGE_MAP()
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -53,40 +53,40 @@ protected:
 
 class CFilterOrphansDlg : public CDialog
 {
-// Construction
+    // Construction
 public:
-   CFilterOrphansDlg(CWnd* pParent = NULL);   // standard constructor
+    CFilterOrphansDlg(CWnd* pParent = NULL); // standard constructor
 
-   libwin::CPSPlugIn*  m_pPSPlugIn;
+    libwin::CPSPlugIn* m_pPSPlugIn;
 
-// Dialog Data
-   //{{AFX_DATA(CFilterOrphansDlg)
-        enum { IDD = IDD_DIALOG1 };
-        CSliderCtrl     m_scSlider;
-        BOOL    m_bKeepNoise;
-        int             m_nWeight;
-        //}}AFX_DATA
+    // Dialog Data
+    //{{AFX_DATA(CFilterOrphansDlg)
+    enum { IDD = IDD_DIALOG1 };
+    CSliderCtrl m_scSlider;
+    BOOL m_bKeepNoise;
+    int m_nWeight;
+    //}}AFX_DATA
 
-// Overrides
-   // ClassWizard generated virtual function overrides
-   //{{AFX_VIRTUAL(CFilterOrphansDlg)
-   protected:
-   virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-   //}}AFX_VIRTUAL
-
-// Implementation
+    // Overrides
+    // ClassWizard generated virtual function overrides
+    //{{AFX_VIRTUAL(CFilterOrphansDlg)
 protected:
+    virtual void DoDataExchange(CDataExchange* pDX); // DDX/DDV support
+                                                     //}}AFX_VIRTUAL
 
-   // Generated message map functions
-   //{{AFX_MSG(CFilterOrphansDlg)
-   virtual BOOL OnInitDialog();
-        afx_msg void OnCustomdrawSlider(NMHDR* pNMHDR, LRESULT* pResult);
-        afx_msg void OnChangeWeight();
-        //}}AFX_MSG
-   DECLARE_MESSAGE_MAP()
+    // Implementation
+protected:
+    // Generated message map functions
+    //{{AFX_MSG(CFilterOrphansDlg)
+    virtual BOOL OnInitDialog();
+    afx_msg void OnCustomdrawSlider(NMHDR* pNMHDR, LRESULT* pResult);
+    afx_msg void OnChangeWeight();
+    //}}AFX_MSG
+    DECLARE_MESSAGE_MAP()
 };
 
 //{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
+// Microsoft Visual C++ will insert additional declarations immediately before
+// the previous line.
 
 #endif

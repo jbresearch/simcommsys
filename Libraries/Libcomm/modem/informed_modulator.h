@@ -24,7 +24,8 @@
 
 #include "blockmodem.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Informed Modulator Interface.
@@ -41,73 +42,78 @@ namespace libcomm {
  * \todo Figure out whether atomic modem operations are really used anywhere
  */
 
-template <class S, template <class > class C = libbase::vector>
-class informed_modulator : public blockmodem<S, C> {
+template <class S, template <class> class C = libbase::vector>
+class informed_modulator : public blockmodem<S, C>
+{
 public:
-   /*! \name Type definitions */
-   typedef blockmodem<S, C> Base;
-   typedef libbase::vector<double> array1d_t;
-   // @}
+    /*! \name Type definitions */
+    typedef blockmodem<S, C> Base;
+    typedef libbase::vector<double> array1d_t;
+    // @}
 protected:
-   /*! \name Interface with derived classes */
-   //! \copydoc demodulate()
-   virtual void dodemodulate(const channel<S, C>& chan, const C<S>& rx,
-         const C<array1d_t>& app, C<array1d_t>& ptable) = 0;
-   // @}
+    /*! \name Interface with derived classes */
+    //! \copydoc demodulate()
+    virtual void dodemodulate(const channel<S, C>& chan,
+                              const C<S>& rx,
+                              const C<array1d_t>& app,
+                              C<array1d_t>& ptable) = 0;
+    // @}
 
 public:
-   /*! \name Constructors / Destructors */
-   virtual ~informed_modulator()
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    virtual ~informed_modulator() {}
+    // @}
 
-   /*! \name Atomic modem operations - informed extensions */
-   /*!
-    * \brief Demodulate a single time-step
-    * \param[in]  signal   Received signal
-    * \param[in]  app      Table of a-priori likelihoods of possible
-    * transmitted symbols
-    * \return  Index corresponding symbol that is closest to the received signal
-    */
-   virtual const int demodulate(const S& signal, const array1d_t& app) const = 0;
-   // @}
+    /*! \name Atomic modem operations - informed extensions */
+    /*!
+     * \brief Demodulate a single time-step
+     * \param[in]  signal   Received signal
+     * \param[in]  app      Table of a-priori likelihoods of possible
+     * transmitted symbols
+     * \return  Index corresponding symbol that is closest to the received
+     * signal
+     */
+    virtual const int demodulate(const S& signal,
+                                 const array1d_t& app) const = 0;
+    // @}
 
-   /*! \name Block modem operations - informed extensions */
-   /*!
-    * \brief Demodulate a sequence of time-steps
-    * \param[in]  chan     The channel model (used to obtain likelihoods)
-    * \param[in]  rx       Sequence of received symbols
-    * \param[in]  app      Table of a-priori likelihoods of possible
-    * transmitted symbols at every time-step
-    * \param[out] ptable   Table of likelihoods of possible transmitted symbols
-    *
-    * \note \c ptable(i,d) \c is the a posteriori probability of having transmitted
-    * symbol 'd' at time 'i'
-    *
-    * \note This function is non-const, to support time-variant modulation
-    * schemes such as DM inner codes.
-    *
-    * \note app and ptable may point to the same space
-    *
-    * \note app may be empty; this should be taken to indicate that no prior
-    * information is available
-    */
-   void demodulate(const channel<S, C>& chan, const C<S>& rx,
-         const C<array1d_t>& app, C<array1d_t>& ptable)
-      {
-      this->advance_if_dirty();
-      dodemodulate(chan, rx, app, ptable);
-      this->mark_as_dirty();
-      }
-   // @}
+    /*! \name Block modem operations - informed extensions */
+    /*!
+     * \brief Demodulate a sequence of time-steps
+     * \param[in]  chan     The channel model (used to obtain likelihoods)
+     * \param[in]  rx       Sequence of received symbols
+     * \param[in]  app      Table of a-priori likelihoods of possible
+     * transmitted symbols at every time-step
+     * \param[out] ptable   Table of likelihoods of possible transmitted symbols
+     *
+     * \note \c ptable(i,d) \c is the a posteriori probability of having
+     * transmitted symbol 'd' at time 'i'
+     *
+     * \note This function is non-const, to support time-variant modulation
+     * schemes such as DM inner codes.
+     *
+     * \note app and ptable may point to the same space
+     *
+     * \note app may be empty; this should be taken to indicate that no prior
+     * information is available
+     */
+    void demodulate(const channel<S, C>& chan,
+                    const C<S>& rx,
+                    const C<array1d_t>& app,
+                    C<array1d_t>& ptable)
+    {
+        this->advance_if_dirty();
+        dodemodulate(chan, rx, app, ptable);
+        this->mark_as_dirty();
+    }
+    // @}
 
-   // Block modem operations
-   // (necessary because overloaded methods hide those in templated base)
-   using Base::modulate;
-   using Base::demodulate;
+    // Block modem operations
+    // (necessary because overloaded methods hide those in templated base)
+    using Base::demodulate;
+    using Base::modulate;
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

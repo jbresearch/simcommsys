@@ -22,12 +22,13 @@
 #ifndef __qec_h
 #define __qec_h
 
-#include "config.h"
 #include "channel.h"
+#include "config.h"
 #include "serializer.h"
 #include <cmath>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   q-ary erasure channel.
@@ -43,55 +44,53 @@ namespace libcomm {
  */
 
 template <class G>
-class qec : public channel<G> {
+class qec : public channel<G>
+{
 private:
-   /*! \name User-defined parameters */
-   double Pe; //!< Symbol-erasure probability \f$ P_e \f$
-   // @}
+    /*! \name User-defined parameters */
+    double Pe; //!< Symbol-erasure probability \f$ P_e \f$
+               // @}
 protected:
-   // Channel function overrides
-   G corrupt(const G& s);
-   double pdf(const G& tx, const G& rx) const
-      {
-      // handle erasures first
-      if (rx.is_erased())
-         return 1.0 / G::elements();
-      // otherwise the only option with non-zero probability is if we
-      // received the same symbol that was transmitted
-      if (tx == rx)
-         return 1;
-      return 0;
-      }
+    // Channel function overrides
+    G corrupt(const G& s);
+    double pdf(const G& tx, const G& rx) const
+    {
+        // handle erasures first
+        if (rx.is_erased()) {
+            return 1.0 / G::elements();
+        }
+        // otherwise the only option with non-zero probability is if we
+        // received the same symbol that was transmitted
+        if (tx == rx) {
+            return 1;
+        }
+        return 0;
+    }
+
 public:
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   qec()
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Default constructor
+    qec() {}
+    // @}
 
-   /*! \name Channel parameter handling */
-   //! Set the erasure probability
-   void set_parameter(const double Pe)
-      {
-      assertalways(Pe >=0 && Pe <= 1);
-      qec::Pe = Pe;
-      }
-   //! Get the erasure probability
-   double get_parameter() const
-      {
-      return Pe;
-      }
-   // @}
+    /*! \name Channel parameter handling */
+    //! Set the erasure probability
+    void set_parameter(const double Pe)
+    {
+        assertalways(Pe >= 0 && Pe <= 1);
+        qec::Pe = Pe;
+    }
+    //! Get the erasure probability
+    double get_parameter() const { return Pe; }
+    // @}
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(qec)
+    // Serialization Support
+    DECLARE_SERIALIZER(qec)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

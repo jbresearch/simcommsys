@@ -25,7 +25,8 @@
 #include "ccfsm.h"
 #include "serializer.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Generalized Non-Recursive Convolutional Code.
@@ -43,37 +44,36 @@ namespace libcomm {
  */
 
 template <class G>
-class gnrcc : public ccfsm<G> {
+class gnrcc : public ccfsm<G>
+{
 protected:
-   /*! \name FSM helper operations */
-   libbase::vector<int> determineinput(const libbase::vector<int>& input) const;
-   libbase::vector<G> determinefeedin(const libbase::vector<int>& input) const;
-   // @}
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   gnrcc()
-      {
-      }
-   // @}
+    /*! \name FSM helper operations */
+    libbase::vector<int>
+    determineinput(const libbase::vector<int>& input) const;
+    libbase::vector<G> determinefeedin(const libbase::vector<int>& input) const;
+    // @}
+    /*! \name Constructors / Destructors */
+    //! Default constructor
+    gnrcc() {}
+    // @}
 public:
-   /*! \name Constructors / Destructors */
-   gnrcc(const libbase::matrix<libbase::vector<G> >& generator) :
-      ccfsm<G> (generator)
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    gnrcc(const libbase::matrix<libbase::vector<G>>& generator)
+        : ccfsm<G>(generator)
+    {
+    }
+    // @}
 
-   // FSM state operations (getting and resetting)
-   void resetcircular(const libbase::vector<int>& zerostate, int n);
+    // FSM state operations (getting and resetting)
+    void resetcircular(const libbase::vector<int>& zerostate, int n);
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(gnrcc)
+    // Serialization Support
+    DECLARE_SERIALIZER(gnrcc)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

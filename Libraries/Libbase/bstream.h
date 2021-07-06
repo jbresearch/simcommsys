@@ -22,10 +22,11 @@
 #ifndef __bstream_h
 #define __bstream_h
 
-#include "config.h"
 #include "bitfield.h"
+#include "config.h"
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Bitstream Base.
@@ -43,40 +44,37 @@ namespace libbase {
  * - defined class and associated data within "libbase" namespace.
  */
 
-class bstream {
+class bstream
+{
 protected:
-   bitfield buffer; // a 32-bit buffer for read/write operations
-   int ptr; // points to the first unused/unread bit
+    bitfield buffer; // a 32-bit buffer for read/write operations
+    int ptr;         // points to the first unused/unread bit
 public:
-   bstream();
+    bstream();
 };
 
-class obstream : public bstream {
+class obstream : public bstream
+{
 protected:
-   virtual void write_buffer() = 0;
+    virtual void write_buffer() = 0;
+
 public:
-   obstream()
-      {
-      }
-   virtual ~obstream()
-      {
-      }
-   obstream& operator<<(const bitfield& b);
+    obstream() {}
+    virtual ~obstream() {}
+    obstream& operator<<(const bitfield& b);
 };
 
-class ibstream : public bstream {
+class ibstream : public bstream
+{
 protected:
-   virtual void read_buffer() = 0;
+    virtual void read_buffer() = 0;
+
 public:
-   ibstream()
-      {
-      }
-   virtual ~ibstream()
-      {
-      }
-   ibstream& operator>>(bitfield& b);
+    ibstream() {}
+    virtual ~ibstream() {}
+    ibstream& operator>>(bitfield& b);
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif

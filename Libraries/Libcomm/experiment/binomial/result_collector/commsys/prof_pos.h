@@ -26,7 +26,8 @@
 #include "errors_hamming.h"
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   CommSys Results - Frame-Position Error Profile.
@@ -35,39 +36,35 @@ namespace libcomm {
  * Profiler of error with respect to position within block.
  */
 
-class prof_pos : public errors_hamming {
+class prof_pos : public errors_hamming
+{
 public:
-   // Public interface
-   void updateresults(libbase::vector<double>& result, const libbase::vector<
-         int>& source, const libbase::vector<int>& decoded) const;
-   /*! \copydoc experiment::count()
-    * We determine the (symbol) error rate for every frame position.
-    */
-   int count() const
-      {
-      return get_symbolsperblock();
-      }
-   /*! \copydoc experiment::get_multiplicity()
-    * Only one result can be incremented for every position.
-    */
-   int get_multiplicity(int i) const
-      {
-      return 1;
-      }
-   /*! \copydoc experiment::result_description()
-    *
-    * The description is a string SER_X, where 'X' is the symbol position
-    * (starting at zero).
-    */
-   std::string result_description(int i) const
-      {
-      assert(i >= 0 && i < count());
-      std::ostringstream sout;
-      sout << "SER_" << i;
-      return sout.str();
-      }
+    // Public interface
+    void updateresults(libbase::vector<double>& result,
+                       const libbase::vector<int>& source,
+                       const libbase::vector<int>& decoded) const;
+    /*! \copydoc experiment::count()
+     * We determine the (symbol) error rate for every frame position.
+     */
+    int count() const { return get_symbolsperblock(); }
+    /*! \copydoc experiment::get_multiplicity()
+     * Only one result can be incremented for every position.
+     */
+    int get_multiplicity(int i) const { return 1; }
+    /*! \copydoc experiment::result_description()
+     *
+     * The description is a string SER_X, where 'X' is the symbol position
+     * (starting at zero).
+     */
+    std::string result_description(int i) const
+    {
+        assert(i >= 0 && i < count());
+        std::ostringstream sout;
+        sout << "SER_" << i;
+        return sout.str();
+    }
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

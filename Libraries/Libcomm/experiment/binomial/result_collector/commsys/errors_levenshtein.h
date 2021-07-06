@@ -25,7 +25,8 @@
 #include "config.h"
 #include "errors_hamming.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   CommSys Results - SER (Hamming & Levenshtein), FER.
@@ -34,65 +35,62 @@ namespace libcomm {
  * Implements error rate calculators for SER (using both Hamming and
  * Levenshtein distances) and FER.
  */
-class errors_levenshtein : public errors_hamming {
+class errors_levenshtein : public errors_hamming
+{
 public:
-   /*! \name Public interface */
-   void updateresults(libbase::vector<double>& result, const libbase::vector<
-         int>& source, const libbase::vector<int>& decoded) const;
-   /*! \copydoc experiment::count()
-    * We count the number of symbol errors using Hamming and Levenshtein
-    * metrics, as well as the number of frame errors.
-    */
-   int count() const
-      {
-      return 3;
-      }
-   /*! \copydoc experiment::get_multiplicity()
-    *
-    * Since results are organized as (symbol_hamming, symbol_levenshtein,frame)
-    * error count, the multiplicity is respectively the number of symbols
-    * (twice) and the number of frames (=1) per sample.
-    *
-    * \warning In the case of Levenshtein distance, it is not clear how the
-    * multiplicity should be computed.
-    */
-   int get_multiplicity(int i) const
-      {
-      assert(i >= 0 && i < count());
-      switch (i)
-         {
-         case 0:
-         case 1:
+    /*! \name Public interface */
+    void updateresults(libbase::vector<double>& result,
+                       const libbase::vector<int>& source,
+                       const libbase::vector<int>& decoded) const;
+    /*! \copydoc experiment::count()
+     * We count the number of symbol errors using Hamming and Levenshtein
+     * metrics, as well as the number of frame errors.
+     */
+    int count() const { return 3; }
+    /*! \copydoc experiment::get_multiplicity()
+     *
+     * Since results are organized as (symbol_hamming, symbol_levenshtein,frame)
+     * error count, the multiplicity is respectively the number of symbols
+     * (twice) and the number of frames (=1) per sample.
+     *
+     * \warning In the case of Levenshtein distance, it is not clear how the
+     * multiplicity should be computed.
+     */
+    int get_multiplicity(int i) const
+    {
+        assert(i >= 0 && i < count());
+        switch (i) {
+        case 0:
+        case 1:
             return get_symbolsperblock();
-         case 2:
+        case 2:
             return 1;
-         }
-      return -1; // This should never happen
-      }
+        }
+        return -1; // This should never happen
+    }
 
-   /*! \copydoc experiment::result_description()
-    *
-    * The description is a string of SER,LD,FER to indicate symbol error rate
-    * (Hamming distance), Levenshtein distance, or frame error rate
-    * respectively.
-    */
-   std::string result_description(int i) const
-      {
-      assert(i >= 0 && i < count());
-      switch (i)
-         {
-         case 0:
+    /*! \copydoc experiment::result_description()
+     *
+     * The description is a string of SER,LD,FER to indicate symbol error rate
+     * (Hamming distance), Levenshtein distance, or frame error rate
+     * respectively.
+     */
+    std::string result_description(int i) const
+    {
+        assert(i >= 0 && i < count());
+        switch (i) {
+        case 0:
             return "SER";
-         case 1:
+        case 1:
             return "LD";
-         case 2:
+        case 2:
             return "FER";
-         }
-      return ""; // This should never happen
-      }
-   // @}
+        }
+        return ""; // This should never happen
+    }
+    // @}
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

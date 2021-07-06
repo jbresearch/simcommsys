@@ -22,10 +22,11 @@
 #include "equalitydisclog_zpschnorr.h"
 
 #ifdef USE_GMP
-#include "math/gmp_bigint.h"
+#    include "math/gmp_bigint.h"
 #endif
 
-namespace libbase {
+namespace libbase
+{
 
 // explicit instantiations
 
@@ -33,4 +34,4 @@ namespace libbase {
 template class equalitydisclog_zpschnorr<gmp_bigint>;
 #endif
 
-} // end namespace
+} // namespace libbase

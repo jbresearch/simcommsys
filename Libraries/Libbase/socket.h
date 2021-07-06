@@ -24,11 +24,12 @@
 
 #include "config.h"
 
-#include <string>
 #include <list>
 #include <memory>
+#include <string>
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Networking sockets.
@@ -39,7 +40,8 @@ namespace libbase {
  *
  * \version 1.10 (18-19 Apr 2007)
  * - defined class and associated data within "libbase" namespace.
- * - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+ * - removed use of "using namespace std", replacing by tighter "using"
+ * statements as needed.
  * - Integrated code from worker pool project by:
  * - Johann Briffa   <j.briffa@ieee.org>
  * - Vangelis Koukis <vkoukis@cslab.ece.ntua.gr>
@@ -50,8 +52,8 @@ namespace libbase {
  *
  * \version 1.12 (23 Apr 2007)
  * - split read/write functions so that the normal functions return the size
- * as usual, while the insist functions merely return true/false; this simplifies
- * use in masterslave class
+ * as usual, while the insist functions merely return true/false; this
+ * simplifies use in masterslave class
  * - modified write to only require a const void * pointer to the buffer, since
  * this function should never modify the contents
  * - split io() function due to inconsistent requirements for buffer pointer
@@ -68,55 +70,51 @@ namespace libbase {
  * - ditto in bind(), accept() and connect()
  */
 
-class socket {
-   // constant values - client
-   static const int connect_tries;
-   static const int connect_delay;
+class socket
+{
+    // constant values - client
+    static const int connect_tries;
+    static const int connect_delay;
 #ifdef _WIN32
-   // static values - object count
-   static int objectcount;
+    // static values - object count
+    static int objectcount;
 #endif
-   // internal variables
-   int sd;
-   std::string ip;
-   int16u port;
-   bool listener;
+    // internal variables
+    int sd;
+    std::string ip;
+    int16u port;
+    bool listener;
+
 private:
-   // helper functions
-   template <class T> ssize_t io(T buf, size_t len);
-   template <class T> ssize_t insistio(T buf, size_t len);
+    // helper functions
+    template <class T>
+    ssize_t io(T buf, size_t len);
+    template <class T>
+    ssize_t insistio(T buf, size_t len);
+
 public:
-   // constructor/destructor
-   socket();
-   ~socket();
-   // listener property
-   bool islistener() const
-      {
-      return listener;
-      }
-   // wait for client connects
-   bool bind(int16u port);
-   static std::list<std::shared_ptr<socket> > select(
-         std::list<std::shared_ptr<socket> > sl, const double timeout = 0);
-   std::shared_ptr<socket> accept();
-   // open connection to server
-   bool connect(std::string hostname, int16u port);
-   // read/write data
-   ssize_t write(const void *buf, size_t len);
-   ssize_t read(void *buf, size_t len);
-   bool insistwrite(const void *buf, size_t len);
-   bool insistread(void *buf, size_t len);
-   // get ip & hostname
-   std::string getip() const
-      {
-      return ip;
-      }
-   int16u getport() const
-      {
-      return port;
-      }
+    // constructor/destructor
+    socket();
+    ~socket();
+    // listener property
+    bool islistener() const { return listener; }
+    // wait for client connects
+    bool bind(int16u port);
+    static std::list<std::shared_ptr<socket>>
+    select(std::list<std::shared_ptr<socket>> sl, const double timeout = 0);
+    std::shared_ptr<socket> accept();
+    // open connection to server
+    bool connect(std::string hostname, int16u port);
+    // read/write data
+    ssize_t write(const void* buf, size_t len);
+    ssize_t read(void* buf, size_t len);
+    bool insistwrite(const void* buf, size_t len);
+    bool insistread(void* buf, size_t len);
+    // get ip & hostname
+    std::string getip() const { return ip; }
+    int16u getport() const { return port; }
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif

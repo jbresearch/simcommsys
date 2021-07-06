@@ -24,7 +24,8 @@
 
 #include "config.h"
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Clonable class base.
@@ -34,27 +35,26 @@ namespace libbase {
  * functionality, in conjunction with DECLARE_CLONABLE() macro.
  */
 
-class clonable {
+class clonable
+{
 public:
-   virtual ~clonable()
-      {
-      }
-   /*! \name Serialization Support */
-   /*! \brief Cloning operation */
-   virtual clonable *clone() const = 0;
-   /* @} */
+    virtual ~clonable() {}
+    /*! \name Serialization Support */
+    /*! \brief Cloning operation */
+    virtual clonable* clone() const = 0;
+    /* @} */
 };
 
-#define DECLARE_CLONABLE( class_name ) \
-   /* Comment */ \
-   private: \
-   /*! \name Cloning Support */ \
-   /*! \brief Heap creation function */ \
-   static libbase::clonable* create() { return new class_name; } \
-   /* @} */ \
-   public: \
-   libbase::clonable *clone() const { return new class_name(*this); }
+#define DECLARE_CLONABLE(class_name)                                           \
+    /* Comment */                                                              \
+private:                                                                       \
+    /*! \name Cloning Support */                                               \
+    /*! \brief Heap creation function */                                       \
+    static libbase::clonable* create() { return new class_name; }              \
+    /* @} */                                                                   \
+public:                                                                        \
+    libbase::clonable* clone() const { return new class_name(*this); }
 
-} // end namespace
+} // namespace libbase
 
 #endif

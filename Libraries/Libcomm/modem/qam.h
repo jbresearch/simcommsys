@@ -26,7 +26,8 @@
 #include "lut_modulator.h"
 #include "serializer.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   QAM Modulator.
@@ -37,35 +38,29 @@ namespace libcomm {
  * - Derived from mpsk 2.20
  */
 
-class qam : public lut_modulator {
+class qam : public lut_modulator
+{
 protected:
-   /*! \name Internal operations */
-   void init(const int m);
-   // @}
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   qam()
-      {
-      }
-   // @}
+    /*! \name Internal operations */
+    void init(const int m);
+    // @}
+    /*! \name Constructors / Destructors */
+    //! Default constructor
+    qam() {}
+    // @}
 public:
-   /*! \name Constructors / Destructors */
-   qam(const int m)
-      {
-      init(m);
-      }
-   ~qam()
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    qam(const int m) { init(m); }
+    ~qam() {}
+    // @}
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(qam)
+    // Serialization Support
+    DECLARE_SERIALIZER(qam)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

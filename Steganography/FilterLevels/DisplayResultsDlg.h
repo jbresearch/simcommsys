@@ -27,36 +27,35 @@
 
 class CDisplayResultsDlg : public CDialog
 {
-// Construction
+    // Construction
 public:
-        CDisplayResultsDlg(CWnd* pParent = NULL);   // standard constructor
+    CDisplayResultsDlg(CWnd* pParent = NULL); // standard constructor
 
-// Dialog Data
-        //{{AFX_DATA(CDisplayResultsDlg)
-        enum { IDD = IDD_DISPLAY_RESULTS };
-        CString m_sBlack;
-        CString m_sWhite;
-        //}}AFX_DATA
+    // Dialog Data
+    //{{AFX_DATA(CDisplayResultsDlg)
+    enum { IDD = IDD_DISPLAY_RESULTS };
+    CString m_sBlack;
+    CString m_sWhite;
+    //}}AFX_DATA
 
-
-// Overrides
-        // ClassWizard generated virtual function overrides
-        //{{AFX_VIRTUAL(CDisplayResultsDlg)
-        protected:
-        virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-        //}}AFX_VIRTUAL
-
-// Implementation
+    // Overrides
+    // ClassWizard generated virtual function overrides
+    //{{AFX_VIRTUAL(CDisplayResultsDlg)
 protected:
+    virtual void DoDataExchange(CDataExchange* pDX); // DDX/DDV support
+                                                     //}}AFX_VIRTUAL
 
-        // Generated message map functions
-        //{{AFX_MSG(CDisplayResultsDlg)
-                // NOTE: the ClassWizard will add member functions here
-        //}}AFX_MSG
-        DECLARE_MESSAGE_MAP()
+    // Implementation
+protected:
+    // Generated message map functions
+    //{{AFX_MSG(CDisplayResultsDlg)
+    // NOTE: the ClassWizard will add member functions here
+    //}}AFX_MSG
+    DECLARE_MESSAGE_MAP()
 };
 
 //{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
+// Microsoft Visual C++ will insert additional declarations immediately before
+// the previous line.
 
 #endif

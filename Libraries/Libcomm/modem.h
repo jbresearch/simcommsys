@@ -28,7 +28,8 @@
 #include <iostream>
 #include <string>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Common Modulator Interface.
@@ -38,56 +39,48 @@ namespace libcomm {
  */
 
 template <class S>
-class basic_modem {
+class basic_modem
+{
 public:
-   /*! \name Constructors / Destructors */
-   //! Virtual destructor
-   virtual ~basic_modem()
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Virtual destructor
+    virtual ~basic_modem() {}
+    // @}
 
-   /*! \name Atomic modem operations */
-   /*!
-    * \brief Modulate a single time-step
-    * \param   index Index into the symbol alphabet
-    * \return  Symbol corresponding to the given index
-    */
-   virtual const S modulate(const int index) const = 0;
-   /*!
-    * \brief Demodulate a single time-step
-    * \param   signal   Received signal
-    * \return  Index corresponding symbol that is closest to the received signal
-    */
-   virtual const int demodulate(const S& signal) const = 0;
-   /*! \copydoc modulate() */
-   const S operator[](const int index) const
-      {
-      return modulate(index);
-      }
-   /*! \copydoc demodulate() */
-   const int operator[](const S& signal) const
-      {
-      return demodulate(signal);
-      }
-   // @}
+    /*! \name Atomic modem operations */
+    /*!
+     * \brief Modulate a single time-step
+     * \param   index Index into the symbol alphabet
+     * \return  Symbol corresponding to the given index
+     */
+    virtual const S modulate(const int index) const = 0;
+    /*!
+     * \brief Demodulate a single time-step
+     * \param   signal   Received signal
+     * \return  Index corresponding symbol that is closest to the received
+     * signal
+     */
+    virtual const int demodulate(const S& signal) const = 0;
+    /*! \copydoc modulate() */
+    const S operator[](const int index) const { return modulate(index); }
+    /*! \copydoc demodulate() */
+    const int operator[](const S& signal) const { return demodulate(signal); }
+    // @}
 
-   /*! \name Setup functions */
-   //! Seeds any random generators from a pseudo-random sequence
-   virtual void seedfrom(libbase::random& r)
-      {
-      }
-   // @}
+    /*! \name Setup functions */
+    //! Seeds any random generators from a pseudo-random sequence
+    virtual void seedfrom(libbase::random& r) {}
+    // @}
 
-   /*! \name Informative functions */
-   //! Symbol alphabet size at input
-   virtual int num_symbols() const = 0;
-   // @}
+    /*! \name Informative functions */
+    //! Symbol alphabet size at input
+    virtual int num_symbols() const = 0;
+    // @}
 
-   /*! \name Description */
-   //! Description output
-   virtual std::string description() const = 0;
-   // @}
+    /*! \name Description */
+    //! Description output
+    virtual std::string description() const = 0;
+    // @}
 };
 
 /*!
@@ -96,7 +89,8 @@ public:
  */
 
 template <class S>
-class modem : public basic_modem<S> {
+class modem : public basic_modem<S>
+{
 };
 
 /*!
@@ -105,24 +99,19 @@ class modem : public basic_modem<S> {
  */
 
 template <>
-class modem<sigspace> : public basic_modem<sigspace> {
+class modem<sigspace> : public basic_modem<sigspace>
+{
 public:
-   /*! \name Informative functions */
-   //! Average energy per symbol
-   virtual double energy() const = 0;
-   //! Average energy per bit
-   double bit_energy() const
-      {
-      return energy() / log2(num_symbols());
-      }
-   //! Modulation rate (spectral efficiency) in bits/unit energy
-   double rate() const
-      {
-      return 1.0 / bit_energy();
-      }
-   // @}
+    /*! \name Informative functions */
+    //! Average energy per symbol
+    virtual double energy() const = 0;
+    //! Average energy per bit
+    double bit_energy() const { return energy() / log2(num_symbols()); }
+    //! Modulation rate (spectral efficiency) in bits/unit energy
+    double rate() const { return 1.0 / bit_energy(); }
+    // @}
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

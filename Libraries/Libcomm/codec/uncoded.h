@@ -27,7 +27,8 @@
 #include "codec_softout.h"
 #include "serializer.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Uncoded transmission.
@@ -39,73 +40,63 @@ namespace libcomm {
  */
 
 template <class dbl = double>
-class uncoded : public codec_softout<libbase::vector, dbl> {
+class uncoded : public codec_softout<libbase::vector, dbl>
+{
 private:
-   // Shorthand for class hierarchy
-   typedef uncoded<dbl> This;
-   typedef codec_softout<libbase::vector, dbl> Base;
+    // Shorthand for class hierarchy
+    typedef uncoded<dbl> This;
+    typedef codec_softout<libbase::vector, dbl> Base;
+
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<int> array1i_t;
-   typedef libbase::vector<dbl> array1d_t;
-   typedef libbase::vector<array1d_t> array1vd_t;
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<int> array1i_t;
+    typedef libbase::vector<dbl> array1d_t;
+    typedef libbase::vector<array1d_t> array1vd_t;
+    // @}
 private:
-   /*! \name User-specified parameters */
-   int q; //!< Alphabet size (input and output)
-   int N; //!< Length of input/output sequence
-   // @}
-   /*! \name Computed parameters */
-   array1vd_t R; //!< Stored statistics from receiver and priors
-   // @}
+    /*! \name User-specified parameters */
+    int q; //!< Alphabet size (input and output)
+    int N; //!< Length of input/output sequence
+    // @}
+    /*! \name Computed parameters */
+    array1vd_t R; //!< Stored statistics from receiver and priors
+                  // @}
 protected:
-   // Interface with derived classes
-   void do_encode(const array1i_t& source, array1i_t& encoded);
-   void do_init_decoder(const array1vd_t& ptable);
-   void do_init_decoder(const array1vd_t& ptable, const array1vd_t& app);
+    // Interface with derived classes
+    void do_encode(const array1i_t& source, array1i_t& encoded);
+    void do_init_decoder(const array1vd_t& ptable);
+    void do_init_decoder(const array1vd_t& ptable, const array1vd_t& app);
+
 public:
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   uncoded(int q=2, int N=1) :
-      q(q), N(N)
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Default constructor
+    uncoded(int q = 2, int N = 1) : q(q), N(N) {}
+    // @}
 
-   // Codec operations
-   void softdecode(array1vd_t& ri);
-   void softdecode(array1vd_t& ri, array1vd_t& ro);
+    // Codec operations
+    void softdecode(array1vd_t& ri);
+    void softdecode(array1vd_t& ri, array1vd_t& ro);
 
-   // Codec information functions - fundamental
-   libbase::size_type<libbase::vector> input_block_size() const
-      {
-      return libbase::size_type<libbase::vector>(N);
-      }
-   libbase::size_type<libbase::vector> output_block_size() const
-      {
-      return libbase::size_type<libbase::vector>(N);
-      }
-   int num_inputs() const
-      {
-      return q;
-      }
-   int num_outputs() const
-      {
-      return q;
-      }
-   int num_iter() const
-      {
-      return 1;
-      }
+    // Codec information functions - fundamental
+    libbase::size_type<libbase::vector> input_block_size() const
+    {
+        return libbase::size_type<libbase::vector>(N);
+    }
+    libbase::size_type<libbase::vector> output_block_size() const
+    {
+        return libbase::size_type<libbase::vector>(N);
+    }
+    int num_inputs() const { return q; }
+    int num_outputs() const { return q; }
+    int num_iter() const { return 1; }
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(uncoded)
+    // Serialization Support
+    DECLARE_SERIALIZER(uncoded)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

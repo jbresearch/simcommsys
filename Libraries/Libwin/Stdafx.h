@@ -24,7 +24,8 @@
 //      are changed infrequently
 //
 
-//Define the version of Windows required (assume that this will work with the last version)
+// Define the version of Windows required (assume that this will work with the
+// last version)
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT _WIN32_WINNT_MAXVER
 #endif
@@ -33,31 +34,32 @@
 #define AFX_STDAFX_H__BE2799D9_4B73_4F77_AFC9_9FFCAC17D8C5__INCLUDED_
 
 #if _MSC_VER > 1000
-#pragma once
+#    pragma once
 #endif // _MSC_VER > 1000
 
-#define VC_EXTRALEAN          // Exclude rarely-used stuff from Windows headers
-#define NOMINMAX              // Exclude min/max macros
+#define VC_EXTRALEAN // Exclude rarely-used stuff from Windows headers
+#define NOMINMAX     // Exclude min/max macros
 
 #if _MSC_VER >= 1400
-#       define _CRT_SECURE_NO_DEPRECATE 1
+#    define _CRT_SECURE_NO_DEPRECATE 1
 #endif
 
 #include <afx.h>
-#include <afxwin.h>           // MFC core and standard components
+#include <afxdtctl.h> // MFC support for Internet Explorer 4 Common Controls
+#include <afxext.h>   // MFC extensions
 #include <afxmt.h>
-#include <afxext.h>           // MFC extensions
-#include <afxdtctl.h>         // MFC support for Internet Explorer 4 Common Controls
+#include <afxwin.h> // MFC core and standard components
 
 #ifndef _AFX_NO_AFXCMN_SUPPORT
-#include <afxcmn.h>           // MFC support for Windows Common Controls
-#endif // _AFX_NO_AFXCMN_SUPPORT
+#    include <afxcmn.h> // MFC support for Windows Common Controls
+#endif                  // _AFX_NO_AFXCMN_SUPPORT
 
 // additional headers used by this library
 #define USING_MFC
 #include <afxsock.h>
 
 //{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
+// Microsoft Visual C++ will insert additional declarations immediately before
+// the previous line.
 
 #endif // !defined(AFX_STDAFX_H__BE2799D9_4B73_4F77_AFC9_9FFCAC17D8C5__INCLUDED_)

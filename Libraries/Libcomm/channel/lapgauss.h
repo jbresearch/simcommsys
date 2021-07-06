@@ -22,13 +22,14 @@
 #ifndef __lapgauss_h
 #define __lapgauss_h
 
-#include "config.h"
 #include "channel.h"
+#include "config.h"
 #include "itfunc.h"
 #include "serializer.h"
 #include <cmath>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Additive Laplacian-Gaussian Channel.
@@ -38,27 +39,29 @@ namespace libcomm {
  * Gaussian channel right now
  */
 
-class lapgauss : public channel<sigspace> {
-   // channel paremeters
-   double sigma;
+class lapgauss : public channel<sigspace>
+{
+    // channel paremeters
+    double sigma;
+
 protected:
-   // handle functions
-   void compute_parameters(const double Eb, const double No);
-   // channel handle functions
-   sigspace corrupt(const sigspace& s);
-   double pdf(const sigspace& tx, const sigspace& rx) const;
+    // handle functions
+    void compute_parameters(const double Eb, const double No);
+    // channel handle functions
+    sigspace corrupt(const sigspace& s);
+    double pdf(const sigspace& tx, const sigspace& rx) const;
+
 public:
-   // object handling
-   lapgauss();
+    // object handling
+    lapgauss();
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(lapgauss)
+    // Serialization Support
+    DECLARE_SERIALIZER(lapgauss)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

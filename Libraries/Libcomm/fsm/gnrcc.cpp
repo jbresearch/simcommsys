@@ -25,69 +25,82 @@
 #include <iostream>
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
-using libbase::vector;
 using libbase::matrix;
+using libbase::vector;
 
 // FSM helper operations
 
 template <class G>
-vector<int> gnrcc<G>::determineinput(const vector<int>& input) const
-   {
-   vector<int> ip = input;
-   for (int i = 0; i < ip.size(); i++)
-      if (ip(i) == fsm::tail)
-         ip(i) = 0;
-   return ip;
-   }
+vector<int>
+gnrcc<G>::determineinput(const vector<int>& input) const
+{
+    vector<int> ip = input;
+    for (int i = 0; i < ip.size(); i++) {
+        if (ip(i) == fsm::tail) {
+            ip(i) = 0;
+        }
+    }
+
+    return ip;
+}
 
 template <class G>
-vector<G> gnrcc<G>::determinefeedin(const vector<int>& input) const
-   {
-   for (int i = 0; i < input.size(); i++)
-      assert(input(i) != fsm::tail);
-   // Convert input to vector of required type
-   return vector<G>(input);
-   }
+vector<G>
+gnrcc<G>::determinefeedin(const vector<int>& input) const
+{
+    for (int i = 0; i < input.size(); i++) {
+        assert(input(i) != fsm::tail);
+    }
+
+    // Convert input to vector of required type
+    return vector<G>(input);
+}
 
 // FSM state operations (getting and resetting)
 
 template <class G>
-void gnrcc<G>::resetcircular(const vector<int>& zerostate, int n)
-   {
-   failwith("Function not implemented.");
-   }
+void
+gnrcc<G>::resetcircular(const vector<int>& zerostate, int n)
+{
+    failwith("Function not implemented.");
+}
 
 // Description
 
 template <class G>
-std::string gnrcc<G>::description() const
-   {
-   std::ostringstream sout;
-   sout << "NRC code " << ccfsm<G>::description();
-   return sout.str();
-   }
+std::string
+gnrcc<G>::description() const
+{
+    std::ostringstream sout;
+    sout << "NRC code " << ccfsm<G>::description();
+    return sout.str();
+}
 
 // Serialization Support
 
 template <class G>
-std::ostream& gnrcc<G>::serialize(std::ostream& sout) const
-   {
-   return ccfsm<G>::serialize(sout);
-   }
+std::ostream&
+gnrcc<G>::serialize(std::ostream& sout) const
+{
+    return ccfsm<G>::serialize(sout);
+}
 
 template <class G>
-std::istream& gnrcc<G>::serialize(std::istream& sin)
-   {
-   return ccfsm<G>::serialize(sin);
-   }
+std::istream&
+gnrcc<G>::serialize(std::istream& sin)
+{
+    return ccfsm<G>::serialize(sin);
+}
 
-} // end namespace
+} // namespace libcomm
 
 #include "gf.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
@@ -95,6 +108,7 @@ namespace libcomm {
 
 using libbase::serializer;
 
+// clang-format off
 #define USING_GF(r, x, type) \
       using libbase::type;
 
@@ -111,7 +125,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
          "fsm", \
          "gnrcc<" BOOST_PP_STRINGIZE(type) ">", \
          gnrcc<type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, GF_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

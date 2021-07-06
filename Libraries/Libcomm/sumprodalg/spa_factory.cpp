@@ -20,20 +20,22 @@
  */
 
 #include "spa_factory.h"
-#include "mpreal.h"
 #include "logrealfast.h"
+#include "mpreal.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
+#include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/seq/for_each_product.hpp>
-#include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-using libbase::mpreal;
 using libbase::logrealfast;
+using libbase::mpreal;
 
+// clang-format off
 #define USING_GF(r, x, type) \
       using libbase::type;
 
@@ -44,7 +46,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
 #define INSTANTIATE(r, args) \
       template class spa_factory<BOOST_PP_SEQ_ENUM(args)>;
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (GF_TYPE_SEQ)(REAL_TYPE_SEQ))
 
-} // end namespace
+} // namespace libcomm

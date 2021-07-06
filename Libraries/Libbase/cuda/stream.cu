@@ -27,13 +27,15 @@
 
 #include "cuda-all.h"
 
-namespace cuda {
+namespace cuda
+{
 
 // need to define this here as we need complete definition of event class
 
-void stream::wait(const event& e) const
-   {
-   cudaSafeCall(cudaStreamWaitEvent(sid, e.get_id(), 0));
-   }
+void
+stream::wait(const event& e) const
+{
+    cudaSafeCall(cudaStreamWaitEvent(sid, e.get_id(), 0));
+}
 
-} // end namespace
+} // namespace cuda

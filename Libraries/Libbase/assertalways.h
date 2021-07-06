@@ -38,24 +38,33 @@
 // An assertion that is implemented even in release builds
 
 #ifdef NDEBUG
-#  define assertalways(_Expression) (void)( (!!(_Expression)) || (libbase::reportassertionandfail(#_Expression, __FILE__, __LINE__), 0) )
+#    define assertalways(_Expression)                                          \
+        (void)((!!(_Expression)) || (libbase::reportassertionandfail(          \
+                                         #_Expression, __FILE__, __LINE__),    \
+                                     0))
 #else
-#  define assertalways(_Expression) assert(_Expression)
+#    define assertalways(_Expression) assert(_Expression)
 #endif
 
 // Fail with error
 
-#define failwith(_String) libbase::reporterrorandfail(_String, __FILE__, __LINE__)
+#define failwith(_String)                                                      \
+    libbase::reporterrorandfail(_String, __FILE__, __LINE__)
 
 // *** Within library namespace ***
 
-namespace libbase {
+namespace libbase
+{
 
 // Debugging tools
 
-void reportassertionandfail(const std::string expression, const std::string file, int line);
-void reporterrorandfail(const std::string expression, const std::string file, int line);
+void reportassertionandfail(const std::string expression,
+                            const std::string file,
+                            int line);
+void reporterrorandfail(const std::string expression,
+                        const std::string file,
+                        int line);
 
-} // end namespace
+} // namespace libbase
 
 #endif

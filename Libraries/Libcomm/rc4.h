@@ -27,7 +27,8 @@
 
 #include <string>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   RSA RC4 Algorithm.
@@ -46,34 +47,39 @@ namespace libcomm {
  * - removed superfluous mod 256 (& 0xff) operations
  *
  * \version 1.03 (17 Jul 2006)
- * in encrypt, changed the loop variable to type size_t, to avoid the warning about
- * comparisons between signed and unsigned types.
+ * in encrypt, changed the loop variable to type size_t, to avoid the warning
+ * about comparisons between signed and unsigned types.
  *
  * \version 1.10 (6 Nov 2006)
  * - defined class and associated data within "libcomm" namespace.
- * - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+ * - removed use of "using namespace std", replacing by tighter "using"
+ * statements as needed.
  */
 
-class rc4 {
-   // static variables
-   static bool tested;
-   // working spaces
-   libbase::vector<libbase::int8u> S;
-   libbase::int8u x, y;
+class rc4
+{
+    // static variables
+    static bool tested;
+    // working spaces
+    libbase::vector<libbase::int8u> S;
+    libbase::int8u x, y;
+
 public:
-   // basic constructor/destructor
-   rc4();
-   virtual ~rc4();
-   // public functions
-   void init(std::string key);
-   std::string encrypt(const std::string plaintext);
-   libbase::int8u encrypt(const libbase::int8u plaintext);
+    // basic constructor/destructor
+    rc4();
+    virtual ~rc4();
+    // public functions
+    void init(std::string key);
+    std::string encrypt(const std::string plaintext);
+    libbase::int8u encrypt(const libbase::int8u plaintext);
+
 protected:
-   // private functions
-   bool verify(const std::string key, const std::string plaintext,
-         const std::string ciphertext);
+    // private functions
+    bool verify(const std::string key,
+                const std::string plaintext,
+                const std::string ciphertext);
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

@@ -24,7 +24,8 @@
 
 #include "config.h"
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   The two parts of the Ciphertext
@@ -34,32 +35,27 @@ namespace libbase {
  */
 
 template <class BigInteger>
-class ciphertext {
+class ciphertext
+{
 private:
-   BigInteger gr;
-   BigInteger myr;
+    BigInteger gr;
+    BigInteger myr;
 
 public:
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   explicit ciphertext(BigInteger gr = 0, BigInteger myr = 0) :
-      gr(gr), myr(myr)
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Default constructor
+    explicit ciphertext(BigInteger gr = 0, BigInteger myr = 0)
+        : gr(gr), myr(myr)
+    {
+    }
+    // @}
 
-   /*! \name Getters */
-   const BigInteger& get_gr() const
-      {
-      return gr;
-      }
-   const BigInteger& get_myr() const
-      {
-      return myr;
-      }
-   // @}
+    /*! \name Getters */
+    const BigInteger& get_gr() const { return gr; }
+    const BigInteger& get_myr() const { return myr; }
+    // @}
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif

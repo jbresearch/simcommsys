@@ -23,95 +23,106 @@
 #include <cstdlib>
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*** Vector Specialization ***/
 
 // Interface with mapper
 template <class dbl>
-void map_interleaved<libbase::vector, dbl>::advance() const
-   {
-   lut.init(This::output_block_size(), r);
-   }
+void
+map_interleaved<libbase::vector, dbl>::advance() const
+{
+    lut.init(This::output_block_size(), r);
+}
 
 template <class dbl>
-void map_interleaved<libbase::vector, dbl>::dotransform(const array1i_t& in,
-      array1i_t& out) const
-   {
-   assert(in.size() == lut.size());
-   // final vector is the same size as input one
-   out.init(lut.size());
-   // shuffle the results
-   for (int i = 0; i < lut.size(); i++)
-      out(lut(i)) = in(i);
-   }
+void
+map_interleaved<libbase::vector, dbl>::dotransform(const array1i_t& in,
+                                                   array1i_t& out) const
+{
+    assert(in.size() == lut.size());
+    // final vector is the same size as input one
+    out.init(lut.size());
+    // shuffle the results
+    for (int i = 0; i < lut.size(); i++) {
+        out(lut(i)) = in(i);
+    }
+}
 
 template <class dbl>
-void map_interleaved<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
-      array1vd_t& pout) const
-   {
-   assert(pin.size() == lut.size());
-   // final matrix is the same size as input
-   pout.init(lut.size());
-   // shuffle the likelihood tables
-   for (int i = 0; i < lut.size(); i++)
-      pout(lut(i)) = pin(i);
-   }
+void
+map_interleaved<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
+                                                   array1vd_t& pout) const
+{
+    assert(pin.size() == lut.size());
+    // final matrix is the same size as input
+    pout.init(lut.size());
+    // shuffle the likelihood tables
+    for (int i = 0; i < lut.size(); i++) {
+        pout(lut(i)) = pin(i);
+    }
+}
 
 template <class dbl>
-void map_interleaved<libbase::vector, dbl>::doinverse(const array1vd_t& pin,
-      array1vd_t& pout) const
-   {
-   assert(pin.size() == lut.size());
-   // final matrix is the same size as input
-   pout.init(lut.size());
-   // invert the shuffling
-   for (int i = 0; i < lut.size(); i++)
-      pout(i) = pin(lut(i));
-   }
+void
+map_interleaved<libbase::vector, dbl>::doinverse(const array1vd_t& pin,
+                                                 array1vd_t& pout) const
+{
+    assert(pin.size() == lut.size());
+    // final matrix is the same size as input
+    pout.init(lut.size());
+    // invert the shuffling
+    for (int i = 0; i < lut.size(); i++) {
+        pout(i) = pin(lut(i));
+    }
+}
 
 // Description
 
 template <class dbl>
-std::string map_interleaved<libbase::vector, dbl>::description() const
-   {
-   std::ostringstream sout;
-   sout << "Interleaved Mapper";
-   return sout.str();
-   }
+std::string
+map_interleaved<libbase::vector, dbl>::description() const
+{
+    std::ostringstream sout;
+    sout << "Interleaved Mapper";
+    return sout.str();
+}
 
 // Serialization Support
 
 template <class dbl>
-std::ostream& map_interleaved<libbase::vector, dbl>::serialize(
-      std::ostream& sout) const
-   {
-   return sout;
-   }
+std::ostream&
+map_interleaved<libbase::vector, dbl>::serialize(std::ostream& sout) const
+{
+    return sout;
+}
 
 template <class dbl>
-std::istream& map_interleaved<libbase::vector, dbl>::serialize(
-      std::istream& sin)
-   {
-   return sin;
-   }
+std::istream&
+map_interleaved<libbase::vector, dbl>::serialize(std::istream& sin)
+{
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
 #include "logrealfast.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
-#include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-using libbase::serializer;
 using libbase::logrealfast;
 using libbase::matrix;
+using libbase::serializer;
 using libbase::vector;
 
+// clang-format off
 #define CONTAINER_TYPE_SEQ \
    (vector)
 #define REAL_TYPE_SEQ \
@@ -131,7 +142,8 @@ using libbase::vector;
             "map_interleaved<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
             map_interleaved<BOOST_PP_SEQ_ENUM(args)>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (CONTAINER_TYPE_SEQ)(REAL_TYPE_SEQ))
 
-} // end namespace
+} // namespace libcomm

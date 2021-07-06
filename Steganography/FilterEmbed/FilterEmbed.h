@@ -23,16 +23,15 @@
 #define afx_filterembed_h
 
 #ifndef __AFXWIN_H__
-   #error include 'stdafx.h' before including this file for PCH
+#    error include 'stdafx.h' before including this file for PCH
 #endif
 
-#include "Resource.h"      // main symbols
 #include "PSPlugIn.h"
-#include "stegosystem.h"
+#include "Resource.h" // main symbols
 #include "matrix.h"
-#include "vector.h"
+#include "stegosystem.h"
 #include "timer.h"
-
+#include "vector.h"
 
 /////////////////////////////////////////////////////////////////////////////
 // SFilterEmbedData
@@ -60,22 +59,22 @@
   added bandwidth expansion rate as EmbedRate.
 */
 struct SFilterEmbedData {
-   // embedding system
-   int      nEmbedSeed;
-   int      nEmbedRate;
-   double   dEmbedStrength;
-   // channel interleaver
-   bool     bInterleave;
-   int      nInterleaverSeed;
-   double   dInterleaverDensity;
-   // source data
-   int      nSourceType;
-   int      nSourceSeed;
-   char     sSource[256];
-   // codec and puncture pattern
-   char     sCodec[256];
-   char     sPuncture[256];
-   };
+    // embedding system
+    int nEmbedSeed;
+    int nEmbedRate;
+    double dEmbedStrength;
+    // channel interleaver
+    bool bInterleave;
+    int nInterleaverSeed;
+    double dInterleaverDensity;
+    // source data
+    int nSourceType;
+    int nSourceSeed;
+    char sSource[256];
+    // codec and puncture pattern
+    char sCodec[256];
+    char sPuncture[256];
+};
 
 /////////////////////////////////////////////////////////////////////////////
 // CFilterEmbedApp
@@ -87,45 +86,43 @@ struct SFilterEmbedData {
   initial version
 
   Version 1.01 (6 Apr 2002)
-  added DisplayProgress in FilterContinue, since automatic progress update was removed
-  in PSPlugIn 1.41. Also modified the existing DisplayProgress calls to use the new
-  multi-pass support, for a more meaningful display.
+  added DisplayProgress in FilterContinue, since automatic progress update was
+  removed in PSPlugIn 1.41. Also modified the existing DisplayProgress calls to
+  use the new multi-pass support, for a more meaningful display.
 
   Version 1.02 (7 Apr 2002)
   modified the PiPL file to flag which modes are supported.
 
   Version 1.03 (15 Apr 2002)
-  fixed a bug in the user interface by adding "clear" buttons for the source file,
-  codec, and puncturing system.
+  fixed a bug in the user interface by adding "clear" buttons for the source
+  file, codec, and puncturing system.
 
   Version 1.04 (21 Apr 2002)
   added selector to disable/enable variable-density interleaving
-  added function to compute embedding strength from the stego-signal power as used
-  by Marvel.
-  added support for NULL embedding (ie. sequence embedded is all-zero if no filename
-  is passed along as input data).
-  fixed a bug in converting from a uniform variate to a gaussian one: the function
-  should be y = erfinv(2*x-1) * sqrt(2); the sqrt(2) factor was missing.
-  added information in dialog box about raw capacity, usable capacity, code size,
-  and data rate.
+  added function to compute embedding strength from the stego-signal power as
+  used by Marvel. added support for NULL embedding (ie. sequence embedded is
+  all-zero if no filename is passed along as input data). fixed a bug in
+  converting from a uniform variate to a gaussian one: the function should be y
+  = erfinv(2*x-1) * sqrt(2); the sqrt(2) factor was missing. added information
+  in dialog box about raw capacity, usable capacity, code size, and data rate.
 
   Version 1.10 (25 Apr 2002)
   revamped filter architecture.
 
   Version 1.11 (26 Apr 2002)
-  made filter operate in multi-tile mode (single-pass); added bandwidth expansion
-  capability.
+  made filter operate in multi-tile mode (single-pass); added bandwidth
+  expansion capability.
 
   Version 1.12 (8 May 2002)
-  modified tile size selector to go for a minimum of one row (to ensure that selected
-  tile size is not empty). Also fixed memory leakage by ensuring that the codec and
-  puncture pattern are deleted in FilterFinish.
+  modified tile size selector to go for a minimum of one row (to ensure that
+  selected tile size is not empty). Also fixed memory leakage by ensuring that
+  the codec and puncture pattern are deleted in FilterFinish.
 
   Version 1.13 (10 May 2002)
-  added GetOutputSize() and GetInputSize() functions to obtain the correct block size
-  to use; note that in these functions we need to round the number of bits returned
-  from codec to ensure that we use the required value (was getting different results
-  in the debug and release builds before).
+  added GetOutputSize() and GetInputSize() functions to obtain the correct block
+  size to use; note that in these functions we need to round the number of bits
+  returned from codec to ensure that we use the required value (was getting
+  different results in the debug and release builds before).
 
   Version 1.20 (6 Nov 2002)
   added scripting support.
@@ -134,64 +131,78 @@ struct SFilterEmbedData {
   modified PluginMain to utilize main function now found in PSPlugIn 1.52.
 
   Version 1.30 (15 Nov 2002)
-  moved embedding/extraction routines to a new class CStegoSystem - this makes the code
-  for the embed/extract filters leaner, and also simplifies the process of keeping them
-  in sync.
+  moved embedding/extraction routines to a new class CStegoSystem - this makes
+  the code for the embed/extract filters leaner, and also simplifies the process
+  of keeping them in sync.
 
   Version 1.40 (13 Nov 2006)
   * updated to use library namespaces.
-  * removed use of "using namespace std", replacing by tighter "using" statements as needed.
+  * removed use of "using namespace std", replacing by tighter "using"
+  statements as needed.
 
   Version 1.41 (1 Dec 2006)
-  * updated to accomodate changes to stegosystem (move from libwin to libcomm and change of name).
+  * updated to accomodate changes to stegosystem (move from libwin to libcomm
+  and change of name).
 */
 
-class CFilterEmbedApp : public CWinApp, public libwin::CPSPlugIn, protected libcomm::stegosystem
+class CFilterEmbedApp : public CWinApp,
+                        public libwin::CPSPlugIn,
+                        protected libcomm::stegosystem
 {
 protected:
-   SFilterEmbedData* m_sData;
-   libbase::vector<double>    m_vdMessage;
+    SFilterEmbedData* m_sData;
+    libbase::vector<double> m_vdMessage;
 
 protected:
-   // StegoSystem overrides
-   int GetImagePixels() const { return GetImageWidth() * GetImageHeight() * GetPlanes(); };
-   void DisplayProgress(const int nComplete, const int nTotal, const int nIteration, const int nTotalIterations) const { DisplayTotalProgress(nComplete, nTotal, nIteration, nTotalIterations); };
+    // StegoSystem overrides
+    int GetImagePixels() const
+    {
+        return GetImageWidth() * GetImageHeight() * GetPlanes();
+    };
+    void DisplayProgress(const int nComplete,
+                         const int nTotal,
+                         const int nIteration,
+                         const int nTotalIterations) const
+    {
+        DisplayTotalProgress(nComplete, nTotal, nIteration, nTotalIterations);
+    };
 
-   // PSPlugIn overrides
-   void ShowDialog(void);
-   void InitPointer(char* sData);
-   void InitParameters();
+    // PSPlugIn overrides
+    void ShowDialog(void);
+    void InitPointer(char* sData);
+    void InitParameters();
 
-   // scripting support
-   void WriteScriptParameters(PIWriteDescriptor token);
-   void ReadScriptParameter(PIReadDescriptor token, DescriptorKeyID key, DescriptorTypeID type, int32 flags);
+    // scripting support
+    void WriteScriptParameters(PIWriteDescriptor token);
+    void ReadScriptParameter(PIReadDescriptor token,
+                             DescriptorKeyID key,
+                             DescriptorTypeID type,
+                             int32 flags);
 
 public:
-   CFilterEmbedApp();
+    CFilterEmbedApp();
 
-   void FilterAbout(void);
-   void FilterStart(void);
-   void FilterContinue(void);
-   void FilterFinish(void);
+    void FilterAbout(void);
+    void FilterStart(void);
+    void FilterContinue(void);
+    void FilterFinish(void);
 
-// Overrides
-   // ClassWizard generated virtual function overrides
-   //{{AFX_VIRTUAL(CFilterEmbedApp)
-   //}}AFX_VIRTUAL
+    // Overrides
+    // ClassWizard generated virtual function overrides
+    //{{AFX_VIRTUAL(CFilterEmbedApp)
+    //}}AFX_VIRTUAL
 
-   //{{AFX_MSG(CFilterEmbedApp)
-      // NOTE - the ClassWizard will add and remove member functions here.
-      //    DO NOT EDIT what you see in these blocks of generated code !
-   //}}AFX_MSG
-   DECLARE_MESSAGE_MAP()
+    //{{AFX_MSG(CFilterEmbedApp)
+    // NOTE - the ClassWizard will add and remove member functions here.
+    //    DO NOT EDIT what you see in these blocks of generated code !
+    //}}AFX_MSG
+    DECLARE_MESSAGE_MAP()
 };
-
 
 /////////////////////////////////////////////////////////////////////////////
 
 //{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
+// Microsoft Visual C++ will insert additional declarations immediately before
+// the previous line.
 
 #endif
-
-

@@ -23,18 +23,19 @@
 #include <iostream>
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Determine debug level:
 // 1 - Normal debug output only
 // 2 - Debug advance() and output()
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG 1
+#    undef DEBUG
+#    define DEBUG 1
 #endif
 
-using libbase::vector;
 using libbase::matrix;
+using libbase::vector;
 
 // Internal functions
 
@@ -48,33 +49,37 @@ using libbase::matrix;
  * junction. This follows the usual convention in the coding community.
  */
 template <class G>
-void ccfsm<G>::init(const matrix<vector<G> >& generator)
-   {
-   // copy automatically what we can
-   gen = generator;
-   k = gen.size().rows();
-   n = gen.size().cols();
-   // set default value to the rest
-   m = 0;
-   // check that the generator matrix is valid (correct sizes) and create
-   // shift registers
-   reg.init(k);
-   nu = 0;
-   for (int i = 0; i < k; i++)
-      {
-      // assume width of register of input 'i' from its generator sequence for
-      // first output
-      int m = gen(i, 0).size() - 1;
-      reg(i).init(m);
-      nu += m;
-      // check that the gen. seq. for all outputs are the same length
-      for (int j = 1; j < n; j++)
-         assertalways(gen(i, j).size() == m + 1);
-      // update memory order
-      if (m > ccfsm<G>::m)
-         ccfsm<G>::m = m;
-      }
-   }
+void
+ccfsm<G>::init(const matrix<vector<G>>& generator)
+{
+    // copy automatically what we can
+    gen = generator;
+    k = gen.size().rows();
+    n = gen.size().cols();
+    // set default value to the rest
+    m = 0;
+    // check that the generator matrix is valid (correct sizes) and create
+    // shift registers
+    reg.init(k);
+    nu = 0;
+    for (int i = 0; i < k; i++) {
+        // assume width of register of input 'i' from its generator sequence for
+        // first output
+        int m = gen(i, 0).size() - 1;
+        reg(i).init(m);
+        nu += m;
+
+        // check that the gen. seq. for all outputs are the same length
+        for (int j = 1; j < n; j++) {
+            assertalways(gen(i, j).size() == m + 1);
+        }
+
+        // update memory order
+        if (m > ccfsm<G>::m) {
+            ccfsm<G>::m = m;
+        }
+    }
+}
 
 // Helper functions
 
@@ -88,176 +93,203 @@ void ccfsm<G>::init(const matrix<vector<G> >& generator)
  * \todo Document this function with a diagram.
  */
 template <class G>
-G ccfsm<G>::convolve(const G& s, const vector<G>& r, const vector<G>& g) const
-   {
-   // Inherit sizes
-   const int m = r.size();
-   assert(g.size() == m + 1);
-   // Convolve the shift-in value with corresponding generator polynomial
-   G thisop = s * g(0);
-   // Convolve register with corresponding generator polynomial
-   for (int i = 0; i < m; i++)
-      thisop += r(i) * g(i + 1);
-   return thisop;
-   }
+G
+ccfsm<G>::convolve(const G& s, const vector<G>& r, const vector<G>& g) const
+{
+    // Inherit sizes
+    const int m = r.size();
+    assert(g.size() == m + 1);
+
+    // Convolve the shift-in value with corresponding generator polynomial
+    G thisop = s * g(0);
+
+    // Convolve register with corresponding generator polynomial
+    for (int i = 0; i < m; i++) {
+        thisop += r(i) * g(i + 1);
+    }
+
+    return thisop;
+}
 
 // FSM state operations (getting and resetting)
 
 template <class G>
-vector<int> ccfsm<G>::state() const
-   {
-   vector<int> state(nu);
-   int j = 0;
-   for (int t = 0; t < nu; t++)
-      for (int i = 0; i < k; i++)
-         if (reg(i).size() > t)
-            state(j++) = reg(i)(t);
-   assert(j == nu);
-   return state;
-   }
+vector<int>
+ccfsm<G>::state() const
+{
+    vector<int> state(nu);
+    int j = 0;
+
+    for (int t = 0; t < nu; t++) {
+        for (int i = 0; i < k; i++) {
+            if (reg(i).size() > t) {
+                state(j++) = reg(i)(t);
+            }
+        }
+    }
+
+    assert(j == nu);
+    return state;
+}
 
 template <class G>
-void ccfsm<G>::reset(const vector<int>& state)
-   {
-   fsm::reset(state);
-   assert(state.size() == nu);
-   int j = 0;
-   for (int t = 0; t < nu; t++)
-      for (int i = 0; i < k; i++)
-         if (reg(i).size() > t)
-            reg(i)(t) = G(state(j++));
-   assert(j == nu);
-   }
+void
+ccfsm<G>::reset(const vector<int>& state)
+{
+    fsm::reset(state);
+    assert(state.size() == nu);
+    int j = 0;
+
+    for (int t = 0; t < nu; t++) {
+        for (int i = 0; i < k; i++) {
+            if (reg(i).size() > t) {
+                reg(i)(t) = G(state(j++));
+            }
+        }
+    }
+
+    assert(j == nu);
+}
 
 // FSM operations (advance/output/step)
 
 template <class G>
-void ccfsm<G>::advance(vector<int>& input)
-   {
-   fsm::advance(input);
-#if DEBUG>=2
-   libbase::trace << "Advance:" << std::endl;
-   libbase::trace << "  Original Input:\t";
-   input.serialize(libbase::trace);
+void
+ccfsm<G>::advance(vector<int>& input)
+{
+    fsm::advance(input);
+#if DEBUG >= 2
+    libbase::trace << "Advance:" << std::endl;
+    libbase::trace << "  Original Input:\t";
+    input.serialize(libbase::trace);
 #endif
-   input = determineinput(input);
-#if DEBUG>=2
-   libbase::trace << "  Actual Input: \t";
-   input.serialize(libbase::trace);
+    input = determineinput(input);
+#if DEBUG >= 2
+    libbase::trace << "  Actual Input: \t";
+    input.serialize(libbase::trace);
 #endif
-   vector<G> sin = determinefeedin(input);
-#if DEBUG>=2
-   libbase::trace << "  Register Feed-in:\t";
-   sin.serialize(libbase::trace);
+    vector<G> sin = determinefeedin(input);
+#if DEBUG >= 2
+    libbase::trace << "  Register Feed-in:\t";
+    sin.serialize(libbase::trace);
 #endif
-   // Compute next state for each input register
-   for (int i = 0; i < k; i++)
-      {
-#if DEBUG>=2
-      libbase::trace << "  Register " << i << " In:\t";
-      reg(i).serialize(libbase::trace);
+    // Compute next state for each input register
+    for (int i = 0; i < k; i++) {
+#if DEBUG >= 2
+        libbase::trace << "  Register " << i << " In:\t";
+        reg(i).serialize(libbase::trace);
 #endif
-      const int m = reg(i).size();
-      if (m == 0)
-         continue;
-      // Shift entries to the right (ie. up)
-      for (int j = m - 1; j > 0; j--)
-         reg(i)(j) = reg(i)(j - 1);
-      // Left-most entry gets the shift-in value
-      reg(i)(0) = sin(i);
-#if DEBUG>=2
-      libbase::trace << "  Register " << i << " Out:\t";
-      reg(i).serialize(libbase::trace);
+        const int m = reg(i).size();
+        if (m == 0) {
+            continue;
+        }
+
+        // Shift entries to the right (ie. up)
+        for (int j = m - 1; j > 0; j--) {
+            reg(i)(j) = reg(i)(j - 1);
+        }
+
+        // Left-most entry gets the shift-in value
+        reg(i)(0) = sin(i);
+#if DEBUG >= 2
+        libbase::trace << "  Register " << i << " Out:\t";
+        reg(i).serialize(libbase::trace);
 #endif
-      }
-   }
+    }
+}
 
 template <class G>
-vector<int> ccfsm<G>::output(const vector<int>& input) const
-   {
-#if DEBUG>=2
-   libbase::trace << "Output:" << std::endl;
-   libbase::trace << "  Original Input:\t";
-   input.serialize(libbase::trace);
+vector<int>
+ccfsm<G>::output(const vector<int>& input) const
+{
+#if DEBUG >= 2
+    libbase::trace << "Output:" << std::endl;
+    libbase::trace << "  Original Input:\t";
+    input.serialize(libbase::trace);
 #endif
-   vector<int> ip = determineinput(input);
-#if DEBUG>=2
-   libbase::trace << "  Actual Input: \t";
-   input.serialize(libbase::trace);
+    vector<int> ip = determineinput(input);
+#if DEBUG >= 2
+    libbase::trace << "  Actual Input: \t";
+    input.serialize(libbase::trace);
 #endif
-   vector<G> sin = determinefeedin(ip);
-#if DEBUG>=2
-   libbase::trace << "  Register Feed-in:\t";
-   sin.serialize(libbase::trace);
+    vector<G> sin = determinefeedin(ip);
+#if DEBUG >= 2
+    libbase::trace << "  Register Feed-in:\t";
+    sin.serialize(libbase::trace);
 #endif
-   // Compute output
-   vector<G> op(n);
-   for (int j = 0; j < n; j++)
-      {
-      G thisop;
-      for (int i = 0; i < k; i++)
-         {
-         thisop += convolve(sin(i), reg(i), gen(i, j));
-#if DEBUG>=2
-         libbase::trace << "  Input + Register " << i << ":\t";
-         libbase::trace << sin(i) << "\t";
-         reg(i).serialize(libbase::trace);
-         libbase::trace << "  Generator " << i << "," << j << ":\t";
-         gen(i, j).serialize(libbase::trace);
-         libbase::trace << "  Accumulated Result:\t" << thisop << std::endl;
+    // Compute output
+    vector<G> op(n);
+    for (int j = 0; j < n; j++) {
+        G thisop;
+        for (int i = 0; i < k; i++) {
+            thisop += convolve(sin(i), reg(i), gen(i, j));
+#if DEBUG >= 2
+            libbase::trace << "  Input + Register " << i << ":\t";
+            libbase::trace << sin(i) << "\t";
+            reg(i).serialize(libbase::trace);
+            libbase::trace << "  Generator " << i << "," << j << ":\t";
+            gen(i, j).serialize(libbase::trace);
+            libbase::trace << "  Accumulated Result:\t" << thisop << std::endl;
 #endif
-         }
-      op(j) = thisop;
-      }
-#if DEBUG>=2
-   libbase::trace << "  Output:\t";
-   op.serialize(libbase::trace);
+        }
+        op(j) = thisop;
+    }
+#if DEBUG >= 2
+    libbase::trace << "  Output:\t";
+    op.serialize(libbase::trace);
 #endif
-   return vector<int> (op);
-   }
+    return vector<int>(op);
+}
 
 // Description & Serialization
 
 //! Description output - common part only, must be preceded by specific name
 template <class G>
-std::string ccfsm<G>::description() const
-   {
-   std::ostringstream sout;
-   sout << "GF(" << G::elements() << "): (nu=" << nu << ", rate " << k << "/"
+std::string
+ccfsm<G>::description() const
+{
+    std::ostringstream sout;
+    sout << "GF(" << G::elements() << "): (nu=" << nu << ", rate " << k << "/"
          << n << ", G=[";
-   // Loop over all generator matrix elements
-   for (int i = 0; i < k; i++)
-      for (int j = 0; j < n; j++)
-         {
-         // Loop over polynomial
-         for (int x = 0; x < gen(i, j).size(); x++)
-            sout << "{" << gen(i, j)(x) << "}";
-         sout << (j == n - 1 ? (i == k - 1 ? "])" : "; ") : ", ");
-         }
-   return sout.str();
-   }
+
+    // Loop over all generator matrix elements
+    for (int i = 0; i < k; i++) {
+        for (int j = 0; j < n; j++) {
+            // Loop over polynomial
+            for (int x = 0; x < gen(i, j).size(); x++) {
+                sout << "{" << gen(i, j)(x) << "}";
+            }
+            sout << (j == n - 1 ? (i == k - 1 ? "])" : "; ") : ", ");
+        }
+    }
+
+    return sout.str();
+}
 
 template <class G>
-std::ostream& ccfsm<G>::serialize(std::ostream& sout) const
-   {
-   sout << "#: Generator matrix (k x n vectors)" << std::endl;
-   sout << gen;
-   return sout;
-   }
+std::ostream&
+ccfsm<G>::serialize(std::ostream& sout) const
+{
+    sout << "#: Generator matrix (k x n vectors)" << std::endl;
+    sout << gen;
+    return sout;
+}
 
 template <class G>
-std::istream& ccfsm<G>::serialize(std::istream& sin)
-   {
-   sin >> libbase::eatcomments >> gen >> libbase::verify;
-   init(gen);
-   return sin;
-   }
+std::istream&
+ccfsm<G>::serialize(std::istream& sin)
+{
+    sin >> libbase::eatcomments >> gen >> libbase::verify;
+    init(gen);
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
 #include "gf.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
@@ -265,6 +297,7 @@ namespace libcomm {
 
 using libbase::serializer;
 
+// clang-format off
 #define USING_GF(r, x, type) \
       using libbase::type;
 
@@ -272,7 +305,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
 #define INSTANTIATE(r, x, type) \
    template class ccfsm<type>;
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, GF_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

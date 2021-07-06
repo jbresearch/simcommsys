@@ -26,7 +26,8 @@
 #include "embedder.h"
 #include "randgen.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   LSB Embedder/Extractor.
@@ -39,81 +40,71 @@ namespace libcomm {
  */
 
 template <class S>
-class lsb : public embedder<S> {
+class lsb : public embedder<S>
+{
 private:
-   /*! \name User-defined parameters */
-   int M; //! Alphabet size in symbols
-   enum al_enum {
-      AL_REPLACEMENT, //!< LSB replacement
-      AL_MATCHING, //!< LSB matching
-      AL_UNDEFINED
-   } algorithm;
-   // @}
-   /*! \name Internal representation */
-   mutable libbase::randgen r; //!< ± selector for matching
-   // @}
+    /*! \name User-defined parameters */
+    int M; //! Alphabet size in symbols
+    enum al_enum {
+        AL_REPLACEMENT, //!< LSB replacement
+        AL_MATCHING,    //!< LSB matching
+        AL_UNDEFINED
+    } algorithm;
+    // @}
+    /*! \name Internal representation */
+    mutable libbase::randgen r; //!< ± selector for matching
+                                // @}
 protected:
-   //! Verifies that object is in a valid state
-   void test_invariant() const
-      {
-      assert(M >= 2);
-      }
+    //! Verifies that object is in a valid state
+    void test_invariant() const { assert(M >= 2); }
+
 public:
-   lsb(const int M = 2) :
-      M(M), algorithm(AL_REPLACEMENT)
-      {
-      }
+    lsb(const int M = 2) : M(M), algorithm(AL_REPLACEMENT) {}
 
-   // Setup functions
-   void seedfrom(libbase::random& r)
-      {
-      libbase::int32u seed = r.ival();
-      this->r.seed(seed);
-      }
+    // Setup functions
+    void seedfrom(libbase::random& r)
+    {
+        libbase::int32u seed = r.ival();
+        this->r.seed(seed);
+    }
 
-   // Atomic embedder operations
-   const S embed(const int i, const S s) const
-      {
-      assert(i >= 0 && i < M);
-      switch (algorithm)
-         {
-         case AL_REPLACEMENT:
+    // Atomic embedder operations
+    const S embed(const int i, const S s) const
+    {
+        assert(i >= 0 && i < M);
+        switch (algorithm) {
+        case AL_REPLACEMENT:
             return S(s - (s % M) + i);
-         case AL_MATCHING:
-            {
+        case AL_MATCHING: {
             int delta = i - (s % M);
             // if the LSB is correct, leave as is
-            if (delta == 0)
-               return s;
+            if (delta == 0) {
+                return s;
+            }
             // otherwise randomly decided to add/subtract
-            if (r.ival(2) == 0)
-               delta = (delta > 0) ? delta - M : M - delta;
+            if (r.ival(2) == 0) {
+                delta = (delta > 0) ? delta - M : M - delta;
+            }
             // return result (does not respect representation limits)
             return S(s + delta);
-            }
-         default:
+        }
+        default:
             failwith("Unknown algorithm");
             return s;
-         }
-      }
-   const int extract(const S& rx) const
-      {
-      return int(rx % M);
-      }
+        }
+    }
+    const int extract(const S& rx) const { return int(rx % M); }
 
-   // Informative functions
-   int num_symbols() const
-      {
-      return M;
-      }
+    // Informative functions
+    int num_symbols() const { return M; }
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER( lsb)
+    // Serialization Support
+    DECLARE_SERIALIZER(lsb)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

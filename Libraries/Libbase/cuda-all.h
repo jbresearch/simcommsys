@@ -25,15 +25,15 @@
 #include "config.h"
 
 #ifdef USE_CUDA
-#include "cuda/util.h"
-#include "cuda/sharedmem.h"
-#include "cuda/stream.h"
-#include "cuda/event.h"
-#include "cuda/cuda_assert.h"
+#    include "cuda/cuda_assert.h"
+#    include "cuda/event.h"
+#    include "cuda/sharedmem.h"
+#    include "cuda/stream.h"
+#    include "cuda/util.h"
 
-#include "cuda/value.h"
-#include "cuda/vector.h"
-#include "cuda/matrix.h"
+#    include "cuda/matrix.h"
+#    include "cuda/value.h"
+#    include "cuda/vector.h"
 #endif
 
 #endif

@@ -7,7 +7,7 @@
             "label": "Plain Build - Debug",
             "type": "shell",
             "problemMatcher": "$gcc",
-            "command": "bear -o ${workspaceFolder}/.vscode/compile_commands.json make plain-build-main-debug -j8",
+            "command": "time bear -o ${workspaceFolder}/.vscode/compile_commands.json make plain-build-main-debug -j8",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -28,7 +28,7 @@
             "label": "Clean",
             "type": "shell",
             "problemMatcher": [],
-            "command": "make clean",
+            "command": "time make clean",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
@@ -45,7 +45,7 @@
             "label": "Clean All",
             "type": "shell",
             "problemMatcher": [],
-            "command": "make clean-all",
+            "command": "time make clean-all",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
@@ -54,7 +54,7 @@
                 "reveal": "always",
                 "focus": false,
                 "panel": "dedicated",
-                "showReuseMessage": false,
+                "showReuseMessage": true,
                 "clear": false
             }
         }
@@ -62,7 +62,7 @@
             "label": "Clean Everything",
             "type": "shell",
             "problemMatcher": [],
-            "command": "make clean clean-all clean-dep clean-libs clean-main clean-test",
+            "command": "time make clean clean-all clean-dep clean-libs clean-main clean-test",
             "options": {
                 "cwd": "${workspaceFolder}"
             },
@@ -71,7 +71,7 @@
                 "reveal": "always",
                 "focus": false,
                 "panel": "dedicated",
-                "showReuseMessage": false,
+                "showReuseMessage": true,
                 "clear": false
             }
         }

@@ -24,10 +24,11 @@
 
 #include "config.h"
 #include "interleaver/lut_interleaver.h"
-#include "serializer.h"
 #include "itfunc.h"
+#include "serializer.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Berrou's Original Interleaver.
@@ -35,30 +36,25 @@ namespace libcomm {
  */
 
 template <class real>
-class berrou : public lut_interleaver<real> {
-   int M;
+class berrou : public lut_interleaver<real>
+{
+    int M;
+
 protected:
-   void init(const int M);
-   berrou()
-      {
-      }
+    void init(const int M);
+    berrou() {}
+
 public:
-   berrou(const int M)
-      {
-      init(M);
-      }
-   ~berrou()
-      {
-      }
+    berrou(const int M) { init(M); }
+    ~berrou() {}
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(berrou)
+    // Serialization Support
+    DECLARE_SERIALIZER(berrou)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

@@ -20,48 +20,48 @@
  */
 
 #include "fastsecant.h"
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
 
-namespace libbase {
+namespace libbase
+{
 
 // exported functions
 
-fastsecant::fastsecant(double(*func)(double)) :
-   secant(func)
-   {
-   }
+fastsecant::fastsecant(double (*func)(double)) : secant(func) {}
 
-void fastsecant::init(const double x1, const double x2, const int n)
-   {
-   m_dMin = x1;
-   m_dMax = x2;
-   m_dStep = (x2 - x1) / double(n - 1);
-   m_vdCache.init(n);
-   double x = m_dMin;
-   for (int i = 0; i < n; i++)
-      {
-      m_vdCache(i) = secant::solve(x);
-      x += m_dStep;
-      }
-   }
+void
+fastsecant::init(const double x1, const double x2, const int n)
+{
+    m_dMin = x1;
+    m_dMax = x2;
+    m_dStep = (x2 - x1) / double(n - 1);
+    m_vdCache.init(n);
+    double x = m_dMin;
 
-double fastsecant::solve(const double y)
-   {
-   const int i = int(floor((y - m_dMin) / m_dStep));
-   const int j = int(ceil((y - m_dMin) / m_dStep));
-   if (i == j)
-      return m_vdCache(i);
-   else if (i >= 0 && j < m_vdCache.size())
-      {
-      const double x1 = m_vdCache(i);
-      const double x2 = m_vdCache(j);
-      secant::init(x1, x2);
-      }
-   else
-      secant::init(-1, 1);
+    for (int i = 0; i < n; i++) {
+        m_vdCache(i) = secant::solve(x);
+        x += m_dStep;
+    }
+}
 
-   return secant::solve(y);
-   }
+double
+fastsecant::solve(const double y)
+{
+    const int i = int(floor((y - m_dMin) / m_dStep));
+    const int j = int(ceil((y - m_dMin) / m_dStep));
 
-} // end namespace
+    if (i == j) {
+        return m_vdCache(i);
+    } else if (i >= 0 && j < m_vdCache.size()) {
+        const double x1 = m_vdCache(i);
+        const double x2 = m_vdCache(j);
+        secant::init(x1, x2);
+    } else {
+        secant::init(-1, 1);
+    }
+
+    return secant::solve(y);
+}
+
+} // namespace libbase

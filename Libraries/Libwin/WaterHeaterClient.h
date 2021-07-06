@@ -29,22 +29,25 @@
    - Initial version, uncompleted
 */
 
-namespace libwin {
+namespace libwin
+{
 
 class CWaterHeaterClient
 {
 private:
-   HANDLE   m_hComm;
+    HANDLE m_hComm;
+
 private:
-   double KTemp(double V, double Vcjc) const;
-   double KVolt(double T) const;
+    double KTemp(double V, double Vcjc) const;
+    double KVolt(double T) const;
+
 public:
-   // Constructor/destructor
-        CWaterHeaterClient(CString sPort);
-        virtual ~CWaterHeaterClient();
-   // User functions
+    // Constructor/destructor
+    CWaterHeaterClient(CString sPort);
+    virtual ~CWaterHeaterClient();
+    // User functions
 };
 
-} // end namespace
+} // namespace libwin
 
 #endif

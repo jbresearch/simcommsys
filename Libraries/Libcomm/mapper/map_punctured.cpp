@@ -24,131 +24,160 @@
 #include <cstdlib>
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*** Vector Specialization ***/
 
 // Interface with mapper
 template <class dbl>
-void map_punctured<libbase::vector, dbl>::advance() const
-   {
-   assertalways(Base::size > 0);
-   // check if matrix is already set
-   if (pattern.size() == Base::size.length())
-      return;
-   // shorthand for puncturing matrix rate (p of P)
-   const int p = libbase::matrix<int>(punc_matrix).sum();
-   const int P = punc_matrix.size();
-   assertalways(P > 0);
-   assertalways(p > 0);
-   // find out how many times the puncturing matrix fits
-   const int n = Base::size.length() / P;
-   assert(Base::size.length() == n * P);
-   // initialise the pattern matrix
-   pattern.init(Base::size.length());
-   for (int t = 0, k = 0; k < n; k++)
-      for (int i = 0; i < punc_matrix.size().rows(); i++)
-         for (int j = 0; j < punc_matrix.size().cols(); j++, t++)
-            pattern(t) = punc_matrix(i, j);
-   }
+void
+map_punctured<libbase::vector, dbl>::advance() const
+{
+    assertalways(Base::size > 0);
+
+    // check if matrix is already set
+    if (pattern.size() == Base::size.length()) {
+        return;
+    }
+
+    // shorthand for puncturing matrix rate (p of P)
+    const int p = libbase::matrix<int>(punc_matrix).sum();
+    const int P = punc_matrix.size();
+    assertalways(P > 0);
+    assertalways(p > 0);
+
+    // find out how many times the puncturing matrix fits
+    const int n = Base::size.length() / P;
+    assert(Base::size.length() == n * P);
+
+    // initialise the pattern matrix
+    pattern.init(Base::size.length());
+    for (int t = 0, k = 0; k < n; k++) {
+        for (int i = 0; i < punc_matrix.size().rows(); i++) {
+            for (int j = 0; j < punc_matrix.size().cols(); j++, t++) {
+                pattern(t) = punc_matrix(i, j);
+            }
+        }
+    }
+}
 
 template <class dbl>
-void map_punctured<libbase::vector, dbl>::dotransform(const array1i_t& in,
-      array1i_t& out) const
-   {
-   // final vector size depends on the number of set positions
-   assertalways(in.size() == pattern.size());
-   out.init(This::output_block_size());
-   // puncture the results
-   for (int i = 0, ii = 0; i < in.size(); i++)
-      if (pattern(i))
-         out(ii++) = in(i);
-   }
+void
+map_punctured<libbase::vector, dbl>::dotransform(const array1i_t& in,
+                                                 array1i_t& out) const
+{
+    // final vector size depends on the number of set positions
+    assertalways(in.size() == pattern.size());
+    out.init(This::output_block_size());
+
+    // puncture the results
+    for (int i = 0, ii = 0; i < in.size(); i++) {
+        if (pattern(i)) {
+            out(ii++) = in(i);
+        }
+    }
+}
 
 template <class dbl>
-void map_punctured<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
-      array1vd_t& pout) const
-   {
-   assertalways(pin.size() == pattern.size());
-   assertalways(pin(0).size() == Base::q);
-   // final matrix size depends on the number of set positions
-   libbase::allocate(pout, This::output_block_size(), Base::q);
-   // puncture the likelihood tables
-   for (int i = 0, ii = 0; i < pin.size(); i++)
-      if (pattern(i))
-         pout(ii++) = pin(i);
-   }
+void
+map_punctured<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
+                                                 array1vd_t& pout) const
+{
+    assertalways(pin.size() == pattern.size());
+    assertalways(pin(0).size() == Base::q);
+
+    // final matrix size depends on the number of set positions
+    libbase::allocate(pout, This::output_block_size(), Base::q);
+
+    // puncture the likelihood tables
+    for (int i = 0, ii = 0; i < pin.size(); i++) {
+        if (pattern(i)) {
+            pout(ii++) = pin(i);
+        }
+    }
+}
 
 template <class dbl>
-void map_punctured<libbase::vector, dbl>::doinverse(const array1vd_t& pin,
-      array1vd_t& pout) const
-   {
-   assertalways(pin.size() == This::output_block_size());
-   assertalways(pin(0).size() == Base::M);
-   // final matrix size depends on the number of set positions
-   libbase::allocate(pout, pattern.size(), Base::M);
-   // invert the puncturing
-   for (int i = 0, ii = 0; i < pattern.size(); i++)
-      if (pattern(i))
-         pout(i) = pin(ii++);
-      else
-         pout(i) = dbl(1.0 / Base::M);
-   }
+void
+map_punctured<libbase::vector, dbl>::doinverse(const array1vd_t& pin,
+                                               array1vd_t& pout) const
+{
+    assertalways(pin.size() == This::output_block_size());
+    assertalways(pin(0).size() == Base::M);
+
+    // final matrix size depends on the number of set positions
+    libbase::allocate(pout, pattern.size(), Base::M);
+
+    // invert the puncturing
+    for (int i = 0, ii = 0; i < pattern.size(); i++) {
+        if (pattern(i)) {
+            pout(i) = pin(ii++);
+        } else {
+            pout(i) = dbl(1.0 / Base::M);
+        }
+    }
+}
 
 // Description
 
 template <class dbl>
-std::string map_punctured<libbase::vector, dbl>::description() const
-   {
-   std::ostringstream sout;
-   sout << "Punctured Mapper (";
-   sout << this->output_block_size() << "," << this->input_block_size();
-   sout << "), matrix=[";
-   for (int i = 0; i < punc_matrix.size().rows(); i++)
-      {
-      if (i > 0)
-         sout << ", ";
-      for (int j = 0; j < punc_matrix.size().cols(); j++)
-         sout << punc_matrix(i, j);
-      }
-   sout << "]";
-   return sout.str();
-   }
+std::string
+map_punctured<libbase::vector, dbl>::description() const
+{
+    std::ostringstream sout;
+    sout << "Punctured Mapper (";
+    sout << this->output_block_size() << "," << this->input_block_size();
+    sout << "), matrix=[";
+    for (int i = 0; i < punc_matrix.size().rows(); i++) {
+        if (i > 0) {
+            sout << ", ";
+        }
+        for (int j = 0; j < punc_matrix.size().cols(); j++) {
+            sout << punc_matrix(i, j);
+        }
+    }
+    sout << "]";
+    return sout.str();
+}
 
 // Serialization Support
 
 template <class dbl>
-std::ostream& map_punctured<libbase::vector, dbl>::serialize(
-      std::ostream& sout) const
-   {
-   sout << "# Puncturing matrix" << std::endl;
-   sout << punc_matrix;
-   return sout;
-   }
+std::ostream&
+map_punctured<libbase::vector, dbl>::serialize(std::ostream& sout) const
+{
+    sout << "# Puncturing matrix" << std::endl;
+    sout << punc_matrix;
+    return sout;
+}
 
 template <class dbl>
-std::istream& map_punctured<libbase::vector, dbl>::serialize(std::istream& sin)
-   {
-   sin >> libbase::eatcomments >> punc_matrix >> libbase::verify;
-   return sin;
-   }
+std::istream&
+map_punctured<libbase::vector, dbl>::serialize(std::istream& sin)
+{
+    sin >> libbase::eatcomments >> punc_matrix >> libbase::verify;
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
 #include "logrealfast.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
-#include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-using libbase::serializer;
 using libbase::logrealfast;
 using libbase::matrix;
+using libbase::serializer;
 using libbase::vector;
 
+// clang-format off
 #define CONTAINER_TYPE_SEQ \
    (vector)
 #define REAL_TYPE_SEQ \
@@ -168,7 +197,8 @@ using libbase::vector;
             "map_punctured<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
             map_punctured<BOOST_PP_SEQ_ENUM(args)>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (CONTAINER_TYPE_SEQ)(REAL_TYPE_SEQ))
 
-} // end namespace
+} // namespace libcomm

@@ -23,54 +23,58 @@
 #include <cstdio>
 #include <cstring>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // creation/destruction functions
 
 template <class real>
-file_lut<real>::file_lut(const char *filename, const int tau, const int m)
-   {
-   file_lut::m = m;
+file_lut<real>::file_lut(const char* filename, const int tau, const int m)
+{
+    file_lut::m = m;
 
-   const char *s = strrchr(filename, libbase::DIR_SEPARATOR);
-   const char *p = (s == NULL) ? filename : s + 1;
-   this->lutname = p;
+    const char* s = strrchr(filename, libbase::DIR_SEPARATOR);
+    const char* p = (s == NULL) ? filename : s + 1;
+    this->lutname = p;
 
-   this->lut.init(tau);
+    this->lut.init(tau);
 
-   char buf[256];
-   FILE *file = fopen(filename, "rb");
-   if (file == NULL)
-      {
-      std::cerr << "FATAL ERROR (file_lut): Cannot open LUT file (" << filename
-            << ")." << std::endl;
-      exit(1);
-      }
-   for (int i = 0; i < tau - m; i++)
-      {
-      do
-         {
-         assertalways(fscanf(file, "%[^\n]\n", buf) == 1);
-         } while (buf[0] == '#');
-      int x, y;
-      sscanf(buf, "%d%d", &x, &y);
-      if (x != i)
-         {
-         std::cerr << "FATAL ERROR (file_lut): unexpected entry for line " << i
-               << ": " << x << ", " << y << std::endl;
-         exit(1);
-         }
-      this->lut(i) = y;
-      }
-   for (int t = tau - m; t < tau; t++)
-      this->lut(t) = fsm::tail;
-   fclose(file);
-   }
+    char buf[256];
+    FILE* file = fopen(filename, "rb");
+
+    if (file == NULL) {
+        std::cerr << "FATAL ERROR (file_lut): Cannot open LUT file ("
+                  << filename << ")." << std::endl;
+        exit(1);
+    }
+
+    for (int i = 0; i < tau - m; i++) {
+        do {
+            assertalways(fscanf(file, "%[^\n]\n", buf) == 1);
+        } while (buf[0] == '#');
+
+        int x, y;
+        sscanf(buf, "%d%d", &x, &y);
+        if (x != i) {
+            std::cerr << "FATAL ERROR (file_lut): unexpected entry for line "
+                      << i << ": " << x << ", " << y << std::endl;
+            exit(1);
+        }
+
+        this->lut(i) = y;
+    }
+
+    for (int t = tau - m; t < tau; t++) {
+        this->lut(t) = fsm::tail;
+    }
+
+    fclose(file);
+}
 
 // Explicit instantiations
 
-template class file_lut<float> ;
-template class file_lut<double> ;
-template class file_lut<libbase::logrealfast> ;
+template class file_lut<float>;
+template class file_lut<double>;
+template class file_lut<libbase::logrealfast>;
 
-} // end namespace
+} // namespace libcomm

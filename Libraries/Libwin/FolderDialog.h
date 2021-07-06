@@ -29,7 +29,8 @@
   Bugs: is not modal.
 
    \version 1.01 (21 Sep 2002)
-  fixed a bug where the prompt was not being correctly used in the opened dialog.
+  fixed a bug where the prompt was not being correctly used in the opened
+  dialog.
 
    \version 1.02 (22 Sep 2002)
   fixed modality issue by adding parent window info to class & creator.
@@ -44,26 +45,32 @@
     - changed type cast from long to LONG_PTR in DoModal()
 */
 
-namespace libwin {
+namespace libwin
+{
 
 class CFolderDialog
 {
 public:
-        CFolderDialog(const CString sPrompt, const CString sFolder, HWND hWnd=NULL);
-        virtual ~CFolderDialog();
+    CFolderDialog(const CString sPrompt,
+                  const CString sFolder,
+                  HWND hWnd = NULL);
+    virtual ~CFolderDialog();
 
-        int DoModal();
-        CString GetFolder();
+    int DoModal();
+    CString GetFolder();
 
 protected:
-   static int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData);
+    static int CALLBACK BrowseCallbackProc(HWND hwnd,
+                                           UINT uMsg,
+                                           LPARAM lParam,
+                                           LPARAM lpData);
 
 protected:
-        CString m_sPrompt;
-        CString m_sFolder;
-   HWND m_hWnd;
+    CString m_sPrompt;
+    CString m_sFolder;
+    HWND m_hWnd;
 };
 
-} // end namespace
+} // namespace libwin
 
 #endif

@@ -23,41 +23,46 @@
 #include <cstdlib>
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // *** Templated GF(q) modem ***
 
 // Description
 
 template <class G>
-std::string direct_modem<G>::description() const
-   {
-   std::ostringstream sout;
-   sout << "GF(" << num_symbols() << ") Modulation";
-   return sout.str();
-   }
+std::string
+direct_modem<G>::description() const
+{
+    std::ostringstream sout;
+    sout << "GF(" << num_symbols() << ") Modulation";
+    return sout.str();
+}
 
 // *** Specific to direct_modem_implementation<bool> ***
 
 // Description
 
-std::string direct_modem<bool>::description() const
-   {
-   return "Binary Modulation";
-   }
+std::string
+direct_modem<bool>::description() const
+{
+    return "Binary Modulation";
+}
 
-} // end namespace
+} // namespace libcomm
 
-#include "gf.h"
 #include "erasable.h"
+#include "gf.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
 
 using libbase::erasable;
 
+// clang-format off
 #define USING_GF(r, x, type) \
       using libbase::type;
 
@@ -75,10 +80,11 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
 #define INSTANTIATE(r, x, type) \
       template class direct_modem<type>;
+// clang-format on
 
 // NOTE: we need to avoid instantiating direct_modem<bool>
 // because this is an explicit specialization
 
-BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, (erasable<bool>) ALL_GF_TYPE_SEQ)
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, (erasable<bool>)ALL_GF_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

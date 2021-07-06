@@ -25,7 +25,8 @@
 #include "config.h"
 #include "matrix.h"
 
-namespace libimage {
+namespace libimage
+{
 
 /*
  * \brief   Filter interface
@@ -39,26 +40,23 @@ namespace libimage {
  */
 
 template <class T>
-class filter {
+class filter
+{
 public:
-   virtual ~filter()
-      {
-      }
-   // progress display
-   virtual void display_progress(const int done, const int total) const = 0;
-   // parameter estimation (updates internal statistics)
-   virtual void reset() = 0;
-   virtual void update(const libbase::matrix<T>& in) = 0;
-   virtual void estimate() = 0;
-   //! Filter process loop (only updates output matrix)
-   virtual void
-   process(const libbase::matrix<T>& in, libbase::matrix<T>& out) const = 0;
-   //! Apply filter to an image channel
-   void apply(const libbase::matrix<T>& in, libbase::matrix<T>& out);
+    virtual ~filter() {}
+    // progress display
+    virtual void display_progress(const int done, const int total) const = 0;
+    // parameter estimation (updates internal statistics)
+    virtual void reset() = 0;
+    virtual void update(const libbase::matrix<T>& in) = 0;
+    virtual void estimate() = 0;
+    //! Filter process loop (only updates output matrix)
+    virtual void process(const libbase::matrix<T>& in,
+                         libbase::matrix<T>& out) const = 0;
+    //! Apply filter to an image channel
+    void apply(const libbase::matrix<T>& in, libbase::matrix<T>& out);
 };
 
-
-
-} // end namespace
+} // namespace libimage
 
 #endif

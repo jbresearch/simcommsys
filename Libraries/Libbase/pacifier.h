@@ -26,7 +26,8 @@
 #include "walltimer.h"
 #include <string>
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   User Pacifier.
@@ -36,39 +37,34 @@ namespace libbase {
  * progress of an operation.
  */
 
-class pacifier {
+class pacifier
+{
 private:
-   static bool quiet;
+    static bool quiet;
+
 public:
-   /*! \name Static interface */
-   static void enable_output()
-      {
-      quiet = false;
-      }
-   static void disable_output()
-      {
-      quiet = true;
-      }
-   // @}
+    /*! \name Static interface */
+    static void enable_output() { quiet = false; }
+    static void disable_output() { quiet = true; }
+    // @}
 
 private:
-   std::string name;
-   walltimer t;
-   int last;
-   size_t characters;
-public:
-   /*! \name Constructors / Destructors */
-   explicit pacifier(const std::string& name = "Process");
-   virtual ~pacifier()
-      {
-      }
-   // @}
+    std::string name;
+    walltimer t;
+    int last;
+    size_t characters;
 
-   /*! \name Pacifier operation */
-   std::string update(int complete, int total = 100);
-   // @}
+public:
+    /*! \name Constructors / Destructors */
+    explicit pacifier(const std::string& name = "Process");
+    virtual ~pacifier() {}
+    // @}
+
+    /*! \name Pacifier operation */
+    std::string update(int complete, int total = 100);
+    // @}
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif

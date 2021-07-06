@@ -23,11 +23,12 @@
 #include "cputimer.h"
 #include "cuda-all.h"
 
-namespace cuda {
+namespace cuda
+{
 
 void time_kernelcalls();
 void test_useofclasses();
 void test_streams();
 void test_sizes();
 
-} // end namespace
+} // namespace cuda

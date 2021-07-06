@@ -26,7 +26,8 @@
 #include "vector.h"
 #include <string>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   CommSys Results - Symbol/Frame Error Rates.
@@ -34,52 +35,49 @@ namespace libcomm {
  *
  * Implements standard error rate calculators.
  */
-class errors_hamming {
+class errors_hamming
+{
 protected:
-   /*! \name System Interface */
-   //! The number of information symbols per block
-   virtual int get_symbolsperblock() const = 0;
-   //! The information symbol alphabet size
-   virtual int get_alphabetsize() const = 0;
-   // @}
+    /*! \name System Interface */
+    //! The number of information symbols per block
+    virtual int get_symbolsperblock() const = 0;
+    //! The information symbol alphabet size
+    virtual int get_alphabetsize() const = 0;
+    // @}
 public:
-   virtual ~errors_hamming()
-      {
-      }
-   /*! \name Public interface */
-   void updateresults(libbase::vector<double>& result, const libbase::vector<
-         int>& source, const libbase::vector<int>& decoded) const;
-   /*! \copydoc experiment::count()
-    * We count the number of symbol and frame errors
-    */
-   int count() const
-      {
-      return 2;
-      }
-   /*! \copydoc experiment::get_multiplicity()
-    *
-    * Since results are organized as (symbol,frame) error count, the
-    * multiplicity is respectively the number of symbols and the number of
-    * frames (=1) per sample.
-    */
-   int get_multiplicity(int i) const
-      {
-      assert(i >= 0 && i < count());
-      return (i == 0) ? get_symbolsperblock() : 1;
-      }
-   /*! \copydoc experiment::result_description()
-    *
-    * The description is a string XER, where 'X' is S,F to indicate symbol or
-    * frame error rates respectively.
-    */
-   std::string result_description(int i) const
-      {
-      assert(i >= 0 && i < count());
-      return (i == 0) ? "SER" : "FER";
-      }
-   // @}
+    virtual ~errors_hamming() {}
+    /*! \name Public interface */
+    void updateresults(libbase::vector<double>& result,
+                       const libbase::vector<int>& source,
+                       const libbase::vector<int>& decoded) const;
+    /*! \copydoc experiment::count()
+     * We count the number of symbol and frame errors
+     */
+    int count() const { return 2; }
+    /*! \copydoc experiment::get_multiplicity()
+     *
+     * Since results are organized as (symbol,frame) error count, the
+     * multiplicity is respectively the number of symbols and the number of
+     * frames (=1) per sample.
+     */
+    int get_multiplicity(int i) const
+    {
+        assert(i >= 0 && i < count());
+        return (i == 0) ? get_symbolsperblock() : 1;
+    }
+    /*! \copydoc experiment::result_description()
+     *
+     * The description is a string XER, where 'X' is S,F to indicate symbol or
+     * frame error rates respectively.
+     */
+    std::string result_description(int i) const
+    {
+        assert(i >= 0 && i < count());
+        return (i == 0) ? "SER" : "FER";
+    }
+    // @}
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

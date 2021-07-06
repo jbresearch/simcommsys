@@ -25,7 +25,8 @@
 #include "config.h"
 #include <iostream>
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Multi-Precision Arithmetic.
@@ -43,61 +44,68 @@ namespace libbase {
  *
  * \version 1.10 (26 Oct 2006)
  * - defined class and associated data within "libbase" namespace.
- * - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+ * - removed use of "using namespace std", replacing by tighter "using"
+ * statements as needed.
  *
  * \version 1.11 (17 Jul 2007)
- * - changed references to isinf() and isnan() back to global namespace, in accord with
- * config.h 3.23.
+ * - changed references to isinf() and isnan() back to global namespace, in
+ * accord with config.h 3.23.
  */
 
-class mpreal {
-   static const double base;
-   int32s exponent;
-   long double mantissa;
-   void normalise();
+class mpreal
+{
+    static const double base;
+    int32s exponent;
+    long double mantissa;
+    void normalise();
+
 public:
-   mpreal(const double m = 0);
-   operator double() const;
+    mpreal(const double m = 0);
+    operator double() const;
 
-   mpreal& operator-();
-   mpreal& operator+=(const mpreal& a);
-   mpreal& operator-=(const mpreal& a);
-   mpreal& operator*=(const mpreal& a);
-   mpreal& operator/=(const mpreal& a);
+    mpreal& operator-();
+    mpreal& operator+=(const mpreal& a);
+    mpreal& operator-=(const mpreal& a);
+    mpreal& operator*=(const mpreal& a);
+    mpreal& operator/=(const mpreal& a);
 
-   friend std::ostream& operator<<(std::ostream& s, const mpreal& x);
+    friend std::ostream& operator<<(std::ostream& s, const mpreal& x);
 };
 
 // Derived Operations
 
-inline mpreal operator+(const mpreal& a, const mpreal& b)
-   {
-   mpreal result = a;
-   result += b;
-   return result;
-   }
+inline mpreal
+operator+(const mpreal& a, const mpreal& b)
+{
+    mpreal result = a;
+    result += b;
+    return result;
+}
 
-inline mpreal operator-(const mpreal& a, const mpreal& b)
-   {
-   mpreal result = a;
-   result -= b;
-   return result;
-   }
+inline mpreal
+operator-(const mpreal& a, const mpreal& b)
+{
+    mpreal result = a;
+    result -= b;
+    return result;
+}
 
-inline mpreal operator*(const mpreal& a, const mpreal& b)
-   {
-   mpreal result = a;
-   result *= b;
-   return result;
-   }
+inline mpreal
+operator*(const mpreal& a, const mpreal& b)
+{
+    mpreal result = a;
+    result *= b;
+    return result;
+}
 
-inline mpreal operator/(const mpreal& a, const mpreal& b)
-   {
-   mpreal result = a;
-   result /= b;
-   return result;
-   }
+inline mpreal
+operator/(const mpreal& a, const mpreal& b)
+{
+    mpreal result = a;
+    result /= b;
+    return result;
+}
 
-} // end namespace
+} // namespace libbase
 
 #endif

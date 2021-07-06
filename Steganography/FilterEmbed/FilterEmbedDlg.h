@@ -28,24 +28,24 @@
 class CAboutDlg : public CDialog
 {
 public:
-   CAboutDlg();
+    CAboutDlg();
 
-   // Dialog Data
-   //{{AFX_DATA(CAboutDlg)
-   enum { IDD = IDD_ABOUTBOX };
-   //}}AFX_DATA
+    // Dialog Data
+    //{{AFX_DATA(CAboutDlg)
+    enum { IDD = IDD_ABOUTBOX };
+    //}}AFX_DATA
 
-   // ClassWizard generated virtual function overrides
-   //{{AFX_VIRTUAL(CAboutDlg)
+    // ClassWizard generated virtual function overrides
+    //{{AFX_VIRTUAL(CAboutDlg)
 protected:
-   virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-   //}}AFX_VIRTUAL
+    virtual void DoDataExchange(CDataExchange* pDX); // DDX/DDV support
+                                                     //}}AFX_VIRTUAL
 
-   // Implementation
+    // Implementation
 protected:
-   //{{AFX_MSG(CAboutDlg)
-   //}}AFX_MSG
-   DECLARE_MESSAGE_MAP()
+    //{{AFX_MSG(CAboutDlg)
+    //}}AFX_MSG
+    DECLARE_MESSAGE_MAP()
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -53,65 +53,66 @@ protected:
 
 class CFilterEmbedDlg : public CDialog
 {
-// Construction
+    // Construction
 public:
-   CFilterEmbedDlg(CWnd* pParent = NULL);   // standard constructor
-   libwin::CPSPlugIn*  m_pPSPlugIn;
+    CFilterEmbedDlg(CWnd* pParent = NULL); // standard constructor
+    libwin::CPSPlugIn* m_pPSPlugIn;
 
-// Dialog Data
-   //{{AFX_DATA(CFilterEmbedDlg)
-        enum { IDD = IDD_DIALOG1 };
-        CString m_sCodec;
-        CString m_sPuncture;
-        CString m_sSource;
-        int             m_nSourceSeed;
-        int             m_nSourceType;
-        BOOL    m_bInterleave;
-        int             m_nInterleaverSeed;
-        double  m_dInterleaverDensity;
-        int             m_nEmbedSeed;
-        double  m_dEmbedStrength;
-        int             m_nEmbedRate;
-        //}}AFX_DATA
+    // Dialog Data
+    //{{AFX_DATA(CFilterEmbedDlg)
+    enum { IDD = IDD_DIALOG1 };
+    CString m_sCodec;
+    CString m_sPuncture;
+    CString m_sSource;
+    int m_nSourceSeed;
+    int m_nSourceType;
+    BOOL m_bInterleave;
+    int m_nInterleaverSeed;
+    double m_dInterleaverDensity;
+    int m_nEmbedSeed;
+    double m_dEmbedStrength;
+    int m_nEmbedRate;
+    //}}AFX_DATA
 
-// Overrides
-   // ClassWizard generated virtual function overrides
-   //{{AFX_VIRTUAL(CFilterEmbedDlg)
-   protected:
-   virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-   //}}AFX_VIRTUAL
-
-// Implementation
+    // Overrides
+    // ClassWizard generated virtual function overrides
+    //{{AFX_VIRTUAL(CFilterEmbedDlg)
 protected:
-   int m_nFileSize, m_nRawSize;
-   int m_nCodecIn, m_nCodecOut;
-   int m_nPunctureIn, m_nPunctureOut;
+    virtual void DoDataExchange(CDataExchange* pDX); // DDX/DDV support
+                                                     //}}AFX_VIRTUAL
 
-   void ComputeFileData();
-   void ComputeCodecData();
-   void ComputePunctureData();
-        void UpdateDisplay();
+    // Implementation
+protected:
+    int m_nFileSize, m_nRawSize;
+    int m_nCodecIn, m_nCodecOut;
+    int m_nPunctureIn, m_nPunctureOut;
 
-   // Generated message map functions
-   //{{AFX_MSG(CFilterEmbedDlg)
-   virtual BOOL OnInitDialog();
-        virtual void OnOK();
-        afx_msg void OnLoadSource();
-        afx_msg void OnLoadCodec();
-        afx_msg void OnLoadPuncture();
-        afx_msg void OnClearSource();
-        afx_msg void OnClearCodec();
-        afx_msg void OnClearPuncture();
-        afx_msg void OnComputeStrength();
-        afx_msg void OnInterleave();
-        afx_msg void OnSelchangeSourceType();
-        afx_msg void OnChangeInterleaverDensity();
-        afx_msg void OnChangeEmbedRate();
-        //}}AFX_MSG
-   DECLARE_MESSAGE_MAP()
+    void ComputeFileData();
+    void ComputeCodecData();
+    void ComputePunctureData();
+    void UpdateDisplay();
+
+    // Generated message map functions
+    //{{AFX_MSG(CFilterEmbedDlg)
+    virtual BOOL OnInitDialog();
+    virtual void OnOK();
+    afx_msg void OnLoadSource();
+    afx_msg void OnLoadCodec();
+    afx_msg void OnLoadPuncture();
+    afx_msg void OnClearSource();
+    afx_msg void OnClearCodec();
+    afx_msg void OnClearPuncture();
+    afx_msg void OnComputeStrength();
+    afx_msg void OnInterleave();
+    afx_msg void OnSelchangeSourceType();
+    afx_msg void OnChangeInterleaverDensity();
+    afx_msg void OnChangeEmbedRate();
+    //}}AFX_MSG
+    DECLARE_MESSAGE_MAP()
 };
 
 //{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
+// Microsoft Visual C++ will insert additional declarations immediately before
+// the previous line.
 
 #endif

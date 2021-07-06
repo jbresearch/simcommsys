@@ -23,11 +23,12 @@
 #define __source_sequential_h
 
 #include "config.h"
-#include "source.h"
 #include "serializer.h"
+#include "source.h"
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   All-sequential source.
@@ -37,45 +38,43 @@ namespace libcomm {
  * given repeating sequence.
  */
 
-template <class S, template <class > class C = libbase::vector>
-class sequential : public source<S, C> {
+template <class S, template <class> class C = libbase::vector>
+class sequential : public source<S, C>
+{
 private:
-   /*! \name Internal representation */
-   libbase::vector<S> input_vectors; //!< user sequence of input symbols
-   int index; //!< index of next element to output
-   // @}
+    /*! \name Internal representation */
+    libbase::vector<S> input_vectors; //!< user sequence of input symbols
+    int index;                        //!< index of next element to output
+                                      // @}
 public:
-   //! Default constructor
-   sequential() : index(0)
-      {
-      }
-   //! Main constructor
-   sequential(libbase::vector<S> input_vectors) :
-         input_vectors(input_vectors), index(0)
-      {
-      }
+    //! Default constructor
+    sequential() : index(0) {}
+    //! Main constructor
+    sequential(libbase::vector<S> input_vectors)
+        : input_vectors(input_vectors), index(0)
+    {
+    }
 
-   //! Generate a single source element
-   S generate_single()
-      {
-      S value = input_vectors(index);
-      index = (index + 1) % input_vectors.size();
-      return value;
-      }
+    //! Generate a single source element
+    S generate_single()
+    {
+        S value = input_vectors(index);
+        index = (index + 1) % input_vectors.size();
+        return value;
+    }
 
-   //! Description
-   std::string description() const
-      {
-      std::ostringstream sout;
-      sout << "Sequential source [" << input_vectors.size() << " elements]";
-      return sout.str();
-      }
+    //! Description
+    std::string description() const
+    {
+        std::ostringstream sout;
+        sout << "Sequential source [" << input_vectors.size() << " elements]";
+        return sout.str();
+    }
 
-   // Serialization Support
-DECLARE_SERIALIZER(sequential)
+    // Serialization Support
+    DECLARE_SERIALIZER(sequential)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

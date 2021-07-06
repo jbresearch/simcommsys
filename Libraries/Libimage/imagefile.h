@@ -35,20 +35,21 @@
 
  *******************************************************************************/
 
-namespace libimage {
+namespace libimage
+{
 
-class imagefile {
+class imagefile
+{
 public:
-   // Construction / destruction
-   imagefile();
-   ~imagefile();
+    // Construction / destruction
+    imagefile();
+    ~imagefile();
 
-   // File format
+    // File format
 
-   // Saving / loading
-
+    // Saving / loading
 };
 
-} // end namespace
+} // namespace libimage
 
 #endif

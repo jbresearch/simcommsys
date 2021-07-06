@@ -27,9 +27,9 @@
 
 #include "cuda_assert.h"
 
-namespace cuda {
+namespace cuda
+{
 
 // Debugging tools
 
-
-} // end namespace
+} // namespace cuda

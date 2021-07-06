@@ -19,13 +19,13 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "stdafx.h"
 #include "PluginWizard.h"
 #include "PluginWizardDlg.h"
+#include "stdafx.h"
 
 #ifdef _DEBUG
-#define new DEBUG_NEW
-#undef THIS_FILE
+#    define new DEBUG_NEW
+#    undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
 
@@ -43,9 +43,7 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CPluginWizardApp construction
 
-CPluginWizardApp::CPluginWizardApp()
-   {
-   }
+CPluginWizardApp::CPluginWizardApp() {}
 
 /////////////////////////////////////////////////////////////////////////////
 // The one and only CPluginWizardApp object
@@ -55,25 +53,23 @@ CPluginWizardApp theApp;
 /////////////////////////////////////////////////////////////////////////////
 // CPluginWizardApp initialization
 
-BOOL CPluginWizardApp::InitInstance()
-   {
-   // Create the dialog box
-   CPluginWizardDlg dlg;
-   m_pMainWnd = &dlg;
+BOOL
+CPluginWizardApp::InitInstance()
+{
+    // Create the dialog box
+    CPluginWizardDlg dlg;
+    m_pMainWnd = &dlg;
 
-   // Obtain the path to the final output
-   CString sPath = m_pszHelpFilePath;
-   dlg.m_sPath = sPath.Left(sPath.Find(m_pszExeName));
+    // Obtain the path to the final output
+    CString sPath = m_pszHelpFilePath;
+    dlg.m_sPath = sPath.Left(sPath.Find(m_pszExeName));
 
-   int nResponse = dlg.DoModal();
-   if (nResponse == IDOK)
-      {
-      }
-   else if (nResponse == IDCANCEL)
-      {
-      }
+    int nResponse = dlg.DoModal();
+    if (nResponse == IDOK) {
+    } else if (nResponse == IDCANCEL) {
+    }
 
-   // Since the dialog has been closed, return FALSE so that we exit the
-   //  application, rather than start the application's message pump.
-   return FALSE;
-   }
+    // Since the dialog has been closed, return FALSE so that we exit the
+    //  application, rather than start the application's message pump.
+    return FALSE;
+}

@@ -25,27 +25,27 @@
 //
 
 #if !defined(AFX_STDAFX_H__5E3610DE_EB0E_49EF_A31B_7E7D15B0CF1A__INCLUDED_)
-#define AFX_STDAFX_H__5E3610DE_EB0E_49EF_A31B_7E7D15B0CF1A__INCLUDED_
+#    define AFX_STDAFX_H__5E3610DE_EB0E_49EF_A31B_7E7D15B0CF1A__INCLUDED_
 
-#if _MSC_VER > 1000
-#pragma once
-#endif // _MSC_VER > 1000
+#    if _MSC_VER > 1000
+#        pragma once
+#    endif // _MSC_VER > 1000
 
-#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
+#    define VC_EXTRALEAN // Exclude rarely-used stuff from Windows headers
 
-#if _MSC_VER >= 1400
-#       define _CRT_SECURE_NO_DEPRECATE 1
-#endif
+#    if _MSC_VER >= 1400
+#        define _CRT_SECURE_NO_DEPRECATE 1
+#    endif
 
-#include <afxwin.h>         // MFC core and standard components
-#include <afxext.h>         // MFC extensions
-#include <afxdtctl.h>           // MFC support for Internet Explorer 4 Common Controls
-#ifndef _AFX_NO_AFXCMN_SUPPORT
-#include <afxcmn.h>                     // MFC support for Windows Common Controls
-#endif // _AFX_NO_AFXCMN_SUPPORT
-
+#    include <afxdtctl.h> // MFC support for Internet Explorer 4 Common Controls
+#    include <afxext.h>   // MFC extensions
+#    include <afxwin.h>   // MFC core and standard components
+#    ifndef _AFX_NO_AFXCMN_SUPPORT
+#        include <afxcmn.h> // MFC support for Windows Common Controls
+#    endif                  // _AFX_NO_AFXCMN_SUPPORT
 
 //{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
+// Microsoft Visual C++ will insert additional declarations immediately before
+// the previous line.
 
 #endif // !defined(AFX_STDAFX_H__5E3610DE_EB0E_49EF_A31B_7E7D15B0CF1A__INCLUDED_)

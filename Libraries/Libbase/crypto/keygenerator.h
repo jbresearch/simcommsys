@@ -28,7 +28,8 @@
 
 #include <list>
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Utility class to manipulate key shares
@@ -41,30 +42,30 @@ namespace libbase {
  */
 
 template <class BigInteger>
-class keygenerator {
+class keygenerator
+{
 public:
-   static keypair<BigInteger> generateKeyShare(group<BigInteger> grp)
-      {
-      BigInteger secretShare = group<BigInteger>::get_random_integer(
-            grp.get_q());
-      BigInteger publicShare = grp.get_g().pow_mod(secretShare, grp.get_p());
-      return keypair<BigInteger> (secretShare, publicShare);
-      }
+    static keypair<BigInteger> generateKeyShare(group<BigInteger> grp)
+    {
+        BigInteger secretShare =
+            group<BigInteger>::get_random_integer(grp.get_q());
+        BigInteger publicShare = grp.get_g().pow_mod(secretShare, grp.get_p());
+        return keypair<BigInteger>(secretShare, publicShare);
+    }
 
-   static BigInteger combinePublicKeyShares(std::list<BigInteger> pubKeys,
-         group<BigInteger> grp)
-      {
-      //G combinedPK = grp.zero() ;
-      BigInteger combinedPubKey(1);
-      typedef typename std::list<BigInteger>::iterator iterator;
-      for (iterator it = pubKeys.begin(); it != pubKeys.end(); it++)
-         {
-         combinedPubKey = (combinedPubKey * *it) % grp.get_p();
-         }
-      return combinedPubKey;
-      }
+    static BigInteger combinePublicKeyShares(std::list<BigInteger> pubKeys,
+                                             group<BigInteger> grp)
+    {
+        // G combinedPK = grp.zero() ;
+        BigInteger combinedPubKey(1);
+        typedef typename std::list<BigInteger>::iterator iterator;
+        for (iterator it = pubKeys.begin(); it != pubKeys.end(); it++) {
+            combinedPubKey = (combinedPubKey * *it) % grp.get_p();
+        }
+        return combinedPubKey;
+    }
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif

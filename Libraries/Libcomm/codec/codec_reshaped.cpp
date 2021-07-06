@@ -21,50 +21,55 @@
 
 #include "codec_reshaped.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // object serialization - saving
 
 template <class base_codec>
-std::ostream& codec_reshaped<base_codec>::serialize(std::ostream& sout) const
-   {
-   return base.serialize(sout);
-   }
+std::ostream&
+codec_reshaped<base_codec>::serialize(std::ostream& sout) const
+{
+    return base.serialize(sout);
+}
 
 // object serialization - loading
 
 template <class base_codec>
-std::istream& codec_reshaped<base_codec>::serialize(std::istream& sin)
-   {
-   return base.serialize(sin);
-   }
+std::istream&
+codec_reshaped<base_codec>::serialize(std::istream& sin)
+{
+    return base.serialize(sin);
+}
 
-} // end namespace
+} // namespace libcomm
 
+#include "ldpc.h"
 #include "turbo.h"
 #include "uncoded.h"
-#include "ldpc.h"
 
 #include "gf.h"
-#include "mpreal.h"
-#include "mpgnu.h"
 #include "logreal.h"
 #include "logrealfast.h"
+#include "mpgnu.h"
+#include "mpreal.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
+#include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/seq/for_each_product.hpp>
-#include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-using libbase::serializer;
-using libbase::mpreal;
-using libbase::mpgnu;
 using libbase::logreal;
 using libbase::logrealfast;
+using libbase::mpgnu;
+using libbase::mpreal;
+using libbase::serializer;
 
+// clang-format off
 #define USING_GF(r, x, type) \
       using libbase::type;
 
@@ -128,7 +133,8 @@ BOOST_PP_SEQ_FOR_EACH(INSTANTIATE_UNCODED, x, (double))
             "codec_reshaped<ldpc<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">>", \
             codec_reshaped<ldpc<BOOST_PP_SEQ_ENUM(args)> >::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE_LDPC, (GF_TYPE_SEQ)(REAL_TYPE_SEQ))
 
-} // end namespace
+} // namespace libcomm

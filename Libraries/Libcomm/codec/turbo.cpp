@@ -22,114 +22,118 @@
 #include "turbo.h"
 #include "interleaver/lut/flat.h"
 #include "vectorutils.h"
-#include <sstream>
 #include <iomanip>
+#include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // initialization / de-allocation
 
 template <class real, class dbl>
-void turbo<real, dbl>::init()
-   {
-   // check presence and size of interleavers
-   assertalways(inter.size() > 0);
-   for (int i = 0; i < inter.size(); i++)
-      {
-      assertalways(inter(i));
-      assertalways(inter(i)->size() == inter(0)->size());
-      libbase::trace << "Interleaver " << i << ": " << inter(i)->description()
-            << std::endl;
-      }
+void
+turbo<real, dbl>::init()
+{
+    // check presence and size of interleavers
+    assertalways(inter.size() > 0);
+    for (int i = 0; i < inter.size(); i++) {
+        assertalways(inter(i));
+        assertalways(inter(i)->size() == inter(0)->size());
+        libbase::trace << "Interleaver " << i << ": " << inter(i)->description()
+                       << std::endl;
+    }
 
-   // check required components and initialize BCJR
-   assertalways(encoder);
-   const int tau = num_timesteps();
-   assertalways(tau > 0);
-   BCJR.init(*encoder, tau);
+    // check required components and initialize BCJR
+    assertalways(encoder);
+    const int tau = num_timesteps();
+    assertalways(tau > 0);
+    BCJR.init(*encoder, tau);
 
-   assertalways(!endatzero || !circular);
-   assertalways(iter > 0);
+    assertalways(!endatzero || !circular);
+    assertalways(iter > 0);
 
-   initialised = false;
-   }
+    initialised = false;
+}
 
 template <class real, class dbl>
-void turbo<real, dbl>::reset()
-   {
-   if (circular)
-      {
-      libbase::allocate(ss, num_sets(), enc_states());
-      libbase::allocate(se, num_sets(), enc_states());
-      ss = dbl(1.0 / double(enc_states()));
-      se = dbl(1.0 / double(enc_states()));
-      }
-   else if (endatzero)
-      {
-      BCJR.setstart(0);
-      BCJR.setend(0);
-      }
-   else
-      {
-      BCJR.setstart(0);
-      BCJR.setend();
-      }
-   }
+void
+turbo<real, dbl>::reset()
+{
+    if (circular) {
+        libbase::allocate(ss, num_sets(), enc_states());
+        libbase::allocate(se, num_sets(), enc_states());
+        ss = dbl(1.0 / double(enc_states()));
+        se = dbl(1.0 / double(enc_states()));
+    } else if (endatzero) {
+        BCJR.setstart(0);
+        BCJR.setend(0);
+    } else {
+        BCJR.setstart(0);
+        BCJR.setend();
+    }
+}
 
 // constructor / destructor
 
 template <class real, class dbl>
-turbo<real, dbl>::turbo(const fsm& encoder,
-      const libbase::vector<std::shared_ptr<interleaver<dbl> > >& inter,
-      const int iter, const bool endatzero, const bool parallel,
-      const bool circular)
-   {
-   this->encoder = std::dynamic_pointer_cast<fsm> (encoder.clone());
-   // deep copy of interleaver list
-   this->inter.init(inter.size());
-   for (int i = 0; i < inter.size(); i++)
-      this->inter(i) = std::dynamic_pointer_cast<interleaver<dbl> >(
-            inter(i)->clone());
-   this->endatzero = endatzero;
-   this->parallel = parallel;
-   this->circular = circular;
-   this->iter = iter;
-   init();
-   }
+turbo<real, dbl>::turbo(
+    const fsm& encoder,
+    const libbase::vector<std::shared_ptr<interleaver<dbl>>>& inter,
+    const int iter,
+    const bool endatzero,
+    const bool parallel,
+    const bool circular)
+{
+    this->encoder = std::dynamic_pointer_cast<fsm>(encoder.clone());
+    // deep copy of interleaver list
+    this->inter.init(inter.size());
+    for (int i = 0; i < inter.size(); i++) {
+        this->inter(i) =
+            std::dynamic_pointer_cast<interleaver<dbl>>(inter(i)->clone());
+    }
+    this->endatzero = endatzero;
+    this->parallel = parallel;
+    this->circular = circular;
+    this->iter = iter;
+    init();
+}
 
 // memory allocator (for internal use only)
 
 template <class real, class dbl>
-void turbo<real, dbl>::allocate()
-   {
-   // Inherit sizes
-   const int sets = num_sets();
-   const int tau = num_timesteps();
-   const int K = alg_input_symbols();
-   const int N = alg_output_symbols();
+void
+turbo<real, dbl>::allocate()
+{
+    // Inherit sizes
+    const int sets = num_sets();
+    const int tau = num_timesteps();
+    const int K = alg_input_symbols();
+    const int N = alg_output_symbols();
 
-   rp.init(tau, K);
-   if (parallel)
-      libbase::allocate(ra, sets, tau, K);
-   else
-      libbase::allocate(ra, 1, tau, K);
-   libbase::allocate(R, sets, tau, N);
-   // flag the state of the arrays
-   initialised = true;
+    rp.init(tau, K);
+    if (parallel) {
+        libbase::allocate(ra, sets, tau, K);
+    } else {
+        libbase::allocate(ra, 1, tau, K);
+    }
+    libbase::allocate(R, sets, tau, N);
+    // flag the state of the arrays
+    initialised = true;
 
-   // set required format, storing previous settings
-   const std::ios::fmtflags flags = std::cerr.flags();
-   std::cerr.setf(std::ios::fixed, std::ios::floatfield);
-   const std::streamsize prec = std::cerr.precision(1);
-   // determine memory occupied and tell user
-   const size_t bytes_used = sizeof(dbl) * (rp.size() + ra.size()
-         * ra(0).size() + R.size() * R(0).size());
-   std::cerr << "Turbo Memory Usage: " << bytes_used / double(1 << 20) << "MiB"
-         << std::endl;
-   // revert cerr to original format
-   std::cerr.precision(prec);
-   std::cerr.flags(flags);
-   }
+    // set required format, storing previous settings
+    const std::ios::fmtflags flags = std::cerr.flags();
+    std::cerr.setf(std::ios::fixed, std::ios::floatfield);
+    const std::streamsize prec = std::cerr.precision(1);
+    // determine memory occupied and tell user
+    const size_t bytes_used =
+        sizeof(dbl) *
+        (rp.size() + ra.size() * ra(0).size() + R.size() * R(0).size());
+    std::cerr << "Turbo Memory Usage: " << bytes_used / double(1 << 20) << "MiB"
+              << std::endl;
+    // revert cerr to original format
+    std::cerr.precision(prec);
+    std::cerr.flags(flags);
+}
 
 // wrapping functions
 
@@ -148,15 +152,18 @@ void turbo<real, dbl>::allocate()
  * need to be read.
  */
 template <class real, class dbl>
-void turbo<real, dbl>::work_extrinsic(const array2d_t& ra, const array2d_t& ri,
-      const array2d_t& r, array2d_t& re)
-   {
-   // Compute denominator
-   array2d_t rar = ra.multiply(r);
-   // Copy numerator and divide only for non-zero denominator
-   re = ri;
-   re.mask(rar > 0).divideby(rar);
-   }
+void
+turbo<real, dbl>::work_extrinsic(const array2d_t& ra,
+                                 const array2d_t& ri,
+                                 const array2d_t& r,
+                                 array2d_t& re)
+{
+    // Compute denominator
+    array2d_t rar = ra.multiply(r);
+    // Copy numerator and divide only for non-zero denominator
+    re = ri;
+    re.mask(rar > 0).divideby(rar);
+}
 
 /*!
  * \brief Complete BCJR decoding cycle
@@ -178,26 +185,27 @@ void turbo<real, dbl>::work_extrinsic(const array2d_t& ra, const array2d_t& ri,
  * need to be read.
  */
 template <class real, class dbl>
-void turbo<real, dbl>::bcjr_wrap(const int set, const array2d_t& ra,
-      array2d_t& ri, array2d_t& re)
-   {
-   // Temporary variables to hold interleaved versions of ra/ri
-   array2d_t rai, rii;
-   if (circular)
-      {
-      BCJR.setstart(ss(set));
-      BCJR.setend(se(set));
-      }
-   inter(set)->transform(ra, rai);
-   BCJR.fdecode(R(set), rai, rii);
-   inter(set)->inverse(rii, ri);
-   if (circular)
-      {
-      ss(set) = BCJR.getstart();
-      se(set) = BCJR.getend();
-      }
-   work_extrinsic(ra, ri, rp, re);
-   }
+void
+turbo<real, dbl>::bcjr_wrap(const int set,
+                            const array2d_t& ra,
+                            array2d_t& ri,
+                            array2d_t& re)
+{
+    // Temporary variables to hold interleaved versions of ra/ri
+    array2d_t rai, rii;
+    if (circular) {
+        BCJR.setstart(ss(set));
+        BCJR.setend(se(set));
+    }
+    inter(set)->transform(ra, rai);
+    BCJR.fdecode(R(set), rai, rii);
+    inter(set)->inverse(rii, ri);
+    if (circular) {
+        ss(set) = BCJR.getstart();
+        se(set) = BCJR.getend();
+    }
+    work_extrinsic(ra, ri, rp, re);
+}
 
 /*! \brief Perform a complete serial-decoding cycle
  *
@@ -205,17 +213,17 @@ void turbo<real, dbl>::bcjr_wrap(const int set, const array2d_t& ra,
  * probabilities.
  */
 template <class real, class dbl>
-void turbo<real, dbl>::decode_serial(array2d_t& ri)
-   {
-   // after working all sets, ri is the intrinsic+extrinsic information
-   // from the last stage decoder.
-   for (int set = 0; set < num_sets(); set++)
-      {
-      bcjr_wrap(set, ra(0), ri, ra(0));
-      BCJR.normalize(ra(0));
-      }
-   BCJR.normalize(ri);
-   }
+void
+turbo<real, dbl>::decode_serial(array2d_t& ri)
+{
+    // after working all sets, ri is the intrinsic+extrinsic information
+    // from the last stage decoder.
+    for (int set = 0; set < num_sets(); set++) {
+        bcjr_wrap(set, ra(0), ri, ra(0));
+        BCJR.normalize(ra(0));
+    }
+    BCJR.normalize(ri);
+}
 
 /*! \brief Perform a complete parallel-decoding cycle
  *
@@ -230,28 +238,35 @@ void turbo<real, dbl>::decode_serial(array2d_t& ri)
  * decreases.
  */
 template <class real, class dbl>
-void turbo<real, dbl>::decode_parallel(array2d_t& ri)
-   {
-   // here ri is only a temporary space
-   // and ra(set) is updated with the extrinsic information for that set
-   for (int set = 0; set < num_sets(); set++)
-      bcjr_wrap(set, ra(set), ri, ra(set));
-   // the following are repeated at each frame element, for each possible symbol
-   // work in ri the sum of all extrinsic information
-   ri = ra(0);
-   for (int set = 1; set < num_sets(); set++)
-      ri.multiplyby(ra(set));
-   // compute the next-stage a priori information by subtracting the extrinsic
-   // information of the current stage from the sum of all extrinsic information.
-   for (int set = 0; set < num_sets(); set++)
-      ra(set) = ri.divide(ra(set));
-   // add the channel information to the sum of extrinsic information
-   ri.multiplyby(rp);
-   // normalize results
-   for (int set = 0; set < num_sets(); set++)
-      BCJR.normalize(ra(set));
-   BCJR.normalize(ri);
-   }
+void
+turbo<real, dbl>::decode_parallel(array2d_t& ri)
+{
+    // here ri is only a temporary space
+    // and ra(set) is updated with the extrinsic information for that set
+    for (int set = 0; set < num_sets(); set++) {
+        bcjr_wrap(set, ra(set), ri, ra(set));
+    }
+    // the following are repeated at each frame element, for each possible
+    // symbol work in ri the sum of all extrinsic information
+    ri = ra(0);
+    for (int set = 1; set < num_sets(); set++) {
+        ri.multiplyby(ra(set));
+    }
+    // compute the next-stage a priori information by subtracting the extrinsic
+    // information of the current stage from the sum of all extrinsic
+    // information.
+    for (int set = 0; set < num_sets(); set++) {
+        ra(set) = ri.divide(ra(set));
+    }
+    // add the channel information to the sum of extrinsic information
+    ri.multiplyby(rp);
+    // normalize results
+    for (int set = 0; set < num_sets(); set++) {
+        BCJR.normalize(ra(set));
+    }
+
+    BCJR.normalize(ri);
+}
 
 /*! \copydoc codec_softout::setreceiver()
  *
@@ -264,250 +279,269 @@ void turbo<real, dbl>::decode_parallel(array2d_t& ri)
  * \note Clean up this function, removing unnecessary symbol-conversion
  */
 template <class real, class dbl>
-void turbo<real, dbl>::do_init_decoder(const array1vd_t& ptable)
-   {
-   assert(ptable.size() == This::output_block_size());
-   // Inherit sizes
-   const int sets = num_sets();
-   const int tau = num_timesteps();
-   const int k = enc_inputs();
-   const int p = enc_parity();
-   const int S = enc_symbols();
-   const int K = alg_input_symbols();
-   const int N = alg_output_symbols();
-   // Derived sizes
-   const int s = k + p * sets;
-   const int P = N / K;
+void
+turbo<real, dbl>::do_init_decoder(const array1vd_t& ptable)
+{
+    assert(ptable.size() == This::output_block_size());
+    // Inherit sizes
+    const int sets = num_sets();
+    const int tau = num_timesteps();
+    const int k = enc_inputs();
+    const int p = enc_parity();
+    const int S = enc_symbols();
+    const int K = alg_input_symbols();
+    const int N = alg_output_symbols();
+    // Derived sizes
+    const int s = k + p * sets;
+    const int P = N / K;
 
-   // initialise memory if necessary
-   if (!initialised)
-      allocate();
+    // initialise memory if necessary
+    if (!initialised) {
+        allocate();
+    }
 
-   // Allocate space for temporary matrices
-   libbase::matrix3<dbl> ptemp(sets, tau, P);
+    // Allocate space for temporary matrices
+    libbase::matrix3<dbl> ptemp(sets, tau, P);
 
-   // Get the necessary data from the channel
-   for (int t = 0; t < tau; t++)
-      {
-      // Input (data) bits [set 0 only]
-      for (int x = 0; x < K; x++)
-         {
-         rp(t, x) = 1;
-         for (int i = 0, thisx = x; i < k; i++, thisx /= S)
-            rp(t, x) *= dbl(ptable(t * s + i)(thisx % S));
-         }
-      // Parity bits [all sets]
-      for (int x = 0; x < P; x++)
-         for (int set = 0, offset = k; set < sets; set++)
-            {
-            ptemp(set, t, x) = 1;
-            for (int i = 0, thisx = x; i < p; i++, thisx /= S)
-               ptemp(set, t, x) *= dbl(ptable(t * s + i + offset)(thisx % S));
-            offset += p;
+    // Get the necessary data from the channel
+    for (int t = 0; t < tau; t++) {
+        // Input (data) bits [set 0 only]
+        for (int x = 0; x < K; x++) {
+            rp(t, x) = 1;
+            for (int i = 0, thisx = x; i < k; i++, thisx /= S) {
+                rp(t, x) *= dbl(ptable(t * s + i)(thisx % S));
             }
-      }
+        }
+        // Parity bits [all sets]
+        for (int x = 0; x < P; x++) {
+            for (int set = 0, offset = k; set < sets; set++) {
+                ptemp(set, t, x) = 1;
+                for (int i = 0, thisx = x; i < p; i++, thisx /= S) {
+                    ptemp(set, t, x) *=
+                        dbl(ptable(t * s + i + offset)(thisx % S));
+                }
+                offset += p;
+            }
+        }
+    }
 
-   // Initialise a priori probabilities (extrinsic)
-   for (int set = 0; set < (parallel ? sets : 1); set++)
-      ra(set) = 1.0;
+    // Initialise a priori probabilities (extrinsic)
+    for (int set = 0; set < (parallel ? sets : 1); set++) {
+        ra(set) = 1.0;
+    }
 
-   // Normalize a priori probabilities (intrinsic - source)
-   BCJR.normalize(rp);
+    // Normalize a priori probabilities (intrinsic - source)
+    BCJR.normalize(rp);
 
-   // Compute and normalize a priori probabilities (intrinsic - encoded)
-   array2d_t rpi;
-   for (int set = 0; set < sets; set++)
-      {
-      inter(set)->transform(rp, rpi);
-      for (int t = 0; t < tau; t++)
-         for (int x = 0; x < N; x++)
-            R(set)(t, x) = rpi(t, x % K) * ptemp(set, t, x / K);
-      BCJR.normalize(R(set));
-      }
+    // Compute and normalize a priori probabilities (intrinsic - encoded)
+    array2d_t rpi;
+    for (int set = 0; set < sets; set++) {
+        inter(set)->transform(rp, rpi);
 
-   // Reset start- and end-state probabilities
-   reset();
-   }
+        for (int t = 0; t < tau; t++) {
+            for (int x = 0; x < N; x++) {
+                R(set)(t, x) = rpi(t, x % K) * ptemp(set, t, x / K);
+            }
+        }
+
+        BCJR.normalize(R(set));
+    }
+
+    // Reset start- and end-state probabilities
+    reset();
+}
 
 template <class real, class dbl>
-void turbo<real, dbl>::do_init_decoder(const array1vd_t& ptable, const array1vd_t& app)
-   {
-   // Start by setting receiver statistics
-   do_init_decoder(ptable);
-   // Encoder symbol space must be the same as modulation symbol space
-   assertalways(app.size() > 0);
-   assertalways(app(0).size() == This::num_inputs());
-   // Confirm input sequence to be of the correct length
-   assertalways(app.size() == This::input_block_size());
-   // Copy the input statistics for the BCJR Algorithm
-   for (int t = 0; t < rp.size().rows(); t++)
-      for (int i = 0; i < rp.size().cols(); i++)
-         rp(t, i) *= app(t)(i);
-   }
+void
+turbo<real, dbl>::do_init_decoder(const array1vd_t& ptable,
+                                  const array1vd_t& app)
+{
+    // Start by setting receiver statistics
+    do_init_decoder(ptable);
+    // Encoder symbol space must be the same as modulation symbol space
+    assertalways(app.size() > 0);
+    assertalways(app(0).size() == This::num_inputs());
+    // Confirm input sequence to be of the correct length
+    assertalways(app.size() == This::input_block_size());
+    // Copy the input statistics for the BCJR Algorithm
+    for (int t = 0; t < rp.size().rows(); t++) {
+        for (int i = 0; i < rp.size().cols(); i++) {
+            rp(t, i) *= app(t)(i);
+        }
+    }
+}
 
 // encoding and decoding functions
 
 template <class real, class dbl>
-void turbo<real, dbl>::seedfrom(libbase::random& r)
-   {
-   for (int set = 0; set < num_sets(); set++)
-      inter(set)->seedfrom(r);
-   }
+void
+turbo<real, dbl>::seedfrom(libbase::random& r)
+{
+    for (int set = 0; set < num_sets(); set++) {
+        inter(set)->seedfrom(r);
+    }
+}
 
 template <class real, class dbl>
-void turbo<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
-   {
-   assert(source.size() == This::input_block_size());
-   // Inherit sizes
-   const int sets = num_sets();
-   const int tau = num_timesteps();
-   const int k = enc_inputs();
-   const int p = enc_parity();
-   const int S = enc_symbols();
-   // Derived sizes
-   const int s = k + p * sets;
+void
+turbo<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
+{
+    assert(source.size() == This::input_block_size());
+    // Inherit sizes
+    const int sets = num_sets();
+    const int tau = num_timesteps();
+    const int k = enc_inputs();
+    const int p = enc_parity();
+    const int S = enc_symbols();
+    // Derived sizes
+    const int s = k + p * sets;
 
-   // Reform source into a matrix, with one row per timestep
-   // and adding any necessary tail
-   array2i_t source1(tau, k);
-   source1 = fsm::tail;
-   source1.copyfrom(source);
+    // Reform source into a matrix, with one row per timestep
+    // and adding any necessary tail
+    array2i_t source1(tau, k);
+    source1 = fsm::tail;
+    source1.copyfrom(source);
 
-   // Declare space for the interleaved source
-   array2i_t source2(tau, k);
-   // Allocate space for the encoder outputs
-   libbase::matrix<libbase::vector<int> > x(sets, tau);
-   // Consider sets in order
-   for (int set = 0; set < sets; set++)
-      {
-      // Create interleaved version of source
-      for (int i = 0; i < k; i++)
-         {
-         array1i_t source2slice;
-         inter(set)->transform(source1.extractcol(i), source2slice);
-         source2.insertcol(source2slice, i);
-         }
+    // Declare space for the interleaved source
+    array2i_t source2(tau, k);
+    // Allocate space for the encoder outputs
+    libbase::matrix<libbase::vector<int>> x(sets, tau);
+    // Consider sets in order
+    for (int set = 0; set < sets; set++) {
+        // Create interleaved version of source
+        for (int i = 0; i < k; i++) {
+            array1i_t source2slice;
+            inter(set)->transform(source1.extractcol(i), source2slice);
+            source2.insertcol(source2slice, i);
+        }
 
-      // Reset the encoder to zero state
-      encoder->reset();
+        // Reset the encoder to zero state
+        encoder->reset();
 
-      // When dealing with a circular system, perform first pass to determine
-      // end state, then reset to the corresponding circular state.
-      int cstate = 0;
-      if (circular)
-         {
-         for (int t = 0; t < tau; t++)
-            {
-            array1i_t ip = source2.extractrow(t);
-            encoder->advance(ip);
+        // When dealing with a circular system, perform first pass to determine
+        // end state, then reset to the corresponding circular state.
+        int cstate = 0;
+        if (circular) {
+            for (int t = 0; t < tau; t++) {
+                array1i_t ip = source2.extractrow(t);
+                encoder->advance(ip);
             }
-         encoder->resetcircular();
-         cstate = fsm::convert(encoder->state(), S);
-         }
+            encoder->resetcircular();
+            cstate = fsm::convert(encoder->state(), S);
+        }
 
-      // Encode source
-      // (non-interleaved must be done first to determine tail bit values)
-      for (int t = 0; t < tau; t++)
-         {
-         array1i_t ip = source2.extractrow(t);
-         x(set, t) = encoder->step(ip).extract(k, p);
-         source2.insertrow(ip, t);
-         }
+        // Encode source
+        // (non-interleaved must be done first to determine tail bit values)
+        for (int t = 0; t < tau; t++) {
+            array1i_t ip = source2.extractrow(t);
+            x(set, t) = encoder->step(ip).extract(k, p);
+            source2.insertrow(ip, t);
+        }
 
-      // If this was the first (non-interleaved) set, copy back the source
-      // to fix the tail bit values, if any
-      if (endatzero && set == 0)
-         source1 = source2;
+        // If this was the first (non-interleaved) set, copy back the source
+        // to fix the tail bit values, if any
+        if (endatzero && set == 0) {
+            source1 = source2;
+        }
 
-      // check that encoder finishes correctly
-      const int finstate = fsm::convert(encoder->state(), S);
-      if (circular)
-         assertalways(finstate == cstate);
-      if (endatzero)
-         assertalways(finstate == 0);
-      }
+        // check that encoder finishes correctly
+        const int finstate = fsm::convert(encoder->state(), S);
+        if (circular) {
+            assertalways(finstate == cstate);
+        }
+        if (endatzero) {
+            assertalways(finstate == 0);
+        }
+    }
 
-   // Initialise result vector
-   encoded.init(This::output_block_size());
-   // Encode source stream
-   for (int t = 0; t < tau; t++)
-      {
-      // data bits
-      encoded.segment(t * s, k) = source1.extractrow(t);
-      // parity bits
-      for (int set = 0; set < sets; set++)
-         encoded.segment(t * s + k + p * set, p) = x(set, t);
-      }
-   }
-
-template <class real, class dbl>
-void turbo<real, dbl>::softdecode(array1vd_t& ri)
-   {
-   // temporary space to hold complete results (ie. with tail)
-   array2d_t rif;
-   // do one iteration, in serial or parallel as required
-   if (parallel)
-      decode_parallel(rif);
-   else
-      decode_serial(rif);
-   // remove any tail bits from input set
-   libbase::allocate(ri, input_block_size(), num_inputs());
-   for (int i = 0; i < input_block_size(); i++)
-      for (int j = 0; j < num_inputs(); j++)
-         ri(i)(j) = rif(i, j);
-   }
+    // Initialise result vector
+    encoded.init(This::output_block_size());
+    // Encode source stream
+    for (int t = 0; t < tau; t++) {
+        // data bits
+        encoded.segment(t * s, k) = source1.extractrow(t);
+        // parity bits
+        for (int set = 0; set < sets; set++) {
+            encoded.segment(t * s + k + p * set, p) = x(set, t);
+        }
+    }
+}
 
 template <class real, class dbl>
-void turbo<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
-   {
-   failwith("Not yet implemented");
-   }
+void
+turbo<real, dbl>::softdecode(array1vd_t& ri)
+{
+    // temporary space to hold complete results (ie. with tail)
+    array2d_t rif;
+    // do one iteration, in serial or parallel as required
+    if (parallel) {
+        decode_parallel(rif);
+    } else {
+        decode_serial(rif);
+    }
+    // remove any tail bits from input set
+    libbase::allocate(ri, input_block_size(), num_inputs());
+    for (int i = 0; i < input_block_size(); i++) {
+        for (int j = 0; j < num_inputs(); j++) {
+            ri(i)(j) = rif(i, j);
+        }
+    }
+}
+
+template <class real, class dbl>
+void
+turbo<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
+{
+    failwith("Not yet implemented");
+}
 
 // description output
 
 template <class real, class dbl>
-std::string turbo<real, dbl>::description() const
-   {
-   std::ostringstream sout;
-   sout << "Turbo Code (" << This::output_block_size() << ","
+std::string
+turbo<real, dbl>::description() const
+{
+    std::ostringstream sout;
+    sout << "Turbo Code (" << This::output_block_size() << ","
          << This::input_block_size() << ") - ";
-   sout << encoder->description() << ", ";
-   for (int i = 0; i < inter.size(); i++)
-      sout << inter(i)->description() << ", ";
-   sout << (endatzero ? "Terminated, " : "Unterminated, ");
-   sout << (circular ? "Circular, " : "Non-circular, ");
-   sout << (parallel ? "Parallel Decoding, " : "Serial Decoding, ");
-   sout << iter << " iterations";
-   return sout.str();
-   }
+    sout << encoder->description() << ", ";
+    for (int i = 0; i < inter.size(); i++) {
+        sout << inter(i)->description() << ", ";
+    }
+    sout << (endatzero ? "Terminated, " : "Unterminated, ");
+    sout << (circular ? "Circular, " : "Non-circular, ");
+    sout << (parallel ? "Parallel Decoding, " : "Serial Decoding, ");
+    sout << iter << " iterations";
+    return sout.str();
+}
 
 // object serialization - saving
 
 template <class real, class dbl>
-std::ostream& turbo<real, dbl>::serialize(std::ostream& sout) const
-   {
-   // format version
-   sout << "# Version" << std::endl;
-   sout << 2 << std::endl;
-   sout << "# Encoder" << std::endl;
-   sout << encoder;
-   sout << "# Number of parallel sets" << std::endl;
-   sout << num_sets() << std::endl;
-   for (int i = 0; i < inter.size(); i++)
-      {
-      sout << "# Interleaver " << i << std::endl;
-      sout << inter(i);
-      }
-   sout << "# Terminated?" << std::endl;
-   sout << int(endatzero) << std::endl;
-   sout << "# Circular?" << std::endl;
-   sout << int(circular) << std::endl;
-   sout << "# Parallel decoder?" << std::endl;
-   sout << int(parallel) << std::endl;
-   sout << "# Number of iterations" << std::endl;
-   sout << iter << std::endl;
-   return sout;
-   }
+std::ostream&
+turbo<real, dbl>::serialize(std::ostream& sout) const
+{
+    // format version
+    sout << "# Version" << std::endl;
+    sout << 2 << std::endl;
+    sout << "# Encoder" << std::endl;
+    sout << encoder;
+    sout << "# Number of parallel sets" << std::endl;
+    sout << num_sets() << std::endl;
+    for (int i = 0; i < inter.size(); i++) {
+        sout << "# Interleaver " << i << std::endl;
+        sout << inter(i);
+    }
+    sout << "# Terminated?" << std::endl;
+    sout << int(endatzero) << std::endl;
+    sout << "# Circular?" << std::endl;
+    sout << int(circular) << std::endl;
+    sout << "# Parallel decoder?" << std::endl;
+    sout << int(parallel) << std::endl;
+    sout << "# Number of iterations" << std::endl;
+    sout << iter << std::endl;
+    return sout;
+}
 
 // object serialization - loading
 
@@ -519,65 +553,70 @@ std::ostream& turbo<real, dbl>::serialize(std::ostream& sout) const
  * \version 2 Removed explicit 'tau'
  */
 template <class real, class dbl>
-std::istream& turbo<real, dbl>::serialize(std::istream& sin)
-   {
-   assertalways(sin.good());
-   // get format version
-   int version;
-   sin >> libbase::eatcomments >> version;
-   // handle old-format files
-   if (sin.fail())
-      {
-      version = 0;
-      sin.clear();
-      }
-   sin >> libbase::eatcomments >> encoder >> libbase::verify;
-   int tau = 0;
-   if (version < 2)
-      sin >> libbase::eatcomments >> tau >> libbase::verify;
-   int sets;
-   sin >> libbase::eatcomments >> sets >> libbase::verify;
-   inter.init(sets);
-   if (version < 1)
-      {
-      inter(0).reset(new flat<dbl> (tau));
-      for (int i = 1; i < inter.size(); i++)
-         sin >> libbase::eatcomments >> inter(i) >> libbase::verify;
-      }
-   else
-      {
-      for (int i = 0; i < inter.size(); i++)
-         sin >> libbase::eatcomments >> inter(i) >> libbase::verify;
-      }
-   sin >> libbase::eatcomments >> endatzero >> libbase::verify;
-   sin >> libbase::eatcomments >> circular >> libbase::verify;
-   sin >> libbase::eatcomments >> parallel >> libbase::verify;
-   sin >> libbase::eatcomments >> iter >> libbase::verify;
-   init();
-   assertalways(sin.good());
-   return sin;
-   }
+std::istream&
+turbo<real, dbl>::serialize(std::istream& sin)
+{
+    assertalways(sin.good());
+    // get format version
+    int version;
+    sin >> libbase::eatcomments >> version;
 
-} // end namespace
+    // handle old-format files
+    if (sin.fail()) {
+        version = 0;
+        sin.clear();
+    }
 
-#include "mpreal.h"
-#include "mpgnu.h"
+    sin >> libbase::eatcomments >> encoder >> libbase::verify;
+    int tau = 0;
+    if (version < 2) {
+        sin >> libbase::eatcomments >> tau >> libbase::verify;
+    }
+
+    int sets;
+    sin >> libbase::eatcomments >> sets >> libbase::verify;
+    inter.init(sets);
+    if (version < 1) {
+        inter(0).reset(new flat<dbl>(tau));
+        for (int i = 1; i < inter.size(); i++) {
+            sin >> libbase::eatcomments >> inter(i) >> libbase::verify;
+        }
+    } else {
+        for (int i = 0; i < inter.size(); i++) {
+            sin >> libbase::eatcomments >> inter(i) >> libbase::verify;
+        }
+    }
+    sin >> libbase::eatcomments >> endatzero >> libbase::verify;
+    sin >> libbase::eatcomments >> circular >> libbase::verify;
+    sin >> libbase::eatcomments >> parallel >> libbase::verify;
+    sin >> libbase::eatcomments >> iter >> libbase::verify;
+    init();
+    assertalways(sin.good());
+    return sin;
+}
+
+} // namespace libcomm
+
 #include "logreal.h"
 #include "logrealfast.h"
+#include "mpgnu.h"
+#include "mpreal.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
-#include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-using libbase::serializer;
-using libbase::mpreal;
-using libbase::mpgnu;
 using libbase::logreal;
 using libbase::logrealfast;
+using libbase::mpgnu;
+using libbase::mpreal;
+using libbase::serializer;
 
+// clang-format off
 #define REAL1_TYPE_SEQ \
    (float)(double) \
    (mpreal)(mpgnu) \
@@ -601,7 +640,8 @@ using libbase::logrealfast;
             "turbo<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
             turbo<BOOST_PP_SEQ_ENUM(args)>::create); \
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (REAL1_TYPE_SEQ)(REAL2_TYPE_SEQ))
 
-} // end namespace
+} // namespace libcomm

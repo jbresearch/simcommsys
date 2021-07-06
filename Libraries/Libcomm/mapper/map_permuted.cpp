@@ -24,101 +24,123 @@
 #include <cstdlib>
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*** Vector Specialization ***/
 
 // Interface with mapper
 template <class dbl>
-void map_permuted<libbase::vector, dbl>::advance() const
-   {
-   lut.init(This::output_block_size());
-   for (int i = 0; i < This::output_block_size(); i++)
-      lut(i).init(Base::M, r);
-   }
+void
+map_permuted<libbase::vector, dbl>::advance() const
+{
+    lut.init(This::output_block_size());
+
+    for (int i = 0; i < This::output_block_size(); i++) {
+        lut(i).init(Base::M, r);
+    }
+}
 
 template <class dbl>
-void map_permuted<libbase::vector, dbl>::dotransform(const array1i_t& in,
-      array1i_t& out) const
-   {
-   assert(in.size() == lut.size());
-   // final vector is the same size as input one
-   out.init(lut.size());
-   // permute the results
-   for (int i = 0; i < lut.size(); i++)
-      out(i) = lut(i)(in(i));
-   }
+void
+map_permuted<libbase::vector, dbl>::dotransform(const array1i_t& in,
+                                                array1i_t& out) const
+{
+    assert(in.size() == lut.size());
+
+    // final vector is the same size as input one
+    out.init(lut.size());
+
+    // permute the results
+    for (int i = 0; i < lut.size(); i++) {
+        out(i) = lut(i)(in(i));
+    }
+}
 
 template <class dbl>
-void map_permuted<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
-      array1vd_t& pout) const
-   {
-   assert(Base::M == Base::q); // otherwise the map would lose all meaning
-   assert(pin.size() == lut.size());
-   assert(pin(0).size() == Base::q);
-   // final matrix is the same size as input
-   libbase::allocate(pout, lut.size(), Base::q);
-   // permute the likelihood tables
-   for (int i = 0; i < lut.size(); i++)
-      for (int j = 0; j < Base::q; j++)
-         pout(i)(lut(i)(j)) = pin(i)(j);
-   }
+void
+map_permuted<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
+                                                array1vd_t& pout) const
+{
+    assert(Base::M == Base::q); // otherwise the map would lose all meaning
+    assert(pin.size() == lut.size());
+    assert(pin(0).size() == Base::q);
+
+    // final matrix is the same size as input
+    libbase::allocate(pout, lut.size(), Base::q);
+
+    // permute the likelihood tables
+    for (int i = 0; i < lut.size(); i++) {
+        for (int j = 0; j < Base::q; j++) {
+            pout(i)(lut(i)(j)) = pin(i)(j);
+        }
+    }
+}
 
 template <class dbl>
-void map_permuted<libbase::vector, dbl>::doinverse(const array1vd_t& pin,
-      array1vd_t& pout) const
-   {
-   assert(pin.size() == lut.size());
-   assert(pin(0).size() == Base::M);
-   // final matrix is the same size as input
-   libbase::allocate(pout, lut.size(), Base::M);
-   // invert the permutation
-   for (int i = 0; i < lut.size(); i++)
-      for (int j = 0; j < Base::M; j++)
-         pout(i)(j) = pin(i)(lut(i)(j));
-   }
+void
+map_permuted<libbase::vector, dbl>::doinverse(const array1vd_t& pin,
+                                              array1vd_t& pout) const
+{
+    assert(pin.size() == lut.size());
+    assert(pin(0).size() == Base::M);
+
+    // final matrix is the same size as input
+    libbase::allocate(pout, lut.size(), Base::M);
+
+    // invert the permutation
+    for (int i = 0; i < lut.size(); i++) {
+        for (int j = 0; j < Base::M; j++) {
+            pout(i)(j) = pin(i)(lut(i)(j));
+        }
+    }
+}
 
 // Description
 
 template <class dbl>
-std::string map_permuted<libbase::vector, dbl>::description() const
-   {
-   std::ostringstream sout;
-   sout << "Permuted Mapper";
-   return sout.str();
-   }
+std::string
+map_permuted<libbase::vector, dbl>::description() const
+{
+    std::ostringstream sout;
+    sout << "Permuted Mapper";
+    return sout.str();
+}
 
 // Serialization Support
 
 template <class dbl>
-std::ostream& map_permuted<libbase::vector, dbl>::serialize(
-      std::ostream& sout) const
-   {
-   return sout;
-   }
+std::ostream&
+map_permuted<libbase::vector, dbl>::serialize(std::ostream& sout) const
+{
+    return sout;
+}
 
 template <class dbl>
-std::istream& map_permuted<libbase::vector, dbl>::serialize(std::istream& sin)
-   {
-   return sin;
-   }
+std::istream&
+map_permuted<libbase::vector, dbl>::serialize(std::istream& sin)
+{
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
 #include "logrealfast.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
-#include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-using libbase::serializer;
 using libbase::logrealfast;
 using libbase::matrix;
+using libbase::serializer;
 using libbase::vector;
 
+// clang-format off
 #define CONTAINER_TYPE_SEQ \
    (vector)
 #define REAL_TYPE_SEQ \
@@ -138,7 +160,8 @@ using libbase::vector;
             "map_permuted<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
             map_permuted<BOOST_PP_SEQ_ENUM(args)>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (CONTAINER_TYPE_SEQ)(REAL_TYPE_SEQ))
 
-} // end namespace
+} // namespace libcomm

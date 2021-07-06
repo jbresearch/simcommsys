@@ -22,11 +22,12 @@
 #ifndef __sparse_h
 #define __sparse_h
 
+#include "bitfield.h"
 #include "config.h"
 #include "vector.h"
-#include "bitfield.h"
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Sparse Codebook Class.
@@ -35,64 +36,49 @@ namespace libbase {
  * Defines a codebook with the 'q' lowest-weight codewords of length 'n'.
  */
 
-class sparse {
+class sparse
+{
 private:
-   /*! \name Object representation */
-   int n; //<! Codeword length
-   vector<int> lut; //<! Table to hold codeword values
-   // @}
+    /*! \name Object representation */
+    int n;           //<! Codeword length
+    vector<int> lut; //<! Table to hold codeword values
+                     // @}
 
 private:
-   /*! \name Internal functions */
-   int fill(int i, bitfield suffix, int weight);
-   // @}
+    /*! \name Internal functions */
+    int fill(int i, bitfield suffix, int weight);
+    // @}
 
 public:
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   sparse()
-      {
-      }
-   //! Principal constructor
-   sparse(const int q, const int n)
-      {
-      init(q, n);
-      }
-   //! Virtual destructor
-   virtual ~sparse()
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Default constructor
+    sparse() {}
+    //! Principal constructor
+    sparse(const int q, const int n) { init(q, n); }
+    //! Virtual destructor
+    virtual ~sparse() {}
+    // @}
 
-   /*! \name Codebook interface */
-   /*! \brief Codebook setup function
-    * \param q Number of codewords
-    * \param n Length of each codeword in bits
-    *
-    * Creates a codebook with the 'q' lowest-weight codewords of length 'n'.
-    */
-   void init(const int q, const int n);
-   //! Return indexed value
-   int operator()(const int i) const
-      {
-      return lut(i);
-      }
-   //! Return whole codebook
-   operator vector<int>() const
-      {
-      return lut;
-      }
-   // @}
+    /*! \name Codebook interface */
+    /*! \brief Codebook setup function
+     * \param q Number of codewords
+     * \param n Length of each codeword in bits
+     *
+     * Creates a codebook with the 'q' lowest-weight codewords of length 'n'.
+     */
+    void init(const int q, const int n);
+    //! Return indexed value
+    int operator()(const int i) const { return lut(i); }
+    //! Return whole codebook
+    operator vector<int>() const { return lut; }
+    // @}
 
-   /*! \name Informative functions */
-   //! The size of the codebook
-   int size() const
-      {
-      return lut.size();
-      }
-   // @}
+    /*! \name Informative functions */
+    //! The size of the codebook
+    int size() const { return lut.size(); }
+    // @}
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif

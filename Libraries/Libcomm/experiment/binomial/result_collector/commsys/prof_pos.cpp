@@ -23,22 +23,25 @@
 #include "fsm.h"
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // commsys functions
 
-void prof_pos::updateresults(libbase::vector<double>& result,
-      const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
-   {
-   // Update the count for every symbol in error
-   assert(source.size() == get_symbolsperblock());
-   assert(decoded.size() == get_symbolsperblock());
-   for (int t = 0; t < get_symbolsperblock(); t++)
-      {
-      assert(source(t) != fsm::tail);
-      if (source(t) != decoded(t))
-         result(t)++;
-      }
-   }
+void
+prof_pos::updateresults(libbase::vector<double>& result,
+                        const libbase::vector<int>& source,
+                        const libbase::vector<int>& decoded) const
+{
+    // Update the count for every symbol in error
+    assert(source.size() == get_symbolsperblock());
+    assert(decoded.size() == get_symbolsperblock());
+    for (int t = 0; t < get_symbolsperblock(); t++) {
+        assert(source(t) != fsm::tail);
+        if (source(t) != decoded(t)) {
+            result(t)++;
+        }
+    }
+}
 
-} // end namespace
+} // namespace libcomm

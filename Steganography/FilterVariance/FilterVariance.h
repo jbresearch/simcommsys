@@ -23,14 +23,13 @@
 #define afx_filtervariance_h
 
 #ifndef __AFXWIN_H__
-   #error include 'stdafx.h' before including this file for PCH
+#    error include 'stdafx.h' before including this file for PCH
 #endif
 
-#include "Resource.h"      // main symbols
 #include "PSPlugIn.h"
+#include "Resource.h" // main symbols
 #include "matrix.h"
 #include "timer.h"
-
 
 /////////////////////////////////////////////////////////////////////////////
 // SFilterVarianceData
@@ -44,9 +43,9 @@
   added a scale entry.
 */
 struct SFilterVarianceData {
-   int   nRadius;
-   int   nScale;
-   };
+    int nRadius;
+    int nScale;
+};
 
 /////////////////////////////////////////////////////////////////////////////
 // CFilterVarianceApp
@@ -58,17 +57,17 @@ struct SFilterVarianceData {
   initial version
 
   Version 1.10 (5 Apr 2002)
-  made the dialog neater by adding a region size info box (auto-updating with the
-  radius edit box); also added auto-scaling facility. In the data block, this is
-  indicated by a scale of zero (would never want that value anyway); in the dialog
-  however, I added a check box, which automatically disables the scale edit box.
-  Also changed the filter to work on two passes if we want auto-scaling (this is
-  necessary or else we get different scales for each tile). Support for multiple
-  iterations has just been added to PSPlugIn 1.40.
+  made the dialog neater by adding a region size info box (auto-updating with
+  the radius edit box); also added auto-scaling facility. In the data block,
+  this is indicated by a scale of zero (would never want that value anyway); in
+  the dialog however, I added a check box, which automatically disables the
+  scale edit box. Also changed the filter to work on two passes if we want
+  auto-scaling (this is necessary or else we get different scales for each
+  tile). Support for multiple iterations has just been added to PSPlugIn 1.40.
 
   Version 1.11 (6 Apr 2002)
-  added DisplayProgress in FilterContinue, since automatic progress update was removed
-  in PSPlugIn 1.41.
+  added DisplayProgress in FilterContinue, since automatic progress update was
+  removed in PSPlugIn 1.41.
 
   Version 1.12 (7 Apr 2002)
   modified the PiPL file to flag which modes are supported.
@@ -86,45 +85,47 @@ struct SFilterVarianceData {
 class CFilterVarianceApp : public CWinApp, public libwin::CPSPlugIn
 {
 protected:
-   SFilterVarianceData* m_sData;
-        int m_nIteration;
-   double m_dScale;
+    SFilterVarianceData* m_sData;
+    int m_nIteration;
+    double m_dScale;
 
 protected:
-   // PSPlugIn overrides
-   void ShowDialog(void);
-   void InitPointer(char* sData);
-   void InitParameters();
+    // PSPlugIn overrides
+    void ShowDialog(void);
+    void InitPointer(char* sData);
+    void InitParameters();
 
-   // scripting support
-   void WriteScriptParameters(PIWriteDescriptor token);
-   void ReadScriptParameter(PIReadDescriptor token, DescriptorKeyID key, DescriptorTypeID type, int32 flags);
+    // scripting support
+    void WriteScriptParameters(PIWriteDescriptor token);
+    void ReadScriptParameter(PIReadDescriptor token,
+                             DescriptorKeyID key,
+                             DescriptorTypeID type,
+                             int32 flags);
 
 public:
-   CFilterVarianceApp();
+    CFilterVarianceApp();
 
-   void FilterAbout(void);
-   void FilterStart(void);
-   void FilterContinue(void);
-   void FilterFinish(void);
+    void FilterAbout(void);
+    void FilterStart(void);
+    void FilterContinue(void);
+    void FilterFinish(void);
 
-// Overrides
-   // ClassWizard generated virtual function overrides
-   //{{AFX_VIRTUAL(CFilterVarianceApp)
-   //}}AFX_VIRTUAL
+    // Overrides
+    // ClassWizard generated virtual function overrides
+    //{{AFX_VIRTUAL(CFilterVarianceApp)
+    //}}AFX_VIRTUAL
 
-   //{{AFX_MSG(CFilterVarianceApp)
-      // NOTE - the ClassWizard will add and remove member functions here.
-      //    DO NOT EDIT what you see in these blocks of generated code !
-   //}}AFX_MSG
-   DECLARE_MESSAGE_MAP()
+    //{{AFX_MSG(CFilterVarianceApp)
+    // NOTE - the ClassWizard will add and remove member functions here.
+    //    DO NOT EDIT what you see in these blocks of generated code !
+    //}}AFX_MSG
+    DECLARE_MESSAGE_MAP()
 };
-
 
 /////////////////////////////////////////////////////////////////////////////
 
 //{{AFX_INSERT_LOCATION}}
-// Microsoft Visual C++ will insert additional declarations immediately before the previous line.
+// Microsoft Visual C++ will insert additional declarations immediately before
+// the previous line.
 
 #endif
-

@@ -23,35 +23,42 @@
 #include "fsm.h"
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // commsys functions
 
-void prof_burst::updateresults(libbase::vector<double>& result,
-      const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
-   {
-   assert(source.size() == get_symbolsperblock());
-   assert(decoded.size() == get_symbolsperblock());
-   // Update the relevant count for every symbol in error
-   // Check the first symbol first
-   assert(source(0) != fsm::tail);
-   if (source(0) != decoded(0))
-      result(0)++;
-   // For each remaining symbol
-   for (int t = 1; t < get_symbolsperblock(); t++)
-      {
-      if (source(t - 1) != decoded(t - 1))
-         result(3)++;
-      assert(source(t) != fsm::tail);
-      if (source(t) != decoded(t))
-         {
-         // Keep separate counts, depending on whether the previous symbol was in error
-         if (source(t - 1) != decoded(t - 1))
-            result(2)++;
-         else
-            result(1)++;
-         }
-      }
-   }
+void
+prof_burst::updateresults(libbase::vector<double>& result,
+                          const libbase::vector<int>& source,
+                          const libbase::vector<int>& decoded) const
+{
+    assert(source.size() == get_symbolsperblock());
+    assert(decoded.size() == get_symbolsperblock());
+    // Update the relevant count for every symbol in error
+    // Check the first symbol first
+    assert(source(0) != fsm::tail);
+    if (source(0) != decoded(0)) {
+        result(0)++;
+    }
 
-} // end namespace
+    // For each remaining symbol
+    for (int t = 1; t < get_symbolsperblock(); t++) {
+        if (source(t - 1) != decoded(t - 1)) {
+            result(3)++;
+        }
+
+        assert(source(t) != fsm::tail);
+        if (source(t) != decoded(t)) {
+            // Keep separate counts, depending on whether the previous symbol
+            // was in error
+            if (source(t - 1) != decoded(t - 1)) {
+                result(2)++;
+            } else {
+                result(1)++;
+            }
+        }
+    }
+}
+
+} // namespace libcomm

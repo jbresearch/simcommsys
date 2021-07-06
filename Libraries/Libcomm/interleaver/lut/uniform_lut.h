@@ -24,11 +24,12 @@
 
 #include "config.h"
 #include "interleaver/lut_interleaver.h"
-#include "serializer.h"
 #include "randgen.h"
+#include "serializer.h"
 #include <iostream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Uniform Interleaver.
@@ -38,36 +39,29 @@ namespace libcomm {
  */
 
 template <class real>
-class uniform_lut : public lut_interleaver<real> {
-   libbase::randgen r;
-   int tau, m;
+class uniform_lut : public lut_interleaver<real>
+{
+    libbase::randgen r;
+    int tau, m;
+
 protected:
-   void init(const int tau, const int m);
-   uniform_lut()
-      {
-      }
+    void init(const int tau, const int m);
+    uniform_lut() {}
+
 public:
-   uniform_lut(const int tau, const int m)
-      {
-      init(tau, m);
-      }
-   ~uniform_lut()
-      {
-      }
+    uniform_lut(const int tau, const int m) { init(tau, m); }
+    ~uniform_lut() {}
 
-   void seedfrom(libbase::random& r)
-      {
-      this->r.seed(r.ival());
-      }
-   void advance();
+    void seedfrom(libbase::random& r) { this->r.seed(r.ival()); }
+    void advance();
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(uniform_lut)
+    // Serialization Support
+    DECLARE_SERIALIZER(uniform_lut)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

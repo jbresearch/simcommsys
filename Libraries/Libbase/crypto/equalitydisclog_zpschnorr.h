@@ -27,7 +27,8 @@
 #include "keygenerator.h"
 #include "sha.h"
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Log-domain comparison
@@ -37,92 +38,100 @@ namespace libbase {
  */
 
 template <class BigInteger>
-class equalitydisclog_zpschnorr {
+class equalitydisclog_zpschnorr
+{
 private:
-   BigInteger g1;
-   BigInteger g2;
+    BigInteger g1;
+    BigInteger g2;
 
-   BigInteger v;
-   BigInteger w;
+    BigInteger v;
+    BigInteger w;
 
-   BigInteger a;
-   BigInteger b;
-   BigInteger c;
-   BigInteger r;
+    BigInteger a;
+    BigInteger b;
+    BigInteger c;
+    BigInteger r;
 
 public:
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   explicit equalitydisclog_zpschnorr(BigInteger g1, BigInteger g2,
-         BigInteger v, BigInteger w, BigInteger a, BigInteger b, BigInteger c,
-         BigInteger r) :
-      g1(g1), g2(g2), v(v), w(w), a(a), b(b), c(c), r(r)
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Default constructor
+    explicit equalitydisclog_zpschnorr(BigInteger g1,
+                                       BigInteger g2,
+                                       BigInteger v,
+                                       BigInteger w,
+                                       BigInteger a,
+                                       BigInteger b,
+                                       BigInteger c,
+                                       BigInteger r)
+        : g1(g1), g2(g2), v(v), w(w), a(a), b(b), c(c), r(r)
+    {
+    }
+    // @}
 
-   /* \brief Proof construction
-    *
-    * To prove that log v = log w, where v = g_1^x and w = g_2^x, let:
-    *      z = random in Z_q
-    *      a = g_1^z
-    *      b = g_2^z
-    *      c = hash(v,w,a,b)
-    *      r = (z + cx) mod q
-    *
-    * The proof is (a,b,c,r).
-    */
-   static equalitydisclog_zpschnorr constructProof(group<BigInteger> grp,
-         BigInteger g1, BigInteger g2, BigInteger x)
-      {
-      BigInteger v = g1.pow_mod(x, grp.get_p());
-      BigInteger w = g2.pow_mod(x, grp.get_p());
-      BigInteger z = group<BigInteger>::get_random_integer(grp.get_q());
+    /* \brief Proof construction
+     *
+     * To prove that log v = log w, where v = g_1^x and w = g_2^x, let:
+     *      z = random in Z_q
+     *      a = g_1^z
+     *      b = g_2^z
+     *      c = hash(v,w,a,b)
+     *      r = (z + cx) mod q
+     *
+     * The proof is (a,b,c,r).
+     */
+    static equalitydisclog_zpschnorr constructProof(group<BigInteger> grp,
+                                                    BigInteger g1,
+                                                    BigInteger g2,
+                                                    BigInteger x)
+    {
+        BigInteger v = g1.pow_mod(x, grp.get_p());
+        BigInteger w = g2.pow_mod(x, grp.get_p());
+        BigInteger z = group<BigInteger>::get_random_integer(grp.get_q());
 
-      BigInteger a = g1.pow_mod(z, grp.get_p());
-      BigInteger b = g2.pow_mod(z, grp.get_p());
+        BigInteger a = g1.pow_mod(z, grp.get_p());
+        BigInteger b = g2.pow_mod(z, grp.get_p());
 
-      std::vector<unsigned char> buf;
-      buf += v.bytearray();
-      buf += w.bytearray();
-      buf += a.bytearray();
-      buf += b.bytearray();
+        std::vector<unsigned char> buf;
+        buf += v.bytearray();
+        buf += w.bytearray();
+        buf += a.bytearray();
+        buf += b.bytearray();
 
-      libcomm::sha md;
-      md.process(buf);
+        libcomm::sha md;
+        md.process(buf);
 
-      BigInteger c(md);
-      c %= grp.get_q();
+        BigInteger c(md);
+        c %= grp.get_q();
 
-      BigInteger r = (z + (c * x)) % grp.get_q();
+        BigInteger r = (z + (c * x)) % grp.get_q();
 
-      return equalitydisclog_zpschnorr(g1, g2, v, w, a, b, c, r);
-      }
+        return equalitydisclog_zpschnorr(g1, g2, v, w, a, b, c, r);
+    }
 
-   /* \brief Proof verification
-    *
-    * To prove that log v = log w, where v = g_1^x and w = g_2^x, let:
-    *      z = random in Z_q
-    *      a = g_1^z
-    *      b = g_2^z
-    *      c = hash(v,w,a,b)
-    *      r = (z + cx) mod q
-    *
-    * To verify, check that g_1^r = av^c (mod p) and g_2^r = bw^c (mod p).
-    */
-   static bool verify(group<BigInteger> grp, equalitydisclog_zpschnorr E)
-      {
-      const BigInteger lhs1 = E.g1.pow_mod(E.r, grp.get_p());
-      const BigInteger lhs2 = E.g2.pow_mod(E.r, grp.get_p());
-      const BigInteger rhs1 = (E.v.pow_mod(E.c, grp.get_p()) * E.a)
-            % grp.get_p();
-      const BigInteger rhs2 = (E.w.pow_mod(E.c, grp.get_p()) * E.b)
-            % grp.get_p();
+    /* \brief Proof verification
+     *
+     * To prove that log v = log w, where v = g_1^x and w = g_2^x, let:
+     *      z = random in Z_q
+     *      a = g_1^z
+     *      b = g_2^z
+     *      c = hash(v,w,a,b)
+     *      r = (z + cx) mod q
+     *
+     * To verify, check that g_1^r = av^c (mod p) and g_2^r = bw^c (mod p).
+     */
+    static bool verify(group<BigInteger> grp, equalitydisclog_zpschnorr E)
+    {
+        const BigInteger lhs1 = E.g1.pow_mod(E.r, grp.get_p());
+        const BigInteger lhs2 = E.g2.pow_mod(E.r, grp.get_p());
+        const BigInteger rhs1 =
+            (E.v.pow_mod(E.c, grp.get_p()) * E.a) % grp.get_p();
+        const BigInteger rhs2 =
+            (E.w.pow_mod(E.c, grp.get_p()) * E.b) % grp.get_p();
 
-      return lhs1 == rhs1 && lhs2 == rhs2;
-      }
+        return lhs1 == rhs1 && lhs2 == rhs2;
+    }
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif

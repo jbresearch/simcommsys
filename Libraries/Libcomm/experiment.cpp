@@ -21,19 +21,22 @@
 
 #include "experiment.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
-void experiment::prettyprint_results(std::ostream& sout, const libbase::vector<
-      double>& result, const libbase::vector<double>& errormargin) const
-   {
-   const int N = result.size();
-   for (int i = 0; i < N; i++)
-      {
-      sout << result_description(i) << '\t';
-      sout << result(i) << '\t';
-      sout << "[±" << errormargin(i) << " = ";
-      sout << fabs(100 * errormargin(i) / result(i)) << "%]" << std::endl;
-      }
-   }
+void
+experiment::prettyprint_results(
+    std::ostream& sout,
+    const libbase::vector<double>& result,
+    const libbase::vector<double>& errormargin) const
+{
+    const int N = result.size();
+    for (int i = 0; i < N; i++) {
+        sout << result_description(i) << '\t';
+        sout << result(i) << '\t';
+        sout << "[±" << errormargin(i) << " = ";
+        sout << fabs(100 * errormargin(i) / result(i)) << "%]" << std::endl;
+    }
+}
 
-} // end namespace
+} // namespace libcomm

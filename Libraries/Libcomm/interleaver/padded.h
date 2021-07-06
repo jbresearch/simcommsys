@@ -28,7 +28,8 @@
 #include "serializer.h"
 #include <iostream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Padded Interleaver.
@@ -40,44 +41,48 @@ namespace libcomm {
  */
 
 template <class real>
-class padded : public interleaver<real> {
-   std::shared_ptr<interleaver<real> > otp;
-   std::shared_ptr<interleaver<real> > inter;
+class padded : public interleaver<real>
+{
+    std::shared_ptr<interleaver<real>> otp;
+    std::shared_ptr<interleaver<real>> inter;
+
 protected:
-   padded()
-      {
-      }
+    padded() {}
+
 public:
-   padded(const interleaver<real>& inter, const fsm& encoder,
-         const bool terminated, const bool renewable);
-   padded(const padded& x);
-   ~padded()
-      {
-      }
+    padded(const interleaver<real>& inter,
+           const fsm& encoder,
+           const bool terminated,
+           const bool renewable);
+    padded(const padded& x);
+    ~padded() {}
 
-   // Intra-frame Operations
-   void seedfrom(libbase::random& r);
-   void advance();
+    // Intra-frame Operations
+    void seedfrom(libbase::random& r);
+    void advance();
 
-   // Transform functions
-   void transform(const libbase::vector<int>& in, libbase::vector<int>& out) const;
-   void transform(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
-   void inverse(const libbase::matrix<real>& in, libbase::matrix<real>& out) const;
+    // Transform functions
+    void transform(const libbase::vector<int>& in,
+                   libbase::vector<int>& out) const;
+    void transform(const libbase::matrix<real>& in,
+                   libbase::matrix<real>& out) const;
+    void inverse(const libbase::matrix<real>& in,
+                 libbase::matrix<real>& out) const;
 
-   // Information functions
-   int size() const
-      {
-      assertalways(inter);
-      return inter->size();
-      }
+    // Information functions
+    int size() const
+    {
+        assertalways(inter);
+        return inter->size();
+    }
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(padded)
+    // Serialization Support
+    DECLARE_SERIALIZER(padded)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
