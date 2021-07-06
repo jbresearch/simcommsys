@@ -40,7 +40,8 @@ namespace libcomm
 /*! \brief Memory allocator for working matrices
  */
 template <class sig, class real, class real2>
-void fba_generic<sig, real, real2>::allocate()
+void
+fba_generic<sig, real, real2>::allocate()
 {
     // Allocate required size
     // alpha needs indices (j,y) where j in [0, tau] and y in [mtau_min,
@@ -86,7 +87,8 @@ void fba_generic<sig, real, real2>::allocate()
 /*! \brief Release memory for working matrices
  */
 template <class sig, class real, class real2>
-void fba_generic<sig, real, real2>::free()
+void
+fba_generic<sig, real, real2>::free()
 {
     alpha.resize(boost::extents[0][0]);
     beta.resize(boost::extents[0][0]);
@@ -97,9 +99,10 @@ void fba_generic<sig, real, real2>::free()
 // Internal procedures
 
 template <class sig, class real, class real2>
-void fba_generic<sig, real, real2>::work_alpha(const array1s_t& r,
-                                               const array1vd_t& app,
-                                               const array1d_t& sof_prior)
+void
+fba_generic<sig, real, real2>::work_alpha(const array1s_t& r,
+                                          const array1vd_t& app,
+                                          const array1d_t& sof_prior)
 {
     assert(initialised);
     libbase::pacifier progress("FBA Alpha");
@@ -165,9 +168,10 @@ void fba_generic<sig, real, real2>::work_alpha(const array1s_t& r,
 }
 
 template <class sig, class real, class real2>
-void fba_generic<sig, real, real2>::work_beta(const array1s_t& r,
-                                              const array1vd_t& app,
-                                              const array1d_t& eof_prior)
+void
+fba_generic<sig, real, real2>::work_beta(const array1s_t& r,
+                                         const array1vd_t& app,
+                                         const array1d_t& eof_prior)
 {
     assert(initialised);
     libbase::pacifier progress("FBA Beta");
@@ -229,9 +233,10 @@ void fba_generic<sig, real, real2>::work_beta(const array1s_t& r,
 }
 
 template <class sig, class real, class real2>
-void fba_generic<sig, real, real2>::work_message_app(const array1s_t& r,
-                                                     const array1vd_t& app,
-                                                     array1vr_t& ptable) const
+void
+fba_generic<sig, real, real2>::work_message_app(const array1s_t& r,
+                                                const array1vd_t& app,
+                                                array1vr_t& ptable) const
 {
     libbase::pacifier progress("FBA Results");
     // Initialise result vector (one symbol per timestep)
@@ -284,8 +289,9 @@ void fba_generic<sig, real, real2>::work_message_app(const array1s_t& r,
 }
 
 template <class sig, class real, class real2>
-void fba_generic<sig, real, real2>::work_state_app(array1r_t& ptable,
-                                                   const int i) const
+void
+fba_generic<sig, real, real2>::work_state_app(array1r_t& ptable,
+                                              const int i) const
 {
     assert(i >= 0 && i <= tau);
     // compute posterior probabilities for given index
@@ -329,15 +335,16 @@ void fba_generic<sig, real, real2>::work_state_app(array1r_t& ptable,
  * \note Offset is the same as for stream_modulator.
  */
 template <class sig, class real, class real2>
-void fba_generic<sig, real, real2>::decode(libcomm::instrumented& collector,
-                                           const array1s_t& r,
-                                           const array1d_t& sof_prior,
-                                           const array1d_t& eof_prior,
-                                           const array1vd_t& app,
-                                           array1vr_t& ptable,
-                                           array1r_t& sof_post,
-                                           array1r_t& eof_post,
-                                           const int offset)
+void
+fba_generic<sig, real, real2>::decode(libcomm::instrumented& collector,
+                                      const array1s_t& r,
+                                      const array1d_t& sof_prior,
+                                      const array1d_t& eof_prior,
+                                      const array1vd_t& app,
+                                      array1vr_t& ptable,
+                                      array1r_t& sof_post,
+                                      array1r_t& eof_post,
+                                      const int offset)
 {
 #if DEBUG >= 3
     std::cerr << "Starting decode..." << std::endl;

@@ -49,13 +49,15 @@ public:
     int overflow(int nCh = EOF);
 };
 
-inline int CArchiveStreamBuf::underflow()
+inline int
+CArchiveStreamBuf::underflow()
 {
     char c;
     return ar->Read(&c, 1) == 1 ? c : EOF;
 }
 
-inline int CArchiveStreamBuf::overflow(int nCh)
+inline int
+CArchiveStreamBuf::overflow(int nCh)
 {
     char c = nCh;
     ar->Write(&c, 1);

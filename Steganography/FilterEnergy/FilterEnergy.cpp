@@ -53,13 +53,15 @@ CFilterEnergyApp::CFilterEnergyApp() : CPSPlugIn(sizeof(SFilterEnergyData), 101)
 // CFilterEnergyApp filter selector functions
 
 // show the about dialog here
-void CFilterEnergyApp::FilterAbout(void)
+void
+CFilterEnergyApp::FilterAbout(void)
 {
     CAboutDlg dlg;
     dlg.DoModal();
 }
 
-void CFilterEnergyApp::FilterStart(void)
+void
+CFilterEnergyApp::FilterStart(void)
 {
     // show dialog if necessary, set up first tile, start progress indicator &
     // timer
@@ -68,7 +70,8 @@ void CFilterEnergyApp::FilterStart(void)
     rv.reset();
 }
 
-void CFilterEnergyApp::FilterContinue(void)
+void
+CFilterEnergyApp::FilterContinue(void)
 {
     // update progress counter
     DisplayTileProgress(0);
@@ -84,7 +87,8 @@ void CFilterEnergyApp::FilterContinue(void)
     CPSPlugIn::FilterContinue();
 }
 
-void CFilterEnergyApp::FilterFinish(void)
+void
+CFilterEnergyApp::FilterFinish(void)
 {
     // stop timer & show final progress indication
     CPSPlugIn::FilterFinish();
@@ -125,7 +129,8 @@ void CFilterEnergyApp::FilterFinish(void)
 /////////////////////////////////////////////////////////////////////////////
 // CFilterEnergyApp helper functions
 
-void CFilterEnergyApp::ShowDialog(void)
+void
+CFilterEnergyApp::ShowDialog(void)
 {
     CFilterEnergyDlg dlg;
 
@@ -151,12 +156,14 @@ void CFilterEnergyApp::ShowDialog(void)
     SetShowDialog(false);
 }
 
-void CFilterEnergyApp::InitPointer(char* sData)
+void
+CFilterEnergyApp::InitPointer(char* sData)
 {
     m_sData = (SFilterEnergyData*)sData;
 }
 
-void CFilterEnergyApp::InitParameters()
+void
+CFilterEnergyApp::InitParameters()
 {
     strcpy(m_sData->sFileName, "");
     m_sData->bAppend = false;
@@ -168,10 +175,11 @@ void CFilterEnergyApp::InitParameters()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterEnergyApp scripting support
 
-void CFilterEnergyApp::ReadScriptParameter(PIReadDescriptor token,
-                                           DescriptorKeyID key,
-                                           DescriptorTypeID type,
-                                           int32 flags)
+void
+CFilterEnergyApp::ReadScriptParameter(PIReadDescriptor token,
+                                      DescriptorKeyID key,
+                                      DescriptorTypeID type,
+                                      int32 flags)
 {
     switch (key) {
     case keyFileName:
@@ -195,7 +203,8 @@ void CFilterEnergyApp::ReadScriptParameter(PIReadDescriptor token,
     }
 }
 
-void CFilterEnergyApp::WriteScriptParameters(PIWriteDescriptor token)
+void
+CFilterEnergyApp::WriteScriptParameters(PIWriteDescriptor token)
 {
     PutString(token, keyFileName, m_sData->sFileName);
 
@@ -221,10 +230,11 @@ void CFilterEnergyApp::WriteScriptParameters(PIWriteDescriptor token)
 
 CFilterEnergyApp theApp;
 
-DLLExport SPAPI void PluginMain(const short nSelector,
-                                FilterRecord* pFilterRecord,
-                                long* pData,
-                                short* pResult)
+DLLExport SPAPI void
+PluginMain(const short nSelector,
+           FilterRecord* pFilterRecord,
+           long* pData,
+           short* pResult)
 {
     theApp.Main(nSelector, pFilterRecord, pData, pResult);
 }

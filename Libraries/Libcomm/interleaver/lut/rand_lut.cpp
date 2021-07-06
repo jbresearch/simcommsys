@@ -29,7 +29,8 @@ namespace libcomm
 // initialisation
 
 template <class real>
-void rand_lut<real>::init(const int tau, const int m)
+void
+rand_lut<real>::init(const int tau, const int m)
 {
     p = (1 << m) - 1;
     if (tau % p != 0) {
@@ -44,14 +45,16 @@ void rand_lut<real>::init(const int tau, const int m)
 // intra-frame functions
 
 template <class real>
-void rand_lut<real>::seedfrom(libbase::random& r)
+void
+rand_lut<real>::seedfrom(libbase::random& r)
 {
     this->r.seed(r.ival());
     advance();
 }
 
 template <class real>
-void rand_lut<real>::advance()
+void
+rand_lut<real>::advance()
 {
     const int tau = this->lut.size();
     // create array to hold 'used' status of possible lut values
@@ -71,7 +74,8 @@ void rand_lut<real>::advance()
 // description output
 
 template <class real>
-std::string rand_lut<real>::description() const
+std::string
+rand_lut<real>::description() const
 {
     std::ostringstream sout;
     sout << "Random Interleaver (self-terminating for m=" << int(log2(p + 1))
@@ -82,7 +86,8 @@ std::string rand_lut<real>::description() const
 // object serialization - saving
 
 template <class real>
-std::ostream& rand_lut<real>::serialize(std::ostream& sout) const
+std::ostream&
+rand_lut<real>::serialize(std::ostream& sout) const
 {
     sout << this->lut.size() << std::endl;
     sout << int(log2(p + 1)) << std::endl;
@@ -92,7 +97,8 @@ std::ostream& rand_lut<real>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class real>
-std::istream& rand_lut<real>::serialize(std::istream& sin)
+std::istream&
+rand_lut<real>::serialize(std::istream& sin)
 {
     int tau, m;
     sin >> libbase::eatcomments >> tau >> m >> libbase::verify;

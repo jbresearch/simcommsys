@@ -31,7 +31,8 @@ namespace libcomm
 
 // Interface with mapper
 template <class dbl>
-void map_punctured<libbase::vector, dbl>::advance() const
+void
+map_punctured<libbase::vector, dbl>::advance() const
 {
     assertalways(Base::size > 0);
 
@@ -62,8 +63,9 @@ void map_punctured<libbase::vector, dbl>::advance() const
 }
 
 template <class dbl>
-void map_punctured<libbase::vector, dbl>::dotransform(const array1i_t& in,
-                                                      array1i_t& out) const
+void
+map_punctured<libbase::vector, dbl>::dotransform(const array1i_t& in,
+                                                 array1i_t& out) const
 {
     // final vector size depends on the number of set positions
     assertalways(in.size() == pattern.size());
@@ -78,8 +80,9 @@ void map_punctured<libbase::vector, dbl>::dotransform(const array1i_t& in,
 }
 
 template <class dbl>
-void map_punctured<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
-                                                      array1vd_t& pout) const
+void
+map_punctured<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
+                                                 array1vd_t& pout) const
 {
     assertalways(pin.size() == pattern.size());
     assertalways(pin(0).size() == Base::q);
@@ -96,8 +99,9 @@ void map_punctured<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
 }
 
 template <class dbl>
-void map_punctured<libbase::vector, dbl>::doinverse(const array1vd_t& pin,
-                                                    array1vd_t& pout) const
+void
+map_punctured<libbase::vector, dbl>::doinverse(const array1vd_t& pin,
+                                               array1vd_t& pout) const
 {
     assertalways(pin.size() == This::output_block_size());
     assertalways(pin(0).size() == Base::M);
@@ -118,7 +122,8 @@ void map_punctured<libbase::vector, dbl>::doinverse(const array1vd_t& pin,
 // Description
 
 template <class dbl>
-std::string map_punctured<libbase::vector, dbl>::description() const
+std::string
+map_punctured<libbase::vector, dbl>::description() const
 {
     std::ostringstream sout;
     sout << "Punctured Mapper (";
@@ -148,7 +153,8 @@ map_punctured<libbase::vector, dbl>::serialize(std::ostream& sout) const
 }
 
 template <class dbl>
-std::istream& map_punctured<libbase::vector, dbl>::serialize(std::istream& sin)
+std::istream&
+map_punctured<libbase::vector, dbl>::serialize(std::istream& sin)
 {
     sin >> libbase::eatcomments >> punc_matrix >> libbase::verify;
     return sin;

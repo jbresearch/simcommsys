@@ -36,7 +36,8 @@ namespace libbase
 #endif
 
 template <class GF_q, class real>
-void linear_code_utils<GF_q, real>::compute_dual_code(
+void
+linear_code_utils<GF_q, real>::compute_dual_code(
     const matrix<GF_q>& orgMat,
     matrix<GF_q>& dualCodeGenMatrix,
     array1i_t& systematic_perm)
@@ -177,8 +178,9 @@ void linear_code_utils<GF_q, real>::compute_dual_code(
 }
 
 template <class GF_q, class real>
-void linear_code_utils<GF_q, real>::compute_row_dim(
-    const matrix<GF_q>& orgMat, matrix<GF_q>& maxRowSpaceMat)
+void
+linear_code_utils<GF_q, real>::compute_row_dim(const matrix<GF_q>& orgMat,
+                                               matrix<GF_q>& maxRowSpaceMat)
 {
     int length_n = orgMat.size().cols();
     int dim_k = orgMat.size().rows();
@@ -235,17 +237,19 @@ void linear_code_utils<GF_q, real>::compute_row_dim(
 }
 
 template <class GF_q, class real>
-void linear_code_utils<GF_q, real>::remove_zero_cols(const matrix<GF_q>& mat_G,
-                                                     matrix<GF_q> noZeroCols_G)
+void
+linear_code_utils<GF_q, real>::remove_zero_cols(const matrix<GF_q>& mat_G,
+                                                matrix<GF_q> noZeroCols_G)
 {
     // dummy implementations
     // TODO fix me
     noZeroCols_G = mat_G;
 }
 template <class GF_q, class real>
-void linear_code_utils<GF_q, real>::encode_cw(const matrix<GF_q>& mat_G,
-                                              const array1i_t& source,
-                                              array1i_t& encoded)
+void
+linear_code_utils<GF_q, real>::encode_cw(const matrix<GF_q>& mat_G,
+                                         const array1i_t& source,
+                                         array1i_t& encoded)
 {
 #if DEBUG >= 2
     libbase::trace << std::endl << "encoding";
@@ -270,7 +274,8 @@ void linear_code_utils<GF_q, real>::encode_cw(const matrix<GF_q>& mat_G,
 }
 
 template <class GF_q, class real>
-bool linear_code_utils<GF_q, real>::compute_syndrome(
+bool
+linear_code_utils<GF_q, real>::compute_syndrome(
     const matrix<GF_q>& parMat,
     const array1gfq_t& received_word_hd,
     array1gfq_t& syndrome_vec)
@@ -300,7 +305,8 @@ bool linear_code_utils<GF_q, real>::compute_syndrome(
 }
 
 template <class GF_q, class real>
-bool linear_code_utils<GF_q, real>::is_systematic(const matrix<GF_q>& genMat)
+bool
+linear_code_utils<GF_q, real>::is_systematic(const matrix<GF_q>& genMat)
 {
     int dim_k = genMat.size().rows();
     int loop1 = 0;
@@ -330,7 +336,8 @@ bool linear_code_utils<GF_q, real>::is_systematic(const matrix<GF_q>& genMat)
 }
 
 template <class GF_q, class real>
-void linear_code_utils<GF_q, real>::create_hadamard(matrix<int>& hadMat, int m)
+void
+linear_code_utils<GF_q, real>::create_hadamard(matrix<int>& hadMat, int m)
 {
     assertalways(m > 1);
     int num_of_elements = 1 << m;
@@ -358,9 +365,10 @@ void linear_code_utils<GF_q, real>::create_hadamard(matrix<int>& hadMat, int m)
 }
 
 template <class GF_q, class real>
-void linear_code_utils<GF_q, real>::compute_kronecker(const matrix<int>& A,
-                                                      const matrix<int>& B,
-                                                      matrix<int>& prod)
+void
+linear_code_utils<GF_q, real>::compute_kronecker(const matrix<int>& A,
+                                                 const matrix<int>& B,
+                                                 matrix<int>& prod)
 {
     // ensure the product is big enough
     int row_a = A.size().rows();

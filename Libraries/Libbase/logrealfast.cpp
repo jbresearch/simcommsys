@@ -46,7 +46,8 @@ std::ofstream logrealfast::file;
 
 // LUT constructor
 
-void logrealfast::buildlut()
+void
+logrealfast::buildlut()
 {
     // set up LUT for addition operation
     lut_add.resize(lutsize);
@@ -71,7 +72,8 @@ void logrealfast::buildlut()
 
 // conversion
 
-double logrealfast::convertfromdouble(const double m)
+double
+logrealfast::convertfromdouble(const double m)
 {
     // trap infinity
     const int inf = isinf(m);
@@ -102,7 +104,8 @@ double logrealfast::convertfromdouble(const double m)
 
 // Input/Output Operations
 
-std::ostream& operator<<(std::ostream& sout, const logrealfast& x)
+std::ostream&
+operator<<(std::ostream& sout, const logrealfast& x)
 {
     // trap infinity
     const int inf = isinf(x.logval);
@@ -127,7 +130,8 @@ std::ostream& operator<<(std::ostream& sout, const logrealfast& x)
     return sout;
 }
 
-std::istream& operator>>(std::istream& sin, logrealfast& x)
+std::istream&
+operator>>(std::istream& sin, logrealfast& x)
 {
     assertalways(sin.good());
     // get the number representation as a string

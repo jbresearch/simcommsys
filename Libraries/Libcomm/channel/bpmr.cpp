@@ -49,7 +49,8 @@ namespace libcomm
  * function should be called any time a channel parameter is changed.
  */
 template <class real>
-void bpmr<real>::metric_computer::precompute(
+void
+bpmr<real>::metric_computer::precompute(
     double Pd, double Pi, double Ps, double Psi, int T, int Zmin, int Zmax)
 {
     // block size
@@ -66,14 +67,15 @@ void bpmr<real>::metric_computer::precompute(
 
 // Batch receiver interface
 template <class real>
-void bpmr<real>::metric_computer::receive(const array1b_t& tx,
-                                          const array1b_t& rx,
-                                          const int S0,
-                                          const int delta0,
-                                          const bool first,
-                                          const bool last,
-                                          array1r_t& ptable0,
-                                          array1r_t& ptable1) const
+void
+bpmr<real>::metric_computer::receive(const array1b_t& tx,
+                                     const array1b_t& rx,
+                                     const int S0,
+                                     const int delta0,
+                                     const bool first,
+                                     const bool last,
+                                     array1r_t& ptable0,
+                                     array1r_t& ptable1) const
 {
 #if DEBUG >= 3
     libbase::trace << "DEBUG (bpmr): starting receive..." << std::endl;
@@ -326,7 +328,8 @@ void bpmr<real>::metric_computer::receive(const array1b_t& tx,
  * user never calls set_parameter(), the values are valid.
  */
 template <class real>
-void bpmr<real>::init()
+void
+bpmr<real>::init()
 {
     // channel parameters
     Pd = fixedPd;
@@ -360,7 +363,8 @@ void bpmr<real>::init()
  * input bit X_1 and output bit Y_1).
  */
 template <class real>
-void bpmr<real>::generate_state_sequence(const int tau)
+void
+bpmr<real>::generate_state_sequence(const int tau)
 {
     // Allocate and initialize Markov state sequence
     Z.init(tau);
@@ -408,7 +412,8 @@ void bpmr<real>::generate_state_sequence(const int tau)
  * Pr{error | Z_i - Z_{i-1} = 1 } = P_si
  */
 template <class real>
-libbase::vector<bool> bpmr<real>::generate_error_sequence()
+libbase::vector<bool>
+bpmr<real>::generate_error_sequence()
 {
     // determine required length
     const int tau = Z.size();
@@ -470,7 +475,8 @@ bpmr<real>::bpmr(const bool varyPd,
  * the class will be in a known determined state).
  */
 template <class real>
-void bpmr<real>::set_parameter(const double p)
+void
+bpmr<real>::set_parameter(const double p)
 {
     set_pd(varyPd ? p : fixedPd);
     set_pi(varyPi ? p : fixedPi);
@@ -488,7 +494,8 @@ void bpmr<real>::set_parameter(const double p)
  * condition.
  */
 template <class real>
-double bpmr<real>::get_parameter() const
+double
+bpmr<real>::get_parameter() const
 {
     assert(varyPd || varyPi || varyPs || varyPsi);
     if (varyPd) {
@@ -526,7 +533,8 @@ double bpmr<real>::get_parameter() const
  * \sa corrupt()
  */
 template <class real>
-void bpmr<real>::transmit(const array1b_t& tx, array1b_t& rx)
+void
+bpmr<real>::transmit(const array1b_t& tx, array1b_t& rx)
 {
     const int tau = tx.size();
     // Generate Markov state sequence
@@ -565,7 +573,8 @@ void bpmr<real>::transmit(const array1b_t& tx, array1b_t& rx)
 // description output
 
 template <class real>
-std::string bpmr<real>::description() const
+std::string
+bpmr<real>::description() const
 {
     std::ostringstream sout;
     sout << "BPMR channel (";
@@ -605,7 +614,8 @@ std::string bpmr<real>::description() const
 // object serialization - saving
 
 template <class real>
-std::ostream& bpmr<real>::serialize(std::ostream& sout) const
+std::ostream&
+bpmr<real>::serialize(std::ostream& sout) const
 {
     sout << "# Version" << std::endl;
     sout << 2 << std::endl;
@@ -640,7 +650,8 @@ std::ostream& bpmr<real>::serialize(std::ostream& sout) const
  * \version 2 Added substitution errors
  */
 template <class real>
-std::istream& bpmr<real>::serialize(std::istream& sin)
+std::istream&
+bpmr<real>::serialize(std::istream& sin)
 {
     // get format version
     int version;

@@ -53,13 +53,15 @@ CFilterOrphansApp::CFilterOrphansApp()
 // CFilterOrphansApp filter selector functions
 
 // show the about dialog here
-void CFilterOrphansApp::FilterAbout(void)
+void
+CFilterOrphansApp::FilterAbout(void)
 {
     CAboutDlg dlg;
     dlg.DoModal();
 }
 
-void CFilterOrphansApp::FilterStart(void)
+void
+CFilterOrphansApp::FilterStart(void)
 {
     // FilterStart will get user parameters if necessary & select the first tile
     CPSPlugIn::FilterStart();
@@ -67,7 +69,8 @@ void CFilterOrphansApp::FilterStart(void)
     SetTileOverlap(2);
 }
 
-void CFilterOrphansApp::FilterContinue(void)
+void
+CFilterOrphansApp::FilterContinue(void)
 {
     // update progress counter
     DisplayTileProgress(0);
@@ -102,7 +105,8 @@ void CFilterOrphansApp::FilterContinue(void)
     CPSPlugIn::FilterContinue();
 }
 
-void CFilterOrphansApp::FilterFinish(void)
+void
+CFilterOrphansApp::FilterFinish(void)
 {
     // stop timer & show final progress indication
     CPSPlugIn::FilterFinish();
@@ -111,7 +115,8 @@ void CFilterOrphansApp::FilterFinish(void)
 /////////////////////////////////////////////////////////////////////////////
 // CFilterOrphansApp helper functions
 
-void CFilterOrphansApp::ShowDialog(void)
+void
+CFilterOrphansApp::ShowDialog(void)
 {
     CFilterOrphansDlg dlg;
 
@@ -130,12 +135,14 @@ void CFilterOrphansApp::ShowDialog(void)
     SetShowDialog(false);
 }
 
-void CFilterOrphansApp::InitPointer(char* sData)
+void
+CFilterOrphansApp::InitPointer(char* sData)
 {
     m_sData = (SFilterOrphansData*)sData;
 }
 
-void CFilterOrphansApp::InitParameters()
+void
+CFilterOrphansApp::InitParameters()
 {
     m_sData->bKeepNoise = false;
     m_sData->nWeight = 1;
@@ -144,10 +151,11 @@ void CFilterOrphansApp::InitParameters()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterOrphansApp scripting support
 
-void CFilterOrphansApp::ReadScriptParameter(PIReadDescriptor token,
-                                            DescriptorKeyID key,
-                                            DescriptorTypeID type,
-                                            int32 flags)
+void
+CFilterOrphansApp::ReadScriptParameter(PIReadDescriptor token,
+                                       DescriptorKeyID key,
+                                       DescriptorTypeID type,
+                                       int32 flags)
 {
     switch (key) {
     case keyWeight:
@@ -162,7 +170,8 @@ void CFilterOrphansApp::ReadScriptParameter(PIReadDescriptor token,
     }
 }
 
-void CFilterOrphansApp::WriteScriptParameters(PIWriteDescriptor token)
+void
+CFilterOrphansApp::WriteScriptParameters(PIWriteDescriptor token)
 {
     PutInteger(token, keyWeight, m_sData->nWeight);
     if (m_sData->bKeepNoise) {
@@ -175,10 +184,11 @@ void CFilterOrphansApp::WriteScriptParameters(PIWriteDescriptor token)
 
 CFilterOrphansApp theApp;
 
-DLLExport SPAPI void PluginMain(const short nSelector,
-                                FilterRecord* pFilterRecord,
-                                long* pData,
-                                short* pResult)
+DLLExport SPAPI void
+PluginMain(const short nSelector,
+           FilterRecord* pFilterRecord,
+           long* pData,
+           short* pResult)
 {
     theApp.Main(nSelector, pFilterRecord, pData, pResult);
 }

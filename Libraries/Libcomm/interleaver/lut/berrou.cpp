@@ -29,7 +29,8 @@ namespace libcomm
 // initialization
 
 template <class real>
-void berrou<real>::init(const int M)
+void
+berrou<real>::init(const int M)
 {
     berrou<real>::M = M;
 
@@ -54,7 +55,8 @@ void berrou<real>::init(const int M)
 // description output
 
 template <class real>
-std::string berrou<real>::description() const
+std::string
+berrou<real>::description() const
 {
     std::ostringstream sout;
     sout << "Berrou Interleaver (" << M << "×" << M << ")";
@@ -64,7 +66,8 @@ std::string berrou<real>::description() const
 // object serialization - saving
 
 template <class real>
-std::ostream& berrou<real>::serialize(std::ostream& sout) const
+std::ostream&
+berrou<real>::serialize(std::ostream& sout) const
 {
     sout << M << std::endl;
     return sout;
@@ -73,7 +76,8 @@ std::ostream& berrou<real>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class real>
-std::istream& berrou<real>::serialize(std::istream& sin)
+std::istream&
+berrou<real>::serialize(std::istream& sin)
 {
     sin >> libbase::eatcomments >> M >> libbase::verify;
     init(M);

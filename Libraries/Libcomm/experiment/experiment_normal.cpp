@@ -27,7 +27,8 @@ namespace libcomm
 
 // Normally-distributed sample experiment
 
-void experiment_normal::derived_reset()
+void
+experiment_normal::derived_reset()
 {
     // Initialise running values only if space is allocated
     if (sum.size() > 0) {
@@ -38,8 +39,8 @@ void experiment_normal::derived_reset()
     }
 }
 
-void experiment_normal::derived_accumulate(
-    const libbase::vector<double>& result)
+void
+experiment_normal::derived_accumulate(const libbase::vector<double>& result)
 {
     assert(result.size() > 0);
     // accumulate results
@@ -49,7 +50,8 @@ void experiment_normal::derived_accumulate(
     safe_accumulate(sumsq, sample);
 }
 
-void experiment_normal::accumulate_state(const libbase::vector<double>& state)
+void
+experiment_normal::accumulate_state(const libbase::vector<double>& state)
 {
     assert(state.size() > 0);
     // divide state into constituent components and accumulate
@@ -59,7 +61,8 @@ void experiment_normal::accumulate_state(const libbase::vector<double>& state)
     safe_accumulate(sumsq, state.extract(n, n));
 }
 
-void experiment_normal::get_state(libbase::vector<double>& state) const
+void
+experiment_normal::get_state(libbase::vector<double>& state) const
 {
     assert(count() == sum.size());
     assert(count() == sumsq.size());
@@ -70,8 +73,9 @@ void experiment_normal::get_state(libbase::vector<double>& state) const
     }
 }
 
-void experiment_normal::estimate(libbase::vector<double>& estimate,
-                                 libbase::vector<double>& stderror) const
+void
+experiment_normal::estimate(libbase::vector<double>& estimate,
+                            libbase::vector<double>& stderror) const
 {
     assert(count() == sum.size());
     assert(count() == sumsq.size());

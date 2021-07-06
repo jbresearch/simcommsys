@@ -51,14 +51,16 @@ padded<real>::padded(const padded& x)
 // inter-frame operations
 
 template <class real>
-void padded<real>::seedfrom(libbase::random& r)
+void
+padded<real>::seedfrom(libbase::random& r)
 {
     assertalways(otp);
     otp->seedfrom(r);
 }
 
 template <class real>
-void padded<real>::advance()
+void
+padded<real>::advance()
 {
     assertalways(otp);
     otp->advance();
@@ -67,7 +69,8 @@ void padded<real>::advance()
 // transform functions
 
 template <class real>
-void padded<real>::transform(const vector<int>& in, vector<int>& out) const
+void
+padded<real>::transform(const vector<int>& in, vector<int>& out) const
 {
     vector<int> temp;
     inter->transform(in, temp);
@@ -75,7 +78,8 @@ void padded<real>::transform(const vector<int>& in, vector<int>& out) const
 }
 
 template <class real>
-void padded<real>::transform(const matrix<real>& in, matrix<real>& out) const
+void
+padded<real>::transform(const matrix<real>& in, matrix<real>& out) const
 {
     matrix<real> temp;
     inter->transform(in, temp);
@@ -83,7 +87,8 @@ void padded<real>::transform(const matrix<real>& in, matrix<real>& out) const
 }
 
 template <class real>
-void padded<real>::inverse(const matrix<real>& in, matrix<real>& out) const
+void
+padded<real>::inverse(const matrix<real>& in, matrix<real>& out) const
 {
     matrix<real> temp;
     otp->inverse(in, temp);
@@ -93,7 +98,8 @@ void padded<real>::inverse(const matrix<real>& in, matrix<real>& out) const
 // description output
 
 template <class real>
-std::string padded<real>::description() const
+std::string
+padded<real>::description() const
 {
     std::ostringstream sout;
     sout << "Padded Interleaver [" << inter->description() << " + "
@@ -104,7 +110,8 @@ std::string padded<real>::description() const
 // object serialization - saving
 
 template <class real>
-std::ostream& padded<real>::serialize(std::ostream& sout) const
+std::ostream&
+padded<real>::serialize(std::ostream& sout) const
 {
     sout << otp;
     sout << inter;
@@ -114,7 +121,8 @@ std::ostream& padded<real>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class real>
-std::istream& padded<real>::serialize(std::istream& sin)
+std::istream&
+padded<real>::serialize(std::istream& sin)
 {
     sin >> libbase::eatcomments >> otp >> libbase::verify;
     sin >> libbase::eatcomments >> inter >> libbase::verify;

@@ -29,7 +29,8 @@ namespace libcomm
 // encode / decode methods
 
 template <template <class> class C, class dbl>
-void codec_multiblock<C, dbl>::do_encode(const C<int>& source, C<int>& encoded)
+void
+codec_multiblock<C, dbl>::do_encode(const C<int>& source, C<int>& encoded)
 {
     test_invariant();
     // allocate output vector
@@ -46,7 +47,8 @@ void codec_multiblock<C, dbl>::do_encode(const C<int>& source, C<int>& encoded)
 }
 
 template <template <class> class C, class dbl>
-void codec_multiblock<C, dbl>::softdecode(C<array1d_t>& ri)
+void
+codec_multiblock<C, dbl>::softdecode(C<array1d_t>& ri)
 {
     test_invariant();
     // allocate output vector
@@ -76,7 +78,8 @@ void codec_multiblock<C, dbl>::softdecode(C<array1d_t>& ri)
 }
 
 template <template <class> class C, class dbl>
-void codec_multiblock<C, dbl>::softdecode(C<array1d_t>& ri, C<array1d_t>& ro)
+void
+codec_multiblock<C, dbl>::softdecode(C<array1d_t>& ri, C<array1d_t>& ro)
 {
     test_invariant();
     // allocate output vectors
@@ -111,7 +114,8 @@ void codec_multiblock<C, dbl>::softdecode(C<array1d_t>& ri, C<array1d_t>& ro)
 // description output
 
 template <template <class> class C, class dbl>
-std::string codec_multiblock<C, dbl>::description() const
+std::string
+codec_multiblock<C, dbl>::description() const
 {
     test_invariant();
     std::ostringstream sout;
@@ -124,7 +128,8 @@ std::string codec_multiblock<C, dbl>::description() const
 // object serialization - saving
 
 template <template <class> class C, class dbl>
-std::ostream& codec_multiblock<C, dbl>::serialize(std::ostream& sout) const
+std::ostream&
+codec_multiblock<C, dbl>::serialize(std::ostream& sout) const
 {
     test_invariant();
     sout << "# Version" << std::endl;
@@ -142,7 +147,8 @@ std::ostream& codec_multiblock<C, dbl>::serialize(std::ostream& sout) const
  * \version 1 Initial version
  */
 template <template <class> class C, class dbl>
-std::istream& codec_multiblock<C, dbl>::serialize(std::istream& sin)
+std::istream&
+codec_multiblock<C, dbl>::serialize(std::istream& sin)
 {
     // get format version
     int version;

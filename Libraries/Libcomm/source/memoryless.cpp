@@ -28,7 +28,8 @@ namespace libcomm
 // internal functions
 
 template <class S, template <class> class C>
-libbase::vector<float> memoryless<S, C>::to_cumulative(
+libbase::vector<float>
+memoryless<S, C>::to_cumulative(
     libbase::vector<float> symbol_probabilities) const
 {
     const int n = symbol_probabilities.size();
@@ -59,7 +60,8 @@ memoryless<S, C>::to_probabilities(libbase::vector<float> cpt) const
 // object serialization - saving
 
 template <class S, template <class> class C>
-std::ostream& memoryless<S, C>::serialize(std::ostream& sout) const
+std::ostream&
+memoryless<S, C>::serialize(std::ostream& sout) const
 {
     sout << "# Version" << std::endl;
     sout << 1 << std::endl;
@@ -74,7 +76,8 @@ std::ostream& memoryless<S, C>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class S, template <class> class C>
-std::istream& memoryless<S, C>::serialize(std::istream& sin)
+std::istream&
+memoryless<S, C>::serialize(std::istream& sin)
 {
     assertalways(sin.good());
     // get format version

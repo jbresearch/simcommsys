@@ -402,7 +402,8 @@ public:
 // internal functions
 
 template <class T>
-inline void vector<T>::test_invariant() const
+inline void
+vector<T>::test_invariant() const
 {
     // size must be valid
     assert(m_size.length() >= 0);
@@ -417,7 +418,8 @@ inline void vector<T>::test_invariant() const
 }
 
 template <class T>
-inline void vector<T>::record_allocation() const
+inline void
+vector<T>::record_allocation() const
 {
 #if DEBUG >= 3
     trace << "DEBUG (vector): allocated " << m_size.length() << " x "
@@ -433,7 +435,8 @@ inline void vector<T>::record_allocation() const
 }
 
 template <class T>
-inline void vector<T>::remove_allocation() const
+inline void
+vector<T>::remove_allocation() const
 {
 #if DEBUG >= 3
     trace << "DEBUG (vector): freeing " << m_size.length() << " x " << sizeof(T)
@@ -452,7 +455,8 @@ inline void vector<T>::remove_allocation() const
 }
 
 template <class T>
-inline void vector<T>::validate_allocation() const
+inline void
+vector<T>::validate_allocation() const
 {
 #if DEBUG >= 2
     if (m_data != NULL) {
@@ -466,7 +470,8 @@ inline void vector<T>::validate_allocation() const
 // memory allocation functions
 
 template <class T>
-inline void vector<T>::alloc(const int n)
+inline void
+vector<T>::alloc(const int n)
 {
     test_invariant();
 
@@ -490,7 +495,8 @@ inline void vector<T>::alloc(const int n)
 }
 
 template <class T>
-inline void vector<T>::dealloc()
+inline void
+vector<T>::dealloc()
 {
     test_invariant();
     assert(m_size.length() > 0);
@@ -505,7 +511,8 @@ inline void vector<T>::dealloc()
 }
 
 template <class T>
-inline void vector<T>::free()
+inline void
+vector<T>::free()
 {
     test_invariant();
     if (m_size.length() > 0) {
@@ -518,7 +525,8 @@ inline void vector<T>::free()
 }
 
 template <class T>
-inline void vector<T>::copy(T* dst, const T* src, int n)
+inline void
+vector<T>::copy(T* dst, const T* src, int n)
 {
     test_invariant();
     // handle empty copy correctly
@@ -616,7 +624,8 @@ inline vector<T>::vector(const std::vector<A>& x) : m_size(0), m_data(NULL)
 // vector copy and value initialisation
 
 template <class T>
-inline vector<T>& vector<T>::assign(const T* x, const int n)
+inline vector<T>&
+vector<T>::assign(const T* x, const int n)
 {
     test_invariant();
     init(n);
@@ -626,7 +635,8 @@ inline vector<T>& vector<T>::assign(const T* x, const int n)
 }
 
 template <class T>
-inline vector<T>& vector<T>::copyfrom(const vector<T>& x)
+inline vector<T>&
+vector<T>::copyfrom(const vector<T>& x)
 {
     test_invariant();
     const int xsize = std::min(m_size.length(), x.m_size.length());
@@ -636,7 +646,8 @@ inline vector<T>& vector<T>::copyfrom(const vector<T>& x)
 }
 
 template <class T>
-inline vector<T>& vector<T>::operator=(const vector<T>& x)
+inline vector<T>&
+vector<T>::operator=(const vector<T>& x)
 {
     test_invariant();
     // correctly handle self-assignment
@@ -652,7 +663,8 @@ inline vector<T>& vector<T>::operator=(const vector<T>& x)
 
 template <class T>
 template <class A>
-inline vector<T>& vector<T>::operator=(const vector<A>& x)
+inline vector<T>&
+vector<T>::operator=(const vector<A>& x)
 {
     test_invariant();
     // this should never correspond to self-assignment
@@ -678,7 +690,8 @@ inline vector<T>& vector<T>::operator=(const vector<A>& x)
 
 template <class T>
 template <class A>
-inline vector<T>& vector<T>::operator=(const A x)
+inline vector<T>&
+vector<T>::operator=(const A x)
 {
     test_invariant();
     // avoid down-cast warnings in Win32
@@ -700,7 +713,8 @@ inline vector<T>& vector<T>::operator=(const A x)
 // Resizing operations
 
 template <class T>
-inline void vector<T>::init(const int n)
+inline void
+vector<T>::init(const int n)
 {
     test_invariant();
     assert(n >= 0);
@@ -717,7 +731,8 @@ inline void vector<T>::init(const int n)
 // serialization and stream input & output
 
 template <class T>
-inline void vector<T>::serialize(std::ostream& sout, char spacer) const
+inline void
+vector<T>::serialize(std::ostream& sout, char spacer) const
 {
     test_invariant();
     if (m_size.length() > 0) {
@@ -732,7 +747,8 @@ inline void vector<T>::serialize(std::ostream& sout, char spacer) const
 }
 
 template <class T>
-inline void vector<T>::serialize(std::istream& sin)
+inline void
+vector<T>::serialize(std::istream& sin)
 {
     test_invariant();
 
@@ -744,7 +760,8 @@ inline void vector<T>::serialize(std::istream& sin)
 }
 
 template <class T>
-inline std::ostream& operator<<(std::ostream& s, const vector<T>& x)
+inline std::ostream&
+operator<<(std::ostream& s, const vector<T>& x)
 {
     s << x.size() << std::endl;
     x.serialize(s);
@@ -752,7 +769,8 @@ inline std::ostream& operator<<(std::ostream& s, const vector<T>& x)
 }
 
 template <class T>
-inline std::istream& operator>>(std::istream& s, vector<T>& x)
+inline std::istream&
+operator>>(std::istream& s, vector<T>& x)
 {
     size_type<vector> size;
     s >> size;
@@ -764,7 +782,8 @@ inline std::istream& operator>>(std::istream& s, vector<T>& x)
 // comparison (mask-creation) operations
 
 template <class T>
-inline vector<bool> vector<T>::operator==(const vector<T>& x) const
+inline vector<bool>
+vector<T>::operator==(const vector<T>& x) const
 {
     assert(x.m_size == m_size);
     vector<bool> r(m_size);
@@ -777,7 +796,8 @@ inline vector<bool> vector<T>::operator==(const vector<T>& x) const
 }
 
 template <class T>
-inline vector<bool> vector<T>::operator!=(const vector<T>& x) const
+inline vector<bool>
+vector<T>::operator!=(const vector<T>& x) const
 {
     assert(x.m_size == m_size);
     vector<bool> r(m_size);
@@ -790,7 +810,8 @@ inline vector<bool> vector<T>::operator!=(const vector<T>& x) const
 }
 
 template <class T>
-inline vector<bool> vector<T>::operator<=(const vector<T>& x) const
+inline vector<bool>
+vector<T>::operator<=(const vector<T>& x) const
 {
     assert(x.m_size == m_size);
     vector<bool> r(m_size);
@@ -803,7 +824,8 @@ inline vector<bool> vector<T>::operator<=(const vector<T>& x) const
 }
 
 template <class T>
-inline vector<bool> vector<T>::operator>=(const vector<T>& x) const
+inline vector<bool>
+vector<T>::operator>=(const vector<T>& x) const
 {
     assert(x.m_size == m_size);
     vector<bool> r(m_size);
@@ -816,7 +838,8 @@ inline vector<bool> vector<T>::operator>=(const vector<T>& x) const
 }
 
 template <class T>
-inline vector<bool> vector<T>::operator<(const vector<T>& x) const
+inline vector<bool>
+vector<T>::operator<(const vector<T>& x) const
 {
     assert(x.m_size == m_size);
     vector<bool> r(m_size);
@@ -829,7 +852,8 @@ inline vector<bool> vector<T>::operator<(const vector<T>& x) const
 }
 
 template <class T>
-inline vector<bool> vector<T>::operator>(const vector<T>& x) const
+inline vector<bool>
+vector<T>::operator>(const vector<T>& x) const
 {
     assert(x.m_size == m_size);
     vector<bool> r(m_size);
@@ -842,7 +866,8 @@ inline vector<bool> vector<T>::operator>(const vector<T>& x) const
 }
 
 template <class T>
-inline vector<bool> vector<T>::operator==(const T x) const
+inline vector<bool>
+vector<T>::operator==(const T x) const
 {
     vector<bool> r(m_size);
 
@@ -854,7 +879,8 @@ inline vector<bool> vector<T>::operator==(const T x) const
 }
 
 template <class T>
-inline vector<bool> vector<T>::operator!=(const T x) const
+inline vector<bool>
+vector<T>::operator!=(const T x) const
 {
     vector<bool> r(m_size);
 
@@ -866,7 +892,8 @@ inline vector<bool> vector<T>::operator!=(const T x) const
 }
 
 template <class T>
-inline vector<bool> vector<T>::operator<=(const T x) const
+inline vector<bool>
+vector<T>::operator<=(const T x) const
 {
     vector<bool> r(m_size);
 
@@ -878,7 +905,8 @@ inline vector<bool> vector<T>::operator<=(const T x) const
 }
 
 template <class T>
-inline vector<bool> vector<T>::operator>=(const T x) const
+inline vector<bool>
+vector<T>::operator>=(const T x) const
 {
     vector<bool> r(m_size);
 
@@ -890,7 +918,8 @@ inline vector<bool> vector<T>::operator>=(const T x) const
 }
 
 template <class T>
-inline vector<bool> vector<T>::operator<(const T x) const
+inline vector<bool>
+vector<T>::operator<(const T x) const
 {
     vector<bool> r(m_size);
 
@@ -902,7 +931,8 @@ inline vector<bool> vector<T>::operator<(const T x) const
 }
 
 template <class T>
-inline vector<bool> vector<T>::operator>(const T x) const
+inline vector<bool>
+vector<T>::operator>(const T x) const
 {
     vector<bool> r(m_size);
 
@@ -916,7 +946,8 @@ inline vector<bool> vector<T>::operator>(const T x) const
 // direct comparison operations
 
 template <class T>
-inline bool vector<T>::isequalto(const vector<T>& x) const
+inline bool
+vector<T>::isequalto(const vector<T>& x) const
 {
     if (x.m_size != m_size) {
         return false;
@@ -932,7 +963,8 @@ inline bool vector<T>::isequalto(const vector<T>& x) const
 }
 
 template <class T>
-inline bool vector<T>::isnotequalto(const vector<T>& x) const
+inline bool
+vector<T>::isnotequalto(const vector<T>& x) const
 {
     return !isequalto(x);
 }
@@ -940,7 +972,8 @@ inline bool vector<T>::isnotequalto(const vector<T>& x) const
 // arithmetic operations - unary
 
 template <class T>
-inline vector<T>& vector<T>::operator+=(const vector<T>& x)
+inline vector<T>&
+vector<T>::operator+=(const vector<T>& x)
 {
     test_invariant();
     assert(x.m_size.length() == m_size.length());
@@ -963,7 +996,8 @@ inline vector<T>& vector<T>::operator+=(const vector<T>& x)
 }
 
 template <class T>
-inline vector<T>& vector<T>::operator-=(const vector<T>& x)
+inline vector<T>&
+vector<T>::operator-=(const vector<T>& x)
 {
     test_invariant();
     assert(x.m_size.length() == m_size.length());
@@ -977,7 +1011,8 @@ inline vector<T>& vector<T>::operator-=(const vector<T>& x)
 }
 
 template <class T>
-inline vector<T>& vector<T>::operator*=(const vector<T>& x)
+inline vector<T>&
+vector<T>::operator*=(const vector<T>& x)
 {
     test_invariant();
     assert(x.m_size.length() == m_size.length());
@@ -991,7 +1026,8 @@ inline vector<T>& vector<T>::operator*=(const vector<T>& x)
 }
 
 template <class T>
-inline vector<T>& vector<T>::operator/=(const vector<T>& x)
+inline vector<T>&
+vector<T>::operator/=(const vector<T>& x)
 {
     test_invariant();
     assert(x.m_size.length() == m_size.length());
@@ -1005,7 +1041,8 @@ inline vector<T>& vector<T>::operator/=(const vector<T>& x)
 }
 
 template <class T>
-inline vector<T>& vector<T>::operator+=(const T x)
+inline vector<T>&
+vector<T>::operator+=(const T x)
 {
     test_invariant();
 
@@ -1018,7 +1055,8 @@ inline vector<T>& vector<T>::operator+=(const T x)
 }
 
 template <class T>
-inline vector<T>& vector<T>::operator-=(const T x)
+inline vector<T>&
+vector<T>::operator-=(const T x)
 {
     test_invariant();
 
@@ -1031,7 +1069,8 @@ inline vector<T>& vector<T>::operator-=(const T x)
 }
 
 template <class T>
-inline vector<T>& vector<T>::operator*=(const T x)
+inline vector<T>&
+vector<T>::operator*=(const T x)
 {
     test_invariant();
 
@@ -1044,7 +1083,8 @@ inline vector<T>& vector<T>::operator*=(const T x)
 }
 
 template <class T>
-inline vector<T>& vector<T>::operator/=(const T x)
+inline vector<T>&
+vector<T>::operator/=(const T x)
 {
     test_invariant();
 
@@ -1059,7 +1099,8 @@ inline vector<T>& vector<T>::operator/=(const T x)
 // arithmetic operations - binary
 
 template <class T>
-inline vector<T> vector<T>::operator+(const vector<T>& x) const
+inline vector<T>
+vector<T>::operator+(const vector<T>& x) const
 {
     test_invariant();
     vector<T> r = *this;
@@ -1069,7 +1110,8 @@ inline vector<T> vector<T>::operator+(const vector<T>& x) const
 }
 
 template <class T>
-inline vector<T> vector<T>::operator-(const vector<T>& x) const
+inline vector<T>
+vector<T>::operator-(const vector<T>& x) const
 {
     test_invariant();
     vector<T> r = *this;
@@ -1079,7 +1121,8 @@ inline vector<T> vector<T>::operator-(const vector<T>& x) const
 }
 
 template <class T>
-inline vector<T> vector<T>::operator*(const vector<T>& x) const
+inline vector<T>
+vector<T>::operator*(const vector<T>& x) const
 {
     test_invariant();
     vector<T> r = *this;
@@ -1089,7 +1132,8 @@ inline vector<T> vector<T>::operator*(const vector<T>& x) const
 }
 
 template <class T>
-inline vector<T> vector<T>::operator/(const vector<T>& x) const
+inline vector<T>
+vector<T>::operator/(const vector<T>& x) const
 {
     test_invariant();
     vector<T> r = *this;
@@ -1099,7 +1143,8 @@ inline vector<T> vector<T>::operator/(const vector<T>& x) const
 }
 
 template <class T>
-inline vector<T> vector<T>::operator+(const T x) const
+inline vector<T>
+vector<T>::operator+(const T x) const
 {
     test_invariant();
     vector<T> r = *this;
@@ -1109,7 +1154,8 @@ inline vector<T> vector<T>::operator+(const T x) const
 }
 
 template <class T>
-inline vector<T> vector<T>::operator-(const T x) const
+inline vector<T>
+vector<T>::operator-(const T x) const
 {
     test_invariant();
     vector<T> r = *this;
@@ -1119,7 +1165,8 @@ inline vector<T> vector<T>::operator-(const T x) const
 }
 
 template <class T>
-inline vector<T> vector<T>::operator*(const T x) const
+inline vector<T>
+vector<T>::operator*(const T x) const
 {
     test_invariant();
     vector<T> r = *this;
@@ -1129,7 +1176,8 @@ inline vector<T> vector<T>::operator*(const T x) const
 }
 
 template <class T>
-inline vector<T> vector<T>::operator/(const T x) const
+inline vector<T>
+vector<T>::operator/(const T x) const
 {
     test_invariant();
     vector<T> r = *this;
@@ -1141,7 +1189,8 @@ inline vector<T> vector<T>::operator/(const T x) const
 // boolean operations - modifying
 
 template <class T>
-inline vector<T>& vector<T>::operator&=(const vector<T>& x)
+inline vector<T>&
+vector<T>::operator&=(const vector<T>& x)
 {
     test_invariant();
     assert(x.m_size.length() == m_size.length());
@@ -1155,7 +1204,8 @@ inline vector<T>& vector<T>::operator&=(const vector<T>& x)
 }
 
 template <class T>
-inline vector<T>& vector<T>::operator|=(const vector<T>& x)
+inline vector<T>&
+vector<T>::operator|=(const vector<T>& x)
 {
     test_invariant();
     assert(x.m_size.length() == m_size.length());
@@ -1169,7 +1219,8 @@ inline vector<T>& vector<T>::operator|=(const vector<T>& x)
 }
 
 template <class T>
-inline vector<T>& vector<T>::operator^=(const vector<T>& x)
+inline vector<T>&
+vector<T>::operator^=(const vector<T>& x)
 {
     test_invariant();
     assert(x.m_size.length() == m_size.length());
@@ -1185,7 +1236,8 @@ inline vector<T>& vector<T>::operator^=(const vector<T>& x)
 // boolean operations - non-modifying
 
 template <class T>
-inline vector<T> vector<T>::operator!()
+inline vector<T>
+vector<T>::operator!()
 {
     test_invariant();
     vector<T> r(m_size);
@@ -1199,7 +1251,8 @@ inline vector<T> vector<T>::operator!()
 }
 
 template <class T>
-inline vector<T> vector<T>::operator&(const vector<T>& x) const
+inline vector<T>
+vector<T>::operator&(const vector<T>& x) const
 {
     test_invariant();
     vector<T> r = *this;
@@ -1208,7 +1261,8 @@ inline vector<T> vector<T>::operator&(const vector<T>& x) const
 }
 
 template <class T>
-inline vector<T> vector<T>::operator|(const vector<T>& x) const
+inline vector<T>
+vector<T>::operator|(const vector<T>& x) const
 {
     test_invariant();
     vector<T> r = *this;
@@ -1217,7 +1271,8 @@ inline vector<T> vector<T>::operator|(const vector<T>& x) const
 }
 
 template <class T>
-inline vector<T> vector<T>::operator^(const vector<T>& x) const
+inline vector<T>
+vector<T>::operator^(const vector<T>& x) const
 {
     test_invariant();
     vector<T> r = *this;
@@ -1228,7 +1283,8 @@ inline vector<T> vector<T>::operator^(const vector<T>& x) const
 // user-defined operations
 
 template <class T>
-inline vector<T>& vector<T>::apply(T f(T))
+inline vector<T>&
+vector<T>::apply(T f(T))
 {
     test_invariant();
 
@@ -1243,7 +1299,8 @@ inline vector<T>& vector<T>::apply(T f(T))
 // statistical operations
 
 template <class T>
-inline T vector<T>::min() const
+inline T
+vector<T>::min() const
 {
     test_invariant();
     assertalways(m_size.length() > 0);
@@ -1260,7 +1317,8 @@ inline T vector<T>::min() const
 }
 
 template <class T>
-inline T vector<T>::max() const
+inline T
+vector<T>::max() const
 {
     test_invariant();
     assertalways(m_size.length() > 0);
@@ -1277,7 +1335,8 @@ inline T vector<T>::max() const
 }
 
 template <class T>
-inline T vector<T>::min(int& index, const bool getfirst) const
+inline T
+vector<T>::min(int& index, const bool getfirst) const
 {
     test_invariant();
     assertalways(m_size.length() > 0);
@@ -1298,7 +1357,8 @@ inline T vector<T>::min(int& index, const bool getfirst) const
 }
 
 template <class T>
-inline T vector<T>::max(int& index, const bool getfirst) const
+inline T
+vector<T>::max(int& index, const bool getfirst) const
 {
     test_invariant();
     assertalways(m_size.length() > 0);
@@ -1319,7 +1379,8 @@ inline T vector<T>::max(int& index, const bool getfirst) const
 }
 
 template <class T>
-inline T vector<T>::sum() const
+inline T
+vector<T>::sum() const
 {
     test_invariant();
     assertalways(m_size.length() > 0);
@@ -1334,7 +1395,8 @@ inline T vector<T>::sum() const
 }
 
 template <class T>
-inline T vector<T>::sumsq() const
+inline T
+vector<T>::sumsq() const
 {
     test_invariant();
     assertalways(m_size.length() > 0);
@@ -1349,7 +1411,8 @@ inline T vector<T>::sumsq() const
 }
 
 template <class T>
-inline T vector<T>::var() const
+inline T
+vector<T>::var() const
 {
     test_invariant();
     const T _mean = mean();
@@ -1495,7 +1558,8 @@ public:
 // internal functions
 
 template <class T>
-inline void indirect_vector<T>::record_reference() const
+inline void
+indirect_vector<T>::record_reference() const
 {
 #if DEBUG >= 3
     trace << "DEBUG (indirect_vector): referenced " << r_size.length() << " x "
@@ -1514,7 +1578,8 @@ inline void indirect_vector<T>::record_reference() const
 }
 
 template <class T>
-inline void indirect_vector<T>::remove_reference() const
+inline void
+indirect_vector<T>::remove_reference() const
 {
 #if DEBUG >= 3
     trace << "DEBUG (indirect_vector): removing ref to " << r_size.length()
@@ -1533,7 +1598,8 @@ inline void indirect_vector<T>::remove_reference() const
 }
 
 template <class T>
-inline void indirect_vector<T>::validate_reference() const
+inline void
+indirect_vector<T>::validate_reference() const
 {
 #if DEBUG >= 2
     assert(r_data != NULL);
@@ -1615,7 +1681,8 @@ inline masked_vector<T>::masked_vector(vector<T>* data,
 // vector copy and value initialisation
 
 template <class T>
-inline masked_vector<T>& masked_vector<T>::operator=(const T x)
+inline masked_vector<T>&
+masked_vector<T>::operator=(const T x)
 {
     for (int i = 0; i < m_data->m_size.length(); i++) {
         if (m_mask(i)) {
@@ -1646,7 +1713,8 @@ inline masked_vector<T>::operator vector<T>() const
 // arithmetic operations - unary
 
 template <class T>
-inline masked_vector<T>& masked_vector<T>::operator+=(const vector<T>& x)
+inline masked_vector<T>&
+masked_vector<T>::operator+=(const vector<T>& x)
 {
     assert(x.m_size == m_data->m_size);
 
@@ -1660,7 +1728,8 @@ inline masked_vector<T>& masked_vector<T>::operator+=(const vector<T>& x)
 }
 
 template <class T>
-inline masked_vector<T>& masked_vector<T>::operator-=(const vector<T>& x)
+inline masked_vector<T>&
+masked_vector<T>::operator-=(const vector<T>& x)
 {
     assert(x.m_size == m_data->m_size);
 
@@ -1685,7 +1754,8 @@ inline masked_vector<T>& masked_vector<T>::operator-=(const vector<T>& x)
  * \note For A.*B, the size of A must be the same as the size of B.
  */
 template <class T>
-inline masked_vector<T>& masked_vector<T>::operator*=(const vector<T>& x)
+inline masked_vector<T>&
+masked_vector<T>::operator*=(const vector<T>& x)
 {
     assert(x.m_size == m_data->m_size);
 
@@ -1710,7 +1780,8 @@ inline masked_vector<T>& masked_vector<T>::operator*=(const vector<T>& x)
  * \note For A./B, the size of A must be the same as the size of B.
  */
 template <class T>
-inline masked_vector<T>& masked_vector<T>::operator/=(const vector<T>& x)
+inline masked_vector<T>&
+masked_vector<T>::operator/=(const vector<T>& x)
 {
     assert(x.m_size == m_data->m_size);
 
@@ -1724,7 +1795,8 @@ inline masked_vector<T>& masked_vector<T>::operator/=(const vector<T>& x)
 }
 
 template <class T>
-inline masked_vector<T>& masked_vector<T>::operator+=(const T x)
+inline masked_vector<T>&
+masked_vector<T>::operator+=(const T x)
 {
     for (int i = 0; i < m_data->m_size.length(); i++) {
         if (m_mask(i)) {
@@ -1736,7 +1808,8 @@ inline masked_vector<T>& masked_vector<T>::operator+=(const T x)
 }
 
 template <class T>
-inline masked_vector<T>& masked_vector<T>::operator-=(const T x)
+inline masked_vector<T>&
+masked_vector<T>::operator-=(const T x)
 {
     for (int i = 0; i < m_data->m_size.length(); i++) {
         if (m_mask(i)) {
@@ -1748,7 +1821,8 @@ inline masked_vector<T>& masked_vector<T>::operator-=(const T x)
 }
 
 template <class T>
-inline masked_vector<T>& masked_vector<T>::operator*=(const T x)
+inline masked_vector<T>&
+masked_vector<T>::operator*=(const T x)
 {
     for (int i = 0; i < m_data->m_size.length(); i++) {
         if (m_mask(i)) {
@@ -1760,7 +1834,8 @@ inline masked_vector<T>& masked_vector<T>::operator*=(const T x)
 }
 
 template <class T>
-inline masked_vector<T>& masked_vector<T>::operator/=(const T x)
+inline masked_vector<T>&
+masked_vector<T>::operator/=(const T x)
 {
     for (int i = 0; i < m_data->m_size.length(); i++) {
         if (m_mask(i)) {
@@ -1774,7 +1849,8 @@ inline masked_vector<T>& masked_vector<T>::operator/=(const T x)
 // user-defined operations
 
 template <class T>
-inline masked_vector<T>& masked_vector<T>::apply(T f(T))
+inline masked_vector<T>&
+masked_vector<T>::apply(T f(T))
 {
     for (int i = 0; i < m_data->m_size.length(); i++) {
         if (m_mask(i)) {
@@ -1788,7 +1864,8 @@ inline masked_vector<T>& masked_vector<T>::apply(T f(T))
 // information services
 
 template <class T>
-inline int masked_vector<T>::size() const
+inline int
+masked_vector<T>::size() const
 {
     int result = 0;
 
@@ -1804,7 +1881,8 @@ inline int masked_vector<T>::size() const
 // statistical operations
 
 template <class T>
-inline T masked_vector<T>::min() const
+inline T
+masked_vector<T>::min() const
 {
     assert(size() > 0);
     T result;
@@ -1821,7 +1899,8 @@ inline T masked_vector<T>::min() const
 }
 
 template <class T>
-inline T masked_vector<T>::max() const
+inline T
+masked_vector<T>::max() const
 {
     assert(size() > 0);
     T result;
@@ -1838,7 +1917,8 @@ inline T masked_vector<T>::max() const
 }
 
 template <class T>
-inline T masked_vector<T>::sum() const
+inline T
+masked_vector<T>::sum() const
 {
     assert(m_data->m_size.length() > 0);
     T result = 0;
@@ -1853,7 +1933,8 @@ inline T masked_vector<T>::sum() const
 }
 
 template <class T>
-inline T masked_vector<T>::sumsq() const
+inline T
+masked_vector<T>::sumsq() const
 {
     assert(m_data->m_size.length() > 0);
     T result = 0;
@@ -1868,7 +1949,8 @@ inline T masked_vector<T>::sumsq() const
 }
 
 template <class T>
-inline T masked_vector<T>::var() const
+inline T
+masked_vector<T>::var() const
 {
     const T _mean = mean();
     const T _var = sumsq() / T(size()) - _mean * _mean;

@@ -24,7 +24,8 @@
 namespace libcomm
 {
 
-std::ostream& operator<<(std::ostream& sout, const anneal_system& x)
+std::ostream&
+operator<<(std::ostream& sout, const anneal_system& x)
 {
     return x.output(sout);
 }

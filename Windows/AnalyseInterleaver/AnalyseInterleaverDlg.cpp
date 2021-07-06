@@ -67,7 +67,8 @@ CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
     //}}AFX_DATA_INIT
 }
 
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
+void
+CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CAboutDlg)
@@ -96,7 +97,8 @@ CAnalyseInterleaverDlg::CAnalyseInterleaverDlg(CWnd* pParent /*=NULL*/)
     m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
-void CAnalyseInterleaverDlg::DoDataExchange(CDataExchange* pDX)
+void
+CAnalyseInterleaverDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CAnalyseInterleaverDlg)
@@ -121,7 +123,8 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CAnalyseInterleaverDlg message handlers
 
-BOOL CAnalyseInterleaverDlg::OnInitDialog()
+BOOL
+CAnalyseInterleaverDlg::OnInitDialog()
 {
     CDialog::OnInitDialog();
 
@@ -154,7 +157,8 @@ BOOL CAnalyseInterleaverDlg::OnInitDialog()
     return TRUE; // return TRUE  unless you set the focus to a control
 }
 
-void CAnalyseInterleaverDlg::OnSysCommand(UINT nID, LPARAM lParam)
+void
+CAnalyseInterleaverDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
     if ((nID & 0xFFF0) == IDM_ABOUTBOX) {
         CAboutDlg dlgAbout;
@@ -168,7 +172,8 @@ void CAnalyseInterleaverDlg::OnSysCommand(UINT nID, LPARAM lParam)
 //  to draw the icon.  For MFC applications using the document/view model,
 //  this is automatically done for you by the framework.
 
-void CAnalyseInterleaverDlg::OnPaint()
+void
+CAnalyseInterleaverDlg::OnPaint()
 {
     if (IsIconic()) {
         CPaintDC dc(this); // device context for painting
@@ -193,9 +198,11 @@ void CAnalyseInterleaverDlg::OnPaint()
 
 // The system calls this to obtain the cursor to display while the user drags
 //  the minimized window.
-HCURSOR CAnalyseInterleaverDlg::OnQueryDragIcon() { return (HCURSOR)m_hIcon; }
+HCURSOR
+CAnalyseInterleaverDlg::OnQueryDragIcon() { return (HCURSOR)m_hIcon; }
 
-void CAnalyseInterleaverDlg::OnLoad()
+void
+CAnalyseInterleaverDlg::OnLoad()
 {
     CFileDialog dlg(TRUE, "txt", "*.txt");
     if (dlg.DoModal() == IDOK) {
@@ -219,7 +226,8 @@ void CAnalyseInterleaverDlg::OnLoad()
     }
 }
 
-void CAnalyseInterleaverDlg::OnAnalyse()
+void
+CAnalyseInterleaverDlg::OnAnalyse()
 {
     GetDlgItem(IDC_ANALYSE)->EnableWindow(false);
     GetDlgItem(IDC_MAXDIST)->EnableWindow(false);
@@ -262,9 +270,14 @@ void CAnalyseInterleaverDlg::OnAnalyse()
     GetDlgItem(IDC_MAXDIST)->EnableWindow(true);
 }
 
-void CAnalyseInterleaverDlg::OnOK()
+void
+CAnalyseInterleaverDlg::OnOK()
 {
     // CDialog::OnOK();
 }
 
-void CAnalyseInterleaverDlg::OnCancel() { CDialog::OnCancel(); }
+void
+CAnalyseInterleaverDlg::OnCancel()
+{
+    CDialog::OnCancel();
+}

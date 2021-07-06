@@ -122,9 +122,10 @@ rc4::~rc4() {}
 // Private functions
 //////////////////////////////////////////////////////////////////////
 
-bool rc4::verify(const std::string key,
-                 const std::string plaintext,
-                 const std::string ciphertext)
+bool
+rc4::verify(const std::string key,
+            const std::string plaintext,
+            const std::string ciphertext)
 {
     init(key);
     return ciphertext == encrypt(plaintext);
@@ -134,7 +135,8 @@ bool rc4::verify(const std::string key,
 // Public functions
 //////////////////////////////////////////////////////////////////////
 
-void rc4::init(std::string key)
+void
+rc4::init(std::string key)
 {
     int i;
 
@@ -164,7 +166,8 @@ void rc4::init(std::string key)
     x = y = 0;
 }
 
-libbase::int8u rc4::encrypt(const libbase::int8u plaintext)
+libbase::int8u
+rc4::encrypt(const libbase::int8u plaintext)
 {
     // sanity checks
     assert(S.size() == 256);
@@ -179,7 +182,8 @@ libbase::int8u rc4::encrypt(const libbase::int8u plaintext)
     return plaintext ^ S(t);
 }
 
-std::string rc4::encrypt(const std::string plaintext)
+std::string
+rc4::encrypt(const std::string plaintext)
 {
     std::string ciphertext;
 

@@ -29,7 +29,8 @@ namespace libcomm
 // internal operations
 
 template <template <class> class C, class dbl>
-void codec_concatenated<C, dbl>::init()
+void
+codec_concatenated<C, dbl>::init()
 {
     test_invariant();
     // iterators for codec and mapper to use
@@ -53,8 +54,8 @@ void codec_concatenated<C, dbl>::init()
 // encode / decode methods
 
 template <template <class> class C, class dbl>
-void codec_concatenated<C, dbl>::do_encode(const C<int>& source,
-                                           C<int>& encoded)
+void
+codec_concatenated<C, dbl>::do_encode(const C<int>& source, C<int>& encoded)
 {
     test_invariant();
     // iterators for codec and mapper to use
@@ -76,7 +77,8 @@ void codec_concatenated<C, dbl>::do_encode(const C<int>& source,
 }
 
 template <template <class> class C, class dbl>
-void codec_concatenated<C, dbl>::softdecode(C<array1d_t>& ri)
+void
+codec_concatenated<C, dbl>::softdecode(C<array1d_t>& ri)
 {
     test_invariant();
     // reverse iterators for codec and mapper to use
@@ -112,7 +114,8 @@ void codec_concatenated<C, dbl>::softdecode(C<array1d_t>& ri)
 }
 
 template <template <class> class C, class dbl>
-void codec_concatenated<C, dbl>::softdecode(C<array1d_t>& ri, C<array1d_t>& ro)
+void
+codec_concatenated<C, dbl>::softdecode(C<array1d_t>& ri, C<array1d_t>& ro)
 {
     test_invariant();
     // reverse iterators for codec and mapper to use
@@ -149,7 +152,8 @@ void codec_concatenated<C, dbl>::softdecode(C<array1d_t>& ri, C<array1d_t>& ro)
 // description output
 
 template <template <class> class C, class dbl>
-std::string codec_concatenated<C, dbl>::description() const
+std::string
+codec_concatenated<C, dbl>::description() const
 {
     test_invariant();
     std::ostringstream sout;
@@ -187,7 +191,8 @@ std::string codec_concatenated<C, dbl>::description() const
 // object serialization - saving
 
 template <template <class> class C, class dbl>
-std::ostream& codec_concatenated<C, dbl>::serialize(std::ostream& sout) const
+std::ostream&
+codec_concatenated<C, dbl>::serialize(std::ostream& sout) const
 {
     test_invariant();
     sout << "# Version" << std::endl;
@@ -220,7 +225,8 @@ std::ostream& codec_concatenated<C, dbl>::serialize(std::ostream& sout) const
  * \version 1 Initial version
  */
 template <template <class> class C, class dbl>
-std::istream& codec_concatenated<C, dbl>::serialize(std::istream& sin)
+std::istream&
+codec_concatenated<C, dbl>::serialize(std::istream& sin)
 {
     // get format version
     int version;

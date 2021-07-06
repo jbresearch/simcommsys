@@ -27,7 +27,8 @@ namespace libbase
 const int32s randgen::mbig = 1000000000L;
 const int32s randgen::mseed = 161803398L;
 
-void randgen::init(int32u s)
+void
+randgen::init(int32u s)
 {
     next = 0L;
     nextp = 31L;
@@ -55,7 +56,8 @@ void randgen::init(int32u s)
     }
 }
 
-void randgen::advance()
+void
+randgen::advance()
 {
     if (++next >= 56) {
         next = 1;

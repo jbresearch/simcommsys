@@ -75,7 +75,8 @@ template <class receiver_t,
           bool thresholding,
           bool lazy,
           bool globalstore>
-real fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
+real
+fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
     get_threshold(const array2r_t& metric,
                   int row,
                   int col_min,
@@ -136,8 +137,9 @@ template <class receiver_t,
           bool thresholding,
           bool lazy,
           bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
-    work_alpha(const int i)
+void
+fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_alpha(
+    const int i)
 {
     // determine the strongest path at this point
     const real threshold =
@@ -191,8 +193,9 @@ template <class receiver_t,
           bool thresholding,
           bool lazy,
           bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
-    work_beta(const int i)
+void
+fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_beta(
+    const int i)
 {
     // determine the strongest forward path at this point
     const real threshold =
@@ -245,7 +248,8 @@ template <class receiver_t,
           bool thresholding,
           bool lazy,
           bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
+void
+fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
     work_message_app(array1vr_t& ptable, const int i) const
 {
     // determine the strongest path at this point
@@ -308,7 +312,8 @@ template <class receiver_t,
           bool thresholding,
           bool lazy,
           bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
+void
+fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
     work_state_app(array1r_t& ptable, const int i) const
 {
     assert(i >= 0 && i <= N);
@@ -332,8 +337,8 @@ template <class receiver_t,
           bool thresholding,
           bool lazy,
           bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
-    allocate()
+void
+fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::allocate()
 {
     // flag the state of the arrays
     initialised = true;
@@ -450,7 +455,8 @@ template <class receiver_t,
           bool thresholding,
           bool lazy,
           bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::free()
+void
+fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::free()
 {
     alpha.resize(boost::extents[0][0]);
     beta.resize(boost::extents[0][0]);
@@ -471,7 +477,8 @@ template <class receiver_t,
           bool thresholding,
           bool lazy,
           bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
+void
+fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
     reset_cache() const
 {
     // initialise array and cache flags
@@ -496,7 +503,8 @@ template <class receiver_t,
           bool thresholding,
           bool lazy,
           bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
+void
+fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
     print_gamma(std::ostream& sout) const
 {
     sout << "gamma = " << std::endl;
@@ -523,8 +531,9 @@ template <class receiver_t,
           bool thresholding,
           bool lazy,
           bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
-    work_gamma(const array1s_t& r, const array1vd_t& app)
+void
+fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_gamma(
+    const array1s_t& r, const array1vd_t& app)
 {
     assert(initialised);
 #ifndef NDEBUG
@@ -553,7 +562,8 @@ template <class receiver_t,
           bool thresholding,
           bool lazy,
           bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
+void
+fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
     work_alpha_and_beta(const array1d_t& sof_prior, const array1d_t& eof_prior)
 {
     assert(initialised);
@@ -598,7 +608,8 @@ template <class receiver_t,
           bool thresholding,
           bool lazy,
           bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
+void
+fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
     work_results(array1vr_t& ptable,
                  array1r_t& sof_post,
                  array1r_t& eof_post) const
@@ -638,8 +649,9 @@ template <class receiver_t,
           bool thresholding,
           bool lazy,
           bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
-    work_alpha(const array1d_t& sof_prior)
+void
+fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::work_alpha(
+    const array1d_t& sof_prior)
 {
     assert(initialised);
     libbase::pacifier progress("FBA Alpha");
@@ -681,7 +693,8 @@ template <class receiver_t,
           bool thresholding,
           bool lazy,
           bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
+void
+fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
     work_beta_and_results(const array1d_t& eof_prior,
                           array1vr_t& ptable,
                           array1r_t& sof_post,
@@ -744,7 +757,8 @@ template <class receiver_t,
           bool thresholding,
           bool lazy,
           bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::init(
+void
+fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::init(
     int N,
     int q,
     int mtau_min,
@@ -832,16 +846,17 @@ template <class receiver_t,
           bool thresholding,
           bool lazy,
           bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
-    decode(libcomm::instrumented& collector,
-           const array1s_t& r,
-           const array1d_t& sof_prior,
-           const array1d_t& eof_prior,
-           const array1vd_t& app,
-           array1vr_t& ptable,
-           array1r_t& sof_post,
-           array1r_t& eof_post,
-           const int offset)
+void
+fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::decode(
+    libcomm::instrumented& collector,
+    const array1s_t& r,
+    const array1d_t& sof_prior,
+    const array1d_t& eof_prior,
+    const array1vd_t& app,
+    array1vr_t& ptable,
+    array1r_t& sof_post,
+    array1r_t& eof_post,
+    const int offset)
 {
 #if DEBUG >= 4
     std::cerr << "Starting decode..." << std::endl;
@@ -951,7 +966,8 @@ template <class receiver_t,
           bool thresholding,
           bool lazy,
           bool globalstore>
-void fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
+void
+fba2<receiver_t, sig, real, real2, thresholding, lazy, globalstore>::
     get_drift_pdf(array1vr_t& pdftable) const
 {
     assert(initialised);

@@ -29,13 +29,15 @@ namespace libcomm
 // object serialization
 
 template <class S, template <class> class C>
-std::ostream& laplacian<S, C>::serialize(std::ostream& sout) const
+std::ostream&
+laplacian<S, C>::serialize(std::ostream& sout) const
 {
     return sout;
 }
 
 template <class S, template <class> class C>
-std::istream& laplacian<S, C>::serialize(std::istream& sin)
+std::istream&
+laplacian<S, C>::serialize(std::istream& sin)
 {
     return sin;
 }
@@ -45,13 +47,15 @@ std::istream& laplacian<S, C>::serialize(std::istream& sin)
 // object serialization
 
 template <template <class> class C>
-std::ostream& laplacian<sigspace, C>::serialize(std::ostream& sout) const
+std::ostream&
+laplacian<sigspace, C>::serialize(std::ostream& sout) const
 {
     return sout;
 }
 
 template <template <class> class C>
-std::istream& laplacian<sigspace, C>::serialize(std::istream& sin)
+std::istream&
+laplacian<sigspace, C>::serialize(std::istream& sin)
 {
     return sin;
 }

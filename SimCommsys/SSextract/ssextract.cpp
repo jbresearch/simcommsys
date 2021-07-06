@@ -31,7 +31,8 @@
 #include <typeinfo>
 
 template <class S>
-libimage::image<S> loadimage(std::istream& sin)
+libimage::image<S>
+loadimage(std::istream& sin)
 {
     // load image from stream
     libimage::image<S> im;
@@ -58,12 +59,13 @@ libimage::image<S> loadimage(std::istream& sin)
  */
 
 template <class S, template <class> class C>
-void process(const std::string& systemfile,
-             const std::string& channelfile,
-             double p,
-             bool softout,
-             std::istream& sin = std::cin,
-             std::ostream& sout = std::cout)
+void
+process(const std::string& systemfile,
+        const std::string& channelfile,
+        double p,
+        bool softout,
+        std::istream& sin = std::cin,
+        std::ostream& sout = std::cout)
 {
     // define types
     typedef libbase::vector<double> array1d_t;
@@ -119,7 +121,8 @@ void process(const std::string& systemfile,
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     libbase::cputimer tmain("Main timer");
 

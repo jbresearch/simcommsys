@@ -31,7 +31,8 @@ namespace libcomm
 // initialization / de-allocation
 
 template <class real, class dbl>
-void turbo<real, dbl>::init()
+void
+turbo<real, dbl>::init()
 {
     // check presence and size of interleavers
     assertalways(inter.size() > 0);
@@ -55,7 +56,8 @@ void turbo<real, dbl>::init()
 }
 
 template <class real, class dbl>
-void turbo<real, dbl>::reset()
+void
+turbo<real, dbl>::reset()
 {
     if (circular) {
         libbase::allocate(ss, num_sets(), enc_states());
@@ -99,7 +101,8 @@ turbo<real, dbl>::turbo(
 // memory allocator (for internal use only)
 
 template <class real, class dbl>
-void turbo<real, dbl>::allocate()
+void
+turbo<real, dbl>::allocate()
 {
     // Inherit sizes
     const int sets = num_sets();
@@ -149,10 +152,11 @@ void turbo<real, dbl>::allocate()
  * need to be read.
  */
 template <class real, class dbl>
-void turbo<real, dbl>::work_extrinsic(const array2d_t& ra,
-                                      const array2d_t& ri,
-                                      const array2d_t& r,
-                                      array2d_t& re)
+void
+turbo<real, dbl>::work_extrinsic(const array2d_t& ra,
+                                 const array2d_t& ri,
+                                 const array2d_t& r,
+                                 array2d_t& re)
 {
     // Compute denominator
     array2d_t rar = ra.multiply(r);
@@ -181,10 +185,11 @@ void turbo<real, dbl>::work_extrinsic(const array2d_t& ra,
  * need to be read.
  */
 template <class real, class dbl>
-void turbo<real, dbl>::bcjr_wrap(const int set,
-                                 const array2d_t& ra,
-                                 array2d_t& ri,
-                                 array2d_t& re)
+void
+turbo<real, dbl>::bcjr_wrap(const int set,
+                            const array2d_t& ra,
+                            array2d_t& ri,
+                            array2d_t& re)
 {
     // Temporary variables to hold interleaved versions of ra/ri
     array2d_t rai, rii;
@@ -208,7 +213,8 @@ void turbo<real, dbl>::bcjr_wrap(const int set,
  * probabilities.
  */
 template <class real, class dbl>
-void turbo<real, dbl>::decode_serial(array2d_t& ri)
+void
+turbo<real, dbl>::decode_serial(array2d_t& ri)
 {
     // after working all sets, ri is the intrinsic+extrinsic information
     // from the last stage decoder.
@@ -232,7 +238,8 @@ void turbo<real, dbl>::decode_serial(array2d_t& ri)
  * decreases.
  */
 template <class real, class dbl>
-void turbo<real, dbl>::decode_parallel(array2d_t& ri)
+void
+turbo<real, dbl>::decode_parallel(array2d_t& ri)
 {
     // here ri is only a temporary space
     // and ra(set) is updated with the extrinsic information for that set
@@ -272,7 +279,8 @@ void turbo<real, dbl>::decode_parallel(array2d_t& ri)
  * \note Clean up this function, removing unnecessary symbol-conversion
  */
 template <class real, class dbl>
-void turbo<real, dbl>::do_init_decoder(const array1vd_t& ptable)
+void
+turbo<real, dbl>::do_init_decoder(const array1vd_t& ptable)
 {
     assert(ptable.size() == This::output_block_size());
     // Inherit sizes
@@ -344,8 +352,9 @@ void turbo<real, dbl>::do_init_decoder(const array1vd_t& ptable)
 }
 
 template <class real, class dbl>
-void turbo<real, dbl>::do_init_decoder(const array1vd_t& ptable,
-                                       const array1vd_t& app)
+void
+turbo<real, dbl>::do_init_decoder(const array1vd_t& ptable,
+                                  const array1vd_t& app)
 {
     // Start by setting receiver statistics
     do_init_decoder(ptable);
@@ -365,7 +374,8 @@ void turbo<real, dbl>::do_init_decoder(const array1vd_t& ptable,
 // encoding and decoding functions
 
 template <class real, class dbl>
-void turbo<real, dbl>::seedfrom(libbase::random& r)
+void
+turbo<real, dbl>::seedfrom(libbase::random& r)
 {
     for (int set = 0; set < num_sets(); set++) {
         inter(set)->seedfrom(r);
@@ -373,7 +383,8 @@ void turbo<real, dbl>::seedfrom(libbase::random& r)
 }
 
 template <class real, class dbl>
-void turbo<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
+void
+turbo<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
 {
     assert(source.size() == This::input_block_size());
     // Inherit sizes
@@ -457,7 +468,8 @@ void turbo<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
 }
 
 template <class real, class dbl>
-void turbo<real, dbl>::softdecode(array1vd_t& ri)
+void
+turbo<real, dbl>::softdecode(array1vd_t& ri)
 {
     // temporary space to hold complete results (ie. with tail)
     array2d_t rif;
@@ -477,7 +489,8 @@ void turbo<real, dbl>::softdecode(array1vd_t& ri)
 }
 
 template <class real, class dbl>
-void turbo<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
+void
+turbo<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
 {
     failwith("Not yet implemented");
 }
@@ -485,7 +498,8 @@ void turbo<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
 // description output
 
 template <class real, class dbl>
-std::string turbo<real, dbl>::description() const
+std::string
+turbo<real, dbl>::description() const
 {
     std::ostringstream sout;
     sout << "Turbo Code (" << This::output_block_size() << ","
@@ -504,7 +518,8 @@ std::string turbo<real, dbl>::description() const
 // object serialization - saving
 
 template <class real, class dbl>
-std::ostream& turbo<real, dbl>::serialize(std::ostream& sout) const
+std::ostream&
+turbo<real, dbl>::serialize(std::ostream& sout) const
 {
     // format version
     sout << "# Version" << std::endl;
@@ -538,7 +553,8 @@ std::ostream& turbo<real, dbl>::serialize(std::ostream& sout) const
  * \version 2 Removed explicit 'tau'
  */
 template <class real, class dbl>
-std::istream& turbo<real, dbl>::serialize(std::istream& sin)
+std::istream&
+turbo<real, dbl>::serialize(std::istream& sin)
 {
     assertalways(sin.good());
     // get format version

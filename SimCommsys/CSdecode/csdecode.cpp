@@ -34,9 +34,10 @@
 // block reading
 
 template <class S>
-void read(std::istream& sin,
-          libbase::vector<S>& result,
-          const libbase::size_type<libbase::vector>& blocksize)
+void
+read(std::istream& sin,
+     libbase::vector<S>& result,
+     const libbase::size_type<libbase::vector>& blocksize)
 {
     std::list<S> items;
     // Repeat until all elements read or end of stream
@@ -57,9 +58,10 @@ void read(std::istream& sin,
 }
 
 template <class S>
-void readsingleblock(std::istream& sin,
-                     libbase::vector<S>& result,
-                     const libbase::size_type<libbase::vector>& blocksize)
+void
+readsingleblock(std::istream& sin,
+                libbase::vector<S>& result,
+                const libbase::size_type<libbase::vector>& blocksize)
 {
     std::list<S> items;
     // Skip any preceding comments and whitespace
@@ -87,17 +89,19 @@ void readsingleblock(std::istream& sin,
 }
 
 template <class S>
-void readsingleblock(std::istream& sin,
-                     libbase::matrix<S>& result,
-                     const libbase::size_type<libbase::matrix>& blocksize)
+void
+readsingleblock(std::istream& sin,
+                libbase::matrix<S>& result,
+                const libbase::size_type<libbase::matrix>& blocksize)
 {
     failwith("not implemented");
 }
 
 template <class S, template <class> class C>
-void readnextblock(std::istream& sin,
-                   C<S>& result,
-                   const libbase::size_type<C>& blocksize)
+void
+readnextblock(std::istream& sin,
+              C<S>& result,
+              const libbase::size_type<C>& blocksize)
 {
     result.init(blocksize);
     result.serialize(sin);
@@ -106,17 +110,19 @@ void readnextblock(std::istream& sin,
 // block read and receive methods
 
 template <class S, template <class> class C>
-void receiver_soft_single(std::istream& sin,
-                          std::shared_ptr<libcomm::commsys<S, C>> system,
-                          const libbase::size_type<C>& blocksize)
+void
+receiver_soft_single(std::istream& sin,
+                     std::shared_ptr<libcomm::commsys<S, C>> system,
+                     const libbase::size_type<C>& blocksize)
 {
     failwith("Not supported.");
 }
 
 template <class S, template <class> class C>
-void receiver_soft_multi(std::istream& sin,
-                         std::shared_ptr<libcomm::commsys<S, C>> system,
-                         const libbase::size_type<C>& blocksize)
+void
+receiver_soft_multi(std::istream& sin,
+                    std::shared_ptr<libcomm::commsys<S, C>> system,
+                    const libbase::size_type<C>& blocksize)
 {
     typedef libbase::vector<double> array1d_t;
     C<array1d_t> ptable_in;
@@ -125,9 +131,10 @@ void receiver_soft_multi(std::istream& sin,
 }
 
 template <class S, template <class> class C>
-void receiver_single(std::istream& sin,
-                     std::shared_ptr<libcomm::commsys<S, C>> system,
-                     const libbase::size_type<C>& blocksize)
+void
+receiver_single(std::istream& sin,
+                std::shared_ptr<libcomm::commsys<S, C>> system,
+                const libbase::size_type<C>& blocksize)
 {
     C<S> received;
     readsingleblock(sin, received, blocksize);
@@ -135,9 +142,10 @@ void receiver_single(std::istream& sin,
 }
 
 template <class S, template <class> class C>
-void receiver_multi(std::istream& sin,
-                    std::shared_ptr<libcomm::commsys<S, C>> system,
-                    const libbase::size_type<C>& blocksize)
+void
+receiver_multi(std::istream& sin,
+               std::shared_ptr<libcomm::commsys<S, C>> system,
+               const libbase::size_type<C>& blocksize)
 {
     C<S> received;
     readnextblock(sin, received, blocksize);
@@ -150,7 +158,8 @@ void receiver_multi(std::istream& sin,
 //      const libbase::size_type<C>& blocksize)
 
 template <class S>
-void receiver_multi_stream(
+void
+receiver_multi_stream(
     std::istream& sin,
     std::shared_ptr<libcomm::commsys_stream<S, libbase::vector, float>> system,
     const libbase::size_type<libbase::vector>& blocksize)
@@ -224,7 +233,8 @@ void receiver_multi_stream(
 }
 
 template <class S>
-void receiver_multi_stream(
+void
+receiver_multi_stream(
     std::istream& sin,
     std::shared_ptr<libcomm::commsys_stream<S, libbase::matrix, float>> system,
     const libbase::size_type<libbase::matrix>& blocksize)
@@ -235,8 +245,8 @@ void receiver_multi_stream(
 // results output methods
 
 template <class S, template <class> class C>
-void decode_soft(std::ostream& sout,
-                 std::shared_ptr<libcomm::commsys<S, C>> system)
+void
+decode_soft(std::ostream& sout, std::shared_ptr<libcomm::commsys<S, C>> system)
 {
     typedef libbase::vector<double> array1d_t;
     typedef libcomm::codec_softout<C> codec_so;
@@ -249,7 +259,8 @@ void decode_soft(std::ostream& sout,
 }
 
 template <class S, template <class> class C>
-void decode(std::ostream& sout, std::shared_ptr<libcomm::commsys<S, C>> system)
+void
+decode(std::ostream& sout, std::shared_ptr<libcomm::commsys<S, C>> system)
 {
     C<int> decoded;
     for (int i = 0; i < system->num_iter(); i++) {
@@ -266,15 +277,16 @@ void decode(std::ostream& sout, std::shared_ptr<libcomm::commsys<S, C>> system)
  */
 
 template <class S, template <class> class C>
-void process(const std::string& fname,
-             double p,
-             bool softin,
-             bool softout,
-             bool knownend,
-             int count,
-             libbase::size_type<C>& blocksize,
-             std::istream& sin = std::cin,
-             std::ostream& sout = std::cout)
+void
+process(const std::string& fname,
+        double p,
+        bool softin,
+        bool softout,
+        bool knownend,
+        int count,
+        libbase::size_type<C>& blocksize,
+        std::istream& sin = std::cin,
+        std::ostream& sout = std::cout)
 {
     // define types
     typedef libcomm::commsys<S, C> commsys;
@@ -340,7 +352,8 @@ void process(const std::string& fname,
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     libbase::cputimer tmain("Main timer");
 

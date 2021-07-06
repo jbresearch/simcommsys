@@ -34,7 +34,8 @@ namespace libcomm
 #endif
 
 template <class GF_q, class real>
-void sum_prod_alg_gdl<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
+void
+sum_prod_alg_gdl<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
 {
 
     int num_of_elements = GF_q::elements();
@@ -128,9 +129,10 @@ void sum_prod_alg_gdl<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
 }
 
 template <class GF_q, class real>
-void sum_prod_alg_gdl<GF_q, real>::compute_convs(array1d_t& conv_out,
-                                                 int pos1,
-                                                 int pos2)
+void
+sum_prod_alg_gdl<GF_q, real>::compute_convs(array1d_t& conv_out,
+                                            int pos1,
+                                            int pos2)
 {
     // this is in fact the Hadamard transform using the butterfly property of
     // the fast Fourier transform.
@@ -156,8 +158,10 @@ void sum_prod_alg_gdl<GF_q, real>::compute_convs(array1d_t& conv_out,
 
 // specialisation for GF(2)
 template <>
-void sum_prod_alg_gdl<libbase::gf2, double>::compute_r_mn(
-    int m, int n, const array1i_t& tmpN_m)
+void
+sum_prod_alg_gdl<libbase::gf2, double>::compute_r_mn(int m,
+                                                     int n,
+                                                     const array1i_t& tmpN_m)
 {
     // the number of participating symbols
     int num_of_var_syms = tmpN_m.size();
@@ -178,9 +182,10 @@ void sum_prod_alg_gdl<libbase::gf2, double>::compute_r_mn(
 }
 
 template <class GF_q, class real>
-void sum_prod_alg_gdl<GF_q, real>::compute_r_mn(int m,
-                                                int n,
-                                                const array1i_t& tmpN_m)
+void
+sum_prod_alg_gdl<GF_q, real>::compute_r_mn(int m,
+                                           int n,
+                                           const array1i_t& tmpN_m)
 {
     // the number of participating symbols
     int num_of_var_syms = tmpN_m.size();
@@ -237,9 +242,8 @@ void sum_prod_alg_gdl<GF_q, real>::compute_r_mn(int m,
 }
 
 template <class GF_q, class real>
-void sum_prod_alg_gdl<GF_q, real>::compute_q_mn(int m,
-                                                int n,
-                                                const array1i_t& M_n)
+void
+sum_prod_alg_gdl<GF_q, real>::compute_q_mn(int m, int n, const array1i_t& M_n)
 {
     // initialise some helper variables
     int num_of_elements = GF_q::elements();

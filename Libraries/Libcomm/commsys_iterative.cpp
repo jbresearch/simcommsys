@@ -31,7 +31,8 @@ namespace libcomm
 // Communication System Interface
 
 template <class S, template <class> class C>
-void commsys_iterative<S, C>::receive_path(const C<S>& received)
+void
+commsys_iterative<S, C>::receive_path(const C<S>& received)
 {
     // Demodulate
     C<array1d_t> ptable_mapped;
@@ -51,7 +52,8 @@ void commsys_iterative<S, C>::receive_path(const C<S>& received)
 // Description & Serialization
 
 template <class S, template <class> class C>
-std::string commsys_iterative<S, C>::description() const
+std::string
+commsys_iterative<S, C>::description() const
 {
     std::ostringstream sout;
     sout << "Iterative ";
@@ -61,7 +63,8 @@ std::string commsys_iterative<S, C>::description() const
 }
 
 template <class S, template <class> class C>
-std::ostream& commsys_iterative<S, C>::serialize(std::ostream& sout) const
+std::ostream&
+commsys_iterative<S, C>::serialize(std::ostream& sout) const
 {
     sout << iter << std::endl;
     commsys<S, C>::serialize(sout);
@@ -69,7 +72,8 @@ std::ostream& commsys_iterative<S, C>::serialize(std::ostream& sout) const
 }
 
 template <class S, template <class> class C>
-std::istream& commsys_iterative<S, C>::serialize(std::istream& sin)
+std::istream&
+commsys_iterative<S, C>::serialize(std::istream& sin)
 {
     sin >> libbase::eatcomments >> iter >> libbase::verify;
     commsys<S, C>::serialize(sin);

@@ -25,7 +25,8 @@ namespace libimage
 {
 
 template <class T>
-void filter<T>::apply(const libbase::matrix<T>& in, libbase::matrix<T>& out)
+void
+filter<T>::apply(const libbase::matrix<T>& in, libbase::matrix<T>& out)
 {
     // parameter estimation (updates internal statistics)
     reset();

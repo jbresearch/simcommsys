@@ -44,7 +44,8 @@ namespace libcomm
  * \brief Return encoding of data 'd' at position 'i'
  */
 template <class real>
-libbase::vector<bool> dminner<real>::encode(const int i, const int d) const
+libbase::vector<bool>
+dminner<real>::encode(const int i, const int d) const
 {
 #ifndef NDEBUG
     // Inherit sizes
@@ -72,7 +73,8 @@ libbase::vector<bool> dminner<real>::encode(const int i, const int d) const
  * \brief Check that all entries in table have correct length
  */
 template <class real>
-void dminner<real>::validate_bitfield_length(
+void
+dminner<real>::validate_bitfield_length(
     const libbase::vector<libbase::bitfield>& table) const
 {
     assertalways(table.size() > 0);
@@ -86,8 +88,8 @@ void dminner<real>::validate_bitfield_length(
  * \brief Set up marker sequence for the current frame as given
  */
 template <class real>
-void dminner<real>::copymarker(
-    const libbase::vector<libbase::bitfield>& marker_b)
+void
+dminner<real>::copymarker(const libbase::vector<libbase::bitfield>& marker_b)
 {
     validate_bitfield_length(marker_b);
     marker = marker_b;
@@ -97,7 +99,8 @@ void dminner<real>::copymarker(
  * \brief Set up codebook with the given codewords
  */
 template <class real>
-void dminner<real>::copycodebook(
+void
+dminner<real>::copycodebook(
     const int i, const libbase::vector<libbase::bitfield>& codebook_b)
 {
     assertalways(codebook_b.size() == num_symbols());
@@ -115,7 +118,8 @@ void dminner<real>::copycodebook(
  */
 
 template <class real>
-void dminner<real>::showcodebook(std::ostream& sout) const
+void
+dminner<real>::showcodebook(std::ostream& sout) const
 {
     assert(num_codebooks() >= 1);
     assert(codebook.size().cols() == num_symbols());
@@ -137,7 +141,8 @@ void dminner<real>::showcodebook(std::ostream& sout) const
  */
 
 template <class real>
-void dminner<real>::validatecodebook() const
+void
+dminner<real>::validatecodebook() const
 {
     assertalways(num_codebooks() >= 1);
     assertalways(codebook.size().cols() == num_symbols());
@@ -157,7 +162,8 @@ void dminner<real>::validatecodebook() const
 //! Compute and update mean density of codebook
 
 template <class real>
-void dminner<real>::computemeandensity()
+void
+dminner<real>::computemeandensity()
 {
     array2i_t w = codebook;
     w.apply(libbase::weight);
@@ -172,12 +178,13 @@ void dminner<real>::computemeandensity()
 //! Inform user if state space limits have changed (debug build only)
 
 template <class real>
-void dminner<real>::checkforchanges(int m1_min,
-                                    int m1_max,
-                                    int mn_min,
-                                    int mn_max,
-                                    int mtau_min,
-                                    int mtau_max) const
+void
+dminner<real>::checkforchanges(int m1_min,
+                               int m1_max,
+                               int mn_min,
+                               int mn_max,
+                               int mtau_min,
+                               int mtau_max) const
 {
 #ifndef NDEBUG
     static int last_m1_min = 0;
@@ -208,12 +215,13 @@ void dminner<real>::checkforchanges(int m1_min,
 }
 
 template <class real>
-void dminner<real>::work_results(const array1b_t& r,
-                                 array1vr_t& ptable,
-                                 const int mtau_min,
-                                 const int mtau_max,
-                                 const int mn_min,
-                                 const int mn_max) const
+void
+dminner<real>::work_results(const array1b_t& r,
+                            array1vr_t& ptable,
+                            const int mtau_min,
+                            const int mtau_max,
+                            const int mn_min,
+                            const int mn_max) const
 {
     libbase::pacifier progress("FBA Results");
     // local flag for path thresholding
@@ -286,8 +294,8 @@ void dminner<real>::work_results(const array1b_t& r,
  * equal to 1; result is converted to double.
  */
 template <class real>
-void dminner<real>::normalize_results(const array1vr_t& in,
-                                      array1vd_t& out) const
+void
+dminner<real>::normalize_results(const array1vr_t& in, array1vd_t& out) const
 {
     const int N = in.size();
     assert(N > 0);
@@ -312,7 +320,8 @@ void dminner<real>::normalize_results(const array1vr_t& in,
 // initialization / de-allocation
 
 template <class real>
-void dminner<real>::init()
+void
+dminner<real>::init()
 {
     // Fill default codebook if necessary
     if (codebook_type == codebook_sparse) {
@@ -344,7 +353,8 @@ void dminner<real>::init()
 // Marker-specific setup functions
 
 template <class real>
-void dminner<real>::set_thresholds(const real th_inner, const real th_outer)
+void
+dminner<real>::set_thresholds(const real th_inner, const real th_outer)
 {
     user_threshold = true;
     this->th_inner = th_inner;
@@ -355,7 +365,8 @@ void dminner<real>::set_thresholds(const real th_inner, const real th_outer)
 // implementations of channel-specific metrics for fba
 
 template <class real>
-real dminner<real>::R(const int i, const array1b_t& r)
+real
+dminner<real>::R(const int i, const array1b_t& r)
 {
     // 'tx' is a matrix of all possible transmitted symbols
     // we know exactly what was transmitted at this timestep
@@ -369,7 +380,8 @@ real dminner<real>::R(const int i, const array1b_t& r)
 // block advance operation - update marker sequence
 
 template <class real>
-void dminner<real>::advance() const
+void
+dminner<real>::advance() const
 {
     // Inherit sizes
     const int tau = this->input_block_size();
@@ -413,9 +425,8 @@ void dminner<real>::advance() const
 // encoding and decoding functions
 
 template <class real>
-void dminner<real>::domodulate(const int N,
-                               const array1i_t& encoded,
-                               array1b_t& tx)
+void
+dminner<real>::domodulate(const int N, const array1i_t& encoded, array1b_t& tx)
 {
     // TODO: when N is removed from the interface, rename 'tau' to 'N'
     // Inherit sizes
@@ -435,9 +446,10 @@ void dminner<real>::domodulate(const int N,
 }
 
 template <class real>
-void dminner<real>::dodemodulate(const channel<bool>& chan,
-                                 const array1b_t& rx,
-                                 array1vd_t& ptable)
+void
+dminner<real>::dodemodulate(const channel<bool>& chan,
+                            const array1b_t& rx,
+                            array1vd_t& ptable)
 {
     // Inherit sizes
     const int N = this->input_block_size();
@@ -478,10 +490,11 @@ void dminner<real>::dodemodulate(const channel<bool>& chan,
 }
 
 template <class real>
-void dminner<real>::dodemodulate(const channel<bool>& chan,
-                                 const array1b_t& rx,
-                                 const array1vd_t& app,
-                                 array1vd_t& ptable)
+void
+dminner<real>::dodemodulate(const channel<bool>& chan,
+                            const array1b_t& rx,
+                            const array1vd_t& app,
+                            array1vd_t& ptable)
 {
     array1vd_t p;
     // Apply standard demodulation
@@ -506,17 +519,17 @@ void dminner<real>::dodemodulate(const channel<bool>& chan,
 }
 
 template <class real>
-void dminner<real>::dodemodulate(
-    const channel<bool>& chan,
-    const array1b_t& rx,
-    const libbase::size_type<libbase::vector> lookahead,
-    const array1d_t& sof_prior,
-    const array1d_t& eof_prior,
-    const array1vd_t& app,
-    array1vd_t& ptable,
-    array1d_t& sof_post,
-    array1d_t& eof_post,
-    const libbase::size_type<libbase::vector> offset)
+void
+dminner<real>::dodemodulate(const channel<bool>& chan,
+                            const array1b_t& rx,
+                            const libbase::size_type<libbase::vector> lookahead,
+                            const array1d_t& sof_prior,
+                            const array1d_t& eof_prior,
+                            const array1vd_t& app,
+                            array1vd_t& ptable,
+                            array1d_t& sof_post,
+                            array1d_t& eof_post,
+                            const libbase::size_type<libbase::vector> offset)
 {
     failwith("Function not implemented.");
 }
@@ -524,7 +537,8 @@ void dminner<real>::dodemodulate(
 // description output
 
 template <class real>
-std::string dminner<real>::description() const
+std::string
+dminner<real>::description() const
 {
     std::ostringstream sout;
     const int q = num_symbols();
@@ -581,7 +595,8 @@ std::string dminner<real>::description() const
 // object serialization - saving
 
 template <class real>
-std::ostream& dminner<real>::serialize(std::ostream& sout) const
+std::ostream&
+dminner<real>::serialize(std::ostream& sout) const
 {
     sout << "# Version" << std::endl;
     sout << 4 << std::endl;
@@ -667,7 +682,8 @@ std::ostream& dminner<real>::serialize(std::ostream& sout) const
  */
 
 template <class real>
-std::istream& dminner<real>::serialize(std::istream& sin)
+std::istream&
+dminner<real>::serialize(std::istream& sin)
 {
     std::streampos start = sin.tellg();
 

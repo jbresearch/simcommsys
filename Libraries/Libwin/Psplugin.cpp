@@ -49,10 +49,11 @@ CPSPlugIn::~CPSPlugIn() {}
 /////////////////////////////////////////////////////////////////////////////
 // CPSPlugIn main function
 
-void CPSPlugIn::Main(const short nSelector,
-                     FilterRecord* pFilterRecord,
-                     long* pData,
-                     short* pResult)
+void
+CPSPlugIn::Main(const short nSelector,
+                FilterRecord* pFilterRecord,
+                long* pData,
+                short* pResult)
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
     try {
@@ -108,7 +109,8 @@ void CPSPlugIn::Main(const short nSelector,
 // CPSPlugIn entry and exit points
 
 // this gets called every time through the main() loop so we stay in sync
-void CPSPlugIn::Entry(FilterRecord* pFilterRecord, long* pData)
+void
+CPSPlugIn::Entry(FilterRecord* pFilterRecord, long* pData)
 {
     TRACE("Filter Entry\n");
     if (pFilterRecord == NULL) {
@@ -119,7 +121,8 @@ void CPSPlugIn::Entry(FilterRecord* pFilterRecord, long* pData)
 }
 
 // this gets called every time through the main() loop so we stay in sync
-void CPSPlugIn::Exit()
+void
+CPSPlugIn::Exit()
 {
     TRACE("Filter Exit\n");
     // I am not sure if I need this
@@ -132,10 +135,15 @@ void CPSPlugIn::Exit()
 // CPSPlugIn filter selector functions
 
 // show the about dialog here
-void CPSPlugIn::FilterAbout(void) { TRACE("Filter About\n"); }
+void
+CPSPlugIn::FilterAbout(void)
+{
+    TRACE("Filter About\n");
+}
 
 // this will be called the first time your plug in is ran
-void CPSPlugIn::FilterParameters(void)
+void
+CPSPlugIn::FilterParameters(void)
 {
     TRACE("Filter Parameters\n");
     // if we're called here we will be showing the dialog
@@ -143,7 +151,8 @@ void CPSPlugIn::FilterParameters(void)
 }
 
 // the plug in could start here with the Ctrl-F command, "Run Last Filter"
-void CPSPlugIn::FilterPrepare(void)
+void
+CPSPlugIn::FilterPrepare(void)
 {
     TRACE("Filter Prepare\n");
     // if data block is not yet allocated, do it now;
@@ -155,7 +164,8 @@ void CPSPlugIn::FilterPrepare(void)
     }
 }
 
-void CPSPlugIn::FilterStart(void)
+void
+CPSPlugIn::FilterStart(void)
 {
     TRACE("Filter Start\n");
     // read parameters from the scripting sub-system, if given
@@ -172,14 +182,16 @@ void CPSPlugIn::FilterStart(void)
     m_tDuration.start();
 }
 
-void CPSPlugIn::FilterContinue(void)
+void
+CPSPlugIn::FilterContinue(void)
 {
     TRACE("Filter Continue\n");
     // select the next rectangle based on the given tile suggestions
     TileUpdate();
 }
 
-void CPSPlugIn::FilterFinish(void)
+void
+CPSPlugIn::FilterFinish(void)
 {
     TRACE("Filter Finish\n");
     // stop operation timer
@@ -194,7 +206,8 @@ void CPSPlugIn::FilterFinish(void)
 /////////////////////////////////////////////////////////////////////////////
 // CPSPlugIn private helpers - data block memory allocation
 
-void CPSPlugIn::DataAllocate()
+void
+CPSPlugIn::DataAllocate()
 {
     TRACE("Filter Allocating Data Block\n");
     // allocate memory for parameters
@@ -217,7 +230,8 @@ void CPSPlugIn::DataAllocate()
     InitParameters();
 }
 
-void CPSPlugIn::DataCheckVersion()
+void
+CPSPlugIn::DataCheckVersion()
 {
     // you better have a valid handle to get your data out of
     char* sData =
@@ -246,7 +260,8 @@ void CPSPlugIn::DataCheckVersion()
 /////////////////////////////////////////////////////////////////////////////
 // CPSPlugIn private helpers - tile manipulation
 
-void CPSPlugIn::TileCopy()
+void
+CPSPlugIn::TileCopy()
 {
     // set up aliases for filter record values we're using
     Rect* inRect = &m_pFilterRecord->inRect;
@@ -262,7 +277,8 @@ void CPSPlugIn::TileCopy()
     m_pFilterRecord->outHiPlane = m_pFilterRecord->inHiPlane;
 }
 
-void CPSPlugIn::TileSetEmpty()
+void
+CPSPlugIn::TileSetEmpty()
 {
     // set up aliases for filter record values we're using
     Rect* inRect = &m_pFilterRecord->inRect;
@@ -280,7 +296,8 @@ void CPSPlugIn::TileSetEmpty()
     TileCopy();
 }
 
-void CPSPlugIn::TileWrite()
+void
+CPSPlugIn::TileWrite()
 {
     // set up aliases for filter record values we're using
     Rect* inRect = &m_pFilterRecord->inRect;
@@ -318,7 +335,8 @@ void CPSPlugIn::TileWrite()
     TileCopy();
 }
 
-void CPSPlugIn::TileUpdate()
+void
+CPSPlugIn::TileUpdate()
 {
     // set up aliases for filter record values we're using
     const int nLayerPlanes = GetPlanes();
@@ -349,7 +367,8 @@ void CPSPlugIn::TileUpdate()
 /////////////////////////////////////////////////////////////////////////////
 // CPSPlugIn private helpers - descriptor suite low-level access
 
-void CPSPlugIn::ReadScriptParameters()
+void
+CPSPlugIn::ReadScriptParameters()
 {
     if (IsDescriptorAvailable()) {
         PIReadDescriptor token = OpenReader();
@@ -367,7 +386,8 @@ void CPSPlugIn::ReadScriptParameters()
     }
 }
 
-void CPSPlugIn::WriteScriptParameters()
+void
+CPSPlugIn::WriteScriptParameters()
 {
     if (IsDescriptorAvailable()) {
         PIWriteDescriptor token = OpenWriter();
@@ -382,7 +402,8 @@ void CPSPlugIn::WriteScriptParameters()
 /////////////////////////////////////////////////////////////////////////////
 // CPSPlugIn protected helpers - user hooks for multi-pass operators
 
-bool CPSPlugIn::IterationDone() const
+bool
+CPSPlugIn::IterationDone() const
 {
     // set up aliases for filter record values we're using
     Rect* inRect = &m_pFilterRecord->inRect;
@@ -392,7 +413,8 @@ bool CPSPlugIn::IterationDone() const
             inRect->right == 0);
 }
 
-void CPSPlugIn::IterationStart()
+void
+CPSPlugIn::IterationStart()
 {
     m_nPlane = 0;
     m_nVerTile = 0;
@@ -403,10 +425,11 @@ void CPSPlugIn::IterationStart()
 /////////////////////////////////////////////////////////////////////////////
 // CPSPlugIn protected helpers - user progress display functions
 
-void CPSPlugIn::DisplayTotalProgress(const int nComplete,
-                                     const int nTotal,
-                                     const int nIteration,
-                                     const int nTotalIterations) const
+void
+CPSPlugIn::DisplayTotalProgress(const int nComplete,
+                                const int nTotal,
+                                const int nIteration,
+                                const int nTotalIterations) const
 {
     // compute progress over all iterations
     const int nProgressTotal = nTotalIterations * nTotal;
@@ -414,10 +437,11 @@ void CPSPlugIn::DisplayTotalProgress(const int nComplete,
     m_pFilterRecord->progressProc(nProgressComplete, nProgressTotal);
 }
 
-void CPSPlugIn::DisplayTileProgress(const int nComplete,
-                                    const int nTotal,
-                                    const int nIteration,
-                                    const int nTotalIterations) const
+void
+CPSPlugIn::DisplayTileProgress(const int nComplete,
+                               const int nTotal,
+                               const int nIteration,
+                               const int nTotalIterations) const
 {
     // compute number of pixels done for current tile
     const int nTileTotal = GetCurrentTileWidth() * GetCurrentTileHeight();
@@ -436,7 +460,8 @@ void CPSPlugIn::DisplayTileProgress(const int nComplete,
 /////////////////////////////////////////////////////////////////////////////
 // CPSPlugIn protected helpers - pixel conversion
 
-void CPSPlugIn::GetPixelMatrix(libbase::matrix<double>& m)
+void
+CPSPlugIn::GetPixelMatrix(libbase::matrix<double>& m)
 {
     const int nRowWidth = IsWide() ? m_pFilterRecord->inRowBytes / 2
                                    : m_pFilterRecord->inRowBytes;
@@ -461,7 +486,8 @@ void CPSPlugIn::GetPixelMatrix(libbase::matrix<double>& m)
     }
 }
 
-void CPSPlugIn::SetPixelMatrix(const libbase::matrix<double>& m)
+void
+CPSPlugIn::SetPixelMatrix(const libbase::matrix<double>& m)
 {
     // first define some aliases
     const int nRowWidth = IsWide() ? m_pFilterRecord->outRowBytes / 2
@@ -502,7 +528,8 @@ void CPSPlugIn::SetPixelMatrix(const libbase::matrix<double>& m)
     }
 }
 
-double CPSPlugIn::GetPixelValue(const int x, const int y)
+double
+CPSPlugIn::GetPixelValue(const int x, const int y)
 {
     const int nRowWidth = IsWide() ? m_pFilterRecord->inRowBytes / 2
                                    : m_pFilterRecord->inRowBytes;
@@ -517,7 +544,8 @@ double CPSPlugIn::GetPixelValue(const int x, const int y)
     }
 }
 
-void CPSPlugIn::SetPixelValue(const int x, const int y, const double c)
+void
+CPSPlugIn::SetPixelValue(const int x, const int y, const double c)
 {
     const int nRowWidth = IsWide() ? m_pFilterRecord->outRowBytes / 2
                                    : m_pFilterRecord->outRowBytes;
@@ -535,7 +563,8 @@ void CPSPlugIn::SetPixelValue(const int x, const int y, const double c)
 /////////////////////////////////////////////////////////////////////////////
 // CPSPlugIn protected helpers - scripting support
 
-void CPSPlugIn::CloseWriter(PIWriteDescriptor token)
+void
+CPSPlugIn::CloseWriter(PIWriteDescriptor token)
 {
     // delete the old descriptor key/value set
     m_pFilterRecord->handleProcs->disposeProc(GetDescParams()->descriptor);
@@ -548,9 +577,10 @@ void CPSPlugIn::CloseWriter(PIWriteDescriptor token)
     GetDescParams()->recordInfo = plugInDialogOptional;
 }
 
-void CPSPlugIn::PutString(PIWriteDescriptor token,
-                          DescriptorKeyID key,
-                          const char* data)
+void
+CPSPlugIn::PutString(PIWriteDescriptor token,
+                     DescriptorKeyID key,
+                     const char* data)
 {
     Str255 sTemp;
     sTemp[0] = strlen(data);
@@ -558,28 +588,26 @@ void CPSPlugIn::PutString(PIWriteDescriptor token,
     GetWriteDescProcs()->putStringProc(token, key, sTemp);
 }
 
-void CPSPlugIn::PutInteger(PIWriteDescriptor token,
-                           DescriptorKeyID key,
-                           int data)
+void
+CPSPlugIn::PutInteger(PIWriteDescriptor token, DescriptorKeyID key, int data)
 {
     GetWriteDescProcs()->putIntegerProc(token, key, data);
 }
 
-void CPSPlugIn::PutFloat(PIWriteDescriptor token,
-                         DescriptorKeyID key,
-                         double data)
+void
+CPSPlugIn::PutFloat(PIWriteDescriptor token, DescriptorKeyID key, double data)
 {
     GetWriteDescProcs()->putFloatProc(token, key, &data);
 }
 
-void CPSPlugIn::PutBoolean(PIWriteDescriptor token,
-                           DescriptorKeyID key,
-                           bool data)
+void
+CPSPlugIn::PutBoolean(PIWriteDescriptor token, DescriptorKeyID key, bool data)
 {
     GetWriteDescProcs()->putBooleanProc(token, key, data);
 }
 
-void CPSPlugIn::CloseReader(PIReadDescriptor token)
+void
+CPSPlugIn::CloseReader(PIReadDescriptor token)
 {
     // close the read descriptor handle
     GetReadDescProcs()->closeReadDescriptorProc(token);
@@ -590,7 +618,8 @@ void CPSPlugIn::CloseReader(PIReadDescriptor token)
     GetDescParams()->playInfo = plugInDialogDisplay;
 }
 
-bool CPSPlugIn::GetString(PIReadDescriptor token, char* data)
+bool
+CPSPlugIn::GetString(PIReadDescriptor token, char* data)
 {
     Str255 temp;
     if (!GetReadDescProcs()->getStringProc(token, &temp)) {
@@ -600,7 +629,8 @@ bool CPSPlugIn::GetString(PIReadDescriptor token, char* data)
     return false;
 }
 
-bool CPSPlugIn::GetInteger(PIReadDescriptor token, int* data)
+bool
+CPSPlugIn::GetInteger(PIReadDescriptor token, int* data)
 {
     int32 temp;
     if (!GetReadDescProcs()->getIntegerProc(token, &temp)) {
@@ -610,7 +640,8 @@ bool CPSPlugIn::GetInteger(PIReadDescriptor token, int* data)
     return false;
 }
 
-bool CPSPlugIn::GetFloat(PIReadDescriptor token, double* data)
+bool
+CPSPlugIn::GetFloat(PIReadDescriptor token, double* data)
 {
     double temp;
     if (!GetReadDescProcs()->getFloatProc(token, &temp)) {
@@ -620,7 +651,8 @@ bool CPSPlugIn::GetFloat(PIReadDescriptor token, double* data)
     return false;
 }
 
-bool CPSPlugIn::GetBoolean(PIReadDescriptor token, bool* data)
+bool
+CPSPlugIn::GetBoolean(PIReadDescriptor token, bool* data)
 {
     Boolean temp;
     if (!GetReadDescProcs()->getBooleanProc(token, &temp)) {

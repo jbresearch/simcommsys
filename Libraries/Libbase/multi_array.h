@@ -104,8 +104,8 @@ public:
  * version (since the extent ranges do not necessarily start from zero).
  */
 template <typename T>
-std::ostream& operator<<(std::ostream& sout,
-                         const assignable_multi_array<T, 2>& x)
+std::ostream&
+operator<<(std::ostream& sout, const assignable_multi_array<T, 2>& x)
 {
     typedef multi_array_types::size_type size_type;
     typedef multi_array_types::index index;

@@ -108,15 +108,24 @@ __cudaSafeCall(const cudaError_t error, const char* file, const int line)
 
 template <class T>
 __device__
-inline const T& min(const T& a, const T& b) { return (a < b) ? a : b; }
+inline const T&
+min(const T& a, const T& b)
+{
+    return (a < b) ? a : b;
+}
 
 template <class T>
 __device__
-inline const T& max(const T& a, const T& b) { return (a > b) ? a : b; }
+inline const T&
+max(const T& a, const T& b)
+{
+    return (a > b) ? a : b;
+}
 
 template <class T>
 __device__
-inline void swap(T& a, T& b)
+inline void
+swap(T& a, T& b)
 {
     T tmp = a;
     a = b;
@@ -125,7 +134,8 @@ inline void swap(T& a, T& b)
 
 // safe memory operations
 
-inline std::string cudaGetDescription(enum cudaMemcpyKind kind)
+inline std::string
+cudaGetDescription(enum cudaMemcpyKind kind)
 {
     if (kind == cudaMemcpyHostToDevice) {
         return "H-to-D";
@@ -138,7 +148,8 @@ inline std::string cudaGetDescription(enum cudaMemcpyKind kind)
 }
 
 template <class T>
-inline std::string getTypeInfo()
+inline std::string
+getTypeInfo()
 {
     std::ostringstream sout;
     sout << "type " << typeid(T).name() << ", size " << sizeof(T);
@@ -162,13 +173,14 @@ cudaSafeMemcpy(T* dst, const T* src, size_t count, enum cudaMemcpyKind kind)
 }
 
 template <class T>
-inline void cudaSafeMemcpy2D(T* dst,
-                             size_t dpitch,
-                             const T* src,
-                             size_t spitch,
-                             size_t cols,
-                             size_t rows,
-                             enum cudaMemcpyKind kind)
+inline void
+cudaSafeMemcpy2D(T* dst,
+                 size_t dpitch,
+                 const T* src,
+                 size_t spitch,
+                 size_t cols,
+                 size_t rows,
+                 enum cudaMemcpyKind kind)
 {
 #    if DEBUG >= 2
     std::cerr << "DEBUG (util): " << cudaGetDescription(kind) << " copy for "
@@ -188,7 +200,8 @@ inline void cudaSafeMemcpy2D(T* dst,
 }
 
 template <class T>
-inline void cudaSafeMemset(T* data, int value, size_t count)
+inline void
+cudaSafeMemset(T* data, int value, size_t count)
 {
 #    if DEBUG >= 2
     std::cerr << "DEBUG (util): memory set to " << value << " for " << count
@@ -216,7 +229,8 @@ cudaSafeMemset2D(T* data, size_t pitch, int value, size_t cols, size_t rows)
 }
 
 template <class T>
-inline T* cudaSafeMalloc(size_t count)
+inline T*
+cudaSafeMalloc(size_t count)
 {
     void* p;
     cudaSafeCall(cudaMalloc(&p, count * sizeof(T)));
@@ -228,7 +242,8 @@ inline T* cudaSafeMalloc(size_t count)
 }
 
 template <class T>
-inline T* cudaSafeMalloc2D(size_t* pitch_ptr, size_t cols, size_t rows)
+inline T*
+cudaSafeMalloc2D(size_t* pitch_ptr, size_t cols, size_t rows)
 {
     void* p;
     cudaSafeCall(cudaMallocPitch(&p, pitch_ptr, cols * sizeof(T), rows));
@@ -241,7 +256,8 @@ inline T* cudaSafeMalloc2D(size_t* pitch_ptr, size_t cols, size_t rows)
 }
 
 template <class T>
-inline void cudaSafeFree(T* data)
+inline void
+cudaSafeFree(T* data)
 {
 #    if DEBUG >= 2
     std::cerr << "DEBUG (util): freeing data at " << data << std::endl;
@@ -250,7 +266,8 @@ inline void cudaSafeFree(T* data)
 }
 
 template <class T>
-inline T* cudaSafeGetSymbolAddress(const T& symbol)
+inline T*
+cudaSafeGetSymbolAddress(const T& symbol)
 {
     void* p;
     cudaSafeCall(cudaGetSymbolAddress(&p, symbol));
@@ -261,7 +278,8 @@ inline T* cudaSafeGetSymbolAddress(const T& symbol)
 }
 
 template <class T>
-inline size_t cudaSafeGetSymbolSize(const T& symbol)
+inline size_t
+cudaSafeGetSymbolSize(const T& symbol)
 {
     size_t n;
     cudaSafeCall(cudaGetSymbolSize(&n, symbol));
@@ -271,7 +289,8 @@ inline size_t cudaSafeGetSymbolSize(const T& symbol)
     return n;
 }
 
-inline std::ostream& operator<<(std::ostream& sout, const dim3& size)
+inline std::ostream&
+operator<<(std::ostream& sout, const dim3& size)
 {
     sout << "[" << size.x;
     if (size.y > 1 || size.z > 1) {
@@ -284,7 +303,11 @@ inline std::ostream& operator<<(std::ostream& sout, const dim3& size)
     return sout;
 }
 
-inline int count(const dim3& size) { return size.x * size.y * size.z; }
+inline int
+count(const dim3& size)
+{
+    return size.x * size.y * size.z;
+}
 
 #endif
 

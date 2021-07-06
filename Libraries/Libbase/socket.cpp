@@ -59,7 +59,8 @@ int socket::objectcount = 0;
 // helper functions
 
 template <class T>
-ssize_t socket::io(T buf, size_t len)
+ssize_t
+socket::io(T buf, size_t len)
 {
     std::cerr << "Cannot instantiate template function with this type"
               << std::endl;
@@ -68,7 +69,8 @@ ssize_t socket::io(T buf, size_t len)
 }
 
 template <>
-ssize_t socket::io(const void* buf, size_t len)
+ssize_t
+socket::io(const void* buf, size_t len)
 {
 #ifdef _WIN32
     return send(sd, (const char*)buf, int(len), 0);
@@ -78,7 +80,8 @@ ssize_t socket::io(const void* buf, size_t len)
 }
 
 template <>
-ssize_t socket::io(void* buf, size_t len)
+ssize_t
+socket::io(void* buf, size_t len)
 {
 #ifdef _WIN32
     return recv(sd, (char*)buf, int(len), 0);
@@ -88,7 +91,8 @@ ssize_t socket::io(void* buf, size_t len)
 }
 
 template <class T>
-ssize_t socket::insistio(T buf, size_t len)
+ssize_t
+socket::insistio(T buf, size_t len)
 {
     const char* b = (const char*)buf;
     size_t rem = len;
@@ -161,7 +165,8 @@ socket::~socket()
 
 // wait for client connects
 
-bool socket::bind(int16u port)
+bool
+socket::bind(int16u port)
 {
     if ((sd = (int)::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
         std::cerr << "ERROR (bind): Failed to create socket descriptor"
@@ -238,7 +243,8 @@ socket::select(std::list<std::shared_ptr<socket>> sl, const double timeout)
     return al;
 }
 
-std::shared_ptr<socket> socket::accept()
+std::shared_ptr<socket>
+socket::accept()
 {
     std::shared_ptr<socket> s(new socket);
     socklen_t len = sizeof(struct sockaddr_in);
@@ -262,7 +268,8 @@ std::shared_ptr<socket> socket::accept()
 
 // open connection to server
 
-bool socket::connect(std::string hostname, int16u port)
+bool
+socket::connect(std::string hostname, int16u port)
 {
     if ((sd = (int)::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
         std::cerr << "ERROR (connect): Failed to create socket descriptor"
@@ -318,16 +325,26 @@ bool socket::connect(std::string hostname, int16u port)
 // NOTE: these cannot be moved to the header or they will use the templated
 // methods before the specialized versions are defined.
 
-ssize_t socket::write(const void* buf, size_t len) { return io(buf, len); }
+ssize_t
+socket::write(const void* buf, size_t len)
+{
+    return io(buf, len);
+}
 
-ssize_t socket::read(void* buf, size_t len) { return io(buf, len); }
+ssize_t
+socket::read(void* buf, size_t len)
+{
+    return io(buf, len);
+}
 
-bool socket::insistwrite(const void* buf, size_t len)
+bool
+socket::insistwrite(const void* buf, size_t len)
 {
     return insistio(buf, len) == ssize_t(len);
 }
 
-bool socket::insistread(void* buf, size_t len)
+bool
+socket::insistread(void* buf, size_t len)
 {
     return insistio(buf, len) == ssize_t(len);
 }

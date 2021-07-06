@@ -49,7 +49,8 @@ namespace libcomm
  * no longer needed (keeping the last segment as required by the new offset).
  */
 template <class S, template <class> class C, class real>
-void commsys_stream<S, C, real>::stream_advance(
+void
+commsys_stream<S, C, real>::stream_advance(
     C<S>& received,
     const libbase::size_type<C>& oldoffset,
     const libbase::size_type<C>& drift,
@@ -89,7 +90,8 @@ void commsys_stream<S, C, real>::stream_advance(
  * This is updated with the offset for the posterior probabilities.
  */
 template <class S, template <class> class C, class real>
-void commsys_stream<S, C, real>::compute_priors(
+void
+commsys_stream<S, C, real>::compute_priors(
     const C<double>& eof_post,
     const libbase::size_type<C> lookahead,
     C<double>& sof_prior,
@@ -123,12 +125,12 @@ void commsys_stream<S, C, real>::compute_priors(
 }
 
 template <class S, template <class> class C, class real>
-void commsys_stream<S, C, real>::receive_path(
-    const C<S>& received,
-    const libbase::size_type<C> lookahead,
-    const C<double>& sof_prior,
-    const C<double>& eof_prior,
-    const libbase::size_type<C> offset)
+void
+commsys_stream<S, C, real>::receive_path(const C<S>& received,
+                                         const libbase::size_type<C> lookahead,
+                                         const C<double>& sof_prior,
+                                         const C<double>& eof_prior,
+                                         const libbase::size_type<C> offset)
 {
     // Get access to the commsys modem in stream-oriented mode
     stream_modulator<S, C>& mdm = getmodem_stream();
@@ -153,7 +155,8 @@ void commsys_stream<S, C, real>::receive_path(
 // Description & Serialization
 
 template <class S, template <class> class C, class real>
-std::string commsys_stream<S, C, real>::description() const
+std::string
+commsys_stream<S, C, real>::description() const
 {
     std::ostringstream sout;
     sout << "Stream-oriented ";
@@ -169,7 +172,8 @@ std::string commsys_stream<S, C, real>::description() const
 // object serialization - saving
 
 template <class S, template <class> class C, class real>
-std::ostream& commsys_stream<S, C, real>::serialize(std::ostream& sout) const
+std::ostream&
+commsys_stream<S, C, real>::serialize(std::ostream& sout) const
 {
     // first write underlying system
     Base::serialize(sout);
@@ -190,7 +194,8 @@ std::ostream& commsys_stream<S, C, real>::serialize(std::ostream& sout) const
  */
 
 template <class S, template <class> class C, class real>
-std::istream& commsys_stream<S, C, real>::serialize(std::istream& sin)
+std::istream&
+commsys_stream<S, C, real>::serialize(std::istream& sin)
 {
     assertalways(sin.good());
 

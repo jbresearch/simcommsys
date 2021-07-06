@@ -40,7 +40,8 @@ CComputeStrengthDlg::CComputeStrengthDlg(CWnd* pParent /*=NULL*/)
     //}}AFX_DATA_INIT
 }
 
-void CComputeStrengthDlg::DoDataExchange(CDataExchange* pDX)
+void
+CComputeStrengthDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CComputeStrengthDlg)

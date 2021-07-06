@@ -57,7 +57,8 @@ CAnalyseInterleaverApp theApp;
 /////////////////////////////////////////////////////////////////////////////
 // CAnalyseInterleaverApp initialization
 
-BOOL CAnalyseInterleaverApp::InitInstance()
+BOOL
+CAnalyseInterleaverApp::InitInstance()
 {
     // Standard initialization
     // If you are not using these features and wish to reduce the size

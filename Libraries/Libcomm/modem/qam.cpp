@@ -45,7 +45,8 @@ const libbase::serializer qam::shelper("blockmodem", "qam", qam::create);
  *
  * \sa Matlab bin2gray function from the communications toolbox
  */
-void qam::init(const int m)
+void
+qam::init(const int m)
 {
     const int k = int(log2(m)); // number of bits per symbol
     if (m != 1 << k) {
@@ -74,7 +75,8 @@ void qam::init(const int m)
 
 // description output
 
-std::string qam::description() const
+std::string
+qam::description() const
 {
     std::ostringstream sout;
     sout << "Gray " << lut.size() << "QAM blockmodem";
@@ -83,7 +85,8 @@ std::string qam::description() const
 
 // object serialization - saving
 
-std::ostream& qam::serialize(std::ostream& sout) const
+std::ostream&
+qam::serialize(std::ostream& sout) const
 {
     sout << "# Alphabet size in symbols" << std::endl;
     sout << lut.size() << std::endl;
@@ -92,7 +95,8 @@ std::ostream& qam::serialize(std::ostream& sout) const
 
 // object serialization - loading
 
-std::istream& qam::serialize(std::istream& sin)
+std::istream&
+qam::serialize(std::istream& sin)
 {
     int m;
     sin >> libbase::eatcomments >> m >> libbase::verify;

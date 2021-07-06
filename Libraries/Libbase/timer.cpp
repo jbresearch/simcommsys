@@ -30,7 +30,8 @@ namespace libbase
 
 // Utility functions
 
-std::string timer::format(const double time)
+std::string
+timer::format(const double time)
 {
     std::ostringstream sout;
 
@@ -79,7 +80,8 @@ std::string timer::format(const double time)
     return sout.str();
 }
 
-std::string timer::date()
+std::string
+timer::date()
 {
     const int max = 256;
     static char d[max];
@@ -93,7 +95,8 @@ std::string timer::date()
 
 // Interface with derived class
 
-void timer::expire()
+void
+timer::expire()
 {
     if (running) {
         stop();

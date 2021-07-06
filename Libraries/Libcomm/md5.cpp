@@ -74,7 +74,8 @@ md5::md5()
 
 // Public interface for computing digest
 
-void md5::derived_reset()
+void
+md5::derived_reset()
 {
     // reset chaining variables
     m_hash.init(4);
@@ -84,7 +85,8 @@ void md5::derived_reset()
     m_hash(3) = 0x10325476;
 }
 
-void md5::process_block(const libbase::vector<libbase::int32u>& M)
+void
+md5::process_block(const libbase::vector<libbase::int32u>& M)
 {
     // copy variables
     libbase::vector<libbase::int32u> hash = m_hash;
@@ -102,7 +104,8 @@ void md5::process_block(const libbase::vector<libbase::int32u>& M)
 
 // Verification function
 
-void md5::selftest()
+void
+md5::selftest()
 {
     // set flag to avoid re-entry
     tested = true;
@@ -140,7 +143,8 @@ void md5::selftest()
     assertalways(verify(sMessage, sHash));
 }
 
-bool md5::verify(const std::string message, const std::string hash)
+bool
+md5::verify(const std::string message, const std::string hash)
 {
     md5 d;
     d.reset();
@@ -153,17 +157,19 @@ bool md5::verify(const std::string message, const std::string hash)
 
 // Circular shift function
 
-libbase::int32u md5::cshift(const libbase::int32u x, const int s)
+libbase::int32u
+md5::cshift(const libbase::int32u x, const int s)
 {
     return (x << s) | (x >> (32 - s));
 }
 
 // MD5 nonlinear function implementations
 
-libbase::int32u md5::f(const int i,
-                       const libbase::int32u X,
-                       const libbase::int32u Y,
-                       const libbase::int32u Z)
+libbase::int32u
+md5::f(const int i,
+       const libbase::int32u X,
+       const libbase::int32u Y,
+       const libbase::int32u Z)
 {
     assert(i < 64);
     switch (i / 16) {
@@ -181,12 +187,13 @@ libbase::int32u md5::f(const int i,
 
 // Circular shift function
 
-libbase::int32u md5::op(const int i,
-                        const libbase::int32u a,
-                        const libbase::int32u b,
-                        const libbase::int32u c,
-                        const libbase::int32u d,
-                        const libbase::vector<libbase::int32u>& M)
+libbase::int32u
+md5::op(const int i,
+        const libbase::int32u a,
+        const libbase::int32u b,
+        const libbase::int32u c,
+        const libbase::int32u d,
+        const libbase::vector<libbase::int32u>& M)
 {
     return b + cshift(a + f(i, b, c, d) + M(ndx[i]) + t(i), s[i]);
 }

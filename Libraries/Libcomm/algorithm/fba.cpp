@@ -30,7 +30,8 @@ namespace libcomm
 /*! \brief Memory allocator for working matrices
  */
 template <class sig, class real>
-void fba<sig, real>::allocate()
+void
+fba<sig, real>::allocate()
 {
     // Allocate required size
     // F needs indices (j,y) where j in [0, tau-1] and y in [mtau_min, mtau_max]
@@ -67,7 +68,8 @@ void fba<sig, real>::allocate()
 /*! \brief Release memory for working matrices
  */
 template <class sig, class real>
-void fba<sig, real>::free()
+void
+fba<sig, real>::free()
 {
     F.resize(boost::extents[0][0]);
     B.resize(boost::extents[0][0]);
@@ -78,13 +80,14 @@ void fba<sig, real>::free()
 // Initialization
 
 template <class sig, class real>
-void fba<sig, real>::init(int tau,
-                          int mtau_min,
-                          int mtau_max,
-                          int m1_min,
-                          int m1_max,
-                          double th_inner,
-                          bool norm)
+void
+fba<sig, real>::init(int tau,
+                     int mtau_min,
+                     int mtau_max,
+                     int m1_min,
+                     int m1_max,
+                     double th_inner,
+                     bool norm)
 {
     // if any parameters that effect memory have changed, release memory
     if (initialised && (tau != this->tau || mtau_min != this->mtau_min ||
@@ -113,7 +116,8 @@ void fba<sig, real>::init(int tau,
 // Internal procedures
 
 template <class sig, class real>
-void fba<sig, real>::work_forward(const array1s_t& r)
+void
+fba<sig, real>::work_forward(const array1s_t& r)
 {
     libbase::pacifier progress("FBA Forward Pass");
     // local flag for path thresholding
@@ -171,7 +175,8 @@ void fba<sig, real>::work_forward(const array1s_t& r)
 }
 
 template <class sig, class real>
-void fba<sig, real>::work_backward(const array1s_t& r)
+void
+fba<sig, real>::work_backward(const array1s_t& r)
 {
     libbase::pacifier progress("FBA Backward Pass");
     // local flag for path thresholding
@@ -233,7 +238,8 @@ void fba<sig, real>::work_backward(const array1s_t& r)
 // User procedures
 
 template <class sig, class real>
-void fba<sig, real>::prepare(const array1s_t& r)
+void
+fba<sig, real>::prepare(const array1s_t& r)
 {
     // compute forwards and backwards passes
     work_forward(r);

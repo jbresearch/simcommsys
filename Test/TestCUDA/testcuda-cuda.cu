@@ -35,7 +35,8 @@
 namespace cuda
 {
 
-__global__ void empty_kernel(bool show)
+__global__ void
+empty_kernel(bool show)
 {
 #if __CUDA_ARCH__ >= 200
     const int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -49,7 +50,8 @@ __global__ void empty_kernel(bool show)
 #endif
 }
 
-void time_kernelcalls_with(int gridsize, int blocksize)
+void
+time_kernelcalls_with(int gridsize, int blocksize)
 {
     // definitions
     gputimer t("GPU");
@@ -66,7 +68,8 @@ void time_kernelcalls_with(int gridsize, int blocksize)
               << "): " << libbase::timer::format(time) << std::endl;
 }
 
-void time_kernelcalls()
+void
+time_kernelcalls()
 {
     const int mpcount = cudaGetMultiprocessorCount();
     const int mpsize = cudaGetMultiprocessorSize();
@@ -134,7 +137,8 @@ public:
     }
 };
 
-__global__ void test_useofclasses_kernel(vector_reference<complex> x)
+__global__ void
+test_useofclasses_kernel(vector_reference<complex> x)
 {
     const int N = x.size();
     const int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -147,7 +151,8 @@ __global__ void test_useofclasses_kernel(vector_reference<complex> x)
 
 template class vector<complex>;
 
-void test_useofclasses(libbase::vector<complex>& x)
+void
+test_useofclasses(libbase::vector<complex>& x)
 {
     const int N = x.size();
     for (int i = 0; i < N; i++) {
@@ -155,7 +160,8 @@ void test_useofclasses(libbase::vector<complex>& x)
     }
 }
 
-void test_useofclasses()
+void
+test_useofclasses()
 {
     const int N = 5;
     std::cout << std::endl;
@@ -185,7 +191,8 @@ void test_useofclasses()
 
 // *** Capability test: parallel execution of streams
 
-__global__ void test_streams_kernel(value_reference<double> result)
+__global__ void
+test_streams_kernel(value_reference<double> result)
 {
     const int N = 1e5;
     const int i = blockIdx.x * blockDim.x + threadIdx.x;
@@ -198,7 +205,8 @@ __global__ void test_streams_kernel(value_reference<double> result)
     result() = r;
 }
 
-void test_streams()
+void
+test_streams()
 {
     std::cout << std::endl;
     std::cout << "Test parallel execution of streams:" << std::endl;
@@ -237,7 +245,8 @@ void test_streams()
 
 // *** Capability test: item sizes
 
-void get_descriptors(libbase::vector<std::string>& names)
+void
+get_descriptors(libbase::vector<std::string>& names)
 {
     int i = 0;
 
@@ -269,7 +278,8 @@ void get_descriptors(libbase::vector<std::string>& names)
     names(i++) = "fba2<tvb_receiver,bool,double,float>";
 }
 
-void get_sizes(libbase::vector<int>& sizes, libbase::vector<int>& align)
+void
+get_sizes(libbase::vector<int>& sizes, libbase::vector<int>& align)
 {
     int i;
 
@@ -381,7 +391,8 @@ void get_sizes(libbase::vector<int>& sizes, libbase::vector<int>& align)
 }
 
 __device__
-void get_sizes(vector_reference<int>& sizes, vector_reference<int>& align)
+void
+get_sizes(vector_reference<int>& sizes, vector_reference<int>& align)
 {
     int i;
 
@@ -494,15 +505,16 @@ void get_sizes(vector_reference<int>& sizes, vector_reference<int>& align)
 
 // kernel function
 
-__global__ void get_sizes_kernel(vector_reference<int> sizes,
-                                 vector_reference<int> align)
+__global__ void
+get_sizes_kernel(vector_reference<int> sizes, vector_reference<int> align)
 {
     get_sizes(sizes, align);
 }
 
-void print_sizes(libbase::vector<std::string>& names,
-                 libbase::vector<int>& host,
-                 libbase::vector<int>& gpu)
+void
+print_sizes(libbase::vector<std::string>& names,
+            libbase::vector<int>& host,
+            libbase::vector<int>& gpu)
 {
     std::cout << "Host\tGPU\tType" << std::endl;
     std::cout << "~~~~\t~~~\t~~~~" << std::endl;
@@ -512,7 +524,8 @@ void print_sizes(libbase::vector<std::string>& names,
     }
 }
 
-void test_sizes()
+void
+test_sizes()
 {
     const int N = 22;
     // get descriptors

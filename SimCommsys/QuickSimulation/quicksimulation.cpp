@@ -55,7 +55,8 @@ public:
  * for the performance of a code under given conditions.
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     using std::cout;
     using std::setprecision;

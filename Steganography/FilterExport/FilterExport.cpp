@@ -51,13 +51,15 @@ CFilterExportApp::CFilterExportApp() : CPSPlugIn(sizeof(SFilterExportData), 100)
 // CFilterExportApp filter selector functions
 
 // show the about dialog here
-void CFilterExportApp::FilterAbout(void)
+void
+CFilterExportApp::FilterAbout(void)
 {
     CAboutDlg dlg;
     dlg.DoModal();
 }
 
-void CFilterExportApp::FilterStart(void)
+void
+CFilterExportApp::FilterStart(void)
 {
     // tile the image row by row, keeping the same tile area as suggested
     SetTileWidth(GetImageWidth());
@@ -71,7 +73,8 @@ void CFilterExportApp::FilterStart(void)
     file.open(m_sData->sPathName);
 }
 
-void CFilterExportApp::FilterContinue(void)
+void
+CFilterExportApp::FilterContinue(void)
 {
     // update progress counter
     DisplayTileProgress(0);
@@ -87,7 +90,8 @@ void CFilterExportApp::FilterContinue(void)
     CPSPlugIn::FilterContinue();
 }
 
-void CFilterExportApp::FilterFinish(void)
+void
+CFilterExportApp::FilterFinish(void)
 {
     // stop timer & show final progress indication
     CPSPlugIn::FilterFinish();
@@ -98,7 +102,8 @@ void CFilterExportApp::FilterFinish(void)
 /////////////////////////////////////////////////////////////////////////////
 // CFilterExportApp helper functions
 
-void CFilterExportApp::ShowDialog(void)
+void
+CFilterExportApp::ShowDialog(void)
 {
     CFileDialog dlg(FALSE, "*.dat", m_sData->sPathName);
 
@@ -112,20 +117,26 @@ void CFilterExportApp::ShowDialog(void)
     SetShowDialog(false);
 }
 
-void CFilterExportApp::InitPointer(char* sData)
+void
+CFilterExportApp::InitPointer(char* sData)
 {
     m_sData = (SFilterExportData*)sData;
 }
 
-void CFilterExportApp::InitParameters() { strcpy(m_sData->sPathName, "*.*"); }
+void
+CFilterExportApp::InitParameters()
+{
+    strcpy(m_sData->sPathName, "*.*");
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // CFilterExportApp scripting support
 
-void CFilterExportApp::ReadScriptParameter(PIReadDescriptor token,
-                                           DescriptorKeyID key,
-                                           DescriptorTypeID type,
-                                           int32 flags)
+void
+CFilterExportApp::ReadScriptParameter(PIReadDescriptor token,
+                                      DescriptorKeyID key,
+                                      DescriptorTypeID type,
+                                      int32 flags)
 {
     switch (key) {
     case keyFileName:
@@ -137,7 +148,8 @@ void CFilterExportApp::ReadScriptParameter(PIReadDescriptor token,
     }
 }
 
-void CFilterExportApp::WriteScriptParameters(PIWriteDescriptor token)
+void
+CFilterExportApp::WriteScriptParameters(PIWriteDescriptor token)
 {
     PutString(token, keyFileName, m_sData->sPathName);
 }
@@ -147,10 +159,11 @@ void CFilterExportApp::WriteScriptParameters(PIWriteDescriptor token)
 
 CFilterExportApp theApp;
 
-DLLExport SPAPI void PluginMain(const short nSelector,
-                                FilterRecord* pFilterRecord,
-                                long* pData,
-                                short* pResult)
+DLLExport SPAPI void
+PluginMain(const short nSelector,
+           FilterRecord* pFilterRecord,
+           long* pData,
+           short* pResult)
 {
     theApp.Main(nSelector, pFilterRecord, pData, pResult);
 }

@@ -104,8 +104,9 @@ exit_computer<S>::createpriors(const array1i_t& tx, const int N, const int q)
  * I(X;Y) = ∑_x p(x) ∫_y f(y|x) . log₂ f(y|x)/f(y) dy
  */
 template <class S>
-double exit_computer<S>::compute_mutual_information(const array1i_t& x,
-                                                    const array1vd_t& y)
+double
+exit_computer<S>::compute_mutual_information(const array1i_t& x,
+                                             const array1vd_t& y)
 {
     // determine sizes
     const int N = y.size();
@@ -136,11 +137,12 @@ double exit_computer<S>::compute_mutual_information(const array1i_t& x,
  * \param mu The mean of the distribution
  */
 template <class S>
-void exit_computer<S>::compute_statistics(const array1i_t& x,
-                                          const array1vd_t& p,
-                                          const int value,
-                                          double& sigma,
-                                          double& mu)
+void
+exit_computer<S>::compute_statistics(const array1i_t& x,
+                                     const array1vd_t& p,
+                                     const int value,
+                                     double& sigma,
+                                     double& mu)
 {
     // determine sizes
     const int N = p.size();
@@ -181,10 +183,11 @@ void exit_computer<S>::compute_statistics(const array1i_t& x,
  * \param result The vector of results
  */
 template <class S>
-void exit_computer<S>::compute_results(const array1i_t& x,
-                                       const array1vd_t& pin,
-                                       const array1vd_t& pout,
-                                       array1d_t& result) const
+void
+exit_computer<S>::compute_results(const array1i_t& x,
+                                  const array1vd_t& pin,
+                                  const array1vd_t& pout,
+                                  array1d_t& result) const
 {
     assert(result.size() == count());
     // Compute results
@@ -208,7 +211,8 @@ void exit_computer<S>::compute_results(const array1i_t& x,
  * Results are organized as ...
  */
 template <class S>
-void exit_computer<S>::sample(array1d_t& result)
+void
+exit_computer<S>::sample(array1d_t& result)
 {
     // Initialise result vector
     result.init(count());
@@ -357,7 +361,8 @@ void exit_computer<S>::sample(array1d_t& result)
 // Description & Serialization
 
 template <class S>
-std::string exit_computer<S>::description() const
+std::string
+exit_computer<S>::description() const
 {
     std::ostringstream sout;
     sout << "EXIT Chart Computer for " << sys->description() << ", ";
@@ -393,7 +398,8 @@ std::string exit_computer<S>::description() const
 // object serialization - saving
 
 template <class S>
-std::ostream& exit_computer<S>::serialize(std::ostream& sout) const
+std::ostream&
+exit_computer<S>::serialize(std::ostream& sout) const
 {
     // format version
     sout << "# Version" << std::endl;
@@ -423,7 +429,8 @@ std::ostream& exit_computer<S>::serialize(std::ostream& sout) const
  */
 
 template <class S>
-std::istream& exit_computer<S>::serialize(std::istream& sin)
+std::istream&
+exit_computer<S>::serialize(std::istream& sin)
 {
     assertalways(sin.good());
     // get format version

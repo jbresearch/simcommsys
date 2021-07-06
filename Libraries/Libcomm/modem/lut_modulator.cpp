@@ -26,7 +26,8 @@ namespace libcomm
 
 // modulation/demodulation - atomic operations
 
-const int lut_modulator::demodulate(const sigspace& signal) const
+const int
+lut_modulator::demodulate(const sigspace& signal) const
 {
     const int M = lut.size();
     int best_i = 0;
@@ -43,8 +44,8 @@ const int lut_modulator::demodulate(const sigspace& signal) const
     return best_i;
 }
 
-const int lut_modulator::demodulate(const sigspace& signal,
-                                    const array1d_t& app) const
+const int
+lut_modulator::demodulate(const sigspace& signal, const array1d_t& app) const
 {
     failwith("Method not implemented");
     return 0;
@@ -52,9 +53,10 @@ const int lut_modulator::demodulate(const sigspace& signal,
 
 // modulation/demodulation - vector operations
 
-void lut_modulator::domodulate(const int N,
-                               const libbase::vector<int>& encoded,
-                               libbase::vector<sigspace>& tx)
+void
+lut_modulator::domodulate(const int N,
+                          const libbase::vector<int>& encoded,
+                          libbase::vector<sigspace>& tx)
 {
     // Check validity
     assertalways(encoded.size() == this->input_block_size());
@@ -72,9 +74,10 @@ void lut_modulator::domodulate(const int N,
     }
 }
 
-void lut_modulator::dodemodulate(const channel<sigspace>& chan,
-                                 const libbase::vector<sigspace>& rx,
-                                 libbase::vector<array1d_t>& ptable)
+void
+lut_modulator::dodemodulate(const channel<sigspace>& chan,
+                            const libbase::vector<sigspace>& rx,
+                            libbase::vector<array1d_t>& ptable)
 {
     // Check validity
     assertalways(rx.size() == this->input_block_size());
@@ -92,10 +95,11 @@ void lut_modulator::dodemodulate(const channel<sigspace>& chan,
     chan.receive(tx, rx, ptable);
 }
 
-void lut_modulator::dodemodulate(const channel<sigspace>& chan,
-                                 const libbase::vector<sigspace>& rx,
-                                 const libbase::vector<array1d_t>& app,
-                                 libbase::vector<array1d_t>& ptable)
+void
+lut_modulator::dodemodulate(const channel<sigspace>& chan,
+                            const libbase::vector<sigspace>& rx,
+                            const libbase::vector<array1d_t>& app,
+                            libbase::vector<array1d_t>& ptable)
 {
     // Do the demodulation step
     dodemodulate(chan, rx, ptable);
@@ -105,7 +109,8 @@ void lut_modulator::dodemodulate(const channel<sigspace>& chan,
 
 // information functions
 
-double lut_modulator::energy() const
+double
+lut_modulator::energy() const
 {
     const int M = lut.size();
     double e = 0;

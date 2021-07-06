@@ -28,21 +28,24 @@ const libbase::serializer awgn::shelper("channel", "awgn", awgn::create);
 
 // handle functions
 
-void awgn::compute_parameters(const double Eb, const double No)
+void
+awgn::compute_parameters(const double Eb, const double No)
 {
     sigma = sqrt(Eb * No);
 }
 
 // channel handle functions
 
-sigspace awgn::corrupt(const sigspace& s)
+sigspace
+awgn::corrupt(const sigspace& s)
 {
     const double x = r.gval(sigma);
     const double y = r.gval(sigma);
     return s + sigspace(x, y);
 }
 
-double awgn::pdf(const sigspace& tx, const sigspace& rx) const
+double
+awgn::pdf(const sigspace& tx, const sigspace& rx) const
 {
     sigspace n = rx - tx;
     return libbase::gauss(n.i() / sigma) * libbase::gauss(n.q() / sigma);
@@ -50,12 +53,24 @@ double awgn::pdf(const sigspace& tx, const sigspace& rx) const
 
 // Description
 
-std::string awgn::description() const { return "AWGN channel"; }
+std::string
+awgn::description() const
+{
+    return "AWGN channel";
+}
 
 // Serialization Support
 
-std::ostream& awgn::serialize(std::ostream& sout) const { return sout; }
+std::ostream&
+awgn::serialize(std::ostream& sout) const
+{
+    return sout;
+}
 
-std::istream& awgn::serialize(std::istream& sin) { return sin; }
+std::istream&
+awgn::serialize(std::istream& sin)
+{
+    return sin;
+}
 
 } // namespace libcomm

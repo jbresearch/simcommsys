@@ -41,7 +41,8 @@ __cudaSafeCall(const cudaError_t error, const char* file, const int line)
 
 // main program
 
-int main()
+int
+main()
 {
     int devices = 0;
     cudaSafeCall(cudaGetDeviceCount(&devices));

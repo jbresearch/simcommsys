@@ -200,8 +200,8 @@ public:
 // channel functions
 
 template <class S>
-void basic_channel<S, libbase::vector>::transmit(const array1s_t& tx,
-                                                 array1s_t& rx)
+void
+basic_channel<S, libbase::vector>::transmit(const array1s_t& tx, array1s_t& rx)
 {
     // Initialize results vector
     rx.init(tx.size());
@@ -213,9 +213,10 @@ void basic_channel<S, libbase::vector>::transmit(const array1s_t& tx,
 }
 
 template <class S>
-void basic_channel<S, libbase::vector>::receive(const array1s_t& tx,
-                                                const array1s_t& rx,
-                                                array1vd_t& ptable) const
+void
+basic_channel<S, libbase::vector>::receive(const array1s_t& tx,
+                                           const array1s_t& rx,
+                                           array1vd_t& ptable) const
 {
     // Compute sizes
     const int tau = rx.size();
@@ -233,9 +234,10 @@ void basic_channel<S, libbase::vector>::receive(const array1s_t& tx,
 }
 
 template <class S>
-void basic_channel<S, libbase::vector>::receive(const array1vs_t& tx,
-                                                const array1s_t& rx,
-                                                array1vd_t& ptable) const
+void
+basic_channel<S, libbase::vector>::receive(const array1vs_t& tx,
+                                           const array1s_t& rx,
+                                           array1vd_t& ptable) const
 {
     // Compute sizes
     const int tau = rx.size();

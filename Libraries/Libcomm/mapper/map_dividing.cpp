@@ -36,8 +36,9 @@ namespace libcomm
 
 // Interface with mapper
 template <class dbl, class dbl2>
-void map_dividing<libbase::vector, dbl, dbl2>::dotransform(const array1i_t& in,
-                                                           array1i_t& out) const
+void
+map_dividing<libbase::vector, dbl, dbl2>::dotransform(const array1i_t& in,
+                                                      array1i_t& out) const
 {
     // Confirm input sequence to be of the correct length
     assertalways(in.size() == this->input_block_size());
@@ -47,8 +48,9 @@ void map_dividing<libbase::vector, dbl, dbl2>::dotransform(const array1i_t& in,
 }
 
 template <class dbl, class dbl2>
-void map_dividing<libbase::vector, dbl, dbl2>::dotransform(
-    const array1vd_t& pin, array1vd_t& pout) const
+void
+map_dividing<libbase::vector, dbl, dbl2>::dotransform(const array1vd_t& pin,
+                                                      array1vd_t& pout) const
 {
     // Confirm input sequence to be of the correct length
     assertalways(pin.size() == this->input_block_size());
@@ -58,8 +60,9 @@ void map_dividing<libbase::vector, dbl, dbl2>::dotransform(
 }
 
 template <class dbl, class dbl2>
-void map_dividing<libbase::vector, dbl, dbl2>::doinverse(const array1vd_t& pin,
-                                                         array1vd_t& pout) const
+void
+map_dividing<libbase::vector, dbl, dbl2>::doinverse(const array1vd_t& pin,
+                                                    array1vd_t& pout) const
 {
     // Confirm input sequence to be of the correct length
     assertalways(pin.size() == This::output_block_size());
@@ -71,7 +74,8 @@ void map_dividing<libbase::vector, dbl, dbl2>::doinverse(const array1vd_t& pin,
 // Description
 
 template <class dbl, class dbl2>
-std::string map_dividing<libbase::vector, dbl, dbl2>::description() const
+std::string
+map_dividing<libbase::vector, dbl, dbl2>::description() const
 {
     std::ostringstream sout;
     sout << "Dividing Mapper (Vector)";

@@ -39,10 +39,10 @@ namespace libcomm
  * Eventually these will be divided by the respective multiplicity to get the
  * average error rates.
  */
-void errors_levenshtein::updateresults(
-    libbase::vector<double>& result,
-    const libbase::vector<int>& source,
-    const libbase::vector<int>& decoded) const
+void
+errors_levenshtein::updateresults(libbase::vector<double>& result,
+                                  const libbase::vector<int>& source,
+                                  const libbase::vector<int>& decoded) const
 {
     // Count errors
     const int hd = libbase::hamming(source, decoded);

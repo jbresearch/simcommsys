@@ -28,9 +28,10 @@ namespace libcomm
 
 // commsys functions
 
-void prof_pos::updateresults(libbase::vector<double>& result,
-                             const libbase::vector<int>& source,
-                             const libbase::vector<int>& decoded) const
+void
+prof_pos::updateresults(libbase::vector<double>& result,
+                        const libbase::vector<int>& source,
+                        const libbase::vector<int>& decoded) const
 {
     // Update the count for every symbol in error
     assert(source.size() == get_symbolsperblock());

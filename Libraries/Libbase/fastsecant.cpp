@@ -30,7 +30,8 @@ namespace libbase
 
 fastsecant::fastsecant(double (*func)(double)) : secant(func) {}
 
-void fastsecant::init(const double x1, const double x2, const int n)
+void
+fastsecant::init(const double x1, const double x2, const int n)
 {
     m_dMin = x1;
     m_dMax = x2;
@@ -44,7 +45,8 @@ void fastsecant::init(const double x1, const double x2, const int n)
     }
 }
 
-double fastsecant::solve(const double y)
+double
+fastsecant::solve(const double y)
 {
     const int i = int(floor((y - m_dMin) / m_dStep));
     const int j = int(ceil((y - m_dMin) / m_dStep));

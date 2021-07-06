@@ -37,7 +37,8 @@ namespace libcomm
 
 // Interface with mapper
 template <class dbl>
-void map_reshape<dbl>::dotransform(const array2i_t& in, array2i_t& out) const
+void
+map_reshape<dbl>::dotransform(const array2i_t& in, array2i_t& out) const
 {
     assertalways(in.size() == this->input_block_size());
     // Initialize results matrix
@@ -63,8 +64,8 @@ void map_reshape<dbl>::dotransform(const array2i_t& in, array2i_t& out) const
 }
 
 template <class dbl>
-void map_reshape<dbl>::dotransform(const array2vd_t& pin,
-                                   array2vd_t& pout) const
+void
+map_reshape<dbl>::dotransform(const array2vd_t& pin, array2vd_t& pout) const
 {
     // Confirm input symbol space is what we expect
     assertalways(pin.size() > 0);
@@ -95,7 +96,8 @@ void map_reshape<dbl>::dotransform(const array2vd_t& pin,
 }
 
 template <class dbl>
-void map_reshape<dbl>::doinverse(const array2vd_t& pin, array2vd_t& pout) const
+void
+map_reshape<dbl>::doinverse(const array2vd_t& pin, array2vd_t& pout) const
 {
     // Confirm modulation symbol space is what we expect
     assertalways(pin.size() > 0);
@@ -127,7 +129,8 @@ void map_reshape<dbl>::doinverse(const array2vd_t& pin, array2vd_t& pout) const
 // Description
 
 template <class dbl>
-std::string map_reshape<dbl>::description() const
+std::string
+map_reshape<dbl>::description() const
 {
     std::ostringstream sout;
     sout << "Reshaping Mapper (Matrix) ";
@@ -141,14 +144,16 @@ std::string map_reshape<dbl>::description() const
 // Serialization Support
 
 template <class dbl>
-std::ostream& map_reshape<dbl>::serialize(std::ostream& sout) const
+std::ostream&
+map_reshape<dbl>::serialize(std::ostream& sout) const
 {
     sout << size_out << std::endl;
     return sout;
 }
 
 template <class dbl>
-std::istream& map_reshape<dbl>::serialize(std::istream& sin)
+std::istream&
+map_reshape<dbl>::serialize(std::istream& sin)
 {
     sin >> libbase::eatcomments >> size_out >> libbase::verify;
     return sin;

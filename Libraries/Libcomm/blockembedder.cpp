@@ -31,10 +31,11 @@ namespace libcomm
 // Block modem operations
 
 template <class S, template <class> class C, class dbl>
-void basic_blockembedder<S, C, dbl>::embed(const int N,
-                                           const C<int>& data,
-                                           const C<S>& host,
-                                           C<S>& stego)
+void
+basic_blockembedder<S, C, dbl>::embed(const int N,
+                                      const C<int>& data,
+                                      const C<S>& host,
+                                      C<S>& stego)
 {
     test_invariant();
     advance_always();
@@ -42,9 +43,10 @@ void basic_blockembedder<S, C, dbl>::embed(const int N,
 }
 
 template <class S, template <class> class C, class dbl>
-void basic_blockembedder<S, C, dbl>::extract(const channel<S, C>& chan,
-                                             const C<S>& rx,
-                                             C<array1d_t>& ptable)
+void
+basic_blockembedder<S, C, dbl>::extract(const channel<S, C>& chan,
+                                        const C<S>& rx,
+                                        C<array1d_t>& ptable)
 {
     test_invariant();
     advance_if_dirty();

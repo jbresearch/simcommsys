@@ -32,7 +32,8 @@ namespace libbase
 #    define DEBUG 1
 #endif
 
-void random::seed(int32u s)
+void
+random::seed(int32u s)
 {
 #if DEBUG >= 2
     std::cerr << "DEBUG: random (" << this << ") reseeded with " << s
@@ -48,7 +49,8 @@ void random::seed(int32u s)
     init(s);
 }
 
-double random::gval()
+double
+random::gval()
 {
     if (next_gval_available) {
         next_gval_available = false;

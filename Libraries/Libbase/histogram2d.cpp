@@ -60,7 +60,8 @@ histogram2d::histogram2d(const vector<vector<double>>& a,
     }
 }
 
-const vector<double> histogram2d::get_bin_edges_x()
+const vector<double>
+histogram2d::get_bin_edges_x()
 {
     const double step = get_step_x();
     vector<double> edges(bins_x + 1);
@@ -72,7 +73,8 @@ const vector<double> histogram2d::get_bin_edges_x()
     return edges;
 }
 
-const vector<double> histogram2d::get_bin_centres_x()
+const vector<double>
+histogram2d::get_bin_centres_x()
 {
     const double step = get_step_x();
     vector<double> centres(bins_x);
@@ -84,7 +86,8 @@ const vector<double> histogram2d::get_bin_centres_x()
     return centres;
 }
 
-const vector<double> histogram2d::get_bin_edges_y()
+const vector<double>
+histogram2d::get_bin_edges_y()
 {
     const double step = get_step_y();
     vector<double> edges(bins_y + 1);
@@ -96,7 +99,8 @@ const vector<double> histogram2d::get_bin_edges_y()
     return edges;
 }
 
-const vector<double> histogram2d::get_bin_centres_y()
+const vector<double>
+histogram2d::get_bin_centres_y()
 {
     const double step = get_step_y();
     vector<double> centres(bins_y);

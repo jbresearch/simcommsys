@@ -37,8 +37,8 @@ namespace libcomm
 // encoding and decoding functions
 
 template <class real, class dbl>
-void sysrepacc<real, dbl>::do_encode(const array1i_t& source,
-                                     array1i_t& encoded)
+void
+sysrepacc<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
 {
     array1i_t parity;
     Base::encode(source, parity);
@@ -54,7 +54,8 @@ void sysrepacc<real, dbl>::do_encode(const array1i_t& source,
 }
 
 template <class real, class dbl>
-void sysrepacc<real, dbl>::do_init_decoder(const array1vd_t& ptable)
+void
+sysrepacc<real, dbl>::do_init_decoder(const array1vd_t& ptable)
 {
     // Inherit sizes
     const int Ns = Base::input_block_size();
@@ -82,8 +83,9 @@ void sysrepacc<real, dbl>::do_init_decoder(const array1vd_t& ptable)
 }
 
 template <class real, class dbl>
-void sysrepacc<real, dbl>::do_init_decoder(const array1vd_t& ptable,
-                                           const array1vd_t& app)
+void
+sysrepacc<real, dbl>::do_init_decoder(const array1vd_t& ptable,
+                                      const array1vd_t& app)
 {
     // Inherit sizes
     const int Ns = Base::input_block_size();
@@ -113,7 +115,8 @@ void sysrepacc<real, dbl>::do_init_decoder(const array1vd_t& ptable,
 // description output
 
 template <class real, class dbl>
-std::string sysrepacc<real, dbl>::description() const
+std::string
+sysrepacc<real, dbl>::description() const
 {
     std::ostringstream sout;
     sout << "Systematic " << Base::description();
@@ -123,7 +126,8 @@ std::string sysrepacc<real, dbl>::description() const
 // object serialization - saving
 
 template <class real, class dbl>
-std::ostream& sysrepacc<real, dbl>::serialize(std::ostream& sout) const
+std::ostream&
+sysrepacc<real, dbl>::serialize(std::ostream& sout) const
 {
     return Base::serialize(sout);
 }
@@ -131,7 +135,8 @@ std::ostream& sysrepacc<real, dbl>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class real, class dbl>
-std::istream& sysrepacc<real, dbl>::serialize(std::istream& sin)
+std::istream&
+sysrepacc<real, dbl>::serialize(std::istream& sin)
 {
     return Base::serialize(sin);
 }

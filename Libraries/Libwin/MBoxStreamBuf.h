@@ -54,9 +54,14 @@ public:
     int overflow(int nCh = EOF);
 };
 
-inline int CMBoxStreamBuf::underflow() { return EOF; }
+inline int
+CMBoxStreamBuf::underflow()
+{
+    return EOF;
+}
 
-inline int CMBoxStreamBuf::overflow(int nCh)
+inline int
+CMBoxStreamBuf::overflow(int nCh)
 {
     if (nCh == '\n') {
         if (!buffer.IsEmpty()) {

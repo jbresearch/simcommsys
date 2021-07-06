@@ -53,14 +53,16 @@ onetimepad<real>::onetimepad(const onetimepad& x)
 // inter-frame operations
 
 template <class real>
-void onetimepad<real>::seedfrom(libbase::random& r)
+void
+onetimepad<real>::seedfrom(libbase::random& r)
 {
     this->r.seed(r.ival());
     advance();
 }
 
 template <class real>
-void onetimepad<real>::advance()
+void
+onetimepad<real>::advance()
 {
     static bool initialised = false;
 
@@ -101,7 +103,8 @@ void onetimepad<real>::advance()
 // transform functions
 
 template <class real>
-void onetimepad<real>::transform(const vector<int>& in, vector<int>& out) const
+void
+onetimepad<real>::transform(const vector<int>& in, vector<int>& out) const
 {
     const int N = pad.size();
     const int S = encoder->num_symbols();
@@ -113,8 +116,8 @@ void onetimepad<real>::transform(const vector<int>& in, vector<int>& out) const
 }
 
 template <class real>
-void onetimepad<real>::transform(const matrix<real>& in,
-                                 matrix<real>& out) const
+void
+onetimepad<real>::transform(const matrix<real>& in, matrix<real>& out) const
 {
     const int N = pad.size();
     const int S = encoder->num_symbols();
@@ -130,7 +133,8 @@ void onetimepad<real>::transform(const matrix<real>& in,
 }
 
 template <class real>
-void onetimepad<real>::inverse(const matrix<real>& in, matrix<real>& out) const
+void
+onetimepad<real>::inverse(const matrix<real>& in, matrix<real>& out) const
 {
     const int N = pad.size();
     const int S = encoder->num_symbols();
@@ -147,7 +151,8 @@ void onetimepad<real>::inverse(const matrix<real>& in, matrix<real>& out) const
 // description output
 
 template <class real>
-std::string onetimepad<real>::description() const
+std::string
+onetimepad<real>::description() const
 {
     std::ostringstream sout;
     sout << "One-Time-Pad Interleaver (";
@@ -168,7 +173,8 @@ std::string onetimepad<real>::description() const
 // object serialization - saving
 
 template <class real>
-std::ostream& onetimepad<real>::serialize(std::ostream& sout) const
+std::ostream&
+onetimepad<real>::serialize(std::ostream& sout) const
 {
     sout << int(terminated) << std::endl;
     sout << int(renewable) << std::endl;
@@ -180,7 +186,8 @@ std::ostream& onetimepad<real>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class real>
-std::istream& onetimepad<real>::serialize(std::istream& sin)
+std::istream&
+onetimepad<real>::serialize(std::istream& sin)
 {
     sin >> libbase::eatcomments >> terminated >> libbase::verify;
     sin >> libbase::eatcomments >> renewable >> libbase::verify;

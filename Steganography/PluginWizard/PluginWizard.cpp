@@ -53,7 +53,8 @@ CPluginWizardApp theApp;
 /////////////////////////////////////////////////////////////////////////////
 // CPluginWizardApp initialization
 
-BOOL CPluginWizardApp::InitInstance()
+BOOL
+CPluginWizardApp::InitInstance()
 {
     // Create the dialog box
     CPluginWizardDlg dlg;

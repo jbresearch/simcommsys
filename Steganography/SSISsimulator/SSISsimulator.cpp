@@ -36,7 +36,8 @@ using std::cerr;
 
 CSSISsimulator theApp;
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     theApp.InterpretParameters(argc, argv);
     return theApp.MainProcess();
@@ -64,7 +65,8 @@ CSSISsimulator::~CSSISsimulator() {}
 // Main interface functions
 //////////////////////////////////////////////////////////////////////
 
-void CSSISsimulator::InterpretParameters(int argc, char* argv[])
+void
+CSSISsimulator::InterpretParameters(int argc, char* argv[])
 {
     bool error = false;
     m_sCommand = argv[0];
@@ -123,7 +125,8 @@ void CSSISsimulator::InterpretParameters(int argc, char* argv[])
     }
 }
 
-int CSSISsimulator::MainProcess()
+int
+CSSISsimulator::MainProcess()
 {
     libimage::image iImage;
     // load input image
@@ -167,7 +170,8 @@ int CSSISsimulator::MainProcess()
 // Helper functions
 //////////////////////////////////////////////////////////////////////
 
-void CSSISsimulator::PreEmbedding()
+void
+CSSISsimulator::PreEmbedding()
 {
     // create data sequence
     libbase::vector<int> d(GetDataSize(1, 1));
@@ -193,9 +197,13 @@ void CSSISsimulator::PreEmbedding()
           << ", std = " << m_vdMessage.sigma() << "\n";
 }
 
-void CSSISsimulator::PostEmbedding() {}
+void
+CSSISsimulator::PostEmbedding()
+{
+}
 
-void CSSISsimulator::ProcessImage(libimage::image& iImage)
+void
+CSSISsimulator::ProcessImage(libimage::image& iImage)
 {
     int k = 0;
     for (int c = 0; c < iImage.channels(); c++) {

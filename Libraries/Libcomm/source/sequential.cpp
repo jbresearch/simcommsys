@@ -28,7 +28,8 @@ namespace libcomm
 // object serialization - saving
 
 template <class S, template <class> class C>
-std::ostream& sequential<S, C>::serialize(std::ostream& sout) const
+std::ostream&
+sequential<S, C>::serialize(std::ostream& sout) const
 {
     sout << "# Version" << std::endl;
     sout << 1 << std::endl;
@@ -42,7 +43,8 @@ std::ostream& sequential<S, C>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class S, template <class> class C>
-std::istream& sequential<S, C>::serialize(std::istream& sin)
+std::istream&
+sequential<S, C>::serialize(std::istream& sin)
 {
     assertalways(sin.good());
     // get format version

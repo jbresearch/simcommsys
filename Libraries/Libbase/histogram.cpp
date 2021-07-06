@@ -51,7 +51,8 @@ histogram<number>::histogram(const vector<number>& a,
 }
 
 template <class number>
-const vector<number> histogram<number>::get_bin_edges()
+const vector<number>
+histogram<number>::get_bin_edges()
 {
     const number step = get_step();
     vector<number> edges(bins + 1);
@@ -64,7 +65,8 @@ const vector<number> histogram<number>::get_bin_edges()
 }
 
 template <class number>
-const vector<number> histogram<number>::get_bin_centres()
+const vector<number>
+histogram<number>::get_bin_centres()
 {
     const number step = get_step();
     vector<number> centres(bins);

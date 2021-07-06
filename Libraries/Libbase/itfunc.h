@@ -41,19 +41,29 @@ namespace libbase
 {
 
 //! Tail probability of the standard normal distribution
-inline double Q(double x) { return 0.5 * boost::math::erfc(x / sqrt(2.0)); }
+inline double
+Q(double x)
+{
+    return 0.5 * boost::math::erfc(x / sqrt(2.0));
+}
 
 //! Inverse tail probability of the standard normal distribution
-inline double Qinv(double y)
+inline double
+Qinv(double y)
 {
     return sqrt(2.0) * boost::math::erfc_inv(2 * y);
 }
 
-inline double gauss(double x) { return exp(-0.5 * x * x) / sqrt(2.0 * PI); }
+inline double
+gauss(double x)
+{
+    return exp(-0.5 * x * x) / sqrt(2.0 * PI);
+}
 
 //! Limits numbers between a high and low limit
 template <class T>
-inline T limit(const T x, const T lo, const T hi)
+inline T
+limit(const T x, const T lo, const T hi)
 {
     return std::max(lo, std::min(hi, x));
 }
@@ -63,7 +73,8 @@ int weight(int cw);
 /*! \brief Binary Hamming weight
  */
 template <class T>
-int weight(const matrix<T>& m)
+int
+weight(const matrix<T>& m)
 {
     matrix<int> t;
     t = m;
@@ -72,7 +83,11 @@ int weight(const matrix<T>& m)
 }
 
 //! Gray code
-inline int32u gray(int32u n) { return n ^ (n >> 1); }
+inline int32u
+gray(int32u n)
+{
+    return n ^ (n >> 1);
+}
 int32u igray(int32u n);
 
 int gcd(int a, int b);

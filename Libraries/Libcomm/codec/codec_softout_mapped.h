@@ -105,7 +105,8 @@ public:
 
 template <class base_codec_softout, class dbl>
 template <class D>
-void codec_softout_mapped<base_codec_softout, dbl>::init(
+void
+codec_softout_mapped<base_codec_softout, dbl>::init(
     mapper<libbase::vector, D>& map) const
 {
     // Set up mapper
@@ -123,7 +124,8 @@ void codec_softout_mapped<base_codec_softout, dbl>::init(
 // Interface with derived classes
 
 template <class base_codec_softout, class dbl>
-void codec_softout_mapped<base_codec_softout, dbl>::do_encode(
+void
+codec_softout_mapped<base_codec_softout, dbl>::do_encode(
     const array1i_t& source, array1i_t& encoded)
 {
     map_straight<libbase::vector, dbl> map;
@@ -143,7 +145,8 @@ void codec_softout_mapped<base_codec_softout, dbl>::do_encode(
 }
 
 template <class base_codec_softout, class dbl>
-void codec_softout_mapped<base_codec_softout, dbl>::do_init_decoder(
+void
+codec_softout_mapped<base_codec_softout, dbl>::do_init_decoder(
     const array1vd_t& ptable)
 {
     map_straight<libbase::vector, dbl> map;
@@ -155,7 +158,8 @@ void codec_softout_mapped<base_codec_softout, dbl>::do_init_decoder(
 }
 
 template <class base_codec_softout, class dbl>
-void codec_softout_mapped<base_codec_softout, dbl>::do_init_decoder(
+void
+codec_softout_mapped<base_codec_softout, dbl>::do_init_decoder(
     const array1vd_t& ptable, const array1vd_t& app)
 {
     map_straight<libbase::vector, dbl> map;
@@ -169,8 +173,9 @@ void codec_softout_mapped<base_codec_softout, dbl>::do_init_decoder(
 // Codec operations
 
 template <class base_codec_softout, class dbl>
-void codec_softout_mapped<base_codec_softout, dbl>::softdecode(array1vd_t& ri,
-                                                               array1vd_t& ro)
+void
+codec_softout_mapped<base_codec_softout, dbl>::softdecode(array1vd_t& ri,
+                                                          array1vd_t& ro)
 {
     // Decode to a temporary space
     array1vd_t ro_wide;

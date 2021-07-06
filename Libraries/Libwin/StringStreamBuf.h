@@ -49,9 +49,14 @@ public:
     int overflow(int nCh = EOF);
 };
 
-inline int CStringStreamBuf::underflow() { return EOF; }
+inline int
+CStringStreamBuf::underflow()
+{
+    return EOF;
+}
 
-inline int CStringStreamBuf::overflow(int nCh)
+inline int
+CStringStreamBuf::overflow(int nCh)
 {
     *buffer += (nCh == '\r') ? '\n' : char(nCh);
     return 1;

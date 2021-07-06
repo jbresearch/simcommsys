@@ -34,7 +34,8 @@
  * classes.
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     libbase::cputimer tmain("Main timer");
 

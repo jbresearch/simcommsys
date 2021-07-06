@@ -34,9 +34,10 @@ using libbase::vector;
 // Block modem operations
 
 template <class G, class dbl>
-void direct_blockmodem<G, vector, dbl>::domodulate(const int N,
-                                                   const vector<int>& encoded,
-                                                   vector<G>& tx)
+void
+direct_blockmodem<G, vector, dbl>::domodulate(const int N,
+                                              const vector<int>& encoded,
+                                              vector<G>& tx)
 {
     // Check validity
     assertalways(encoded.size() == this->input_block_size());
@@ -55,10 +56,10 @@ void direct_blockmodem<G, vector, dbl>::domodulate(const int N,
 }
 
 template <class G, class dbl>
-void direct_blockmodem<G, vector, dbl>::dodemodulate(
-    const channel<G, vector>& chan,
-    const vector<G>& rx,
-    vector<array1d_t>& ptable)
+void
+direct_blockmodem<G, vector, dbl>::dodemodulate(const channel<G, vector>& chan,
+                                                const vector<G>& rx,
+                                                vector<array1d_t>& ptable)
 {
     // Check validity
     assertalways(rx.size() == this->input_block_size());
@@ -83,7 +84,8 @@ void direct_blockmodem<G, vector, dbl>::dodemodulate(
 // Description
 
 template <class G, class dbl>
-std::string direct_blockmodem<G, vector, dbl>::description() const
+std::string
+direct_blockmodem<G, vector, dbl>::description() const
 {
     std::ostringstream sout;
     sout << "Blockwise " << Implementation::description();
@@ -100,7 +102,8 @@ direct_blockmodem<G, vector, dbl>::serialize(std::ostream& sout) const
 }
 
 template <class G, class dbl>
-std::istream& direct_blockmodem<G, vector, dbl>::serialize(std::istream& sin)
+std::istream&
+direct_blockmodem<G, vector, dbl>::serialize(std::istream& sin)
 {
     return sin;
 }

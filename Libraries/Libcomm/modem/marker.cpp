@@ -49,7 +49,8 @@ namespace libcomm
  * \warning Although this is a const method, the internal state is updated
  */
 template <class sig, class real, class real2>
-libbase::vector<sig> marker<sig, real, real2>::select_marker(const int i) const
+libbase::vector<sig>
+marker<sig, real, real2>::select_marker(const int i) const
 {
     // Initialize space for result
     array1s_t marker;
@@ -99,7 +100,8 @@ libbase::vector<sig> marker<sig, real, real2>::select_marker(const int i) const
  * \warning Although this is a const method, the internal state is updated
  */
 template <class sig, class real, class real2>
-void marker<sig, real, real2>::fill_frame_marker_sequence(
+void
+marker<sig, real, real2>::fill_frame_marker_sequence(
     array1vs_t& frame_marker_sequence, const int offset, const int length) const
 {
     // Sanity checks
@@ -122,7 +124,8 @@ void marker<sig, real, real2>::fill_frame_marker_sequence(
 }
 
 template <class sig, class real, class real2>
-void marker<sig, real, real2>::advance() const
+void
+marker<sig, real, real2>::advance() const
 {
     // Inherit sizes
     const int N = this->input_block_size() / d;
@@ -150,9 +153,10 @@ void marker<sig, real, real2>::advance() const
 // encoding and decoding functions
 
 template <class sig, class real, class real2>
-void marker<sig, real, real2>::domodulate(const int q,
-                                          const array1i_t& encoded,
-                                          array1s_t& tx)
+void
+marker<sig, real, real2>::domodulate(const int q,
+                                     const array1i_t& encoded,
+                                     array1s_t& tx)
 {
     // Inherit sizes
     const int N = this->input_block_size() / d;
@@ -177,19 +181,21 @@ void marker<sig, real, real2>::domodulate(const int q,
 }
 
 template <class sig, class real, class real2>
-void marker<sig, real, real2>::dodemodulate(const channel<sig>& chan,
-                                            const array1s_t& rx,
-                                            array1vd_t& ptable)
+void
+marker<sig, real, real2>::dodemodulate(const channel<sig>& chan,
+                                       const array1s_t& rx,
+                                       array1vd_t& ptable)
 {
     const array1vd_t app; // empty APP table
     dodemodulate(chan, rx, app, ptable);
 }
 
 template <class sig, class real, class real2>
-void marker<sig, real, real2>::dodemodulate(const channel<sig>& chan,
-                                            const array1s_t& rx,
-                                            const array1vd_t& app,
-                                            array1vd_t& ptable)
+void
+marker<sig, real, real2>::dodemodulate(const channel<sig>& chan,
+                                       const array1s_t& rx,
+                                       const array1vd_t& app,
+                                       array1vd_t& ptable)
 {
     // Initialize for known-start
     init(chan);
@@ -231,7 +237,8 @@ void marker<sig, real, real2>::dodemodulate(const channel<sig>& chan,
 }
 
 template <class sig, class real, class real2>
-void marker<sig, real, real2>::dodemodulate(
+void
+marker<sig, real, real2>::dodemodulate(
     const channel<sig>& chan,
     const array1s_t& rx,
     const libbase::size_type<libbase::vector> lookahead,
@@ -271,16 +278,17 @@ void marker<sig, real, real2>::dodemodulate(
  * the appropriate parameters.
  */
 template <class sig, class real, class real2>
-void marker<sig, real, real2>::demodulate_wrapper(const channel<sig>& chan,
-                                                  const array1s_t& rx,
-                                                  const int lookahead,
-                                                  const array1d_t& sof_prior,
-                                                  const array1d_t& eof_prior,
-                                                  const array1vd_t& app,
-                                                  array1vd_t& ptable,
-                                                  array1d_t& sof_post,
-                                                  array1d_t& eof_post,
-                                                  const int offset)
+void
+marker<sig, real, real2>::demodulate_wrapper(const channel<sig>& chan,
+                                             const array1s_t& rx,
+                                             const int lookahead,
+                                             const array1d_t& sof_prior,
+                                             const array1d_t& eof_prior,
+                                             const array1vd_t& app,
+                                             array1vd_t& ptable,
+                                             array1d_t& sof_post,
+                                             array1d_t& eof_post,
+                                             const int offset)
 {
     // Inherit block size from last modulation step, and determine lookahead
     const int N = this->input_block_size() / d;
@@ -361,9 +369,10 @@ void marker<sig, real, real2>::demodulate_wrapper(const channel<sig>& chan,
 // Setup procedure
 
 template <class sig, class real, class real2>
-void marker<sig, real, real2>::init(const channel<sig>& chan,
-                                    const array1d_t& sof_pdf,
-                                    const int offset)
+void
+marker<sig, real, real2>::init(const channel<sig>& chan,
+                               const array1d_t& sof_pdf,
+                               const int offset)
 {
     // Inherit block size from last modulation step (and include lookahead)
     const int N = this->input_block_size() / d + lookahead;
@@ -391,7 +400,8 @@ void marker<sig, real, real2>::init(const channel<sig>& chan,
 }
 
 template <class sig, class real, class real2>
-void marker<sig, real, real2>::init()
+void
+marker<sig, real, real2>::init()
 {
     // Seed the generator and clear the per-frame sequence of markers
     r.seed(0);
@@ -404,8 +414,8 @@ void marker<sig, real, real2>::init()
  * \brief Check that all entries in table have correct length
  */
 template <class sig, class real, class real2>
-void marker<sig, real, real2>::validate_marker_length(
-    const array1vs_t& table) const
+void
+marker<sig, real, real2>::validate_marker_length(const array1vs_t& table) const
 {
     assertalways(table.size() > 0);
     for (int i = 0; i < table.size(); i++) {
@@ -416,10 +426,11 @@ void marker<sig, real, real2>::validate_marker_length(
 //! Inform user if state space limits have changed (debug build only)
 
 template <class sig, class real, class real2>
-void marker<sig, real, real2>::checkforchanges(int m1_min,
-                                               int m1_max,
-                                               int mtau_min,
-                                               int mtau_max) const
+void
+marker<sig, real, real2>::checkforchanges(int m1_min,
+                                          int m1_max,
+                                          int mtau_min,
+                                          int mtau_max) const
 {
 #ifndef NDEBUG
     static int last_m1_min = 0;
@@ -444,7 +455,8 @@ void marker<sig, real, real2>::checkforchanges(int m1_min,
 // description output
 
 template <class sig, class real, class real2>
-std::string marker<sig, real, real2>::description() const
+std::string
+marker<sig, real, real2>::description() const
 {
     std::ostringstream sout;
     sout << "Marker Code (" << d << "," << m;
@@ -483,7 +495,8 @@ std::string marker<sig, real, real2>::description() const
 // object serialization - saving
 
 template <class sig, class real, class real2>
-std::ostream& marker<sig, real, real2>::serialize(std::ostream& sout) const
+std::ostream&
+marker<sig, real, real2>::serialize(std::ostream& sout) const
 {
     sout << "# Version" << std::endl;
     sout << 2 << std::endl;
@@ -530,7 +543,8 @@ std::ostream& marker<sig, real, real2>::serialize(std::ostream& sout) const
  */
 
 template <class sig, class real, class real2>
-std::istream& marker<sig, real, real2>::serialize(std::istream& sin)
+std::istream&
+marker<sig, real, real2>::serialize(std::istream& sin)
 {
     int temp;
     // get format version

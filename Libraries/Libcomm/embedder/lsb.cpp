@@ -30,7 +30,8 @@ namespace libcomm
 // description output
 
 template <class S>
-std::string lsb<S>::description() const
+std::string
+lsb<S>::description() const
 {
     std::ostringstream sout;
     switch (algorithm) {
@@ -50,7 +51,8 @@ std::string lsb<S>::description() const
 // object serialization - saving
 
 template <class S>
-std::ostream& lsb<S>::serialize(std::ostream& sout) const
+std::ostream&
+lsb<S>::serialize(std::ostream& sout) const
 {
     sout << "# Version" << std::endl;
     sout << 2;
@@ -72,7 +74,8 @@ std::ostream& lsb<S>::serialize(std::ostream& sout) const
  */
 
 template <class S>
-std::istream& lsb<S>::serialize(std::istream& sin)
+std::istream&
+lsb<S>::serialize(std::istream& sin)
 {
     int version;
     sin >> libbase::eatcomments >> version >> libbase::verify;

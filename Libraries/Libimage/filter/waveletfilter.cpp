@@ -31,9 +31,10 @@ using libbase::vector;
 
 // helper functions
 
-void waveletfilter::createmask(matrix<bool>& mask,
-                               const int xsize,
-                               const int ysize) const
+void
+waveletfilter::createmask(matrix<bool>& mask,
+                          const int xsize,
+                          const int ysize) const
 {
     // initialize mask with all elements selected
     mask.init(xsize, ysize);
@@ -49,12 +50,13 @@ void waveletfilter::createmask(matrix<bool>& mask,
 
 // initialization
 
-void waveletfilter::init(const int nType,
-                         const int nPar,
-                         const int nLevel,
-                         const int nThreshType,
-                         const int nThreshSelector,
-                         const double dThreshCutoff)
+void
+waveletfilter::init(const int nType,
+                    const int nPar,
+                    const int nLevel,
+                    const int nThreshType,
+                    const int nThreshSelector,
+                    const double dThreshCutoff)
 {
     m_wWavelet.init(nType, nPar);
     m_nWaveletLevel = nLevel;
@@ -65,13 +67,15 @@ void waveletfilter::init(const int nType,
 
 // parameter estimation (updates internal statistics)
 
-void waveletfilter::reset()
+void
+waveletfilter::reset()
 {
     m_vdCoefficient.clear();
     m_nSize = 0;
 }
 
-void waveletfilter::update(const matrix<double>& in)
+void
+waveletfilter::update(const matrix<double>& in)
 {
     switch (m_nThreshSelector) {
     // % of coefficients
@@ -119,7 +123,8 @@ void waveletfilter::update(const matrix<double>& in)
     }
 }
 
-void waveletfilter::estimate()
+void
+waveletfilter::estimate()
 {
     sort(m_vdCoefficient.begin(), m_vdCoefficient.end());
     switch (m_nThreshSelector) {
@@ -156,7 +161,8 @@ void waveletfilter::estimate()
 
 // filter process loop (only updates output matrix)
 
-void waveletfilter::process(const matrix<double>& in, matrix<double>& out) const
+void
+waveletfilter::process(const matrix<double>& in, matrix<double>& out) const
 {
     // initial progress
     display_progress(0, 3);

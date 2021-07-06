@@ -24,7 +24,8 @@
 namespace libcomm
 {
 
-void experiment::prettyprint_results(
+void
+experiment::prettyprint_results(
     std::ostream& sout,
     const libbase::vector<double>& result,
     const libbase::vector<double>& errormargin) const

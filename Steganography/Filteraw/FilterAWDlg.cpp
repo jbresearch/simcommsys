@@ -38,7 +38,8 @@ CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
     //}}AFX_DATA_INIT
 }
 
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
+void
+CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CAboutDlg)
@@ -65,7 +66,8 @@ CFilterAWDlg::CFilterAWDlg(CWnd* pParent /*=NULL*/)
     //}}AFX_DATA_INIT
 }
 
-void CFilterAWDlg::DoDataExchange(CDataExchange* pDX)
+void
+CFilterAWDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CFilterAWDlg)
@@ -86,7 +88,8 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterAWDlg message handlers
 
-BOOL CFilterAWDlg::OnInitDialog()
+BOOL
+CFilterAWDlg::OnInitDialog()
 {
     CDialog::OnInitDialog();
 
@@ -101,7 +104,8 @@ BOOL CFilterAWDlg::OnInitDialog()
     // EXCEPTION: OCX Property Pages should return FALSE
 }
 
-void CFilterAWDlg::OnChangeRadius()
+void
+CFilterAWDlg::OnChangeRadius()
 {
     m_nRadius = GetDlgItemInt(IDC_RADIUS);
     CString sTemp;
@@ -109,7 +113,8 @@ void CFilterAWDlg::OnChangeRadius()
     SetDlgItemText(IDC_REGION, sTemp);
 }
 
-void CFilterAWDlg::OnAuto()
+void
+CFilterAWDlg::OnAuto()
 {
     m_bAuto = ((CButton*)GetDlgItem(IDC_AUTO))->GetCheck();
     GetDlgItem(IDC_NOISE)->EnableWindow(!m_bAuto);

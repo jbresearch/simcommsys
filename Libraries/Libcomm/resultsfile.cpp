@@ -43,7 +43,8 @@ using libbase::vector;
  * \note This method also updates the write position so that the header is not
  * overwritten on the next write.
  */
-void resultsfile::writeheaderifneeded(std::fstream& file)
+void
+resultsfile::writeheaderifneeded(std::fstream& file)
 {
     if (!headerwritten) {
         writeheader(file);
@@ -57,7 +58,8 @@ void resultsfile::writeheaderifneeded(std::fstream& file)
 /*! \brief Close and truncate the file, and update digest
  * Truncation is needed to remove any detritus from previously-saved states.
  */
-void resultsfile::finishwithfile(std::fstream& file)
+void
+resultsfile::finishwithfile(std::fstream& file)
 {
     std::streampos length = file.tellp();
     // close and truncate file
@@ -68,7 +70,8 @@ void resultsfile::finishwithfile(std::fstream& file)
     filedigest.process(file);
 }
 
-void resultsfile::truncate(std::streampos length)
+void
+resultsfile::truncate(std::streampos length)
 {
     assert(!fname.empty());
 #ifdef _WIN32
@@ -81,7 +84,8 @@ void resultsfile::truncate(std::streampos length)
 #endif
 }
 
-void resultsfile::checkformodifications(std::fstream& file)
+void
+resultsfile::checkformodifications(std::fstream& file)
 {
     assert(file.good());
     libbase::trace << "DEBUG (resultsfile): checking file for modifications."
@@ -105,7 +109,8 @@ void resultsfile::checkformodifications(std::fstream& file)
 
 // File handling interface
 
-void resultsfile::init(const std::string& fname)
+void
+resultsfile::init(const std::string& fname)
 {
     assert(!t.isrunning());
     filesetup = false;
@@ -123,7 +128,8 @@ void resultsfile::init(const std::string& fname)
  * \note The current simulation must be already set up at this point, so that
  * a valid comparison can be made.
  */
-void resultsfile::setupfile()
+void
+resultsfile::setupfile()
 {
     assert(!fname.empty());
     assert(!filesetup);
@@ -163,8 +169,9 @@ void resultsfile::setupfile()
  * \note This method does not change the write position so that this result is
  * overwritten on the next write.
  */
-void resultsfile::writeinterimresults(libbase::vector<double>& result,
-                                      libbase::vector<double>& errormargin)
+void
+resultsfile::writeinterimresults(libbase::vector<double>& result,
+                                 libbase::vector<double>& errormargin)
 {
     assert(filesetup);
     assert(t.isrunning());
@@ -193,9 +200,10 @@ void resultsfile::writeinterimresults(libbase::vector<double>& result,
  * \note This method also updates the write position so that this result is not
  * overwritten.
  */
-void resultsfile::writefinalresults(libbase::vector<double>& result,
-                                    libbase::vector<double>& errormargin,
-                                    bool savestate)
+void
+resultsfile::writefinalresults(libbase::vector<double>& result,
+                               libbase::vector<double>& errormargin,
+                               bool savestate)
 {
     assert(filesetup);
     assert(t.isrunning());

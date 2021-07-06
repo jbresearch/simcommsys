@@ -40,7 +40,8 @@ namespace libbase
  * \param getfirst flag to return first value found (rather than last)
  */
 template <class T>
-int index_of_min(const vector<T>& v, const bool getfirst = true)
+int
+index_of_min(const vector<T>& v, const bool getfirst = true)
 {
     int index;
     v.min(index, getfirst);
@@ -52,7 +53,8 @@ int index_of_min(const vector<T>& v, const bool getfirst = true)
  * \param getfirst flag to return first value found (rather than last)
  */
 template <class T>
-int index_of_max(const vector<T>& v, const bool getfirst = true)
+int
+index_of_max(const vector<T>& v, const bool getfirst = true)
 {
     int index;
     v.max(index, getfirst);
@@ -63,7 +65,8 @@ int index_of_max(const vector<T>& v, const bool getfirst = true)
  * Creates a vector containing a concatenation of two vectors.
  */
 template <class T>
-vector<T> concatenate(const vector<T>& v1, const vector<T>& v2)
+vector<T>
+concatenate(const vector<T>& v1, const vector<T>& v2)
 {
     // shorthand for sizes
     const int s1 = v1.size();
@@ -103,7 +106,8 @@ concatenate(const vector<T>& v1, const vector<T>& v2, const vector<T>& v3)
  * size 'inner'.
  */
 template <class T>
-void allocate(vector<vector<T>>& vv, const int outer, const int inner)
+void
+allocate(vector<vector<T>>& vv, const int outer, const int inner)
 {
     vv.init(outer);
 
@@ -117,10 +121,11 @@ void allocate(vector<vector<T>>& vv, const int outer, const int inner)
  * size 'innerrows' by 'innercols'.
  */
 template <class T>
-void allocate(vector<matrix<T>>& vm,
-              const int outer,
-              const int innerrows,
-              const int innercols)
+void
+allocate(vector<matrix<T>>& vm,
+         const int outer,
+         const int innerrows,
+         const int innercols)
 {
     vm.init(outer);
 
@@ -134,10 +139,11 @@ void allocate(vector<matrix<T>>& vm,
  * vectors each of size 'inner'.
  */
 template <class T>
-void allocate(matrix<vector<T>>& mv,
-              const int outerrows,
-              const int outercols,
-              const int inner)
+void
+allocate(matrix<vector<T>>& mv,
+         const int outerrows,
+         const int outercols,
+         const int inner)
 {
     mv.init(outerrows, outercols);
 

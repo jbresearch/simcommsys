@@ -74,28 +74,32 @@ public:
 
 // Derived Operations
 
-inline mpreal operator+(const mpreal& a, const mpreal& b)
+inline mpreal
+operator+(const mpreal& a, const mpreal& b)
 {
     mpreal result = a;
     result += b;
     return result;
 }
 
-inline mpreal operator-(const mpreal& a, const mpreal& b)
+inline mpreal
+operator-(const mpreal& a, const mpreal& b)
 {
     mpreal result = a;
     result -= b;
     return result;
 }
 
-inline mpreal operator*(const mpreal& a, const mpreal& b)
+inline mpreal
+operator*(const mpreal& a, const mpreal& b)
 {
     mpreal result = a;
     result *= b;
     return result;
 }
 
-inline mpreal operator/(const mpreal& a, const mpreal& b)
+inline mpreal
+operator/(const mpreal& a, const mpreal& b)
 {
     mpreal result = a;
     result /= b;

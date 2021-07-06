@@ -55,7 +55,8 @@ namespace libcomm
  * \f$ m \f$; this ensures the subtraction does not fail due to resolution of
  * double.
  */
-double qids_utils::compute_drift_prob_davey(int m, int T, double Pi, double Pd)
+double
+qids_utils::compute_drift_prob_davey(int m, int T, double Pi, double Pd)
 {
     // sanity checks
     assert(T > 0);
@@ -264,7 +265,8 @@ qids_utils::compute_drift_prob_exact_3(int m, int T, double Pi, double Pd)
  * \brief Computes the probability of drift 'm' after transmitting 'T' symbols
  * using the exact metric from our submission to Transactions on Communications.
  */
-double qids_utils::compute_drift_prob_exact(int m, int T, double Pi, double Pd)
+double
+qids_utils::compute_drift_prob_exact(int m, int T, double Pi, double Pd)
 {
     typedef long double myreal;
     // sanity checks
@@ -330,7 +332,8 @@ double qids_utils::compute_drift_prob_exact(int m, int T, double Pi, double Pd)
  *
  * \note For \f$ P_i > 0 \f$, the smallest allowed value is \f$ I = 1 \f$.
  */
-int qids_utils::compute_I(int T, double Pi, double Pr)
+int
+qids_utils::compute_I(int T, double Pi, double Pr)
 {
     // sanity checks
     assert(T > 0);
@@ -362,7 +365,8 @@ int qids_utils::compute_I(int T, double Pi, double Pr)
  * a Gaussian distribution with zero mean and standard deviation given by
  * \f$ \sigma = \sqrt{\frac{2 T p}{1-p}} \f$.
  */
-int qids_utils::compute_xmax_davey(int T, double Pi, double Pd, double Pr)
+int
+qids_utils::compute_xmax_davey(int T, double Pi, double Pd, double Pr)
 {
     // sanity checks
     assert(T > 0);

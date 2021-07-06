@@ -46,14 +46,16 @@ namespace libcomm
 // implementation of the relevant codec methods
 
 template <class GF_q>
-void reedsolomon<GF_q>::do_encode(const array1i_t& source, array1i_t& encoded)
+void
+reedsolomon<GF_q>::do_encode(const array1i_t& source, array1i_t& encoded)
 {
     libbase::linear_code_utils<GF_q, double>::encode_cw(
         this->gen_ref_matrix, source, encoded);
 }
 
 template <class GF_q>
-void reedsolomon<GF_q>::do_init_decoder(const array1vd_t& ptable)
+void
+reedsolomon<GF_q>::do_init_decoder(const array1vd_t& ptable)
 {
     // Encoder symbol space must be the same as modulation symbol space
     assertalways(ptable.size() > 0);
@@ -65,8 +67,9 @@ void reedsolomon<GF_q>::do_init_decoder(const array1vd_t& ptable)
 }
 
 template <class GF_q>
-void reedsolomon<GF_q>::do_init_decoder(const array1vd_t& ptable,
-                                        const array1vd_t& app)
+void
+reedsolomon<GF_q>::do_init_decoder(const array1vd_t& ptable,
+                                   const array1vd_t& app)
 {
     // Start by setting receiver statistics
     do_init_decoder(ptable);
@@ -83,7 +86,8 @@ void reedsolomon<GF_q>::do_init_decoder(const array1vd_t& ptable,
 }
 
 template <class GF_q>
-void reedsolomon<GF_q>::softdecode(array1vd_t& ri, array1vd_t& ro)
+void
+reedsolomon<GF_q>::softdecode(array1vd_t& ri, array1vd_t& ro)
 {
     // determine the most likely symbol
     hd_functor(this->received_likelihoods, this->received_word_hd);
@@ -323,7 +327,8 @@ void reedsolomon<GF_q>::softdecode(array1vd_t& ri, array1vd_t& ro)
 }
 
 template <class GF_q>
-std::string reedsolomon<GF_q>::description() const
+std::string
+reedsolomon<GF_q>::description() const
 {
 
     std::ostringstream sout;
@@ -343,7 +348,8 @@ std::string reedsolomon<GF_q>::description() const
 }
 
 template <class GF_q>
-void reedsolomon<GF_q>::checkParams(int length, int dim)
+void
+reedsolomon<GF_q>::checkParams(int length, int dim)
 {
 
     // ensure the length makes sense
@@ -363,7 +369,8 @@ void reedsolomon<GF_q>::checkParams(int length, int dim)
 }
 
 template <class GF_q>
-void reedsolomon<GF_q>::init()
+void
+reedsolomon<GF_q>::init()
 {
     /*
      * Assume the multiplicative group GF(2^m)\{0}=<alpha>.
@@ -529,7 +536,8 @@ void reedsolomon<GF_q>::init()
  *
  */
 template <class GF_q>
-std::ostream& reedsolomon<GF_q>::serialize(std::ostream& sout) const
+std::ostream&
+reedsolomon<GF_q>::serialize(std::ostream& sout) const
 {
     // format version
     sout << "# Length of the code (n)" << std::endl;
@@ -557,7 +565,8 @@ std::ostream& reedsolomon<GF_q>::serialize(std::ostream& sout) const
  */
 
 template <class GF_q>
-std::istream& reedsolomon<GF_q>::serialize(std::istream& sin)
+std::istream&
+reedsolomon<GF_q>::serialize(std::istream& sin)
 {
     assertalways(sin.good());
 

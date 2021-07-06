@@ -27,7 +27,8 @@ namespace libcomm
 // object serialization - saving
 
 template <class base_codec>
-std::ostream& codec_reshaped<base_codec>::serialize(std::ostream& sout) const
+std::ostream&
+codec_reshaped<base_codec>::serialize(std::ostream& sout) const
 {
     return base.serialize(sout);
 }
@@ -35,7 +36,8 @@ std::ostream& codec_reshaped<base_codec>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class base_codec>
-std::istream& codec_reshaped<base_codec>::serialize(std::istream& sin)
+std::istream&
+codec_reshaped<base_codec>::serialize(std::istream& sin)
 {
     return base.serialize(sin);
 }

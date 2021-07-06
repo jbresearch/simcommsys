@@ -48,7 +48,8 @@ anneal_interleaver::anneal_interleaver(
     E = work_energy();
 }
 
-void anneal_interleaver::initialise()
+void
+anneal_interleaver::initialise()
 {
     // array to hold 'used' status of possible lut values
     libbase::vector<bool> used(tau);
@@ -70,7 +71,8 @@ void anneal_interleaver::initialise()
     }
 }
 
-inline double anneal_interleaver::energy_function(const int i, const int j)
+inline double
+anneal_interleaver::energy_function(const int i, const int j)
 {
     if (sets < 2 && type < 15) {
         // compute standard metrics
@@ -166,7 +168,8 @@ inline double anneal_interleaver::energy_function(const int i, const int j)
     return 0;
 }
 
-double anneal_interleaver::work_energy()
+double
+anneal_interleaver::work_energy()
 {
     double energy = 0;
 
@@ -179,7 +182,8 @@ double anneal_interleaver::work_energy()
     return energy;
 }
 
-double anneal_interleaver::work_delta()
+double
+anneal_interleaver::work_delta()
 {
     double delta = 0;
 
@@ -192,7 +196,8 @@ double anneal_interleaver::work_delta()
     return delta;
 }
 
-double anneal_interleaver::perturb()
+double
+anneal_interleaver::perturb()
 {
     // randomly choose an interleaver to perturb
     set = r.ival(sets);
@@ -218,7 +223,8 @@ double anneal_interleaver::perturb()
     return (delta);
 }
 
-void anneal_interleaver::unperturb()
+void
+anneal_interleaver::unperturb()
 {
     // swap back the lut values
     std::swap(lut(set, pos1), lut(set, pos2));
@@ -226,9 +232,14 @@ void anneal_interleaver::unperturb()
     E = Eold;
 }
 
-double anneal_interleaver::energy() { return E; }
+double
+anneal_interleaver::energy()
+{
+    return E;
+}
 
-std::ostream& anneal_interleaver::output(std::ostream& sout) const
+std::ostream&
+anneal_interleaver::output(std::ostream& sout) const
 {
     for (int s = 0; s < sets; s++) {
         sout << "#% Set " << s << std::endl;

@@ -27,7 +27,8 @@
 #include <iostream>
 
 template <class S, template <class> class C>
-void process(std::istream& sin = std::cin, std::ostream& sout = std::cout)
+void
+process(std::istream& sin = std::cin, std::ostream& sout = std::cout)
 {
     // Read from input stream
     std::shared_ptr<libcomm::commsys<S, C>> system =
@@ -46,7 +47,8 @@ void process(std::istream& sin = std::cin, std::ostream& sout = std::cout)
  * it to standard output in its canonical form.
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     libbase::cputimer tmain("Main timer");
 

@@ -53,7 +53,8 @@ namespace libcomm
  * constructor is called.
  */
 template <class S, template <class> class C>
-void basic_commsys<S, C>::init()
+void
+basic_commsys<S, C>::init()
 {
     const int M = mdm->num_symbols();
     const int N = cdc->num_outputs();
@@ -77,7 +78,8 @@ void basic_commsys<S, C>::init()
  * serializer or constructor is called.
  */
 template <class S, template <class> class C>
-void basic_commsys<S, C>::free()
+void
+basic_commsys<S, C>::free()
 {
     cdc.reset();
     map.reset();
@@ -110,7 +112,8 @@ basic_commsys<S, C>::basic_commsys(const basic_commsys<S, C>& c)
 // Communication System Setup
 
 template <class S, template <class> class C>
-void basic_commsys<S, C>::seedfrom(libbase::random& r)
+void
+basic_commsys<S, C>::seedfrom(libbase::random& r)
 {
     cdc->seedfrom(r);
     map->seedfrom(r);
@@ -138,7 +141,8 @@ void basic_commsys<S, C>::seedfrom(libbase::random& r)
  * \enddot
  */
 template <class S, template <class> class C>
-C<S> basic_commsys<S, C>::encode_path(const C<int>& source)
+C<S>
+basic_commsys<S, C>::encode_path(const C<int>& source)
 {
     // Keep track of what we're transmitting
 #if DEBUG >= 2
@@ -178,7 +182,8 @@ C<S> basic_commsys<S, C>::encode_path(const C<int>& source)
  * \enddot
  */
 template <class S, template <class> class C>
-C<S> basic_commsys<S, C>::transmit(const C<S>& transmitted)
+C<S>
+basic_commsys<S, C>::transmit(const C<S>& transmitted)
 {
     C<S> received;
     this->txchan->reset_timers();
@@ -204,7 +209,8 @@ C<S> basic_commsys<S, C>::transmit(const C<S>& transmitted)
  * \enddot
  */
 template <class S, template <class> class C>
-void basic_commsys<S, C>::receive_path(const C<S>& received)
+void
+basic_commsys<S, C>::receive_path(const C<S>& received)
 {
     // Demodulate
     C<array1d_t> ptable_mapped;
@@ -232,7 +238,8 @@ void basic_commsys<S, C>::receive_path(const C<S>& received)
  * \enddot
  */
 template <class S, template <class> class C>
-void basic_commsys<S, C>::softreceive_path(const C<array1d_t>& ptable_mapped)
+void
+basic_commsys<S, C>::softreceive_path(const C<array1d_t>& ptable_mapped)
 {
     // Inverse Map
     C<array1d_t> ptable_encoded;
@@ -250,7 +257,8 @@ void basic_commsys<S, C>::softreceive_path(const C<array1d_t>& ptable_mapped)
 }
 
 template <class S, template <class> class C>
-void basic_commsys<S, C>::decode(C<int>& decoded)
+void
+basic_commsys<S, C>::decode(C<int>& decoded)
 {
     // Decode
     this->cdc->reset_timers();
@@ -269,7 +277,8 @@ void basic_commsys<S, C>::decode(C<int>& decoded)
 // Description & Serialization
 
 template <class S, template <class> class C>
-std::string basic_commsys<S, C>::description() const
+std::string
+basic_commsys<S, C>::description() const
 {
     std::ostringstream sout;
     sout << "Communication System: ";
@@ -288,7 +297,8 @@ std::string basic_commsys<S, C>::description() const
 // object serialization - saving
 
 template <class S, template <class> class C>
-std::ostream& basic_commsys<S, C>::serialize(std::ostream& sout) const
+std::ostream&
+basic_commsys<S, C>::serialize(std::ostream& sout) const
 {
     // format version
     sout << "# Version" << std::endl;
@@ -321,7 +331,8 @@ std::ostream& basic_commsys<S, C>::serialize(std::ostream& sout) const
  * \version 1 Added version numbering; added split channel model
  */
 template <class S, template <class> class C>
-std::istream& basic_commsys<S, C>::serialize(std::istream& sin)
+std::istream&
+basic_commsys<S, C>::serialize(std::istream& sin)
 {
     assertalways(sin.good());
     free();
@@ -383,13 +394,15 @@ std::istream& basic_commsys<S, C>::serialize(std::istream& sin)
 // Serialization Support
 
 template <class S, template <class> class C>
-std::ostream& commsys<S, C>::serialize(std::ostream& sout) const
+std::ostream&
+commsys<S, C>::serialize(std::ostream& sout) const
 {
     return basic_commsys<S, C>::serialize(sout);
 }
 
 template <class S, template <class> class C>
-std::istream& commsys<S, C>::serialize(std::istream& sin)
+std::istream&
+commsys<S, C>::serialize(std::istream& sin)
 {
     return basic_commsys<S, C>::serialize(sin);
 }
@@ -409,7 +422,8 @@ std::istream& commsys<S, C>::serialize(std::istream& sin)
  */
 
 template <template <class> class C>
-void commsys<sigspace, C>::init()
+void
+commsys<sigspace, C>::init()
 {
     // set up channel energy/bit (Eb)
     libbase::trace << "DEBUG: overall code rate = " << this->rate()
@@ -421,13 +435,15 @@ void commsys<sigspace, C>::init()
 // Serialization Support
 
 template <template <class> class C>
-std::ostream& commsys<sigspace, C>::serialize(std::ostream& sout) const
+std::ostream&
+commsys<sigspace, C>::serialize(std::ostream& sout) const
 {
     return basic_commsys<sigspace, C>::serialize(sout);
 }
 
 template <template <class> class C>
-std::istream& commsys<sigspace, C>::serialize(std::istream& sin)
+std::istream&
+commsys<sigspace, C>::serialize(std::istream& sin)
 {
     basic_commsys<sigspace, C>::serialize(sin);
     init();

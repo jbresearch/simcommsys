@@ -72,7 +72,8 @@ using libbase::vector;
  * Similarly, the taps corresponding to the inputs also are irrelevant.
  */
 template <class G>
-matrix<G> grscc<G>::getstategen() const
+matrix<G>
+grscc<G>::getstategen() const
 {
     // Create generator matrix in required format
     matrix<G> stategen(this->nu, this->nu);
@@ -102,7 +103,8 @@ matrix<G> grscc<G>::getstategen() const
  * computing the necessary powers of the state-generator matrix.
  */
 template <class G>
-void grscc<G>::initcsct()
+void
+grscc<G>::initcsct()
 {
     const matrix<G> stategen = getstategen();
     const matrix<G> eye = matrix<G>::eye(this->nu);
@@ -140,7 +142,8 @@ void grscc<G>::initcsct()
 // FSM helper operations
 
 template <class G>
-vector<int> grscc<G>::determineinput(const vector<int>& input) const
+vector<int>
+grscc<G>::determineinput(const vector<int>& input) const
 {
     vector<int> ip = input;
     for (int i = 0; i < ip.size(); i++) {
@@ -157,7 +160,8 @@ vector<int> grscc<G>::determineinput(const vector<int>& input) const
 }
 
 template <class G>
-vector<G> grscc<G>::determinefeedin(const vector<int>& input) const
+vector<G>
+grscc<G>::determinefeedin(const vector<int>& input) const
 {
     for (int i = 0; i < input.size(); i++) {
         assert(input(i) != fsm::tail);
@@ -209,7 +213,8 @@ vector<G> grscc<G>::determinefeedin(const vector<int>& input) const
  * containing all combinations of \f$ P \f$ and \f$ S_N^0 \f$.
  */
 template <class G>
-void grscc<G>::resetcircular(const vector<int>& zerostate, int n)
+void
+grscc<G>::resetcircular(const vector<int>& zerostate, int n)
 {
     // TODO: check the input state is valid
     assert(csct.size() > 0);
@@ -223,7 +228,8 @@ void grscc<G>::resetcircular(const vector<int>& zerostate, int n)
 // Description
 
 template <class G>
-std::string grscc<G>::description() const
+std::string
+grscc<G>::description() const
 {
     std::ostringstream sout;
     sout << "RSC code " << ccfsm<G>::description();
@@ -233,13 +239,15 @@ std::string grscc<G>::description() const
 // Serialization Support
 
 template <class G>
-std::ostream& grscc<G>::serialize(std::ostream& sout) const
+std::ostream&
+grscc<G>::serialize(std::ostream& sout) const
 {
     return ccfsm<G>::serialize(sout);
 }
 
 template <class G>
-std::istream& grscc<G>::serialize(std::istream& sin)
+std::istream&
+grscc<G>::serialize(std::istream& sin)
 {
     ccfsm<G>::serialize(sin);
     initcsct();

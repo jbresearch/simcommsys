@@ -50,10 +50,11 @@ CFolderDialog::~CFolderDialog() {}
 // Utilities
 //////////////////////////////////////////////////////////////////////
 
-int CALLBACK CFolderDialog::BrowseCallbackProc(HWND hwnd,
-                                               UINT uMsg,
-                                               LPARAM lParam,
-                                               LPARAM lpData)
+int CALLBACK
+CFolderDialog::BrowseCallbackProc(HWND hwnd,
+                                  UINT uMsg,
+                                  LPARAM lParam,
+                                  LPARAM lpData)
 {
     if (uMsg == BFFM_INITIALIZED) {
         const char* path = (char*)lpData;
@@ -66,7 +67,8 @@ int CALLBACK CFolderDialog::BrowseCallbackProc(HWND hwnd,
 // Public interface
 //////////////////////////////////////////////////////////////////////
 
-int CFolderDialog::DoModal()
+int
+CFolderDialog::DoModal()
 {
     char sDisplayName[_MAX_PATH];
     char sPath[_MAX_PATH];
@@ -91,6 +93,10 @@ int CFolderDialog::DoModal()
     return IDCANCEL;
 }
 
-CString CFolderDialog::GetFolder() { return m_sFolder; }
+CString
+CFolderDialog::GetFolder()
+{
+    return m_sFolder;
+}
 
 } // namespace libwin

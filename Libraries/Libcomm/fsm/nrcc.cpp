@@ -32,14 +32,16 @@ const libbase::serializer nrcc::shelper("fsm", "nrcc", nrcc::create);
 
 // FSM state operations (getting and resetting)
 
-void nrcc::resetcircular(const vector<int>& zerostate, int n)
+void
+nrcc::resetcircular(const vector<int>& zerostate, int n)
 {
     failwith("Function not implemented.");
 }
 
 // FSM helper operations
 
-vector<int> nrcc::determineinput(const vector<int>& input) const
+vector<int>
+nrcc::determineinput(const vector<int>& input) const
 {
     assert(input.size() == k);
     vector<int> ip = input;
@@ -52,7 +54,8 @@ vector<int> nrcc::determineinput(const vector<int>& input) const
     return ip;
 }
 
-libbase::bitfield nrcc::determinefeedin(const vector<int>& input) const
+libbase::bitfield
+nrcc::determinefeedin(const vector<int>& input) const
 {
     assert(input.size() == k);
     // check we have no 'tail' inputs
@@ -66,7 +69,8 @@ libbase::bitfield nrcc::determinefeedin(const vector<int>& input) const
 
 // Description
 
-std::string nrcc::description() const
+std::string
+nrcc::description() const
 {
     std::ostringstream sout;
     sout << "NRC code " << ccbfsm::description();
@@ -75,12 +79,14 @@ std::string nrcc::description() const
 
 // Serialization Support
 
-std::ostream& nrcc::serialize(std::ostream& sout) const
+std::ostream&
+nrcc::serialize(std::ostream& sout) const
 {
     return ccbfsm::serialize(sout);
 }
 
-std::istream& nrcc::serialize(std::istream& sin)
+std::istream&
+nrcc::serialize(std::istream& sin)
 {
     return ccbfsm::serialize(sin);
 }

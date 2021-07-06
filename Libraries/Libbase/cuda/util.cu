@@ -33,7 +33,8 @@ namespace cuda
 
 //! Get the current device
 
-int cudaGetCurrentDevice()
+int
+cudaGetCurrentDevice()
 {
     int device;
     cudaSafeCall(cudaGetDevice(&device));
@@ -42,7 +43,8 @@ int cudaGetCurrentDevice()
 
 //! Get the number of multiprocessors for the given device
 
-int cudaGetMultiprocessorCount(int device)
+int
+cudaGetMultiprocessorCount(int device)
 {
     if (device < 0) {
         device = cudaGetCurrentDevice();
@@ -55,7 +57,8 @@ int cudaGetMultiprocessorCount(int device)
 
 // Get the number of cores per multiprocessor for the given device
 
-int cudaGetMultiprocessorSize(int device)
+int
+cudaGetMultiprocessorSize(int device)
 {
     // Structure to map SM version to # of cores per SM
     typedef struct {
@@ -109,7 +112,8 @@ int cudaGetMultiprocessorSize(int device)
 
 //! Get the amount of shared memory available per block
 
-int cudaGetSharedMemPerBlock(int device)
+int
+cudaGetSharedMemPerBlock(int device)
 {
     if (device < 0) {
         device = cudaGetCurrentDevice();
@@ -122,7 +126,8 @@ int cudaGetSharedMemPerBlock(int device)
 
 //! Get the number of registers available per block
 
-int cudaGetRegsPerBlock(int device)
+int
+cudaGetRegsPerBlock(int device)
 {
     if (device < 0) {
         device = cudaGetCurrentDevice();
@@ -135,7 +140,8 @@ int cudaGetRegsPerBlock(int device)
 
 //! Get the maximum number of threads per block
 
-int cudaGetMaxThreadsPerBlock(int device)
+int
+cudaGetMaxThreadsPerBlock(int device)
 {
     if (device < 0) {
         device = cudaGetCurrentDevice();
@@ -148,7 +154,8 @@ int cudaGetMaxThreadsPerBlock(int device)
 
 //! Get the warp size for the given device
 
-int cudaGetWarpSize(int device)
+int
+cudaGetWarpSize(int device)
 {
     if (device < 0) {
         device = cudaGetCurrentDevice();
@@ -161,7 +168,8 @@ int cudaGetWarpSize(int device)
 
 //! Get the clock rate in GHz for the given device
 
-double cudaGetClockRate(int device)
+double
+cudaGetClockRate(int device)
 {
     if (device < 0) {
         device = cudaGetCurrentDevice();
@@ -174,7 +182,8 @@ double cudaGetClockRate(int device)
 
 //! Get the name for the given device
 
-std::string cudaGetDeviceName(int device)
+std::string
+cudaGetDeviceName(int device)
 {
     if (device < 0) {
         device = cudaGetCurrentDevice();
@@ -187,7 +196,8 @@ std::string cudaGetDeviceName(int device)
 
 //! Get the amount of global memory (in bytes) for the given device
 
-size_t cudaGetGlobalMem(int device)
+size_t
+cudaGetGlobalMem(int device)
 {
     if (device < 0) {
         device = cudaGetCurrentDevice();
@@ -200,7 +210,8 @@ size_t cudaGetGlobalMem(int device)
 
 //! Get the compute capability for the given device
 
-int cudaGetComputeCapability(int device)
+int
+cudaGetComputeCapability(int device)
 {
     if (device < 0) {
         device = cudaGetCurrentDevice();
@@ -213,7 +224,8 @@ int cudaGetComputeCapability(int device)
 
 //! Get the number of CUDA-capable devices
 
-int cudaGetDeviceCount()
+int
+cudaGetDeviceCount()
 {
     int devices = 0;
     cudaSafeCall(::cudaGetDeviceCount(&devices));
@@ -222,7 +234,8 @@ int cudaGetDeviceCount()
 
 //! Get the version number for the device driver
 
-int cudaGetDriverVersion()
+int
+cudaGetDriverVersion()
 {
     int driverVersion = 0;
     cudaSafeCall(cudaDriverGetVersion(&driverVersion));
@@ -231,7 +244,8 @@ int cudaGetDriverVersion()
 
 //! Get the version number for the CUDA runtime
 
-int cudaGetRuntimeVersion()
+int
+cudaGetRuntimeVersion()
 {
     int runtimeVersion = 0;
     cudaSafeCall(cudaRuntimeGetVersion(&runtimeVersion));
@@ -240,7 +254,8 @@ int cudaGetRuntimeVersion()
 
 //! Format the given version into a printable string
 
-std::string cudaPrettyVersion(int version)
+std::string
+cudaPrettyVersion(int version)
 {
     std::ostringstream sout;
     sout << (version / 1000) << "." << (version % 100);
@@ -249,7 +264,8 @@ std::string cudaPrettyVersion(int version)
 
 // Returns the best GPU (with maximum GFLOPS)
 
-int cudaGetMaxGflopsDeviceId()
+int
+cudaGetMaxGflopsDeviceId()
 {
     int devices = cudaGetDeviceCount();
 
@@ -270,7 +286,8 @@ int cudaGetMaxGflopsDeviceId()
 
 //! Kernel to determine the compute capability of current device
 
-__global__ void getcomputemodel_kernel(value_reference<int> dev_cm)
+__global__ void
+getcomputemodel_kernel(value_reference<int> dev_cm)
 {
 #ifndef __CUDA_ARCH__
     // should be for host code path only
@@ -287,7 +304,8 @@ __global__ void getcomputemodel_kernel(value_reference<int> dev_cm)
 
 //! Determine the compute capability for which this code was compiled
 
-int cudaGetComputeModel()
+int
+cudaGetComputeModel()
 {
     // allocate space for results
     value<int> dev_cm;
@@ -300,7 +318,8 @@ int cudaGetComputeModel()
 
 //! Initialize the runtime and choose the best device
 
-void cudaInitialize(std::ostream& sout)
+void
+cudaInitialize(std::ostream& sout)
 {
     static bool initialized = false;
     if (initialized) {
@@ -339,7 +358,8 @@ void cudaInitialize(std::ostream& sout)
 
 //! List CUDA capable devices and their properties
 
-void cudaQueryDevices(std::ostream& sout)
+void
+cudaQueryDevices(std::ostream& sout)
 {
     // get and report the number of CUDA capable devices
     int devices = cudaGetDeviceCount();
@@ -391,7 +411,8 @@ void cudaQueryDevices(std::ostream& sout)
  * required by this function.
  */
 
-size_t cudaGetSharedSize(const void* func)
+size_t
+cudaGetSharedSize(const void* func)
 {
     cudaFuncAttributes attr;
     cudaSafeCall(cudaFuncGetAttributes(&attr, func));
@@ -402,7 +423,8 @@ size_t cudaGetSharedSize(const void* func)
  * function.
  */
 
-size_t cudaGetLocalSize(const void* func)
+size_t
+cudaGetLocalSize(const void* func)
 {
     cudaFuncAttributes attr;
     cudaSafeCall(cudaFuncGetAttributes(&attr, func));
@@ -411,7 +433,8 @@ size_t cudaGetLocalSize(const void* func)
 
 //! Get the number of registers used by each thread of the given function
 
-int cudaGetNumRegsPerThread(const void* func)
+int
+cudaGetNumRegsPerThread(const void* func)
 {
     cudaFuncAttributes attr;
     cudaSafeCall(cudaFuncGetAttributes(&attr, func));
@@ -422,7 +445,8 @@ int cudaGetNumRegsPerThread(const void* func)
  * of the function would fail.
  */
 
-int cudaGetMaxThreadsPerBlock(const void* func)
+int
+cudaGetMaxThreadsPerBlock(const void* func)
 {
     cudaFuncAttributes attr;
     cudaSafeCall(cudaFuncGetAttributes(&attr, func));

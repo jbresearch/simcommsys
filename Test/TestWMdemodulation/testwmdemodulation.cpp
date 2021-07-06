@@ -43,13 +43,14 @@ using libcomm::dminner;
 typedef std::unique_ptr<blockmodem<bool>> modem_ptr;
 typedef std::unique_ptr<channel<bool>> channel_ptr;
 
-modem_ptr create_modem(bool decoder,
-                       bool math,
-                       bool deep,
-                       int tau,
-                       int n,
-                       int k,
-                       libbase::random& r)
+modem_ptr
+create_modem(bool decoder,
+             bool math,
+             bool deep,
+             int tau,
+             int n,
+             int k,
+             libbase::random& r)
 {
     // thresholds for 'deep' trellis following
     const double th_inner = 0;
@@ -91,7 +92,8 @@ modem_ptr create_modem(bool decoder,
     return mdm;
 }
 
-channel_ptr create_channel(double Pe, libbase::random& r)
+channel_ptr
+create_channel(double Pe, libbase::random& r)
 {
     channel_ptr chan = channel_ptr(new libcomm::qids<bool, float>);
     chan->seedfrom(r);
@@ -99,7 +101,8 @@ channel_ptr create_channel(double Pe, libbase::random& r)
     return chan;
 }
 
-vector<int> create_encoded(int k, int tau, bool display = true)
+vector<int>
+create_encoded(int k, int tau, bool display = true)
 {
     vector<int> encoded(tau);
     for (int i = 0; i < tau; i++) {
@@ -113,7 +116,8 @@ vector<int> create_encoded(int k, int tau, bool display = true)
     return encoded;
 }
 
-void print_signal(const std::string desc, int n, vector<bool> tx)
+void
+print_signal(const std::string desc, int n, vector<bool> tx)
 {
     cout << desc << ":" << std::endl;
 
@@ -129,11 +133,12 @@ void print_signal(const std::string desc, int n, vector<bool> tx)
     cout << std::flush;
 }
 
-vector<bool> modulate_encoded(int k,
-                              int n,
-                              blockmodem<bool>& mdm,
-                              vector<int>& encoded,
-                              bool display = true)
+vector<bool>
+modulate_encoded(int k,
+                 int n,
+                 blockmodem<bool>& mdm,
+                 vector<int>& encoded,
+                 bool display = true)
 {
     vector<bool> tx;
     mdm.modulate(1 << k, encoded, tx);
@@ -145,10 +150,11 @@ vector<bool> modulate_encoded(int k,
     return tx;
 }
 
-vector<bool> transmit_modulated(int n,
-                                channel<bool>& chan,
-                                const vector<bool>& tx,
-                                bool display = true)
+vector<bool>
+transmit_modulated(int n,
+                   channel<bool>& chan,
+                   const vector<bool>& tx,
+                   bool display = true)
 {
     vector<bool> rx;
     chan.transmit(tx, rx);
@@ -160,10 +166,11 @@ vector<bool> transmit_modulated(int n,
     return rx;
 }
 
-vector<vector<double>> demodulate_encoded(channel<bool>& chan,
-                                          blockmodem<bool>& mdm,
-                                          const vector<bool>& rx,
-                                          bool display = true)
+vector<vector<double>>
+demodulate_encoded(channel<bool>& chan,
+                   blockmodem<bool>& mdm,
+                   const vector<bool>& rx,
+                   bool display = true)
 {
     // demodulate received signal
     vector<vector<double>> ptable;
@@ -179,8 +186,8 @@ vector<vector<double>> demodulate_encoded(channel<bool>& chan,
     return ptable;
 }
 
-void count_errors(const vector<int>& encoded,
-                  const vector<vector<double>>& ptable)
+void
+count_errors(const vector<int>& encoded, const vector<vector<double>>& ptable)
 {
     const int tau = ptable.size();
     assert(tau > 0);
@@ -208,15 +215,16 @@ void count_errors(const vector<int>& encoded,
     }
 }
 
-void testcycle(bool decoder,
-               bool math,
-               bool deep,
-               int seed,
-               int n,
-               int k,
-               int tau,
-               double Pe = 0,
-               bool display = true)
+void
+testcycle(bool decoder,
+          bool math,
+          bool deep,
+          int seed,
+          int n,
+          int k,
+          int tau,
+          double Pe = 0,
+          bool display = true)
 {
     // create prng for seeding systems
     libbase::randgen prng;
@@ -247,7 +255,8 @@ void testcycle(bool decoder,
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     // error probabilities corresponding to SNR = 12dB and 1dB respectively
     const double Plo = 9.00601e-09;

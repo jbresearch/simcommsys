@@ -63,7 +63,8 @@ CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
     //}}AFX_DATA_INIT
 }
 
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
+void
+CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CAboutDlg)
@@ -91,7 +92,8 @@ CPluginWizardDlg::CPluginWizardDlg(CWnd* pParent /*=NULL*/)
     m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
-void CPluginWizardDlg::DoDataExchange(CDataExchange* pDX)
+void
+CPluginWizardDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CPluginWizardDlg)
@@ -113,7 +115,8 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CPluginWizardDlg message handlers
 
-BOOL CPluginWizardDlg::OnInitDialog()
+BOOL
+CPluginWizardDlg::OnInitDialog()
 {
     CDialog::OnInitDialog();
 
@@ -144,7 +147,8 @@ BOOL CPluginWizardDlg::OnInitDialog()
     return TRUE; // return TRUE  unless you set the focus to a control
 }
 
-void CPluginWizardDlg::OnSysCommand(UINT nID, LPARAM lParam)
+void
+CPluginWizardDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
     if ((nID & 0xFFF0) == IDM_ABOUTBOX) {
         CAboutDlg dlgAbout;
@@ -158,7 +162,8 @@ void CPluginWizardDlg::OnSysCommand(UINT nID, LPARAM lParam)
 //  to draw the icon.  For MFC applications using the document/view model,
 //  this is automatically done for you by the framework.
 
-void CPluginWizardDlg::OnPaint()
+void
+CPluginWizardDlg::OnPaint()
 {
     if (IsIconic()) {
         CPaintDC dc(this); // device context for painting
@@ -182,9 +187,11 @@ void CPluginWizardDlg::OnPaint()
 
 // The system calls this to obtain the cursor to display while the user drags
 //  the minimized window.
-HCURSOR CPluginWizardDlg::OnQueryDragIcon() { return (HCURSOR)m_hIcon; }
+HCURSOR
+CPluginWizardDlg::OnQueryDragIcon() { return (HCURSOR)m_hIcon; }
 
-void CPluginWizardDlg::OnOK()
+void
+CPluginWizardDlg::OnOK()
 {
     UpdateData(true);
 
@@ -259,7 +266,8 @@ void CPluginWizardDlg::OnOK()
     CDialog::OnOK();
 }
 
-void CPluginWizardDlg::OnSelchangeType()
+void
+CPluginWizardDlg::OnSelchangeType()
 {
     UpdateData(true);
     GetDlgItem(IDC_OLDNAME)->EnableWindow(m_nType >= 2);

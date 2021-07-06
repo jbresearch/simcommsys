@@ -121,10 +121,11 @@ public:
 
 //! Check if the last element inserted satisfies the spread criterion
 
-bool satisfiesspread(const myvector<int>& lut,
-                     const int n,
-                     const int i,
-                     const int spread)
+bool
+satisfiesspread(const myvector<int>& lut,
+                const int n,
+                const int i,
+                const int spread)
 {
     for (int j = std::max(0, i - spread); j < i; j++) {
         if (abs(lut(j) - n) < spread) {
@@ -137,10 +138,11 @@ bool satisfiesspread(const myvector<int>& lut,
 
 //! S-Random creation process
 
-myvector<int> create_srandom(const int tau,
-                             int& spread,
-                             libbase::int32u& seed,
-                             const int max_attempts)
+myvector<int>
+create_srandom(const int tau,
+               int& spread,
+               libbase::int32u& seed,
+               const int max_attempts)
 {
     // set up time-keepers
     libbase::pacifier p;
@@ -213,7 +215,8 @@ myvector<int> create_srandom(const int tau,
 
 //! Returns filename according to usual convention
 
-std::string compose_filename(int tau, int spread, libbase::int32u seed)
+std::string
+compose_filename(int tau, int spread, libbase::int32u seed)
 {
     std::ostringstream sout;
     sout << "sri-" << tau << "-spread" << spread << "-seed" << seed << ".txt";
@@ -222,12 +225,13 @@ std::string compose_filename(int tau, int spread, libbase::int32u seed)
 
 //! Saves the interleaver to the given stream
 
-void serialize_interleaver(std::ostream& sout,
-                           myvector<int> lut,
-                           int tau,
-                           int spread,
-                           libbase::int32u seed,
-                           double elapsed)
+void
+serialize_interleaver(std::ostream& sout,
+                      myvector<int> lut,
+                      int tau,
+                      int spread,
+                      libbase::int32u seed,
+                      double elapsed)
 {
     sout << "#% Size: " << tau << std::endl;
     sout << "#% Spread: " << spread << std::endl;
@@ -242,7 +246,8 @@ void serialize_interleaver(std::ostream& sout,
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     libbase::cputimer tmain("Main timer");
 

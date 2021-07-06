@@ -30,7 +30,8 @@ using libbase::vector;
 
 // static helper functions - quadrature filter constructor
 
-vector<double> wavelet::quadrature(const vector<double>& g)
+vector<double>
+wavelet::quadrature(const vector<double>& g)
 {
     const int n = g.size();
     vector<double> h(n);
@@ -62,9 +63,10 @@ vector<double> wavelet::quadrature(const vector<double>& g)
 
  */
 
-void wavelet::partial_transform(const vector<double>& in,
-                                vector<double>& out,
-                                const int n) const
+void
+wavelet::partial_transform(const vector<double>& in,
+                           vector<double>& out,
+                           const int n) const
 {
     assert(in.size() == out.size());
     assert(n <= in.size());
@@ -96,9 +98,10 @@ void wavelet::partial_transform(const vector<double>& in,
     out.copyfrom(b);
 }
 
-void wavelet::partial_inverse(const vector<double>& in,
-                              vector<double>& out,
-                              const int n) const
+void
+wavelet::partial_inverse(const vector<double>& in,
+                         vector<double>& out,
+                         const int n) const
 {
     assert(in.size() == out.size());
     assert(n <= in.size());
@@ -161,7 +164,8 @@ void wavelet::partial_inverse(const vector<double>& in,
  */
 // initialization
 
-void wavelet::init(const int type, const int par)
+void
+wavelet::init(const int type, const int par)
 {
     switch (type) {
     // Haar
@@ -593,7 +597,8 @@ void wavelet::init(const int type, const int par)
 
 // informative / helper functions
 
-int wavelet::getlimit(const int size, const int level) const
+int
+wavelet::getlimit(const int size, const int level) const
 {
     if (level <= 0) {
         return 2;
@@ -604,9 +609,10 @@ int wavelet::getlimit(const int size, const int level) const
 
 // transform / inverse functions - vector
 
-void wavelet::transform(const vector<double>& in,
-                        vector<double>& out,
-                        const int level) const
+void
+wavelet::transform(const vector<double>& in,
+                   vector<double>& out,
+                   const int level) const
 {
     assert(libbase::weight(in.size()) == 1);
     // resize the output vector if necessary
@@ -618,9 +624,10 @@ void wavelet::transform(const vector<double>& in,
     }
 }
 
-void wavelet::inverse(const vector<double>& in,
-                      vector<double>& out,
-                      const int level) const
+void
+wavelet::inverse(const vector<double>& in,
+                 vector<double>& out,
+                 const int level) const
 {
     assert(libbase::weight(in.size()) == 1);
     // resize the output vector if necessary
@@ -634,9 +641,10 @@ void wavelet::inverse(const vector<double>& in,
 
 // transform / inverse functions - matrix
 
-void wavelet::transform(const matrix<double>& in,
-                        matrix<double>& out,
-                        const int level) const
+void
+wavelet::transform(const matrix<double>& in,
+                   matrix<double>& out,
+                   const int level) const
 {
     assert(libbase::weight(in.size().rows()) == 1 &&
            libbase::weight(in.size().cols()) == 1);
@@ -658,9 +666,10 @@ void wavelet::transform(const matrix<double>& in,
     }
 }
 
-void wavelet::inverse(const matrix<double>& in,
-                      matrix<double>& out,
-                      const int level) const
+void
+wavelet::inverse(const matrix<double>& in,
+                 matrix<double>& out,
+                 const int level) const
 {
     assert(libbase::weight(in.size().rows()) == 1 &&
            libbase::weight(in.size().cols()) == 1);

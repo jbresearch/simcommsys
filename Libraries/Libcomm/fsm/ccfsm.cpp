@@ -49,7 +49,8 @@ using libbase::vector;
  * junction. This follows the usual convention in the coding community.
  */
 template <class G>
-void ccfsm<G>::init(const matrix<vector<G>>& generator)
+void
+ccfsm<G>::init(const matrix<vector<G>>& generator)
 {
     // copy automatically what we can
     gen = generator;
@@ -92,7 +93,8 @@ void ccfsm<G>::init(const matrix<vector<G>>& generator)
  * \todo Document this function with a diagram.
  */
 template <class G>
-G ccfsm<G>::convolve(const G& s, const vector<G>& r, const vector<G>& g) const
+G
+ccfsm<G>::convolve(const G& s, const vector<G>& r, const vector<G>& g) const
 {
     // Inherit sizes
     const int m = r.size();
@@ -112,7 +114,8 @@ G ccfsm<G>::convolve(const G& s, const vector<G>& r, const vector<G>& g) const
 // FSM state operations (getting and resetting)
 
 template <class G>
-vector<int> ccfsm<G>::state() const
+vector<int>
+ccfsm<G>::state() const
 {
     vector<int> state(nu);
     int j = 0;
@@ -130,7 +133,8 @@ vector<int> ccfsm<G>::state() const
 }
 
 template <class G>
-void ccfsm<G>::reset(const vector<int>& state)
+void
+ccfsm<G>::reset(const vector<int>& state)
 {
     fsm::reset(state);
     assert(state.size() == nu);
@@ -150,7 +154,8 @@ void ccfsm<G>::reset(const vector<int>& state)
 // FSM operations (advance/output/step)
 
 template <class G>
-void ccfsm<G>::advance(vector<int>& input)
+void
+ccfsm<G>::advance(vector<int>& input)
 {
     fsm::advance(input);
 #if DEBUG >= 2
@@ -194,7 +199,8 @@ void ccfsm<G>::advance(vector<int>& input)
 }
 
 template <class G>
-vector<int> ccfsm<G>::output(const vector<int>& input) const
+vector<int>
+ccfsm<G>::output(const vector<int>& input) const
 {
 #if DEBUG >= 2
     libbase::trace << "Output:" << std::endl;
@@ -239,7 +245,8 @@ vector<int> ccfsm<G>::output(const vector<int>& input) const
 
 //! Description output - common part only, must be preceded by specific name
 template <class G>
-std::string ccfsm<G>::description() const
+std::string
+ccfsm<G>::description() const
 {
     std::ostringstream sout;
     sout << "GF(" << G::elements() << "): (nu=" << nu << ", rate " << k << "/"
@@ -260,7 +267,8 @@ std::string ccfsm<G>::description() const
 }
 
 template <class G>
-std::ostream& ccfsm<G>::serialize(std::ostream& sout) const
+std::ostream&
+ccfsm<G>::serialize(std::ostream& sout) const
 {
     sout << "#: Generator matrix (k x n vectors)" << std::endl;
     sout << gen;
@@ -268,7 +276,8 @@ std::ostream& ccfsm<G>::serialize(std::ostream& sout) const
 }
 
 template <class G>
-std::istream& ccfsm<G>::serialize(std::istream& sin)
+std::istream&
+ccfsm<G>::serialize(std::istream& sin)
 {
     sin >> libbase::eatcomments >> gen >> libbase::verify;
     init(gen);

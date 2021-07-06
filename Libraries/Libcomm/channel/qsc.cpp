@@ -49,7 +49,8 @@ namespace libcomm
  * likely.
  */
 template <class G>
-G qsc<G>::corrupt(const G& s)
+G
+qsc<G>::corrupt(const G& s)
 {
     const double p = this->r.fval_closed();
     if (p < Ps) {
@@ -61,7 +62,8 @@ G qsc<G>::corrupt(const G& s)
 // description output
 
 template <class G>
-std::string qsc<G>::description() const
+std::string
+qsc<G>::description() const
 {
     std::ostringstream sout;
     sout << field_utils<G>::elements() << "-ary Symmetric channel";
@@ -71,7 +73,8 @@ std::string qsc<G>::description() const
 // object serialization - saving
 
 template <class G>
-std::ostream& qsc<G>::serialize(std::ostream& sout) const
+std::ostream&
+qsc<G>::serialize(std::ostream& sout) const
 {
     return sout;
 }
@@ -79,7 +82,8 @@ std::ostream& qsc<G>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class G>
-std::istream& qsc<G>::serialize(std::istream& sin)
+std::istream&
+qsc<G>::serialize(std::istream& sin)
 {
     return sin;
 }

@@ -28,7 +28,8 @@ namespace libcomm
 
 // initialization
 
-void ccbfsm::init()
+void
+ccbfsm::init()
 {
     // copy automatically what we can
     k = gen.size().rows();
@@ -68,7 +69,8 @@ ccbfsm::ccbfsm(const libbase::matrix<libbase::bitfield>& generator)
 
 // FSM state operations (getting and resetting)
 
-libbase::vector<int> ccbfsm::state() const
+libbase::vector<int>
+ccbfsm::state() const
 {
     libbase::vector<int> state(nu);
     int j = 0;
@@ -85,13 +87,15 @@ libbase::vector<int> ccbfsm::state() const
     return state;
 }
 
-void ccbfsm::reset()
+void
+ccbfsm::reset()
 {
     fsm::reset();
     reg = 0;
 }
 
-void ccbfsm::reset(const libbase::vector<int>& state)
+void
+ccbfsm::reset(const libbase::vector<int>& state)
 {
     fsm::reset(state);
     assert(state.size() == nu);
@@ -111,7 +115,8 @@ void ccbfsm::reset(const libbase::vector<int>& state)
 
 // FSM operations (advance/output/step)
 
-void ccbfsm::advance(libbase::vector<int>& input)
+void
+ccbfsm::advance(libbase::vector<int>& input)
 {
     fsm::advance(input);
     input = determineinput(input);
@@ -123,7 +128,8 @@ void ccbfsm::advance(libbase::vector<int>& input)
     }
 }
 
-libbase::vector<int> ccbfsm::output(const libbase::vector<int>& input) const
+libbase::vector<int>
+ccbfsm::output(const libbase::vector<int>& input) const
 {
     libbase::vector<int> ip = determineinput(input);
     libbase::bitfield sin = determinefeedin(ip);
@@ -143,7 +149,8 @@ libbase::vector<int> ccbfsm::output(const libbase::vector<int>& input) const
 
 // description output
 
-std::string ccbfsm::description() const
+std::string
+ccbfsm::description() const
 {
     std::ostringstream sout;
     sout << "(nu=" << nu << ", rate " << k << "/" << n << ", G=[";
@@ -160,14 +167,16 @@ std::string ccbfsm::description() const
 
 // object serialization
 
-std::ostream& ccbfsm::serialize(std::ostream& sout) const
+std::ostream&
+ccbfsm::serialize(std::ostream& sout) const
 {
     sout << "#: Generator matrix (k x n bitfields)" << std::endl;
     sout << gen;
     return sout;
 }
 
-std::istream& ccbfsm::serialize(std::istream& sin)
+std::istream&
+ccbfsm::serialize(std::istream& sin)
 {
     sin >> libbase::eatcomments >> gen >> libbase::verify;
     init();

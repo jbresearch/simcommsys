@@ -26,7 +26,8 @@ namespace libcomm
 
 const int fsm::tail = -1;
 
-int fsm::convert(const array1i_t& vec, int S)
+int
+fsm::convert(const array1i_t& vec, int S)
 {
     const int nu = vec.size();
     assert(pow(S, nu) - 1 <= std::numeric_limits<int>::max());
@@ -41,7 +42,8 @@ int fsm::convert(const array1i_t& vec, int S)
     return val;
 }
 
-fsm::array1i_t fsm::convert(int val, int nu, int S)
+fsm::array1i_t
+fsm::convert(int val, int nu, int S)
 {
     array1i_t vec(nu);
     assert(val >= 0);
@@ -55,40 +57,47 @@ fsm::array1i_t fsm::convert(int val, int nu, int S)
     return vec;
 }
 
-int fsm::convert_input(const array1i_t& vec) const
+int
+fsm::convert_input(const array1i_t& vec) const
 {
     assert(vec.size() == num_inputs());
     return convert(vec, num_symbols());
 }
 
-fsm::array1i_t fsm::convert_input(int val) const
+fsm::array1i_t
+fsm::convert_input(int val) const
 {
     return convert(val, num_inputs(), num_symbols());
 }
 
-int fsm::convert_output(const array1i_t& vec) const
+int
+fsm::convert_output(const array1i_t& vec) const
 {
     assert(vec.size() == num_outputs());
     return convert(vec, num_symbols());
 }
 
-fsm::array1i_t fsm::convert_output(int val) const
+fsm::array1i_t
+fsm::convert_output(int val) const
 {
     return convert(val, num_outputs(), num_symbols());
 }
 
-int fsm::convert_state(const array1i_t& vec) const
+int
+fsm::convert_state(const array1i_t& vec) const
 {
     assert(vec.size() == mem_elements());
     return convert(vec, num_symbols());
 }
 
-fsm::array1i_t fsm::convert_state(int val) const
+fsm::array1i_t
+fsm::convert_state(int val) const
 {
     return convert(val, mem_elements(), num_symbols());
 }
 
-bool fsm::can_be_cached() const
+bool
+fsm::can_be_cached() const
 {
     if (pow(num_symbols(), num_outputs()) - 1 >
         std::numeric_limits<int>::max()) {

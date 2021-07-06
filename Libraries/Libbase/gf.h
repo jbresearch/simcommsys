@@ -259,7 +259,8 @@ template <int m, int poly>
 __device__
 __host__
 #endif
-gf<m, poly> operator+(const gf<m, poly>& a, const gf<m, poly>& b)
+gf<m, poly>
+operator+(const gf<m, poly>& a, const gf<m, poly>& b)
 {
     gf<m, poly> c = a;
     return c += b;
@@ -270,7 +271,8 @@ template <int m, int poly>
 __device__
 __host__
 #endif
-gf<m, poly> operator-(const gf<m, poly>& a, const gf<m, poly>& b)
+gf<m, poly>
+operator-(const gf<m, poly>& a, const gf<m, poly>& b)
 {
     gf<m, poly> c = a;
     return c -= b;
@@ -281,7 +283,8 @@ template <int m, int poly>
 __device__
 __host__
 #endif
-gf<m, poly> operator*(const gf<m, poly>& a, const gf<m, poly>& b)
+gf<m, poly>
+operator*(const gf<m, poly>& a, const gf<m, poly>& b)
 {
     gf<m, poly> c = a;
     return c *= b;
@@ -292,7 +295,8 @@ template <int m, int poly>
 __device__
 __host__
 #endif
-gf<m, poly> operator/(const gf<m, poly>& a, const gf<m, poly>& b)
+gf<m, poly>
+operator/(const gf<m, poly>& a, const gf<m, poly>& b)
 {
     gf<m, poly> c = a;
     return c /= b;
@@ -303,14 +307,16 @@ gf<m, poly> operator/(const gf<m, poly>& a, const gf<m, poly>& b)
 /*! \name Stream Input/Output */
 
 template <int m, int poly>
-std::ostream& operator<<(std::ostream& os, const gf<m, poly>& b)
+std::ostream&
+operator<<(std::ostream& os, const gf<m, poly>& b)
 {
     os << std::string(b);
     return os;
 }
 
 template <int m, int poly>
-std::istream& operator>>(std::istream& is, gf<m, poly>& b)
+std::istream&
+operator>>(std::istream& is, gf<m, poly>& b)
 {
     std::string str;
     // skip any initial whitespace

@@ -28,7 +28,8 @@ namespace libbase
 
 /*! \brief Binary Hamming weight
  */
-int weight(int cw)
+int
+weight(int cw)
 {
     int c = cw;
     int w = 0;
@@ -41,7 +42,8 @@ int weight(int cw)
 
 /*! \brief Inverse Gray code
  */
-int32u igray(int32u n)
+int32u
+igray(int32u n)
 {
     int32u r = n;
     for (int i = 1; i < 32; i <<= 1) {
@@ -53,7 +55,8 @@ int32u igray(int32u n)
 /*! \brief Greatest common divisor
  * GCD function based on Euclid's algorithm.
  */
-int gcd(int a, int b)
+int
+gcd(int a, int b)
 {
     while (b != 0) {
         int t = b;
@@ -65,7 +68,8 @@ int gcd(int a, int b)
 
 /*! \brief Converts a string to its hex representation
  */
-std::string hexify(const std::string input)
+std::string
+hexify(const std::string input)
 {
     std::ostringstream sout;
     sout << std::hex;
@@ -81,7 +85,8 @@ std::string hexify(const std::string input)
 
 /*! \brief Reconstructs a string from its hex representation
  */
-std::string dehexify(const std::string input)
+std::string
+dehexify(const std::string input)
 {
     std::string output;
     for (size_t i = 0; i < input.length(); i += 2) {

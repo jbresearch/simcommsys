@@ -37,7 +37,8 @@ namespace libbase
  * The string must only contain 1's and 0's.
  */
 template <int m, int poly>
-void gf<m, poly>::init(const std::string s)
+void
+gf<m, poly>::init(const std::string s)
 {
     int32u value = 0;
     for (std::string::const_iterator it = s.begin(); it != s.end(); ++it) {

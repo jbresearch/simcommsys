@@ -31,7 +31,8 @@ namespace libcomm
 
 // Interface with mapper
 template <class dbl>
-void map_permuted<libbase::vector, dbl>::advance() const
+void
+map_permuted<libbase::vector, dbl>::advance() const
 {
     lut.init(This::output_block_size());
 
@@ -41,8 +42,9 @@ void map_permuted<libbase::vector, dbl>::advance() const
 }
 
 template <class dbl>
-void map_permuted<libbase::vector, dbl>::dotransform(const array1i_t& in,
-                                                     array1i_t& out) const
+void
+map_permuted<libbase::vector, dbl>::dotransform(const array1i_t& in,
+                                                array1i_t& out) const
 {
     assert(in.size() == lut.size());
 
@@ -56,8 +58,9 @@ void map_permuted<libbase::vector, dbl>::dotransform(const array1i_t& in,
 }
 
 template <class dbl>
-void map_permuted<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
-                                                     array1vd_t& pout) const
+void
+map_permuted<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
+                                                array1vd_t& pout) const
 {
     assert(Base::M == Base::q); // otherwise the map would lose all meaning
     assert(pin.size() == lut.size());
@@ -75,8 +78,9 @@ void map_permuted<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
 }
 
 template <class dbl>
-void map_permuted<libbase::vector, dbl>::doinverse(const array1vd_t& pin,
-                                                   array1vd_t& pout) const
+void
+map_permuted<libbase::vector, dbl>::doinverse(const array1vd_t& pin,
+                                              array1vd_t& pout) const
 {
     assert(pin.size() == lut.size());
     assert(pin(0).size() == Base::M);
@@ -95,7 +99,8 @@ void map_permuted<libbase::vector, dbl>::doinverse(const array1vd_t& pin,
 // Description
 
 template <class dbl>
-std::string map_permuted<libbase::vector, dbl>::description() const
+std::string
+map_permuted<libbase::vector, dbl>::description() const
 {
     std::ostringstream sout;
     sout << "Permuted Mapper";
@@ -112,7 +117,8 @@ map_permuted<libbase::vector, dbl>::serialize(std::ostream& sout) const
 }
 
 template <class dbl>
-std::istream& map_permuted<libbase::vector, dbl>::serialize(std::istream& sin)
+std::istream&
+map_permuted<libbase::vector, dbl>::serialize(std::istream& sin)
 {
     return sin;
 }

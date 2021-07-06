@@ -38,7 +38,8 @@ namespace libcomm
 // FSM operations (advance/output/step)
 
 template <class S>
-libbase::vector<int> zsm<S>::output(const libbase::vector<int>& input) const
+libbase::vector<int>
+zsm<S>::output(const libbase::vector<int>& input) const
 {
     assert(input.size() == 1);
     // Compute output
@@ -53,7 +54,8 @@ libbase::vector<int> zsm<S>::output(const libbase::vector<int>& input) const
 
 //! Description output - common part only, must be preceded by specific name
 template <class S>
-std::string zsm<S>::description() const
+std::string
+zsm<S>::description() const
 {
     std::ostringstream sout;
     sout << "Repetition code (q=" << S::elements() << ", r=" << r << ")";
@@ -61,7 +63,8 @@ std::string zsm<S>::description() const
 }
 
 template <class S>
-std::ostream& zsm<S>::serialize(std::ostream& sout) const
+std::ostream&
+zsm<S>::serialize(std::ostream& sout) const
 {
     sout << "#: Repetition count" << std::endl;
     sout << r << std::endl;
@@ -69,7 +72,8 @@ std::ostream& zsm<S>::serialize(std::ostream& sout) const
 }
 
 template <class S>
-std::istream& zsm<S>::serialize(std::istream& sin)
+std::istream&
+zsm<S>::serialize(std::istream& sin)
 {
     sin >> libbase::eatcomments >> r >> libbase::verify;
     return sin;

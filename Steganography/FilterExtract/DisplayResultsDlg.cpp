@@ -44,7 +44,8 @@ CDisplayResultsDlg::CDisplayResultsDlg(CWnd* pParent /*=NULL*/)
     //}}AFX_DATA_INIT
 }
 
-void CDisplayResultsDlg::DoDataExchange(CDataExchange* pDX)
+void
+CDisplayResultsDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CDisplayResultsDlg)

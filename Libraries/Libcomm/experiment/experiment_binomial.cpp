@@ -26,7 +26,8 @@ namespace libcomm
 
 // Experiment for estimation of a binomial proportion
 
-void experiment_binomial::derived_reset()
+void
+experiment_binomial::derived_reset()
 {
     // Initialise running values only if space is allocated
     if (sum.size() > 0) {
@@ -34,29 +35,32 @@ void experiment_binomial::derived_reset()
     }
 }
 
-void experiment_binomial::derived_accumulate(
-    const libbase::vector<double>& result)
+void
+experiment_binomial::derived_accumulate(const libbase::vector<double>& result)
 {
     assert(result.size() > 0);
     // accumulate results
     safe_accumulate(sum, result);
 }
 
-void experiment_binomial::accumulate_state(const libbase::vector<double>& state)
+void
+experiment_binomial::accumulate_state(const libbase::vector<double>& state)
 {
     assert(state.size() > 0);
     // accumulate results from saved state
     safe_accumulate(sum, state);
 }
 
-void experiment_binomial::get_state(libbase::vector<double>& state) const
+void
+experiment_binomial::get_state(libbase::vector<double>& state) const
 {
     assert(count() == sum.size());
     state = sum;
 }
 
-void experiment_binomial::estimate(libbase::vector<double>& estimate,
-                                   libbase::vector<double>& stderror) const
+void
+experiment_binomial::estimate(libbase::vector<double>& estimate,
+                              libbase::vector<double>& stderror) const
 {
     assert(count() == sum.size());
     // initialize space for results

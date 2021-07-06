@@ -243,7 +243,8 @@ template class testset<libbase::gmp_bigint>;
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     libbase::cputimer tmain("Main timer");
 

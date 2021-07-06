@@ -29,7 +29,8 @@ namespace libcomm
 // encoding and decoding functions
 
 template <class dbl>
-void uncoded<dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
+void
+uncoded<dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
 {
 #ifndef NDEBUG
     // Validate input
@@ -43,7 +44,8 @@ void uncoded<dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
 }
 
 template <class dbl>
-void uncoded<dbl>::do_init_decoder(const array1vd_t& ptable)
+void
+uncoded<dbl>::do_init_decoder(const array1vd_t& ptable)
 {
     // Encoder symbol space must be the same as modulation symbol space
     assertalways(ptable.size() > 0);
@@ -55,8 +57,8 @@ void uncoded<dbl>::do_init_decoder(const array1vd_t& ptable)
 }
 
 template <class dbl>
-void uncoded<dbl>::do_init_decoder(const array1vd_t& ptable,
-                                   const array1vd_t& app)
+void
+uncoded<dbl>::do_init_decoder(const array1vd_t& ptable, const array1vd_t& app)
 {
     // Initialize results to received statistics
     do_init_decoder(ptable);
@@ -65,14 +67,16 @@ void uncoded<dbl>::do_init_decoder(const array1vd_t& ptable,
 }
 
 template <class dbl>
-void uncoded<dbl>::softdecode(array1vd_t& ri)
+void
+uncoded<dbl>::softdecode(array1vd_t& ri)
 {
     // Set input-referred statistics to stored values
     ri = R;
 }
 
 template <class dbl>
-void uncoded<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
+void
+uncoded<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
 {
     // Set input-referred statistics to stored values
     ri = R;
@@ -83,7 +87,8 @@ void uncoded<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
 // description output
 
 template <class dbl>
-std::string uncoded<dbl>::description() const
+std::string
+uncoded<dbl>::description() const
 {
     std::ostringstream sout;
     sout << "Uncoded Representation (" << N << "×" << q << ")";
@@ -93,7 +98,8 @@ std::string uncoded<dbl>::description() const
 // object serialization - saving
 
 template <class dbl>
-std::ostream& uncoded<dbl>::serialize(std::ostream& sout) const
+std::ostream&
+uncoded<dbl>::serialize(std::ostream& sout) const
 {
     sout << "# Version" << std::endl;
     sout << 1 << std::endl;
@@ -110,7 +116,8 @@ std::ostream& uncoded<dbl>::serialize(std::ostream& sout) const
  * \version 1 Initial version
  */
 template <class dbl>
-std::istream& uncoded<dbl>::serialize(std::istream& sin)
+std::istream&
+uncoded<dbl>::serialize(std::istream& sin)
 {
     // get format version
     int version;

@@ -31,7 +31,8 @@ namespace libcomm
 // Description
 
 template <class G>
-std::string direct_modem<G>::description() const
+std::string
+direct_modem<G>::description() const
 {
     std::ostringstream sout;
     sout << "GF(" << num_symbols() << ") Modulation";
@@ -42,7 +43,8 @@ std::string direct_modem<G>::description() const
 
 // Description
 
-std::string direct_modem<bool>::description() const
+std::string
+direct_modem<bool>::description() const
 {
     return "Binary Modulation";
 }

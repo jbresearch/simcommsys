@@ -106,24 +106,49 @@
 // Implemented log2, round, and sgn if these are not already available
 
 #ifdef _WIN32
-inline double log2(double x) { return log(x) / log(double(2)); }
-inline double round(double x) { return (floor(x + 0.5)); }
+inline double
+log2(double x)
+{
+    return log(x) / log(double(2));
+}
+inline double
+round(double x)
+{
+    return (floor(x + 0.5));
+}
 #endif
-inline double round(double x, double r) { return round(x / r) * r; }
-inline double sign(double x) { return (x > 0) ? +1 : ((x < 0) ? -1 : 0); }
+inline double
+round(double x, double r)
+{
+    return round(x / r) * r;
+}
+inline double
+sign(double x)
+{
+    return (x > 0) ? +1 : ((x < 0) ? -1 : 0);
+}
 
 // Automatic upgrading of various math functions with int parameter
 
 #ifdef _WIN32
-inline double log(int x) { return log(double(x)); }
+inline double
+log(int x)
+{
+    return log(double(x));
+}
 
-inline double pow(int x, int y) { return pow(double(x), y); }
+inline double
+pow(int x, int y)
+{
+    return pow(double(x), y);
+}
 #endif
 
 // Define a function that returns the square of the input
 
 template <class T>
-inline T square(const T x)
+inline T
+square(const T x)
 {
     return x * x;
 }
@@ -137,9 +162,14 @@ typedef SSIZE_T ssize_t;
 // Define math functions to identify NaN and Inf values
 
 #ifdef _WIN32
-inline int isnan(double value) { return _isnan(value); }
+inline int
+isnan(double value)
+{
+    return _isnan(value);
+}
 
-inline int isinf(double value)
+inline int
+isinf(double value)
 {
     switch (_fpclass(value)) {
     case _FPCLASS_NINF:
@@ -184,7 +214,8 @@ namespace std
 // Define math functions to identify NaN and Inf values
 
 #ifdef _WIN32
-inline bool isfinite(double value)
+inline bool
+isfinite(double value)
 {
     switch (_fpclass(value)) {
     case _FPCLASS_SNAN:
@@ -200,7 +231,8 @@ inline bool isfinite(double value)
 
 //! Operator to concatenate STL vectors
 template <class T>
-void operator+=(std::vector<T>& a, const std::vector<T>& b)
+void
+operator+=(std::vector<T>& a, const std::vector<T>& b)
 {
     a.insert(a.end(), b.begin(), b.end());
 }
@@ -279,7 +311,8 @@ std::istream& verify(std::istream& is);
 std::istream& verifycomplete(std::istream& is);
 
 // Check for alignment
-inline bool isaligned(const void* buf, int bytes)
+inline bool
+isaligned(const void* buf, int bytes)
 {
     return ((long)buf & (bytes - 1)) == 0;
 }

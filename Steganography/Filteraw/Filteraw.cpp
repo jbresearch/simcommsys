@@ -51,13 +51,15 @@ CFilterAWApp::CFilterAWApp() : CPSPlugIn(sizeof(SFilterAWData), 110) {}
 // CFilterAWApp filter selector functions
 
 // show the about dialog here
-void CFilterAWApp::FilterAbout(void)
+void
+CFilterAWApp::FilterAbout(void)
 {
     CAboutDlg dlg;
     dlg.DoModal();
 }
 
-void CFilterAWApp::FilterStart(void)
+void
+CFilterAWApp::FilterStart(void)
 {
     // FilterStart will get user parameters if necessary & select the first tile
     CPSPlugIn::FilterStart();
@@ -69,7 +71,8 @@ void CFilterAWApp::FilterStart(void)
     m_nIteration = 0;
 }
 
-void CFilterAWApp::FilterContinue(void)
+void
+CFilterAWApp::FilterContinue(void)
 {
     // update progress counter
     DisplayTileProgress(0, 100, m_nIteration, m_sData->bAuto ? 2 : 1);
@@ -108,7 +111,8 @@ void CFilterAWApp::FilterContinue(void)
     }
 }
 
-void CFilterAWApp::FilterFinish(void)
+void
+CFilterAWApp::FilterFinish(void)
 {
     // stop timer & show final progress indication
     CPSPlugIn::FilterFinish();
@@ -117,7 +121,8 @@ void CFilterAWApp::FilterFinish(void)
 /////////////////////////////////////////////////////////////////////////////
 // CFilterAWApp helper functions
 
-void CFilterAWApp::ShowDialog(void)
+void
+CFilterAWApp::ShowDialog(void)
 {
     CFilterAWDlg dlg;
 
@@ -140,9 +145,14 @@ void CFilterAWApp::ShowDialog(void)
     SetShowDialog(false);
 }
 
-void CFilterAWApp::InitPointer(char* sData) { m_sData = (SFilterAWData*)sData; }
+void
+CFilterAWApp::InitPointer(char* sData)
+{
+    m_sData = (SFilterAWData*)sData;
+}
 
-void CFilterAWApp::InitParameters()
+void
+CFilterAWApp::InitParameters()
 {
     m_sData->nRadius = 1;
     m_sData->dNoise = 0;
@@ -153,10 +163,11 @@ void CFilterAWApp::InitParameters()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterAWApp scripting support
 
-void CFilterAWApp::ReadScriptParameter(PIReadDescriptor token,
-                                       DescriptorKeyID key,
-                                       DescriptorTypeID type,
-                                       int32 flags)
+void
+CFilterAWApp::ReadScriptParameter(PIReadDescriptor token,
+                                  DescriptorKeyID key,
+                                  DescriptorTypeID type,
+                                  int32 flags)
 {
     switch (key) {
     case keyRadius:
@@ -177,7 +188,8 @@ void CFilterAWApp::ReadScriptParameter(PIReadDescriptor token,
     }
 }
 
-void CFilterAWApp::WriteScriptParameters(PIWriteDescriptor token)
+void
+CFilterAWApp::WriteScriptParameters(PIWriteDescriptor token)
 {
     PutInteger(token, keyRadius, m_sData->nRadius);
     PutFloat(token, keyNoise, m_sData->dNoise);
@@ -192,10 +204,11 @@ void CFilterAWApp::WriteScriptParameters(PIWriteDescriptor token)
 
 CFilterAWApp theApp;
 
-DLLExport SPAPI void PluginMain(const short nSelector,
-                                FilterRecord* pFilterRecord,
-                                long* pData,
-                                short* pResult)
+DLLExport SPAPI void
+PluginMain(const short nSelector,
+           FilterRecord* pFilterRecord,
+           long* pData,
+           short* pResult)
 {
     theApp.Main(nSelector, pFilterRecord, pData, pResult);
 }

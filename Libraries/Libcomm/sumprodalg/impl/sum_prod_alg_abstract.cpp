@@ -32,7 +32,8 @@ namespace libcomm
 #endif
 
 template <class GF_q, class real>
-void sum_prod_alg_abstract<GF_q, real>::spa_iteration(array1vd_t& ro)
+void
+sum_prod_alg_abstract<GF_q, real>::spa_iteration(array1vd_t& ro)
 {
     // carry out the horizontal step
     // this uses the description of the algorithm as given by
@@ -106,7 +107,8 @@ void sum_prod_alg_abstract<GF_q, real>::spa_iteration(array1vd_t& ro)
 }
 
 template <class GF_q, class real>
-void sum_prod_alg_abstract<GF_q, real>::compute_probs(array1vd_t& ro)
+void
+sum_prod_alg_abstract<GF_q, real>::compute_probs(array1vd_t& ro)
 {
     // ensure the output vector has the right length
     ro.init(this->length_n);
@@ -139,7 +141,8 @@ void sum_prod_alg_abstract<GF_q, real>::compute_probs(array1vd_t& ro)
 }
 
 template <class GF_q, class real>
-void sum_prod_alg_abstract<GF_q, real>::print_marginal_probs(std::ostream& sout)
+void
+sum_prod_alg_abstract<GF_q, real>::print_marginal_probs(std::ostream& sout)
 {
     int num_of_elements = GF_q::elements();
     bool used;
@@ -193,8 +196,9 @@ void sum_prod_alg_abstract<GF_q, real>::print_marginal_probs(std::ostream& sout)
     }
 }
 template <class GF_q, class real>
-void sum_prod_alg_abstract<GF_q, real>::print_marginal_probs(int col,
-                                                             std::ostream& sout)
+void
+sum_prod_alg_abstract<GF_q, real>::print_marginal_probs(int col,
+                                                        std::ostream& sout)
 {
     int num_of_elements = GF_q::elements();
     int tmp_row;

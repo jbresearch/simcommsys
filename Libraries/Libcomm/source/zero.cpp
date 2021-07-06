@@ -28,7 +28,8 @@ namespace libcomm
 // object serialization - saving
 
 template <class S, template <class> class C>
-std::ostream& zero<S, C>::serialize(std::ostream& sout) const
+std::ostream&
+zero<S, C>::serialize(std::ostream& sout) const
 {
     return sout;
 }
@@ -36,7 +37,8 @@ std::ostream& zero<S, C>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class S, template <class> class C>
-std::istream& zero<S, C>::serialize(std::istream& sin)
+std::istream&
+zero<S, C>::serialize(std::istream& sin)
 {
     return sin;
 }

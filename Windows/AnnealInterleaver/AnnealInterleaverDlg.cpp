@@ -66,7 +66,8 @@ CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
     //}}AFX_DATA_INIT
 }
 
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
+void
+CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CAboutDlg)
@@ -102,7 +103,8 @@ CAnnealInterleaverDlg::CAnnealInterleaverDlg(CWnd* pParent /*=NULL*/)
     m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
-void CAnnealInterleaverDlg::DoDataExchange(CDataExchange* pDX)
+void
+CAnnealInterleaverDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CAnnealInterleaverDlg)
@@ -140,7 +142,8 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CAnnealInterleaverDlg message handlers
 
-BOOL CAnnealInterleaverDlg::OnInitDialog()
+BOOL
+CAnnealInterleaverDlg::OnInitDialog()
 {
     CDialog::OnInitDialog();
 
@@ -185,7 +188,8 @@ BOOL CAnnealInterleaverDlg::OnInitDialog()
     return TRUE; // return TRUE  unless you set the focus to a control
 }
 
-void CAnnealInterleaverDlg::OnSysCommand(UINT nID, LPARAM lParam)
+void
+CAnnealInterleaverDlg::OnSysCommand(UINT nID, LPARAM lParam)
 {
     if ((nID & 0xFFF0) == IDM_ABOUTBOX) {
         CAboutDlg dlgAbout;
@@ -199,7 +203,8 @@ void CAnnealInterleaverDlg::OnSysCommand(UINT nID, LPARAM lParam)
 //  to draw the icon.  For MFC applications using the document/view model,
 //  this is automatically done for you by the framework.
 
-void CAnnealInterleaverDlg::OnPaint()
+void
+CAnnealInterleaverDlg::OnPaint()
 {
     if (IsIconic()) {
         CPaintDC dc(this); // device context for painting
@@ -224,17 +229,20 @@ void CAnnealInterleaverDlg::OnPaint()
 
 // The system calls this to obtain the cursor to display while the user drags
 //  the minimized window.
-HCURSOR CAnnealInterleaverDlg::OnQueryDragIcon() { return (HCURSOR)m_hIcon; }
+HCURSOR
+CAnnealInterleaverDlg::OnQueryDragIcon() { return (HCURSOR)m_hIcon; }
 
 /////////////////////////////////////////////////////////////////////////////
 // User Interface main functions
 
-void CAnnealInterleaverDlg::OnOK()
+void
+CAnnealInterleaverDlg::OnOK()
 {
     // CDialog::OnOK();
 }
 
-void CAnnealInterleaverDlg::OnCancel()
+void
+CAnnealInterleaverDlg::OnCancel()
 {
     if (ThreadWorking()) {
         switch (MessageBox("Worker Thread has not yet stopped - do you want to "
@@ -257,7 +265,8 @@ void CAnnealInterleaverDlg::OnCancel()
     CDialog::OnCancel();
 }
 
-void CAnnealInterleaverDlg::OnSave()
+void
+CAnnealInterleaverDlg::OnSave()
 {
     CString fname;
     fname.Format("sai-%d_%d-type%d_%d-%s-seed%d.txt",
@@ -296,7 +305,8 @@ void CAnnealInterleaverDlg::OnSave()
 /////////////////////////////////////////////////////////////////////////////
 // User Interface message functions
 
-void CAnnealInterleaverDlg::OnTimer(UINT_PTR nIDEvent)
+void
+CAnnealInterleaverDlg::OnTimer(UINT_PTR nIDEvent)
 {
     CString sTemp;
 
@@ -311,7 +321,8 @@ void CAnnealInterleaverDlg::OnTimer(UINT_PTR nIDEvent)
     // CDialog::OnTimer(nIDEvent);
 }
 
-LRESULT CAnnealInterleaverDlg::OnThreadDisplay(WPARAM wParam, LPARAM lParam)
+LRESULT
+CAnnealInterleaverDlg::OnThreadDisplay(WPARAM wParam, LPARAM lParam)
 {
     CString sTemp;
 
@@ -337,7 +348,8 @@ LRESULT CAnnealInterleaverDlg::OnThreadDisplay(WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-LRESULT CAnnealInterleaverDlg::OnThreadFinish(WPARAM wParam, LPARAM lParam)
+LRESULT
+CAnnealInterleaverDlg::OnThreadFinish(WPARAM wParam, LPARAM lParam)
 {
     ThreadWaitFinish();
     UpdateButtons(false);
@@ -348,7 +360,8 @@ LRESULT CAnnealInterleaverDlg::OnThreadFinish(WPARAM wParam, LPARAM lParam)
 /////////////////////////////////////////////////////////////////////////////
 // User Interface helper functions
 
-void CAnnealInterleaverDlg::UpdateButtons(const bool bWorking)
+void
+CAnnealInterleaverDlg::UpdateButtons(const bool bWorking)
 {
     GetDlgItem(IDC_SAVE)->EnableWindow(!bWorking & m_bSystemPresent);
     GetDlgItem(IDC_START)->EnableWindow(!bWorking);
@@ -370,7 +383,8 @@ void CAnnealInterleaverDlg::UpdateButtons(const bool bWorking)
     GetDlgItem(IDC_RATE)->EnableWindow(!bWorking);
 }
 
-void CAnnealInterleaverDlg::ResetDisplay()
+void
+CAnnealInterleaverDlg::ResetDisplay()
 {
     GetDlgItem(IDC_TEMP)->SetWindowText("");
     GetDlgItem(IDC_MEAN)->SetWindowText("");
@@ -388,11 +402,16 @@ void CAnnealInterleaverDlg::ResetDisplay()
 /////////////////////////////////////////////////////////////////////////////
 // Thread process & functions called within thread process
 
-bool CAnnealInterleaverDlg::interrupt() { return ThreadInterrupted(); }
+bool
+CAnnealInterleaverDlg::interrupt()
+{
+    return ThreadInterrupted();
+}
 
-void CAnnealInterleaverDlg::display(const double T,
-                                    const double percent,
-                                    const libbase::rvstatistics E)
+void
+CAnnealInterleaverDlg::display(const double T,
+                               const double percent,
+                               const libbase::rvstatistics E)
 {
     m_dTemp = T;
     m_dMean = E.mean();
@@ -403,7 +422,8 @@ void CAnnealInterleaverDlg::display(const double T,
     SendMessage(WM_ANNEALINTERLEAVER_DISPLAY);
 }
 
-void CAnnealInterleaverDlg::ThreadProc()
+void
+CAnnealInterleaverDlg::ThreadProc()
 {
     // System Setup
     m_tSetup.start();
@@ -436,7 +456,8 @@ void CAnnealInterleaverDlg::ThreadProc()
 /////////////////////////////////////////////////////////////////////////////
 // Thread control functions
 
-void CAnnealInterleaverDlg::OnStart()
+void
+CAnnealInterleaverDlg::OnStart()
 {
     UpdateData(true);
     UpdateButtons(true);
@@ -444,16 +465,22 @@ void CAnnealInterleaverDlg::OnStart()
     ThreadStart();
 }
 
-void CAnnealInterleaverDlg::OnStop() { ThreadStop(); }
+void
+CAnnealInterleaverDlg::OnStop()
+{
+    ThreadStop();
+}
 
-void CAnnealInterleaverDlg::OnSuspend()
+void
+CAnnealInterleaverDlg::OnSuspend()
 {
     GetDlgItem(IDC_SUSPEND)->EnableWindow(false);
     GetDlgItem(IDC_RESUME)->EnableWindow(true);
     ThreadSuspend();
 }
 
-void CAnnealInterleaverDlg::OnResume()
+void
+CAnnealInterleaverDlg::OnResume()
 {
     GetDlgItem(IDC_SUSPEND)->EnableWindow(true);
     GetDlgItem(IDC_RESUME)->EnableWindow(false);

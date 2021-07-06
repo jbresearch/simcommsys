@@ -31,7 +31,8 @@
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     using std::cerr;
     using std::cin;

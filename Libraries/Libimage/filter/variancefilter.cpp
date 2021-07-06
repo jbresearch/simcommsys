@@ -28,7 +28,8 @@ namespace libimage
 // initialization
 
 template <class T>
-void variancefilter<T>::init(const int d)
+void
+variancefilter<T>::init(const int d)
 {
     m_d = d;
 }
@@ -36,8 +37,9 @@ void variancefilter<T>::init(const int d)
 // filter process loop (only updates output matrix)
 
 template <class T>
-void variancefilter<T>::process(const libbase::matrix<T>& in,
-                                libbase::matrix<T>& out) const
+void
+variancefilter<T>::process(const libbase::matrix<T>& in,
+                           libbase::matrix<T>& out) const
 {
     const int M = in.size().rows();
     const int N = in.size().cols();

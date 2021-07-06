@@ -59,7 +59,8 @@ typedef libbase::vector<int> array1i_t;
 typedef libbase::vector<array1i_t> array1vi_t;
 typedef libbase::vector<array1d_t> array1vd_t;
 
-void compute_conv(array1d_t& conv_out, int pos1, int pos2)
+void
+compute_conv(array1d_t& conv_out, int pos1, int pos2)
 {
     if ((pos2 - pos1) == 1) {
         double tmp1 = conv_out(pos1);
@@ -81,7 +82,8 @@ void compute_conv(array1d_t& conv_out, int pos1, int pos2)
     }
 }
 
-void compute_dual()
+void
+compute_dual()
 {
     matrix<gf<1, 0x3>> test;
     test.init(5, 31);
@@ -119,7 +121,8 @@ void compute_dual()
      */
 }
 
-void test_ra_code()
+void
+test_ra_code()
 {
     // needed for serialisation
     const libcomm::serializer_libcomm my_serializer_libcomm;
@@ -243,7 +246,8 @@ void test_ra_code()
     ldpc_sys_ra.serialize(sout_ser);
 }
 
-void test_cc_code()
+void
+test_cc_code()
 {
     // needed for serialisation
     const libcomm::serializer_libcomm my_serializer_libcomm;
@@ -368,7 +372,8 @@ void test_cc_code()
 }
 
 template <class GF>
-void process(bool serialized)
+void
+process(bool serialized)
 {
     // read the alist LDPC code
     ldpc<GF, double> codec;
@@ -384,7 +389,8 @@ void process(bool serialized)
     }
 }
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     namespace po = boost::program_options;
 

@@ -57,13 +57,15 @@ CAutomateGraphingApp::~CAutomateGraphingApp() { delete m_sData; }
 // CAutomateGraphingApp filter selector functions
 
 // show the about dialog here
-void CAutomateGraphingApp::About(void)
+void
+CAutomateGraphingApp::About(void)
 {
     CAboutDlg dlg;
     dlg.DoModal();
 }
 
-void CAutomateGraphingApp::Process(void)
+void
+CAutomateGraphingApp::Process(void)
 {
     // prepare variables
     CString sTempName;
@@ -128,7 +130,8 @@ void CAutomateGraphingApp::Process(void)
 /////////////////////////////////////////////////////////////////////////////
 // CAutomateGraphingApp helper functions
 
-void CAutomateGraphingApp::ReadParameters()
+void
+CAutomateGraphingApp::ReadParameters()
 {
     std::ifstream file(m_sData->sParameters);
     std::string s;
@@ -183,7 +186,8 @@ void CAutomateGraphingApp::ReadParameters()
     }
 }
 
-void CAutomateGraphingApp::WriteHeader()
+void
+CAutomateGraphingApp::WriteHeader()
 {
     std::ofstream file(m_sData->sResults);
     file << "# Strength";
@@ -208,7 +212,8 @@ void CAutomateGraphingApp::WriteHeader()
     file.close();
 }
 
-void CAutomateGraphingApp::DoExtract(double dStrength)
+void
+CAutomateGraphingApp::DoExtract(double dStrength)
 {
     PlayeventConvertMode(16);
     switch (m_sParameters.nFilterType) {
@@ -263,7 +268,8 @@ void CAutomateGraphingApp::DoExtract(double dStrength)
 /////////////////////////////////////////////////////////////////////////////
 // CAutomateGraphingApp virtual overrides
 
-void CAutomateGraphingApp::ShowDialog(void)
+void
+CAutomateGraphingApp::ShowDialog(void)
 {
     CAutomateGraphingDlg dlg;
 
@@ -315,7 +321,8 @@ void CAutomateGraphingApp::ShowDialog(void)
     m_sData->bPrintChiSquare = dlg.m_bPrintChiSquare != 0;
 }
 
-void CAutomateGraphingApp::InitParameters()
+void
+CAutomateGraphingApp::InitParameters()
 {
     // files with system parameters (input) and results (output)
     strcpy(m_sData->sParameters, "");
@@ -342,7 +349,8 @@ void CAutomateGraphingApp::InitParameters()
 /////////////////////////////////////////////////////////////////////////////
 // CAutomateGraphingApp scripting support
 
-void CAutomateGraphingApp::ReadScriptParameters(PIActionDescriptor descriptor)
+void
+CAutomateGraphingApp::ReadScriptParameters(PIActionDescriptor descriptor)
 {
     // files with system parameters (input) and results (output)
     GetString(descriptor, keyParameters, m_sData->sParameters);
@@ -365,7 +373,8 @@ void CAutomateGraphingApp::ReadScriptParameters(PIActionDescriptor descriptor)
     GetBoolean(descriptor, keyPrintChiSquare, &m_sData->bPrintChiSquare);
 }
 
-void CAutomateGraphingApp::WriteScriptParameters(PIActionDescriptor descriptor)
+void
+CAutomateGraphingApp::WriteScriptParameters(PIActionDescriptor descriptor)
 {
     // files with system parameters (input) and results (output)
     PutString(descriptor, keyParameters, m_sData->sParameters);
@@ -403,9 +412,8 @@ void CAutomateGraphingApp::WriteScriptParameters(PIActionDescriptor descriptor)
 
 CAutomateGraphingApp theApp;
 
-DLLExport SPAPI SPErr PluginMain(const char* sCaller,
-                                 const char* sSelector,
-                                 void* pData)
+DLLExport SPAPI SPErr
+PluginMain(const char* sCaller, const char* sSelector, void* pData)
 {
     return theApp.Main(sCaller, sSelector, pData);
 }

@@ -32,7 +32,8 @@ namespace libcomm
 #endif
 
 template <class GF_q, class real>
-void sum_prod_alg_trad<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
+void
+sum_prod_alg_trad<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
 {
 
     // initialise the marginal prob values
@@ -91,9 +92,10 @@ void sum_prod_alg_trad<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
 }
 
 template <class GF_q, class real>
-void sum_prod_alg_trad<GF_q, real>::compute_r_mn(int m,
-                                                 int n,
-                                                 const array1i_t& tmpN_m)
+void
+sum_prod_alg_trad<GF_q, real>::compute_r_mn(int m,
+                                            int n,
+                                            const array1i_t& tmpN_m)
 {
     // the number of remaining symbols that can vary
     int num_of_var_syms = tmpN_m.size() - 1;
@@ -159,9 +161,8 @@ void sum_prod_alg_trad<GF_q, real>::compute_r_mn(int m,
 }
 
 template <class GF_q, class real>
-void sum_prod_alg_trad<GF_q, real>::compute_q_mn(int m,
-                                                 int n,
-                                                 const array1i_t& M_n)
+void
+sum_prod_alg_trad<GF_q, real>::compute_q_mn(int m, int n, const array1i_t& M_n)
 {
 
     // initialise some helper variables

@@ -243,7 +243,8 @@ public:
 // Public interface to load objects
 
 template <class T>
-std::shared_ptr<T> loadandverify(std::istream& sin)
+std::shared_ptr<T>
+loadandverify(std::istream& sin)
 {
     const serializer_libcomm my_serializer_libcomm;
     std::shared_ptr<T> system;
@@ -252,7 +253,8 @@ std::shared_ptr<T> loadandverify(std::istream& sin)
 }
 
 template <class T>
-std::shared_ptr<T> loadfromstring(const std::string& systemstring)
+std::shared_ptr<T>
+loadfromstring(const std::string& systemstring)
 {
     // load system from string representation
     std::istringstream is(systemstring,
@@ -261,7 +263,8 @@ std::shared_ptr<T> loadfromstring(const std::string& systemstring)
 }
 
 template <class T>
-std::shared_ptr<T> loadfromfile(const std::string& fname)
+std::shared_ptr<T>
+loadfromfile(const std::string& fname)
 {
     // load system from file
     std::ifstream file(fname.c_str(),

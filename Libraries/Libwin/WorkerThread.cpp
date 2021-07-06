@@ -41,7 +41,8 @@ CWorkerThread::~CWorkerThread() {}
 // Static Thread-Process Function
 //////////////////////////////////////////////////////////////////////
 
-UINT CWorkerThread::ThreadProcRedirect(LPVOID pParam)
+UINT
+CWorkerThread::ThreadProcRedirect(LPVOID pParam)
 {
     CWorkerThread* obj = (CWorkerThread*)pParam;
     obj->m_eventDone.ResetEvent();
@@ -58,40 +59,46 @@ UINT CWorkerThread::ThreadProcRedirect(LPVOID pParam)
 // Thread-Control Functions (to be used by controlling object)
 //////////////////////////////////////////////////////////////////////
 
-void CWorkerThread::ThreadStart(int nPriority)
+void
+CWorkerThread::ThreadStart(int nPriority)
 {
     m_pThread = AfxBeginThread(ThreadProcRedirect, this, nPriority);
 }
 
-void CWorkerThread::ThreadStop()
+void
+CWorkerThread::ThreadStop()
 {
     if (m_bWorking) {
         m_bInterrupted = true;
     }
 }
 
-void CWorkerThread::ThreadKill()
+void
+CWorkerThread::ThreadKill()
 {
     if (m_bWorking) {
         ::TerminateThread(m_pThread->m_hThread, 0);
     }
 }
 
-void CWorkerThread::ThreadSuspend()
+void
+CWorkerThread::ThreadSuspend()
 {
     if (m_bWorking) {
         m_pThread->SuspendThread();
     }
 }
 
-void CWorkerThread::ThreadResume()
+void
+CWorkerThread::ThreadResume()
 {
     if (m_bWorking) {
         m_pThread->ResumeThread();
     }
 }
 
-void CWorkerThread::ThreadWaitFinish()
+void
+CWorkerThread::ThreadWaitFinish()
 {
     if (m_bWorking) {
         ::WaitForSingleObject(m_eventDone, INFINITE);

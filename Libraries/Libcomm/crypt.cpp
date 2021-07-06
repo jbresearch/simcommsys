@@ -117,14 +117,16 @@ crypt::~crypt() {}
 // Private functions
 //////////////////////////////////////////////////////////////////////
 
-void crypt::perm(char* a, const char* e, const char* pc, int n)
+void
+crypt::perm(char* a, const char* e, const char* pc, int n)
 {
     for (; n--; pc++, a++) {
         *a = e[int(*pc)];
     }
 }
 
-void crypt::crypt_main(char* nachr_l, char* nachr_r, char* schl)
+void
+crypt::crypt_main(char* nachr_l, char* nachr_r, char* schl)
 {
     char tmp[KS];
     int sbval;
@@ -156,7 +158,8 @@ void crypt::crypt_main(char* nachr_l, char* nachr_r, char* schl)
 // Public functions
 //////////////////////////////////////////////////////////////////////
 
-void crypt::encrypt(char* nachr, int decr)
+void
+crypt::encrypt(char* nachr, int decr)
 {
     char(*schl)[KS] = decr ? schluessel + 15 : schluessel;
     char tmp[BS];
@@ -185,7 +188,8 @@ void crypt::encrypt(char* nachr, int decr)
     perm(nachr, tmp, EP, BS);
 }
 
-void crypt::setkey(char* schl)
+void
+crypt::setkey(char* schl)
 {
     char tmp1[IS];
     unsigned int ls = 0x7efc;
@@ -214,7 +218,8 @@ void crypt::setkey(char* schl)
     }
 }
 
-char* crypt::crypttext(const char* wort, const char* salt)
+char*
+crypt::crypttext(const char* wort, const char* salt)
 {
     // temporary variables
     char* k;

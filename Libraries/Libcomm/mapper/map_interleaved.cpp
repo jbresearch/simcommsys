@@ -30,14 +30,16 @@ namespace libcomm
 
 // Interface with mapper
 template <class dbl>
-void map_interleaved<libbase::vector, dbl>::advance() const
+void
+map_interleaved<libbase::vector, dbl>::advance() const
 {
     lut.init(This::output_block_size(), r);
 }
 
 template <class dbl>
-void map_interleaved<libbase::vector, dbl>::dotransform(const array1i_t& in,
-                                                        array1i_t& out) const
+void
+map_interleaved<libbase::vector, dbl>::dotransform(const array1i_t& in,
+                                                   array1i_t& out) const
 {
     assert(in.size() == lut.size());
     // final vector is the same size as input one
@@ -49,8 +51,9 @@ void map_interleaved<libbase::vector, dbl>::dotransform(const array1i_t& in,
 }
 
 template <class dbl>
-void map_interleaved<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
-                                                        array1vd_t& pout) const
+void
+map_interleaved<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
+                                                   array1vd_t& pout) const
 {
     assert(pin.size() == lut.size());
     // final matrix is the same size as input
@@ -62,8 +65,9 @@ void map_interleaved<libbase::vector, dbl>::dotransform(const array1vd_t& pin,
 }
 
 template <class dbl>
-void map_interleaved<libbase::vector, dbl>::doinverse(const array1vd_t& pin,
-                                                      array1vd_t& pout) const
+void
+map_interleaved<libbase::vector, dbl>::doinverse(const array1vd_t& pin,
+                                                 array1vd_t& pout) const
 {
     assert(pin.size() == lut.size());
     // final matrix is the same size as input
@@ -77,7 +81,8 @@ void map_interleaved<libbase::vector, dbl>::doinverse(const array1vd_t& pin,
 // Description
 
 template <class dbl>
-std::string map_interleaved<libbase::vector, dbl>::description() const
+std::string
+map_interleaved<libbase::vector, dbl>::description() const
 {
     std::ostringstream sout;
     sout << "Interleaved Mapper";

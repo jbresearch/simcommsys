@@ -28,7 +28,8 @@ namespace cuda
 // CUDA kernels
 
 template <class G, class real>
-__global__ void receive_trellis_kernel(
+__global__ void
+receive_trellis_kernel(
     const typename libcomm::qids<G, real>::metric_computer object,
     const cuda::vector_reference<G> tx,
     const cuda::vector_reference<G> rx,
@@ -38,7 +39,8 @@ __global__ void receive_trellis_kernel(
 }
 
 template <class G, class real>
-__global__ void receive_lattice_kernel(
+__global__ void
+receive_lattice_kernel(
     const typename libcomm::qids<G, real>::metric_computer object,
     const cuda::vector_reference<G> tx,
     const cuda::vector_reference<G> rx,
@@ -48,7 +50,8 @@ __global__ void receive_lattice_kernel(
 }
 
 template <class G, class real>
-__global__ void receive_lattice_corridor_kernel(
+__global__ void
+receive_lattice_corridor_kernel(
     const typename libcomm::qids<G, real>::metric_computer object,
     const cuda::vector_reference<G> tx,
     const cuda::vector_reference<G> rx,
@@ -63,9 +66,10 @@ namespace libcomm
 {
 
 template <class G, class real>
-void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
-                                                     const array1g_t& rx,
-                                                     array1r_t& ptable) const
+void
+qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
+                                                const array1g_t& rx,
+                                                array1r_t& ptable) const
 {
     // allocate space on device for result, and initialize
     cuda::vector<real> dev_ptable;
@@ -83,9 +87,10 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
 }
 
 template <class G, class real>
-void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
-                                                     const array1g_t& rx,
-                                                     array1r_t& ptable) const
+void
+qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
+                                                const array1g_t& rx,
+                                                array1r_t& ptable) const
 {
     // allocate space on device for result, and initialize
     cuda::vector<real> dev_ptable;
@@ -103,7 +108,8 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
 }
 
 template <class G, class real>
-void qids<G, real>::metric_computer::receive_lattice_corridor(
+void
+qids<G, real>::metric_computer::receive_lattice_corridor(
     const array1g_t& tx, const array1g_t& rx, array1r_t& ptable) const
 {
     // allocate space on device for result, and initialize

@@ -28,14 +28,16 @@ namespace libcomm
 // Serialization Support
 
 template <class S>
-std::ostream& commsys_timer<S>::serialize(std::ostream& sout) const
+std::ostream&
+commsys_timer<S>::serialize(std::ostream& sout) const
 {
     simulator.serialize(sout);
     return sout;
 }
 
 template <class S>
-std::istream& commsys_timer<S>::serialize(std::istream& sin)
+std::istream&
+commsys_timer<S>::serialize(std::istream& sin)
 {
     simulator.serialize(sin);
     return sin;

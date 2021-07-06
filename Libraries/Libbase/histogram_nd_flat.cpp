@@ -75,7 +75,8 @@ histogram_nd_flat::histogram_nd_flat(const vector<vector<double>>& a,
     }
 }
 
-const vector<double> histogram_nd_flat::get_bin_edges()
+const vector<double>
+histogram_nd_flat::get_bin_edges()
 {
     const double step = get_step();
     vector<double> edges(bins + 1);
@@ -87,7 +88,8 @@ const vector<double> histogram_nd_flat::get_bin_edges()
     return edges;
 }
 
-const vector<double> histogram_nd_flat::get_bin_centres()
+const vector<double>
+histogram_nd_flat::get_bin_centres()
 {
     const double step = get_step();
     vector<double> centres(bins);

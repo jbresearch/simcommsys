@@ -52,13 +52,15 @@ CFilterEmbedApp::CFilterEmbedApp() : CPSPlugIn(sizeof(SFilterEmbedData), 131) {}
 // CFilterEmbedApp filter selector functions
 
 // show the about dialog here
-void CFilterEmbedApp::FilterAbout(void)
+void
+CFilterEmbedApp::FilterAbout(void)
 {
     CAboutDlg dlg;
     dlg.DoModal();
 }
 
-void CFilterEmbedApp::FilterStart(void)
+void
+CFilterEmbedApp::FilterStart(void)
 {
     // set up library names
     using libbase::trace;
@@ -140,7 +142,8 @@ void CFilterEmbedApp::FilterStart(void)
     }
 }
 
-void CFilterEmbedApp::FilterContinue(void)
+void
+CFilterEmbedApp::FilterContinue(void)
 {
     // update progress counter
     DisplayTileProgress(0, 100, 3, 4);
@@ -167,7 +170,8 @@ void CFilterEmbedApp::FilterContinue(void)
     CPSPlugIn::FilterContinue();
 }
 
-void CFilterEmbedApp::FilterFinish(void)
+void
+CFilterEmbedApp::FilterFinish(void)
 {
     // clean up memory usage
     m_vdMessage.init(0);
@@ -179,7 +183,8 @@ void CFilterEmbedApp::FilterFinish(void)
 /////////////////////////////////////////////////////////////////////////////
 // CFilterEmbedApp helper functions
 
-void CFilterEmbedApp::ShowDialog(void)
+void
+CFilterEmbedApp::ShowDialog(void)
 {
     CFilterEmbedDlg dlg;
 
@@ -230,12 +235,14 @@ void CFilterEmbedApp::ShowDialog(void)
     SetShowDialog(false);
 }
 
-void CFilterEmbedApp::InitPointer(char* sData)
+void
+CFilterEmbedApp::InitPointer(char* sData)
 {
     m_sData = (SFilterEmbedData*)sData;
 }
 
-void CFilterEmbedApp::InitParameters()
+void
+CFilterEmbedApp::InitParameters()
 {
     // embedding system
     m_sData->nEmbedSeed = 0;
@@ -260,10 +267,11 @@ void CFilterEmbedApp::InitParameters()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterEmbedApp scripting support
 
-void CFilterEmbedApp::ReadScriptParameter(PIReadDescriptor token,
-                                          DescriptorKeyID key,
-                                          DescriptorTypeID type,
-                                          int32 flags)
+void
+CFilterEmbedApp::ReadScriptParameter(PIReadDescriptor token,
+                                     DescriptorKeyID key,
+                                     DescriptorTypeID type,
+                                     int32 flags)
 {
     switch (key) {
     // embedding system
@@ -310,7 +318,8 @@ void CFilterEmbedApp::ReadScriptParameter(PIReadDescriptor token,
     }
 }
 
-void CFilterEmbedApp::WriteScriptParameters(PIWriteDescriptor token)
+void
+CFilterEmbedApp::WriteScriptParameters(PIWriteDescriptor token)
 {
     // embedding system
     PutInteger(token, keyEmbedSeed, m_sData->nEmbedSeed);
@@ -345,10 +354,11 @@ void CFilterEmbedApp::WriteScriptParameters(PIWriteDescriptor token)
 
 CFilterEmbedApp theApp;
 
-DLLExport SPAPI void PluginMain(const short nSelector,
-                                FilterRecord* pFilterRecord,
-                                long* pData,
-                                short* pResult)
+DLLExport SPAPI void
+PluginMain(const short nSelector,
+           FilterRecord* pFilterRecord,
+           long* pData,
+           short* pResult)
 {
     theApp.Main(nSelector, pFilterRecord, pData, pResult);
 }

@@ -37,7 +37,8 @@ namespace po = boost::program_options;
 typedef vector<double> array1d_t;
 typedef vector<array1d_t> array1vd_t;
 
-void test_aggregating(int N, int q, int M)
+void
+test_aggregating(int N, int q, int M)
 {
     // define mapper according to specifications
     libcomm::map_aggregating<vector, double, double> mapper;
@@ -103,7 +104,8 @@ void test_aggregating(int N, int q, int M)
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     // Set up user parameters
     po::options_description desc("Allowed options");

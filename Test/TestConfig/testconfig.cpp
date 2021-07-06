@@ -36,7 +36,8 @@ using libbase::size_type;
 using libbase::vector;
 using std::cout;
 
-void print_whitespace_test()
+void
+print_whitespace_test()
 {
     cout << std::endl;
     cout << "Char:       \tWhitespace?:" << std::endl;
@@ -47,7 +48,8 @@ void print_whitespace_test()
     cout << "\\t         \t" << (isspace('\t') ? "yes" : "no") << std::endl;
 }
 
-void print_standard_limits()
+void
+print_standard_limits()
 {
     cout << std::endl;
     cout << "Type:      \tValue:" << std::endl;
@@ -61,7 +63,8 @@ void print_standard_limits()
          << std::endl;
 }
 
-void print_standard_sizes()
+void
+print_standard_sizes()
 {
     cout << std::endl;
     cout << "Type:      \tSize (bits):" << std::endl;
@@ -82,7 +85,8 @@ void print_standard_sizes()
     cout << "size_t     \t" << sizeof(size_t) * 8 << std::endl;
 }
 
-void print_new_sizes()
+void
+print_new_sizes()
 {
     cout << std::endl;
     cout << "Type:      \tSize (bits):" << std::endl;
@@ -105,7 +109,8 @@ void print_new_sizes()
 #endif
 }
 
-void print_struct_sizes()
+void
+print_struct_sizes()
 {
     typedef struct {
         bool a : 1;
@@ -129,7 +134,8 @@ void print_struct_sizes()
     cout << "struct_field_t\t" << sizeof(struct_field_t) * 8 << std::endl;
 }
 
-void print_vector_sizes()
+void
+print_vector_sizes()
 {
     // create a vector with two elements
     vector<int> x;
@@ -145,7 +151,8 @@ void print_vector_sizes()
          << std::endl;
 }
 
-vector<int> makerangevector()
+vector<int>
+makerangevector()
 {
     cout << std::endl << "Make vector range:" << std::endl << std::endl;
     // create space for result
@@ -163,7 +170,8 @@ vector<int> makerangevector()
     return x;
 }
 
-void accessvectorbyvalue(vector<int> x)
+void
+accessvectorbyvalue(vector<int> x)
 {
     cout << std::endl << "Access vector by value:" << std::endl << std::endl;
     cout << "Address: " << &x << std::endl;
@@ -173,7 +181,8 @@ void accessvectorbyvalue(vector<int> x)
     cout << "}" << std::endl;
 }
 
-void accessvectorbyreference(vector<int>& x)
+void
+accessvectorbyreference(vector<int>& x)
 {
     cout << std::endl
          << "Access vector by reference:" << std::endl
@@ -185,7 +194,8 @@ void accessvectorbyreference(vector<int>& x)
     cout << "}" << std::endl;
 }
 
-void testvector()
+void
+testvector()
 {
     // test default construction
     vector<int> x;
@@ -227,7 +237,8 @@ void testvector()
     assert(s.length() == x.size().length());
 }
 
-void testmatrixmul()
+void
+testmatrixmul()
 {
     cout << std::endl << "Matrix Multiplication:" << std::endl << std::endl;
     matrix<int> A(3, 2);
@@ -262,7 +273,8 @@ void testmatrixmul()
     assert(AB.isequalto(R));
 }
 
-void testmatrixinv()
+void
+testmatrixinv()
 {
     cout << std::endl << "Matrix Inversion:" << std::endl << std::endl;
     matrix<int> A(3, 3);
@@ -283,7 +295,8 @@ void testmatrixinv()
     assert(R.isequalto(matrix<int>::eye(3)));
 }
 
-void testmatrixops()
+void
+testmatrixops()
 {
     cout << std::endl << "Matrix Operations:" << std::endl << std::endl;
     matrix<int> A;
@@ -297,7 +310,8 @@ void testmatrixops()
     assert(r == 2);
 }
 
-void testboost_foreach(const std::string& s)
+void
+testboost_foreach(const std::string& s)
 {
     using namespace boost::lambda;
     typedef std::istream_iterator<int> in;
@@ -308,7 +322,8 @@ void testboost_foreach(const std::string& s)
     std::cout << std::endl;
 }
 
-void testboost_array()
+void
+testboost_array()
 {
     // Constants
     const int xmax = 5;
@@ -348,7 +363,8 @@ void testboost_array()
 }
 
 template <class T>
-void display_array(boost::multi_array<T, 2>& A)
+void
+display_array(boost::multi_array<T, 2>& A)
 {
     typedef boost::multi_array<T, 2> array2_t;
     typedef boost::multi_array<T, 1> array1_t;
@@ -364,7 +380,8 @@ void display_array(boost::multi_array<T, 2>& A)
     std::cout << std::endl;
 }
 
-void testboost_iterators()
+void
+testboost_iterators()
 {
     std::cout << std::endl
               << "Boost Iterator Usage Test:" << std::endl
@@ -375,7 +392,8 @@ void testboost_iterators()
     display_array(A);
 }
 
-void testbool_ops()
+void
+testbool_ops()
 {
     std::cout << std::endl << "Bool Operator Test:" << std::endl << std::endl;
     for (int i = 0; i < 2; i++) {
@@ -388,7 +406,8 @@ void testbool_ops()
     }
 }
 
-void test128bit()
+void
+test128bit()
 {
 #if defined(USE_128BIT_INT)
     std::cout << std::endl << "128-bit Integer Test:" << std::endl << std::endl;
@@ -413,7 +432,8 @@ void test128bit()
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     print_whitespace_test();
     print_standard_limits();

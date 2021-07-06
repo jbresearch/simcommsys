@@ -48,19 +48,22 @@ dvbcrsc::dvbcrsc() : reg(0, nu) {}
 
 // finite state machine functions - resetting
 
-void dvbcrsc::reset()
+void
+dvbcrsc::reset()
 {
     fsm::reset();
     reg = 0;
 }
 
-void dvbcrsc::reset(const vector<int>& state)
+void
+dvbcrsc::reset(const vector<int>& state)
 {
     fsm::reset(state);
     reg = fsm::convert(state, 2);
 }
 
-void dvbcrsc::resetcircular(const vector<int>& zerostate, int n)
+void
+dvbcrsc::resetcircular(const vector<int>& zerostate, int n)
 {
     // TODO: check input state is valid
     // circulation state is obtainable only if the sequence length is not
@@ -72,7 +75,8 @@ void dvbcrsc::resetcircular(const vector<int>& zerostate, int n)
 
 // finite state machine functions - state advance etc.
 
-void dvbcrsc::advance(vector<int>& input)
+void
+dvbcrsc::advance(vector<int>& input)
 {
     fsm::advance(input);
     // ref: ETSI EN 301 790 V1.4.1 (2005-04)
@@ -89,7 +93,8 @@ void dvbcrsc::advance(vector<int>& input)
     reg ^= (libbase::bitfield("0") + ip.extract(1) + ip.extract(1));
 }
 
-vector<int> dvbcrsc::output(const vector<int>& input) const
+vector<int>
+dvbcrsc::output(const vector<int>& input) const
 {
     // ref: ETSI EN 301 790 V1.4.1 (2005-04)
     // ip[0] = A, ip[1] = B
@@ -109,11 +114,16 @@ vector<int> dvbcrsc::output(const vector<int>& input) const
     return vector<int>(op.asvector());
 }
 
-vector<int> dvbcrsc::state() const { return vector<int>(reg.asvector()); }
+vector<int>
+dvbcrsc::state() const
+{
+    return vector<int>(reg.asvector());
+}
 
 // description output
 
-std::string dvbcrsc::description() const
+std::string
+dvbcrsc::description() const
 {
     std::ostringstream sout;
     sout << "DVB-Standard Circular RSC Code";
@@ -122,10 +132,18 @@ std::string dvbcrsc::description() const
 
 // object serialization - saving
 
-std::ostream& dvbcrsc::serialize(std::ostream& sout) const { return sout; }
+std::ostream&
+dvbcrsc::serialize(std::ostream& sout) const
+{
+    return sout;
+}
 
 // object serialization - loading
 
-std::istream& dvbcrsc::serialize(std::istream& sin) { return sin; }
+std::istream&
+dvbcrsc::serialize(std::istream& sin)
+{
+    return sin;
+}
 
 } // namespace libcomm

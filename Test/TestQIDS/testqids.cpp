@@ -44,7 +44,8 @@ using std::cout;
 namespace po = boost::program_options;
 
 template <class S>
-void createsource(vector<S>& tx, randgen& r, const int N)
+void
+createsource(vector<S>& tx, randgen& r, const int N)
 {
     assert(tx.size() == N);
     const int q = libcomm::field_utils<S>::elements();
@@ -53,7 +54,8 @@ void createsource(vector<S>& tx, randgen& r, const int N)
     }
 }
 
-void test_visual()
+void
+test_visual()
 {
     // define an alternating input sequence
     const int tau = 5;
@@ -90,7 +92,8 @@ void test_visual()
     cout << "Rx2: " << rx2 << std::endl;
 }
 
-void test_transmission(
+void
+test_transmission(
     int tau, double p, bool ins, bool del, bool sub, bool src, double Pr)
 {
     // define channel according to specifications
@@ -153,7 +156,8 @@ void test_transmission(
     cout << std::endl;
 }
 
-double estimate_drift_sd(int tau, double Pi, double Pd)
+double
+estimate_drift_sd(int tau, double Pi, double Pd)
 {
     // define channel according to specifications
     libcomm::qids<bool, float> channel;
@@ -176,7 +180,8 @@ double estimate_drift_sd(int tau, double Pi, double Pd)
     return drift.sigma();
 }
 
-int estimate_xmax(int tau, double Pi, double Pd, double Pr)
+int
+estimate_xmax(int tau, double Pi, double Pd, double Pr)
 {
     // determine required multiplier
     const double factor = libbase::Qinv(Pr / 2.0);
@@ -186,7 +191,8 @@ int estimate_xmax(int tau, double Pi, double Pd, double Pr)
     return xmax;
 }
 
-void compute_statespace(
+void
+compute_statespace(
     int tau, int n, double p, bool ins, bool del, bool sim, double Pr)
 {
     using libcomm::qids_utils;
@@ -296,7 +302,8 @@ void compute_statespace(
     cout << std::endl;
 }
 
-void compute_drift_pdf(int tau, double p, bool ins, bool del, double Pr)
+void
+compute_drift_pdf(int tau, double p, bool ins, bool del, double Pr)
 {
     using libcomm::qids_utils;
     const double Pi = ins ? p : 0;
@@ -313,7 +320,8 @@ void compute_drift_pdf(int tau, double p, bool ins, bool del, double Pr)
 }
 
 template <class real>
-void test_receiver(int tau, double p, bool ins, bool del, bool sub, double Pr)
+void
+test_receiver(int tau, double p, bool ins, bool del, bool sub, double Pr)
 {
     // define channel according to specifications
     typedef libcomm::qids<bool, real> channel_t;
@@ -364,7 +372,8 @@ void test_receiver(int tau, double p, bool ins, bool del, bool sub, double Pr)
 }
 
 template <class real, class reference>
-void test_precision(int tau, double p, bool ins, bool del, bool sub, double Pr)
+void
+test_precision(int tau, double p, bool ins, bool del, bool sub, double Pr)
 {
     // define two identical channels according to specifications
     typedef libcomm::qids<bool, real> channel_real_t;
@@ -433,7 +442,8 @@ void test_precision(int tau, double p, bool ins, bool del, bool sub, double Pr)
 }
 
 template <class real>
-void compute_timings(int tau, double p, bool ins, bool del, bool sub, double Pr)
+void
+compute_timings(int tau, double p, bool ins, bool del, bool sub, double Pr)
 {
     typedef typename libcomm::qids<bool, real>::metric_computer metric_computer;
     using libcomm::qids_utils;
@@ -506,7 +516,8 @@ void compute_timings(int tau, double p, bool ins, bool del, bool sub, double Pr)
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     // Set up user parameters
     po::options_description desc("Allowed options");

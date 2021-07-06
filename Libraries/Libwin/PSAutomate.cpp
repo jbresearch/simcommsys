@@ -48,7 +48,8 @@ CPSAutomate::~CPSAutomate() {}
 /////////////////////////////////////////////////////////////////////////////
 // CPSAutomate main function
 
-SPErr CPSAutomate::Main(const char* sCaller, const char* sSelector, void* pData)
+SPErr
+CPSAutomate::Main(const char* sCaller, const char* sSelector, void* pData)
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
     try {
@@ -120,7 +121,8 @@ SPErr CPSAutomate::Main(const char* sCaller, const char* sSelector, void* pData)
 // CPSAutomate entry and exit points
 
 // this gets called every time through the main() loop so we stay in sync
-void CPSAutomate::Entry(void* pData)
+void
+CPSAutomate::Entry(void* pData)
 {
     TRACE("Automate Entry\n");
 
@@ -159,7 +161,8 @@ void CPSAutomate::Entry(void* pData)
 }
 
 // this gets called every time through the main() loop so we stay in sync
-void CPSAutomate::Exit()
+void
+CPSAutomate::Exit()
 {
     TRACE("Automate Exit\n");
 
@@ -178,21 +181,42 @@ void CPSAutomate::Exit()
 // CPSAutomate plug-in interface functions
 
 // allocate memory and do other initialization tasks here
-void CPSAutomate::Startup(void) { TRACE("Automate Startup\n"); }
+void
+CPSAutomate::Startup(void)
+{
+    TRACE("Automate Startup\n");
+}
 
 // release memory and do other finalization tasks here
-void CPSAutomate::Shutdown(void) { TRACE("Automate Shutdown\n"); }
+void
+CPSAutomate::Shutdown(void)
+{
+    TRACE("Automate Shutdown\n");
+}
 
 // restore state information
-void CPSAutomate::Reload(void) { TRACE("Automate Reload\n"); }
+void
+CPSAutomate::Reload(void)
+{
+    TRACE("Automate Reload\n");
+}
 
 // save state information
-void CPSAutomate::Unload(void) { TRACE("Automate Unload\n"); }
+void
+CPSAutomate::Unload(void)
+{
+    TRACE("Automate Unload\n");
+}
 
 // show the about dialog here
-void CPSAutomate::About(void) { TRACE("Automate About\n"); }
+void
+CPSAutomate::About(void)
+{
+    TRACE("Automate About\n");
+}
 
-void CPSAutomate::Execute(void)
+void
+CPSAutomate::Execute(void)
 {
     TRACE("Automate Execute\n");
     // initialize parameters
@@ -212,12 +236,17 @@ void CPSAutomate::Execute(void)
     WriteScriptParameters();
 }
 
-void CPSAutomate::Process(void) { TRACE("Automate Process\n"); }
+void
+CPSAutomate::Process(void)
+{
+    TRACE("Automate Process\n");
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // CPSAutomate private helpers - internal utility functions
 
-CString CPSAutomate::KeyToString(libbase::int32u key)
+CString
+CPSAutomate::KeyToString(libbase::int32u key)
 {
     CString sTemp;
     sTemp.Format("\'%c%c%c%c\'", key >> 24, key >> 16, key >> 8, key >> 0);
@@ -227,7 +256,8 @@ CString CPSAutomate::KeyToString(libbase::int32u key)
 /////////////////////////////////////////////////////////////////////////////
 // CPSAutomate private helpers - descriptor suite low-level access
 
-void CPSAutomate::ReadScriptParameters()
+void
+CPSAutomate::ReadScriptParameters()
 {
     PSActionsPlugInMessage* pActionsPlugInMessage =
         (PSActionsPlugInMessage*)m_pData;
@@ -243,7 +273,8 @@ void CPSAutomate::ReadScriptParameters()
     }
 }
 
-void CPSAutomate::WriteScriptParameters()
+void
+CPSAutomate::WriteScriptParameters()
 {
     PSActionsPlugInMessage* pActionsPlugInMessage =
         (PSActionsPlugInMessage*)m_pData;
@@ -263,7 +294,8 @@ void CPSAutomate::WriteScriptParameters()
 
 // reference creation/destruction
 
-PIActionReference CPSAutomate::MakeReference()
+PIActionReference
+CPSAutomate::MakeReference()
 {
     TRACE("Automate MakeReference()\n");
     PIActionReference reference = NULL;
@@ -274,7 +306,8 @@ PIActionReference CPSAutomate::MakeReference()
     return reference;
 }
 
-void CPSAutomate::FreeReference(PIActionReference& reference)
+void
+CPSAutomate::FreeReference(PIActionReference& reference)
 {
     TRACE("Automate FreeReference(0x%x)\n", (void*)reference);
     if (reference != NULL) {
@@ -285,7 +318,8 @@ void CPSAutomate::FreeReference(PIActionReference& reference)
 
 // handle creation/destruction
 
-Handle CPSAutomate::MakeAlias(const char* sPathName)
+Handle
+CPSAutomate::MakeAlias(const char* sPathName)
 {
     TRACE("Automate MakeAlias(\"%s\")\n", sPathName);
     Handle alias = m_pHandle->New(strlen(sPathName) + 1);
@@ -302,7 +336,8 @@ Handle CPSAutomate::MakeAlias(const char* sPathName)
     return alias;
 }
 
-void CPSAutomate::FreeAlias(Handle& alias)
+void
+CPSAutomate::FreeAlias(Handle& alias)
 {
     TRACE("Automate FreeAlias(0x%x)\n", (void*)alias);
     if (alias != NULL) {
@@ -313,7 +348,8 @@ void CPSAutomate::FreeAlias(Handle& alias)
 
 // descriptor creation/destruction
 
-PIActionDescriptor CPSAutomate::MakeDescriptor()
+PIActionDescriptor
+CPSAutomate::MakeDescriptor()
 {
     TRACE("Automate MakeDescriptor()\n");
     PIActionDescriptor descriptor = NULL;
@@ -324,7 +360,8 @@ PIActionDescriptor CPSAutomate::MakeDescriptor()
     return descriptor;
 }
 
-void CPSAutomate::FreeDescriptor(PIActionDescriptor& descriptor)
+void
+CPSAutomate::FreeDescriptor(PIActionDescriptor& descriptor)
 {
     TRACE("Automate FreeDescriptor(0x%x)\n", (void*)descriptor);
     if (descriptor != NULL) {
@@ -335,10 +372,11 @@ void CPSAutomate::FreeDescriptor(PIActionDescriptor& descriptor)
 
 // high-level access - reference fill-in
 
-void CPSAutomate::PutEnumerated(PIActionReference reference,
-                                DescriptorClassID desiredClass,
-                                DescriptorEnumTypeID type,
-                                DescriptorEnumID value)
+void
+CPSAutomate::PutEnumerated(PIActionReference reference,
+                           DescriptorClassID desiredClass,
+                           DescriptorEnumTypeID type,
+                           DescriptorEnumID value)
 {
     TRACE("Automate PutEnumerated[ref](0x%x, %s, %s, %s)\n",
           (void*)reference,
@@ -352,9 +390,10 @@ void CPSAutomate::PutEnumerated(PIActionReference reference,
     }
 }
 
-void CPSAutomate::PutOffset(PIActionReference reference,
-                            DescriptorClassID desiredClass,
-                            int32 value)
+void
+CPSAutomate::PutOffset(PIActionReference reference,
+                       DescriptorClassID desiredClass,
+                       int32 value)
 {
     TRACE("Automate PutOffset[ref](0x%x, %s, %d)\n",
           (void*)reference,
@@ -369,9 +408,10 @@ void CPSAutomate::PutOffset(PIActionReference reference,
 
 // high-level access - descriptor fill-in
 
-void CPSAutomate::PutInteger(PIActionDescriptor descriptor,
-                             DescriptorKeyID key,
-                             int data)
+void
+CPSAutomate::PutInteger(PIActionDescriptor descriptor,
+                        DescriptorKeyID key,
+                        int data)
 {
     TRACE("Automate PutInteger(0x%x, %s, %d)\n",
           (void*)descriptor,
@@ -383,9 +423,10 @@ void CPSAutomate::PutInteger(PIActionDescriptor descriptor,
     }
 }
 
-void CPSAutomate::PutFloat(PIActionDescriptor descriptor,
-                           DescriptorKeyID key,
-                           double data)
+void
+CPSAutomate::PutFloat(PIActionDescriptor descriptor,
+                      DescriptorKeyID key,
+                      double data)
 {
     TRACE("Automate PutFloat(0x%x, %s, %g)\n",
           (void*)descriptor,
@@ -397,9 +438,10 @@ void CPSAutomate::PutFloat(PIActionDescriptor descriptor,
     }
 }
 
-void CPSAutomate::PutBoolean(PIActionDescriptor descriptor,
-                             DescriptorKeyID key,
-                             bool data)
+void
+CPSAutomate::PutBoolean(PIActionDescriptor descriptor,
+                        DescriptorKeyID key,
+                        bool data)
 {
     TRACE("Automate PutBoolean(0x%x, %s, %s)\n",
           (void*)descriptor,
@@ -411,9 +453,10 @@ void CPSAutomate::PutBoolean(PIActionDescriptor descriptor,
     }
 }
 
-void CPSAutomate::PutString(PIActionDescriptor descriptor,
-                            DescriptorKeyID key,
-                            const char* data)
+void
+CPSAutomate::PutString(PIActionDescriptor descriptor,
+                       DescriptorKeyID key,
+                       const char* data)
 {
     TRACE("Automate PutString(0x%x, %s, %s)\n",
           (void*)descriptor,
@@ -426,9 +469,10 @@ void CPSAutomate::PutString(PIActionDescriptor descriptor,
     }
 }
 
-void CPSAutomate::PutAlias(PIActionDescriptor descriptor,
-                           DescriptorKeyID key,
-                           Handle alias)
+void
+CPSAutomate::PutAlias(PIActionDescriptor descriptor,
+                      DescriptorKeyID key,
+                      Handle alias)
 {
     TRACE("Automate PutAlias(0x%x, %s, 0x%x)\n",
           (void*)descriptor,
@@ -441,9 +485,10 @@ void CPSAutomate::PutAlias(PIActionDescriptor descriptor,
     }
 }
 
-void CPSAutomate::PutReference(PIActionDescriptor descriptor,
-                               DescriptorKeyID key,
-                               PIActionReference reference)
+void
+CPSAutomate::PutReference(PIActionDescriptor descriptor,
+                          DescriptorKeyID key,
+                          PIActionReference reference)
 {
     TRACE("Automate PutReference(0x%x, %s, 0x%x)\n",
           (void*)descriptor,
@@ -457,10 +502,11 @@ void CPSAutomate::PutReference(PIActionDescriptor descriptor,
     }
 }
 
-void CPSAutomate::PutEnumerated(PIActionDescriptor descriptor,
-                                DescriptorKeyID key,
-                                DescriptorEnumTypeID type,
-                                DescriptorEnumID value)
+void
+CPSAutomate::PutEnumerated(PIActionDescriptor descriptor,
+                           DescriptorKeyID key,
+                           DescriptorEnumTypeID type,
+                           DescriptorEnumID value)
 {
     TRACE("Automate PutEnumerated(0x%x, %s, %s, %s)\n",
           (void*)descriptor,
@@ -474,10 +520,11 @@ void CPSAutomate::PutEnumerated(PIActionDescriptor descriptor,
     }
 }
 
-void CPSAutomate::PutObject(PIActionDescriptor descriptor,
-                            DescriptorKeyID key,
-                            DescriptorClassID type,
-                            PIActionDescriptor value)
+void
+CPSAutomate::PutObject(PIActionDescriptor descriptor,
+                       DescriptorKeyID key,
+                       DescriptorClassID type,
+                       PIActionDescriptor value)
 {
     TRACE("Automate PutObject(0x%x, %s, %s, 0x%x)\n",
           (void*)descriptor,
@@ -494,9 +541,10 @@ void CPSAutomate::PutObject(PIActionDescriptor descriptor,
 
 // high-level access - descriptor read-out
 
-bool CPSAutomate::GetInteger(PIActionDescriptor descriptor,
-                             DescriptorKeyID key,
-                             int* data)
+bool
+CPSAutomate::GetInteger(PIActionDescriptor descriptor,
+                        DescriptorKeyID key,
+                        int* data)
 {
     int32 temp;
     if (SPErr error = m_pActionDescriptor->GetInteger(descriptor, key, &temp)) {
@@ -511,9 +559,10 @@ bool CPSAutomate::GetInteger(PIActionDescriptor descriptor,
     return true;
 }
 
-bool CPSAutomate::GetFloat(PIActionDescriptor descriptor,
-                           DescriptorKeyID key,
-                           double* data)
+bool
+CPSAutomate::GetFloat(PIActionDescriptor descriptor,
+                      DescriptorKeyID key,
+                      double* data)
 {
     double temp;
     if (SPErr error = m_pActionDescriptor->GetFloat(descriptor, key, &temp)) {
@@ -528,9 +577,10 @@ bool CPSAutomate::GetFloat(PIActionDescriptor descriptor,
     return true;
 }
 
-bool CPSAutomate::GetBoolean(PIActionDescriptor descriptor,
-                             DescriptorKeyID key,
-                             bool* data)
+bool
+CPSAutomate::GetBoolean(PIActionDescriptor descriptor,
+                        DescriptorKeyID key,
+                        bool* data)
 {
     Boolean temp;
     if (SPErr error = m_pActionDescriptor->GetBoolean(descriptor, key, &temp)) {
@@ -545,9 +595,10 @@ bool CPSAutomate::GetBoolean(PIActionDescriptor descriptor,
     return true;
 }
 
-bool CPSAutomate::GetString(PIActionDescriptor descriptor,
-                            DescriptorKeyID key,
-                            char* data)
+bool
+CPSAutomate::GetString(PIActionDescriptor descriptor,
+                       DescriptorKeyID key,
+                       char* data)
 {
     char temp[256];
     if (SPErr error =
@@ -564,9 +615,10 @@ bool CPSAutomate::GetString(PIActionDescriptor descriptor,
 
 // high-level access - event playback
 
-PIActionDescriptor CPSAutomate::PlayEvent(DescriptorEventID event,
-                                          PIActionDescriptor descriptor,
-                                          PIDialogPlayOptions options)
+PIActionDescriptor
+CPSAutomate::PlayEvent(DescriptorEventID event,
+                       PIActionDescriptor descriptor,
+                       PIDialogPlayOptions options)
 {
     TRACE("Automate PlayEvent(%s, 0x%x, 0x%x)\n",
           KeyToString(event),
@@ -586,7 +638,8 @@ PIActionDescriptor CPSAutomate::PlayEvent(DescriptorEventID event,
 /////////////////////////////////////////////////////////////////////////////
 // CPSAutomate event playback - steganography
 
-void CPSAutomate::PlayeventFilterATM(int nRadius, int nAlpha, bool bKeepNoise)
+void
+CPSAutomate::PlayeventFilterATM(int nRadius, int nAlpha, bool bKeepNoise)
 {
     PIActionDescriptor descriptor = MakeDescriptor();
     // insert parameters
@@ -599,7 +652,8 @@ void CPSAutomate::PlayeventFilterATM(int nRadius, int nAlpha, bool bKeepNoise)
     FreeDescriptor(result);
 }
 
-void CPSAutomate::PlayeventFilterAW(int nRadius, double dNoise, bool bKeepNoise)
+void
+CPSAutomate::PlayeventFilterAW(int nRadius, double dNoise, bool bKeepNoise)
 {
     PIActionDescriptor descriptor = MakeDescriptor();
     // insert parameters
@@ -612,16 +666,17 @@ void CPSAutomate::PlayeventFilterAW(int nRadius, double dNoise, bool bKeepNoise)
     FreeDescriptor(result);
 }
 
-void CPSAutomate::PlayeventFilterWavelet(int nWaveletType,
-                                         int nWaveletPar,
-                                         int nWaveletLevel,
-                                         int nThreshType,
-                                         int nThreshSelector,
-                                         double dThreshCutoff,
-                                         int nTileX,
-                                         int nTileY,
-                                         bool bWholeImage,
-                                         bool bKeepNoise)
+void
+CPSAutomate::PlayeventFilterWavelet(int nWaveletType,
+                                    int nWaveletPar,
+                                    int nWaveletLevel,
+                                    int nThreshType,
+                                    int nThreshSelector,
+                                    double dThreshCutoff,
+                                    int nTileX,
+                                    int nTileY,
+                                    bool bWholeImage,
+                                    bool bKeepNoise)
 {
     PIActionDescriptor descriptor = MakeDescriptor();
     // wavelet basis
@@ -644,7 +699,8 @@ void CPSAutomate::PlayeventFilterWavelet(int nWaveletType,
     FreeDescriptor(result);
 }
 
-void CPSAutomate::PlayeventFilterVariance(int nRadius, int nScale)
+void
+CPSAutomate::PlayeventFilterVariance(int nRadius, int nScale)
 {
     PIActionDescriptor descriptor = MakeDescriptor();
     // insert parameters
@@ -656,11 +712,12 @@ void CPSAutomate::PlayeventFilterVariance(int nRadius, int nScale)
     FreeDescriptor(result);
 }
 
-void CPSAutomate::PlayeventFilterEnergy(const char* sFileName,
-                                        bool bAppend,
-                                        bool bDisplayVariance,
-                                        bool bDisplayEnergy,
-                                        bool bDisplayPixelCount)
+void
+CPSAutomate::PlayeventFilterEnergy(const char* sFileName,
+                                   bool bAppend,
+                                   bool bDisplayVariance,
+                                   bool bDisplayEnergy,
+                                   bool bDisplayPixelCount)
 {
     PIActionDescriptor descriptor = MakeDescriptor();
     // insert parameters
@@ -675,7 +732,8 @@ void CPSAutomate::PlayeventFilterEnergy(const char* sFileName,
     FreeDescriptor(result);
 }
 
-void CPSAutomate::PlayeventFilterExport(const char* sPathName)
+void
+CPSAutomate::PlayeventFilterExport(const char* sPathName)
 {
     PIActionDescriptor descriptor = MakeDescriptor();
     // insert parameters
@@ -686,16 +744,17 @@ void CPSAutomate::PlayeventFilterExport(const char* sPathName)
     FreeDescriptor(result);
 }
 
-void CPSAutomate::PlayeventFilterEmbed(int nEmbedSeed,
-                                       int nEmbedRate,
-                                       double dEmbedStrength,
-                                       bool bInterleave,
-                                       int nInterleaverSeed,
-                                       double dInterleaverDensity,
-                                       int nSourceType,
-                                       int nSourceSeed,
-                                       const char* sSource,
-                                       const char* sCodec)
+void
+CPSAutomate::PlayeventFilterEmbed(int nEmbedSeed,
+                                  int nEmbedRate,
+                                  double dEmbedStrength,
+                                  bool bInterleave,
+                                  int nInterleaverSeed,
+                                  double dInterleaverDensity,
+                                  int nSourceType,
+                                  int nSourceSeed,
+                                  const char* sSource,
+                                  const char* sCodec)
 {
     PIActionDescriptor descriptor = MakeDescriptor();
     // embedding system
@@ -718,27 +777,28 @@ void CPSAutomate::PlayeventFilterEmbed(int nEmbedSeed,
     FreeDescriptor(result);
 }
 
-void CPSAutomate::PlayeventFilterExtract(int nEmbedSeed,
-                                         int nEmbedRate,
-                                         double dEmbedStrength,
-                                         bool bPresetStrength,
-                                         bool bInterleave,
-                                         int nInterleaverSeed,
-                                         double dInterleaverDensity,
-                                         int nSourceType,
-                                         int nSourceSeed,
-                                         const char* sSource,
-                                         const char* sCodec,
-                                         const char* sResults,
-                                         const char* sEmbedded,
-                                         const char* sExtracted,
-                                         const char* sUniform,
-                                         const char* sDecoded,
-                                         bool bPrintBER,
-                                         bool bPrintSNR,
-                                         bool bPrintEstimate,
-                                         bool bPrintChiSquare,
-                                         int nFeedback)
+void
+CPSAutomate::PlayeventFilterExtract(int nEmbedSeed,
+                                    int nEmbedRate,
+                                    double dEmbedStrength,
+                                    bool bPresetStrength,
+                                    bool bInterleave,
+                                    int nInterleaverSeed,
+                                    double dInterleaverDensity,
+                                    int nSourceType,
+                                    int nSourceSeed,
+                                    const char* sSource,
+                                    const char* sCodec,
+                                    const char* sResults,
+                                    const char* sEmbedded,
+                                    const char* sExtracted,
+                                    const char* sUniform,
+                                    const char* sDecoded,
+                                    bool bPrintBER,
+                                    bool bPrintSNR,
+                                    bool bPrintEstimate,
+                                    bool bPrintChiSquare,
+                                    int nFeedback)
 {
     PIActionDescriptor descriptor = MakeDescriptor();
     // embedding system
@@ -777,7 +837,8 @@ void CPSAutomate::PlayeventFilterExtract(int nEmbedSeed,
 /////////////////////////////////////////////////////////////////////////////
 // CPSAutomate event playback - photoshop
 
-void CPSAutomate::PlayeventOpen(const char* sPathName)
+void
+CPSAutomate::PlayeventOpen(const char* sPathName)
 {
     PIActionDescriptor descriptor = MakeDescriptor();
     // insert parameters
@@ -795,7 +856,8 @@ void CPSAutomate::PlayeventOpen(const char* sPathName)
     }
 }
 
-void CPSAutomate::PlayeventClose(bool bSave)
+void
+CPSAutomate::PlayeventClose(bool bSave)
 {
     PIActionDescriptor descriptor = MakeDescriptor();
     // insert parameters
@@ -806,7 +868,8 @@ void CPSAutomate::PlayeventClose(bool bSave)
     FreeDescriptor(result);
 }
 
-void CPSAutomate::PlayeventConvertMode(int nDepth)
+void
+CPSAutomate::PlayeventConvertMode(int nDepth)
 {
     PIActionDescriptor descriptor = MakeDescriptor();
     // insert parameters
@@ -817,7 +880,8 @@ void CPSAutomate::PlayeventConvertMode(int nDepth)
     FreeDescriptor(result);
 }
 
-void CPSAutomate::PlayeventSelectState(int nOffset)
+void
+CPSAutomate::PlayeventSelectState(int nOffset)
 {
     PIActionDescriptor descriptor = MakeDescriptor();
     // insert parameters
@@ -836,9 +900,8 @@ void CPSAutomate::PlayeventSelectState(int nOffset)
     }
 }
 
-void CPSAutomate::PlayeventSaveJPEG(int nJpegQ,
-                                    const char* sPathName,
-                                    bool bCopy)
+void
+CPSAutomate::PlayeventSaveJPEG(int nJpegQ, const char* sPathName, bool bCopy)
 {
     PIActionDescriptor descriptor = MakeDescriptor();
     PIActionDescriptor settings = MakeDescriptor();
@@ -869,7 +932,8 @@ void CPSAutomate::PlayeventSaveJPEG(int nJpegQ,
     }
 }
 
-void CPSAutomate::PlayeventSaveLZW(const char* sPathName, bool bCopy)
+void
+CPSAutomate::PlayeventSaveLZW(const char* sPathName, bool bCopy)
 {
     PIActionDescriptor descriptor = MakeDescriptor();
     PIActionDescriptor settings = MakeDescriptor();
@@ -899,7 +963,8 @@ void CPSAutomate::PlayeventSaveLZW(const char* sPathName, bool bCopy)
     }
 }
 
-void CPSAutomate::PlayeventRevert()
+void
+CPSAutomate::PlayeventRevert()
 {
     // play event
     PIActionDescriptor result =

@@ -40,7 +40,8 @@ namespace libcomm
 // Description
 
 template <class dbl>
-std::string map_straight<libbase::vector, dbl>::description() const
+std::string
+map_straight<libbase::vector, dbl>::description() const
 {
     std::ostringstream sout;
     sout << "Straight Mapper (Vector)";
@@ -58,7 +59,8 @@ map_straight<libbase::vector, dbl>::serialize(std::ostream& sout) const
 }
 
 template <class dbl>
-std::istream& map_straight<libbase::vector, dbl>::serialize(std::istream& sin)
+std::istream&
+map_straight<libbase::vector, dbl>::serialize(std::istream& sin)
 {
     return sin;
 }
@@ -68,7 +70,8 @@ std::istream& map_straight<libbase::vector, dbl>::serialize(std::istream& sin)
 // Description
 
 template <class dbl>
-std::string map_straight<libbase::matrix, dbl>::description() const
+std::string
+map_straight<libbase::matrix, dbl>::description() const
 {
     std::ostringstream sout;
     sout << "Straight Mapper (Matrix) ";
@@ -87,7 +90,8 @@ map_straight<libbase::matrix, dbl>::serialize(std::ostream& sout) const
 }
 
 template <class dbl>
-std::istream& map_straight<libbase::matrix, dbl>::serialize(std::istream& sin)
+std::istream&
+map_straight<libbase::matrix, dbl>::serialize(std::istream& sin)
 {
     return sin;
 }

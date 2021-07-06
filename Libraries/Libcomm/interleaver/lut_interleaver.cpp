@@ -29,8 +29,9 @@ namespace libcomm
 // transform functions
 
 template <class real>
-void lut_interleaver<real>::transform(const libbase::vector<int>& in,
-                                      libbase::vector<int>& out) const
+void
+lut_interleaver<real>::transform(const libbase::vector<int>& in,
+                                 libbase::vector<int>& out) const
 {
     const int tau = lut.size();
     assertalways(in.size() == tau);
@@ -46,8 +47,9 @@ void lut_interleaver<real>::transform(const libbase::vector<int>& in,
 }
 
 template <class real>
-void lut_interleaver<real>::transform(const libbase::matrix<real>& in,
-                                      libbase::matrix<real>& out) const
+void
+lut_interleaver<real>::transform(const libbase::matrix<real>& in,
+                                 libbase::matrix<real>& out) const
 {
     const int tau = lut.size();
     const int K = in.size().cols();
@@ -68,8 +70,9 @@ void lut_interleaver<real>::transform(const libbase::matrix<real>& in,
 }
 
 template <class real>
-void lut_interleaver<real>::inverse(const libbase::matrix<real>& in,
-                                    libbase::matrix<real>& out) const
+void
+lut_interleaver<real>::inverse(const libbase::matrix<real>& in,
+                               libbase::matrix<real>& out) const
 {
     const int tau = lut.size();
     const int K = in.size().cols();

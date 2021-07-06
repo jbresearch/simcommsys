@@ -31,7 +31,8 @@ const libbase::serializer mpsk::shelper("blockmodem", "mpsk", mpsk::create);
 
 // initialization
 
-void mpsk::init(const int m)
+void
+mpsk::init(const int m)
 {
     lut.init(m);
     // allocate symbols using a Gray code sequence
@@ -44,7 +45,8 @@ void mpsk::init(const int m)
 
 // description output
 
-std::string mpsk::description() const
+std::string
+mpsk::description() const
 {
     std::ostringstream sout;
     switch (lut.size()) {
@@ -63,7 +65,8 @@ std::string mpsk::description() const
 
 // object serialization - saving
 
-std::ostream& mpsk::serialize(std::ostream& sout) const
+std::ostream&
+mpsk::serialize(std::ostream& sout) const
 {
     sout << "# Alphabet size in symbols" << std::endl;
     sout << lut.size() << std::endl;
@@ -72,7 +75,8 @@ std::ostream& mpsk::serialize(std::ostream& sout) const
 
 // object serialization - loading
 
-std::istream& mpsk::serialize(std::istream& sin)
+std::istream&
+mpsk::serialize(std::istream& sin)
 {
     int m;
     sin >> libbase::eatcomments >> m >> libbase::verify;

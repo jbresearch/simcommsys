@@ -25,7 +25,8 @@
 namespace libbase
 {
 
-void ofbstream::write_buffer()
+void
+ofbstream::write_buffer()
 {
     // align first bit to write to lsb
     buffer >>= 32 - ptr;
@@ -41,7 +42,8 @@ ofbstream::ofbstream(const char* name) { open(name); }
 
 ofbstream::~ofbstream() { close(); }
 
-void ofbstream::open(const char* name)
+void
+ofbstream::open(const char* name)
 {
     c.open(name,
            std::ios_base::out | std::ios_base::trunc | std::ios_base::binary);
@@ -49,7 +51,8 @@ void ofbstream::open(const char* name)
     buffer = 0;
 }
 
-void ofbstream::close()
+void
+ofbstream::close()
 {
     if (ptr > 0) {
         write_buffer();
@@ -57,7 +60,8 @@ void ofbstream::close()
     c.close();
 }
 
-void ifbstream::read_buffer()
+void
+ifbstream::read_buffer()
 {
     int ch = c.get();
     if (ch != EOF) {
@@ -70,13 +74,18 @@ ifbstream::ifbstream(const char* name) { open(name); }
 
 ifbstream::~ifbstream() { close(); }
 
-void ifbstream::open(const char* name)
+void
+ifbstream::open(const char* name)
 {
     c.open(name, std::ios_base::in | std::ios_base::binary);
     ptr = 0;
     read_buffer();
 }
 
-void ifbstream::close() { c.close(); }
+void
+ifbstream::close()
+{
+    c.close();
+}
 
 } // namespace libbase

@@ -28,7 +28,8 @@ namespace libbase
 
 const double mpreal::base = 10.0;
 
-inline void mpreal::normalise()
+inline void
+mpreal::normalise()
 {
     if (mantissa == 0) {
         exponent = 0;
@@ -57,13 +58,15 @@ mpreal::operator double() const { return mantissa * pow(base, exponent); }
 
 // Base Operations
 
-mpreal& mpreal::operator-()
+mpreal&
+mpreal::operator-()
 {
     mantissa = -mantissa;
     return *this;
 }
 
-mpreal& mpreal::operator+=(const mpreal& a)
+mpreal&
+mpreal::operator+=(const mpreal& a)
 {
     if (mantissa == 0) {
         mantissa = a.mantissa;
@@ -90,14 +93,16 @@ mpreal& mpreal::operator+=(const mpreal& a)
     return *this;
 }
 
-mpreal& mpreal::operator-=(const mpreal& a)
+mpreal&
+mpreal::operator-=(const mpreal& a)
 {
     mpreal x = a;
     *this += -x;
     return *this;
 }
 
-mpreal& mpreal::operator*=(const mpreal& a)
+mpreal&
+mpreal::operator*=(const mpreal& a)
 {
     mantissa *= a.mantissa;
     exponent += a.exponent;
@@ -105,7 +110,8 @@ mpreal& mpreal::operator*=(const mpreal& a)
     return *this;
 }
 
-mpreal& mpreal::operator/=(const mpreal& a)
+mpreal&
+mpreal::operator/=(const mpreal& a)
 {
     mantissa /= a.mantissa;
     exponent -= a.exponent;
@@ -115,7 +121,8 @@ mpreal& mpreal::operator/=(const mpreal& a)
 
 // Input/Output Operations
 
-std::ostream& operator<<(std::ostream& s, const mpreal& x)
+std::ostream&
+operator<<(std::ostream& s, const mpreal& x)
 {
     const std::ios::fmtflags flags = s.flags();
     s.setf(std::ios::fixed, std::ios::floatfield);

@@ -65,7 +65,8 @@ public:
     int overflow(int c = EOF);
 };
 
-inline int tracestreambuf::overflow(int c)
+inline int
+tracestreambuf::overflow(int c)
 {
 #ifndef NDEBUG
     if (c == '\r' || c == '\n') {
@@ -111,7 +112,8 @@ const int ALIGNMENT = 128;
 /*! \brief Checks if a key has been pressed
  * \return true if this has happened
  */
-int keypressed(void)
+int
+keypressed(void)
 {
 #ifdef _WIN32
     return _kbhit();
@@ -141,7 +143,8 @@ int keypressed(void)
 /*! \brief Waits for the user to hit a key and returns its value.
  * \note The user's response is not shown on screen.
  */
-int readkey(void)
+int
+readkey(void)
 {
 #ifdef _WIN32
     return _getch();
@@ -191,7 +194,8 @@ static bool interrupt_caught = false;
  * first time it is called, which generally works fine as this function
  * is meant to be used within a loop as part of the condition statement.
  */
-static void catch_signal(int sig_num)
+static void
+catch_signal(int sig_num)
 {
     trace << "DEBUG (catch_signal): caught signal " << sig_num << std::endl;
     // re-set the signal handler again for next time
@@ -203,7 +207,8 @@ static void catch_signal(int sig_num)
     }
 }
 
-bool interrupted(void)
+bool
+interrupted(void)
 {
     // set the signal handler
     signal(SIGINT, catch_signal);
@@ -213,7 +218,8 @@ bool interrupted(void)
 
 // System error message reporting
 
-std::string getlasterror()
+std::string
+getlasterror()
 {
     std::ostringstream sout;
 #ifdef _WIN32
@@ -229,7 +235,8 @@ std::string getlasterror()
 
 //! Function to skip over whitespace
 
-std::istream& eatwhite(std::istream& is)
+std::istream&
+eatwhite(std::istream& is)
 {
     char c;
     while (is.get(c)) {
@@ -243,7 +250,8 @@ std::istream& eatwhite(std::istream& is)
 
 //! Function to skip over any combination of comments and whitespace
 
-std::istream& eatcomments(std::istream& is)
+std::istream&
+eatcomments(std::istream& is)
 {
     char c;
     while (is.get(c)) {
@@ -264,7 +272,8 @@ std::istream& eatcomments(std::istream& is)
  * If the last stream input did not succeed, throws an exception with
  * details on the stream position where this occurred.
  */
-void check_failedload(std::istream& is)
+void
+check_failedload(std::istream& is)
 {
     if (is.fail()) {
         std::ios::iostate state = is.rdstate();
@@ -287,7 +296,8 @@ void check_failedload(std::istream& is)
  * throws an exception with details on the stream position where this occurred.
  * All data left from this position onwards is also returned.
  */
-void check_incompleteload(std::istream& is)
+void
+check_incompleteload(std::istream& is)
 {
     libbase::eatcomments(is);
     if (!is.eof()) {
@@ -307,7 +317,8 @@ void check_incompleteload(std::istream& is)
  * If the last stream input failed an error message is shown, and the program
  * is stopped.
  */
-std::istream& verify(std::istream& is)
+std::istream&
+verify(std::istream& is)
 {
     check_failedload(is);
     return is;
@@ -319,7 +330,8 @@ std::istream& verify(std::istream& is)
  * If the last stream input failed, or if there is still data left on the
  * stream, an error message is shown, and the program is stopped.
  */
-std::istream& verifycomplete(std::istream& is)
+std::istream&
+verifycomplete(std::istream& is)
 {
     check_failedload(is);
     check_incompleteload(is);

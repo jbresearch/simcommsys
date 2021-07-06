@@ -32,10 +32,8 @@ static char THIS_FILE[] = __FILE__;
 namespace libwin
 {
 
-LRESULT CALLBACK AFX_EXPORT CHistogram2DWndProc(HWND hWnd,
-                                                UINT message,
-                                                WPARAM wParam,
-                                                LPARAM lParam)
+LRESULT CALLBACK AFX_EXPORT
+CHistogram2DWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
@@ -73,7 +71,8 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CHistogram2D message handlers
 
-void CHistogram2D::OnPaint()
+void
+CHistogram2D::OnPaint()
 {
     CPaintDC dc(this); // device context for painting
 
@@ -104,7 +103,8 @@ void CHistogram2D::OnPaint()
     // Do not call CWnd::OnPaint() for painting messages
 }
 
-void CHistogram2D::OnUser(WPARAM wParam, LPARAM lParam)
+void
+CHistogram2D::OnUser(WPARAM wParam, LPARAM lParam)
 {
     using libbase::trace;
     libbase::matrix<int>* data = (libbase::matrix<int>*)wParam;
@@ -117,7 +117,8 @@ void CHistogram2D::OnUser(WPARAM wParam, LPARAM lParam)
     Invalidate(false);
 }
 
-bool CHistogram2D::RegisterWndClass(HINSTANCE hInstance)
+bool
+CHistogram2D::RegisterWndClass(HINSTANCE hInstance)
 {
     WNDCLASS wc;
     wc.lpszClassName = "Histogram2D";
@@ -133,7 +134,8 @@ bool CHistogram2D::RegisterWndClass(HINSTANCE hInstance)
     return (::RegisterClass(&wc) != 0);
 }
 
-void CHistogram2D::UpdateData(CWnd* pWnd, libbase::matrix<int>& m)
+void
+CHistogram2D::UpdateData(CWnd* pWnd, libbase::matrix<int>& m)
 {
     pWnd->SendMessage(WM_USER, (UINT_PTR)&m);
 }

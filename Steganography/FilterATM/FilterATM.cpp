@@ -51,13 +51,15 @@ CFilterATMApp::CFilterATMApp() : CPSPlugIn(sizeof(SFilterATMData), 101) {}
 // CFilterATMApp filter selector functions
 
 // show the about dialog here
-void CFilterATMApp::FilterAbout(void)
+void
+CFilterATMApp::FilterAbout(void)
 {
     CAboutDlg dlg;
     dlg.DoModal();
 }
 
-void CFilterATMApp::FilterStart(void)
+void
+CFilterATMApp::FilterStart(void)
 {
     // FilterStart will get user parameters if necessary & select the first tile
     CPSPlugIn::FilterStart();
@@ -67,7 +69,8 @@ void CFilterATMApp::FilterStart(void)
     atmfilter<double>::init(m_sData->nRadius, m_sData->nAlpha);
 }
 
-void CFilterATMApp::FilterContinue(void)
+void
+CFilterATMApp::FilterContinue(void)
 {
     // update progress counter
     DisplayTileProgress(0);
@@ -89,7 +92,8 @@ void CFilterATMApp::FilterContinue(void)
     CPSPlugIn::FilterContinue();
 }
 
-void CFilterATMApp::FilterFinish(void)
+void
+CFilterATMApp::FilterFinish(void)
 {
     // stop timer & show final progress indication
     CPSPlugIn::FilterFinish();
@@ -98,7 +102,8 @@ void CFilterATMApp::FilterFinish(void)
 /////////////////////////////////////////////////////////////////////////////
 // CFilterATMApp helper functions
 
-void CFilterATMApp::ShowDialog(void)
+void
+CFilterATMApp::ShowDialog(void)
 {
     CFilterATMDlg dlg;
 
@@ -119,12 +124,14 @@ void CFilterATMApp::ShowDialog(void)
     SetShowDialog(false);
 }
 
-void CFilterATMApp::InitPointer(char* sData)
+void
+CFilterATMApp::InitPointer(char* sData)
 {
     m_sData = (SFilterATMData*)sData;
 }
 
-void CFilterATMApp::InitParameters()
+void
+CFilterATMApp::InitParameters()
 {
     m_sData->nAlpha = 1;
     m_sData->nRadius = 1;
@@ -134,10 +141,11 @@ void CFilterATMApp::InitParameters()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterATMApp scripting support
 
-void CFilterATMApp::ReadScriptParameter(PIReadDescriptor token,
-                                        DescriptorKeyID key,
-                                        DescriptorTypeID type,
-                                        int32 flags)
+void
+CFilterATMApp::ReadScriptParameter(PIReadDescriptor token,
+                                   DescriptorKeyID key,
+                                   DescriptorTypeID type,
+                                   int32 flags)
 {
     switch (key) {
     case keyRadius:
@@ -155,7 +163,8 @@ void CFilterATMApp::ReadScriptParameter(PIReadDescriptor token,
     }
 }
 
-void CFilterATMApp::WriteScriptParameters(PIWriteDescriptor token)
+void
+CFilterATMApp::WriteScriptParameters(PIWriteDescriptor token)
 {
     PutInteger(token, keyRadius, m_sData->nRadius);
     PutInteger(token, keyAlpha, m_sData->nAlpha);
@@ -169,10 +178,11 @@ void CFilterATMApp::WriteScriptParameters(PIWriteDescriptor token)
 
 CFilterATMApp theApp;
 
-DLLExport SPAPI void PluginMain(const short nSelector,
-                                FilterRecord* pFilterRecord,
-                                long* pData,
-                                short* pResult)
+DLLExport SPAPI void
+PluginMain(const short nSelector,
+           FilterRecord* pFilterRecord,
+           long* pData,
+           short* pResult)
 {
     theApp.Main(nSelector, pFilterRecord, pData, pResult);
 }

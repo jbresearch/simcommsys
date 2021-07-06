@@ -29,8 +29,9 @@
 namespace po = boost::program_options;
 
 template <template <class> class C>
-C<int> createsource(libbase::random& r,
-                    const std::shared_ptr<libcomm::codec<C, double>> cdc)
+C<int>
+createsource(libbase::random& r,
+             const std::shared_ptr<libcomm::codec<C, double>> cdc)
 {
     const int tau = cdc->input_block_size();
     C<int> source(tau);
@@ -42,7 +43,8 @@ C<int> createsource(libbase::random& r,
 }
 
 template <class S, template <class> class C>
-void process(const std::string& fname, int count)
+void
+process(const std::string& fname, int count)
 {
     // Communication system
     std::shared_ptr<libcomm::codec<C, double>> cdc =
@@ -77,7 +79,8 @@ void process(const std::string& fname, int count)
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     libbase::cputimer tmain("Main timer");
 
@@ -144,8 +147,7 @@ int main(int argc, char* argv[])
             std::cerr << "Unrecognized symbol type: " << type << std::endl;
             return 1;
         }
-    }
-    else {
+    } else {
         std::cerr << "Unrecognized container type: " << container << std::endl;
         return 1;
     }

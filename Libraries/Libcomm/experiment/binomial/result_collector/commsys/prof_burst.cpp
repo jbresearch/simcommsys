@@ -28,9 +28,10 @@ namespace libcomm
 
 // commsys functions
 
-void prof_burst::updateresults(libbase::vector<double>& result,
-                               const libbase::vector<int>& source,
-                               const libbase::vector<int>& decoded) const
+void
+prof_burst::updateresults(libbase::vector<double>& result,
+                          const libbase::vector<int>& source,
+                          const libbase::vector<int>& decoded) const
 {
     assert(source.size() == get_symbolsperblock());
     assert(decoded.size() == get_symbolsperblock());

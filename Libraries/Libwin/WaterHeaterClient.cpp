@@ -32,7 +32,8 @@ using std::cerr;
 
 // Internal helper functions
 
-double CWaterHeaterClient::KTemp(double V, double Vcjc) const
+double
+CWaterHeaterClient::KTemp(double V, double Vcjc) const
 {
     // This function returns the Temperature in C, given the measured TC
     // voltage and the CJC voltage. For K type thermocouple. Valid for 0-500C.
@@ -63,7 +64,8 @@ double CWaterHeaterClient::KTemp(double V, double Vcjc) const
     return t;
 }
 
-double CWaterHeaterClient::KVolt(double T) const
+double
+CWaterHeaterClient::KVolt(double T) const
 {
     // This function returns the K type Voltage in Volts given the temperature
     // in C Matlab original: Mario Farrugia, 2005 Conversion to C: Johann A.

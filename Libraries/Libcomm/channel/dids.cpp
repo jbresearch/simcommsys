@@ -48,7 +48,8 @@ namespace libcomm
  * user never calls set_parameter(), the values are valid.
  */
 template <class real>
-void dids<real>::init()
+void
+dids<real>::init()
 {
     // channel parameters
     Pd = fixedPd;
@@ -87,7 +88,8 @@ void dids<real>::init()
  * (where Z_1 refers to the first input bit X_1 and output bit Y_1).
  */
 template <class real>
-void dids<real>::generate_state_sequence(const int tau)
+void
+dids<real>::generate_state_sequence(const int tau)
 {
     // Allocate and initialize Markov state sequence
     Z.init(tau);
@@ -139,7 +141,8 @@ void dids<real>::generate_state_sequence(const int tau)
  * P_R otherwise
  */
 template <class real>
-libbase::vector<bool> dids<real>::generate_error_sequence()
+libbase::vector<bool>
+dids<real>::generate_error_sequence()
 {
     // determine required length
     const int tau = Z.size();
@@ -219,7 +222,8 @@ dids<real>::dids(const bool varyPd,
  * the class will be in a known determined state).
  */
 template <class real>
-void dids<real>::set_parameter(const double p)
+void
+dids<real>::set_parameter(const double p)
 {
     set_pd(varyPd ? p : fixedPd);
     set_pi(varyPi ? p : fixedPi);
@@ -237,7 +241,8 @@ void dids<real>::set_parameter(const double p)
  * condition.
  */
 template <class real>
-double dids<real>::get_parameter() const
+double
+dids<real>::get_parameter() const
 {
     assert(varyPd || varyPi || varyPr || varyPb);
     if (varyPd) {
@@ -275,7 +280,8 @@ double dids<real>::get_parameter() const
  * \sa corrupt()
  */
 template <class real>
-void dids<real>::transmit(const array1b_t& tx, array1b_t& rx)
+void
+dids<real>::transmit(const array1b_t& tx, array1b_t& rx)
 {
     const int tau = tx.size();
     // Generate Markov state sequence
@@ -314,7 +320,8 @@ void dids<real>::transmit(const array1b_t& tx, array1b_t& rx)
 // description output
 
 template <class real>
-std::string dids<real>::description() const
+std::string
+dids<real>::description() const
 {
     std::ostringstream sout;
     sout << "DIDS channel with BPMR-based receiver (";
@@ -354,7 +361,8 @@ std::string dids<real>::description() const
 // object serialization - saving
 
 template <class real>
-std::ostream& dids<real>::serialize(std::ostream& sout) const
+std::ostream&
+dids<real>::serialize(std::ostream& sout) const
 {
     sout << "# Version" << std::endl;
     sout << 1 << std::endl;
@@ -385,7 +393,8 @@ std::ostream& dids<real>::serialize(std::ostream& sout) const
  * \version 1 Initial version
  */
 template <class real>
-std::istream& dids<real>::serialize(std::istream& sin)
+std::istream&
+dids<real>::serialize(std::istream& sin)
 {
     // get format version
     int version;

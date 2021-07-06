@@ -210,7 +210,8 @@ public:
 
 #ifdef __CUDACC__
 template <class T>
-inline void value<T>::allocate()
+inline void
+value<T>::allocate()
 {
     // only allocate on an empty matrix
     assert(data == NULL);
@@ -219,7 +220,8 @@ inline void value<T>::allocate()
 }
 
 template <class T>
-inline void value<T>::free()
+inline void
+value<T>::free()
 {
     // if there is something allocated, free it
     if (data != NULL) {
@@ -246,7 +248,8 @@ inline value<T>::value(const value<T>& x) : data(NULL)
 }
 
 template <class T>
-inline value<T>& value<T>::operator=(const value<T>& x)
+inline value<T>&
+value<T>::operator=(const value<T>& x)
 {
 #    ifdef __CUDA_ARCH__ // Device code path (for all compute capabilities)
     copyfrom(x);
@@ -266,7 +269,8 @@ inline value<T>& value<T>::operator=(const value<T>& x)
 }
 
 template <class T>
-inline value<T>& value<T>::operator=(const T& x)
+inline value<T>&
+value<T>::operator=(const T& x)
 {
     // (re-)allocate memory if needed
     init();
@@ -429,7 +433,8 @@ public:
 #ifdef __CUDACC__
 
 template <class T>
-inline value_reference<T>& value_reference<T>::operator=(const T& x)
+inline value_reference<T>&
+value_reference<T>::operator=(const T& x)
 {
     assert(Base::data != NULL);
     // copy data from host to device

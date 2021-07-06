@@ -30,7 +30,8 @@ namespace libimage
 // initialization
 
 template <class T>
-void atmfilter<T>::init(const int d, const int alpha)
+void
+atmfilter<T>::init(const int d, const int alpha)
 {
     m_d = d;
     m_alpha = alpha;
@@ -39,8 +40,9 @@ void atmfilter<T>::init(const int d, const int alpha)
 // filter process loop (only updates output matrix)
 
 template <class T>
-void atmfilter<T>::process(const libbase::matrix<T>& in,
-                           libbase::matrix<T>& out) const
+void
+atmfilter<T>::process(const libbase::matrix<T>& in,
+                      libbase::matrix<T>& out) const
 {
     const int M = in.size().rows();
     const int N = in.size().cols();

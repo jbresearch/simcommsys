@@ -66,7 +66,8 @@ inline logreal::logreal(const double m)
 
 inline logreal::operator double() const { return exp(-logval); }
 
-inline logreal& logreal::operator+=(const logreal& a)
+inline logreal&
+logreal::operator+=(const logreal& a)
 {
     if (logval < a.logval) {
         logval = logval - log(1 + exp(logval - a.logval));
@@ -77,7 +78,8 @@ inline logreal& logreal::operator+=(const logreal& a)
     return *this;
 }
 
-inline logreal& logreal::operator*=(const logreal& a)
+inline logreal&
+logreal::operator*=(const logreal& a)
 {
     logval += a.logval;
 
@@ -88,7 +90,8 @@ inline logreal& logreal::operator*=(const logreal& a)
     return *this;
 }
 
-inline logreal& logreal::operator/=(const logreal& a)
+inline logreal&
+logreal::operator/=(const logreal& a)
 {
     logval -= a.logval;
 
@@ -102,21 +105,24 @@ inline logreal& logreal::operator/=(const logreal& a)
 // The following functions operate through the above - no need to make them
 // friends
 
-inline logreal operator+(const logreal& a, const logreal& b)
+inline logreal
+operator+(const logreal& a, const logreal& b)
 {
     logreal result = a;
     result += b;
     return result;
 }
 
-inline logreal operator*(const logreal& a, const logreal& b)
+inline logreal
+operator*(const logreal& a, const logreal& b)
 {
     logreal result = a;
     result *= b;
     return result;
 }
 
-inline logreal operator/(const logreal& a, const logreal& b)
+inline logreal
+operator/(const logreal& a, const logreal& b)
 {
     logreal result = a;
     result /= b;

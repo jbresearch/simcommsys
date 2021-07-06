@@ -316,7 +316,8 @@ public:
 
 #ifdef __CUDACC__
 template <class T>
-inline void vector<T>::allocate(int n)
+inline void
+vector<T>::allocate(int n)
 {
     test_invariant();
     // check input parameters
@@ -337,7 +338,8 @@ inline void vector<T>::allocate(int n)
 }
 
 template <class T>
-inline void vector<T>::free()
+inline void
+vector<T>::free()
 {
     test_invariant();
     // if there is something allocated, free it
@@ -376,7 +378,8 @@ inline vector<T>::vector(const vector<T>& x) : data(NULL), length(0)
 }
 
 template <class T>
-inline vector<T>& vector<T>::operator=(const vector<T>& x)
+inline vector<T>&
+vector<T>::operator=(const vector<T>& x)
 {
 #    ifdef __CUDA_ARCH__ // Device code path (for all compute capabilities)
     copyfrom(x);
@@ -398,7 +401,8 @@ inline vector<T>& vector<T>::operator=(const vector<T>& x)
 }
 
 template <class T>
-inline vector<T>& vector<T>::operator=(const libbase::vector<T>& x)
+inline vector<T>&
+vector<T>::operator=(const libbase::vector<T>& x)
 {
 #    if DEBUG >= 2
     debug_header(std::cerr);

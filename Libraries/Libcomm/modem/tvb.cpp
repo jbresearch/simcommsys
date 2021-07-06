@@ -52,7 +52,8 @@ namespace libcomm
  * \warning Although this is a const method, the internal state is updated
  */
 template <class sig, class real, class real2>
-int tvb<sig, real, real2>::select_codebook(const int i) const
+int
+tvb<sig, real, real2>::select_codebook(const int i) const
 {
     // Select codebook
     int cb_index = 0;
@@ -116,8 +117,8 @@ int tvb<sig, real, real2>::select_codebook(const int i) const
  * \warning Although this is a const method, the internal state is updated
  */
 template <class sig, class real, class real2>
-libbase::vector<sig> tvb<sig, real, real2>::select_marker(const int i,
-                                                          const int n) const
+libbase::vector<sig>
+tvb<sig, real, real2>::select_marker(const int i, const int n) const
 {
     array1s_t marker_vector;
     // Apply marker vector
@@ -157,9 +158,10 @@ libbase::vector<sig> tvb<sig, real, real2>::select_marker(const int i,
  * \warning Although this is a const method, the internal state is updated
  */
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::fill_encoding_table(array2vs_t& encoding_table,
-                                                const int offset,
-                                                const int length) const
+void
+tvb<sig, real, real2>::fill_encoding_table(array2vs_t& encoding_table,
+                                           const int offset,
+                                           const int length) const
 {
     // Sanity checks
     assert(offset >= 0 && offset < encoding_table.size().rows());
@@ -192,7 +194,8 @@ void tvb<sig, real, real2>::fill_encoding_table(array2vs_t& encoding_table,
 }
 
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::advance() const
+void
+tvb<sig, real, real2>::advance() const
 {
     // Inherit sizes
     const int N = this->input_block_size();
@@ -223,9 +226,10 @@ void tvb<sig, real, real2>::advance() const
 // encoding and decoding functions
 
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::domodulate(const int q,
-                                       const array1i_t& encoded,
-                                       array1s_t& tx)
+void
+tvb<sig, real, real2>::domodulate(const int q,
+                                  const array1i_t& encoded,
+                                  array1s_t& tx)
 {
     // Inherit sizes
     const int N = this->input_block_size();
@@ -255,19 +259,21 @@ void tvb<sig, real, real2>::domodulate(const int q,
 }
 
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::dodemodulate(const channel<sig>& chan,
-                                         const array1s_t& rx,
-                                         array1vd_t& ptable)
+void
+tvb<sig, real, real2>::dodemodulate(const channel<sig>& chan,
+                                    const array1s_t& rx,
+                                    array1vd_t& ptable)
 {
     const array1vd_t app; // empty APP table
     dodemodulate(chan, rx, app, ptable);
 }
 
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::dodemodulate(const channel<sig>& chan,
-                                         const array1s_t& rx,
-                                         const array1vd_t& app,
-                                         array1vd_t& ptable)
+void
+tvb<sig, real, real2>::dodemodulate(const channel<sig>& chan,
+                                    const array1s_t& rx,
+                                    const array1vd_t& app,
+                                    array1vd_t& ptable)
 {
     // Initialize for known-start
     init(chan);
@@ -306,7 +312,8 @@ void tvb<sig, real, real2>::dodemodulate(const channel<sig>& chan,
 }
 
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::dodemodulate(
+void
+tvb<sig, real, real2>::dodemodulate(
     const channel<sig>& chan,
     const array1s_t& rx,
     const libbase::size_type<libbase::vector> lookahead,
@@ -346,16 +353,17 @@ void tvb<sig, real, real2>::dodemodulate(
  * the appropriate parameters.
  */
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::demodulate_wrapper(const channel<sig>& chan,
-                                               const array1s_t& rx,
-                                               const int lookahead,
-                                               const array1d_t& sof_prior,
-                                               const array1d_t& eof_prior,
-                                               const array1vd_t& app,
-                                               array1vd_t& ptable,
-                                               array1d_t& sof_post,
-                                               array1d_t& eof_post,
-                                               const int offset)
+void
+tvb<sig, real, real2>::demodulate_wrapper(const channel<sig>& chan,
+                                          const array1s_t& rx,
+                                          const int lookahead,
+                                          const array1d_t& sof_prior,
+                                          const array1d_t& eof_prior,
+                                          const array1vd_t& app,
+                                          array1vd_t& ptable,
+                                          array1d_t& sof_post,
+                                          array1d_t& eof_post,
+                                          const int offset)
 {
     // Inherit block size from last modulation step
     const int N = this->input_block_size();
@@ -430,9 +438,10 @@ void tvb<sig, real, real2>::demodulate_wrapper(const channel<sig>& chan,
 // Setup procedure
 
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::init(const channel<sig>& chan,
-                                 const array1d_t& sof_pdf,
-                                 const int offset)
+void
+tvb<sig, real, real2>::init(const channel<sig>& chan,
+                            const array1d_t& sof_pdf,
+                            const int offset)
 {
 #ifndef NDEBUG
     libbase::cputimer t("t_init");
@@ -520,7 +529,8 @@ void tvb<sig, real, real2>::init(const channel<sig>& chan,
 }
 
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::init()
+void
+tvb<sig, real, real2>::init()
 {
 #ifndef NDEBUG
     // If applicable, display codebook
@@ -543,8 +553,9 @@ void tvb<sig, real, real2>::init()
  * \brief Check that all entries in table have the given length
  */
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::validate_sequence_length(const array1vs_t& table,
-                                                     const int n) const
+void
+tvb<sig, real, real2>::validate_sequence_length(const array1vs_t& table,
+                                                const int n) const
 {
     assertalways(table.size() > 0);
     for (int i = 0; i < table.size(); i++) {
@@ -556,8 +567,8 @@ void tvb<sig, real, real2>::validate_sequence_length(const array1vs_t& table,
  * \brief Set up codebook with the given codewords
  */
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::copycodebook(const int i,
-                                         const array1vs_t& codebook_s)
+void
+tvb<sig, real, real2>::copycodebook(const int i, const array1vs_t& codebook_s)
 {
     assertalways(codebook_s.size() == q);
     const int n = codebook_s(0).size();
@@ -573,8 +584,9 @@ void tvb<sig, real, real2>::copycodebook(const int i,
  */
 
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::showcodebook(std::ostream& sout,
-                                         const array1vs_t& codebook) const
+void
+tvb<sig, real, real2>::showcodebook(std::ostream& sout,
+                                    const array1vs_t& codebook) const
 {
     assert(codebook.size() == q);
     for (int d = 0; d < q; d++) {
@@ -588,7 +600,8 @@ void tvb<sig, real, real2>::showcodebook(std::ostream& sout,
  */
 
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::showcodebooks(std::ostream& sout) const
+void
+tvb<sig, real, real2>::showcodebooks(std::ostream& sout) const
 {
     assert(num_codebooks() >= 1);
     assert(codebook_tables.size().cols() == q);
@@ -605,7 +618,8 @@ void tvb<sig, real, real2>::showcodebooks(std::ostream& sout) const
  */
 
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::validatecodebook() const
+void
+tvb<sig, real, real2>::validatecodebook() const
 {
     assertalways(num_codebooks() >= 1);
     assertalways(codebook_tables.size().cols() == q);
@@ -625,7 +639,8 @@ void tvb<sig, real, real2>::validatecodebook() const
  */
 
 template <class sig, class real, class real2>
-double tvb<sig, real, real2>::get_avg_codeword_length() const
+double
+tvb<sig, real, real2>::get_avg_codeword_length() const
 {
     double n = 0;
     switch (codebook_type) {
@@ -656,7 +671,8 @@ double tvb<sig, real, real2>::get_avg_codeword_length() const
  */
 
 template <class sig, class real, class real2>
-int tvb<sig, real, real2>::get_max_codeword_length() const
+int
+tvb<sig, real, real2>::get_max_codeword_length() const
 {
     int n = 0;
     assert(num_codebooks() >= 1);
@@ -671,7 +687,8 @@ int tvb<sig, real, real2>::get_max_codeword_length() const
  */
 
 template <class sig, class real, class real2>
-int tvb<sig, real, real2>::get_codeword_length() const
+int
+tvb<sig, real, real2>::get_codeword_length() const
 {
     assert(num_codebooks() == 1);
     return codebook_tables(0, 0).size();
@@ -682,7 +699,8 @@ int tvb<sig, real, real2>::get_codeword_length() const
  */
 
 template <class sig, class real, class real2>
-int tvb<sig, real, real2>::get_sequence_length(const int N) const
+int
+tvb<sig, real, real2>::get_sequence_length(const int N) const
 {
     int tau = 0;
     switch (codebook_type) {
@@ -711,12 +729,13 @@ int tvb<sig, real, real2>::get_sequence_length(const int N) const
 //! Inform user if state space limits have changed (debug build only)
 
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::checkforchanges(int m1_min,
-                                            int m1_max,
-                                            int mn_min,
-                                            int mn_max,
-                                            int mtau_min,
-                                            int mtau_max) const
+void
+tvb<sig, real, real2>::checkforchanges(int m1_min,
+                                       int m1_max,
+                                       int mn_min,
+                                       int mn_max,
+                                       int mtau_min,
+                                       int mtau_max) const
 {
 #ifndef NDEBUG
     static int last_m1_min = 0;
@@ -749,8 +768,8 @@ void tvb<sig, real, real2>::checkforchanges(int m1_min,
 //! Inform user if storage mode has changed
 
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::checkforchanges(bool globalstore,
-                                            int required) const
+void
+tvb<sig, real, real2>::checkforchanges(bool globalstore, int required) const
 {
     static bool first_time = true;
     static bool last_globalstore = false;
@@ -770,8 +789,8 @@ void tvb<sig, real, real2>::checkforchanges(bool globalstore,
 // Marker-specific setup functions
 
 template <class sig, class real, class real2>
-void tvb<sig, real, real2>::set_thresholds(const real th_inner,
-                                           const real th_outer)
+void
+tvb<sig, real, real2>::set_thresholds(const real th_inner, const real th_outer)
 {
     this->th_inner = th_inner;
     this->th_outer = th_outer;
@@ -781,7 +800,8 @@ void tvb<sig, real, real2>::set_thresholds(const real th_inner,
 // description output
 
 template <class sig, class real, class real2>
-std::string tvb<sig, real, real2>::description() const
+std::string
+tvb<sig, real, real2>::description() const
 {
     std::ostringstream sout;
     sout << "Time-Varying Block Code (q=" << q << ", ";
@@ -868,7 +888,8 @@ std::string tvb<sig, real, real2>::description() const
 // object serialization - saving
 
 template <class sig, class real, class real2>
-std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
+std::ostream&
+tvb<sig, real, real2>::serialize(std::ostream& sout) const
 {
     sout << "# Version" << std::endl;
     sout << 12 << std::endl;
@@ -977,7 +998,8 @@ std::ostream& tvb<sig, real, real2>::serialize(std::ostream& sout) const
  */
 
 template <class sig, class real, class real2>
-std::istream& tvb<sig, real, real2>::serialize(std::istream& sin)
+std::istream&
+tvb<sig, real, real2>::serialize(std::istream& sin)
 {
     int temp;
 

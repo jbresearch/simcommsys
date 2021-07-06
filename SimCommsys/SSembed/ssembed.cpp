@@ -31,7 +31,8 @@
 #include <typeinfo>
 
 template <class S>
-libimage::image<S> loadimage(const std::string& fname)
+libimage::image<S>
+loadimage(const std::string& fname)
 {
     // load image from file
     std::ifstream file(fname.c_str(),
@@ -61,10 +62,11 @@ libimage::image<S> loadimage(const std::string& fname)
  */
 
 template <class S, template <class> class C>
-void process(const std::string& systemfile,
-             const std::string& hostfile,
-             std::istream& sin = std::cin,
-             std::ostream& sout = std::cout)
+void
+process(const std::string& systemfile,
+        const std::string& hostfile,
+        std::istream& sin = std::cin,
+        std::ostream& sout = std::cout)
 {
     // Load host medium
     libimage::image<S> hostimage = loadimage<S>(hostfile);
@@ -106,7 +108,8 @@ void process(const std::string& systemfile,
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     libbase::cputimer tmain("Main timer");
 

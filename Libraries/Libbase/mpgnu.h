@@ -134,7 +134,8 @@ inline mpgnu::operator double() const
     return result;
 }
 
-inline mpgnu& mpgnu::operator=(const mpgnu& a)
+inline mpgnu&
+mpgnu::operator=(const mpgnu& a)
 {
 #ifdef USE_GMP
     mpf_set(value, a.value);
@@ -142,7 +143,8 @@ inline mpgnu& mpgnu::operator=(const mpgnu& a)
     return *this;
 }
 
-inline mpgnu& mpgnu::operator=(const double a)
+inline mpgnu&
+mpgnu::operator=(const double a)
 {
 #ifdef USE_GMP
     mpf_set_d(value, a);
@@ -152,7 +154,8 @@ inline mpgnu& mpgnu::operator=(const double a)
 
 // Base Operations
 
-inline mpgnu& mpgnu::operator-()
+inline mpgnu&
+mpgnu::operator-()
 {
 #ifdef USE_GMP
     mpf_neg(value, value);
@@ -160,7 +163,8 @@ inline mpgnu& mpgnu::operator-()
     return *this;
 }
 
-inline mpgnu& mpgnu::operator+=(const mpgnu& a)
+inline mpgnu&
+mpgnu::operator+=(const mpgnu& a)
 {
 #ifdef USE_GMP
     mpf_add(value, value, a.value);
@@ -168,7 +172,8 @@ inline mpgnu& mpgnu::operator+=(const mpgnu& a)
     return *this;
 }
 
-inline mpgnu& mpgnu::operator-=(const mpgnu& a)
+inline mpgnu&
+mpgnu::operator-=(const mpgnu& a)
 {
 #ifdef USE_GMP
     mpf_sub(value, value, a.value);
@@ -176,7 +181,8 @@ inline mpgnu& mpgnu::operator-=(const mpgnu& a)
     return *this;
 }
 
-inline mpgnu& mpgnu::operator*=(const mpgnu& a)
+inline mpgnu&
+mpgnu::operator*=(const mpgnu& a)
 {
 #ifdef USE_GMP
     mpf_mul(value, value, a.value);
@@ -184,7 +190,8 @@ inline mpgnu& mpgnu::operator*=(const mpgnu& a)
     return *this;
 }
 
-inline mpgnu& mpgnu::operator/=(const mpgnu& a)
+inline mpgnu&
+mpgnu::operator/=(const mpgnu& a)
 {
 #ifdef USE_GMP
     mpf_div(value, value, a.value);
@@ -194,7 +201,8 @@ inline mpgnu& mpgnu::operator/=(const mpgnu& a)
 
 // Derived Operations (Friends)
 
-inline mpgnu operator+(const mpgnu& a, const mpgnu& b)
+inline mpgnu
+operator+(const mpgnu& a, const mpgnu& b)
 {
     mpgnu result;
 #ifdef USE_GMP
@@ -203,7 +211,8 @@ inline mpgnu operator+(const mpgnu& a, const mpgnu& b)
     return result;
 }
 
-inline mpgnu operator-(const mpgnu& a, const mpgnu& b)
+inline mpgnu
+operator-(const mpgnu& a, const mpgnu& b)
 {
     mpgnu result;
 #ifdef USE_GMP
@@ -212,7 +221,8 @@ inline mpgnu operator-(const mpgnu& a, const mpgnu& b)
     return result;
 }
 
-inline mpgnu operator*(const mpgnu& a, const mpgnu& b)
+inline mpgnu
+operator*(const mpgnu& a, const mpgnu& b)
 {
     mpgnu result;
 #ifdef USE_GMP
@@ -221,7 +231,8 @@ inline mpgnu operator*(const mpgnu& a, const mpgnu& b)
     return result;
 }
 
-inline mpgnu operator/(const mpgnu& a, const mpgnu& b)
+inline mpgnu
+operator/(const mpgnu& a, const mpgnu& b)
 {
     mpgnu result;
 #ifdef USE_GMP
@@ -232,7 +243,8 @@ inline mpgnu operator/(const mpgnu& a, const mpgnu& b)
 
 // Input/Output Operations
 
-inline std::ostream& operator<<(std::ostream& s, const mpgnu& x)
+inline std::ostream&
+operator<<(std::ostream& s, const mpgnu& x)
 {
 #ifdef USE_GMP
     const std::ios::fmtflags flags = s.flags();
@@ -251,7 +263,8 @@ inline std::ostream& operator<<(std::ostream& s, const mpgnu& x)
     return s;
 }
 
-inline std::istream& operator>>(std::istream& s, mpgnu& x)
+inline std::istream&
+operator>>(std::istream& s, mpgnu& x)
 {
 #ifdef USE_GMP
     std::string str;

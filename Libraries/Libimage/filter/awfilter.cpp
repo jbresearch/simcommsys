@@ -27,7 +27,8 @@ namespace libimage
 // initialization
 
 template <class T>
-void awfilter<T>::init(const int d, const double noise)
+void
+awfilter<T>::init(const int d, const double noise)
 {
     m_d = d;
     m_autoestimate = false;
@@ -35,7 +36,8 @@ void awfilter<T>::init(const int d, const double noise)
 }
 
 template <class T>
-void awfilter<T>::init(const int d)
+void
+awfilter<T>::init(const int d)
 {
     m_d = d;
     m_autoestimate = true;
@@ -45,14 +47,16 @@ void awfilter<T>::init(const int d)
 // parameter estimation (updates internal statistics)
 
 template <class T>
-void awfilter<T>::reset()
+void
+awfilter<T>::reset()
 {
     if (m_autoestimate)
         rvglobal.reset();
 }
 
 template <class T>
-void awfilter<T>::update(const libbase::matrix<T>& in)
+void
+awfilter<T>::update(const libbase::matrix<T>& in)
 {
     if (!m_autoestimate) {
         return;
@@ -81,7 +85,8 @@ void awfilter<T>::update(const libbase::matrix<T>& in)
 }
 
 template <class T>
-void awfilter<T>::estimate()
+void
+awfilter<T>::estimate()
 {
     if (m_autoestimate) {
         m_noise = rvglobal.mean();
@@ -92,8 +97,9 @@ void awfilter<T>::estimate()
 // filter process loop (only updates output matrix)
 
 template <class T>
-void awfilter<T>::process(const libbase::matrix<T>& in,
-                          libbase::matrix<T>& out) const
+void
+awfilter<T>::process(const libbase::matrix<T>& in,
+                     libbase::matrix<T>& out) const
 {
     const int M = in.size().rows();
     const int N = in.size().cols();

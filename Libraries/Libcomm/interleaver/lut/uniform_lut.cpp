@@ -28,7 +28,8 @@ namespace libcomm
 // initialisation
 
 template <class real>
-void uniform_lut<real>::init(const int tau, const int m)
+void
+uniform_lut<real>::init(const int tau, const int m)
 {
     uniform_lut<real>::tau = tau;
     uniform_lut<real>::m = m;
@@ -38,7 +39,8 @@ void uniform_lut<real>::init(const int tau, const int m)
 // intra-frame functions
 
 template <class real>
-void uniform_lut<real>::advance()
+void
+uniform_lut<real>::advance()
 {
     // create array to hold 'used' status of possible lut values
     libbase::vector<bool> used(tau - m);
@@ -62,7 +64,8 @@ void uniform_lut<real>::advance()
 // description output
 
 template <class real>
-std::string uniform_lut<real>::description() const
+std::string
+uniform_lut<real>::description() const
 {
     std::ostringstream sout;
     sout << "Uniform Interleaver";
@@ -77,7 +80,8 @@ std::string uniform_lut<real>::description() const
 // object serialization - saving
 
 template <class real>
-std::ostream& uniform_lut<real>::serialize(std::ostream& sout) const
+std::ostream&
+uniform_lut<real>::serialize(std::ostream& sout) const
 {
     sout << "# Interleaver size" << std::endl;
     sout << this->lut.size() << std::endl;
@@ -89,7 +93,8 @@ std::ostream& uniform_lut<real>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class real>
-std::istream& uniform_lut<real>::serialize(std::istream& sin)
+std::istream&
+uniform_lut<real>::serialize(std::istream& sin)
 {
     int tau, m;
     sin >> libbase::eatcomments >> tau >> libbase::verify;

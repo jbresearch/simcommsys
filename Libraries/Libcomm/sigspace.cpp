@@ -26,7 +26,8 @@ namespace libcomm
 
 // stream input / output
 
-std::ostream& operator<<(std::ostream& s, const sigspace& x)
+std::ostream&
+operator<<(std::ostream& s, const sigspace& x)
 {
     s.setf(std::ios::fixed, std::ios::floatfield);
     s.precision(6);
@@ -37,7 +38,8 @@ std::ostream& operator<<(std::ostream& s, const sigspace& x)
     return s;
 }
 
-std::istream& operator>>(std::istream& s, sigspace& x)
+std::istream&
+operator>>(std::istream& s, sigspace& x)
 {
     double i = 0, q = 0;
     char c = 0;

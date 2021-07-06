@@ -43,7 +43,8 @@ pacifier::pacifier(const std::string& name)
  * This function keeps a timer that automatically resets and stops (at
  * beginning and end values respectively), to display estimated time remaining.
  */
-std::string pacifier::update(int complete, int total)
+std::string
+pacifier::update(int complete, int total)
 {
     // if output is disabled or not needed, return immediately
     if (quiet || total == 0) {

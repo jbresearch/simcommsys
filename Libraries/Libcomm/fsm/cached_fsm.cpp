@@ -29,7 +29,8 @@ const libbase::serializer
 
 // Main intialization routine
 
-void cached_fsm::init(fsm& encoder)
+void
+cached_fsm::init(fsm& encoder)
 {
     // Initialise internal description of FSM
     k = encoder.num_inputs();
@@ -73,14 +74,16 @@ void cached_fsm::init(fsm& encoder)
 
 // Serialization
 
-std::ostream& cached_fsm::serialize(std::ostream& sout) const
+std::ostream&
+cached_fsm::serialize(std::ostream& sout) const
 {
     sout << "#: Base Encoder" << std::endl;
     sout << base_serialization;
     return sout;
 }
 
-std::istream& cached_fsm::serialize(std::istream& sin)
+std::istream&
+cached_fsm::serialize(std::istream& sin)
 {
     std::shared_ptr<fsm> encoder;
     sin >> libbase::eatcomments >> encoder >> libbase::verify;

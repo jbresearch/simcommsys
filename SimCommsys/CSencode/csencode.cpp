@@ -27,9 +27,10 @@
 #include <iostream>
 
 template <class S, template <class> class C>
-void process(const std::string& fname,
-             std::istream& sin = std::cin,
-             std::ostream& sout = std::cout)
+void
+process(const std::string& fname,
+        std::istream& sin = std::cin,
+        std::ostream& sout = std::cout)
 {
     // Communication system
     std::shared_ptr<libcomm::commsys<S, C>> system =
@@ -64,7 +65,8 @@ void process(const std::string& fname,
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     libbase::cputimer tmain("Main timer");
 

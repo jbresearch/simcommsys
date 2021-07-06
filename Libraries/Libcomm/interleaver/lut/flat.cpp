@@ -29,7 +29,8 @@ namespace libcomm
 // initialization
 
 template <class real>
-void flat<real>::init(const int tau)
+void
+flat<real>::init(const int tau)
 {
     this->lut.init(tau);
     for (int i = 0; i < tau; i++) {
@@ -40,7 +41,8 @@ void flat<real>::init(const int tau)
 // description output
 
 template <class real>
-std::string flat<real>::description() const
+std::string
+flat<real>::description() const
 {
     std::ostringstream sout;
     sout << "Flat Interleaver";
@@ -50,7 +52,8 @@ std::string flat<real>::description() const
 // object serialization - saving
 
 template <class real>
-std::ostream& flat<real>::serialize(std::ostream& sout) const
+std::ostream&
+flat<real>::serialize(std::ostream& sout) const
 {
     sout << "# Interleaver size" << std::endl;
     sout << this->lut.size() << std::endl;
@@ -60,7 +63,8 @@ std::ostream& flat<real>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class real>
-std::istream& flat<real>::serialize(std::istream& sin)
+std::istream&
+flat<real>::serialize(std::istream& sin)
 {
     int tau;
     sin >> libbase::eatcomments >> tau >> libbase::verify;

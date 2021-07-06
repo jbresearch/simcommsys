@@ -34,10 +34,8 @@ static char THIS_FILE[] = __FILE__;
 namespace libwin
 {
 
-LRESULT CALLBACK AFX_EXPORT CStatusGraphWndProc(HWND hWnd,
-                                                UINT message,
-                                                WPARAM wParam,
-                                                LPARAM lParam)
+LRESULT CALLBACK AFX_EXPORT
+CStatusGraphWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
 
@@ -74,7 +72,8 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CStatusGraph message handlers
 
-void CStatusGraph::OnPaint()
+void
+CStatusGraph::OnPaint()
 {
     CPaintDC dc(this); // device context for painting
 
@@ -104,7 +103,8 @@ void CStatusGraph::OnPaint()
     // Do not call CWnd::OnPaint() for painting messages
 }
 
-void CStatusGraph::OnLButtonDown(UINT nFlags, CPoint point)
+void
+CStatusGraph::OnLButtonDown(UINT nFlags, CPoint point)
 {
     CFileDialog dlg(FALSE, "txt", "*.txt");
     if (dlg.DoModal() == IDOK) {
@@ -119,14 +119,16 @@ void CStatusGraph::OnLButtonDown(UINT nFlags, CPoint point)
     }
 }
 
-void CStatusGraph::OnReset(WPARAM wParam, LPARAM lParam)
+void
+CStatusGraph::OnReset(WPARAM wParam, LPARAM lParam)
 {
     m_data.RemoveAll();
     m_maxval = 0;
     Invalidate(true);
 }
 
-void CStatusGraph::OnInsert(WPARAM wParam, LPARAM lParam)
+void
+CStatusGraph::OnInsert(WPARAM wParam, LPARAM lParam)
 {
     double* x = (double*)wParam;
     m_data.AddHead(*x);
@@ -137,7 +139,8 @@ void CStatusGraph::OnInsert(WPARAM wParam, LPARAM lParam)
     delete x;
 }
 
-bool CStatusGraph::RegisterWndClass(HINSTANCE hInstance)
+bool
+CStatusGraph::RegisterWndClass(HINSTANCE hInstance)
 {
     WNDCLASS wc;
     wc.lpszClassName = "StatusGraph";
@@ -153,12 +156,14 @@ bool CStatusGraph::RegisterWndClass(HINSTANCE hInstance)
     return (::RegisterClass(&wc) != 0);
 }
 
-void CStatusGraph::Reset(CWnd* pWnd)
+void
+CStatusGraph::Reset(CWnd* pWnd)
 {
     pWnd->SendMessage(WM_STATUSGRAPH_RESET);
 }
 
-void CStatusGraph::Insert(CWnd* pWnd, const double x)
+void
+CStatusGraph::Insert(CWnd* pWnd, const double x)
 {
     pWnd->SendMessage(WM_STATUSGRAPH_INSERT, (UINT_PTR) new double(x));
 }

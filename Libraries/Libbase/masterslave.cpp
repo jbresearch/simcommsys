@@ -46,14 +46,16 @@ namespace libbase
 
 // items for use by everyone
 
-void masterslave::fregister(const std::string& name, std::shared_ptr<functor> f)
+void
+masterslave::fregister(const std::string& name, std::shared_ptr<functor> f)
 {
     trace << "DEBUG: Register function \"" << name << "\" - ";
     fmap[name] = f;
     trace << fmap.size() << " functions registered, done." << std::endl;
 }
 
-void masterslave::fcall(const std::string& name)
+void
+masterslave::fcall(const std::string& name)
 {
     trace << "DEBUG: Call function \"" << name << "\" - ";
     typename std::map<std::string, std::shared_ptr<functor>>::iterator search =
@@ -138,14 +140,16 @@ masterslave::enable(const std::string& endpoint, bool quiet, int priority)
 
 // static items (for use by slaves)
 
-void masterslave::close()
+void
+masterslave::close()
 {
     std::cerr << "Losing connection with master [" << master->getip() << ":"
               << master->getport() << "]" << std::endl;
     master.reset();
 }
 
-void masterslave::setpriority(const int priority)
+void
+masterslave::setpriority(const int priority)
 {
 #ifdef _WIN32
 #else
@@ -154,7 +158,8 @@ void masterslave::setpriority(const int priority)
 #endif
 }
 
-void masterslave::connect(const std::string& hostname, const int16u port)
+void
+masterslave::connect(const std::string& hostname, const int16u port)
 {
     std::cerr << "Connecting to " << hostname << ":" << port << std::endl;
     master.reset(new socket);
@@ -164,7 +169,8 @@ void masterslave::connect(const std::string& hostname, const int16u port)
     }
 }
 
-std::string masterslave::gethostname()
+std::string
+masterslave::gethostname()
 {
     const int len = HOST_NAME_MAX + 1;
     char hostname[len];
@@ -172,7 +178,8 @@ std::string masterslave::gethostname()
     return hostname;
 }
 
-int masterslave::gettag()
+int
+masterslave::gettag()
 {
     walltimer tslave("masterslave_slave");
     int tag;
@@ -182,14 +189,16 @@ int masterslave::gettag()
     return tag;
 }
 
-void masterslave::sendname()
+void
+masterslave::sendname()
 {
     std::string hostname = gethostname();
     send(hostname);
     trace << "send hostname [" << hostname << "]" << std::endl;
 }
 
-void masterslave::sendcputime()
+void
+masterslave::sendcputime()
 {
     const double cputime = tcpu.elapsed();
     tcpu.start();
@@ -198,7 +207,8 @@ void masterslave::sendcputime()
     trace << "send usage [" << cputime << "]" << std::endl;
 }
 
-void masterslave::dowork()
+void
+masterslave::dowork()
 {
     std::string key;
     receive(key);
@@ -206,9 +216,10 @@ void masterslave::dowork()
     fcall(key);
 }
 
-void masterslave::slaveprocess(const std::string& hostname,
-                               const int16u port,
-                               const int priority)
+void
+masterslave::slaveprocess(const std::string& hostname,
+                          const int16u port,
+                          const int priority)
 {
     setpriority(priority);
     connect(hostname, port);
@@ -252,7 +263,8 @@ void masterslave::slaveprocess(const std::string& hostname,
 
 // slave -> master communication
 
-void masterslave::send(const void* buf, const size_t len)
+void
+masterslave::send(const void* buf, const size_t len)
 {
     if (!master->insistwrite(buf, len)) {
         std::ostringstream sstr;
@@ -267,21 +279,24 @@ void masterslave::send(const void* buf, const size_t len)
  * \note Vector size is sent first; this makes foreknowledge of size and
  * pre-initialization unnecessary.
  */
-void masterslave::send(const vector<double>& x)
+void
+masterslave::send(const vector<double>& x)
 {
     const int count = x.size();
     send(count);
     send(&x(0), sizeof(double) * count);
 }
 
-void masterslave::send(const std::string& x)
+void
+masterslave::send(const std::string& x)
 {
     int len = int(x.length());
     send(len);
     send(x.c_str(), len);
 }
 
-void masterslave::receive(void* buf, const size_t len)
+void
+masterslave::receive(void* buf, const size_t len)
 {
     if (!master->insistread(buf, len)) {
         std::ostringstream sstr;
@@ -292,7 +307,8 @@ void masterslave::receive(void* buf, const size_t len)
     }
 }
 
-void masterslave::receive(std::string& x)
+void
+masterslave::receive(std::string& x)
 {
     int len;
     receive(len);
@@ -303,7 +319,8 @@ void masterslave::receive(std::string& x)
 
 // non-static items (for use by master)
 
-void masterslave::close(std::shared_ptr<socket> s)
+void
+masterslave::close(std::shared_ptr<socket> s)
 {
     std::cerr << "Slave [" << s->getip() << ":" << s->getport() << "] gone";
     smap.erase(s);
@@ -316,7 +333,8 @@ void masterslave::close(std::shared_ptr<socket> s)
  *
  * \todo Specify what happens if the system was never initialized
  */
-void masterslave::disable()
+void
+masterslave::disable()
 {
     // if the master-slave system is not initialized, there is nothing to do
     if (!initialized) {
@@ -348,7 +366,8 @@ void masterslave::disable()
 
 // slave-interface functions
 
-std::shared_ptr<socket> masterslave::find_new_slave()
+std::shared_ptr<socket>
+masterslave::find_new_slave()
 {
     for (std::map<std::shared_ptr<socket>, state_t>::iterator i = smap.begin();
          i != smap.end();
@@ -360,7 +379,8 @@ std::shared_ptr<socket> masterslave::find_new_slave()
     return std::shared_ptr<socket>();
 }
 
-std::shared_ptr<socket> masterslave::find_idle_slave()
+std::shared_ptr<socket>
+masterslave::find_idle_slave()
 {
     for (std::map<std::shared_ptr<socket>, state_t>::iterator i = smap.begin();
          i != smap.end();
@@ -372,7 +392,8 @@ std::shared_ptr<socket> masterslave::find_idle_slave()
     return std::shared_ptr<socket>();
 }
 
-std::shared_ptr<socket> masterslave::find_pending_slave()
+std::shared_ptr<socket>
+masterslave::find_pending_slave()
 {
     for (std::map<std::shared_ptr<socket>, state_t>::iterator i = smap.begin();
          i != smap.end();
@@ -386,7 +407,8 @@ std::shared_ptr<socket> masterslave::find_pending_slave()
 
 /*! \brief Number of slaves currently in 'working' state
  */
-int masterslave::count_workingslaves() const
+int
+masterslave::count_workingslaves() const
 {
     int count = 0;
     for (std::map<std::shared_ptr<socket>, state_t>::const_iterator i =
@@ -399,7 +421,8 @@ int masterslave::count_workingslaves() const
     return count;
 }
 
-bool masterslave::anyoneworking() const
+bool
+masterslave::anyoneworking() const
 {
     for (std::map<std::shared_ptr<socket>, state_t>::const_iterator i =
              smap.begin();
@@ -417,7 +440,8 @@ bool masterslave::anyoneworking() const
  * \param timeout Return with no event if this many seconds elapses (zero
  * means wait forever; this is the default)
  */
-void masterslave::waitforevent(const bool acceptnew, const double timeout)
+void
+masterslave::waitforevent(const bool acceptnew, const double timeout)
 {
     static bool firsttime = true;
     if (firsttime) {
@@ -466,7 +490,8 @@ void masterslave::waitforevent(const bool acceptnew, const double timeout)
  *
  * \note Slave must be in the 'idle' state
  */
-void masterslave::resetslave(std::shared_ptr<socket> s)
+void
+masterslave::resetslave(std::shared_ptr<socket> s)
 {
     assertalways(smap[s] == state_idle);
     smap[s] = state_new;
@@ -475,7 +500,8 @@ void masterslave::resetslave(std::shared_ptr<socket> s)
 /*!
  * \brief Reset all 'idle' slaves to the 'new' state
  */
-void masterslave::resetslaves()
+void
+masterslave::resetslaves()
 {
     while (std::shared_ptr<socket> s = find_idle_slave()) {
         smap[s] = state_new;
@@ -484,9 +510,8 @@ void masterslave::resetslaves()
 
 // master -> slave communication
 
-void masterslave::send(std::shared_ptr<socket> s,
-                       const void* buf,
-                       const size_t len)
+void
+masterslave::send(std::shared_ptr<socket> s, const void* buf, const size_t len)
 {
     if (!s->insistwrite(buf, len)) {
         std::ostringstream sstr;
@@ -499,7 +524,8 @@ void masterslave::send(std::shared_ptr<socket> s,
 /*! \brief Accumulate CPU time for given slave
  * \param s Slave from which to get CPU time
  */
-void masterslave::updatecputime(std::shared_ptr<socket> s)
+void
+masterslave::updatecputime(std::shared_ptr<socket> s)
 {
     double cputime;
     send(s, int(tag_getcputime));
@@ -507,9 +533,8 @@ void masterslave::updatecputime(std::shared_ptr<socket> s)
     cputimeused += cputime;
 }
 
-void masterslave::receive(std::shared_ptr<socket> s,
-                          void* buf,
-                          const size_t len)
+void
+masterslave::receive(std::shared_ptr<socket> s, void* buf, const size_t len)
 {
     if (!s->insistread(buf, len)) {
         std::ostringstream sstr;
@@ -524,7 +549,8 @@ void masterslave::receive(std::shared_ptr<socket> s,
  * \note Vector size is obtained first; this makes foreknowledge of size and
  * pre-initialization unnecessary.
  */
-void masterslave::receive(std::shared_ptr<socket> s, vector<double>& x)
+void
+masterslave::receive(std::shared_ptr<socket> s, vector<double>& x)
 {
     // get vector size first
     int count;
@@ -534,7 +560,8 @@ void masterslave::receive(std::shared_ptr<socket> s, vector<double>& x)
     receive(s, &x(0), sizeof(double) * count);
 }
 
-void masterslave::receive(std::shared_ptr<socket> s, std::string& x)
+void
+masterslave::receive(std::shared_ptr<socket> s, std::string& x)
 {
     int len;
     receive(s, len);

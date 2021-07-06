@@ -94,7 +94,8 @@ public:
     }
 };
 
-std::shared_ptr<libcomm::experiment> createsystem(const std::string& fname)
+std::shared_ptr<libcomm::experiment>
+createsystem(const std::string& fname)
 {
     const libcomm::serializer_libcomm my_serializer_libcomm;
     // load system from string representation
@@ -105,7 +106,8 @@ std::shared_ptr<libcomm::experiment> createsystem(const std::string& fname)
     return system;
 }
 
-libbase::vector<double> getlinrange(double beg, double end, double step)
+libbase::vector<double>
+getlinrange(double beg, double end, double step)
 {
     // validate range
     int steps = int(floor((end - beg) / step) + 1);
@@ -121,7 +123,8 @@ libbase::vector<double> getlinrange(double beg, double end, double step)
     return pset;
 }
 
-libbase::vector<double> getlogrange(double beg, double end, double mul)
+libbase::vector<double>
+getlogrange(double beg, double end, double mul)
 {
     // validate range
     int steps = 0;
@@ -147,7 +150,8 @@ libbase::vector<double> getlogrange(double beg, double end, double mul)
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     libbase::cputimer tmain("Main timer");
 

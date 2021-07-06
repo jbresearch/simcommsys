@@ -38,7 +38,8 @@ CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
     //}}AFX_DATA_INIT
 }
 
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
+void
+CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CAboutDlg)
@@ -75,7 +76,8 @@ CAutomateGraphingDlg::CAutomateGraphingDlg(CWnd* pParent /*=NULL*/)
     //}}AFX_DATA_INIT
 }
 
-void CAutomateGraphingDlg::DoDataExchange(CDataExchange* pDX)
+void
+CAutomateGraphingDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CAutomateGraphingDlg)
@@ -107,7 +109,8 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CAutomateGraphingDlg message handlers
 
-BOOL CAutomateGraphingDlg::OnInitDialog()
+BOOL
+CAutomateGraphingDlg::OnInitDialog()
 {
     CDialog::OnInitDialog();
 
@@ -120,7 +123,8 @@ BOOL CAutomateGraphingDlg::OnInitDialog()
     // EXCEPTION: OCX Property Pages should return FALSE
 }
 
-void CAutomateGraphingDlg::OnParametersBrowse()
+void
+CAutomateGraphingDlg::OnParametersBrowse()
 {
     CFileDialog dlg(TRUE, NULL, m_sParameters);
     if (dlg.DoModal() == IDOK) {
@@ -129,7 +133,8 @@ void CAutomateGraphingDlg::OnParametersBrowse()
     }
 }
 
-void CAutomateGraphingDlg::OnResultsBrowse()
+void
+CAutomateGraphingDlg::OnResultsBrowse()
 {
     CFileDialog dlg(
         FALSE, NULL, m_sResults.IsEmpty() ? "results.txt" : m_sResults);
@@ -139,7 +144,8 @@ void CAutomateGraphingDlg::OnResultsBrowse()
     }
 }
 
-void CAutomateGraphingDlg::OnJpeg()
+void
+CAutomateGraphingDlg::OnJpeg()
 {
     m_bJpeg = ((CButton*)GetDlgItem(IDC_JPEG))->GetCheck();
     GetDlgItem(IDC_JPEGQ_MIN)->EnableWindow(m_bJpeg);
@@ -147,7 +153,8 @@ void CAutomateGraphingDlg::OnJpeg()
     GetDlgItem(IDC_JPEGQ_STEP)->EnableWindow(m_bJpeg);
 }
 
-void CAutomateGraphingDlg::OnOK()
+void
+CAutomateGraphingDlg::OnOK()
 {
     // extra validation
     if (!m_bPrintBER && !m_bPrintSNR && !m_bPrintEstimate &&

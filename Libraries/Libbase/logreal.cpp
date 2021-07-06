@@ -26,7 +26,8 @@ namespace libbase
 
 // Input/Output Operations
 
-std::ostream& operator<<(std::ostream& s, const logreal& x)
+std::ostream&
+operator<<(std::ostream& s, const logreal& x)
 {
     const double lg = -x.logval / log(10.0);
 

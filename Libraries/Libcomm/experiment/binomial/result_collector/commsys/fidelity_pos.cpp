@@ -34,9 +34,10 @@ namespace libcomm
  * every iteration that needs to be performed. Eventually these will be
  * divided by the respective multiplicity to get the average error rates.
  */
-void fidelity_pos::updateresults(libbase::vector<double>& result,
-                                 const libbase::vector<int>& act_drift,
-                                 const libbase::vector<int>& est_drift) const
+void
+fidelity_pos::updateresults(libbase::vector<double>& result,
+                            const libbase::vector<int>& act_drift,
+                            const libbase::vector<int>& est_drift) const
 {
     const int N = count();
     assert(result.size() == N);

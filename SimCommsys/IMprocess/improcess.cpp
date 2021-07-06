@@ -31,7 +31,8 @@
 
 //! load an image from an input stream
 template <class S>
-libimage::image<S> loadimage(std::istream& sin)
+libimage::image<S>
+loadimage(std::istream& sin)
 {
     libimage::image<S> im;
     im.serialize(sin);
@@ -46,12 +47,13 @@ libimage::image<S> loadimage(std::istream& sin)
  */
 
 template <class S>
-void subsample(const int xoff,
-               const int xinc,
-               const int yoff,
-               const int yinc,
-               std::istream& sin = std::cin,
-               std::ostream& sout = std::cout)
+void
+subsample(const int xoff,
+          const int xinc,
+          const int yoff,
+          const int yinc,
+          std::istream& sin = std::cin,
+          std::ostream& sout = std::cout)
 {
     // Load input image
     libimage::image<S> image_in = loadimage<S>(sin);
@@ -91,7 +93,8 @@ void subsample(const int xoff,
 // Rounding
 
 template <class real>
-inline int round(real x)
+inline int
+round(real x)
 {
     return int(floor(x + 0.5));
 }
@@ -99,7 +102,8 @@ inline int round(real x)
 // Normalized sinc function
 
 template <class real>
-inline real sinc(real x)
+inline real
+sinc(real x)
 {
     const real pi = real(libbase::PI);
 
@@ -111,7 +115,8 @@ inline real sinc(real x)
 }
 
 template <class real>
-inline real sinc(real x, real y)
+inline real
+sinc(real x, real y)
 {
     return sinc(x) * sinc(y);
 }
@@ -119,7 +124,8 @@ inline real sinc(real x, real y)
 // Lanczos impulse response
 
 template <class real>
-inline real lanczos(real x, int a)
+inline real
+lanczos(real x, int a)
 {
     if (x > -a && x < a) {
         return sinc(x) * sinc(x / a);
@@ -129,7 +135,8 @@ inline real lanczos(real x, int a)
 }
 
 template <class real>
-inline real lanczos(real x, real y, int a)
+inline real
+lanczos(real x, real y, int a)
 {
     return lanczos(x, a) * lanczos(y, a);
 }
@@ -137,13 +144,14 @@ inline real lanczos(real x, real y, int a)
 // Resample image using Lanczos filter
 
 template <class S, class real>
-real computeat(int i,
-               int j,
-               const libbase::matrix<S>& x,
-               const real xoff,
-               const real yoff,
-               const real R,
-               const int a)
+real
+computeat(int i,
+          int j,
+          const libbase::matrix<S>& x,
+          const real xoff,
+          const real yoff,
+          const real R,
+          const int a)
 {
     // determine input and output image sizes
     const int xrows = x.size().rows();
@@ -167,11 +175,12 @@ real computeat(int i,
 }
 
 template <class S, class real>
-libbase::matrix<S> resample(const libbase::matrix<S>& x,
-                            const real xoff,
-                            const real yoff,
-                            const real R,
-                            const int a)
+libbase::matrix<S>
+resample(const libbase::matrix<S>& x,
+         const real xoff,
+         const real yoff,
+         const real R,
+         const int a)
 {
     std::cerr << "Lanczos resampling (type " << typeid(real).name()
               << ", off = (" << xoff << "," << yoff << "), R = " << R
@@ -206,12 +215,13 @@ libbase::matrix<S> resample(const libbase::matrix<S>& x,
  */
 
 template <class S, class real>
-void resample(const real xoff,
-              const real yoff,
-              const real scale,
-              const int limit,
-              std::istream& sin = std::cin,
-              std::ostream& sout = std::cout)
+void
+resample(const real xoff,
+         const real yoff,
+         const real scale,
+         const int limit,
+         std::istream& sin = std::cin,
+         std::ostream& sout = std::cout)
 {
     // Load input image
     libimage::image<S> image_in = loadimage<S>(sin);
@@ -259,7 +269,8 @@ void resample(const real xoff,
  */
 
 template <class S>
-void safescale(std::istream& sin = std::cin, std::ostream& sout = std::cout)
+void
+safescale(std::istream& sin = std::cin, std::ostream& sout = std::cout)
 {
     // Load input image
     libimage::image<S> image_in = loadimage<S>(sin);
@@ -304,7 +315,8 @@ void safescale(std::istream& sin = std::cin, std::ostream& sout = std::cout)
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     libbase::cputimer tmain("Main timer");
 

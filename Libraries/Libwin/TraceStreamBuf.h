@@ -49,9 +49,14 @@ public:
     int overflow(int nCh = EOF);
 };
 
-inline int CTraceStreamBuf::underflow() { return EOF; }
+inline int
+CTraceStreamBuf::underflow()
+{
+    return EOF;
+}
 
-inline int CTraceStreamBuf::overflow(int nCh)
+inline int
+CTraceStreamBuf::overflow(int nCh)
 {
     if (nCh == '\r' || nCh == '\n') {
         if (!buffer.IsEmpty()) {

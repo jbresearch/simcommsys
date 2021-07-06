@@ -34,7 +34,8 @@ using libbase::vector;
 // FSM helper operations
 
 template <class G>
-vector<int> gnrcc<G>::determineinput(const vector<int>& input) const
+vector<int>
+gnrcc<G>::determineinput(const vector<int>& input) const
 {
     vector<int> ip = input;
     for (int i = 0; i < ip.size(); i++) {
@@ -47,7 +48,8 @@ vector<int> gnrcc<G>::determineinput(const vector<int>& input) const
 }
 
 template <class G>
-vector<G> gnrcc<G>::determinefeedin(const vector<int>& input) const
+vector<G>
+gnrcc<G>::determinefeedin(const vector<int>& input) const
 {
     for (int i = 0; i < input.size(); i++) {
         assert(input(i) != fsm::tail);
@@ -60,7 +62,8 @@ vector<G> gnrcc<G>::determinefeedin(const vector<int>& input) const
 // FSM state operations (getting and resetting)
 
 template <class G>
-void gnrcc<G>::resetcircular(const vector<int>& zerostate, int n)
+void
+gnrcc<G>::resetcircular(const vector<int>& zerostate, int n)
 {
     failwith("Function not implemented.");
 }
@@ -68,7 +71,8 @@ void gnrcc<G>::resetcircular(const vector<int>& zerostate, int n)
 // Description
 
 template <class G>
-std::string gnrcc<G>::description() const
+std::string
+gnrcc<G>::description() const
 {
     std::ostringstream sout;
     sout << "NRC code " << ccfsm<G>::description();
@@ -78,13 +82,15 @@ std::string gnrcc<G>::description() const
 // Serialization Support
 
 template <class G>
-std::ostream& gnrcc<G>::serialize(std::ostream& sout) const
+std::ostream&
+gnrcc<G>::serialize(std::ostream& sout) const
 {
     return ccfsm<G>::serialize(sout);
 }
 
 template <class G>
-std::istream& gnrcc<G>::serialize(std::istream& sin)
+std::istream&
+gnrcc<G>::serialize(std::istream& sin)
 {
     return ccfsm<G>::serialize(sin);
 }

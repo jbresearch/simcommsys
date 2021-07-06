@@ -57,7 +57,8 @@ namespace libcomm
  * , \mu \in (0, \ldots m1_max) \f]
  */
 template <class G, class real>
-real qids<G, real>::metric_computer::compute_Rtable_entry(
+real
+qids<G, real>::metric_computer::compute_Rtable_entry(
     bool err, int mu, double Ps, double Pd, double Pi)
 {
     const double a1 = (1 - Pi - Pd);
@@ -75,7 +76,8 @@ real qids<G, real>::metric_computer::compute_Rtable_entry(
  * Second row has elements where the last symbol \f[ r_\mu \neq t \f]
  */
 template <class G, class real>
-void qids<G, real>::metric_computer::compute_Rtable(
+void
+qids<G, real>::metric_computer::compute_Rtable(
     array2r_t& Rtable, int m1_max, double Ps, double Pd, double Pi)
 {
     // Allocate required size
@@ -97,14 +99,15 @@ void qids<G, real>::metric_computer::compute_Rtable(
  * function should be called any time a channel parameter is changed.
  */
 template <class G, class real>
-void qids<G, real>::metric_computer::precompute(double Ps,
-                                                double Pd,
-                                                double Pi,
-                                                int T,
-                                                int mT_min,
-                                                int mT_max,
-                                                int m1_min,
-                                                int m1_max)
+void
+qids<G, real>::metric_computer::precompute(double Ps,
+                                           double Pd,
+                                           double Pi,
+                                           int T,
+                                           int mT_min,
+                                           int mT_max,
+                                           int m1_min,
+                                           int m1_max)
 {
     // block size
     this->T = T;
@@ -136,9 +139,10 @@ void qids<G, real>::metric_computer::precompute(double Ps,
 
 // Batch receiver interface - trellis computation
 template <class G, class real>
-void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
-                                                     const array1g_t& rx,
-                                                     array1r_t& ptable) const
+void
+qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
+                                                const array1g_t& rx,
+                                                array1r_t& ptable) const
 {
     // Compute sizes
     const int n = tx.size();
@@ -211,9 +215,10 @@ void qids<G, real>::metric_computer::receive_trellis(const array1g_t& tx,
 
 // Batch receiver interface - lattice computation
 template <class G, class real>
-void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
-                                                     const array1g_t& rx,
-                                                     array1r_t& ptable) const
+void
+qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
+                                                const array1g_t& rx,
+                                                array1r_t& ptable) const
 {
     // Compute sizes
     const int n = tx.size();
@@ -287,7 +292,8 @@ void qids<G, real>::metric_computer::receive_lattice(const array1g_t& tx,
 
 // Batch receiver interface - lattice corridor computation
 template <class G, class real>
-void qids<G, real>::metric_computer::receive_lattice_corridor(
+void
+qids<G, real>::metric_computer::receive_lattice_corridor(
     const array1g_t& tx, const array1g_t& rx, array1r_t& ptable) const
 {
     // Compute sizes
@@ -393,7 +399,8 @@ void qids<G, real>::metric_computer::receive_lattice_corridor(
  * never calls set_parameter(), the values are valid.
  */
 template <class G, class real>
-void qids<G, real>::init()
+void
+qids<G, real>::init()
 {
     // cap on insertions only makes sense with trellis receiver
     assertalways(Icap == 0 || computer.receiver_type == receiver_trellis);
@@ -419,10 +426,11 @@ void qids<G, real>::init()
  * into the output pdf table, going from mT_min to mT_max.
  */
 template <class G, class real>
-libbase::vector<double> qids<G, real>::resize_drift(const array1d_t& in,
-                                                    const int offset,
-                                                    const int mT_min,
-                                                    const int mT_max)
+libbase::vector<double>
+qids<G, real>::resize_drift(const array1d_t& in,
+                            const int offset,
+                            const int mT_min,
+                            const int mT_max)
 {
     // allocate space an initialize
     array1d_t out(mT_max - mT_min + 1);
@@ -458,7 +466,8 @@ libbase::vector<double> qids<G, real>::resize_drift(const array1d_t& in,
  * the class will be in a known determined state).
  */
 template <class G, class real>
-void qids<G, real>::set_parameter(const double p)
+void
+qids<G, real>::set_parameter(const double p)
 {
     const double q = field_utils<G>::elements();
     assertalways(p >= 0 && p <= (q - 1) / q);
@@ -477,7 +486,8 @@ void qids<G, real>::set_parameter(const double p)
  * condition.
  */
 template <class G, class real>
-double qids<G, real>::get_parameter() const
+double
+qids<G, real>::get_parameter() const
 {
     assert(varyPs || varyPd || varyPi);
     if (varyPs) {
@@ -503,7 +513,8 @@ double qids<G, real>::get_parameter() const
  * likely.
  */
 template <class G, class real>
-G qids<G, real>::corrupt(const G& s)
+G
+qids<G, real>::corrupt(const G& s)
 {
     const double p = this->r.fval_closed();
 
@@ -525,11 +536,11 @@ G qids<G, real>::corrupt(const G& s)
  * accordingly.
  */
 template <class G, class real>
-void qids<G, real>::get_drift_pdf(
-    int tau,
-    double Pr,
-    libbase::vector<double>& eof_pdf,
-    libbase::size_type<libbase::vector>& offset) const
+void
+qids<G, real>::get_drift_pdf(int tau,
+                             double Pr,
+                             libbase::vector<double>& eof_pdf,
+                             libbase::size_type<libbase::vector>& offset) const
 {
     // determine the range of drifts we're interested in
     int mT_min, mT_max;
@@ -554,12 +565,12 @@ void qids<G, real>::get_drift_pdf(
  * pdf accordingly and updates the given offset.
  */
 template <class G, class real>
-void qids<G, real>::get_drift_pdf(
-    int tau,
-    double Pr,
-    libbase::vector<double>& sof_pdf,
-    libbase::vector<double>& eof_pdf,
-    libbase::size_type<libbase::vector>& offset) const
+void
+qids<G, real>::get_drift_pdf(int tau,
+                             double Pr,
+                             libbase::vector<double>& sof_pdf,
+                             libbase::vector<double>& eof_pdf,
+                             libbase::size_type<libbase::vector>& offset) const
 {
     // determine the range of drifts we're interested in
     int mT_min, mT_max;
@@ -622,7 +633,8 @@ void qids<G, real>::get_drift_pdf(
  * \sa corrupt()
  */
 template <class G, class real>
-void qids<G, real>::transmit(const array1g_t& tx, array1g_t& rx)
+void
+qids<G, real>::transmit(const array1g_t& tx, array1g_t& rx)
 {
     const int tau = tx.size();
     state_ins.init(tau);
@@ -685,7 +697,8 @@ void qids<G, real>::transmit(const array1g_t& tx, array1g_t& rx)
 // description output
 
 template <class G, class real>
-std::string qids<G, real>::description() const
+std::string
+qids<G, real>::description() const
 {
     std::ostringstream sout;
     sout << field_utils<G>::elements() << "-ary IDS channel (";
@@ -751,7 +764,8 @@ std::string qids<G, real>::description() const
 // object serialization - saving
 
 template <class G, class real>
-std::ostream& qids<G, real>::serialize(std::ostream& sout) const
+std::ostream&
+qids<G, real>::serialize(std::ostream& sout) const
 {
     sout << "# Version" << std::endl;
     sout << 5 << std::endl;
@@ -795,7 +809,8 @@ std::ostream& qids<G, real>::serialize(std::ostream& sout) const
  * \version 5 Added support for caps at transmit side
  */
 template <class G, class real>
-std::istream& qids<G, real>::serialize(std::istream& sin)
+std::istream&
+qids<G, real>::serialize(std::istream& sin)
 {
     // get format version
     int version;

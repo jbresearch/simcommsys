@@ -38,7 +38,8 @@ CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
     //}}AFX_DATA_INIT
 }
 
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
+void
+CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CAboutDlg)
@@ -64,7 +65,8 @@ CFilterVarianceDlg::CFilterVarianceDlg(CWnd* pParent /*=NULL*/)
     //}}AFX_DATA_INIT
 }
 
-void CFilterVarianceDlg::DoDataExchange(CDataExchange* pDX)
+void
+CFilterVarianceDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CFilterVarianceDlg)
@@ -84,7 +86,8 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterVarianceDlg message handlers
 
-BOOL CFilterVarianceDlg::OnInitDialog()
+BOOL
+CFilterVarianceDlg::OnInitDialog()
 {
     CDialog::OnInitDialog();
 
@@ -99,7 +102,8 @@ BOOL CFilterVarianceDlg::OnInitDialog()
     // EXCEPTION: OCX Property Pages should return FALSE
 }
 
-void CFilterVarianceDlg::OnChangeRadius()
+void
+CFilterVarianceDlg::OnChangeRadius()
 {
     m_nRadius = GetDlgItemInt(IDC_RADIUS);
     CString sTemp;
@@ -107,7 +111,8 @@ void CFilterVarianceDlg::OnChangeRadius()
     SetDlgItemText(IDC_REGION, sTemp);
 }
 
-void CFilterVarianceDlg::OnAutoscale()
+void
+CFilterVarianceDlg::OnAutoscale()
 {
     m_bAutoScale = ((CButton*)GetDlgItem(IDC_AUTOSCALE))->GetCheck();
     GetDlgItem(IDC_SCALE)->EnableWindow(!m_bAutoScale);

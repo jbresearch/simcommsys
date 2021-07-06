@@ -42,7 +42,8 @@ CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
     //}}AFX_DATA_INIT
 }
 
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
+void
+CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CAboutDlg)
@@ -76,7 +77,8 @@ CFilterEmbedDlg::CFilterEmbedDlg(CWnd* pParent /*=NULL*/)
     //}}AFX_DATA_INIT
 }
 
-void CFilterEmbedDlg::DoDataExchange(CDataExchange* pDX)
+void
+CFilterEmbedDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CFilterEmbedDlg)
@@ -113,7 +115,8 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterEmbedDlg message handlers
 
-BOOL CFilterEmbedDlg::OnInitDialog()
+BOOL
+CFilterEmbedDlg::OnInitDialog()
 {
     CDialog::OnInitDialog();
 
@@ -136,7 +139,8 @@ BOOL CFilterEmbedDlg::OnInitDialog()
     // EXCEPTION: OCX Property Pages should return FALSE
 }
 
-void CFilterEmbedDlg::OnOK()
+void
+CFilterEmbedDlg::OnOK()
 {
     UpdateData(true);
     if (m_nSourceType == 3 && m_sSource.IsEmpty()) {
@@ -160,7 +164,8 @@ void CFilterEmbedDlg::OnOK()
 
 // message events
 
-void CFilterEmbedDlg::OnChangeEmbedRate()
+void
+CFilterEmbedDlg::OnChangeEmbedRate()
 {
     m_nEmbedRate = GetDlgItemInt(IDC_EMBED_RATE);
     if (m_nEmbedRate < 1) {
@@ -169,7 +174,8 @@ void CFilterEmbedDlg::OnChangeEmbedRate()
     UpdateDisplay();
 }
 
-void CFilterEmbedDlg::OnChangeInterleaverDensity()
+void
+CFilterEmbedDlg::OnChangeInterleaverDensity()
 {
     CString sTemp;
     GetDlgItemText(IDC_INTERLEAVER_DENSITY, sTemp);
@@ -177,7 +183,8 @@ void CFilterEmbedDlg::OnChangeInterleaverDensity()
     UpdateDisplay();
 }
 
-void CFilterEmbedDlg::OnSelchangeSourceType()
+void
+CFilterEmbedDlg::OnSelchangeSourceType()
 {
     UpdateData(true);
     // m_nSourceType = GetDlgItemInt(IDC_SOURCE_TYPE);
@@ -188,7 +195,8 @@ void CFilterEmbedDlg::OnSelchangeSourceType()
     UpdateDisplay();
 }
 
-void CFilterEmbedDlg::OnInterleave()
+void
+CFilterEmbedDlg::OnInterleave()
 {
     m_bInterleave = ((CButton*)GetDlgItem(IDC_INTERLEAVE))->GetCheck();
     GetDlgItem(IDC_INTERLEAVER_DENSITY)->EnableWindow(m_bInterleave);
@@ -198,7 +206,8 @@ void CFilterEmbedDlg::OnInterleave()
 
 // button events
 
-void CFilterEmbedDlg::OnComputeStrength()
+void
+CFilterEmbedDlg::OnComputeStrength()
 {
     CString sTemp;
     CComputeStrengthDlg dlg;
@@ -216,7 +225,8 @@ void CFilterEmbedDlg::OnComputeStrength()
     }
 }
 
-void CFilterEmbedDlg::OnLoadSource()
+void
+CFilterEmbedDlg::OnLoadSource()
 {
     CFileDialog dlg(TRUE, NULL, "*.*");
     if (dlg.DoModal() == IDOK) {
@@ -227,7 +237,8 @@ void CFilterEmbedDlg::OnLoadSource()
     }
 }
 
-void CFilterEmbedDlg::OnLoadCodec()
+void
+CFilterEmbedDlg::OnLoadCodec()
 {
     CFileDialog dlg(TRUE, NULL, "*.*");
     if (dlg.DoModal() == IDOK) {
@@ -238,7 +249,8 @@ void CFilterEmbedDlg::OnLoadCodec()
     }
 }
 
-void CFilterEmbedDlg::OnLoadPuncture()
+void
+CFilterEmbedDlg::OnLoadPuncture()
 {
     CFileDialog dlg(TRUE, NULL, "*.*");
     if (dlg.DoModal() == IDOK) {
@@ -249,7 +261,8 @@ void CFilterEmbedDlg::OnLoadPuncture()
     }
 }
 
-void CFilterEmbedDlg::OnClearSource()
+void
+CFilterEmbedDlg::OnClearSource()
 {
     m_sSource = "";
     SetDlgItemText(IDC_SOURCE, m_sSource);
@@ -257,7 +270,8 @@ void CFilterEmbedDlg::OnClearSource()
     UpdateDisplay();
 }
 
-void CFilterEmbedDlg::OnClearCodec()
+void
+CFilterEmbedDlg::OnClearCodec()
 {
     m_sCodec = "";
     SetDlgItemText(IDC_CODEC, m_sCodec);
@@ -265,7 +279,8 @@ void CFilterEmbedDlg::OnClearCodec()
     UpdateDisplay();
 }
 
-void CFilterEmbedDlg::OnClearPuncture()
+void
+CFilterEmbedDlg::OnClearPuncture()
 {
     m_sPuncture = "";
     SetDlgItemText(IDC_PUNCTURE, m_sPuncture);
@@ -275,7 +290,8 @@ void CFilterEmbedDlg::OnClearPuncture()
 
 // Helper functions
 
-void CFilterEmbedDlg::ComputeFileData()
+void
+CFilterEmbedDlg::ComputeFileData()
 {
     if (!m_sSource.IsEmpty()) {
         CFile file(m_sSource, CFile::modeRead);
@@ -285,7 +301,8 @@ void CFilterEmbedDlg::ComputeFileData()
     }
 }
 
-void CFilterEmbedDlg::ComputeCodecData()
+void
+CFilterEmbedDlg::ComputeCodecData()
 {
     if (!m_sCodec.IsEmpty()) {
         ifstream file(m_sCodec);
@@ -301,7 +318,8 @@ void CFilterEmbedDlg::ComputeCodecData()
     }
 }
 
-void CFilterEmbedDlg::ComputePunctureData()
+void
+CFilterEmbedDlg::ComputePunctureData()
 {
     if (!m_sPuncture.IsEmpty()) {
         ifstream file(m_sPuncture);
@@ -316,7 +334,8 @@ void CFilterEmbedDlg::ComputePunctureData()
     }
 }
 
-void CFilterEmbedDlg::UpdateDisplay()
+void
+CFilterEmbedDlg::UpdateDisplay()
 {
     CString sTemp;
     // size of input file, in bytes

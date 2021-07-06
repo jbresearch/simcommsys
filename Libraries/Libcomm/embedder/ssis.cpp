@@ -39,7 +39,8 @@ using libbase::vector;
 // Internal helper operations
 
 template <class S, class dbl>
-double ssis<S, matrix, dbl>::plmod(const dbl u)
+double
+ssis<S, matrix, dbl>::plmod(const dbl u)
 {
     if (u < 0.5) {
         return u + 0.5;
@@ -51,10 +52,11 @@ double ssis<S, matrix, dbl>::plmod(const dbl u)
 }
 
 template <class S, class dbl>
-const S ssis<S, matrix, dbl>::embed(const int data,
-                                    const S host,
-                                    const dbl u,
-                                    const dbl A)
+const S
+ssis<S, matrix, dbl>::embed(const int data,
+                            const S host,
+                            const dbl u,
+                            const dbl A)
 {
     // Modulate uniform sequence
     const dbl v = (data == 0) ? u : plmod(u);
@@ -67,7 +69,8 @@ const S ssis<S, matrix, dbl>::embed(const int data,
 // Block modem operations
 
 template <class S, class dbl>
-void ssis<S, matrix, dbl>::advance() const
+void
+ssis<S, matrix, dbl>::advance() const
 {
     // Inherit sizes
     const int rows = this->input_block_size().rows();
@@ -88,10 +91,11 @@ void ssis<S, matrix, dbl>::advance() const
 }
 
 template <class S, class dbl>
-void ssis<S, matrix, dbl>::doembed(const int N,
-                                   const matrix<int>& data,
-                                   const matrix<S>& host,
-                                   matrix<S>& tx)
+void
+ssis<S, matrix, dbl>::doembed(const int N,
+                              const matrix<int>& data,
+                              const matrix<S>& host,
+                              matrix<S>& tx)
 {
     // Check validity
     assertalways(data.size() == this->input_block_size());
@@ -137,9 +141,10 @@ void ssis<S, matrix, dbl>::doembed(const int N,
 }
 
 template <class S, class dbl>
-void ssis<S, matrix, dbl>::doextract(const channel<S, matrix>& chan,
-                                     const matrix<S>& rx,
-                                     matrix<array1d_t>& ptable)
+void
+ssis<S, matrix, dbl>::doextract(const channel<S, matrix>& chan,
+                                const matrix<S>& rx,
+                                matrix<array1d_t>& ptable)
 {
     // Check validity
     assertalways(rx.size() == this->input_block_size());
@@ -177,7 +182,8 @@ void ssis<S, matrix, dbl>::doextract(const channel<S, matrix>& chan,
 // Description
 
 template <class S, class dbl>
-std::string ssis<S, matrix, dbl>::description() const
+std::string
+ssis<S, matrix, dbl>::description() const
 {
     std::ostringstream sout;
     sout << "SSIS embedder (A=" << A;
@@ -200,7 +206,8 @@ std::string ssis<S, matrix, dbl>::description() const
 // Serialization Support
 
 template <class S, class dbl>
-std::ostream& ssis<S, matrix, dbl>::serialize(std::ostream& sout) const
+std::ostream&
+ssis<S, matrix, dbl>::serialize(std::ostream& sout) const
 {
     sout << "# Version" << std::endl;
     sout << 1 << std::endl;
@@ -216,7 +223,8 @@ std::ostream& ssis<S, matrix, dbl>::serialize(std::ostream& sout) const
  */
 
 template <class S, class dbl>
-std::istream& ssis<S, matrix, dbl>::serialize(std::istream& sin)
+std::istream&
+ssis<S, matrix, dbl>::serialize(std::istream& sin)
 {
     int version;
     sin >> libbase::eatcomments >> version >> libbase::verify;

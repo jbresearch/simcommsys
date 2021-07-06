@@ -27,7 +27,8 @@ namespace libbase
 /*!
  * \brief Set up LUT with the lowest weight codewords
  */
-int sparse::fill(int i, bitfield suffix, int weight)
+int
+sparse::fill(int i, bitfield suffix, int weight)
 {
     // stop here if we've reached the end
     if (i >= lut.size()) {
@@ -61,7 +62,8 @@ int sparse::fill(int i, bitfield suffix, int weight)
     return i;
 }
 
-void sparse::init(const int q, const int n)
+void
+sparse::init(const int q, const int n)
 {
     assert(q >= 0);
     assert(q <= (1 << n));

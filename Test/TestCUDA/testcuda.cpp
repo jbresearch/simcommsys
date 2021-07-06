@@ -24,7 +24,8 @@
 
 #include <boost/program_options.hpp>
 
-void time_timer()
+void
+time_timer()
 {
     // definitions
     libbase::cputimer t("CPU");
@@ -48,7 +49,8 @@ void time_timer()
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     // Set up user parameters
     namespace po = boost::program_options;

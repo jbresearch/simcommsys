@@ -28,7 +28,8 @@ namespace libbase
 
 // Private functions
 
-void bitfield::set_fromstring(const std::string s)
+void
+bitfield::set_fromstring(const std::string s)
 {
     bits = 0;
     field = 0;
@@ -46,7 +47,8 @@ void bitfield::set_fromstring(const std::string s)
 /*!
  * \brief Convert bitfield to a string representation
  */
-std::string bitfield::asstring() const
+std::string
+bitfield::asstring() const
 {
     std::string s;
 
@@ -83,7 +85,8 @@ bitfield::bitfield(const vector<bool>& v)
  * \brief Convert bitfield to a vector representation
  * \sa bitfield()
  */
-vector<bool> bitfield::asvector() const
+vector<bool>
+bitfield::asvector() const
 {
     vector<bool> result(bits);
 

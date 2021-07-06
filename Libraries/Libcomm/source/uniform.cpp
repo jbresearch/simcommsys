@@ -30,7 +30,8 @@ namespace libcomm
 // object serialization - saving
 
 template <class S, template <class> class C>
-std::ostream& uniform<S, C>::serialize(std::ostream& sout) const
+std::ostream&
+uniform<S, C>::serialize(std::ostream& sout) const
 {
     return sout;
 }
@@ -38,7 +39,8 @@ std::ostream& uniform<S, C>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class S, template <class> class C>
-std::istream& uniform<S, C>::serialize(std::istream& sin)
+std::istream&
+uniform<S, C>::serialize(std::istream& sin)
 {
     return sin;
 }
@@ -48,7 +50,8 @@ std::istream& uniform<S, C>::serialize(std::istream& sin)
 // object serialization - saving
 
 template <template <class> class C>
-std::ostream& uniform<int, C>::serialize(std::ostream& sout) const
+std::ostream&
+uniform<int, C>::serialize(std::ostream& sout) const
 {
     sout << "# Alphabet size" << std::endl;
     sout << alphabet_size << std::endl;
@@ -58,7 +61,8 @@ std::ostream& uniform<int, C>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <template <class> class C>
-std::istream& uniform<int, C>::serialize(std::istream& sin)
+std::istream&
+uniform<int, C>::serialize(std::istream& sin)
 {
     assertalways(sin.good());
     // get alphabet size

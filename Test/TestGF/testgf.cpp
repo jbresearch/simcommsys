@@ -65,7 +65,8 @@ const int aestable[] = {
     0x39, 0x4b, 0xdd, 0x7c, 0x84, 0x97, 0xa2, 0xfd, 0x1c, 0x24, 0x6c, 0xb4,
     0xc7, 0x52, 0xf6, 0x01};
 
-void TestBinaryField()
+void
+TestBinaryField()
 {
     // Create values in the Binary field GF(2): m(x) = 1 { 1 }
     typedef gf<1, 0x3> Binary;
@@ -85,7 +86,8 @@ void TestBinaryField()
     }
 }
 
-void TestRijndaelField()
+void
+TestRijndaelField()
 {
     // Create a value in the Rijndael field GF(2^8): m(x) = 1 { 0001 1011 }
     gf<8, 0x11B> E = 1;
@@ -104,7 +106,8 @@ void TestRijndaelField()
 }
 
 template <int m, int poly>
-void ListField()
+void
+ListField()
 {
     // Compute and display exponential table using {2} as a multiplier
     cout << std::endl
@@ -119,7 +122,8 @@ void ListField()
 }
 
 template <int m, int poly>
-void TestMulDiv()
+void
+TestMulDiv()
 {
     // Compute and display exponential table using {2} as a multiplier
     cout << std::endl
@@ -135,7 +139,8 @@ void TestMulDiv()
     }
 }
 
-void TestGenPowerGF2()
+void
+TestGenPowerGF2()
 {
     cout << std::endl << "Binary generator matrix power sequence:" << std::endl;
     // Create values in the Binary field GF(2): m(x) = 1 { 1 }
@@ -154,7 +159,8 @@ void TestGenPowerGF2()
     }
 }
 
-void TestGenPowerGF8()
+void
+TestGenPowerGF8()
 {
     cout << std::endl << "GF(8) generator matrix power sequence:" << std::endl;
     // Create values in the field GF(8): m(x) = 1 { 011 }
@@ -172,7 +178,8 @@ void TestGenPowerGF8()
     }
 }
 
-void TestFastGF2()
+void
+TestFastGF2()
 {
     gf<1, 0x3> gf1, gf2, gf3;
     gf_fast<1, 0x3> gffast1, gffast2, gffast3;
@@ -207,7 +214,8 @@ void TestFastGF2()
     assert(gffast3.log_gf() == 0); // by convention
 }
 
-void TestFastGF4()
+void
+TestFastGF4()
 {
     gf<2, 0x7> gf1, gf2, gf3, gf4;
     gf_fast<2, 0x7> gffast1, gffast2, gffast3, gffast4;
@@ -370,7 +378,8 @@ void TestFastGF4()
     cout << "This took " << t1 << std::endl;
 }
 
-void TestFastGF8()
+void
+TestFastGF8()
 {
     gf<3, 0xB> gf1, gf2, gf3, gf4;
     gf_fast<3, 0xB> gffast1, gffast2, gffast3, gffast4;
@@ -533,7 +542,8 @@ void TestFastGF8()
     cout << "This took " << t1 << std::endl;
 }
 
-void TestFastGF16()
+void
+TestFastGF16()
 {
     gf<4, 0x13> gf1, gf2, gf3, gf4;
     gf_fast<4, 0x13> gffast1, gffast2, gffast3, gffast4;
@@ -695,7 +705,8 @@ void TestFastGF16()
     cout << "This took " << t1 << std::endl;
 }
 
-void TestFastGF32()
+void
+TestFastGF32()
 {
     gf<5, 0x25> gf1, gf2, gf3, gf4;
     gf_fast<5, 0x25> gffast1, gffast2, gffast3, gffast4;
@@ -858,7 +869,8 @@ void TestFastGF32()
     cout << "This took " << t1 << std::endl;
 }
 
-void TestFastGF64()
+void
+TestFastGF64()
 {
     gf<6, 0x43> gf1, gf2, gf3, gf4;
     gf_fast<6, 0x43> gffast1, gffast2, gffast3, gffast4;
@@ -1021,7 +1033,8 @@ void TestFastGF64()
     cout << "This took " << t1 << std::endl;
 }
 
-void TestFastGF128()
+void
+TestFastGF128()
 {
     gf<7, 0x89> gf1, gf2, gf3, gf4;
     gf_fast<7, 0x89> gffast1, gffast2, gffast3, gffast4;
@@ -1184,7 +1197,8 @@ void TestFastGF128()
     cout << "This took " << t1 << std::endl;
 }
 
-void TestFastGF256()
+void
+TestFastGF256()
 {
     gf<8, 0x11D> gf1, gf2, gf3, gf4;
     gf_fast<8, 0x11D> gffast1, gffast2, gffast3, gffast4;
@@ -1347,7 +1361,8 @@ void TestFastGF256()
 }
 
 // helper function to generate the look up table required by gf_fast
-void ProduceLookupTables()
+void
+ProduceLookupTables()
 {
     /*
      template class gf<9, 0x211> ; // 1 { 0 0001 0001 }
@@ -1388,7 +1403,8 @@ void ProduceLookupTables()
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     TestBinaryField();
     TestRijndaelField();

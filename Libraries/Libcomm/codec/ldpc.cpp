@@ -142,7 +142,8 @@ ldpc<GF_q, real>::ldpc(libbase::matrix<GF_q> paritycheck_mat,
 }
 
 template <class GF_q, class real>
-void ldpc<GF_q, real>::init()
+void
+ldpc<GF_q, real>::init()
 {
 
     // compute the generator matrix for the code
@@ -182,7 +183,8 @@ void ldpc<GF_q, real>::init()
 }
 
 template <class GF_q, class real>
-void ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable)
+void
+ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable)
 {
 
     this->current_iteration = 0;
@@ -246,7 +248,8 @@ void ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable)
     //   }
 }
 template <class GF_q, class real>
-void ldpc<GF_q, real>::isCodeword()
+void
+ldpc<GF_q, real>::isCodeword()
 {
     bool dec_success = true;
     int num_of_entries = 0;
@@ -275,8 +278,9 @@ void ldpc<GF_q, real>::isCodeword()
 #endif
 }
 template <class GF_q, class real>
-void ldpc<GF_q, real>::do_encode(const libbase::vector<int>& source,
-                                 libbase::vector<int>& encoded)
+void
+ldpc<GF_q, real>::do_encode(const libbase::vector<int>& source,
+                            libbase::vector<int>& encoded)
 {
     libbase::linear_code_utils<GF_q>::encode_cw(
         this->gen_matrix, source, encoded);
@@ -299,7 +303,8 @@ void ldpc<GF_q, real>::do_encode(const libbase::vector<int>& source,
 }
 
 template <class GF_q, class real>
-void ldpc<GF_q, real>::softdecode(array1vdbl_t& ri, array1vdbl_t& ro)
+void
+ldpc<GF_q, real>::softdecode(array1vdbl_t& ri, array1vdbl_t& ro)
 {
     // update the iteration counter
     this->current_iteration++;
@@ -372,7 +377,8 @@ void ldpc<GF_q, real>::softdecode(array1vdbl_t& ri, array1vdbl_t& ro)
 }
 
 template <class GF_q, class real>
-std::string ldpc<GF_q, real>::description() const
+std::string
+ldpc<GF_q, real>::description() const
 {
     std::ostringstream sout;
     sout << "LDPC(n=" << this->length_n << ", m=" << this->dim_pchk
@@ -459,7 +465,8 @@ std::string ldpc<GF_q, real>::description() const
  *
  */
 template <class GF_q, class real>
-std::ostream& ldpc<GF_q, real>::serialize(std::ostream& sout) const
+std::ostream&
+ldpc<GF_q, real>::serialize(std::ostream& sout) const
 {
     assertalways(sout.good());
     sout << "# Version" << std::endl;
@@ -526,7 +533,8 @@ std::ostream& ldpc<GF_q, real>::serialize(std::ostream& sout) const
  */
 
 template <class GF_q, class real>
-std::istream& ldpc<GF_q, real>::serialize(std::istream& sin)
+std::istream&
+ldpc<GF_q, real>::serialize(std::istream& sin)
 {
     assertalways(sin.good());
     int version;
@@ -702,7 +710,8 @@ std::istream& ldpc<GF_q, real>::serialize(std::istream& sin)
  */
 
 template <class GF_q, class real>
-std::ostream& ldpc<GF_q, real>::write_alist(std::ostream& sout) const
+std::ostream&
+ldpc<GF_q, real>::write_alist(std::ostream& sout) const
 {
     assertalways(sout.good());
     int numOfElements = GF_q::elements();
@@ -812,7 +821,8 @@ std::ostream& ldpc<GF_q, real>::write_alist(std::ostream& sout) const
  */
 
 template <class GF_q, class real>
-std::istream& ldpc<GF_q, real>::read_alist(std::istream& sin)
+std::istream&
+ldpc<GF_q, real>::read_alist(std::istream& sin)
 {
     assertalways(sin.good());
     int numOfElements = GF_q::elements();

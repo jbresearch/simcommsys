@@ -57,13 +57,15 @@ CFilterExtractApp::CFilterExtractApp()
 // CFilterExtractApp filter selector functions
 
 // show the about dialog here
-void CFilterExtractApp::FilterAbout(void)
+void
+CFilterExtractApp::FilterAbout(void)
 {
     CAboutDlg dlg;
     dlg.DoModal();
 }
 
-void CFilterExtractApp::FilterStart(void)
+void
+CFilterExtractApp::FilterStart(void)
 {
     // tile the image row by row, keeping the same tile area as suggested
     SetTileWidth(GetImageWidth());
@@ -80,7 +82,8 @@ void CFilterExtractApp::FilterStart(void)
     m_vdMessage.init(GetImagePixels());
 }
 
-void CFilterExtractApp::FilterContinue(void)
+void
+CFilterExtractApp::FilterContinue(void)
 {
     // set up library names
     using libbase::matrix;
@@ -349,7 +352,8 @@ void CFilterExtractApp::FilterContinue(void)
     }
 }
 
-void CFilterExtractApp::FilterFinish(void)
+void
+CFilterExtractApp::FilterFinish(void)
 {
     // stop timer & show final progress indication
     CPSPlugIn::FilterFinish();
@@ -404,7 +408,8 @@ void CFilterExtractApp::FilterFinish(void)
 /////////////////////////////////////////////////////////////////////////////
 // CFilterExtractApp helper functions
 
-void CFilterExtractApp::ShowDialog(void)
+void
+CFilterExtractApp::ShowDialog(void)
 {
     CFilterExtractDlg dlg;
 
@@ -479,12 +484,14 @@ void CFilterExtractApp::ShowDialog(void)
     SetShowDialog(false);
 }
 
-void CFilterExtractApp::InitPointer(char* sData)
+void
+CFilterExtractApp::InitPointer(char* sData)
 {
     m_sData = (SFilterExtractData*)sData;
 }
 
-void CFilterExtractApp::InitParameters()
+void
+CFilterExtractApp::InitParameters()
 {
     // embedding system
     m_sData->nEmbedSeed = 0;
@@ -521,10 +528,11 @@ void CFilterExtractApp::InitParameters()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterExtractApp scripting support
 
-void CFilterExtractApp::ReadScriptParameter(PIReadDescriptor token,
-                                            DescriptorKeyID key,
-                                            DescriptorTypeID type,
-                                            int32 flags)
+void
+CFilterExtractApp::ReadScriptParameter(PIReadDescriptor token,
+                                       DescriptorKeyID key,
+                                       DescriptorTypeID type,
+                                       int32 flags)
 {
     switch (key) {
     // embedding system
@@ -612,7 +620,8 @@ void CFilterExtractApp::ReadScriptParameter(PIReadDescriptor token,
     }
 }
 
-void CFilterExtractApp::WriteScriptParameters(PIWriteDescriptor token)
+void
+CFilterExtractApp::WriteScriptParameters(PIWriteDescriptor token)
 {
     // embedding system
     PutInteger(token, keyEmbedSeed, m_sData->nEmbedSeed);
@@ -675,10 +684,11 @@ void CFilterExtractApp::WriteScriptParameters(PIWriteDescriptor token)
 
 CFilterExtractApp theApp;
 
-DLLExport SPAPI void PluginMain(const short nSelector,
-                                FilterRecord* pFilterRecord,
-                                long* pData,
-                                short* pResult)
+DLLExport SPAPI void
+PluginMain(const short nSelector,
+           FilterRecord* pFilterRecord,
+           long* pData,
+           short* pResult)
 {
     theApp.Main(nSelector, pFilterRecord, pData, pResult);
 }

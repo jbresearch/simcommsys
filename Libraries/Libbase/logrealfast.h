@@ -166,7 +166,8 @@ public:
 
 // private helper functions
 
-inline void logrealfast::ensurefinite(double& x)
+inline void
+logrealfast::ensurefinite(double& x)
 {
     // trap infinity
     const int inf = isinf(x);
@@ -197,7 +198,8 @@ inline void logrealfast::ensurefinite(double& x)
  * by swapping a,b as needed, so that we only need to take the exponent of a
  * positive quantity.
  */
-inline logrealfast& logrealfast::operator+=(const logrealfast& b)
+inline logrealfast&
+logrealfast::operator+=(const logrealfast& b)
 {
     static const double lutinvstep = (lutsize - 1) / lutrange;
     const double diff = fabs(b.logval - logval);
@@ -234,7 +236,8 @@ inline logrealfast& logrealfast::operator+=(const logrealfast& b)
  * Since this class cannot represent a negative number, the above is only
  * valid when a > b.
  */
-inline logrealfast& logrealfast::operator-=(const logrealfast& b)
+inline logrealfast&
+logrealfast::operator-=(const logrealfast& b)
 {
     static const double lutinvstep = (lutsize - 1) / lutrange;
     const double diff = logval - b.logval;
@@ -252,28 +255,32 @@ inline logrealfast& logrealfast::operator-=(const logrealfast& b)
 // The following functions operate through the above - no need to make them
 // friends
 
-inline logrealfast operator+(const logrealfast& a, const logrealfast& b)
+inline logrealfast
+operator+(const logrealfast& a, const logrealfast& b)
 {
     logrealfast result = a;
     result += b;
     return result;
 }
 
-inline logrealfast operator-(const logrealfast& a, const logrealfast& b)
+inline logrealfast
+operator-(const logrealfast& a, const logrealfast& b)
 {
     logrealfast result = a;
     result -= b;
     return result;
 }
 
-inline logrealfast operator*(const logrealfast& a, const logrealfast& b)
+inline logrealfast
+operator*(const logrealfast& a, const logrealfast& b)
 {
     logrealfast result = a;
     result *= b;
     return result;
 }
 
-inline logrealfast operator/(const logrealfast& a, const logrealfast& b)
+inline logrealfast
+operator/(const logrealfast& a, const logrealfast& b)
 {
     logrealfast result = a;
     result /= b;

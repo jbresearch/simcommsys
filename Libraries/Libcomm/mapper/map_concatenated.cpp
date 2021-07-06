@@ -28,7 +28,8 @@ namespace libcomm
 // Interface with mapper
 
 template <template <class> class C, class dbl>
-void map_concatenated<C, dbl>::setup()
+void
+map_concatenated<C, dbl>::setup()
 {
     test_invariant();
 
@@ -66,7 +67,8 @@ void map_concatenated<C, dbl>::setup()
 }
 
 template <template <class> class C, class dbl>
-void map_concatenated<C, dbl>::dotransform(const C<int>& in, C<int>& out) const
+void
+map_concatenated<C, dbl>::dotransform(const C<int>& in, C<int>& out) const
 {
     test_invariant();
     // placeholders for intermediate results
@@ -88,8 +90,9 @@ void map_concatenated<C, dbl>::dotransform(const C<int>& in, C<int>& out) const
 }
 
 template <template <class> class C, class dbl>
-void map_concatenated<C, dbl>::dotransform(const C<array1d_t>& pin,
-                                           C<array1d_t>& pout) const
+void
+map_concatenated<C, dbl>::dotransform(const C<array1d_t>& pin,
+                                      C<array1d_t>& pout) const
 {
     test_invariant();
     // placeholders for intermediate results
@@ -111,8 +114,9 @@ void map_concatenated<C, dbl>::dotransform(const C<array1d_t>& pin,
 }
 
 template <template <class> class C, class dbl>
-void map_concatenated<C, dbl>::doinverse(const C<array1d_t>& pin,
-                                         C<array1d_t>& pout) const
+void
+map_concatenated<C, dbl>::doinverse(const C<array1d_t>& pin,
+                                    C<array1d_t>& pout) const
 {
     test_invariant();
 
@@ -138,7 +142,8 @@ void map_concatenated<C, dbl>::doinverse(const C<array1d_t>& pin,
 // Description
 
 template <template <class> class C, class dbl>
-std::string map_concatenated<C, dbl>::description() const
+std::string
+map_concatenated<C, dbl>::description() const
 {
     test_invariant();
     std::ostringstream sout;
@@ -166,7 +171,8 @@ std::string map_concatenated<C, dbl>::description() const
 // Serialization Support
 
 template <template <class> class C, class dbl>
-std::ostream& map_concatenated<C, dbl>::serialize(std::ostream& sout) const
+std::ostream&
+map_concatenated<C, dbl>::serialize(std::ostream& sout) const
 {
     test_invariant();
     sout << "# Version" << std::endl;
@@ -198,7 +204,8 @@ std::ostream& map_concatenated<C, dbl>::serialize(std::ostream& sout) const
  * \version 1 Initial version
  */
 template <template <class> class C, class dbl>
-std::istream& map_concatenated<C, dbl>::serialize(std::istream& sin)
+std::istream&
+map_concatenated<C, dbl>::serialize(std::istream& sin)
 {
     free();
 

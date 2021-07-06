@@ -42,8 +42,8 @@ std::shared_ptr<std::map<std::string, serializer::fptr>> serializer::cmap;
 
 // static functions
 
-std::shared_ptr<serializable> serializer::call(const std::string& base,
-                                               const std::string& derived)
+std::shared_ptr<serializable>
+serializer::call(const std::string& base, const std::string& derived)
 {
     fptr func = (*cmap)[base + ":" + derived];
 
@@ -59,7 +59,8 @@ std::shared_ptr<serializable> serializer::call(const std::string& base,
     return (*func)();
 }
 
-std::list<std::string> serializer::get_base_classes()
+std::list<std::string>
+serializer::get_base_classes()
 {
     std::set<std::string> result;
 
@@ -77,7 +78,8 @@ std::list<std::string> serializer::get_base_classes()
     return std::list<std::string>(result.begin(), result.end());
 }
 
-std::list<std::string> serializer::get_derived_classes(const std::string& base)
+std::list<std::string>
+serializer::get_derived_classes(const std::string& base)
 {
     std::list<std::string> result;
 

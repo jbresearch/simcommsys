@@ -28,7 +28,8 @@ namespace libcomm
 // initialisation functions
 
 template <class real>
-void shift_lut<real>::init(const int amount, const int tau)
+void
+shift_lut<real>::init(const int amount, const int tau)
 {
     shift_lut<real>::amount = amount;
 
@@ -41,7 +42,8 @@ void shift_lut<real>::init(const int amount, const int tau)
 // description output
 
 template <class real>
-std::string shift_lut<real>::description() const
+std::string
+shift_lut<real>::description() const
 {
     std::ostringstream sout;
     sout << "Shift by " << amount << " Interleaver";
@@ -51,7 +53,8 @@ std::string shift_lut<real>::description() const
 // object serialization - saving
 
 template <class real>
-std::ostream& shift_lut<real>::serialize(std::ostream& sout) const
+std::ostream&
+shift_lut<real>::serialize(std::ostream& sout) const
 {
     sout << this->lut.size() << std::endl;
     sout << amount << std::endl;
@@ -61,7 +64,8 @@ std::ostream& shift_lut<real>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class real>
-std::istream& shift_lut<real>::serialize(std::istream& sin)
+std::istream&
+shift_lut<real>::serialize(std::istream& sin)
 {
     int tau, amount;
     sin >> libbase::eatcomments >> tau >> libbase::verify;

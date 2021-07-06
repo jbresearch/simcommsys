@@ -53,7 +53,8 @@ double cmpi::cpu_usage = 0;
 
 // Static functions
 
-void cmpi::enable(int* argc, char** argv[], const int priority)
+void
+cmpi::enable(int* argc, char** argv[], const int priority)
 {
     assert(!initialized);
     initialized = true;
@@ -145,7 +146,8 @@ void cmpi::enable(int* argc, char** argv[], const int priority)
 #endif
 }
 
-void cmpi::disable()
+void
+cmpi::disable()
 {
     assert(initialized);
 #ifdef USE_MPI
@@ -187,7 +189,8 @@ void cmpi::disable()
 
 // functions for children to communicate with their parent (the root node)
 
-void cmpi::_receive(double& x)
+void
+cmpi::_receive(double& x)
 {
 #ifdef USE_MPI
     // allocate temporary storage
@@ -200,7 +203,8 @@ void cmpi::_receive(double& x)
 #endif
 }
 
-void cmpi::_send(const int x)
+void
+cmpi::_send(const int x)
 {
 #ifdef USE_MPI
     // allocate temporary storage
@@ -210,7 +214,8 @@ void cmpi::_send(const int x)
 #endif
 }
 
-void cmpi::_send(const double x)
+void
+cmpi::_send(const double x)
 {
 #ifdef USE_MPI
     // allocate temporary storage
@@ -220,7 +225,8 @@ void cmpi::_send(const double x)
 #endif
 }
 
-void cmpi::_send(vector<double>& x)
+void
+cmpi::_send(vector<double>& x)
 {
 #ifdef USE_MPI
     // allocate temporary storage
@@ -251,7 +257,8 @@ cmpi::~cmpi() {}
 
 // child control function (make a child call a given function)
 
-void cmpi::call(const int rank, void (*func)(void))
+void
+cmpi::call(const int rank, void (*func)(void))
 {
 #ifdef USE_MPI
     long addr = (long)func;
@@ -261,7 +268,8 @@ void cmpi::call(const int rank, void (*func)(void))
 
 // functions for communicating with child
 
-void cmpi::receive(int& rank, int& x)
+void
+cmpi::receive(int& rank, int& x)
 {
 #ifdef USE_MPI
     // allocate temporary storage
@@ -276,7 +284,8 @@ void cmpi::receive(int& rank, int& x)
 #endif
 }
 
-void cmpi::receive(int& rank, double& x)
+void
+cmpi::receive(int& rank, double& x)
 {
 #ifdef USE_MPI
     // allocate temporary storage
@@ -296,7 +305,8 @@ void cmpi::receive(int& rank, double& x)
 #endif
 }
 
-void cmpi::receive(int& rank, vector<double>& x)
+void
+cmpi::receive(int& rank, vector<double>& x)
 {
 #ifdef USE_MPI
     // allocate temporary storage
@@ -319,7 +329,8 @@ void cmpi::receive(int& rank, vector<double>& x)
 #endif
 }
 
-void cmpi::send(const int rank, const double x)
+void
+cmpi::send(const int rank, const double x)
 {
 #ifdef USE_MPI
     // allocate temporary storage

@@ -57,13 +57,15 @@ CAutomateEmbeddingApp::~CAutomateEmbeddingApp() { delete m_sData; }
 // CAutomateEmbeddingApp filter selector functions
 
 // show the about dialog here
-void CAutomateEmbeddingApp::About(void)
+void
+CAutomateEmbeddingApp::About(void)
 {
     CAboutDlg dlg;
     dlg.DoModal();
 }
 
-void CAutomateEmbeddingApp::Process(void)
+void
+CAutomateEmbeddingApp::Process(void)
 {
     // prepare variables
     CString sTempName;
@@ -110,7 +112,8 @@ void CAutomateEmbeddingApp::Process(void)
 /////////////////////////////////////////////////////////////////////////////
 // CAutomateEmbeddingApp virtual overrides
 
-void CAutomateEmbeddingApp::ShowDialog(void)
+void
+CAutomateEmbeddingApp::ShowDialog(void)
 {
     CAutomateEmbeddingDlg dlg;
 
@@ -154,7 +157,8 @@ void CAutomateEmbeddingApp::ShowDialog(void)
     m_sData->nJpegStep = dlg.m_nJpegStep;
 }
 
-void CAutomateEmbeddingApp::InitParameters()
+void
+CAutomateEmbeddingApp::InitParameters()
 {
     // path for output files
     strcpy(m_sData->sOutput, "");
@@ -177,7 +181,8 @@ void CAutomateEmbeddingApp::InitParameters()
 /////////////////////////////////////////////////////////////////////////////
 // CAutomateEmbeddingApp scripting support
 
-void CAutomateEmbeddingApp::ReadScriptParameters(PIActionDescriptor descriptor)
+void
+CAutomateEmbeddingApp::ReadScriptParameters(PIActionDescriptor descriptor)
 {
     // path for output files
     GetString(descriptor, keyOutput, m_sData->sOutput);
@@ -196,7 +201,8 @@ void CAutomateEmbeddingApp::ReadScriptParameters(PIActionDescriptor descriptor)
     GetInteger(descriptor, keyJpegStep, &m_sData->nJpegStep);
 }
 
-void CAutomateEmbeddingApp::WriteScriptParameters(PIActionDescriptor descriptor)
+void
+CAutomateEmbeddingApp::WriteScriptParameters(PIActionDescriptor descriptor)
 {
     // path for output files
     PutString(descriptor, keyOutput, m_sData->sOutput);
@@ -224,9 +230,8 @@ void CAutomateEmbeddingApp::WriteScriptParameters(PIActionDescriptor descriptor)
 
 CAutomateEmbeddingApp theApp;
 
-DLLExport SPAPI SPErr PluginMain(const char* sCaller,
-                                 const char* sSelector,
-                                 void* pData)
+DLLExport SPAPI SPErr
+PluginMain(const char* sCaller, const char* sSelector, void* pData)
 {
     return theApp.Main(sCaller, sSelector, pData);
 }

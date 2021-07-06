@@ -46,7 +46,8 @@ namespace libcomm
  * \enddot
  */
 template <class G>
-G qec<G>::corrupt(const G& s)
+G
+qec<G>::corrupt(const G& s)
 {
     const double p = this->r.fval_closed();
     G rx = s;
@@ -59,7 +60,8 @@ G qec<G>::corrupt(const G& s)
 // description output
 
 template <class G>
-std::string qec<G>::description() const
+std::string
+qec<G>::description() const
 {
     std::ostringstream sout;
     sout << G::elements() << "-ary Erasure channel";
@@ -69,7 +71,8 @@ std::string qec<G>::description() const
 // object serialization - saving
 
 template <class G>
-std::ostream& qec<G>::serialize(std::ostream& sout) const
+std::ostream&
+qec<G>::serialize(std::ostream& sout) const
 {
     return sout;
 }
@@ -77,7 +80,8 @@ std::ostream& qec<G>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class G>
-std::istream& qec<G>::serialize(std::istream& sin)
+std::istream&
+qec<G>::serialize(std::istream& sin)
 {
     return sin;
 }

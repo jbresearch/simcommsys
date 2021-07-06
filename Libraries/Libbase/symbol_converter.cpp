@@ -35,8 +35,9 @@ namespace libbase
 #endif
 
 template <class dbl, class dbl2>
-void symbol_converter<dbl, dbl2>::aggregate_symbols(const array1i_t& in,
-                                                    array1i_t& out) const
+void
+symbol_converter<dbl, dbl2>::aggregate_symbols(const array1i_t& in,
+                                               array1i_t& out) const
 {
     // Initialize results vector
     out.init(in.size() / k);
@@ -68,8 +69,9 @@ void symbol_converter<dbl, dbl2>::aggregate_symbols(const array1i_t& in,
 }
 
 template <class dbl, class dbl2>
-void symbol_converter<dbl, dbl2>::aggregate_probabilities(
-    const array1vd_t& pin, array1vd_t& pout) const
+void
+symbol_converter<dbl, dbl2>::aggregate_probabilities(const array1vd_t& pin,
+                                                     array1vd_t& pout) const
 {
     // Confirm input symbol space is what we expect
     assertalways(pin.size() > 0);
@@ -115,8 +117,9 @@ void symbol_converter<dbl, dbl2>::aggregate_probabilities(
 }
 
 template <class dbl, class dbl2>
-void symbol_converter<dbl, dbl2>::divide_symbols(const array1i_t& in,
-                                                 array1i_t& out) const
+void
+symbol_converter<dbl, dbl2>::divide_symbols(const array1i_t& in,
+                                            array1i_t& out) const
 {
     // Initialize results vector
     out.init(in.size() * k);
@@ -146,8 +149,9 @@ void symbol_converter<dbl, dbl2>::divide_symbols(const array1i_t& in,
 }
 
 template <class dbl, class dbl2>
-void symbol_converter<dbl, dbl2>::divide_probabilities(const array1vd_t& pin,
-                                                       array1vd_t& pout) const
+void
+symbol_converter<dbl, dbl2>::divide_probabilities(const array1vd_t& pin,
+                                                  array1vd_t& pout) const
 {
     // Confirm input symbol space is what we expect
     assertalways(pin.size() > 0);

@@ -43,7 +43,8 @@ namespace libcomm
 // Communication System Interface
 
 template <class S, template <class> class C>
-void commsys_fulliter<S, C>::receive_path(const C<S>& received)
+void
+commsys_fulliter<S, C>::receive_path(const C<S>& received)
 {
 #if DEBUG >= 2
     libbase::trace << "DEBUG (fulliter): Starting receive path." << std::endl;
@@ -59,7 +60,8 @@ void commsys_fulliter<S, C>::receive_path(const C<S>& received)
 }
 
 template <class S, template <class> class C>
-void commsys_fulliter<S, C>::decode(C<int>& decoded)
+void
+commsys_fulliter<S, C>::decode(C<int>& decoded)
 {
 #if DEBUG >= 2
     libbase::trace << "DEBUG (fulliter): Starting decode cycle " << cur_mdm_iter
@@ -129,7 +131,8 @@ void commsys_fulliter<S, C>::decode(C<int>& decoded)
 // Description & Serialization
 
 template <class S, template <class> class C>
-std::string commsys_fulliter<S, C>::description() const
+std::string
+commsys_fulliter<S, C>::description() const
 {
     std::ostringstream sout;
     sout << "Full-System Iterative ";
@@ -139,7 +142,8 @@ std::string commsys_fulliter<S, C>::description() const
 }
 
 template <class S, template <class> class C>
-std::ostream& commsys_fulliter<S, C>::serialize(std::ostream& sout) const
+std::ostream&
+commsys_fulliter<S, C>::serialize(std::ostream& sout) const
 {
     sout << "# Number of full-system iterations" << std::endl;
     sout << iter << std::endl;
@@ -148,7 +152,8 @@ std::ostream& commsys_fulliter<S, C>::serialize(std::ostream& sout) const
 }
 
 template <class S, template <class> class C>
-std::istream& commsys_fulliter<S, C>::serialize(std::istream& sin)
+std::istream&
+commsys_fulliter<S, C>::serialize(std::istream& sin)
 {
     // read number of full-system iterations
     sin >> libbase::eatcomments >> iter >> libbase::verify;

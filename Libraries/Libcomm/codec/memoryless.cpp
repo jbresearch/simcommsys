@@ -30,7 +30,8 @@ namespace libcomm
 // initialization / de-allocation
 
 template <class dbl>
-void memoryless<dbl>::init()
+void
+memoryless<dbl>::init()
 {
     assertalways(encoder);
     // Check that FSM is memoryless
@@ -49,7 +50,8 @@ memoryless<dbl>::memoryless(const fsm& encoder, const int tau) : tau(tau)
 // internal codec operations
 
 template <class dbl>
-void memoryless<dbl>::resetpriors()
+void
+memoryless<dbl>::resetpriors()
 {
     // Allocate space for prior input statistics
     libbase::allocate(rp, This::input_block_size(), This::num_inputs());
@@ -58,7 +60,8 @@ void memoryless<dbl>::resetpriors()
 }
 
 template <class dbl>
-void memoryless<dbl>::setpriors(const array1vd_t& ptable)
+void
+memoryless<dbl>::setpriors(const array1vd_t& ptable)
 {
     // Encoder symbol space must be the same as modulation symbol space
     assertalways(ptable.size() > 0);
@@ -70,7 +73,8 @@ void memoryless<dbl>::setpriors(const array1vd_t& ptable)
 }
 
 template <class dbl>
-void memoryless<dbl>::setreceiver(const array1vd_t& ptable)
+void
+memoryless<dbl>::setreceiver(const array1vd_t& ptable)
 {
     // Encoder symbol space must be the same as modulation symbol space
     assertalways(ptable.size() > 0);
@@ -84,7 +88,8 @@ void memoryless<dbl>::setreceiver(const array1vd_t& ptable)
 // encoding and decoding functions
 
 template <class dbl>
-void memoryless<dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
+void
+memoryless<dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
 {
     assert(source.size() == This::input_block_size());
     // Inherit sizes
@@ -103,7 +108,8 @@ void memoryless<dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
 }
 
 template <class dbl>
-void memoryless<dbl>::softdecode(array1vd_t& ri)
+void
+memoryless<dbl>::softdecode(array1vd_t& ri)
 {
     // Inherit sizes
     const int k = enc_inputs();
@@ -134,7 +140,8 @@ void memoryless<dbl>::softdecode(array1vd_t& ri)
 }
 
 template <class dbl>
-void memoryless<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
+void
+memoryless<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
 {
     softdecode(ri);
     // Inherit sizes
@@ -170,7 +177,8 @@ void memoryless<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
 // description output
 
 template <class dbl>
-std::string memoryless<dbl>::description() const
+std::string
+memoryless<dbl>::description() const
 {
     std::ostringstream sout;
     sout << "Memoryless Code (" << This::output_block_size() << ","
@@ -182,7 +190,8 @@ std::string memoryless<dbl>::description() const
 // object serialization - saving
 
 template <class dbl>
-std::ostream& memoryless<dbl>::serialize(std::ostream& sout) const
+std::ostream&
+memoryless<dbl>::serialize(std::ostream& sout) const
 {
     sout << "# Encoder" << std::endl;
     sout << encoder;
@@ -194,7 +203,8 @@ std::ostream& memoryless<dbl>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class dbl>
-std::istream& memoryless<dbl>::serialize(std::istream& sin)
+std::istream&
+memoryless<dbl>::serialize(std::istream& sin)
 {
     // load the encoder into a temporary space
     std::shared_ptr<fsm> encoder_original;

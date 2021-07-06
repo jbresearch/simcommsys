@@ -30,7 +30,8 @@ namespace libcomm
 // description output
 
 template <class S>
-std::string qim<S>::description() const
+std::string
+qim<S>::description() const
 {
     std::ostringstream sout;
     if (alpha < 1.0) {
@@ -49,7 +50,8 @@ std::string qim<S>::description() const
 // object serialization - saving
 
 template <class S>
-std::ostream& qim<S>::serialize(std::ostream& sout) const
+std::ostream&
+qim<S>::serialize(std::ostream& sout) const
 {
     sout << "# M" << std::endl;
     sout << M << std::endl;
@@ -67,7 +69,8 @@ std::ostream& qim<S>::serialize(std::ostream& sout) const
  */
 
 template <class S>
-std::istream& qim<S>::serialize(std::istream& sin)
+std::istream&
+qim<S>::serialize(std::istream& sin)
 {
     sin >> libbase::eatcomments >> M >> libbase::verify;
     sin >> libbase::eatcomments >> delta >> libbase::verify;

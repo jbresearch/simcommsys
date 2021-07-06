@@ -35,7 +35,8 @@ using libbase::vector;
 
 // worker processes
 
-void montecarlo::slave_getcode(void)
+void
+montecarlo::slave_getcode(void)
 {
     system.reset();
     // Receive system as a string
@@ -53,7 +54,8 @@ void montecarlo::slave_getcode(void)
     std::cerr << "Digest: " << std::string(sysdigest) << std::endl;
 }
 
-void montecarlo::slave_getparameter(void)
+void
+montecarlo::slave_getparameter(void)
 {
     std::cerr << "Date: " << libbase::timer::date() << std::endl;
 
@@ -66,7 +68,8 @@ void montecarlo::slave_getparameter(void)
               << std::endl;
 }
 
-void montecarlo::slave_work(void)
+void
+montecarlo::slave_work(void)
 {
     // Initialise running values
     system->reset();
@@ -97,7 +100,8 @@ void montecarlo::slave_work(void)
 
 // helper functions
 
-std::string montecarlo::get_systemstring()
+std::string
+montecarlo::get_systemstring()
 {
     std::ostringstream os;
     os << system;
@@ -109,7 +113,8 @@ std::string montecarlo::get_systemstring()
  *
  * Use the stored seed to initialize a PRNG for seeding the embedded system.
  */
-void montecarlo::seed_experiment()
+void
+montecarlo::seed_experiment()
 {
     libbase::randgen prng;
     prng.seed(seed);
@@ -119,7 +124,8 @@ void montecarlo::seed_experiment()
 
 // System-specific file-handler functions
 
-void montecarlo::writeheader(std::ostream& sout) const
+void
+montecarlo::writeheader(std::ostream& sout) const
 {
     assert(sout.good());
     assert(system != NULL);
@@ -146,9 +152,10 @@ void montecarlo::writeheader(std::ostream& sout) const
                    << std::endl;
 }
 
-void montecarlo::writeresults(std::ostream& sout,
-                              libbase::vector<double>& result,
-                              libbase::vector<double>& errormargin) const
+void
+montecarlo::writeresults(std::ostream& sout,
+                         libbase::vector<double>& result,
+                         libbase::vector<double>& errormargin) const
 {
     assert(sout.good());
     if (get_samplecount() == 0) {
@@ -171,7 +178,8 @@ void montecarlo::writeresults(std::ostream& sout,
                    << std::endl;
 }
 
-void montecarlo::writestate(std::ostream& sout) const
+void
+montecarlo::writestate(std::ostream& sout) const
 {
     assert(sout.good());
     if (get_samplecount() == 0) {
@@ -194,7 +202,8 @@ void montecarlo::writestate(std::ostream& sout) const
                    << std::endl;
 }
 
-void montecarlo::lookforstate(std::istream& sin)
+void
+montecarlo::lookforstate(std::istream& sin)
 {
     assert(sin.good());
     // state variables to read
@@ -238,8 +247,9 @@ void montecarlo::lookforstate(std::istream& sin)
  *
  * \note Display updates are rate-limited
  */
-void montecarlo::display(const libbase::vector<double>& result,
-                         const libbase::vector<double>& errormargin) const
+void
+montecarlo::display(const libbase::vector<double>& result,
+                    const libbase::vector<double>& errormargin) const
 {
     if (tupdate.elapsed() > 0.5) {
         const std::streamsize prec = std::clog.precision(3);
@@ -269,8 +279,9 @@ void montecarlo::display(const libbase::vector<double>& result,
  * \param[out] errormargin Corresponding margin of error (radius of confidence
  * interval)
  */
-void montecarlo::updateresults(vector<double>& result,
-                               vector<double>& errormargin) const
+void
+montecarlo::updateresults(vector<double>& result,
+                          vector<double>& errormargin) const
 {
     const double cfactor = libbase::Qinv((1.0 - confidence) / 2.0);
     // determine a new estimate
@@ -288,8 +299,9 @@ void montecarlo::updateresults(vector<double>& result,
  * Initialize given slave by sending the system being simulated and the
  * current simulation parameter.
  */
-void montecarlo::initslave(std::shared_ptr<libbase::socket> s,
-                           std::string systemstring)
+void
+montecarlo::initslave(std::shared_ptr<libbase::socket> s,
+                      std::string systemstring)
 {
     try {
         cluster.call(s, "slave_getcode");
@@ -310,7 +322,8 @@ void montecarlo::initslave(std::shared_ptr<libbase::socket> s,
  * If there are any slaves in the NEW state, initialize them by sending the
  * system being simulated and the current simulation parameters.
  */
-void montecarlo::initnewslaves(std::string systemstring)
+void
+montecarlo::initnewslaves(std::string systemstring)
 {
     while (std::shared_ptr<libbase::socket> s = cluster.find_new_slave()) {
         libbase::trace << "DEBUG (estimate): New slave found (" << s
@@ -332,7 +345,8 @@ void montecarlo::initnewslaves(std::string systemstring)
  * slaves that will never come (happens if the machine is locked up but the
  * TCP/IP stack is still running).
  */
-void montecarlo::workidleslaves(bool converged)
+void
+montecarlo::workidleslaves(bool converged)
 {
     for (std::shared_ptr<libbase::socket> s;
          (!converged) && (s = cluster.find_idle_slave());) {
@@ -359,7 +373,8 @@ void montecarlo::workidleslaves(bool converged)
  * or parameter that are now being simulated, this is discarded and the slave
  * is marked as 'new'.
  */
-bool montecarlo::readpendingslaves()
+bool
+montecarlo::readpendingslaves()
 {
     bool results_available = false;
     while (std::shared_ptr<libbase::socket> s = cluster.find_pending_slave()) {
@@ -409,7 +424,8 @@ bool montecarlo::readpendingslaves()
  * \param[out] errormargin Vector of corresponding margin of error (radius of
  * confidence interval)
  */
-void montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
+void
+montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
 {
     t.start();
 

@@ -39,7 +39,8 @@ digest32::digest32()
 
 // Internal functions
 
-void digest32::reset()
+void
+digest32::reset()
 {
     // reset size counter
     m_size = 0;
@@ -62,7 +63,8 @@ void digest32::reset()
  * \note If after padding there is enough space left, message length is
  * included.
  */
-void digest32::process(const unsigned char* buf, int size)
+void
+digest32::process(const unsigned char* buf, int size)
 {
     assert(size <= 64);
     if (m_padded && m_terminated) {
@@ -152,7 +154,8 @@ digest32::operator std::vector<unsigned char>() const
 
 // Interface for computing digest
 
-void digest32::process(std::istream& sin)
+void
+digest32::process(std::istream& sin)
 {
     // initialize the variables
     reset();
@@ -168,7 +171,8 @@ void digest32::process(std::istream& sin)
     flush();
 }
 
-void digest32::process(const std::vector<unsigned char>& v)
+void
+digest32::process(const std::vector<unsigned char>& v)
 {
     // initialize the variables
     reset();
@@ -191,7 +195,8 @@ void digest32::process(const std::vector<unsigned char>& v)
 
 // Comparison functions
 
-bool digest32::operator==(const digest32& x) const
+bool
+digest32::operator==(const digest32& x) const
 {
     assert(m_hash.size() == x.m_hash.size());
 
@@ -206,7 +211,8 @@ bool digest32::operator==(const digest32& x) const
 
 // Stream input/output
 
-std::ostream& operator<<(std::ostream& sout, const digest32& x)
+std::ostream&
+operator<<(std::ostream& sout, const digest32& x)
 {
     return sout << std::string(x);
 }

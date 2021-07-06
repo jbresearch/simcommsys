@@ -30,7 +30,8 @@ mpf_t mpgnu::dblmin;
 mpf_t mpgnu::dblmax;
 #endif
 
-void mpgnu::init()
+void
+mpgnu::init()
 {
 #ifndef USE_GMP
     std::cerr << "FATAL ERROR (mpgnu): GNU Multi-Precision not implemented - "

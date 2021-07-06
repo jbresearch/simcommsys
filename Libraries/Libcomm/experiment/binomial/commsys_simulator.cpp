@@ -63,7 +63,8 @@ namespace libcomm
  * initialize the result vector to zero.
  */
 template <class S, class R>
-void commsys_simulator<S, R>::sample(libbase::vector<double>& result)
+void
+commsys_simulator<S, R>::sample(libbase::vector<double>& result)
 {
     // Reset timers
     this->reset_timers();
@@ -163,7 +164,8 @@ void commsys_simulator<S, R>::sample(libbase::vector<double>& result)
 // Description & Serialization
 
 template <class S, class R>
-std::string commsys_simulator<S, R>::description() const
+std::string
+commsys_simulator<S, R>::description() const
 {
     std::ostringstream sout;
     sout << "Simulator for ";
@@ -176,7 +178,8 @@ std::string commsys_simulator<S, R>::description() const
 // object serialization - saving
 
 template <class S, class R>
-std::ostream& commsys_simulator<S, R>::serialize(std::ostream& sout) const
+std::ostream&
+commsys_simulator<S, R>::serialize(std::ostream& sout) const
 {
     // format version
     sout << "# Version" << std::endl;
@@ -201,7 +204,8 @@ std::ostream& commsys_simulator<S, R>::serialize(std::ostream& sout) const
  */
 
 template <class S, class R>
-std::istream& commsys_simulator<S, R>::serialize(std::istream& sin)
+std::istream&
+commsys_simulator<S, R>::serialize(std::istream& sin)
 {
     assertalways(sin.good());
     // get format version

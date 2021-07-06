@@ -88,28 +88,32 @@ public:
 /*! \name Arithmetic operations */
 
 template <int m, int poly>
-gf_fast<m, poly> operator+(const gf_fast<m, poly>& a, const gf_fast<m, poly>& b)
+gf_fast<m, poly>
+operator+(const gf_fast<m, poly>& a, const gf_fast<m, poly>& b)
 {
     gf_fast<m, poly> c = a;
     return c += b;
 }
 
 template <int m, int poly>
-gf_fast<m, poly> operator-(const gf_fast<m, poly>& a, const gf_fast<m, poly>& b)
+gf_fast<m, poly>
+operator-(const gf_fast<m, poly>& a, const gf_fast<m, poly>& b)
 {
     gf_fast<m, poly> c = a;
     return c -= b;
 }
 
 template <int m, int poly>
-gf_fast<m, poly> operator*(const gf_fast<m, poly>& a, const gf_fast<m, poly>& b)
+gf_fast<m, poly>
+operator*(const gf_fast<m, poly>& a, const gf_fast<m, poly>& b)
 {
     gf_fast<m, poly> c = a;
     return c *= b;
 }
 
 template <int m, int poly>
-gf_fast<m, poly> operator/(const gf_fast<m, poly>& a, const gf_fast<m, poly>& b)
+gf_fast<m, poly>
+operator/(const gf_fast<m, poly>& a, const gf_fast<m, poly>& b)
 {
     gf_fast<m, poly> c = a;
     return c /= b;
@@ -120,14 +124,16 @@ gf_fast<m, poly> operator/(const gf_fast<m, poly>& a, const gf_fast<m, poly>& b)
 /*! \name Stream Input/Output */
 
 template <int m, int poly>
-std::ostream& operator<<(std::ostream& s, const gf_fast<m, poly>& b)
+std::ostream&
+operator<<(std::ostream& s, const gf_fast<m, poly>& b)
 {
     s << std::string(b);
     return s;
 }
 
 template <int m, int poly>
-std::istream& operator>>(std::istream& s, gf_fast<m, poly>& b)
+std::istream&
+operator>>(std::istream& s, gf_fast<m, poly>& b)
 {
     std::string str;
     s >> str;

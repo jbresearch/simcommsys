@@ -52,8 +52,8 @@ namespace libcomm
  * initialize the result vector to zero.
  */
 template <class S, class R, class real>
-void commsys_stream_simulator<S, R, real>::sample(
-    libbase::vector<double>& result)
+void
+commsys_stream_simulator<S, R, real>::sample(libbase::vector<double>& result)
 {
     assert(sys_enc);
 #ifndef NDEBUG
@@ -331,7 +331,8 @@ void commsys_stream_simulator<S, R, real>::sample(
 // Description & Serialization
 
 template <class S, class R, class real>
-std::string commsys_stream_simulator<S, R, real>::description() const
+std::string
+commsys_stream_simulator<S, R, real>::description() const
 {
     std::ostringstream sout;
     sout << "Stream-oriented ";
@@ -391,7 +392,8 @@ commsys_stream_simulator<S, R, real>::serialize(std::ostream& sout) const
  */
 
 template <class S, class R, class real>
-std::istream& commsys_stream_simulator<S, R, real>::serialize(std::istream& sin)
+std::istream&
+commsys_stream_simulator<S, R, real>::serialize(std::istream& sin)
 {
     assertalways(sin.good());
     // get format version

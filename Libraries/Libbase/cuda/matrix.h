@@ -335,7 +335,8 @@ public:
 
 #ifdef __CUDACC__
 template <class T>
-inline void matrix<T>::allocate(int m, int n)
+inline void
+matrix<T>::allocate(int m, int n)
 {
     test_invariant();
     // check input parameters
@@ -352,7 +353,8 @@ inline void matrix<T>::allocate(int m, int n)
 }
 
 template <class T>
-inline void matrix<T>::free()
+inline void
+matrix<T>::free()
 {
     test_invariant();
     // if there is something allocated, free it
@@ -383,7 +385,8 @@ inline matrix<T>::matrix(const matrix<T>& x)
 }
 
 template <class T>
-inline matrix<T>& matrix<T>::operator=(const matrix<T>& x)
+inline matrix<T>&
+matrix<T>::operator=(const matrix<T>& x)
 {
 #    ifdef __CUDA_ARCH__ // Device code path (for all compute capabilities)
     copyfrom(x);
@@ -404,7 +407,8 @@ inline matrix<T>& matrix<T>::operator=(const matrix<T>& x)
 }
 
 template <class T>
-inline matrix<T>& matrix<T>::operator=(const libbase::matrix<T>& x)
+inline matrix<T>&
+matrix<T>::operator=(const libbase::matrix<T>& x)
 {
     // (re-)allocate memory if needed
     init(x.size().rows(), x.size().cols());
@@ -437,7 +441,8 @@ inline matrix<T>::operator libbase::matrix<T>() const
 }
 
 template <class T>
-inline matrix<T>& matrix<T>::operator=(const libbase::vector<T>& x)
+inline matrix<T>&
+matrix<T>::operator=(const libbase::vector<T>& x)
 {
     // can only copy from vector of the right size
     assertalways(x.size() == rows * cols);

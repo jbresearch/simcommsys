@@ -120,7 +120,8 @@ double value<double>::t2 = 0;
 // sequence loading
 
 template <class T>
-std::vector<T> getsequence(const std::string& fname)
+std::vector<T>
+getsequence(const std::string& fname)
 {
     cerr << "Loading sequence from \"" << fname << "\"...";
     // load sequence from file
@@ -140,7 +141,8 @@ std::vector<T> getsequence(const std::string& fname)
 // compute number of common elements
 
 template <class T>
-int repeatability(const std::vector<T>& s1, const std::vector<T>& s2)
+int
+repeatability(const std::vector<T>& s1, const std::vector<T>& s2)
 {
     // copy vectors to lists
     std::list<T> t1, t2;
@@ -171,7 +173,8 @@ int repeatability(const std::vector<T>& s1, const std::vector<T>& s2)
 // compute mean-square error for common elements
 
 template <class T>
-double compute_mse(const std::vector<T>& s1, const std::vector<T>& s2)
+double
+compute_mse(const std::vector<T>& s1, const std::vector<T>& s2)
 {
     // copy vectors to lists
     std::list<T> t1, t2;
@@ -204,13 +207,14 @@ double compute_mse(const std::vector<T>& s1, const std::vector<T>& s2)
 // main process
 
 template <class T>
-void process(const std::string& fname1,
-             const std::string& fname2,
-             const double t,
-             const bool ham,
-             const bool lev,
-             const bool rep,
-             const bool mse)
+void
+process(const std::string& fname1,
+        const std::string& fname2,
+        const double t,
+        const bool ham,
+        const bool lev,
+        const bool rep,
+        const bool mse)
 {
     // Load sequences and user settings
     const std::vector<T> s1 = getsequence<T>(fname1);
@@ -248,7 +252,8 @@ void process(const std::string& fname1,
  * - Mean Square Error (for equivalent elements)
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     libbase::cputimer tmain("Main timer");
 

@@ -55,13 +55,15 @@ CFilterVarianceApp::CFilterVarianceApp()
 // CFilterVarianceApp filter selector functions
 
 // show the about dialog here
-void CFilterVarianceApp::FilterAbout(void)
+void
+CFilterVarianceApp::FilterAbout(void)
 {
     CAboutDlg dlg;
     dlg.DoModal();
 }
 
-void CFilterVarianceApp::FilterStart(void)
+void
+CFilterVarianceApp::FilterStart(void)
 {
     // FilterStart will get user parameters if necessary & select the first tile
     CPSPlugIn::FilterStart();
@@ -73,7 +75,8 @@ void CFilterVarianceApp::FilterStart(void)
     m_dScale = 0;
 }
 
-void CFilterVarianceApp::FilterContinue(void)
+void
+CFilterVarianceApp::FilterContinue(void)
 {
     // update progress counter
     DisplayTileProgress(0, 100, m_nIteration, m_sData->nScale == 0 ? 2 : 1);
@@ -121,7 +124,8 @@ void CFilterVarianceApp::FilterContinue(void)
     }
 }
 
-void CFilterVarianceApp::FilterFinish(void)
+void
+CFilterVarianceApp::FilterFinish(void)
 {
     // stop timer & show final progress indication
     CPSPlugIn::FilterFinish();
@@ -130,7 +134,8 @@ void CFilterVarianceApp::FilterFinish(void)
 /////////////////////////////////////////////////////////////////////////////
 // CFilterVarianceApp helper functions
 
-void CFilterVarianceApp::ShowDialog(void)
+void
+CFilterVarianceApp::ShowDialog(void)
 {
     CFilterVarianceDlg dlg;
 
@@ -150,12 +155,14 @@ void CFilterVarianceApp::ShowDialog(void)
     SetShowDialog(false);
 }
 
-void CFilterVarianceApp::InitPointer(char* sData)
+void
+CFilterVarianceApp::InitPointer(char* sData)
 {
     m_sData = (SFilterVarianceData*)sData;
 }
 
-void CFilterVarianceApp::InitParameters()
+void
+CFilterVarianceApp::InitParameters()
 {
     m_sData->nRadius = 1;
     m_sData->nScale = 1;
@@ -164,10 +171,11 @@ void CFilterVarianceApp::InitParameters()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterVarianceApp scripting support
 
-void CFilterVarianceApp::ReadScriptParameter(PIReadDescriptor token,
-                                             DescriptorKeyID key,
-                                             DescriptorTypeID type,
-                                             int32 flags)
+void
+CFilterVarianceApp::ReadScriptParameter(PIReadDescriptor token,
+                                        DescriptorKeyID key,
+                                        DescriptorTypeID type,
+                                        int32 flags)
 {
     switch (key) {
     case keyRadius:
@@ -182,7 +190,8 @@ void CFilterVarianceApp::ReadScriptParameter(PIReadDescriptor token,
     }
 }
 
-void CFilterVarianceApp::WriteScriptParameters(PIWriteDescriptor token)
+void
+CFilterVarianceApp::WriteScriptParameters(PIWriteDescriptor token)
 {
     PutInteger(token, keyRadius, m_sData->nRadius);
     PutInteger(token, keyScale, m_sData->nScale);
@@ -193,10 +202,11 @@ void CFilterVarianceApp::WriteScriptParameters(PIWriteDescriptor token)
 
 CFilterVarianceApp theApp;
 
-DLLExport SPAPI void PluginMain(const short nSelector,
-                                FilterRecord* pFilterRecord,
-                                long* pData,
-                                short* pResult)
+DLLExport SPAPI void
+PluginMain(const short nSelector,
+           FilterRecord* pFilterRecord,
+           long* pData,
+           short* pResult)
 {
     theApp.Main(nSelector, pFilterRecord, pData, pResult);
 }

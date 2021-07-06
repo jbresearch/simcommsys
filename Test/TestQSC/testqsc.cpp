@@ -34,7 +34,8 @@ using std::cerr;
 using std::cout;
 
 template <class G>
-void ShowHistogram(vector<G>& x)
+void
+ShowHistogram(vector<G>& x)
 {
     const int N = x.size();
     const int q = G::elements();
@@ -52,7 +53,8 @@ void ShowHistogram(vector<G>& x)
 }
 
 template <class G>
-void TestChannel(channel<G>& chan, double p)
+void
+TestChannel(channel<G>& chan, double p)
 {
     const int N = 100000;
     const int q = G::elements();
@@ -74,7 +76,8 @@ void TestChannel(channel<G>& chan, double p)
 }
 
 template <int m, int poly>
-void TestQSC()
+void
+TestQSC()
 {
     qsc<gf<m, poly>> chan;
     TestChannel(chan, 0.1);
@@ -85,7 +88,8 @@ void TestQSC()
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     // TestQSC<1,0x3>();
     // TestQSC<2,0x7>();

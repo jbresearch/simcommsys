@@ -38,7 +38,8 @@ CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
     //}}AFX_DATA_INIT
 }
 
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
+void
+CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CAboutDlg)
@@ -63,7 +64,8 @@ CFilterLevelsDlg::CFilterLevelsDlg(CWnd* pParent /*=NULL*/)
     //}}AFX_DATA_INIT
 }
 
-void CFilterLevelsDlg::DoDataExchange(CDataExchange* pDX)
+void
+CFilterLevelsDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CFilterLevelsDlg)
@@ -84,7 +86,8 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterLevelsDlg message handlers
 
-BOOL CFilterLevelsDlg::OnInitDialog()
+BOOL
+CFilterLevelsDlg::OnInitDialog()
 {
     CDialog::OnInitDialog();
 
@@ -96,7 +99,8 @@ BOOL CFilterLevelsDlg::OnInitDialog()
     // EXCEPTION: OCX Property Pages should return FALSE
 }
 
-void CFilterLevelsDlg::OnChangeWeight()
+void
+CFilterLevelsDlg::OnChangeWeight()
 {
     m_nWeight = GetDlgItemInt(IDC_WEIGHT);
     if (m_scSlider.GetPos() != m_nWeight) {
@@ -105,7 +109,8 @@ void CFilterLevelsDlg::OnChangeWeight()
     }
 }
 
-void CFilterLevelsDlg::OnCustomdrawSlider(NMHDR* pNMHDR, LRESULT* pResult)
+void
+CFilterLevelsDlg::OnCustomdrawSlider(NMHDR* pNMHDR, LRESULT* pResult)
 {
     if (m_scSlider.GetPos() != m_nWeight &&
         m_scSlider.GetRangeMax() >= m_nWeight) {

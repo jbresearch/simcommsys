@@ -43,7 +43,8 @@ CAboutDlg::CAboutDlg() : CDialog(CAboutDlg::IDD)
     //}}AFX_DATA_INIT
 }
 
-void CAboutDlg::DoDataExchange(CDataExchange* pDX)
+void
+CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CAboutDlg)
@@ -76,7 +77,8 @@ CFilterWaveletDlg::CFilterWaveletDlg(CWnd* pParent /*=NULL*/)
     //}}AFX_DATA_INIT
 }
 
-void CFilterWaveletDlg::DoDataExchange(CDataExchange* pDX)
+void
+CFilterWaveletDlg::DoDataExchange(CDataExchange* pDX)
 {
     CDialog::DoDataExchange(pDX);
     //{{AFX_DATA_MAP(CFilterWaveletDlg)
@@ -104,7 +106,8 @@ END_MESSAGE_MAP()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterWaveletDlg message handlers
 
-BOOL CFilterWaveletDlg::OnInitDialog()
+BOOL
+CFilterWaveletDlg::OnInitDialog()
 {
     CDialog::OnInitDialog();
 
@@ -120,7 +123,8 @@ BOOL CFilterWaveletDlg::OnInitDialog()
     // EXCEPTION: OCX Property Pages should return FALSE
 }
 
-void CFilterWaveletDlg::OnOK()
+void
+CFilterWaveletDlg::OnOK()
 {
     UpdateData(true);
     // set up library names
@@ -169,20 +173,23 @@ void CFilterWaveletDlg::OnOK()
     trace << "Wavelet parameter converted to: " << m_nWaveletPar << "\n";
 }
 
-void CFilterWaveletDlg::OnWholeimage()
+void
+CFilterWaveletDlg::OnWholeimage()
 {
     m_bWholeImage = ((CButton*)GetDlgItem(IDC_WHOLEIMAGE))->GetCheck();
     GetDlgItem(IDC_TILEX)->EnableWindow(!m_bWholeImage);
     GetDlgItem(IDC_TILEY)->EnableWindow(!m_bWholeImage);
 }
 
-void CFilterWaveletDlg::OnSelchangeThreshSelector()
+void
+CFilterWaveletDlg::OnSelchangeThreshSelector()
 {
     UpdateData(true);
     GetDlgItem(IDC_THRESH_CUTOFF)->EnableWindow(m_nThreshSelector == 0);
 }
 
-void CFilterWaveletDlg::OnSelchangeWaveletType()
+void
+CFilterWaveletDlg::OnSelchangeWaveletType()
 {
     UpdateData(true);
     m_nWaveletPar = GetDlgItemInt(IDC_WAVELET_PAR);
@@ -192,7 +199,8 @@ void CFilterWaveletDlg::OnSelchangeWaveletType()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterWaveletDlg helper functions
 
-void CFilterWaveletDlg::SetupWaveletPar()
+void
+CFilterWaveletDlg::SetupWaveletPar()
 {
     GetDlgItem(IDC_WAVELET_PAR)
         ->EnableWindow(m_nWaveletType >= 2 && m_nWaveletType != 5);

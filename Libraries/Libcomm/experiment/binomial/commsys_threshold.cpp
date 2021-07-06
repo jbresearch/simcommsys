@@ -29,14 +29,16 @@ namespace libcomm
 // Experiment parameter handling
 
 template <class S, class R>
-void commsys_threshold<S, R>::set_parameter(const double x)
+void
+commsys_threshold<S, R>::set_parameter(const double x)
 {
     parametric& m = dynamic_cast<parametric&>(*this->sys->getmodem());
     m.set_parameter(x);
 }
 
 template <class S, class R>
-double commsys_threshold<S, R>::get_parameter() const
+double
+commsys_threshold<S, R>::get_parameter() const
 {
     const parametric& m =
         dynamic_cast<const parametric&>(*this->sys->getmodem());
@@ -46,7 +48,8 @@ double commsys_threshold<S, R>::get_parameter() const
 // Description & Serialization
 
 template <class S, class R>
-std::string commsys_threshold<S, R>::description() const
+std::string
+commsys_threshold<S, R>::description() const
 {
     std::ostringstream sout;
     sout << "Modem-threshold-varying ";
@@ -55,7 +58,8 @@ std::string commsys_threshold<S, R>::description() const
 }
 
 template <class S, class R>
-std::ostream& commsys_threshold<S, R>::serialize(std::ostream& sout) const
+std::ostream&
+commsys_threshold<S, R>::serialize(std::ostream& sout) const
 {
     sout << Base::get_parameter() << std::endl;
     Base::serialize(sout);
@@ -63,7 +67,8 @@ std::ostream& commsys_threshold<S, R>::serialize(std::ostream& sout) const
 }
 
 template <class S, class R>
-std::istream& commsys_threshold<S, R>::serialize(std::istream& sin)
+std::istream&
+commsys_threshold<S, R>::serialize(std::istream& sin)
 {
     double x;
     sin >> libbase::eatcomments >> x >> libbase::verify;

@@ -33,21 +33,24 @@ lapgauss::lapgauss() {}
 
 // handle functions
 
-void lapgauss::compute_parameters(const double Eb, const double No)
+void
+lapgauss::compute_parameters(const double Eb, const double No)
 {
     sigma = sqrt(Eb * No);
 }
 
 // channel handle functions
 
-sigspace lapgauss::corrupt(const sigspace& s)
+sigspace
+lapgauss::corrupt(const sigspace& s)
 {
     const double x = r.gval(sigma);
     const double y = r.gval(sigma);
     return s + sigspace(x, y);
 }
 
-double lapgauss::pdf(const sigspace& tx, const sigspace& rx) const
+double
+lapgauss::pdf(const sigspace& tx, const sigspace& rx) const
 {
     sigspace n = rx - tx;
     return libbase::gauss(n.i() / sigma) * libbase::gauss(n.q() / sigma);
@@ -55,17 +58,26 @@ double lapgauss::pdf(const sigspace& tx, const sigspace& rx) const
 
 // description output
 
-std::string lapgauss::description() const
+std::string
+lapgauss::description() const
 {
     return "Laplacian-Gaussian channel";
 }
 
 // object serialization - saving
 
-std::ostream& lapgauss::serialize(std::ostream& sout) const { return sout; }
+std::ostream&
+lapgauss::serialize(std::ostream& sout) const
+{
+    return sout;
+}
 
 // object serialization - loading
 
-std::istream& lapgauss::serialize(std::istream& sin) { return sin; }
+std::istream&
+lapgauss::serialize(std::istream& sin)
+{
+    return sin;
+}
 
 } // namespace libcomm

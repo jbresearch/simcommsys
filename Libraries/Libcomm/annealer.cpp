@@ -26,7 +26,8 @@
 namespace libcomm
 {
 
-void annealer::attach_system(std::shared_ptr<anneal_system> system)
+void
+annealer::attach_system(std::shared_ptr<anneal_system> system)
 {
     this->system = system;
     // Set default parameters
@@ -36,27 +37,35 @@ void annealer::attach_system(std::shared_ptr<anneal_system> system)
     set_iterations(int(1E5), int(1E3));
 }
 
-void annealer::seedfrom(libbase::random& r)
+void
+annealer::seedfrom(libbase::random& r)
 {
     this->r.seed(r.ival());
     system->seedfrom(r);
 }
 
-void annealer::set_temperature(const double Tstart, const double Tstop)
+void
+annealer::set_temperature(const double Tstart, const double Tstop)
 {
     this->Tstart = Tstart;
     this->Tstop = Tstop;
 }
 
-void annealer::set_schedule(const double rate) { this->rate = rate; }
+void
+annealer::set_schedule(const double rate)
+{
+    this->rate = rate;
+}
 
-void annealer::set_iterations(const int min_iter, const int min_changes)
+void
+annealer::set_iterations(const int min_iter, const int min_changes)
 {
     this->min_iter = min_iter;
     this->min_changes = min_changes;
 }
 
-void annealer::improve()
+void
+annealer::improve()
 {
     // set stderr to precision 4
     std::streamsize prec = std::clog.precision(4);
@@ -105,9 +114,10 @@ void annealer::improve()
     std::clog.precision(prec);
 }
 
-void annealer::display(const double T,
-                       const double percent,
-                       const libbase::rvstatistics E)
+void
+annealer::display(const double T,
+                  const double percent,
+                  const libbase::rvstatistics E)
 {
     std::clog << T << "\t" << E.hi() << "\t" << E.lo() << "\t" << percent << "%"
               << std::endl;

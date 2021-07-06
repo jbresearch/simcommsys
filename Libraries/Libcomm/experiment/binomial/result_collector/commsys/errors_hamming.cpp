@@ -36,9 +36,10 @@ namespace libcomm
  * Results are organized as (symbol,frame) error count. Eventually these will be
  * divided by the respective multiplicity to get the average error rates.
  */
-void errors_hamming::updateresults(libbase::vector<double>& result,
-                                   const libbase::vector<int>& source,
-                                   const libbase::vector<int>& decoded) const
+void
+errors_hamming::updateresults(libbase::vector<double>& result,
+                              const libbase::vector<int>& source,
+                              const libbase::vector<int>& decoded) const
 {
     // Count errors
     int symerrors = libbase::hamming(source, decoded);

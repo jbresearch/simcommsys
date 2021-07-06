@@ -41,7 +41,8 @@ namespace libcomm
  * transition and output tables and keep a copy of those.
  */
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::init(fsm& encoder, const int tau)
+void
+bcjr<real, dbl, norm>::init(fsm& encoder, const int tau)
 {
     assertalways(tau > 0);
     bcjr::tau = tau;
@@ -86,7 +87,8 @@ bcjr<real, dbl, norm>::getstart() const
 }
 
 template <class real, class dbl, bool norm>
-typename bcjr<real, dbl, norm>::array1d_t bcjr<real, dbl, norm>::getend() const
+typename bcjr<real, dbl, norm>::array1d_t
+bcjr<real, dbl, norm>::getend() const
 {
     array1d_t r(M);
 
@@ -100,7 +102,8 @@ typename bcjr<real, dbl, norm>::array1d_t bcjr<real, dbl, norm>::getend() const
 // Set start- and end-state probabilities - equiprobable
 
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::setstart()
+void
+bcjr<real, dbl, norm>::setstart()
 {
     if (!initialised) {
         allocate();
@@ -112,7 +115,8 @@ void bcjr<real, dbl, norm>::setstart()
 }
 
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::setend()
+void
+bcjr<real, dbl, norm>::setend()
 {
     if (!initialised) {
         allocate();
@@ -126,7 +130,8 @@ void bcjr<real, dbl, norm>::setend()
 // Set start- and end-state probabilities - known state
 
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::setstart(int state)
+void
+bcjr<real, dbl, norm>::setstart(int state)
 {
     if (!initialised) {
         allocate();
@@ -140,7 +145,8 @@ void bcjr<real, dbl, norm>::setstart(int state)
 }
 
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::setend(int state)
+void
+bcjr<real, dbl, norm>::setend(int state)
 {
     if (!initialised) {
         allocate();
@@ -156,7 +162,8 @@ void bcjr<real, dbl, norm>::setend(int state)
 // Set start- and end-state probabilities - direct
 
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::setstart(const array1d_t& p)
+void
+bcjr<real, dbl, norm>::setstart(const array1d_t& p)
 {
     assert(p.size() == M);
 
@@ -170,7 +177,8 @@ void bcjr<real, dbl, norm>::setstart(const array1d_t& p)
 }
 
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::setend(const array1d_t& p)
+void
+bcjr<real, dbl, norm>::setend(const array1d_t& p)
 {
     assert(p.size() == M);
 
@@ -188,7 +196,8 @@ void bcjr<real, dbl, norm>::setend(const array1d_t& p)
 /*! \brief Memory allocator for working matrices
  */
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::allocate()
+void
+bcjr<real, dbl, norm>::allocate()
 {
     // to save space, gamma is defined from 0 to tau-1, rather than 1 to tau.
     // for this reason, gamma_t (and only gamma_t) is actually written
@@ -217,7 +226,8 @@ void bcjr<real, dbl, norm>::allocate()
  * lambda(t,m) = Pr{S(t)=m, Y[1..tau]}
  */
 template <class real, class dbl, bool norm>
-inline real bcjr<real, dbl, norm>::lambda(const int t, const int m)
+inline real
+bcjr<real, dbl, norm>::lambda(const int t, const int m)
 {
     return alpha(t, m) * beta(t, m);
 }
@@ -226,7 +236,8 @@ inline real bcjr<real, dbl, norm>::lambda(const int t, const int m)
  * sigma(t,m,i) = Pr{S(t-1)=m, S(t)=m(m,i), Y[1..tau]}
  */
 template <class real, class dbl, bool norm>
-inline real bcjr<real, dbl, norm>::sigma(const int t, const int m, const int i)
+inline real
+bcjr<real, dbl, norm>::sigma(const int t, const int m, const int i)
 {
     int mdash = lut_m(m, i);
     return alpha(t - 1, m) * gamma(t - 1, m, i) * beta(t, mdash);
@@ -241,7 +252,8 @@ inline real bcjr<real, dbl, norm>::sigma(const int t, const int m, const int i)
  * by the BCJR equation.
  */
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::work_gamma(const array2d_t& R)
+void
+bcjr<real, dbl, norm>::work_gamma(const array2d_t& R)
 {
     for (int t = 1; t <= tau; t++) {
         for (int mdash = 0; mdash < M; mdash++) {
@@ -265,7 +277,8 @@ void bcjr<real, dbl, norm>::work_gamma(const array2d_t& R)
  * probabilities associated with the input.
  */
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::work_gamma(const array2d_t& R, const array2d_t& app)
+void
+bcjr<real, dbl, norm>::work_gamma(const array2d_t& R, const array2d_t& app)
 {
     for (int t = 1; t <= tau; t++) {
         for (int mdash = 0; mdash < M; mdash++) {
@@ -292,7 +305,8 @@ void bcjr<real, dbl, norm>::work_gamma(const array2d_t& R, const array2d_t& app)
  * problems when the metric for the first symbol is very small.
  */
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::work_alpha()
+void
+bcjr<real, dbl, norm>::work_alpha()
 {
     // using the computed gamma values, work out all alpha values at time t
     for (int t = 1; t <= tau; t++) {
@@ -327,7 +341,8 @@ void bcjr<real, dbl, norm>::work_alpha()
  * \sa See notes for work_alpha()
  */
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::work_beta()
+void
+bcjr<real, dbl, norm>::work_beta()
 {
     // evaluate all beta values
     for (int t = tau - 1; t >= 0; t--) {
@@ -371,7 +386,8 @@ void bcjr<real, dbl, norm>::work_beta()
  * \todo Update according to the changes in work_results(ri)
  */
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::work_results(array2d_t& ri, array2d_t& ro)
+void
+bcjr<real, dbl, norm>::work_results(array2d_t& ri, array2d_t& ro)
 {
     // Initialize results vectors
     ri.init(tau, K);
@@ -411,7 +427,8 @@ void bcjr<real, dbl, norm>::work_results(array2d_t& ri, array2d_t& ro)
  * appropriate summations on sigma.
  */
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::work_results(array2d_t& ri)
+void
+bcjr<real, dbl, norm>::work_results(array2d_t& ri)
 {
     // Initialize results vector
     ri.init(tau, K);
@@ -449,7 +466,8 @@ void bcjr<real, dbl, norm>::work_results(array2d_t& ri)
  * but whoever is providing them is.
  */
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::normalize(array2d_t& r)
+void
+bcjr<real, dbl, norm>::normalize(array2d_t& r)
 {
     for (int t = 0; t < r.size().rows(); t++) {
         dbl scale = r(t, 0);
@@ -480,9 +498,8 @@ void bcjr<real, dbl, norm>::normalize(array2d_t& r)
  * transmitted (output value) X at time t (result)
  */
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::decode(const array2d_t& R,
-                                   array2d_t& ri,
-                                   array2d_t& ro)
+void
+bcjr<real, dbl, norm>::decode(const array2d_t& R, array2d_t& ri, array2d_t& ro)
 {
     assert(initialised);
     work_gamma(R);
@@ -506,10 +523,11 @@ void bcjr<real, dbl, norm>::decode(const array2d_t& R,
  * statistics on the decoder's output.
  */
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::decode(const array2d_t& R,
-                                   const array2d_t& app,
-                                   array2d_t& ri,
-                                   array2d_t& ro)
+void
+bcjr<real, dbl, norm>::decode(const array2d_t& R,
+                              const array2d_t& app,
+                              array2d_t& ri,
+                              array2d_t& ro)
 {
     assert(initialised);
     work_gamma(R, app);
@@ -529,7 +547,8 @@ void bcjr<real, dbl, norm>::decode(const array2d_t& R,
  * statistics on the decoder's output.
  */
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::fdecode(const array2d_t& R, array2d_t& ri)
+void
+bcjr<real, dbl, norm>::fdecode(const array2d_t& R, array2d_t& ri)
 {
     assert(initialised);
     work_gamma(R);
@@ -548,9 +567,10 @@ void bcjr<real, dbl, norm>::fdecode(const array2d_t& R, array2d_t& ri)
  * transmitted (input value) i at time t (result)
  */
 template <class real, class dbl, bool norm>
-void bcjr<real, dbl, norm>::fdecode(const array2d_t& R,
-                                    const array2d_t& app,
-                                    array2d_t& ri)
+void
+bcjr<real, dbl, norm>::fdecode(const array2d_t& R,
+                               const array2d_t& app,
+                               array2d_t& ri)
 {
     assert(initialised);
     work_gamma(R, app);

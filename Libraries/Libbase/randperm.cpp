@@ -24,7 +24,8 @@
 namespace libbase
 {
 
-void randperm::init(const int N, random& r)
+void
+randperm::init(const int N, random& r)
 {
     assert(N >= 0);
     // initialize array to hold permuted positions

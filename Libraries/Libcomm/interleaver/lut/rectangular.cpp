@@ -29,7 +29,8 @@ namespace libcomm
 // initialisation functions
 
 template <class real>
-void rectangular<real>::init(const int tau, const int rows, const int cols)
+void
+rectangular<real>::init(const int tau, const int rows, const int cols)
 {
     rectangular<real>::rows = rows;
     rectangular<real>::cols = cols;
@@ -57,7 +58,8 @@ void rectangular<real>::init(const int tau, const int rows, const int cols)
 // description output
 
 template <class real>
-std::string rectangular<real>::description() const
+std::string
+rectangular<real>::description() const
 {
     std::ostringstream sout;
     sout << "Rectangular " << rows << "×" << cols << " Interleaver";
@@ -67,7 +69,8 @@ std::string rectangular<real>::description() const
 // object serialization - saving
 
 template <class real>
-std::ostream& rectangular<real>::serialize(std::ostream& sout) const
+std::ostream&
+rectangular<real>::serialize(std::ostream& sout) const
 {
     sout << this->lut.size() << std::endl;
     sout << rows << std::endl;
@@ -78,7 +81,8 @@ std::ostream& rectangular<real>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class real>
-std::istream& rectangular<real>::serialize(std::istream& sin)
+std::istream&
+rectangular<real>::serialize(std::istream& sin)
 {
     int tau;
     sin >> libbase::eatcomments >> tau >> libbase::verify;

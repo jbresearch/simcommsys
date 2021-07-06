@@ -35,10 +35,11 @@ using libbase::vector;
 // Block modem operations
 
 template <class S, class dbl>
-void direct_blockembedder<S, vector, dbl>::doembed(const int N,
-                                                   const vector<int>& data,
-                                                   const vector<S>& host,
-                                                   vector<S>& tx)
+void
+direct_blockembedder<S, vector, dbl>::doembed(const int N,
+                                              const vector<int>& data,
+                                              const vector<S>& host,
+                                              vector<S>& tx)
 {
     // Check validity
     assertalways(data.size() == this->input_block_size());
@@ -55,10 +56,10 @@ void direct_blockembedder<S, vector, dbl>::doembed(const int N,
 }
 
 template <class S, class dbl>
-void direct_blockembedder<S, vector, dbl>::doextract(
-    const channel<S, vector>& chan,
-    const vector<S>& rx,
-    vector<array1d_t>& ptable)
+void
+direct_blockembedder<S, vector, dbl>::doextract(const channel<S, vector>& chan,
+                                                const vector<S>& rx,
+                                                vector<array1d_t>& ptable)
 {
     // Check validity
     assertalways(rx.size() == this->input_block_size());
@@ -87,7 +88,8 @@ void direct_blockembedder<S, vector, dbl>::doextract(
 // Description
 
 template <class S, class dbl>
-std::string direct_blockembedder<S, vector, dbl>::description() const
+std::string
+direct_blockembedder<S, vector, dbl>::description() const
 {
     std::ostringstream sout;
     sout << "Vector " << implementation->description();
@@ -105,7 +107,8 @@ direct_blockembedder<S, vector, dbl>::serialize(std::ostream& sout) const
 }
 
 template <class S, class dbl>
-std::istream& direct_blockembedder<S, vector, dbl>::serialize(std::istream& sin)
+std::istream&
+direct_blockembedder<S, vector, dbl>::serialize(std::istream& sin)
 {
     sin >> libbase::eatcomments >> implementation >> libbase::verify;
     return sin;
@@ -116,10 +119,11 @@ std::istream& direct_blockembedder<S, vector, dbl>::serialize(std::istream& sin)
 // Block modem operations
 
 template <class S, class dbl>
-void direct_blockembedder<S, matrix, dbl>::doembed(const int N,
-                                                   const matrix<int>& data,
-                                                   const matrix<S>& host,
-                                                   matrix<S>& tx)
+void
+direct_blockembedder<S, matrix, dbl>::doembed(const int N,
+                                              const matrix<int>& data,
+                                              const matrix<S>& host,
+                                              matrix<S>& tx)
 {
     // Check validity
     assertalways(data.size() == this->input_block_size());
@@ -142,10 +146,10 @@ void direct_blockembedder<S, matrix, dbl>::doembed(const int N,
 }
 
 template <class S, class dbl>
-void direct_blockembedder<S, matrix, dbl>::doextract(
-    const channel<S, matrix>& chan,
-    const matrix<S>& rx,
-    matrix<array1d_t>& ptable)
+void
+direct_blockembedder<S, matrix, dbl>::doextract(const channel<S, matrix>& chan,
+                                                const matrix<S>& rx,
+                                                matrix<array1d_t>& ptable)
 {
     // Check validity
     assertalways(rx.size() == this->input_block_size());
@@ -180,7 +184,8 @@ void direct_blockembedder<S, matrix, dbl>::doextract(
 // Description
 
 template <class S, class dbl>
-std::string direct_blockembedder<S, matrix, dbl>::description() const
+std::string
+direct_blockembedder<S, matrix, dbl>::description() const
 {
     std::ostringstream sout;
     sout << "Matrix " << implementation->description();
@@ -198,7 +203,8 @@ direct_blockembedder<S, matrix, dbl>::serialize(std::ostream& sout) const
 }
 
 template <class S, class dbl>
-std::istream& direct_blockembedder<S, matrix, dbl>::serialize(std::istream& sin)
+std::istream&
+direct_blockembedder<S, matrix, dbl>::serialize(std::istream& sin)
 {
     sin >> libbase::eatcomments >> implementation >> libbase::verify;
     return sin;

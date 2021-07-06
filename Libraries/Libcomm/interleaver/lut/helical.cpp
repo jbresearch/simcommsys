@@ -29,7 +29,8 @@ namespace libcomm
 // initialisation functions
 
 template <class real>
-void helical<real>::init(const int tau, const int rows, const int cols)
+void
+helical<real>::init(const int tau, const int rows, const int cols)
 {
     helical<real>::rows = rows;
     helical<real>::cols = cols;
@@ -57,7 +58,8 @@ void helical<real>::init(const int tau, const int rows, const int cols)
 // description output
 
 template <class real>
-std::string helical<real>::description() const
+std::string
+helical<real>::description() const
 {
     std::ostringstream sout;
     sout << "Helical " << rows << "×" << cols << " Interleaver";
@@ -67,7 +69,8 @@ std::string helical<real>::description() const
 // object serialization - saving
 
 template <class real>
-std::ostream& helical<real>::serialize(std::ostream& sout) const
+std::ostream&
+helical<real>::serialize(std::ostream& sout) const
 {
     sout << "# Interleaver size" << std::endl;
     sout << this->lut.size() << std::endl;
@@ -81,7 +84,8 @@ std::ostream& helical<real>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class real>
-std::istream& helical<real>::serialize(std::istream& sin)
+std::istream&
+helical<real>::serialize(std::istream& sin)
 {
     int tau;
     sin >> libbase::eatcomments >> tau >> libbase::verify;

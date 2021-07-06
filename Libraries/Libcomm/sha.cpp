@@ -52,7 +52,8 @@ sha::sha()
 
 // Digest-specific functions
 
-void sha::derived_reset()
+void
+sha::derived_reset()
 {
     // reset chaining variables
     m_hash.init(5);
@@ -63,7 +64,8 @@ void sha::derived_reset()
     m_hash(4) = 0xc3d2e1f0;
 }
 
-void sha::process_block(const libbase::vector<libbase::int32u>& M)
+void
+sha::process_block(const libbase::vector<libbase::int32u>& M)
 {
     // create expanded message block
     libbase::vector<libbase::int32u> W;
@@ -90,7 +92,8 @@ void sha::process_block(const libbase::vector<libbase::int32u>& M)
 
 // Verification function
 
-void sha::selftest()
+void
+sha::selftest()
 {
     // set flag to avoid re-entry
     tested = true;
@@ -126,7 +129,8 @@ void sha::selftest()
     assertalways(verify(sMessage, sHash));
 }
 
-bool sha::verify(const std::string message, const std::string hash)
+bool
+sha::verify(const std::string message, const std::string hash)
 {
     sha d;
     d.reset();
@@ -139,10 +143,11 @@ bool sha::verify(const std::string message, const std::string hash)
 
 // SHA nonlinear function implementations
 
-libbase::int32u sha::f(const int t,
-                       const libbase::int32u X,
-                       const libbase::int32u Y,
-                       const libbase::int32u Z)
+libbase::int32u
+sha::f(const int t,
+       const libbase::int32u X,
+       const libbase::int32u Y,
+       const libbase::int32u Z)
 {
     assert(t < 80);
     switch (t / 20) {
@@ -160,15 +165,17 @@ libbase::int32u sha::f(const int t,
 
 // Circular shift function
 
-libbase::int32u sha::cshift(const libbase::int32u x, const int s)
+libbase::int32u
+sha::cshift(const libbase::int32u x, const int s)
 {
     return (x << s) | (x >> (32 - s));
 }
 
 // Message expansion function
 
-void sha::expand(const libbase::vector<libbase::int32u>& M,
-                 libbase::vector<libbase::int32u>& W)
+void
+sha::expand(const libbase::vector<libbase::int32u>& M,
+            libbase::vector<libbase::int32u>& W)
 {
     // check input size
     assert(M.size() == 16);

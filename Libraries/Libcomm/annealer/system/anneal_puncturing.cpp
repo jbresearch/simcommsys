@@ -85,16 +85,18 @@ anneal_puncturing::anneal_puncturing(const char* fname,
 
 anneal_puncturing::~anneal_puncturing() { output(std::cout); }
 
-inline void anneal_puncturing::energy_function(const double factor,
-                                               const int set,
-                                               const int pos)
+inline void
+anneal_puncturing::energy_function(const double factor,
+                                   const int set,
+                                   const int pos)
 {
     for (int i = 0; i < tau; i++) {
         res(i) += factor * contrib(set, pos, i);
     }
 }
 
-double anneal_puncturing::work_energy()
+double
+anneal_puncturing::work_energy()
 {
     double sum = 0, sumsq = 0;
 
@@ -111,7 +113,8 @@ double anneal_puncturing::work_energy()
     return sqrt(var);
 }
 
-double anneal_puncturing::perturb()
+double
+anneal_puncturing::perturb()
 {
     // choose a set and two positions in that set to swap (one must be
     // punctured, the other transmitted)
@@ -137,7 +140,8 @@ double anneal_puncturing::perturb()
     return (delta);
 }
 
-void anneal_puncturing::unperturb()
+void
+anneal_puncturing::unperturb()
 {
     // undo the swap
     pattern(set, pos1) = false;
@@ -149,9 +153,14 @@ void anneal_puncturing::unperturb()
     E = Eold;
 }
 
-double anneal_puncturing::energy() { return E; }
+double
+anneal_puncturing::energy()
+{
+    return E;
+}
 
-std::ostream& anneal_puncturing::output(std::ostream& sout) const
+std::ostream&
+anneal_puncturing::output(std::ostream& sout) const
 {
     for (int i = 0; i < s; i++) {
         sout << pattern(i, 0);

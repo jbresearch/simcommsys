@@ -27,7 +27,8 @@ namespace libimage
 // initialization
 
 template <class T>
-void limitfilter<T>::init(const T lo, const T hi)
+void
+limitfilter<T>::init(const T lo, const T hi)
 {
     m_lo = lo;
     m_hi = hi;
@@ -36,8 +37,9 @@ void limitfilter<T>::init(const T lo, const T hi)
 // filter process loop (only updates output matrix)
 
 template <class T>
-void limitfilter<T>::process(const libbase::matrix<T>& in,
-                             libbase::matrix<T>& out) const
+void
+limitfilter<T>::process(const libbase::matrix<T>& in,
+                        libbase::matrix<T>& out) const
 {
     const int M = in.size().rows();
     const int N = in.size().cols();
@@ -58,7 +60,8 @@ void limitfilter<T>::process(const libbase::matrix<T>& in,
 }
 
 template <class T>
-void limitfilter<T>::process(libbase::matrix<T>& m) const
+void
+limitfilter<T>::process(libbase::matrix<T>& m) const
 {
     const int M = m.size().rows();
     const int N = m.size().cols();

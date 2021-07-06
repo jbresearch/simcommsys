@@ -38,7 +38,8 @@ namespace libbase
  */
 
 template <class T>
-int levenshtein(const vector<T>& s, const vector<T>& t)
+int
+levenshtein(const vector<T>& s, const vector<T>& t)
 {
     const int m = s.size();
     const int n = t.size();

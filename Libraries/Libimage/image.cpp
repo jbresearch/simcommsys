@@ -32,7 +32,8 @@ namespace libimage
 // Saving/loading functions
 
 template <class T>
-std::ostream& image<T>::serialize(std::ostream& sout) const
+std::ostream&
+image<T>::serialize(std::ostream& sout) const
 {
     libbase::trace << "Saving image" << std::flush;
 
@@ -92,7 +93,8 @@ std::ostream& image<T>::serialize(std::ostream& sout) const
 }
 
 template <class T>
-std::istream& image<T>::serialize(std::istream& sin)
+std::istream&
+image<T>::serialize(std::istream& sin)
 {
     libbase::trace << "Loading image" << std::flush;
 

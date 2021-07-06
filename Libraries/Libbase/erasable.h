@@ -207,7 +207,8 @@ public:
 // Stream input / output
 
 template <class symbol>
-std::ostream& operator<<(std::ostream& s, const erasable<symbol>& x)
+std::ostream&
+operator<<(std::ostream& s, const erasable<symbol>& x)
 {
     if (x.is_erased()) {
         s << "?";
@@ -219,7 +220,8 @@ std::ostream& operator<<(std::ostream& s, const erasable<symbol>& x)
 }
 
 template <class symbol>
-std::istream& operator>>(std::istream& s, erasable<symbol>& x)
+std::istream&
+operator>>(std::istream& s, erasable<symbol>& x)
 {
     char c;
     if (s.get(c)) {

@@ -61,9 +61,10 @@ namespace libbase
  * \note re may point to the same memory as ro/ri, so care must be taken.
  */
 template <class dbl>
-void compute_extrinsic(vector<vector<dbl>>& re,
-                       const vector<vector<dbl>>& ro,
-                       const vector<vector<dbl>>& ri)
+void
+compute_extrinsic(vector<vector<dbl>>& re,
+                  const vector<vector<dbl>>& ro,
+                  const vector<vector<dbl>>& ri)
 {
 #if DEBUG >= 3
     std::cerr << "DEBUG (compute_extrinsic): ro = " << ro << std::endl;
@@ -123,10 +124,11 @@ void compute_extrinsic(vector<vector<dbl>>& re,
  * probabilities in that row is equal to 1, with the result stored in-place.
  */
 template <class real>
-void normalize_row(boost::assignable_multi_array<real, 2>& table,
-                   const int row,
-                   const int col_min,
-                   const int col_max)
+void
+normalize_row(boost::assignable_multi_array<real, 2>& table,
+              const int row,
+              const int col_min,
+              const int col_max)
 {
 #ifndef NDEBUG
     static matching_counter zeros("vector_itfunc normalize_row");
@@ -166,10 +168,11 @@ void normalize_row(boost::assignable_multi_array<real, 2>& table,
  * probabilities in that row is equal to 1, with the result stored in-place.
  */
 template <class real>
-void normalize_row(matrix<real>& table,
-                   const int row,
-                   const int col_min,
-                   const int col_max)
+void
+normalize_row(matrix<real>& table,
+              const int row,
+              const int col_min,
+              const int col_max)
 {
 #ifndef NDEBUG
     static matching_counter zeros("vector_itfunc normalize_row");
@@ -214,7 +217,8 @@ void normalize_row(matrix<real>& table,
  * \note The output and input vectors may point to the same memory
  */
 template <class real, class dbl>
-void normalize(const vector<real>& in, vector<dbl>& out)
+void
+normalize(const vector<real>& in, vector<dbl>& out)
 {
 #ifndef NDEBUG
     static matching_counter zeros("vector_itfunc normalize");
@@ -258,7 +262,8 @@ void normalize(const vector<real>& in, vector<dbl>& out)
  * \note The output and input vectors may point to the same memory
  */
 template <class real, class dbl>
-void normalize_results(const vector<vector<real>>& in, vector<vector<dbl>>& out)
+void
+normalize_results(const vector<vector<real>>& in, vector<vector<dbl>>& out)
 {
 #if DEBUG >= 3
     std::cerr << "DEBUG (normalize_results): in = " << in << std::endl;
@@ -283,7 +288,8 @@ void normalize_results(const vector<vector<real>>& in, vector<vector<dbl>>& out)
  * \brief Determine the entropy of the given pdf
  */
 template <class real>
-double compute_entropy(const vector<real>& p)
+double
+compute_entropy(const vector<real>& p)
 {
     double H = 0;
 
@@ -298,7 +304,8 @@ double compute_entropy(const vector<real>& p)
  * \brief Determine the average entropy of the given set of pdfs
  */
 template <class real>
-double compute_entropy(const vector<vector<real>>& ptable)
+double
+compute_entropy(const vector<vector<real>>& ptable)
 {
     // determine sizes
     const int N = ptable.size();

@@ -57,7 +57,8 @@ CAnnealInterleaverApp theApp;
 /////////////////////////////////////////////////////////////////////////////
 // CAnnealInterleaverApp initialization
 
-BOOL CAnnealInterleaverApp::InitInstance()
+BOOL
+CAnnealInterleaverApp::InitInstance()
 {
     // Standard initialization
     // If you are not using these features and wish to reduce the size

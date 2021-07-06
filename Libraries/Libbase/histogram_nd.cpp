@@ -63,7 +63,8 @@ histogram_nd<dims>::histogram_nd(const vector<vector<double>>& a,
 }
 
 template <int dims>
-const vector<double> histogram_nd<dims>::get_bin_edges()
+const vector<double>
+histogram_nd<dims>::get_bin_edges()
 {
     const double step = get_step();
     vector<double> edges(bins + 1);
@@ -76,7 +77,8 @@ const vector<double> histogram_nd<dims>::get_bin_edges()
 }
 
 template <int dims>
-const vector<double> histogram_nd<dims>::get_bin_centres()
+const vector<double>
+histogram_nd<dims>::get_bin_centres()
 {
     const double step = get_step();
     vector<double> centres(bins);

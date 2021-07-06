@@ -74,7 +74,8 @@ truerand::~truerand()
 
 // Interface with random
 
-inline void truerand::advance()
+inline void
+truerand::advance()
 {
 #ifdef _WIN32
     assertalways(CryptGenRandom(hCryptProv, sizeof(x), (BYTE*)&x));

@@ -38,13 +38,15 @@ secant::secant(double (*func)(double))
     maxiter(1000);
 }
 
-void secant::init(const double x1, const double x2)
+void
+secant::init(const double x1, const double x2)
 {
     init_x1 = x1;
     init_x2 = x2;
 }
 
-double secant::solve(const double y)
+double
+secant::solve(const double y)
 {
     assertalways(f != NULL);
 

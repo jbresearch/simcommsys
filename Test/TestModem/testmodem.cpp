@@ -38,7 +38,8 @@ using std::dec;
 using std::hex;
 
 template <class S>
-void TestModem(blockmodem<S>& mdm)
+void
+TestModem(blockmodem<S>& mdm)
 {
     const int m = mdm.num_symbols();
     const int bits = int(log2(m));
@@ -51,13 +52,15 @@ void TestModem(blockmodem<S>& mdm)
     }
 }
 
-void TestMPSK(int m)
+void
+TestMPSK(int m)
 {
     mpsk mdm(m);
     TestModem(mdm);
 }
 
-void TestQAM(int m)
+void
+TestQAM(int m)
 {
     qam mdm(m);
     TestModem(mdm);
@@ -68,7 +71,8 @@ void TestQAM(int m)
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     TestMPSK(2);
     TestMPSK(4);

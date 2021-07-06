@@ -40,7 +40,8 @@ namespace libcomm
 // initialization / de-allocation
 
 template <class real, class dbl>
-void repacc<real, dbl>::init()
+void
+repacc<real, dbl>::init()
 {
     // check presence of components
     assertalways(inter);
@@ -60,7 +61,8 @@ void repacc<real, dbl>::init()
 }
 
 template <class real, class dbl>
-void repacc<real, dbl>::reset()
+void
+repacc<real, dbl>::reset()
 {
     if (endatzero) {
         BCJR.setstart(0);
@@ -74,7 +76,8 @@ void repacc<real, dbl>::reset()
 // memory allocator (for internal use only)
 
 template <class real, class dbl>
-void repacc<real, dbl>::allocate()
+void
+repacc<real, dbl>::allocate()
 {
     libbase::allocate(rp, This::input_block_size(), This::num_inputs());
     ra.init(This::acc_timesteps(), acc->num_input_combinations());
@@ -98,7 +101,8 @@ void repacc<real, dbl>::allocate()
 // internal codec functions
 
 template <class real, class dbl>
-void repacc<real, dbl>::resetpriors()
+void
+repacc<real, dbl>::resetpriors()
 {
     // Should be called after setreceivers()
     assertalways(initialised);
@@ -107,7 +111,8 @@ void repacc<real, dbl>::resetpriors()
 }
 
 template <class real, class dbl>
-void repacc<real, dbl>::setpriors(const array1vd_t& ptable)
+void
+repacc<real, dbl>::setpriors(const array1vd_t& ptable)
 {
     // Encoder symbol space must be the same as modulation symbol space
     assertalways(ptable.size() > 0);
@@ -127,7 +132,8 @@ void repacc<real, dbl>::setpriors(const array1vd_t& ptable)
  * probabilities are now created normalized.
  */
 template <class real, class dbl>
-void repacc<real, dbl>::setreceiver(const array1vd_t& ptable)
+void
+repacc<real, dbl>::setreceiver(const array1vd_t& ptable)
 {
     // Encoder symbol space must be the same as modulation symbol space
     assertalways(ptable.size() > 0);
@@ -171,7 +177,8 @@ void repacc<real, dbl>::setreceiver(const array1vd_t& ptable)
 // encoding and decoding functions
 
 template <class real, class dbl>
-void repacc<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
+void
+repacc<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
 {
     assert(source.size() == This::input_block_size());
     // Inherit sizes
@@ -233,7 +240,8 @@ void repacc<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
  * information at that position
  */
 template <class real, class dbl>
-void repacc<real, dbl>::softdecode(array1vd_t& ri)
+void
+repacc<real, dbl>::softdecode(array1vd_t& ri)
 {
     // decode accumulator
 
@@ -304,7 +312,8 @@ void repacc<real, dbl>::softdecode(array1vd_t& ri)
 }
 
 template <class real, class dbl>
-void repacc<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
+void
+repacc<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
 {
     failwith("Not yet implemented");
 }
@@ -312,7 +321,8 @@ void repacc<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
 // description output
 
 template <class real, class dbl>
-std::string repacc<real, dbl>::description() const
+std::string
+repacc<real, dbl>::description() const
 {
     std::ostringstream sout;
     sout << "Repeat-Accumulate Code - ";
@@ -330,7 +340,8 @@ std::string repacc<real, dbl>::description() const
 // object serialization - saving
 
 template <class real, class dbl>
-std::ostream& repacc<real, dbl>::serialize(std::ostream& sout) const
+std::ostream&
+repacc<real, dbl>::serialize(std::ostream& sout) const
 {
     // format version
     sout << "# Version" << std::endl;
@@ -356,7 +367,8 @@ std::ostream& repacc<real, dbl>::serialize(std::ostream& sout) const
  * \version 3 added clipping threshold (limitlo)
  */
 template <class real, class dbl>
-std::istream& repacc<real, dbl>::serialize(std::istream& sin)
+std::istream&
+repacc<real, dbl>::serialize(std::istream& sin)
 {
     assertalways(sin.good());
     // get format version

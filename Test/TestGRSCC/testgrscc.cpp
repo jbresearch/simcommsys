@@ -44,7 +44,8 @@ typedef gf<1, 0x3> GF2;
 typedef gf<3, 0xB> GF8;
 typedef gf<4, 0x13> GF16;
 
-matrix<vector<GF16>> GetGeneratorGF16()
+matrix<vector<GF16>>
+GetGeneratorGF16()
 {
     // Create generator matrix for a R=1/3 code
     matrix<vector<GF16>> gen(1, 3);
@@ -66,7 +67,8 @@ matrix<vector<GF16>> GetGeneratorGF16()
     return gen;
 }
 
-matrix<vector<GF8>> GetGeneratorGF8()
+matrix<vector<GF8>>
+GetGeneratorGF8()
 {
     // Create generator matrix for a R=1/2 code
     matrix<vector<GF8>> gen(1, 2);
@@ -83,7 +85,8 @@ matrix<vector<GF8>> GetGeneratorGF8()
     return gen;
 }
 
-matrix<vector<GF2>> GetGeneratorGF2()
+matrix<vector<GF2>>
+GetGeneratorGF2()
 {
     // Create generator matrix for a R=1/2 code
     matrix<vector<GF2>> gen(1, 2);
@@ -102,7 +105,8 @@ matrix<vector<GF2>> GetGeneratorGF2()
     return gen;
 }
 
-matrix<bitfield> GetGeneratorBinary()
+matrix<bitfield>
+GetGeneratorBinary()
 {
     // Create generator matrix for a R=1/2 code
     matrix<bitfield> gen(1, 2);
@@ -113,7 +117,8 @@ matrix<bitfield> GetGeneratorBinary()
     return gen;
 }
 
-void TestCreation()
+void
+TestCreation()
 {
     cout << std::endl << "Test code creation:" << std::endl;
     // Create RSC code from generator matrix for R=1/3, nu=2, GF(16)
@@ -125,7 +130,8 @@ void TestCreation()
     cout << "Code serialization: [" << &cc << "]" << std::endl;
 }
 
-void CompareCode(fsm& enc, const int ns[], const int out[])
+void
+CompareCode(fsm& enc, const int ns[], const int out[])
 {
     cout << enc.description() << std::endl;
 
@@ -151,7 +157,8 @@ void CompareCode(fsm& enc, const int ns[], const int out[])
     }
 }
 
-void CompareCodes()
+void
+CompareCodes()
 {
     cout << std::endl
          << "Test comparison of recursive codes with known state table:"
@@ -189,7 +196,8 @@ void CompareCodes()
     CompareCode(cc_old, ns, out);
 }
 
-void ShowCirculationTable(fsm& cc, int period)
+void
+ShowCirculationTable(fsm& cc, int period)
 {
     cout << std::endl << "Code circulation table:" << std::endl;
 
@@ -213,7 +221,8 @@ void ShowCirculationTable(fsm& cc, int period)
     cout << std::endl;
 }
 
-void TestCirculationUsage(fsm& cc, int period)
+void
+TestCirculationUsage(fsm& cc, int period)
 {
     libbase::randgen r;
     r.seed(0);
@@ -253,7 +262,8 @@ void TestCirculationUsage(fsm& cc, int period)
     }
 }
 
-void TestCirculation()
+void
+TestCirculation()
 {
     cout << std::endl << "Test code circulation:" << std::endl;
 
@@ -273,7 +283,8 @@ void TestCirculation()
  * \author  Johann Briffa
  */
 
-int main(int argc, char* argv[])
+int
+main(int argc, char* argv[])
 {
     TestCreation();
     CompareCodes();

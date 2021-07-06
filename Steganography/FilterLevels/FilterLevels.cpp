@@ -60,13 +60,15 @@ CFilterLevelsApp::CFilterLevelsApp() : CPSPlugIn(sizeof(SFilterLevelsData), 100)
 // CFilterLevelsApp filter selector functions
 
 // show the about dialog here
-void CFilterLevelsApp::FilterAbout(void)
+void
+CFilterLevelsApp::FilterAbout(void)
 {
     CAboutDlg dlg;
     dlg.DoModal();
 }
 
-void CFilterLevelsApp::FilterStart(void)
+void
+CFilterLevelsApp::FilterStart(void)
 {
     // FilterStart will get user parameters if necessary & select the first tile
     CPSPlugIn::FilterStart();
@@ -81,7 +83,8 @@ void CFilterLevelsApp::FilterStart(void)
     m_miNeighbors = 0;
 }
 
-void CFilterLevelsApp::FilterContinue(void)
+void
+CFilterLevelsApp::FilterContinue(void)
 {
     // set up library names
     using libbase::matrix;
@@ -274,7 +277,8 @@ void CFilterLevelsApp::FilterContinue(void)
     }
 }
 
-void CFilterLevelsApp::FilterFinish(void)
+void
+CFilterLevelsApp::FilterFinish(void)
 {
     // stop timer & show final progress indication
     CPSPlugIn::FilterFinish();
@@ -293,36 +297,48 @@ void CFilterLevelsApp::FilterFinish(void)
 /////////////////////////////////////////////////////////////////////////////
 // CFilterLevelsApp helper functions
 
-void CFilterLevelsApp::ShowDialog(void) {}
+void
+CFilterLevelsApp::ShowDialog(void)
+{
+}
 
-void CFilterLevelsApp::InitPointer(char* sData)
+void
+CFilterLevelsApp::InitPointer(char* sData)
 {
     m_sData = (SFilterLevelsData*)sData;
 }
 
-void CFilterLevelsApp::InitParameters() {}
+void
+CFilterLevelsApp::InitParameters()
+{
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // CFilterLevelsApp scripting support
 
-void CFilterLevelsApp::ReadScriptParameter(PIReadDescriptor token,
-                                           DescriptorKeyID key,
-                                           DescriptorTypeID type,
-                                           int32 flags)
+void
+CFilterLevelsApp::ReadScriptParameter(PIReadDescriptor token,
+                                      DescriptorKeyID key,
+                                      DescriptorTypeID type,
+                                      int32 flags)
 {
 }
 
-void CFilterLevelsApp::WriteScriptParameters(PIWriteDescriptor token) {}
+void
+CFilterLevelsApp::WriteScriptParameters(PIWriteDescriptor token)
+{
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // The one and only CFilterLevelsApp object
 
 CFilterLevelsApp theApp;
 
-DLLExport SPAPI void PluginMain(const short nSelector,
-                                FilterRecord* pFilterRecord,
-                                long* pData,
-                                short* pResult)
+DLLExport SPAPI void
+PluginMain(const short nSelector,
+           FilterRecord* pFilterRecord,
+           long* pData,
+           short* pResult)
 {
     theApp.Main(nSelector, pFilterRecord, pData, pResult);
 }

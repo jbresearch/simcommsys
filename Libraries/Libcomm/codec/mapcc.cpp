@@ -30,7 +30,8 @@ namespace libcomm
 // initialization / de-allocation
 
 template <class real, class dbl>
-void mapcc<real, dbl>::init()
+void
+mapcc<real, dbl>::init()
 {
     assertalways(encoder);
     BCJR.init(*encoder, tau);
@@ -38,7 +39,8 @@ void mapcc<real, dbl>::init()
 }
 
 template <class real, class dbl>
-void mapcc<real, dbl>::reset()
+void
+mapcc<real, dbl>::reset()
 {
     if (circular) {
         BCJR.setstart();
@@ -55,7 +57,8 @@ void mapcc<real, dbl>::reset()
 // internal codec functions
 
 template <class real, class dbl>
-void mapcc<real, dbl>::resetpriors()
+void
+mapcc<real, dbl>::resetpriors()
 {
     // Initialize input probability vector
     app.init(BCJR.block_size(), BCJR.num_input_symbols());
@@ -63,7 +66,8 @@ void mapcc<real, dbl>::resetpriors()
 }
 
 template <class real, class dbl>
-void mapcc<real, dbl>::setpriors(const array1vd_t& ptable)
+void
+mapcc<real, dbl>::setpriors(const array1vd_t& ptable)
 {
     // Encoder symbol space must be the same as modulation symbol space
     assertalways(ptable.size() > 0);
@@ -94,7 +98,8 @@ void mapcc<real, dbl>::setpriors(const array1vd_t& ptable)
 }
 
 template <class real, class dbl>
-void mapcc<real, dbl>::setreceiver(const array1vd_t& ptable)
+void
+mapcc<real, dbl>::setreceiver(const array1vd_t& ptable)
 {
     // Confirm input alphabet size same as encoded alphabet
     assertalways(ptable.size() > 0);
@@ -130,7 +135,8 @@ void mapcc<real, dbl>::setreceiver(const array1vd_t& ptable)
 // encoding and decoding functions
 
 template <class real, class dbl>
-void mapcc<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
+void
+mapcc<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
 {
     assert(source.size() == This::input_block_size());
     // Inherit sizes
@@ -165,7 +171,8 @@ void mapcc<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
 }
 
 template <class real, class dbl>
-void mapcc<real, dbl>::softdecode(array1vd_t& ri)
+void
+mapcc<real, dbl>::softdecode(array1vd_t& ri)
 {
     // temporary space to hold complete results (ie. with tail)
     array2d_t rif_bcjr;
@@ -196,7 +203,8 @@ void mapcc<real, dbl>::softdecode(array1vd_t& ri)
 }
 
 template <class real, class dbl>
-void mapcc<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
+void
+mapcc<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
 {
     // temporary space to hold complete results (ie. with tail)
     array2d_t rif_bcjr, rof_bcjr;
@@ -250,7 +258,8 @@ void mapcc<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
 // description output
 
 template <class real, class dbl>
-std::string mapcc<real, dbl>::description() const
+std::string
+mapcc<real, dbl>::description() const
 {
     std::ostringstream sout;
     sout << (endatzero ? "Terminated, " : "Unterminated, ");
@@ -264,7 +273,8 @@ std::string mapcc<real, dbl>::description() const
 // object serialization - saving
 
 template <class real, class dbl>
-std::ostream& mapcc<real, dbl>::serialize(std::ostream& sout) const
+std::ostream&
+mapcc<real, dbl>::serialize(std::ostream& sout) const
 {
     sout << "# Encoder" << std::endl;
     sout << encoder;
@@ -280,7 +290,8 @@ std::ostream& mapcc<real, dbl>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class real, class dbl>
-std::istream& mapcc<real, dbl>::serialize(std::istream& sin)
+std::istream&
+mapcc<real, dbl>::serialize(std::istream& sin)
 {
     sin >> libbase::eatcomments >> encoder >> libbase::verify;
     sin >> libbase::eatcomments >> tau >> libbase::verify;

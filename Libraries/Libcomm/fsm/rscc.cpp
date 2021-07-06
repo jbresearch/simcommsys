@@ -32,14 +32,16 @@ const libbase::serializer rscc::shelper("fsm", "rscc", rscc::create);
 
 // FSM state operations (getting and resetting)
 
-void rscc::resetcircular(const vector<int>& zerostate, int n)
+void
+rscc::resetcircular(const vector<int>& zerostate, int n)
 {
     failwith("Function not implemented.");
 }
 
 // FSM helper operations
 
-vector<int> rscc::determineinput(const vector<int>& input) const
+vector<int>
+rscc::determineinput(const vector<int>& input) const
 {
     assert(input.size() == k);
     vector<int> ip = input;
@@ -52,7 +54,8 @@ vector<int> rscc::determineinput(const vector<int>& input) const
     return ip;
 }
 
-libbase::bitfield rscc::determinefeedin(const vector<int>& input) const
+libbase::bitfield
+rscc::determinefeedin(const vector<int>& input) const
 {
     assert(input.size() == k);
     // check we have no 'tail' inputs
@@ -71,7 +74,8 @@ libbase::bitfield rscc::determinefeedin(const vector<int>& input) const
 
 // Description
 
-std::string rscc::description() const
+std::string
+rscc::description() const
 {
     std::ostringstream sout;
     sout << "RSC code " << ccbfsm::description();
@@ -80,12 +84,14 @@ std::string rscc::description() const
 
 // Serialization Support
 
-std::ostream& rscc::serialize(std::ostream& sout) const
+std::ostream&
+rscc::serialize(std::ostream& sout) const
 {
     return ccbfsm::serialize(sout);
 }
 
-std::istream& rscc::serialize(std::istream& sin)
+std::istream&
+rscc::serialize(std::istream& sin)
 {
     return ccbfsm::serialize(sin);
 }

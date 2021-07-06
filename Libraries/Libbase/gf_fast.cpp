@@ -153,7 +153,8 @@ const int gf_fast<8, 0x11D>::pow_lut[256] = {
  Costello, 2004, p.41]
  */
 template <int m, int poly>
-void gf_fast<m, poly>::init(int value)
+void
+gf_fast<m, poly>::init(int value)
 {
     assert(m < 32);
     assert(value >= 0 && value < (1 << m));
@@ -170,7 +171,8 @@ void gf_fast<m, poly>::init(int value)
  The string must only contain 1's and 0's.
  */
 template <int m, int poly>
-void gf_fast<m, poly>::init(const std::string s)
+void
+gf_fast<m, poly>::init(const std::string s)
 {
     int32u value = 0;
     for (std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
@@ -210,7 +212,8 @@ gf_fast<m, poly>::operator std::string() const
  equivalent to an XOR operation.
  */
 template <int m, int poly>
-gf_fast<m, poly>& gf_fast<m, poly>::operator+=(const gf_fast<m, poly>& x)
+gf_fast<m, poly>&
+gf_fast<m, poly>::operator+=(const gf_fast<m, poly>& x)
 {
     this->value ^= x.value;
     this->pow_of_alpha = gf_fast<m, poly>::log_lut[this->value];
@@ -228,7 +231,8 @@ gf_fast<m, poly>& gf_fast<m, poly>::operator+=(const gf_fast<m, poly>& x)
  addition.
  */
 template <int m, int poly>
-gf_fast<m, poly>& gf_fast<m, poly>::operator-=(const gf_fast<m, poly>& x)
+gf_fast<m, poly>&
+gf_fast<m, poly>::operator-=(const gf_fast<m, poly>& x)
 {
     value ^= x.value;
     this->pow_of_alpha = gf_fast<m, poly>::log_lut[this->value];
@@ -244,7 +248,8 @@ gf_fast<m, poly>& gf_fast<m, poly>::operator-=(const gf_fast<m, poly>& x)
  [cf. Gladman, "A Specification for Rijndael, the AES Algorithm", 2003, pp.3-4]
  */
 template <int m, int poly>
-gf_fast<m, poly>& gf_fast<m, poly>::operator*=(const gf_fast<m, poly>& x)
+gf_fast<m, poly>&
+gf_fast<m, poly>::operator*=(const gf_fast<m, poly>& x)
 {
     // only  do something if we are not 0
     if (0 != this->value) {
@@ -268,7 +273,8 @@ gf_fast<m, poly>& gf_fast<m, poly>::operator*=(const gf_fast<m, poly>& x)
 
  */
 template <int m, int poly>
-gf_fast<m, poly>& gf_fast<m, poly>::operator/=(const gf_fast<m, poly>& x)
+gf_fast<m, poly>&
+gf_fast<m, poly>::operator/=(const gf_fast<m, poly>& x)
 {
     // ensure we do not divide by 0
     assertalways(0 != x);
@@ -291,7 +297,8 @@ gf_fast<m, poly>& gf_fast<m, poly>::operator/=(const gf_fast<m, poly>& x)
 
  */
 template <int m, int poly>
-gf_fast<m, poly> gf_fast<m, poly>::inverse() const
+gf_fast<m, poly>
+gf_fast<m, poly>::inverse() const
 {
     // 0 does not have an inverse
     assertalways(0 != this->value);
@@ -304,7 +311,8 @@ gf_fast<m, poly> gf_fast<m, poly>::inverse() const
  *  This function simply works out the product of the powers mod (2^m-1)
  */
 template <int m, int poly>
-gf_fast<m, poly> gf_fast<m, poly>::power(int y) const
+gf_fast<m, poly>
+gf_fast<m, poly>::power(int y) const
 {
     int pow = (this->pow_of_alpha * y) % (gf_fast<m, poly>::elements() - 1);
     if (pow < 0) {

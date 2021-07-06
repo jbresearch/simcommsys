@@ -47,7 +47,8 @@ template <class receiver_t,
           class real,
           class real2,
           bool globalstore>
-real fba2_fss<receiver_t, sig, real, real2, globalstore>::get_scale(
+real
+fba2_fss<receiver_t, sig, real, real2, globalstore>::get_scale(
     const array3r_t& metric, int i, int m_min, int m_max)
 {
     real scale = 0;
@@ -67,7 +68,8 @@ template <class receiver_t,
           class real,
           class real2,
           bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::normalize(
+void
+fba2_fss<receiver_t, sig, real, real2, globalstore>::normalize(
     array3r_t& metric, int i, int m_min, int m_max)
 {
     // determine the scale factor to use (each block has to do this)
@@ -87,8 +89,8 @@ template <class receiver_t,
           class real,
           class real2,
           bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_alpha(
-    const int i)
+void
+fba2_fss<receiver_t, sig, real, real2, globalstore>::work_alpha(const int i)
 {
     for (int m1 = Zmin; m1 <= Zmax; m1++) {
         for (int delta1 = 0; delta1 <= 1; delta1++) {
@@ -123,7 +125,8 @@ template <class receiver_t,
           class real,
           class real2,
           bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_beta(const int i)
+void
+fba2_fss<receiver_t, sig, real, real2, globalstore>::work_beta(const int i)
 {
     for (int m1 = Zmin; m1 <= Zmax; m1++) {
         for (int delta1 = 0; delta1 <= 1; delta1++) {
@@ -156,7 +159,8 @@ template <class receiver_t,
           class real,
           class real2,
           bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_message_app(
+void
+fba2_fss<receiver_t, sig, real, real2, globalstore>::work_message_app(
     array1vr_t& ptable, const int i) const
 {
     for (int d = 0; d < q; d++) {
@@ -194,7 +198,8 @@ template <class receiver_t,
           class real,
           class real2,
           bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_state_app(
+void
+fba2_fss<receiver_t, sig, real, real2, globalstore>::work_state_app(
     array1r_t& ptable, const int i) const
 {
     assert(i >= 0 && i <= N);
@@ -220,7 +225,8 @@ template <class receiver_t,
           class real,
           class real2,
           bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::allocate()
+void
+fba2_fss<receiver_t, sig, real, real2, globalstore>::allocate()
 {
     // flag the state of the arrays
     initialised = true;
@@ -305,7 +311,8 @@ template <class receiver_t,
           class real,
           class real2,
           bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::free()
+void
+fba2_fss<receiver_t, sig, real, real2, globalstore>::free()
 {
     alpha.resize(boost::extents[0][0][0]);
     beta.resize(boost::extents[0][0][0]);
@@ -322,7 +329,8 @@ template <class receiver_t,
           class real,
           class real2,
           bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::print_gamma(
+void
+fba2_fss<receiver_t, sig, real, real2, globalstore>::print_gamma(
     std::ostream& sout) const
 {
     sout << "gamma = " << std::endl;
@@ -352,7 +360,8 @@ template <class receiver_t,
           class real,
           class real2,
           bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::print_metric(
+void
+fba2_fss<receiver_t, sig, real, real2, globalstore>::print_metric(
     std::ostream& sout, const array3r_t& metric) const
 {
     for (int i = 0; i <= N; i++) {
@@ -373,7 +382,8 @@ template <class receiver_t,
           class real,
           class real2,
           bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_gamma(
+void
+fba2_fss<receiver_t, sig, real, real2, globalstore>::work_gamma(
     const array1s_t& r, const array1vd_t& app)
 {
     assert(initialised);
@@ -401,7 +411,8 @@ template <class receiver_t,
           class real,
           class real2,
           bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_alpha_and_beta(
+void
+fba2_fss<receiver_t, sig, real, real2, globalstore>::work_alpha_and_beta(
     const array1d_t& sof_prior, const array1d_t& eof_prior)
 {
     assert(initialised);
@@ -446,7 +457,8 @@ template <class receiver_t,
           class real,
           class real2,
           bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_results(
+void
+fba2_fss<receiver_t, sig, real, real2, globalstore>::work_results(
     array1vr_t& ptable, array1r_t& sof_post, array1r_t& eof_post) const
 {
     assert(initialised);
@@ -481,7 +493,8 @@ template <class receiver_t,
           class real,
           class real2,
           bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_alpha(
+void
+fba2_fss<receiver_t, sig, real, real2, globalstore>::work_alpha(
     const array1d_t& sof_prior)
 {
     assert(initialised);
@@ -520,7 +533,8 @@ template <class receiver_t,
           class real,
           class real2,
           bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::work_beta_and_results(
+void
+fba2_fss<receiver_t, sig, real, real2, globalstore>::work_beta_and_results(
     const array1d_t& eof_prior,
     array1vr_t& ptable,
     array1r_t& sof_post,
@@ -580,7 +594,8 @@ template <class receiver_t,
           class real,
           class real2,
           bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::init(
+void
+fba2_fss<receiver_t, sig, real, real2, globalstore>::init(
     int N,
     int q,
     int mtau_min,
@@ -656,7 +671,8 @@ template <class receiver_t,
           class real,
           class real2,
           bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::decode(
+void
+fba2_fss<receiver_t, sig, real, real2, globalstore>::decode(
     libcomm::instrumented& collector,
     const array1s_t& r,
     const array1d_t& sof_prior,
@@ -745,7 +761,8 @@ template <class receiver_t,
           class real,
           class real2,
           bool globalstore>
-void fba2_fss<receiver_t, sig, real, real2, globalstore>::get_drift_pdf(
+void
+fba2_fss<receiver_t, sig, real, real2, globalstore>::get_drift_pdf(
     array1vr_t& pdftable) const
 {
     assert(initialised);

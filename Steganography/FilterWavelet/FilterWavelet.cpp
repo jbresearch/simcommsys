@@ -55,13 +55,15 @@ CFilterWaveletApp::CFilterWaveletApp()
 // CFilterWaveletApp filter selector functions
 
 // show the about dialog here
-void CFilterWaveletApp::FilterAbout(void)
+void
+CFilterWaveletApp::FilterAbout(void)
 {
     CAboutDlg dlg;
     dlg.DoModal();
 }
 
-void CFilterWaveletApp::FilterStart(void)
+void
+CFilterWaveletApp::FilterStart(void)
 {
     // FilterStart will get user parameters if necessary & select the first tile
     CPSPlugIn::FilterStart();
@@ -85,7 +87,8 @@ void CFilterWaveletApp::FilterStart(void)
     m_nIteration = 0;
 }
 
-void CFilterWaveletApp::FilterContinue(void)
+void
+CFilterWaveletApp::FilterContinue(void)
 {
     // update progress counter
     DisplayTileProgress(0, 100, m_nIteration, 2);
@@ -148,7 +151,8 @@ void CFilterWaveletApp::FilterContinue(void)
     }
 }
 
-void CFilterWaveletApp::FilterFinish(void)
+void
+CFilterWaveletApp::FilterFinish(void)
 {
     // stop timer & show final progress indication
     CPSPlugIn::FilterFinish();
@@ -157,7 +161,8 @@ void CFilterWaveletApp::FilterFinish(void)
 /////////////////////////////////////////////////////////////////////////////
 // CFilterWaveletApp helper functions
 
-void CFilterWaveletApp::ShowDialog(void)
+void
+CFilterWaveletApp::ShowDialog(void)
 {
     CFilterWaveletDlg dlg;
 
@@ -203,12 +208,14 @@ void CFilterWaveletApp::ShowDialog(void)
     SetShowDialog(false);
 }
 
-void CFilterWaveletApp::InitPointer(char* sData)
+void
+CFilterWaveletApp::InitPointer(char* sData)
 {
     m_sData = (SFilterWaveletData*)sData;
 }
 
-void CFilterWaveletApp::InitParameters()
+void
+CFilterWaveletApp::InitParameters()
 {
     // wavelet basis
     m_sData->nWaveletType = 0;
@@ -230,10 +237,11 @@ void CFilterWaveletApp::InitParameters()
 /////////////////////////////////////////////////////////////////////////////
 // CFilterWaveletApp scripting support
 
-void CFilterWaveletApp::ReadScriptParameter(PIReadDescriptor token,
-                                            DescriptorKeyID key,
-                                            DescriptorTypeID type,
-                                            int32 flags)
+void
+CFilterWaveletApp::ReadScriptParameter(PIReadDescriptor token,
+                                       DescriptorKeyID key,
+                                       DescriptorTypeID type,
+                                       int32 flags)
 {
     switch (key) {
     // wavelet basis
@@ -277,7 +285,8 @@ void CFilterWaveletApp::ReadScriptParameter(PIReadDescriptor token,
     }
 }
 
-void CFilterWaveletApp::WriteScriptParameters(PIWriteDescriptor token)
+void
+CFilterWaveletApp::WriteScriptParameters(PIWriteDescriptor token)
 {
     // wavelet basis
     PutInteger(token, keyWaveletType, m_sData->nWaveletType);
@@ -304,10 +313,11 @@ void CFilterWaveletApp::WriteScriptParameters(PIWriteDescriptor token)
 
 CFilterWaveletApp theApp;
 
-DLLExport SPAPI void PluginMain(const short nSelector,
-                                FilterRecord* pFilterRecord,
-                                long* pData,
-                                short* pResult)
+DLLExport SPAPI void
+PluginMain(const short nSelector,
+           FilterRecord* pFilterRecord,
+           long* pData,
+           short* pResult)
 {
     theApp.Main(nSelector, pFilterRecord, pData, pResult);
 }

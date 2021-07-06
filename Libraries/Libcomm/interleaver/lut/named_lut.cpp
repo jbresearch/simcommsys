@@ -28,7 +28,8 @@ namespace libcomm
 // description output
 
 template <class real>
-std::string named_lut<real>::description() const
+std::string
+named_lut<real>::description() const
 {
     std::ostringstream sout;
     sout << "Named Interleaver (" << lutname;
@@ -45,7 +46,8 @@ std::string named_lut<real>::description() const
 // object serialization - saving
 
 template <class real>
-std::ostream& named_lut<real>::serialize(std::ostream& sout) const
+std::ostream&
+named_lut<real>::serialize(std::ostream& sout) const
 {
     sout << m << std::endl;
     sout << lutname << std::endl;
@@ -56,7 +58,8 @@ std::ostream& named_lut<real>::serialize(std::ostream& sout) const
 // object serialization - loading
 
 template <class real>
-std::istream& named_lut<real>::serialize(std::istream& sin)
+std::istream&
+named_lut<real>::serialize(std::istream& sin)
 {
     sin >> libbase::eatcomments >> m >> libbase::verify;
     sin >> libbase::eatcomments >> lutname >> libbase::verify;

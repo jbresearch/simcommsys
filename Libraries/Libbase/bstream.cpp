@@ -26,7 +26,8 @@ namespace libbase
 
 bstream::bstream() { buffer.init(32); }
 
-obstream& obstream::operator<<(const bitfield& b)
+obstream&
+obstream::operator<<(const bitfield& b)
 {
     bitfield pending = b;
     int left = b.size();
@@ -45,7 +46,8 @@ obstream& obstream::operator<<(const bitfield& b)
     return *this;
 }
 
-ibstream& ibstream::operator>>(bitfield& b)
+ibstream&
+ibstream::operator>>(bitfield& b)
 {
     int left = b.size();
 
