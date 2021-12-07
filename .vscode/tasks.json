@@ -57,7 +57,7 @@
                 "showReuseMessage": true,
                 "clear": false
             }
-        }
+        },
         {
             "label": "Clean Everything",
             "type": "shell",
