@@ -1,0 +1,14 @@
+{
+    "name": "SimCommSys",
+    "dockerComposeFile": [
+        "docker-compose.yml"
+    ],
+    "service": "dev",
+    "workspaceFolder": "/home/sc/simCommSys",
+    "remoteUser": "sc",
+    "shutdownAction": "stopCompose",
+    "extensions": [
+        "albert.tabout",
+        "ms-vscode.cpptools"
+    ]
+}
