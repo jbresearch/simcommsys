@@ -11,6 +11,7 @@
         "albert.tabout",
         "eamodio.gitlens",
         "mhutchie.git-graph",
-        "ms-vscode.cpptools"
+        "ms-vscode.cpptools",
+        "streetsidesoftware.code-spell-checker"
     ]
 }
