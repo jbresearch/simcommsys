@@ -2,15 +2,15 @@ version: "3"
 
 services:
     dev:
-        container_name: sim_comm_sys_dev
+        container_name: simcommsys_dev
         build:
             context: .
             dockerfile: dockerfile
-        image: sim_comm_sys_image
+        image: simcommsys_img
         security_opt:
             - seccomp:unconfined
         cap_add:
             - SYS_PTRACE
         volumes:
-            - ../.:/home/sc/simCommSys
+            - ../.:/home/sc/simcommsys
         tty: true
