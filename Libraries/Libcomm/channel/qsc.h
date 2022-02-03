@@ -50,7 +50,7 @@ protected:
     G corrupt(const G& s);
     double pdf(const G& tx, const G& rx) const
     {
-        return (tx == rx) ? 1 - Ps : Ps / field_utils<G>::elements();
+        return (tx == rx) ? (1 - Ps) : (Ps / (field_utils<G>::elements() - 1));
     }
 
 public:
