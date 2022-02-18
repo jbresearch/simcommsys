@@ -386,6 +386,13 @@ ldpc<GF_q, real>::description() const
          << ", iter=" << this->max_iter
          << ", clipping=" << this->spa_alg->get_clipping_type()
          << ", almostzero=" << this->spa_alg->get_almostzero() << ")";
+
+    const auto degenerate_rows = dim_pchk - (length_n - dim_k);
+
+    if (degenerate_rows > 0) {
+        sout << " [Code has " << degenerate_rows << " degenerate rows]";
+    }
+
 #if DEBUG >= 2
     this->serialize(libbase::trace);
     libbase::trace << std::endl;
