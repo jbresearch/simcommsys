@@ -338,10 +338,13 @@ public:
  *
  * Templated base channel model.
  */
+template <class Symbol>
+class selective_channel;
 
 template <class S, template <class> class C = libbase::vector>
 class channel : public basic_channel<S, C>, public libbase::serializable
 {
+    friend class selective_channel<S>;
     // Serialization Support
     DECLARE_BASE_SERIALIZER(channel)
 };
