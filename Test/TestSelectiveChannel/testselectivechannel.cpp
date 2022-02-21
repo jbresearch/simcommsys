@@ -21,6 +21,7 @@
 
 #include <iostream>
 
+#include <boost/numeric/conversion/cast.hpp>
 #define BOOST_TEST_MODULE SelectiveChannel
 #include <boost/test/included/unit_test.hpp>
 
@@ -29,6 +30,7 @@
 #include "config.h"
 #include "gf.h"
 #include "serializer.h"
+#include <boost/numeric/conversion/cast.hpp>
 
 namespace libcomm
 {
@@ -47,27 +49,35 @@ class selective_channel : public channel<Symbol>
 public:
     selective_channel() = default;
 
-    selective_channel(const std::string bitmask)
-        : selective_channel(std::move(bitmask), nullptr)
+    selective_channel(const std::string& bitstring)
+        : selective_channel(bitstring, nullptr)
     {
     }
 
-    selective_channel(const std::string bitmask,
+    selective_channel(const std::string& bitstring,
                       std::shared_ptr<channel<Symbol>> channel)
-        : m_bitmask(std::move(bitmask)), m_channel(channel)
+        : m_bitmask(create_bitmask_from_bistring(bitstring)), m_channel(channel)
     {
-        validate_bitmask();
     }
 
-    const std::string& get_bitmask() { return m_bitmask; }
+    const std::string get_bitmask()
+    {
+        std::stringstream ss;
+
+        for (const auto& bit_value : m_bitmask) {
+            ss << (bit_value == true ? "1" : "0");
+        }
+
+        return ss.str();
+    }
 
     void transmit(const libbase::vector<Symbol>& tx,
                   libbase::vector<Symbol>& rx) override
     {
-        if (static_cast<std::string::size_type>(tx.size()) !=
-            m_bitmask.length()) {
+
+        if (static_cast<std::size_t>(tx.size()) != m_bitmask.size()) {
             std::stringstream ss;
-            ss << "Mismatch between length of bitmask (" << m_bitmask.length()
+            ss << "Mismatch between length of bitmask (" << m_bitmask.size()
                << ") and transmission sequence (" << tx.size() << ")";
 
             throw std::runtime_error(ss.str());
@@ -76,7 +86,7 @@ public:
         rx.init(tx.size());
 
         for (auto i = 0; i < tx.size(); ++i) {
-            if ('1' == m_bitmask.at(i)) {
+            if (true == m_bitmask.at(i)) {
                 rx(i) = m_channel->corrupt(tx(i));
             } else {
                 rx(i) = tx(i);
@@ -85,6 +95,20 @@ public:
     }
 
 private:
+    std::vector<bool> create_bitmask_from_bistring(const std::string& bitstring)
+    {
+        validate_bitstring(bitstring);
+
+        auto bitmask = std::vector<bool>();
+        bitmask.reserve(bitstring.length());
+
+        for (const char& bit_value : bitstring) {
+            bitmask.push_back('1' == bit_value ? 1 : 0);
+        }
+
+        return bitmask;
+    }
+
     Symbol corrupt(const Symbol& s)
     {
         failwith("selective_channel::corrupt MUST never be called");
@@ -105,15 +129,15 @@ private:
     // Serialization Support
     DECLARE_SERIALIZER(selective_channel);
 
-    void validate_bitmask()
+    void validate_bitstring(const std::string& bitstring)
     {
-        if (m_bitmask.find_first_not_of("01") != std::string::npos) {
-            throw libbase::load_error("Bitmask can only contain '1' or "
+        if (bitstring.find_first_not_of("01") != std::string::npos) {
+            throw libbase::load_error("Bitstring can only contain '1' or "
                                       "'0' characters");
         }
     }
 
-    std::string m_bitmask;
+    std::vector<bool> m_bitmask;
     std::shared_ptr<channel<Symbol>> m_channel;
 };
 
@@ -167,8 +191,6 @@ BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, SYMBOL_TYPE_SEQ)
 using namespace libcomm;
 
 static const std::string TEST_BITMASK = "1110011";
-
-// TODO: Update to store the bitmask as a vector of booleans!
 
 BOOST_AUTO_TEST_CASE(initialise_bitmask_from_constructor)
 {
