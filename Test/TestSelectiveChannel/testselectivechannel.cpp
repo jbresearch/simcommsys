@@ -129,9 +129,9 @@ BOOST_AUTO_TEST_CASE(test_transmission)
     };
 
     const auto tx_sequence =
-        libbase::vector<symbol>(std::vector<int>{1, 1, 1, 1, 1, 1, 1});
+        libbase::vector<symbol>(std::vector<int>{1, 0, 1, 1, 1, 1, 1});
     const auto expected_rx_sequence =
-        libbase::vector<symbol>(std::vector<int>{0, 0, 0, 1, 1, 0, 0});
+        libbase::vector<symbol>(std::vector<int>{0, 1, 0, 1, 1, 0, 0});
 
     auto primary_channel = std::make_shared<mock_channel>();
 
@@ -147,4 +147,7 @@ BOOST_AUTO_TEST_CASE(test_transmission)
     selective_channel.transmit(tx_sequence, rx_sequence);
 
     BOOST_CHECK(rx_sequence.isequalto(expected_rx_sequence));
+    BOOST_CHECK_EQUAL(primary_channel->num_times_corrupt_called, 5);
+    BOOST_CHECK(primary_channel->corrupt_symbol_call_sequence ==
+                (std::vector<symbol>{1, 0, 1, 1, 1}));
 }
