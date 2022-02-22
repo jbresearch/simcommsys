@@ -68,22 +68,23 @@ selective<S>::transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx)
 {
     validate_sequence_size(tx);
 
-    auto separate_sequences = separate(tx);
+    auto split_sequences = split_based_on_bitmask(tx);
 
-    auto primary_tx_sequence = separate_sequences.first;
+    auto primary_tx_sequence = split_sequences.first;
     auto primary_rx_sequence = libbase::vector<S>();
     m_primary_channel->transmit(primary_tx_sequence, primary_rx_sequence);
 
-    auto secondary_tx_sequence = separate_sequences.second;
+    auto secondary_tx_sequence = split_sequences.second;
     auto secondary_rx_sequence = libbase::vector<S>();
     m_secondary_channel->transmit(secondary_tx_sequence, secondary_rx_sequence);
 
-    merge(primary_rx_sequence, secondary_rx_sequence, rx);
+    merge_based_on_bitmask(primary_rx_sequence, secondary_rx_sequence, rx);
 }
 
 template <class S>
 std::pair<libbase::vector<S>, libbase::vector<S>>
-selective<S>::separate(const libbase::vector<S>& bit_sequence) const
+selective<S>::split_based_on_bitmask(
+    const libbase::vector<S>& bit_sequence) const
 {
     auto primary_sequence = std::vector<S>();
     auto secondary_sequence = std::vector<S>();
@@ -105,9 +106,9 @@ selective<S>::separate(const libbase::vector<S>& bit_sequence) const
 
 template <class S>
 void
-selective<S>::merge(const libbase::vector<S>& primary,
-                    const libbase::vector<S>& secondary,
-                    libbase::vector<S>& merged) const
+selective<S>::merge_based_on_bitmask(const libbase::vector<S>& primary,
+                                     const libbase::vector<S>& secondary,
+                                     libbase::vector<S>& merged) const
 {
     assertalways((primary.size() + secondary.size()) == (int)m_bitmask.size());
 

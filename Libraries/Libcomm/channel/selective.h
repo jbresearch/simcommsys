@@ -46,11 +46,11 @@ public:
                   libbase::vector<S>& rx) override;
 
     std::pair<libbase::vector<S>, libbase::vector<S>>
-    separate(const libbase::vector<S>& bit_sequence) const;
+    split_based_on_bitmask(const libbase::vector<S>& bit_sequence) const;
 
-    void merge(const libbase::vector<S>& primary,
-               const libbase::vector<S>& secondary,
-               libbase::vector<S>& merged) const;
+    void merge_based_on_bitmask(const libbase::vector<S>& primary,
+                                const libbase::vector<S>& secondary,
+                                libbase::vector<S>& merged) const;
 
 private:
     std::vector<bool>

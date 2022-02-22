@@ -86,10 +86,10 @@ BOOST_AUTO_TEST_CASE(split_sequence_based_on_bitmask)
 
     auto my_channel = selective<symbol>(TEST_BITMASK);
 
-    auto separated_sequence = my_channel.separate(sequence);
+    auto split_sequence = my_channel.split_based_on_bitmask(sequence);
 
-    BOOST_CHECK(expected_primary.isequalto(separated_sequence.first));
-    BOOST_CHECK(expected_secondary.isequalto(separated_sequence.second));
+    BOOST_CHECK(expected_primary.isequalto(split_sequence.first));
+    BOOST_CHECK(expected_secondary.isequalto(split_sequence.second));
 }
 
 BOOST_AUTO_TEST_CASE(merge_sequence_based_on_bitmask)
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(merge_sequence_based_on_bitmask)
 
     auto merged_sequence = libbase::vector<symbol>();
 
-    my_channel.merge(primary, secondary, merged_sequence);
+    my_channel.merge_based_on_bitmask(primary, secondary, merged_sequence);
 
     BOOST_CHECK(sequence.isequalto(merged_sequence));
 }
