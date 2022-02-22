@@ -30,22 +30,28 @@
 namespace libcomm
 {
 
-template <class Symbol>
-selective<Symbol>::selective(const std::string& bitstring)
-    : selective(bitstring, nullptr)
+template <class S>
+selective<S>::selective(const std::string& bitstring)
+    : selective(bitstring, nullptr, nullptr, 0.0)
 {
 }
 
-template <class Symbol>
-selective<Symbol>::selective(const std::string& bitstring,
-                             std::shared_ptr<channel<Symbol>> channel)
-    : m_bitmask(create_bitmask_from_bistring(bitstring)), m_channel(channel)
+template <class S>
+selective<S>::selective(const std::string& bitstring,
+                        std::shared_ptr<channel<S>> primary_channel,
+                        std::shared_ptr<channel<S>> secondary_channel,
+                        const double secondary_channel_parameter)
+    : m_bitmask(create_bitmask_from_bistring(bitstring)),
+      m_primary_channel(primary_channel), m_secondary_channel(secondary_channel)
 {
+    if (nullptr != secondary_channel) {
+        m_secondary_channel->set_parameter(secondary_channel_parameter);
+    }
 }
 
-template <class Symbol>
+template <class S>
 std::string
-selective<Symbol>::get_bitmask() const
+selective<S>::get_bitmask() const
 {
     std::stringstream ss;
 
@@ -56,33 +62,74 @@ selective<Symbol>::get_bitmask() const
     return ss.str();
 }
 
-template <class Symbol>
+template <class S>
 void
-selective<Symbol>::transmit(const libbase::vector<Symbol>& tx,
-                            libbase::vector<Symbol>& rx)
+selective<S>::transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx)
 {
-    if (static_cast<std::size_t>(tx.size()) != m_bitmask.size()) {
-        std::stringstream ss;
-        ss << "Mismatch between length of bitmask (" << m_bitmask.size()
-           << ") and transmission sequence (" << tx.size() << ")";
+    validate_sequence_size(tx);
 
-        throw std::runtime_error(ss.str());
+    auto separate_sequences = separate(tx);
+
+    auto primary_tx_sequence = separate_sequences.first;
+    auto primary_rx_sequence = libbase::vector<S>();
+    m_primary_channel->transmit(primary_tx_sequence, primary_rx_sequence);
+
+    auto secondary_tx_sequence = separate_sequences.second;
+    auto secondary_rx_sequence = libbase::vector<S>();
+    m_secondary_channel->transmit(secondary_tx_sequence, secondary_rx_sequence);
+
+    merge(primary_rx_sequence, secondary_rx_sequence, rx);
+}
+
+template <class S>
+std::pair<libbase::vector<S>, libbase::vector<S>>
+selective<S>::separate(const libbase::vector<S>& bit_sequence) const
+{
+    auto primary_sequence = std::vector<S>();
+    auto secondary_sequence = std::vector<S>();
+
+    primary_sequence.reserve(bit_sequence.size());
+    secondary_sequence.reserve(bit_sequence.size());
+
+    for (auto i = 0ul; i < m_bitmask.size(); ++i) {
+        if (true == m_bitmask.at(i)) {
+            primary_sequence.push_back(bit_sequence(i));
+        } else {
+            secondary_sequence.push_back(bit_sequence(i));
+        }
     }
 
-    rx.init(tx.size());
+    return std::make_pair(libbase::vector<S>(primary_sequence),
+                          libbase::vector<S>(secondary_sequence));
+}
 
-    for (auto i = 0; i < tx.size(); ++i) {
+template <class S>
+void
+selective<S>::merge(const libbase::vector<S>& primary,
+                    const libbase::vector<S>& secondary,
+                    libbase::vector<S>& merged) const
+{
+    assertalways((primary.size() + secondary.size()) == (int)m_bitmask.size());
+
+    merged.init(m_bitmask.size());
+
+    auto primary_idx = 0;
+    auto secondary_idx = 0;
+
+    for (auto i = 0ul; i < m_bitmask.size(); ++i) {
         if (true == m_bitmask.at(i)) {
-            rx(i) = m_channel->corrupt(tx(i));
+            merged(i) = primary(primary_idx);
+            ++primary_idx;
         } else {
-            rx(i) = tx(i);
+            merged(i) = secondary(secondary_idx);
+            ++secondary_idx;
         }
     }
 }
 
-template <class Symbol>
+template <class S>
 std::vector<bool>
-selective<Symbol>::create_bitmask_from_bistring(const std::string& bitstring)
+selective<S>::create_bitmask_from_bistring(const std::string& bitstring)
 {
     validate_bitstring(bitstring);
 
@@ -96,49 +143,62 @@ selective<Symbol>::create_bitmask_from_bistring(const std::string& bitstring)
     return bitmask;
 }
 
-template <class Symbol>
-Symbol
-selective<Symbol>::corrupt(const Symbol& s)
+template <class S>
+S
+selective<S>::corrupt(const S& s)
 {
     failwith("selective_channel::corrupt MUST never be called");
     return s;
 }
 
-template <class Symbol>
+template <class S>
 double
-selective<Symbol>::pdf(const Symbol& tx, const Symbol& rx) const
+selective<S>::pdf(const S& tx, const S& rx) const
 {
     failwith("selective_channel::pdf MUST never be called");
     return 0.0;
 }
 
-template <class Symbol>
+template <class S>
 void
-selective<Symbol>::set_parameter(const double x)
+selective<S>::set_parameter(const double x)
 {
 }
 
-template <class Symbol>
+template <class S>
 double
-selective<Symbol>::get_parameter() const
+selective<S>::get_parameter() const
 {
     return 0.0;
 }
 
-template <class Symbol>
+template <class S>
 std::string
-selective<Symbol>::description() const
+selective<S>::description() const
 {
     return "";
 }
 
-template <class Symbol>
+template <class S>
 void
-selective<Symbol>::validate_bitstring(const std::string& bitstring)
+selective<S>::validate_bitstring(const std::string& bitstring)
 {
     if (bitstring.find_first_not_of("01") != std::string::npos) {
         throw libbase::load_error("Bitstring can only contain '1' or "
                                   "'0' characters");
+    }
+}
+
+template <class S>
+void
+selective<S>::validate_sequence_size(const libbase::vector<S>& sequence) const
+{
+    if (static_cast<std::size_t>(sequence.size()) != m_bitmask.size()) {
+        std::stringstream ss;
+        ss << "Mismatch between length of bitmask (" << m_bitmask.size()
+           << ") and given sequence (" << sequence.size() << ")";
+
+        throw std::runtime_error(ss.str());
     }
 }
 

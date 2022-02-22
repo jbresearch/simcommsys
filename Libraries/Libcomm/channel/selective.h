@@ -27,8 +27,8 @@
 namespace libcomm
 {
 
-template <class Symbol>
-class selective : public channel<Symbol>
+template <class S>
+class selective : public channel<S>
 {
 public:
     selective() = default;
@@ -36,20 +36,29 @@ public:
     selective(const std::string& bitstring);
 
     selective(const std::string& bitstring,
-              std::shared_ptr<channel<Symbol>> channel);
+              std::shared_ptr<channel<S>> primary_channel,
+              std::shared_ptr<channel<S>> secondary_channel,
+              const double secondary_channel_parameter);
 
     std::string get_bitmask() const;
 
-    void transmit(const libbase::vector<Symbol>& tx,
-                  libbase::vector<Symbol>& rx) override;
+    void transmit(const libbase::vector<S>& tx,
+                  libbase::vector<S>& rx) override;
+
+    std::pair<libbase::vector<S>, libbase::vector<S>>
+    separate(const libbase::vector<S>& bit_sequence) const;
+
+    void merge(const libbase::vector<S>& primary,
+               const libbase::vector<S>& secondary,
+               libbase::vector<S>& merged) const;
 
 private:
     std::vector<bool>
     create_bitmask_from_bistring(const std::string& bitstring);
 
-    Symbol corrupt(const Symbol& s);
+    S corrupt(const S& s);
 
-    double pdf(const Symbol& tx, const Symbol& rx) const;
+    double pdf(const S& tx, const S& rx) const;
 
     void set_parameter(const double x);
 
@@ -59,8 +68,11 @@ private:
 
     void validate_bitstring(const std::string& bitstring);
 
+    void validate_sequence_size(const libbase::vector<S>& sequence) const;
+
     std::vector<bool> m_bitmask;
-    std::shared_ptr<channel<Symbol>> m_channel;
+    std::shared_ptr<channel<S>> m_primary_channel;
+    std::shared_ptr<channel<S>> m_secondary_channel;
 
     // Serialization Support
     DECLARE_SERIALIZER(selective);

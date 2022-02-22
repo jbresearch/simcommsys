@@ -338,17 +338,9 @@ public:
  *
  * Templated base channel model.
  */
-
-// NOTE: Forward declaration of the selective channel class. This is required to
-// avoid a loop in the includes because 'selective.h' includes 'channel.h'
-template <class S>
-class selective;
-
 template <class S, template <class> class C = libbase::vector>
 class channel : public basic_channel<S, C>, public libbase::serializable
 {
-    friend class selective<S>;
-
     // Serialization Support
     DECLARE_BASE_SERIALIZER(channel)
 };
