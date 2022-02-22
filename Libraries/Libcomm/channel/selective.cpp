@@ -206,13 +206,16 @@ template <class S>
 void
 selective<S>::set_parameter(const double x)
 {
+    assertalways(m_primary_channel != nullptr);
+    m_primary_channel->set_parameter(x);
 }
 
 template <class S>
 double
 selective<S>::get_parameter() const
 {
-    return 0.0;
+    assertalways(m_primary_channel != nullptr);
+    return m_primary_channel->get_parameter();
 }
 
 template <class S>

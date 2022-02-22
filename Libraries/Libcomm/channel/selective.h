@@ -32,14 +32,17 @@ class selective : public channel<S>
 {
 public:
     selective() = default;
-
     selective(const std::string& bitstring);
-
     selective(const std::string& bitstring,
               std::shared_ptr<channel<S>> primary_channel,
               std::shared_ptr<channel<S>> secondary_channel,
               const double secondary_channel_parameter);
 
+    // Setters
+    void set_parameter(const double x);
+
+    // Getters
+    double get_parameter() const;
     std::string get_bitmask() const;
 
     void transmit(const libbase::vector<S>& tx,
@@ -65,19 +68,13 @@ private:
 
     std::vector<bool> create_bitmask(const std::string& bitstring);
 
-    S corrupt(const S& s);
-
-    double pdf(const S& tx, const S& rx) const;
-
-    void set_parameter(const double x);
-
-    double get_parameter() const;
-
     std::string description() const;
 
     void validate_bitstring(const std::string& bitstring);
-
     void validate_sequence_size(const libbase::vector<S>& sequence) const;
+
+    S corrupt(const S& s);
+    double pdf(const S& tx, const S& rx) const;
 
     std::vector<bool> m_bitmask;
     std::shared_ptr<channel<S>> m_primary_channel;

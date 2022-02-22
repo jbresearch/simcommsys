@@ -45,6 +45,20 @@ BOOST_AUTO_TEST_CASE(validate_bitmask)
     BOOST_CHECK_THROW(selective<symbol>("1100z11"), libbase::load_error);
 }
 
+BOOST_AUTO_TEST_CASE(set_and_retrieve_parameter)
+{
+    auto primary_channel = std::make_shared<libcomm::qsc<symbol>>();
+    auto secondary_channel = std::make_shared<libcomm::qsc<symbol>>();
+
+    auto test_parameter = 0.2;
+    auto channel = selective<symbol>(
+        TEST_BITMASK, primary_channel, secondary_channel, 0.0);
+
+    channel.set_parameter(test_parameter);
+    BOOST_TEST(channel.get_parameter() == test_parameter,
+               boost::test_tools::tolerance(0.0001));
+}
+
 BOOST_AUTO_TEST_CASE(set_secondary_channel_parameter)
 {
     auto primary_channel = std::make_shared<libcomm::qsc<symbol>>();
