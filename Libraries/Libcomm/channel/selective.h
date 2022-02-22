@@ -53,6 +53,8 @@ public:
             const libbase::vector<S>& rx,
             libbase::vector<libbase::vector<double>>& ptable) const override;
 
+    std::string description() const;
+
 private:
     std::pair<libbase::vector<S>, libbase::vector<S>>
     split_sequence(const libbase::vector<S>& bit_sequence) const;
@@ -67,8 +69,6 @@ private:
         libbase::vector<libbase::vector<double>>& ptable) const;
 
     std::vector<bool> create_bitmask(const std::string& bitstring);
-
-    std::string description() const;
 
     void validate_bitstring(const std::string& bitstring);
     void validate_sequence_size(const libbase::vector<S>& sequence) const;

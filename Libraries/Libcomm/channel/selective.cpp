@@ -222,7 +222,15 @@ template <class S>
 std::string
 selective<S>::description() const
 {
-    return "";
+    assertalways(m_primary_channel != nullptr);
+    assertalways(m_secondary_channel != nullptr);
+
+    std::stringstream ss;
+    ss << "Selective channel. "
+       << "Primary Channel: [" << m_primary_channel->description() << "]"
+       << "Secondary Channel: [" << m_secondary_channel->description() << "]";
+
+    return ss.str();
 }
 
 template <class S>
