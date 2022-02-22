@@ -41,8 +41,8 @@ selective<S>::selective(const std::string& bitstring,
                         std::shared_ptr<channel<S>> primary_channel,
                         std::shared_ptr<channel<S>> secondary_channel,
                         const double secondary_channel_parameter)
-    : m_bitmask(create_bitmask_from_bistring(bitstring)),
-      m_primary_channel(primary_channel), m_secondary_channel(secondary_channel)
+    : m_bitmask(create_bitmask(bitstring)), m_primary_channel(primary_channel),
+      m_secondary_channel(secondary_channel)
 {
     if (nullptr != secondary_channel) {
         m_secondary_channel->set_parameter(secondary_channel_parameter);
@@ -68,7 +68,7 @@ selective<S>::transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx)
 {
     validate_sequence_size(tx);
 
-    auto split_sequences = split_based_on_bitmask(tx);
+    auto split_sequences = split_sequence(tx);
 
     auto primary_tx_sequence = split_sequences.first;
     auto primary_rx_sequence = libbase::vector<S>();
@@ -78,13 +78,34 @@ selective<S>::transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx)
     auto secondary_rx_sequence = libbase::vector<S>();
     m_secondary_channel->transmit(secondary_tx_sequence, secondary_rx_sequence);
 
-    merge_based_on_bitmask(primary_rx_sequence, secondary_rx_sequence, rx);
+    merge_sequences(primary_rx_sequence, secondary_rx_sequence, rx);
+}
+
+template <class S>
+void
+selective<S>::receive(const libbase::vector<S>& possible_tx_symbols,
+                      const libbase::vector<S>& rx,
+                      libbase::vector<libbase::vector<double>>& ptable) const
+{
+    auto split_sequences = split_sequence(rx);
+
+    auto primary_rx_sequence = split_sequences.first;
+    auto primary_ptable = libbase::vector<libbase::vector<double>>();
+    m_primary_channel->receive(
+        possible_tx_symbols, primary_rx_sequence, primary_ptable);
+
+    auto secondary_rx_sequence = split_sequences.second;
+    auto secondary_ptable = libbase::vector<libbase::vector<double>>();
+    m_secondary_channel->receive(
+        possible_tx_symbols, secondary_rx_sequence, secondary_ptable);
+
+    libbase::allocate(ptable, rx.size(), possible_tx_symbols.size());
+    merge_ptables(primary_ptable, secondary_ptable, ptable);
 }
 
 template <class S>
 std::pair<libbase::vector<S>, libbase::vector<S>>
-selective<S>::split_based_on_bitmask(
-    const libbase::vector<S>& bit_sequence) const
+selective<S>::split_sequence(const libbase::vector<S>& bit_sequence) const
 {
     auto primary_sequence = std::vector<S>();
     auto secondary_sequence = std::vector<S>();
@@ -106,9 +127,9 @@ selective<S>::split_based_on_bitmask(
 
 template <class S>
 void
-selective<S>::merge_based_on_bitmask(const libbase::vector<S>& primary,
-                                     const libbase::vector<S>& secondary,
-                                     libbase::vector<S>& merged) const
+selective<S>::merge_sequences(const libbase::vector<S>& primary,
+                              const libbase::vector<S>& secondary,
+                              libbase::vector<S>& merged) const
 {
     assertalways((primary.size() + secondary.size()) == (int)m_bitmask.size());
 
@@ -129,8 +150,29 @@ selective<S>::merge_based_on_bitmask(const libbase::vector<S>& primary,
 }
 
 template <class S>
+void
+selective<S>::merge_ptables(
+    const libbase::vector<libbase::vector<double>>& primary_ptable,
+    const libbase::vector<libbase::vector<double>>& secondary_ptable,
+    libbase::vector<libbase::vector<double>>& ptable) const
+{
+    auto primary_idx = 0;
+    auto secondary_idx = 0;
+
+    for (auto i = 0ul; i < m_bitmask.size(); ++i) {
+        if (true == m_bitmask.at(i)) {
+            ptable(i).copyfrom(primary_ptable(primary_idx));
+            ++primary_idx;
+        } else {
+            ptable(i).copyfrom(secondary_ptable(secondary_idx));
+            ++secondary_idx;
+        }
+    }
+}
+
+template <class S>
 std::vector<bool>
-selective<S>::create_bitmask_from_bistring(const std::string& bitstring)
+selective<S>::create_bitmask(const std::string& bitstring)
 {
     validate_bitstring(bitstring);
 

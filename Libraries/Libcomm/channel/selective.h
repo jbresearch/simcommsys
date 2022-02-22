@@ -45,16 +45,25 @@ public:
     void transmit(const libbase::vector<S>& tx,
                   libbase::vector<S>& rx) override;
 
-    std::pair<libbase::vector<S>, libbase::vector<S>>
-    split_based_on_bitmask(const libbase::vector<S>& bit_sequence) const;
-
-    void merge_based_on_bitmask(const libbase::vector<S>& primary,
-                                const libbase::vector<S>& secondary,
-                                libbase::vector<S>& merged) const;
+    void
+    receive(const libbase::vector<S>& possible_tx_symbols,
+            const libbase::vector<S>& rx,
+            libbase::vector<libbase::vector<double>>& ptable) const override;
 
 private:
-    std::vector<bool>
-    create_bitmask_from_bistring(const std::string& bitstring);
+    std::pair<libbase::vector<S>, libbase::vector<S>>
+    split_sequence(const libbase::vector<S>& bit_sequence) const;
+
+    void merge_sequences(const libbase::vector<S>& primary,
+                         const libbase::vector<S>& secondary,
+                         libbase::vector<S>& merged) const;
+
+    void merge_ptables(
+        const libbase::vector<libbase::vector<double>>& primary_ptable,
+        const libbase::vector<libbase::vector<double>>& secondary_ptable,
+        libbase::vector<libbase::vector<double>>& ptable) const;
+
+    std::vector<bool> create_bitmask(const std::string& bitstring);
 
     S corrupt(const S& s);
 

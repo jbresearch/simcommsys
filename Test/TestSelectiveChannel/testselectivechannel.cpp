@@ -73,44 +73,6 @@ BOOST_AUTO_TEST_CASE(throw_exception_if_bitmask_and_tx_sequence_mismatch)
                       std::runtime_error);
 }
 
-BOOST_AUTO_TEST_CASE(split_sequence_based_on_bitmask)
-{
-    const auto sequence =
-        libbase::vector<symbol>(std::vector<int>{1, 0, 1, 0, 1, 0, 1});
-
-    const auto expected_primary =
-        libbase::vector<symbol>(std::vector<int>{1, 0, 1, 0, 1});
-
-    const auto expected_secondary =
-        libbase::vector<symbol>(std::vector<int>{0, 1});
-
-    auto my_channel = selective<symbol>(TEST_BITMASK);
-
-    auto split_sequence = my_channel.split_based_on_bitmask(sequence);
-
-    BOOST_CHECK(expected_primary.isequalto(split_sequence.first));
-    BOOST_CHECK(expected_secondary.isequalto(split_sequence.second));
-}
-
-BOOST_AUTO_TEST_CASE(merge_sequence_based_on_bitmask)
-{
-    const auto sequence =
-        libbase::vector<symbol>(std::vector<int>{1, 1, 1, 0, 0, 1, 1});
-
-    const auto primary =
-        libbase::vector<symbol>(std::vector<int>{1, 1, 1, 1, 1});
-
-    const auto secondary = libbase::vector<symbol>(std::vector<int>{0, 0});
-
-    auto my_channel = selective<symbol>(TEST_BITMASK);
-
-    auto merged_sequence = libbase::vector<symbol>();
-
-    my_channel.merge_based_on_bitmask(primary, secondary, merged_sequence);
-
-    BOOST_CHECK(sequence.isequalto(merged_sequence));
-}
-
 BOOST_AUTO_TEST_CASE(test_transmission)
 {
     class mock_channel : public libcomm::qsc<symbol>
@@ -150,4 +112,50 @@ BOOST_AUTO_TEST_CASE(test_transmission)
     BOOST_CHECK_EQUAL(primary_channel->num_times_corrupt_called, 5);
     BOOST_CHECK(primary_channel->corrupt_symbol_call_sequence ==
                 (std::vector<symbol>{1, 0, 1, 1, 1}));
+}
+
+BOOST_AUTO_TEST_CASE(test_reception)
+{
+    auto possible_tx_symbols = libbase::vector<symbol>(symbol::elements());
+
+    for (auto i = 0; i < symbol::elements(); ++i) {
+        possible_tx_symbols(i) = symbol(i);
+    }
+
+    libbase::randgen r;
+    r.seed(0);
+
+    const auto p_s = 0.1;
+
+    auto primary_channel = std::make_shared<libcomm::qsc<symbol>>();
+    primary_channel->seedfrom(r);
+    primary_channel->set_parameter(p_s);
+    auto secondary_channel = std::make_shared<libcomm::qsc<symbol>>();
+    secondary_channel->seedfrom(r);
+
+    auto selective_channel = selective<symbol>(
+        TEST_BITMASK, primary_channel, secondary_channel, 0.0);
+    auto ptable = libbase::vector<libbase::vector<double>>();
+
+    const auto rx_sequence =
+        libbase::vector<symbol>(std::vector<int>{1, 1, 1, 0, 1, 0, 0});
+    selective_channel.receive(possible_tx_symbols, rx_sequence, ptable);
+
+    // Bits that were passed through the channel with an error rate of p_s
+    BOOST_CHECK_EQUAL(ptable(0)(0), p_s);
+    BOOST_CHECK_EQUAL(ptable(0)(1), (1 - p_s));
+    BOOST_CHECK_EQUAL(ptable(1)(0), p_s);
+    BOOST_CHECK_EQUAL(ptable(1)(1), (1 - p_s));
+    BOOST_CHECK_EQUAL(ptable(2)(0), p_s);
+    BOOST_CHECK_EQUAL(ptable(2)(1), (1 - p_s));
+    BOOST_CHECK_EQUAL(ptable(5)(0), (1 - p_s));
+    BOOST_CHECK_EQUAL(ptable(5)(1), p_s);
+    BOOST_CHECK_EQUAL(ptable(6)(0), (1 - p_s));
+    BOOST_CHECK_EQUAL(ptable(6)(1), p_s);
+
+    // Bits that were passed through the channel with an error rate of 0
+    BOOST_CHECK_EQUAL(ptable(3)(0), 1.0);
+    BOOST_CHECK_EQUAL(ptable(3)(1), 0.0);
+    BOOST_CHECK_EQUAL(ptable(4)(0), 0.0);
+    BOOST_CHECK_EQUAL(ptable(4)(1), 1.0);
 }
