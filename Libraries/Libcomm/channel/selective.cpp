@@ -281,6 +281,19 @@ template <class G>
 std::ostream&
 selective<G>::serialize(std::ostream& sout) const
 {
+    assertalways(sout.good());
+
+    // clang-format off
+    sout << "# Bitmask\n"
+         << get_bitmask() << "\n"
+         << "# Primary channel\n"
+         << m_primary_channel
+         << "# Secondary channel\n"
+         << m_secondary_channel
+         << "# # Secondary channel fixed parameter value\n"
+         << m_secondary_channel->get_parameter();
+    // clang-format on
+
     return sout;
 }
 
@@ -288,6 +301,8 @@ template <class G>
 std::istream&
 selective<G>::serialize(std::istream& sin)
 {
+    assertalways(sin.good());
+
     std::string bitmask;
     double secondary_channel_param;
 
