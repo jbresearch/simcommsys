@@ -105,6 +105,17 @@ selective<S>::get_secondary_channel() const
 
 template <class S>
 void
+selective<S>::seedfrom(libbase::random& r)
+{
+    assertalways(m_primary_channel != nullptr);
+    assertalways(m_secondary_channel != nullptr);
+
+    m_primary_channel->seedfrom(r);
+    m_secondary_channel->seedfrom(r);
+}
+
+template <class S>
+void
 selective<S>::transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx)
 {
     validate_sequence_size(tx);
@@ -153,7 +164,7 @@ selective<S>::description() const
 
     std::stringstream ss;
     ss << "Selective channel. "
-       << "Primary Channel: [" << m_primary_channel->description() << "]"
+       << "Primary Channel: [" << m_primary_channel->description() << "] "
        << "Secondary Channel: [" << m_secondary_channel->description() << "]";
 
     return ss.str();
@@ -284,13 +295,13 @@ selective<G>::serialize(std::ostream& sout) const
     assertalways(sout.good());
 
     // clang-format off
-    sout << "# Bitmask\n"
+    sout << "## Bitmask\n"
          << get_bitmask() << "\n"
-         << "# Primary channel\n"
+         << "## Primary channel\n"
          << m_primary_channel
-         << "# Secondary channel\n"
+         << "## Secondary channel\n"
          << m_secondary_channel
-         << "# # Secondary channel fixed parameter value\n"
+         << "### Secondary channel fixed parameter value\n"
          << m_secondary_channel->get_parameter();
     // clang-format on
 
@@ -317,7 +328,6 @@ selective<G>::serialize(std::istream& sin)
 }
 
 // Explicit Realizations
-using libbase::serializer;
 
 // clang-format off
 #define USING_GF(r, x, type) \
@@ -336,7 +346,7 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 #define INSTANTIATE(r, x, type) \
    template class selective<type>; \
    template <> \
-   const serializer selective<type>::shelper( \
+   const libbase::serializer selective<type>::shelper( \
          "channel", \
          "selective<" BOOST_PP_STRINGIZE(type) ">", \
          selective<type>::create);

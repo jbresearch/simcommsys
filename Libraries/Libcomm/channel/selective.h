@@ -47,6 +47,8 @@ public:
     const channel<S>& get_primary_channel() const;
     const channel<S>& get_secondary_channel() const;
 
+    void seedfrom(libbase::random& r) override;
+
     void transmit(const libbase::vector<S>& tx,
                   libbase::vector<S>& rx) override;
 

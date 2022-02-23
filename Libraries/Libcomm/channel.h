@@ -91,7 +91,7 @@ public:
 
     /*! \name Channel parameter handling */
     //! Seeds any random generators from a pseudo-random sequence
-    void seedfrom(libbase::random& r) { this->r.seed(r.ival()); }
+    virtual void seedfrom(libbase::random& r) { this->r.seed(r.ival()); }
     // @}
 
     /*! \name Channel functions */

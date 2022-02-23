@@ -110,14 +110,14 @@ BOOST_AUTO_TEST_CASE(test_transmission)
         libbase::vector<symbol>(std::vector<int>{0, 1, 0, 1, 1, 0, 0});
 
     auto primary_channel = std::make_shared<mock_channel>();
-
     auto secondary_channel = std::make_shared<libcomm::qsc<symbol>>();
-    libbase::randgen r;
-    r.seed(0);
-    secondary_channel->seedfrom(r);
 
     auto selective_channel = selective<symbol>(
         TEST_BITMASK, primary_channel, secondary_channel, 0.0);
+
+    libbase::randgen r;
+    r.seed(0);
+    selective_channel.seedfrom(r);
 
     auto rx_sequence = libbase::vector<symbol>();
     selective_channel.transmit(tx_sequence, rx_sequence);
@@ -179,13 +179,13 @@ BOOST_AUTO_TEST_CASE(test_serialisation)
     const auto channel_parameter = 0.1;
 
     std::stringstream ss;
-    ss << "# Bitmask\n"
+    ss << "## Bitmask\n"
        << TEST_BITMASK << "\n"
-       << "# Primary channel\n"
+       << "## Primary channel\n"
        << "qsc<gf2>\n"
-       << "# Secondary channel\n"
+       << "## Secondary channel\n"
        << "qsc<gf2>\n"
-       << "# # Secondary channel fixed parameter value\n"
+       << "### Secondary channel fixed parameter value\n"
        << channel_parameter;
 
     auto channel = selective<symbol>();
