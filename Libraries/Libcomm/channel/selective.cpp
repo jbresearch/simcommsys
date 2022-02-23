@@ -31,22 +31,19 @@ namespace libcomm
 {
 
 template <class S>
-selective<S>::selective(const std::string& bitstring)
-    : selective(bitstring, nullptr, nullptr, 0.0)
+selective<S>::selective(const std::string& bitmask)
+    : selective(bitmask, nullptr, nullptr, 0.0)
 {
 }
 
 template <class S>
-selective<S>::selective(const std::string& bitstring,
+selective<S>::selective(const std::string& bitmask,
                         std::shared_ptr<channel<S>> primary_channel,
                         std::shared_ptr<channel<S>> secondary_channel,
                         const double secondary_channel_parameter)
-    : m_bitmask(create_bitmask(bitstring)), m_primary_channel(primary_channel),
-      m_secondary_channel(secondary_channel)
+    : m_primary_channel(primary_channel), m_secondary_channel(secondary_channel)
 {
-    if (nullptr != secondary_channel) {
-        m_secondary_channel->set_parameter(secondary_channel_parameter);
-    }
+    init(bitmask, secondary_channel_parameter);
 }
 
 template <class S>
@@ -60,6 +57,20 @@ selective<S>::get_bitmask() const
     }
 
     return ss.str();
+}
+
+template <class S>
+const channel<S>&
+selective<S>::get_primary_channel() const
+{
+    return *m_primary_channel;
+}
+
+template <class S>
+const channel<S>&
+selective<S>::get_secondary_channel() const
+{
+    return *m_secondary_channel;
 }
 
 template <class S>
@@ -101,6 +112,18 @@ selective<S>::receive(const libbase::vector<S>& possible_tx_symbols,
 
     libbase::allocate(ptable, rx.size(), possible_tx_symbols.size());
     merge_ptables(primary_ptable, secondary_ptable, ptable);
+}
+
+template <class S>
+void
+selective<S>::init(const std::string& bitmask,
+                   const double secondary_channel_parameter)
+{
+    set_bitmask(bitmask);
+
+    if (nullptr != m_secondary_channel) {
+        m_secondary_channel->set_parameter(secondary_channel_parameter);
+    }
 }
 
 template <class S>
@@ -171,19 +194,17 @@ selective<S>::merge_ptables(
 }
 
 template <class S>
-std::vector<bool>
-selective<S>::create_bitmask(const std::string& bitstring)
+void
+selective<S>::set_bitmask(const std::string& bitmask)
 {
-    validate_bitstring(bitstring);
+    validate_bitmask(bitmask);
 
-    auto bitmask = std::vector<bool>();
-    bitmask.reserve(bitstring.length());
+    m_bitmask.clear();
+    m_bitmask.reserve(bitmask.length());
 
-    for (const char& bit_value : bitstring) {
-        bitmask.push_back('1' == bit_value ? 1 : 0);
+    for (const char& bit_value : bitmask) {
+        m_bitmask.push_back('1' == bit_value ? 1 : 0);
     }
-
-    return bitmask;
 }
 
 template <class S>
@@ -235,9 +256,9 @@ selective<S>::description() const
 
 template <class S>
 void
-selective<S>::validate_bitstring(const std::string& bitstring)
+selective<S>::validate_bitmask(const std::string& bitmask)
 {
-    if (bitstring.find_first_not_of("01") != std::string::npos) {
+    if (bitmask.find_first_not_of("01") != std::string::npos) {
         throw libbase::load_error("Bitstring can only contain '1' or "
                                   "'0' characters");
     }
@@ -267,6 +288,16 @@ template <class G>
 std::istream&
 selective<G>::serialize(std::istream& sin)
 {
+    std::string bitmask;
+    double secondary_channel_param;
+
+    sin >> libbase::eatcomments >> bitmask >> libbase::verify;
+    sin >> libbase::eatcomments >> m_primary_channel >> libbase::verify;
+    sin >> libbase::eatcomments >> m_secondary_channel >> libbase::verify;
+    sin >> libbase::eatcomments >> secondary_channel_param >> libbase::verify;
+
+    init(bitmask, secondary_channel_param);
+
     return sin;
 }
 

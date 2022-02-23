@@ -32,18 +32,21 @@ class selective : public channel<S>
 {
 public:
     selective() = default;
-    selective(const std::string& bitstring);
-    selective(const std::string& bitstring,
+    selective(const std::string& bitmask);
+    selective(const std::string& bitmask,
               std::shared_ptr<channel<S>> primary_channel,
               std::shared_ptr<channel<S>> secondary_channel,
               const double secondary_channel_parameter);
 
-    // Setters
     void set_parameter(const double x);
-
-    // Getters
     double get_parameter() const;
+
+    void set_bitmask(const std::string& bitmask);
     std::string get_bitmask() const;
+
+    const channel<S>& get_primary_channel() const;
+
+    const channel<S>& get_secondary_channel() const;
 
     void transmit(const libbase::vector<S>& tx,
                   libbase::vector<S>& rx) override;
@@ -56,6 +59,9 @@ public:
     std::string description() const;
 
 private:
+    void init(const std::string& bitmask,
+              const double secondary_channel_parameter);
+
     std::pair<libbase::vector<S>, libbase::vector<S>>
     split_sequence(const libbase::vector<S>& bit_sequence) const;
 
@@ -68,9 +74,7 @@ private:
         const libbase::vector<libbase::vector<double>>& secondary_ptable,
         libbase::vector<libbase::vector<double>>& ptable) const;
 
-    std::vector<bool> create_bitmask(const std::string& bitstring);
-
-    void validate_bitstring(const std::string& bitstring);
+    void validate_bitmask(const std::string& bitmask);
     void validate_sequence_size(const libbase::vector<S>& sequence) const;
 
     S corrupt(const S& s);

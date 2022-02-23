@@ -173,3 +173,37 @@ BOOST_AUTO_TEST_CASE(test_reception)
     BOOST_CHECK_EQUAL(ptable(4)(0), 0.0);
     BOOST_CHECK_EQUAL(ptable(4)(1), 1.0);
 }
+
+#include "erasable.h"
+
+BOOST_AUTO_TEST_CASE(test_input_serialisation)
+{
+    const auto channel_parameter = 0.1;
+
+    std::stringstream ss;
+    ss << "# bitmask\n"
+       << TEST_BITMASK << "\n"
+       << "# Primary Channel\n"
+       << "qsc<gf2>\n"
+       << "# Secondary Channel\n"
+       << "qsc<gf2>\n"
+       << "# Parameter value\n"
+       << channel_parameter;
+
+    auto channel = selective<symbol>();
+    channel.serialize(ss);
+
+    const auto& primary_channel = channel.get_primary_channel();
+    const auto& secondary_channel = channel.get_secondary_channel();
+
+    BOOST_CHECK_EQUAL(TEST_BITMASK, channel.get_bitmask());
+
+    // Ensure that the channels created are of type 'qsc'.
+    BOOST_CHECK_NE(dynamic_cast<const libcomm::qsc<symbol>*>(&primary_channel),
+                   nullptr);
+    BOOST_CHECK_NE(
+        dynamic_cast<const libcomm::qsc<symbol>*>(&secondary_channel), nullptr);
+
+    BOOST_TEST(secondary_channel.get_parameter() == channel_parameter,
+               boost::test_tools::tolerance(0.0001));
+}
