@@ -47,6 +47,36 @@ selective<S>::selective(const std::string& bitmask,
 }
 
 template <class S>
+void
+selective<S>::set_parameter(const double x)
+{
+    assertalways(m_primary_channel != nullptr);
+    m_primary_channel->set_parameter(x);
+}
+
+template <class S>
+double
+selective<S>::get_parameter() const
+{
+    assertalways(m_primary_channel != nullptr);
+    return m_primary_channel->get_parameter();
+}
+
+template <class S>
+void
+selective<S>::set_bitmask(const std::string& bitmask)
+{
+    validate_bitmask(bitmask);
+
+    m_bitmask.clear();
+    m_bitmask.reserve(bitmask.length());
+
+    for (const char& bit_value : bitmask) {
+        m_bitmask.push_back('1' == bit_value ? 1 : 0);
+    }
+}
+
+template <class S>
 std::string
 selective<S>::get_bitmask() const
 {
@@ -112,6 +142,21 @@ selective<S>::receive(const libbase::vector<S>& possible_tx_symbols,
 
     libbase::allocate(ptable, rx.size(), possible_tx_symbols.size());
     merge_ptables(primary_ptable, secondary_ptable, ptable);
+}
+
+template <class S>
+std::string
+selective<S>::description() const
+{
+    assertalways(m_primary_channel != nullptr);
+    assertalways(m_secondary_channel != nullptr);
+
+    std::stringstream ss;
+    ss << "Selective channel. "
+       << "Primary Channel: [" << m_primary_channel->description() << "]"
+       << "Secondary Channel: [" << m_secondary_channel->description() << "]";
+
+    return ss.str();
 }
 
 template <class S>
@@ -195,67 +240,6 @@ selective<S>::merge_ptables(
 
 template <class S>
 void
-selective<S>::set_bitmask(const std::string& bitmask)
-{
-    validate_bitmask(bitmask);
-
-    m_bitmask.clear();
-    m_bitmask.reserve(bitmask.length());
-
-    for (const char& bit_value : bitmask) {
-        m_bitmask.push_back('1' == bit_value ? 1 : 0);
-    }
-}
-
-template <class S>
-S
-selective<S>::corrupt(const S& s)
-{
-    failwith("selective_channel::corrupt MUST never be called");
-    return s;
-}
-
-template <class S>
-double
-selective<S>::pdf(const S& tx, const S& rx) const
-{
-    failwith("selective_channel::pdf MUST never be called");
-    return 0.0;
-}
-
-template <class S>
-void
-selective<S>::set_parameter(const double x)
-{
-    assertalways(m_primary_channel != nullptr);
-    m_primary_channel->set_parameter(x);
-}
-
-template <class S>
-double
-selective<S>::get_parameter() const
-{
-    assertalways(m_primary_channel != nullptr);
-    return m_primary_channel->get_parameter();
-}
-
-template <class S>
-std::string
-selective<S>::description() const
-{
-    assertalways(m_primary_channel != nullptr);
-    assertalways(m_secondary_channel != nullptr);
-
-    std::stringstream ss;
-    ss << "Selective channel. "
-       << "Primary Channel: [" << m_primary_channel->description() << "]"
-       << "Secondary Channel: [" << m_secondary_channel->description() << "]";
-
-    return ss.str();
-}
-
-template <class S>
-void
 selective<S>::validate_bitmask(const std::string& bitmask)
 {
     if (bitmask.find_first_not_of("01") != std::string::npos) {
@@ -275,6 +259,22 @@ selective<S>::validate_sequence_size(const libbase::vector<S>& sequence) const
 
         throw std::runtime_error(ss.str());
     }
+}
+
+template <class S>
+S
+selective<S>::corrupt(const S& s)
+{
+    failwith("selective_channel::corrupt MUST never be called");
+    return s;
+}
+
+template <class S>
+double
+selective<S>::pdf(const S& tx, const S& rx) const
+{
+    failwith("selective_channel::pdf MUST never be called");
+    return 0.0;
 }
 
 template <class G>

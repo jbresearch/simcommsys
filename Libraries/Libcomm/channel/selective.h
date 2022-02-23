@@ -45,7 +45,6 @@ public:
     std::string get_bitmask() const;
 
     const channel<S>& get_primary_channel() const;
-
     const channel<S>& get_secondary_channel() const;
 
     void transmit(const libbase::vector<S>& tx,
