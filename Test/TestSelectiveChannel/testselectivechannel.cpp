@@ -57,6 +57,8 @@ BOOST_AUTO_TEST_CASE(set_and_retrieve_parameter)
     channel.set_parameter(test_parameter);
     BOOST_TEST(channel.get_parameter() == test_parameter,
                boost::test_tools::tolerance(0.0001));
+    BOOST_TEST(primary_channel->get_parameter() == test_parameter,
+               boost::test_tools::tolerance(0.0001));
 }
 
 BOOST_AUTO_TEST_CASE(set_secondary_channel_parameter)
