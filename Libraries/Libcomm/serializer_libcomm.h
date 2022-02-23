@@ -42,6 +42,7 @@
 #include "channel/qec.h"
 #include "channel/qids.h"
 #include "channel/qsc.h"
+#include "channel/selective.h"
 
 // Embedders - atomic
 #include "embedder.h"
@@ -164,13 +165,14 @@ private:
 private:
     // Channels
     awgn _awgn;
-    laplacian<sigspace> _laplacian;
-    lapgauss _lapgauss;
-    qsc<libbase::gf2> _qsc;
-    qec<libbase::erasable<libbase::gf2>> _qec;
-    qids<libbase::gf2, float> _qids;
     bpmr<float> _bpmr;
     dids<float> _dids;
+    lapgauss _lapgauss;
+    laplacian<sigspace> _laplacian;
+    qec<libbase::erasable<libbase::gf2>> _qec;
+    qids<libbase::gf2, float> _qids;
+    qsc<libbase::gf2> _qsc;
+    selective<libbase::gf2> _selective;
     // Interleavers
     // onetimepad<double>	_onetimepad_double;
     // padded<double>	_padded_double;
