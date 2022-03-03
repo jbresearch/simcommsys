@@ -63,23 +63,27 @@ private:
     void init(const std::string& bitmask,
               const double secondary_channel_parameter);
 
-    std::pair<libbase::vector<S>, libbase::vector<S>>
-    split_sequence(const libbase::vector<S>& bit_sequence) const;
-
-    void merge_sequences(const libbase::vector<S>& primary,
-                         const libbase::vector<S>& secondary,
-                         libbase::vector<S>& merged) const;
-
-    void merge_ptables(
-        const libbase::vector<libbase::vector<double>>& primary_ptable,
-        const libbase::vector<libbase::vector<double>>& secondary_ptable,
-        libbase::vector<libbase::vector<double>>& ptable) const;
-
-    void validate_bitmask(const std::string& bitmask);
-    void validate_sequence_size(const libbase::vector<S>& sequence) const;
-
     S corrupt(const S& s);
     double pdf(const S& tx, const S& rx) const;
+
+    static std::pair<libbase::vector<S>, libbase::vector<S>>
+    split_sequence(const std::vector<bool>& bitmask,
+                   const libbase::vector<S>& bit_sequence);
+
+    static void merge_sequences(const std::vector<bool>& bitmask,
+                                const libbase::vector<S>& primary,
+                         const libbase::vector<S>& secondary,
+                                libbase::vector<S>& merged);
+
+    static void merge_ptables(
+        const std::vector<bool>& bitmask,
+        const libbase::vector<libbase::vector<double>>& primary_ptable,
+        const libbase::vector<libbase::vector<double>>& secondary_ptable,
+        libbase::vector<libbase::vector<double>>& ptable);
+
+    static void validate_bitmask(const std::string& bitmask);
+    static void validate_sequence_size(const std::vector<bool>& bitmask,
+                                       const libbase::vector<S>& sequence);
 
     std::vector<bool> m_bitmask;
     std::shared_ptr<channel<S>> m_primary_channel;

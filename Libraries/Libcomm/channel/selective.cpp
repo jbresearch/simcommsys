@@ -120,9 +120,9 @@ template <class S>
 void
 selective<S>::transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx)
 {
-    validate_sequence_size(tx);
+    validate_sequence_size(m_bitmask, tx);
 
-    auto split_sequences = split_sequence(tx);
+    auto split_sequences = split_sequence(m_bitmask, tx);
 
     auto primary_tx_sequence = split_sequences.first;
     auto primary_rx_sequence = libbase::vector<S>();
@@ -132,7 +132,7 @@ selective<S>::transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx)
     auto secondary_rx_sequence = libbase::vector<S>();
     m_secondary_channel->transmit(secondary_tx_sequence, secondary_rx_sequence);
 
-    merge_sequences(primary_rx_sequence, secondary_rx_sequence, rx);
+    merge_sequences(m_bitmask, primary_rx_sequence, secondary_rx_sequence, rx);
 }
 
 template <class S>
@@ -141,7 +141,7 @@ selective<S>::receive(const libbase::vector<S>& possible_tx_symbols,
                       const libbase::vector<S>& rx,
                       libbase::vector<libbase::vector<double>>& ptable) const
 {
-    auto split_sequences = split_sequence(rx);
+    auto split_sequences = split_sequence(m_bitmask, rx);
 
     auto primary_rx_sequence = split_sequences.first;
     auto primary_ptable = libbase::vector<libbase::vector<double>>();
@@ -154,7 +154,7 @@ selective<S>::receive(const libbase::vector<S>& possible_tx_symbols,
         possible_tx_symbols, secondary_rx_sequence, secondary_ptable);
 
     libbase::allocate(ptable, rx.size(), possible_tx_symbols.size());
-    merge_ptables(primary_ptable, secondary_ptable, ptable);
+    merge_ptables(m_bitmask, primary_ptable, secondary_ptable, ptable);
 }
 
 template <class S>
@@ -185,8 +185,25 @@ selective<S>::init(const std::string& bitmask,
 }
 
 template <class S>
+S
+selective<S>::corrupt(const S& s)
+{
+    failwith("selective_channel::corrupt MUST never be called");
+    return s;
+}
+
+template <class S>
+double
+selective<S>::pdf(const S& tx, const S& rx) const
+{
+    failwith("selective_channel::pdf MUST never be called");
+    return 0.0;
+}
+
+template <class S>
 std::pair<libbase::vector<S>, libbase::vector<S>>
-selective<S>::split_sequence(const libbase::vector<S>& bit_sequence) const
+selective<S>::split_sequence(const std::vector<bool>& bitmask,
+                             const libbase::vector<S>& bit_sequence)
 {
     auto primary_sequence = std::vector<S>();
     auto secondary_sequence = std::vector<S>();
@@ -194,8 +211,8 @@ selective<S>::split_sequence(const libbase::vector<S>& bit_sequence) const
     primary_sequence.reserve(bit_sequence.size());
     secondary_sequence.reserve(bit_sequence.size());
 
-    for (auto i = 0ul; i < m_bitmask.size(); ++i) {
-        if (true == m_bitmask.at(i)) {
+    for (auto i = 0ul; i < bitmask.size(); ++i) {
+        if (true == bitmask.at(i)) {
             primary_sequence.push_back(bit_sequence(i));
         } else {
             secondary_sequence.push_back(bit_sequence(i));
@@ -208,19 +225,20 @@ selective<S>::split_sequence(const libbase::vector<S>& bit_sequence) const
 
 template <class S>
 void
-selective<S>::merge_sequences(const libbase::vector<S>& primary,
+selective<S>::merge_sequences(const std::vector<bool>& bitmask,
+                              const libbase::vector<S>& primary,
                               const libbase::vector<S>& secondary,
-                              libbase::vector<S>& merged) const
+                              libbase::vector<S>& merged)
 {
-    assertalways((primary.size() + secondary.size()) == (int)m_bitmask.size());
+    assertalways((primary.size() + secondary.size()) == (int)bitmask.size());
 
-    merged.init(m_bitmask.size());
+    merged.init(bitmask.size());
 
     auto primary_idx = 0;
     auto secondary_idx = 0;
 
-    for (auto i = 0ul; i < m_bitmask.size(); ++i) {
-        if (true == m_bitmask.at(i)) {
+    for (auto i = 0ul; i < bitmask.size(); ++i) {
+        if (true == bitmask.at(i)) {
             merged(i) = primary(primary_idx);
             ++primary_idx;
         } else {
@@ -233,15 +251,16 @@ selective<S>::merge_sequences(const libbase::vector<S>& primary,
 template <class S>
 void
 selective<S>::merge_ptables(
+    const std::vector<bool>& bitmask,
     const libbase::vector<libbase::vector<double>>& primary_ptable,
     const libbase::vector<libbase::vector<double>>& secondary_ptable,
-    libbase::vector<libbase::vector<double>>& ptable) const
+    libbase::vector<libbase::vector<double>>& ptable)
 {
     auto primary_idx = 0;
     auto secondary_idx = 0;
 
-    for (auto i = 0ul; i < m_bitmask.size(); ++i) {
-        if (true == m_bitmask.at(i)) {
+    for (auto i = 0ul; i < bitmask.size(); ++i) {
+        if (true == bitmask.at(i)) {
             ptable(i).copyfrom(primary_ptable(primary_idx));
             ++primary_idx;
         } else {
@@ -263,31 +282,16 @@ selective<S>::validate_bitmask(const std::string& bitmask)
 
 template <class S>
 void
-selective<S>::validate_sequence_size(const libbase::vector<S>& sequence) const
+selective<S>::validate_sequence_size(const std::vector<bool>& bitmask,
+                                     const libbase::vector<S>& sequence)
 {
-    if (static_cast<std::size_t>(sequence.size()) != m_bitmask.size()) {
+    if (static_cast<std::size_t>(sequence.size()) != bitmask.size()) {
         std::stringstream ss;
-        ss << "Mismatch between length of bitmask (" << m_bitmask.size()
+        ss << "Mismatch between length of bitmask (" << bitmask.size()
            << ") and given sequence (" << sequence.size() << ")";
 
         throw std::runtime_error(ss.str());
     }
-}
-
-template <class S>
-S
-selective<S>::corrupt(const S& s)
-{
-    failwith("selective_channel::corrupt MUST never be called");
-    return s;
-}
-
-template <class S>
-double
-selective<S>::pdf(const S& tx, const S& rx) const
-{
-    failwith("selective_channel::pdf MUST never be called");
-    return 0.0;
 }
 
 template <class G>
