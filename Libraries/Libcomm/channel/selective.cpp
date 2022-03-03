@@ -83,7 +83,7 @@ selective<S>::get_bitmask() const
     std::stringstream ss;
 
     for (const auto& bit_value : m_bitmask) {
-        ss << (bit_value == true ? "1" : "0");
+        ss << (true == bit_value ? "1" : "0");
     }
 
     return ss.str();
@@ -122,15 +122,13 @@ selective<S>::transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx)
 {
     validate_sequence_size(m_bitmask, tx);
 
-    auto split_sequences = split_sequence(m_bitmask, tx);
+    auto [primary_tx_seq, secondary_tx_seq] = split_sequence(m_bitmask, tx);
 
-    auto primary_tx_sequence = split_sequences.first;
     auto primary_rx_sequence = libbase::vector<S>();
-    m_primary_channel->transmit(primary_tx_sequence, primary_rx_sequence);
+    m_primary_channel->transmit(primary_tx_seq, primary_rx_sequence);
 
-    auto secondary_tx_sequence = split_sequences.second;
     auto secondary_rx_sequence = libbase::vector<S>();
-    m_secondary_channel->transmit(secondary_tx_sequence, secondary_rx_sequence);
+    m_secondary_channel->transmit(secondary_tx_seq, secondary_rx_sequence);
 
     merge_sequences(m_bitmask, primary_rx_sequence, secondary_rx_sequence, rx);
 }
@@ -141,17 +139,15 @@ selective<S>::receive(const libbase::vector<S>& possible_tx_symbols,
                       const libbase::vector<S>& rx,
                       libbase::vector<libbase::vector<double>>& ptable) const
 {
-    auto split_sequences = split_sequence(m_bitmask, rx);
+    auto [primary_rx_seq, secondary_rx_seq] = split_sequence(m_bitmask, rx);
 
-    auto primary_rx_sequence = split_sequences.first;
     auto primary_ptable = libbase::vector<libbase::vector<double>>();
     m_primary_channel->receive(
-        possible_tx_symbols, primary_rx_sequence, primary_ptable);
+        possible_tx_symbols, primary_rx_seq, primary_ptable);
 
-    auto secondary_rx_sequence = split_sequences.second;
     auto secondary_ptable = libbase::vector<libbase::vector<double>>();
     m_secondary_channel->receive(
-        possible_tx_symbols, secondary_rx_sequence, secondary_ptable);
+        possible_tx_symbols, secondary_rx_seq, secondary_ptable);
 
     libbase::allocate(ptable, rx.size(), possible_tx_symbols.size());
     merge_ptables(m_bitmask, primary_ptable, secondary_ptable, ptable);
