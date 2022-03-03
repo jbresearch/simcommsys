@@ -215,3 +215,28 @@ BOOST_AUTO_TEST_CASE(test_serialisation)
 
     BOOST_CHECK_EQUAL(oss.str(), ss.str());
 }
+
+BOOST_AUTO_TEST_CASE(test_correct_random_seed_initialisation)
+{
+    class mock_channel : public libcomm::selective<symbol>
+    {
+    public:
+        mock_channel(std::shared_ptr<libcomm::qsc<symbol>> primary_channel,
+                     std::shared_ptr<libcomm::qsc<symbol>> secondary_channel)
+            : selective(TEST_BITMASK, primary_channel, secondary_channel, 0.0)
+        {
+        }
+        double generated_random_number() { return r.ival(10); }
+    };
+
+    auto primary_channel = std::make_shared<libcomm::qsc<symbol>>();
+    auto secondary_channel = std::make_shared<libcomm::qsc<symbol>>();
+
+    auto mock_selective = mock_channel(primary_channel, secondary_channel);
+
+    libbase::randgen r;
+    r.seed(0);
+    mock_selective.seedfrom(r);
+
+    BOOST_CHECK_NO_THROW(mock_selective.generated_random_number());
+}

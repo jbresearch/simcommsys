@@ -28,7 +28,7 @@ namespace libcomm
 {
 
 template <class S>
-class selective : public channel<S>
+class selective : public channel<S, libbase::vector>
 {
 public:
     selective() = default;

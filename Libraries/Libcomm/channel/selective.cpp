@@ -107,10 +107,12 @@ template <class S>
 void
 selective<S>::seedfrom(libbase::random& r)
 {
-    assertalways(m_primary_channel != nullptr);
-    assertalways(m_secondary_channel != nullptr);
+    basic_channel_interface<S, libbase::vector>::seedfrom(r);
 
+    assertalways(m_primary_channel != nullptr);
     m_primary_channel->seedfrom(r);
+
+    assertalways(m_secondary_channel != nullptr);
     m_secondary_channel->seedfrom(r);
 }
 
