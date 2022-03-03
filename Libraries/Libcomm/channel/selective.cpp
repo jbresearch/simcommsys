@@ -63,20 +63,6 @@ selective<S>::get_parameter() const
 }
 
 template <class S>
-void
-selective<S>::set_bitmask(const std::string& bitmask)
-{
-    validate_bitmask(bitmask);
-
-    m_bitmask.clear();
-    m_bitmask.reserve(bitmask.length());
-
-    for (const char& bit_value : bitmask) {
-        m_bitmask.push_back('1' == bit_value ? 1 : 0);
-    }
-}
-
-template <class S>
 std::string
 selective<S>::get_bitmask() const
 {
@@ -87,6 +73,20 @@ selective<S>::get_bitmask() const
     }
 
     return ss.str();
+}
+
+template <class S>
+uint32_t
+selective<S>::get_num_tx_bits_on_primary_channel() const
+{
+    return m_num_tx_bits_on_primary_channel;
+}
+
+template <class S>
+uint32_t
+selective<S>::get_num_tx_bits_on_secondary_channel() const
+{
+    return m_num_tx_bits_on_secondary_channel;
 }
 
 template <class S>
@@ -122,7 +122,11 @@ selective<S>::transmit(const libbase::vector<S>& tx, libbase::vector<S>& rx)
 {
     validate_sequence_size(m_bitmask, tx);
 
-    auto [primary_tx_seq, secondary_tx_seq] = split_sequence(m_bitmask, tx);
+    auto [primary_tx_seq, secondary_tx_seq] =
+        split_sequence(m_bitmask,
+                       m_num_tx_bits_on_primary_channel,
+                       m_num_tx_bits_on_secondary_channel,
+                       tx);
 
     auto primary_rx_sequence = libbase::vector<S>();
     m_primary_channel->transmit(primary_tx_seq, primary_rx_sequence);
@@ -139,9 +143,14 @@ selective<S>::receive(const libbase::vector<S>& possible_tx_symbols,
                       const libbase::vector<S>& rx,
                       libbase::vector<libbase::vector<double>>& ptable) const
 {
-    auto [primary_rx_seq, secondary_rx_seq] = split_sequence(m_bitmask, rx);
+    auto [primary_rx_seq, secondary_rx_seq] =
+        split_sequence(m_bitmask,
+                       m_num_tx_bits_on_primary_channel,
+                       m_num_tx_bits_on_secondary_channel,
+                       rx);
 
     auto primary_ptable = libbase::vector<libbase::vector<double>>();
+
     m_primary_channel->receive(
         possible_tx_symbols, primary_rx_seq, primary_ptable);
 
@@ -161,9 +170,11 @@ selective<S>::description() const
     assertalways(m_secondary_channel != nullptr);
 
     std::stringstream ss;
-    ss << "Selective channel. "
-       << "Primary Channel: [" << m_primary_channel->description() << "] "
-       << "Secondary Channel: [" << m_secondary_channel->description() << "]";
+    ss << "Selective channel - "
+       << "Primary (" << m_num_tx_bits_on_primary_channel << "): "
+       << "[" << m_primary_channel->description() << "], "
+       << "Secondary (" << m_num_tx_bits_on_secondary_channel << "): "
+       << "[" << m_secondary_channel->description() << "]";
 
     return ss.str();
 }
@@ -177,6 +188,25 @@ selective<S>::init(const std::string& bitmask,
 
     if (nullptr != m_secondary_channel) {
         m_secondary_channel->set_parameter(secondary_channel_parameter);
+    }
+}
+
+template <class S>
+void
+selective<S>::set_bitmask(const std::string& bitmask)
+{
+    validate_bitmask(bitmask);
+
+    m_num_tx_bits_on_primary_channel =
+        std::count(bitmask.begin(), bitmask.end(), '1');
+    m_num_tx_bits_on_secondary_channel =
+        std::count(bitmask.begin(), bitmask.end(), '0');
+
+    m_bitmask.clear();
+    m_bitmask.reserve(bitmask.length());
+
+    for (const char& bit_value : bitmask) {
+        m_bitmask.push_back('1' == bit_value ? 1 : 0);
     }
 }
 
@@ -199,13 +229,15 @@ selective<S>::pdf(const S& tx, const S& rx) const
 template <class S>
 std::pair<libbase::vector<S>, libbase::vector<S>>
 selective<S>::split_sequence(const std::vector<bool>& bitmask,
+                             const uint32_t num_tx_bits_on_primary_channel,
+                             const uint32_t num_tx_bits_on_secondary_channel,
                              const libbase::vector<S>& bit_sequence)
 {
     auto primary_sequence = std::vector<S>();
     auto secondary_sequence = std::vector<S>();
 
-    primary_sequence.reserve(bit_sequence.size());
-    secondary_sequence.reserve(bit_sequence.size());
+    primary_sequence.reserve(num_tx_bits_on_primary_channel);
+    secondary_sequence.reserve(num_tx_bits_on_secondary_channel);
 
     for (auto i = 0ul; i < bitmask.size(); ++i) {
         if (true == bitmask.at(i)) {

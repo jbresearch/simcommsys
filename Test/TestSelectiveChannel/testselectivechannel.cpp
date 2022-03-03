@@ -240,3 +240,11 @@ BOOST_AUTO_TEST_CASE(test_correct_random_seed_initialisation)
 
     BOOST_CHECK_NO_THROW(mock_selective.generated_random_number());
 }
+
+BOOST_AUTO_TEST_CASE(test_valid_initialisation_of_num_tx_bits_per_channel)
+{
+    auto channel = selective<symbol>(TEST_BITMASK);
+
+    BOOST_CHECK_EQUAL(channel.get_num_tx_bits_on_primary_channel(), 5);
+    BOOST_CHECK_EQUAL(channel.get_num_tx_bits_on_secondary_channel(), 2);
+}

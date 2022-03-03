@@ -41,8 +41,10 @@ public:
     void set_parameter(const double x);
     double get_parameter() const;
 
-    void set_bitmask(const std::string& bitmask);
     std::string get_bitmask() const;
+
+    uint32_t get_num_tx_bits_on_primary_channel() const;
+    uint32_t get_num_tx_bits_on_secondary_channel() const;
 
     const channel<S>& get_primary_channel() const;
     const channel<S>& get_secondary_channel() const;
@@ -63,11 +65,15 @@ private:
     void init(const std::string& bitmask,
               const double secondary_channel_parameter);
 
+    void set_bitmask(const std::string& bitmask);
+
     S corrupt(const S& s);
     double pdf(const S& tx, const S& rx) const;
 
     static std::pair<libbase::vector<S>, libbase::vector<S>>
     split_sequence(const std::vector<bool>& bitmask,
+                   const uint32_t num_tx_bits_on_primary_channel,
+                   const uint32_t num_tx_bits_on_secondary_channel,
                    const libbase::vector<S>& bit_sequence);
 
     static void merge_sequences(const std::vector<bool>& bitmask,
@@ -86,6 +92,8 @@ private:
                                        const libbase::vector<S>& sequence);
 
     std::vector<bool> m_bitmask;
+    uint32_t m_num_tx_bits_on_primary_channel;
+    uint32_t m_num_tx_bits_on_secondary_channel;
     std::shared_ptr<channel<S>> m_primary_channel;
     std::shared_ptr<channel<S>> m_secondary_channel;
 
