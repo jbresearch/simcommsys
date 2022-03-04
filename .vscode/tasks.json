@@ -4,10 +4,10 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Plain Build - Debug",
+            "label": "Plain Build (Main + Test) - Debug",
             "type": "shell",
             "problemMatcher": "$gcc",
-            "command": "time bear -o ${workspaceFolder}/.vscode/compile_commands.json make plain-build-main-debug -j8",
+            "command": "time (bear -o ${workspaceFolder}/.vscode/compile_commands.json make plain-build-main-debug -j8; bear -a -o ${workspaceFolder}/.vscode/compile_commands.json make plain-build-test-debug -j8)",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -17,11 +17,11 @@
             },
             "presentation": {
                 "echo": true,
-                "reveal": "always",
+                "reveal": "silent",
                 "focus": false,
-                "panel": "dedicated",
+                "panel": "shared",
                 "showReuseMessage": true,
-                "clear": false
+                "clear": true
             }
         },
         {
@@ -52,11 +52,11 @@
             },
             "presentation": {
                 "echo": true,
-                "reveal": "always",
+                "reveal": "silent",
                 "focus": false,
-                "panel": "dedicated",
+                "panel": "shared",
                 "showReuseMessage": true,
-                "clear": false
+                "clear": true
             }
         },
         {
@@ -69,11 +69,11 @@
             },
             "presentation": {
                 "echo": true,
-                "reveal": "always",
+                "reveal": "silent",
                 "focus": false,
-                "panel": "dedicated",
+                "panel": "shared",
                 "showReuseMessage": true,
-                "clear": false
+                "clear": true
             }
         }
     ]
