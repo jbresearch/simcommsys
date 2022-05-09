@@ -91,7 +91,7 @@ public:
 
     /*! \name Channel parameter handling */
     //! Seeds any random generators from a pseudo-random sequence
-    void seedfrom(libbase::random& r) { this->r.seed(r.ival()); }
+    virtual void seedfrom(libbase::random& r) { this->r.seed(r.ival()); }
     // @}
 
     /*! \name Channel functions */
@@ -338,7 +338,6 @@ public:
  *
  * Templated base channel model.
  */
-
 template <class S, template <class> class C = libbase::vector>
 class channel : public basic_channel<S, C>, public libbase::serializable
 {
