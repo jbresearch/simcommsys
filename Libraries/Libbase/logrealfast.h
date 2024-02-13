@@ -86,7 +86,8 @@ private:
 
 public:
    // construction
-   logrealfast()
+   logrealfast() :
+      logval(0.0)
       {
       if (!lutready)
          buildlut();
