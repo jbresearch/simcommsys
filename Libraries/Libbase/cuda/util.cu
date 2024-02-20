@@ -232,7 +232,7 @@ cudaGetDeviceCount()
     return devices;
 }
 
-//! Get the version number for the device driver
+//! Get the latest version of the runtime supported by the device driver
 
 int
 cudaGetDriverVersion()
@@ -348,12 +348,13 @@ cudaInitialize(std::ostream& sout)
          << ")" << std::endl;
     sout << "CUDA initialized: compute model "
          << cudaPrettyVersion(cudaGetComputeModel()) << ", cuda runtime "
-         << cudaPrettyVersion(cudaGetDriverVersion()) << std::endl;
-
-    if (cudaGetRuntimeVersion() != cudaGetDriverVersion()) {
+         << cudaPrettyVersion(cudaGetRuntimeVersion()) << std::endl;
+    int driver_version = cudaGetDriverVersion();
+    if (cudaGetRuntimeVersion() > driver_version)
         sout << "CUDA warning: this code was compiled with cuda runtime "
-             << cudaPrettyVersion(cudaGetDriverVersion()) << std::endl;
-    }
+             << cudaPrettyVersion(driver_version)
+             << " but driver only supports up to "
+             << cudaPrettyVersion(driver_version) << std::endl;
 }
 
 //! List CUDA capable devices and their properties
