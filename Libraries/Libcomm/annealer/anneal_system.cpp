@@ -21,11 +21,13 @@
 
 #include "anneal_system.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
-std::ostream& operator<<(std::ostream& sout, const anneal_system& x)
-   {
-   return x.output(sout);
-   }
+std::ostream&
+operator<<(std::ostream& sout, const anneal_system& x)
+{
+    return x.output(sout);
+}
 
-} // end namespace
+} // namespace libcomm

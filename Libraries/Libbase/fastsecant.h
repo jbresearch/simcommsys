@@ -26,7 +26,8 @@
 #include "secant.h"
 #include "vector.h"
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Semi-cached root-finding by Secant method.
@@ -36,20 +37,18 @@ namespace libbase {
  * which we then use to initialise the starting points for the algorithm.
  */
 
-class fastsecant : public secant {
-   vector<double> m_vdCache;
-   double m_dMin, m_dMax, m_dStep;
+class fastsecant : public secant
+{
+    vector<double> m_vdCache;
+    double m_dMin, m_dMax, m_dStep;
+
 public:
-   fastsecant(double(*func)(double) = NULL);
-   void init(const double x1, const double x2, const int n);
-   double solve(const double y);
-   double operator()(const double y)
-      {
-      return solve(y);
-      }
+    fastsecant(double (*func)(double) = NULL);
+    void init(const double x1, const double x2, const int n);
+    double solve(const double y);
+    double operator()(const double y) { return solve(y); }
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif
-

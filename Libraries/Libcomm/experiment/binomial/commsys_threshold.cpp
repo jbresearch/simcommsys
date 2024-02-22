@@ -23,74 +23,82 @@
 
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Experiment parameter handling
 
 template <class S, class R>
-void commsys_threshold<S, R>::set_parameter(const double x)
-   {
-   parametric& m = dynamic_cast<parametric&> (*this->sys->getmodem());
-   m.set_parameter(x);
-   }
+void
+commsys_threshold<S, R>::set_parameter(const double x)
+{
+    parametric& m = dynamic_cast<parametric&>(*this->sys->getmodem());
+    m.set_parameter(x);
+}
 
 template <class S, class R>
-double commsys_threshold<S, R>::get_parameter() const
-   {
-   const parametric& m =
-         dynamic_cast<const parametric&> (*this->sys->getmodem());
-   return m.get_parameter();
-   }
+double
+commsys_threshold<S, R>::get_parameter() const
+{
+    const parametric& m =
+        dynamic_cast<const parametric&>(*this->sys->getmodem());
+    return m.get_parameter();
+}
 
 // Description & Serialization
 
 template <class S, class R>
-std::string commsys_threshold<S, R>::description() const
-   {
-   std::ostringstream sout;
-   sout << "Modem-threshold-varying ";
-   sout << Base::description();
-   return sout.str();
-   }
+std::string
+commsys_threshold<S, R>::description() const
+{
+    std::ostringstream sout;
+    sout << "Modem-threshold-varying ";
+    sout << Base::description();
+    return sout.str();
+}
 
 template <class S, class R>
-std::ostream& commsys_threshold<S, R>::serialize(std::ostream& sout) const
-   {
-   sout << Base::get_parameter() << std::endl;
-   Base::serialize(sout);
-   return sout;
-   }
+std::ostream&
+commsys_threshold<S, R>::serialize(std::ostream& sout) const
+{
+    sout << Base::get_parameter() << std::endl;
+    Base::serialize(sout);
+    return sout;
+}
 
 template <class S, class R>
-std::istream& commsys_threshold<S, R>::serialize(std::istream& sin)
-   {
-   double x;
-   sin >> libbase::eatcomments >> x >> libbase::verify;
-   Base::serialize(sin);
-   Base::set_parameter(x);
-   return sin;
-   }
+std::istream&
+commsys_threshold<S, R>::serialize(std::istream& sin)
+{
+    double x;
+    sin >> libbase::eatcomments >> x >> libbase::verify;
+    Base::serialize(sin);
+    Base::set_parameter(x);
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
 #include "gf.h"
 #include "result_collector/commsys/errors_hamming.h"
 #include "result_collector/commsys/errors_levenshtein.h"
+#include "result_collector/commsys/hist_symerr.h"
 #include "result_collector/commsys/prof_burst.h"
 #include "result_collector/commsys/prof_pos.h"
 #include "result_collector/commsys/prof_sym.h"
-#include "result_collector/commsys/hist_symerr.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
+#include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/seq/for_each_product.hpp>
-#include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
 using libbase::serializer;
 
+// clang-format off
 #define USING_GF(r, x, type) \
       using libbase::type;
 
@@ -122,7 +130,9 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             "commsys_threshold<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
             commsys_threshold<BOOST_PP_SEQ_ENUM(args)>::create); \
+// clang-format on
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
+                              (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ))
 
-} // end namespace
+} // namespace libcomm

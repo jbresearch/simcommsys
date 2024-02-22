@@ -25,7 +25,8 @@
 #include "fsm.h"
 #include "serializer.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Zero State Machine.
@@ -39,74 +40,49 @@ namespace libcomm {
  */
 
 template <class S>
-class zsm : public fsm {
+class zsm : public fsm
+{
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<int> array1i_t;
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<int> array1i_t;
+    // @}
 protected:
-   /*! \name Object representation */
-   int r; //!< Repetition count
-   // @}
+    /*! \name Object representation */
+    int r; //!< Repetition count
+           // @}
 protected:
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   zsm()
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Default constructor
+    zsm() {}
+    // @}
 public:
-   /*! \name Constructors / Destructors */
-   /*!
-    * \brief Principal constructor
-    */
-   zsm(const int r) :
-         r(r)
-      {
-      assert(r >= 1);
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    /*!
+     * \brief Principal constructor
+     */
+    zsm(const int r) : r(r) { assert(r >= 1); }
+    // @}
 
-   // FSM state operations (getting and resetting)
-   array1i_t state() const
-      {
-      return array1i_t();
-      }
-   void resetcircular(const array1i_t& zerostate, int n)
-      {
-      }
-   // FSM operations (advance/output/step)
-   array1i_t output(const array1i_t& input) const;
+    // FSM state operations (getting and resetting)
+    array1i_t state() const { return array1i_t(); }
+    void resetcircular(const array1i_t& zerostate, int n) {}
+    // FSM operations (advance/output/step)
+    array1i_t output(const array1i_t& input) const;
 
-   // FSM information functions
-   int mem_order() const
-      {
-      return 0;
-      }
-   int mem_elements() const
-      {
-      return 0;
-      }
-   int num_inputs() const
-      {
-      return 1;
-      }
-   int num_outputs() const
-      {
-      return r;
-      }
-   int num_symbols() const
-      {
-      return S::elements();
-      }
+    // FSM information functions
+    int mem_order() const { return 0; }
+    int mem_elements() const { return 0; }
+    int num_inputs() const { return 1; }
+    int num_outputs() const { return r; }
+    int num_symbols() const { return S::elements(); }
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-   DECLARE_SERIALIZER(zsm)
+    // Serialization Support
+    DECLARE_SERIALIZER(zsm)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

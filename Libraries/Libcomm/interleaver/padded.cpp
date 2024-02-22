@@ -22,112 +22,126 @@
 #include "padded.h"
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
-using libbase::vector;
 using libbase::matrix;
+using libbase::vector;
 
 // construction and destruction
 
 template <class real>
-padded<real>::padded(const interleaver<real>& inter, const fsm& encoder,
-      const bool terminated, const bool renewable)
-   {
-   otp.reset(new onetimepad<real> (encoder, inter.size(), terminated, renewable));
-   this->inter = boost::dynamic_pointer_cast<interleaver<real> > (inter.clone());
-   }
+padded<real>::padded(const interleaver<real>& inter,
+                     const fsm& encoder,
+                     const bool terminated,
+                     const bool renewable)
+{
+    otp.reset(
+        new onetimepad<real>(encoder, inter.size(), terminated, renewable));
+    this->inter = std::dynamic_pointer_cast<interleaver<real>>(inter.clone());
+}
 
 template <class real>
 padded<real>::padded(const padded& x)
-   {
-   inter = boost::dynamic_pointer_cast<interleaver<real> > (x.inter->clone());
-   otp = boost::dynamic_pointer_cast<interleaver<real> > (x.otp->clone());
-   }
+{
+    inter = std::dynamic_pointer_cast<interleaver<real>>(x.inter->clone());
+    otp = std::dynamic_pointer_cast<interleaver<real>>(x.otp->clone());
+}
 
 // inter-frame operations
 
 template <class real>
-void padded<real>::seedfrom(libbase::random& r)
-   {
-   assertalways(otp);
-   otp->seedfrom(r);
-   }
+void
+padded<real>::seedfrom(libbase::random& r)
+{
+    assertalways(otp);
+    otp->seedfrom(r);
+}
 
 template <class real>
-void padded<real>::advance()
-   {
-   assertalways(otp);
-   otp->advance();
-   }
+void
+padded<real>::advance()
+{
+    assertalways(otp);
+    otp->advance();
+}
 
 // transform functions
 
 template <class real>
-void padded<real>::transform(const vector<int>& in, vector<int>& out) const
-   {
-   vector<int> temp;
-   inter->transform(in, temp);
-   otp->transform(temp, out);
-   }
+void
+padded<real>::transform(const vector<int>& in, vector<int>& out) const
+{
+    vector<int> temp;
+    inter->transform(in, temp);
+    otp->transform(temp, out);
+}
 
 template <class real>
-void padded<real>::transform(const matrix<real>& in, matrix<real>& out) const
-   {
-   matrix<real> temp;
-   inter->transform(in, temp);
-   otp->transform(temp, out);
-   }
+void
+padded<real>::transform(const matrix<real>& in, matrix<real>& out) const
+{
+    matrix<real> temp;
+    inter->transform(in, temp);
+    otp->transform(temp, out);
+}
 
 template <class real>
-void padded<real>::inverse(const matrix<real>& in, matrix<real>& out) const
-   {
-   matrix<real> temp;
-   otp->inverse(in, temp);
-   inter->inverse(temp, out);
-   }
+void
+padded<real>::inverse(const matrix<real>& in, matrix<real>& out) const
+{
+    matrix<real> temp;
+    otp->inverse(in, temp);
+    inter->inverse(temp, out);
+}
 
 // description output
 
 template <class real>
-std::string padded<real>::description() const
-   {
-   std::ostringstream sout;
-   sout << "Padded Interleaver [" << inter->description() << " + "
+std::string
+padded<real>::description() const
+{
+    std::ostringstream sout;
+    sout << "Padded Interleaver [" << inter->description() << " + "
          << otp->description() << "]";
-   return sout.str();
-   }
+    return sout.str();
+}
 
 // object serialization - saving
 
 template <class real>
-std::ostream& padded<real>::serialize(std::ostream& sout) const
-   {
-   sout << otp;
-   sout << inter;
-   return sout;
-   }
+std::ostream&
+padded<real>::serialize(std::ostream& sout) const
+{
+    sout << otp;
+    sout << inter;
+    return sout;
+}
 
 // object serialization - loading
 
 template <class real>
-std::istream& padded<real>::serialize(std::istream& sin)
-   {
-   sin >> libbase::eatcomments >> otp >> libbase::verify;
-   sin >> libbase::eatcomments >> inter >> libbase::verify;
-   return sin;
-   }
+std::istream&
+padded<real>::serialize(std::istream& sin)
+{
+    sin >> libbase::eatcomments >> otp >> libbase::verify;
+    sin >> libbase::eatcomments >> inter >> libbase::verify;
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-using libbase::serializer;
 using libbase::logrealfast;
+using libbase::serializer;
 
+// clang-format off
 #define REAL_TYPE_SEQ \
    (float)(double)(logrealfast)
 
@@ -143,7 +157,8 @@ using libbase::logrealfast;
          "interleaver", \
          "padded<" BOOST_PP_STRINGIZE(type) ">", \
          padded<type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

@@ -22,14 +22,15 @@
 #ifndef __laplacian_h
 #define __laplacian_h
 
-#include "config.h"
 #include "channel.h"
-#include "randgen.h"
+#include "config.h"
 #include "itfunc.h"
+#include "randgen.h"
 #include "serializer.h"
 #include <cmath>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Common Base for Additive Laplacian Noise Channel.
@@ -38,27 +39,27 @@ namespace libcomm {
  * \note The distribution has zero mean.
  */
 
-template <class S, template <class > class C = libbase::vector>
-class basic_laplacian : public channel<S, C> {
+template <class S, template <class> class C = libbase::vector>
+class basic_laplacian : public channel<S, C>
+{
 protected:
-   // channel paremeters
-   double lambda;
+    // channel paremeters
+    double lambda;
+
 protected:
-   // internal helper functions
-   double f(const double x) const
-      {
-      return 1 / (2 * lambda) * exp(-fabs(x) / lambda);
-      }
-   double Finv(const double y) const
-      {
-      return (y < 0.5) ? lambda * log(2 * y) : -lambda * log(2 * (1 - y));
-      }
+    // internal helper functions
+    double f(const double x) const
+    {
+        return 1 / (2 * lambda) * exp(-fabs(x) / lambda);
+    }
+    double Finv(const double y) const
+    {
+        return (y < 0.5) ? lambda * log(2 * y) : -lambda * log(2 * (1 - y));
+    }
+
 public:
-   // Description
-   std::string description() const
-      {
-      return "Laplacian channel";
-      }
+    // Description
+    std::string description() const { return "Laplacian channel"; }
 };
 
 /*!
@@ -66,37 +67,37 @@ public:
  * \author  Johann Briffa
  */
 
-template <class S, template <class > class C = libbase::vector>
-class laplacian : public basic_laplacian<S, C> {
+template <class S, template <class> class C = libbase::vector>
+class laplacian : public basic_laplacian<S, C>
+{
 private:
-   // Shorthand for class hierarchy
-   typedef basic_laplacian<S, C> Base;
-protected:
-   // channel handle functions
-   S corrupt(const S& s)
-      {
-      const S n = S(Base::Finv(Base::r.fval_closed()));
-      return s + n;
-      }
-   double pdf(const S& tx, const S& rx) const
-      {
-      const S n = rx - tx;
-      return this->f(n);
-      }
-public:
-   // Parameter handling
-   void set_parameter(const double x)
-      {
-      assertalways(x >= 0);
-      Base::lambda = x;
-      }
-   double get_parameter() const
-      {
-      return Base::lambda;
-      }
+    // Shorthand for class hierarchy
+    typedef basic_laplacian<S, C> Base;
 
-   // Serialization Support
-DECLARE_SERIALIZER(laplacian)
+protected:
+    // channel handle functions
+    S corrupt(const S& s)
+    {
+        const S n = S(Base::Finv(Base::r.fval_closed()));
+        return s + n;
+    }
+    double pdf(const S& tx, const S& rx) const
+    {
+        const S n = rx - tx;
+        return this->f(n);
+    }
+
+public:
+    // Parameter handling
+    void set_parameter(const double x)
+    {
+        assertalways(x >= 0);
+        Base::lambda = x;
+    }
+    double get_parameter() const { return Base::lambda; }
+
+    // Serialization Support
+    DECLARE_SERIALIZER(laplacian)
 };
 
 /*!
@@ -104,36 +105,38 @@ DECLARE_SERIALIZER(laplacian)
  * \author  Johann Briffa
  */
 
-template <template <class > class C>
-class laplacian<sigspace, C> : public basic_laplacian<sigspace, C> {
+template <template <class> class C>
+class laplacian<sigspace, C> : public basic_laplacian<sigspace, C>
+{
 private:
-   // Shorthand for class hierarchy
-   typedef basic_laplacian<sigspace, C> Base;
+    // Shorthand for class hierarchy
+    typedef basic_laplacian<sigspace, C> Base;
+
 protected:
-   // handle functions
-   void compute_parameters(const double Eb, const double No)
-      {
-      const double sigma = sqrt(Eb * No);
-      Base::lambda = sigma / sqrt(double(2));
-      }
-   // channel handle functions
-   sigspace corrupt(const sigspace& s)
-      {
-      const double x = Base::Finv(Base::r.fval_closed());
-      const double y = Base::Finv(Base::r.fval_closed());
-      return s + sigspace(x, y);
-      }
-   double pdf(const sigspace& tx, const sigspace& rx) const
-      {
-      sigspace n = rx - tx;
-      return Base::f(n.i()) * Base::f(n.q());
-      }
+    // handle functions
+    void compute_parameters(const double Eb, const double No)
+    {
+        const double sigma = sqrt(Eb * No);
+        Base::lambda = sigma / sqrt(double(2));
+    }
+    // channel handle functions
+    sigspace corrupt(const sigspace& s)
+    {
+        const double x = Base::Finv(Base::r.fval_closed());
+        const double y = Base::Finv(Base::r.fval_closed());
+        return s + sigspace(x, y);
+    }
+    double pdf(const sigspace& tx, const sigspace& rx) const
+    {
+        sigspace n = rx - tx;
+        return Base::f(n.i()) * Base::f(n.q());
+    }
+
 public:
-   // Serialization Support
-DECLARE_SERIALIZER(laplacian)
+    // Serialization Support
+    DECLARE_SERIALIZER(laplacian)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

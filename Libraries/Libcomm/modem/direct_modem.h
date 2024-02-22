@@ -24,7 +24,8 @@
 
 #include "modem.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Q-ary Modulator.
@@ -35,33 +36,29 @@ namespace libcomm {
  * \note Template argument class must provide a method elements() that returns
  * the field size.
  *
- * \todo Merge modulate and demodulate between this function and lut_modulator (?)
+ * \todo Merge modulate and demodulate between this function and lut_modulator
+ * (?)
  *
  * \todo Require symbol class to provide description() method
  */
 
 template <class G>
-class direct_modem : public virtual modem<G> {
+class direct_modem : public virtual modem<G>
+{
 public:
-   // Atomic modem operations
-   const G modulate(const int index) const
-      {
-      assert(index >= 0 && index < num_symbols());
-      return G(index);
-      }
-   const int demodulate(const G& signal) const
-      {
-      return signal;
-      }
+    // Atomic modem operations
+    const G modulate(const int index) const
+    {
+        assert(index >= 0 && index < num_symbols());
+        return G(index);
+    }
+    const int demodulate(const G& signal) const { return signal; }
 
-   // Informative functions
-   int num_symbols() const
-      {
-      return G::elements();
-      }
+    // Informative functions
+    int num_symbols() const { return G::elements(); }
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 };
 
 /*!
@@ -72,29 +69,24 @@ public:
  */
 
 template <>
-class direct_modem<bool> : public virtual modem<bool> {
+class direct_modem<bool> : public virtual modem<bool>
+{
 public:
-   // Atomic modem operations
-   const bool modulate(const int index) const
-      {
-      assert(index >= 0 && index <= 1);
-      return index & 1;
-      }
-   const int demodulate(const bool& signal) const
-      {
-      return signal;
-      }
+    // Atomic modem operations
+    const bool modulate(const int index) const
+    {
+        assert(index >= 0 && index <= 1);
+        return index & 1;
+    }
+    const int demodulate(const bool& signal) const { return signal; }
 
-   // Informative functions
-   int num_symbols() const
-      {
-      return 2;
-      }
+    // Informative functions
+    int num_symbols() const { return 2; }
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

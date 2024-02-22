@@ -23,15 +23,15 @@
 #define __serializer_h
 
 #include "config.h"
-#include <map>
-#include <list>
-#include <string>
 #include <iostream>
+#include <list>
+#include <map>
+#include <memory>
+#include <string>
 #include <typeinfo>
 
-#include <boost/shared_ptr.hpp>
-
-namespace libbase {
+namespace libbase
+{
 
 // Pre-definition
 
@@ -76,28 +76,27 @@ class serializable;
  * classes; this mirrors what Microsoft do in MFC.
  */
 
-class serializer {
+class serializer
+{
 public:
-   typedef boost::shared_ptr<serializable>(*fptr)();
+    typedef std::shared_ptr<serializable> (*fptr)();
+
 private:
-   static boost::shared_ptr<std::map<std::string, fptr> > cmap;
-   std::string classname;
+    static std::shared_ptr<std::map<std::string, fptr>> cmap;
+    std::string classname;
+
 public:
-   static boost::shared_ptr<serializable> call(const std::string& base,
-         const std::string& derived);
-   //! Returns a list of base classes
-   static std::list<std::string> get_base_classes();
-   //! Returns a list of derived classes for given base class
-   static std::list<std::string> get_derived_classes(const std::string& base);
+    static std::shared_ptr<serializable> call(const std::string& base,
+                                              const std::string& derived);
+    //! Returns a list of base classes
+    static std::list<std::string> get_base_classes();
+    //! Returns a list of derived classes for given base class
+    static std::list<std::string> get_derived_classes(const std::string& base);
+
 public:
-   serializer(const std::string& base, const std::string& derived, fptr func);
-   ~serializer()
-      {
-      }
-   const std::string name() const
-      {
-      return classname;
-      }
+    serializer(const std::string& base, const std::string& derived, fptr func);
+    ~serializer() {}
+    const std::string name() const { return classname; }
 };
 
 /*!
@@ -108,71 +107,76 @@ public:
  * functionality, in conjunction with DECLARE_BASE_SERIALIZER() macro.
  */
 
-class serializable {
+class serializable
+{
 public:
-   virtual ~serializable()
-      {
-      }
-   /*! \name Serialization Support */
-   /*! \brief Cloning operation */
-   virtual boost::shared_ptr<serializable> clone() const = 0;
-   /*! \brief Derived object's name */
-   virtual const std::string name() const = 0;
-   /*! \brief Serialization output */
-   virtual std::ostream& serialize(std::ostream& sout) const = 0;
-   /*! \brief Serialization input */
-   virtual std::istream& serialize(std::istream& sin) = 0;
-   /* @} */
+    virtual ~serializable() {}
+    /*! \name Serialization Support */
+    /*! \brief Cloning operation */
+    virtual std::shared_ptr<serializable> clone() const = 0;
+    /*! \brief Derived object's name */
+    virtual const std::string name() const = 0;
+    /*! \brief Serialization output */
+    virtual std::ostream& serialize(std::ostream& sout) const = 0;
+    /*! \brief Serialization input */
+    virtual std::istream& serialize(std::istream& sin) = 0;
+    /* @} */
 };
 
-#define DECLARE_BASE_SERIALIZER( class_name ) \
-   /* Comment */ \
-   public: \
-   /*! \brief Stream output */ \
-   friend std::ostream& operator<<(std::ostream& sout, const boost::shared_ptr<class_name> x) \
-      { \
-      sout << x->name() << std::endl; \
-      x->serialize(sout); \
-      return sout; \
-      } \
-   /*! \brief Stream input */ \
-   friend std::istream& operator>>(std::istream& sin, boost::shared_ptr<class_name>& x) \
-      { \
-      std::string name; \
-      std::streampos start = sin.tellg(); \
-      sin >> name; \
-      x = boost::dynamic_pointer_cast<class_name> (libbase::serializer::call(#class_name, name)); \
-      if(!x) \
-         { \
-         sin.seekg( start ); \
-         sin.clear( std::ios::failbit ); \
-         } \
-      else \
-         { \
-         x->serialize(sin); \
-         libbase::verify(sin); \
-         } \
-      return sin; \
-      } \
-   /* @} */
+#define DECLARE_BASE_SERIALIZER(class_name)                                    \
+    /* Comment */                                                              \
+public:                                                                        \
+    /*! \brief Stream output */                                                \
+    friend std::ostream& operator<<(std::ostream& sout,                        \
+                                    const std::shared_ptr<class_name> x)       \
+    {                                                                          \
+        sout << x->name() << std::endl;                                        \
+        x->serialize(sout);                                                    \
+        return sout;                                                           \
+    }                                                                          \
+    /*! \brief Stream input */                                                 \
+    friend std::istream& operator>>(std::istream& sin,                         \
+                                    std::shared_ptr<class_name>& x)            \
+    {                                                                          \
+        std::string name;                                                      \
+        std::streampos start = sin.tellg();                                    \
+        sin >> name;                                                           \
+        x = std::dynamic_pointer_cast<class_name>(                             \
+            libbase::serializer::call(#class_name, name));                     \
+        if (!x) {                                                              \
+            sin.seekg(start);                                                  \
+            sin.clear(std::ios::failbit);                                      \
+        } else {                                                               \
+            x->serialize(sin);                                                 \
+            libbase::verify(sin);                                              \
+        }                                                                      \
+        return sin;                                                            \
+    }                                                                          \
+    /* @} */
 
-#define DECLARE_SERIALIZER( class_name ) \
-   /* Comment */ \
-   private: \
-   /*! \name Serialization Support */ \
-   /*! \brief Serialization helper object */ \
-   static const libbase::serializer shelper; \
-   /*! \brief Heap creation function */ \
-   static boost::shared_ptr<libbase::serializable> create() \
-      { return boost::static_pointer_cast<libbase::serializable>(boost::shared_ptr<class_name>(new class_name)); } \
-   /* @} */ \
-   public: \
-   boost::shared_ptr<libbase::serializable> clone() const \
-      { return boost::static_pointer_cast<libbase::serializable>(boost::shared_ptr<class_name>(new class_name(*this))); } \
-   const std::string name() const { return shelper.name(); } \
-   std::ostream& serialize(std::ostream& sout) const; \
-   std::istream& serialize(std::istream& sin);
+#define DECLARE_SERIALIZER(class_name)                                         \
+    /* Comment */                                                              \
+private:                                                                       \
+    /*! \name Serialization Support */                                         \
+    /*! \brief Serialization helper object */                                  \
+    static const libbase::serializer shelper;                                  \
+    /*! \brief Heap creation function */                                       \
+    static std::shared_ptr<libbase::serializable> create()                     \
+    {                                                                          \
+        return std::static_pointer_cast<libbase::serializable>(                \
+            std::shared_ptr<class_name>(new class_name));                      \
+    }                                                                          \
+    /* @} */                                                                   \
+public:                                                                        \
+    std::shared_ptr<libbase::serializable> clone() const                       \
+    {                                                                          \
+        return std::static_pointer_cast<libbase::serializable>(                \
+            std::shared_ptr<class_name>(new class_name(*this)));               \
+    }                                                                          \
+    const std::string name() const { return shelper.name(); }                  \
+    std::ostream& serialize(std::ostream& sout) const;                         \
+    std::istream& serialize(std::istream& sin);
 
-} // end namespace
+} // namespace libbase
 
 #endif

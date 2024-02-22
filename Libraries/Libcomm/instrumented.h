@@ -25,10 +25,11 @@
 #include "config.h"
 #include "timer.h"
 #include <list>
-#include <vector>
 #include <string>
+#include <vector>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Instrumented Class Interface.
@@ -42,70 +43,71 @@ namespace libcomm {
  * instrumented classes.
  */
 
-class instrumented {
+class instrumented
+{
 private:
-   std::list<double> m_timings; //!< List of timings taken
-   std::list<std::string> m_names; //!< List of friendly names
+    std::list<double> m_timings;    //!< List of timings taken
+    std::list<std::string> m_names; //!< List of friendly names
 
-   // TODO: change back to protected!
+    // TODO: change back to protected!
 public:
-   /*! \name Interface for derived classes */
-   //! Add a single timer (from components)
-   void add_timer(double time, const std::string& name)
-      {
-      m_timings.push_back(time);
-      m_names.push_back(name);
-      }
-   //! Add a single timer (from timer object, stopping timer if necessary)
-   void add_timer(libbase::timer& timer)
-      {
-      if (timer.isrunning())
-         timer.stop();
-      m_timings.push_back(timer.elapsed());
-      m_names.push_back(timer.get_name());
-      }
-   //! Batch add timers
-   void add_timers(const instrumented& component)
-      {
-      m_timings.insert(m_timings.end(), component.m_timings.begin(),
-            component.m_timings.end());
-      m_names.insert(m_names.end(), component.m_names.begin(),
-            component.m_names.end());
-      }
-   // @}
+    /*! \name Interface for derived classes */
+    //! Add a single timer (from components)
+    void add_timer(double time, const std::string& name)
+    {
+        m_timings.push_back(time);
+        m_names.push_back(name);
+    }
+    //! Add a single timer (from timer object, stopping timer if necessary)
+    void add_timer(libbase::timer& timer)
+    {
+        if (timer.isrunning()) {
+            timer.stop();
+        }
+
+        m_timings.push_back(timer.elapsed());
+        m_names.push_back(timer.get_name());
+    }
+    //! Batch add timers
+    void add_timers(const instrumented& component)
+    {
+        m_timings.insert(m_timings.end(),
+                         component.m_timings.begin(),
+                         component.m_timings.end());
+        m_names.insert(
+            m_names.end(), component.m_names.begin(), component.m_names.end());
+    }
+    // @}
 
 public:
-   /*! \name Constructors / Destructors */
-   virtual ~instrumented()
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    virtual ~instrumented() {}
+    // @}
 
-   /*! \name User interface */
-   //! Clear list of timers
-   void reset_timers()
-      {
-      m_timings.clear();
-      m_names.clear();
-      }
-   //! Get the list of timings taken
-   std::vector<double> get_timings() const
-      {
-      std::vector<double> result;
-      result.assign(m_timings.begin(), m_timings.end());
-      return result;
-      }
-   //! Get the list of friendly names for timings taken
-   std::vector<std::string> get_names() const
-      {
-      std::vector<std::string> result;
-      result.assign(m_names.begin(), m_names.end());
-      return result;
-      }
-   // @}
-
+    /*! \name User interface */
+    //! Clear list of timers
+    void reset_timers()
+    {
+        m_timings.clear();
+        m_names.clear();
+    }
+    //! Get the list of timings taken
+    std::vector<double> get_timings() const
+    {
+        std::vector<double> result;
+        result.assign(m_timings.begin(), m_timings.end());
+        return result;
+    }
+    //! Get the list of friendly names for timings taken
+    std::vector<std::string> get_names() const
+    {
+        std::vector<std::string> result;
+        result.assign(m_names.begin(), m_names.end());
+        return result;
+    }
+    // @}
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

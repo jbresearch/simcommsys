@@ -19,13 +19,11 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "serializer_libcomm.h"
 #include "cputimer.h"
+#include "serializer_libcomm.h"
 
 #include <boost/program_options.hpp>
 #include <iostream>
-
-namespace inspectserializer {
 
 /*!
  * \brief   Serializer Class Support Inspector
@@ -36,59 +34,53 @@ namespace inspectserializer {
  * classes.
  */
 
-int main(int argc, char *argv[])
-   {
-   libbase::cputimer tmain("Main timer");
+int
+main(int argc, char* argv[])
+{
+    libbase::cputimer tmain("Main timer");
 
-   // Set up user parameters
-   namespace po = boost::program_options;
-   po::options_description desc("Allowed options");
-   desc.add_options()("help,h", "print this help message");
-   desc.add_options()("base,b", po::value<std::string>(), "base class");
-   po::variables_map vm;
-   po::store(po::parse_command_line(argc, argv, desc), vm);
-   po::notify(vm);
+    // Set up user parameters
+    namespace po = boost::program_options;
+    po::options_description desc("Allowed options");
+    desc.add_options()("help,h", "print this help message");
+    desc.add_options()("base,b", po::value<std::string>(), "base class");
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
 
-   // Validate user parameters
-   if (vm.count("help"))
-      {
-      std::cerr << desc << std::endl;
-      return 1;
-      }
+    // Validate user parameters
+    if (vm.count("help")) {
+        std::cerr << desc << std::endl;
+        return 1;
+    }
 
-   // Main process
+    // Main process
 
-   // Make sure we instantiate everything
-   const libcomm::serializer_libcomm my_serializer_libcomm;
-   // Get required list
-   std::list<std::string> result;
-   if (vm.count("base"))
-      {
-      // Shorthand access for parameters
-      const std::string base = vm["base"].as<std::string> ();
-      // Get list of derived classes
-      result = libbase::serializer::get_derived_classes(base);
-      // Print header
-      std::cout << "List of derived classes:" << std::endl;
-      }
-   else
-      {
-      // Get list of base classes
-      result = libbase::serializer::get_base_classes();
-      // Print header
-      std::cout << "List of base classes:" << std::endl;
-      }
-   // Print the list of classes
-   for (std::list<std::string>::const_iterator i = result.begin(); i
-         != result.end(); i++)
-      std::cout << "\t" << *i << std::endl;
+    // Make sure we instantiate everything
+    const libcomm::serializer_libcomm my_serializer_libcomm;
 
-   return 0;
-   }
+    // Get required list
+    std::list<std::string> result;
+    if (vm.count("base")) {
+        // Shorthand access for parameters
+        const std::string base = vm["base"].as<std::string>();
+        // Get list of derived classes
+        result = libbase::serializer::get_derived_classes(base);
+        // Print header
+        std::cout << "List of derived classes:" << std::endl;
+    } else {
+        // Get list of base classes
+        result = libbase::serializer::get_base_classes();
+        // Print header
+        std::cout << "List of base classes:" << std::endl;
+    }
 
-} // end namespace
+    // Print the list of classes
+    for (std::list<std::string>::const_iterator i = result.begin();
+         i != result.end();
+         i++) {
+        std::cout << "\t" << *i << std::endl;
+    }
 
-int main(int argc, char *argv[])
-   {
-   return inspectserializer::main(argc, argv);
-   }
+    return 0;
+}

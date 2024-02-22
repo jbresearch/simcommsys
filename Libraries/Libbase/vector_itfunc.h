@@ -22,11 +22,11 @@
 #ifndef VECTOR_ITFUNC_H_
 #define VECTOR_ITFUNC_H_
 
-#include "vector.h"
+#include "counter.h"
 #include "matrix.h"
 #include "multi_array.h"
+#include "vector.h"
 #include "vectorutils.h"
-#include "counter.h"
 
 /*!
  * \file
@@ -35,7 +35,8 @@
  *
  */
 
-namespace libbase {
+namespace libbase
+{
 
 // Determine debug level:
 // 1 - Normal debug output only
@@ -44,8 +45,8 @@ namespace libbase {
 // NOTE: since this is a header, it may be included in other classes as well;
 //       to avoid problems, the debug level is reset at the end of this file.
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG 2
+#    undef DEBUG
+#    define DEBUG 2
 #endif
 
 /*! \brief Compute extrinsic information
@@ -60,60 +61,59 @@ namespace libbase {
  * \note re may point to the same memory as ro/ri, so care must be taken.
  */
 template <class dbl>
-void compute_extrinsic(vector<vector<dbl> >& re, const vector<vector<dbl> >& ro,
-      const vector<vector<dbl> >& ri)
-   {
-#if DEBUG>=3
-   std::cerr << "DEBUG (compute_extrinsic): ro = " << ro << std::endl;
-   std::cerr << "DEBUG (compute_extrinsic): ri = " << ri << std::endl;
+void
+compute_extrinsic(vector<vector<dbl>>& re,
+                  const vector<vector<dbl>>& ro,
+                  const vector<vector<dbl>>& ri)
+{
+#if DEBUG >= 3
+    std::cerr << "DEBUG (compute_extrinsic): ro = " << ro << std::endl;
+    std::cerr << "DEBUG (compute_extrinsic): ri = " << ri << std::endl;
 #endif
-   // Handle the case where the prior information is empty
-   if (ri.size() == 0)
-      {
-      re = ro;
-      return;
-      }
-   // Determine size
-   const int tau = ro.size();
-   const int N = ro(0).size();
-   // Check for validity
-   assert(ri.size() == tau);
-   assert(ri(0).size() == N);
-   // Allocate space for re (if necessary)
-   libbase::allocate(re, tau, N);
-#if DEBUG>=2
-   int count = 0;
+    // Handle the case where the prior information is empty
+    if (ri.size() == 0) {
+        re = ro;
+        return;
+    }
+    // Determine size
+    const int tau = ro.size();
+    const int N = ro(0).size();
+    // Check for validity
+    assert(ri.size() == tau);
+    assert(ri(0).size() == N);
+    // Allocate space for re (if necessary)
+    libbase::allocate(re, tau, N);
+#if DEBUG >= 2
+    int count = 0;
 #endif
-   // Perform computation
-   for (int i = 0; i < tau; i++)
-      for (int x = 0; x < N; x++)
-         if (ri(i)(x) > 0)
-            {
-            // normal extrinsic computation
-            re(i)(x) = ro(i)(x) / ri(i)(x);
+    // Perform computation
+    for (int i = 0; i < tau; i++) {
+        for (int x = 0; x < N; x++) {
+            if (ri(i)(x) > 0) {
+                // normal extrinsic computation
+                re(i)(x) = ro(i)(x) / ri(i)(x);
+            } else if (ro(i)(x) == 0) {
+                // if prior was also zero
+                re(i)(x) = 0;
+            } else {
+                // problematic cases
+#if DEBUG >= 2
+                count++;
+#endif
+                re(i)(x) = 0;
             }
-         else if (ro(i)(x) == 0)
-            {
-            // if prior was also zero
-            re(i)(x) = 0;
-            }
-         else
-            {
-            // problematic cases
-#if DEBUG>=2
-            count++;
+        }
+    }
+#if DEBUG >= 2
+    if (count > 0) {
+        std::cerr << "DEBUG (compute_extrinsic): " << count
+                  << " problematic cases of " << tau * N << std::endl;
+    }
 #endif
-            re(i)(x) = 0;
-            }
-#if DEBUG>=2
-   if (count > 0)
-      std::cerr << "DEBUG (compute_extrinsic): " << count
-            << " problematic cases of " << tau * N << std::endl;
+#if DEBUG >= 3
+    std::cerr << "DEBUG (compute_extrinsic): re = " << re << std::endl;
 #endif
-#if DEBUG>=3
-   std::cerr << "DEBUG (compute_extrinsic): re = " << re << std::endl;
-#endif
-   }
+}
 
 /*!
  * \brief Normalize row in probability table
@@ -124,36 +124,40 @@ void compute_extrinsic(vector<vector<dbl> >& re, const vector<vector<dbl> >& ro,
  * probabilities in that row is equal to 1, with the result stored in-place.
  */
 template <class real>
-void normalize_row(boost::assignable_multi_array<real, 2>& table, const int row,
-      const int col_min, const int col_max)
-   {
+void
+normalize_row(boost::assignable_multi_array<real, 2>& table,
+              const int row,
+              const int col_min,
+              const int col_max)
+{
 #ifndef NDEBUG
-   static matching_counter zeros("vector_itfunc normalize_row");
+    static matching_counter zeros("vector_itfunc normalize_row");
 #endif
-   // check for numerical underflow
-   real scale = 0;
-   for (int col = col_min; col <= col_max; col++)
-      scale += table[row][col];
-   //assertalways(scale > real(0));
-   if (scale > real(0))
-      {
-      scale = real(1) / scale;
-      // normalize probabilities
-      for (int col = col_min; col <= col_max; col++)
-         table[row][col] *= scale;
-      }
-   else
-      {
-      for (int col = col_min; col <= col_max; col++)
-         table[row][col] = real(1);
+    // check for numerical underflow
+    real scale = 0;
+
+    for (int col = col_min; col <= col_max; col++) {
+        scale += table[row][col];
+    }
+
+    if (scale > real(0)) {
+        scale = real(1) / scale;
+        // normalize probabilities
+        for (int col = col_min; col <= col_max; col++) {
+            table[row][col] *= scale;
+        }
+    } else {
+        for (int col = col_min; col <= col_max; col++) {
+            table[row][col] = real(1);
+        }
 #ifndef NDEBUG
-      zeros.increment_matches();
+        zeros.increment_matches();
 #endif
-      }
+    }
 #ifndef NDEBUG
-   zeros.increment_events();
+    zeros.increment_events();
 #endif
-   }
+}
 
 /*!
  * \brief Normalize row in probability table
@@ -164,36 +168,39 @@ void normalize_row(boost::assignable_multi_array<real, 2>& table, const int row,
  * probabilities in that row is equal to 1, with the result stored in-place.
  */
 template <class real>
-void normalize_row(matrix<real>& table, const int row, const int col_min,
-      const int col_max)
-   {
+void
+normalize_row(matrix<real>& table,
+              const int row,
+              const int col_min,
+              const int col_max)
+{
 #ifndef NDEBUG
-   static matching_counter zeros("vector_itfunc normalize_row");
+    static matching_counter zeros("vector_itfunc normalize_row");
 #endif
-   // check for numerical underflow
-   real scale = 0;
-   for (int col = col_min; col <= col_max; col++)
-      scale += table(row, col);
-   //assertalways(scale > real(0));
-   if (scale > real(0))
-      {
-      scale = real(1) / scale;
-      // normalize probabilities
-      for (int col = col_min; col <= col_max; col++)
-         table(row, col) *= scale;
-      }
-   else
-      {
-      for (int col = col_min; col <= col_max; col++)
-         table(row, col) = real(1);
+    // check for numerical underflow
+    real scale = 0;
+    for (int col = col_min; col <= col_max; col++) {
+        scale += table(row, col);
+    }
+
+    if (scale > real(0)) {
+        scale = real(1) / scale;
+        // normalize probabilities
+        for (int col = col_min; col <= col_max; col++) {
+            table(row, col) *= scale;
+        }
+    } else {
+        for (int col = col_min; col <= col_max; col++) {
+            table(row, col) = real(1);
+        }
 #ifndef NDEBUG
-      zeros.increment_matches();
+        zeros.increment_matches();
 #endif
-      }
+    }
 #ifndef NDEBUG
-   zeros.increment_events();
+    zeros.increment_events();
 #endif
-   }
+}
 
 /*!
  * \brief Normalize probability table
@@ -210,36 +217,35 @@ void normalize_row(matrix<real>& table, const int row, const int col_min,
  * \note The output and input vectors may point to the same memory
  */
 template <class real, class dbl>
-void normalize(const vector<real>& in, vector<dbl>& out)
-   {
+void
+normalize(const vector<real>& in, vector<dbl>& out)
+{
 #ifndef NDEBUG
-   static matching_counter zeros("vector_itfunc normalize");
+    static matching_counter zeros("vector_itfunc normalize");
 #endif
-   const int N = in.size();
-   assert(N > 0);
-   // allocate result space
-   out.init(N);
-   // check for numerical underflow
-   real scale = in.sum();
-   //assertalways(scale > real(0));
-   if (scale > real(0))
-      {
-      scale = real(1) / scale;
-      // normalize and copy results
-      for (int i = 0; i < N; i++)
-         out(i) = dbl(in(i) * scale);
-      }
-   else
-      {
-      out = dbl(1);
+    const int N = in.size();
+    assert(N > 0);
+    // allocate result space
+    out.init(N);
+    // check for numerical underflow
+    real scale = in.sum();
+    // assertalways(scale > real(0));
+    if (scale > real(0)) {
+        scale = real(1) / scale;
+        // normalize and copy results
+        for (int i = 0; i < N; i++) {
+            out(i) = dbl(in(i)*scale);
+        }
+    } else {
+        out = dbl(1);
 #ifndef NDEBUG
-      zeros.increment_matches();
+        zeros.increment_matches();
 #endif
-      }
+    }
 #ifndef NDEBUG
-   zeros.increment_events();
+    zeros.increment_events();
 #endif
-   }
+}
 
 /*!
  * \brief Normalize probability table
@@ -256,60 +262,71 @@ void normalize(const vector<real>& in, vector<dbl>& out)
  * \note The output and input vectors may point to the same memory
  */
 template <class real, class dbl>
-void normalize_results(const vector<vector<real> >& in,
-      vector<vector<dbl> >& out)
-   {
-#if DEBUG>=3
-   std::cerr << "DEBUG (normalize_results): in = " << in << std::endl;
+void
+normalize_results(const vector<vector<real>>& in, vector<vector<dbl>>& out)
+{
+#if DEBUG >= 3
+    std::cerr << "DEBUG (normalize_results): in = " << in << std::endl;
 #endif
-   const int N = in.size();
-   assert(N > 0);
-   const int q = in(0).size();
-   // allocate result space
-   libbase::allocate(out, N, q);
-   // normalize and copy results
-   for (int i = 0; i < N; i++)
-      normalize(in(i), out(i));
-#if DEBUG>=3
-   std::cerr << "DEBUG (normalize_results): out = " << out << std::endl;
+    const int N = in.size();
+    assert(N > 0);
+    const int q = in(0).size();
+
+    // allocate result space
+    libbase::allocate(out, N, q);
+
+    // normalize and copy results
+    for (int i = 0; i < N; i++) {
+        normalize(in(i), out(i));
+    }
+#if DEBUG >= 3
+    std::cerr << "DEBUG (normalize_results): out = " << out << std::endl;
 #endif
-   }
+}
 
 /*!
  * \brief Determine the entropy of the given pdf
  */
 template <class real>
-double compute_entropy(const vector<real>& p)
-   {
-   double H = 0;
-   for (int i = 0; i < p.size(); i++)
-      H += -p(i) * log2(p(i));
-   return H;
-   }
+double
+compute_entropy(const vector<real>& p)
+{
+    double H = 0;
+
+    for (int i = 0; i < p.size(); i++) {
+        H += -p(i) * log2(p(i));
+    }
+
+    return H;
+}
 
 /*!
  * \brief Determine the average entropy of the given set of pdfs
  */
 template <class real>
-double compute_entropy(const vector<vector<real> >& ptable)
-   {
-   // determine sizes
-   const int N = ptable.size();
-   assert(N > 0);
-   // compute entropy
-   double H = 0;
-   for (int i = 0; i < N; i++)
-      H += compute_entropy(ptable(i));
-   H /= N;
-   return H;
-   }
+double
+compute_entropy(const vector<vector<real>>& ptable)
+{
+    // determine sizes
+    const int N = ptable.size();
+    assert(N > 0);
+    // compute entropy
+    double H = 0;
+
+    for (int i = 0; i < N; i++) {
+        H += compute_entropy(ptable(i));
+    }
+
+    H /= N;
+    return H;
+}
 
 // Reset debug level, to avoid affecting other files
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG
+#    undef DEBUG
+#    define DEBUG
 #endif
 
-} // end namespace
+} // namespace libbase
 
 #endif /* VECTOR_ITFUNC_H_ */

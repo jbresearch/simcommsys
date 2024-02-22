@@ -22,17 +22,19 @@
 #ifndef __size_h
 #define __size_h
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Size of templated parameter object.
  * \author  Johann Briffa
  */
 
-template <template <class > class T>
-class size_type {
+template <template <class> class T>
+class size_type
+{
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif

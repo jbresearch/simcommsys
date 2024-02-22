@@ -23,11 +23,12 @@
 #define __commsys_timer_h
 
 #include "config.h"
-#include "experiment/experiment_normal.h"
 #include "experiment/binomial/commsys_simulator.h"
 #include "experiment/binomial/result_collector/commsys/errors_hamming.h"
+#include "experiment/experiment_normal.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Communication System Simulator - Timing collector.
@@ -37,70 +38,56 @@ namespace libcomm {
  * timings as main result.
  */
 template <class S>
-class commsys_timer : public experiment_normal {
+class commsys_timer : public experiment_normal
+{
 private:
-   commsys_simulator<S, errors_hamming> simulator; //!< Base simulator object
-   std::vector<double> timings; //!< List of timings from last cycle
-   std::vector<std::string> names; //!< List of timer names from last cycle
+    commsys_simulator<S, errors_hamming> simulator; //!< Base simulator object
+    std::vector<double> timings;    //!< List of timings from last cycle
+    std::vector<std::string> names; //!< List of timer names from last cycle
 
 public:
-   // Experiment parameter handling
-   void seedfrom(libbase::random& r)
-      {
-      simulator.seedfrom(r);
-      }
-   void set_parameter(const double x)
-      {
-      simulator.set_parameter(x);
-      }
-   double get_parameter() const
-      {
-      return simulator.get_parameter();
-      }
+    // Experiment parameter handling
+    void seedfrom(libbase::random& r) { simulator.seedfrom(r); }
+    void set_parameter(const double x) { simulator.set_parameter(x); }
+    double get_parameter() const { return simulator.get_parameter(); }
 
-   // Experiment handling
-   void sample(libbase::vector<double>& result)
-      {
-      // Run the system simulation
-      libbase::vector<double> temp;
-      simulator.sample(temp);
-      // Collect timings
-      timings = simulator.get_timings();
-      names = simulator.get_names();
-      // Copy over timings as results
-      result = libbase::vector<double>(timings);
-      }
-   int count() const
-      {
-      const size_t N = timings.size();
-      assert(N == names.size());
-      assert(N > 0);
-      return N;
-      }
-   int get_multiplicity(int i) const
-      {
-      return 1;
-      }
-   std::string result_description(int i) const
-      {
-      assert(i >= 0 && i < int(names.size()));
-      return names[i];
-      }
-   libbase::vector<int> get_event() const
-      {
-      return simulator.get_event();
-      }
+    // Experiment handling
+    void sample(libbase::vector<double>& result)
+    {
+        // Run the system simulation
+        libbase::vector<double> temp;
+        simulator.sample(temp);
+        // Collect timings
+        timings = simulator.get_timings();
+        names = simulator.get_names();
+        // Copy over timings as results
+        result = libbase::vector<double>(timings);
+    }
+    int count() const
+    {
+        const size_t N = timings.size();
+        assert(N == names.size());
+        assert(N > 0);
+        return N;
+    }
+    int get_multiplicity(int i) const { return 1; }
+    std::string result_description(int i) const
+    {
+        assert(i >= 0 && i < int(names.size()));
+        return names[i];
+    }
+    libbase::vector<int> get_event() const { return simulator.get_event(); }
 
-   // Description
-   std::string description() const
-      {
-      return "Timed " + simulator.description();
-      }
+    // Description
+    std::string description() const
+    {
+        return "Timed " + simulator.description();
+    }
 
-   // Serialization Support
-DECLARE_SERIALIZER(commsys_timer)
+    // Serialization Support
+    DECLARE_SERIALIZER(commsys_timer)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

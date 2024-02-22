@@ -28,7 +28,8 @@
 #include <cstdio>
 #include <iostream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Barrel-Shifting LUT Interleaver.
@@ -37,29 +38,25 @@ namespace libcomm {
  */
 
 template <class real>
-class shift_lut : public lut_interleaver<real> {
-   int amount;
+class shift_lut : public lut_interleaver<real>
+{
+    int amount;
+
 protected:
-   void init(const int amount, const int tau);
-   shift_lut()
-      {
-      }
+    void init(const int amount, const int tau);
+    shift_lut() {}
+
 public:
-   shift_lut(const int amount, const int tau)
-      {
-      init(amount, tau);
-      }
-   ~shift_lut()
-      {
-      }
+    shift_lut(const int amount, const int tau) { init(amount, tau); }
+    ~shift_lut() {}
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(shift_lut)
+    // Serialization Support
+    DECLARE_SERIALIZER(shift_lut)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

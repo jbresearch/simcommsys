@@ -22,14 +22,15 @@
 #ifndef __exit_computer_h
 #define __exit_computer_h
 
+#include "commsys.h"
 #include "config.h"
 #include "experiment/experiment_normal.h"
-#include "source/uniform.h"
-#include "commsys.h"
 #include "randgen.h"
 #include "serializer.h"
+#include "source/uniform.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   EXIT Chart Computer.
@@ -53,141 +54,134 @@ namespace libcomm {
  */
 
 template <class S>
-class exit_computer : public experiment_normal {
+class exit_computer : public experiment_normal
+{
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<int> array1i_t;
-   typedef libbase::vector<S> array1s_t;
-   typedef libbase::vector<double> array1d_t;
-   typedef libbase::vector<array1d_t> array1vd_t;
-   enum exit_t {
-      exit_parallel_codec = 0, //!< parallel concatenated code, codec object
-      exit_serial_codec, //!< serial concatenated code, codec object
-      exit_serial_modem, //!< serial concatenated code, modem object
-      exit_serial_mapped_codec, //!< serial concatenated code, codec and mapper object sequence
-      exit_undefined
-   };
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<int> array1i_t;
+    typedef libbase::vector<S> array1s_t;
+    typedef libbase::vector<double> array1d_t;
+    typedef libbase::vector<array1d_t> array1vd_t;
+    enum exit_t {
+        exit_parallel_codec = 0,  //!< parallel concatenated code, codec object
+        exit_serial_codec,        //!< serial concatenated code, codec object
+        exit_serial_modem,        //!< serial concatenated code, modem object
+        exit_serial_mapped_codec, //!< serial concatenated code, codec and
+                                  //!< mapper object sequence
+        exit_undefined
+    };
+    // @}
 
 protected:
-   /*! \name User-defined parameters */
-   boost::shared_ptr<commsys<S> > sys; //!< Communication systems
-   exit_t exit_type; //!< enum indicating type of EXIT curve to plot
-   bool compute_llr_statistics; //!< switch for computing binary LLR statistics
-   double sigma; //!< Sigma value to use when generating binary priors
-   // @}
-   /*! \name Internally-used objects */
-   libbase::randgen r; //!< Random generator for prior probabilities
-   uniform<int> src; //!< Generator for source sequence
-   // @}
+    /*! \name User-defined parameters */
+    std::shared_ptr<commsys<S>> sys; //!< Communication systems
+    exit_t exit_type;            //!< enum indicating type of EXIT curve to plot
+    bool compute_llr_statistics; //!< switch for computing binary LLR statistics
+    double sigma; //!< Sigma value to use when generating binary priors
+    // @}
+    /*! \name Internally-used objects */
+    libbase::randgen r; //!< Random generator for prior probabilities
+    uniform<int> src;   //!< Generator for source sequence
+                        // @}
 protected:
-   /*! \name Internal functions */
-   array1vd_t createpriors(const array1i_t& tx, const int N, const int q);
-   static double compute_mutual_information(const array1i_t& x,
-         const array1vd_t& y);
-   static void compute_statistics(const array1i_t& x, const array1vd_t& p,
-         const int value, double& sigma, double& mu);
-   void compute_results(const array1i_t& x, const array1vd_t& pin,
-         const array1vd_t& pout, array1d_t& result) const;
-   // @}
+    /*! \name Internal functions */
+    array1vd_t createpriors(const array1i_t& tx, const int N, const int q);
+    static double compute_mutual_information(const array1i_t& x,
+                                             const array1vd_t& y);
+    static void compute_statistics(const array1i_t& x,
+                                   const array1vd_t& p,
+                                   const int value,
+                                   double& sigma,
+                                   double& mu);
+    void compute_results(const array1i_t& x,
+                         const array1vd_t& pin,
+                         const array1vd_t& pout,
+                         array1d_t& result) const;
+    // @}
 public:
-   /*! \name Constructors / Destructors */
-   /*!
-    * \brief Copy constructor
-    *
-    * Initializes system with bound objects cloned from supplied system.
-    */
-   exit_computer(const exit_computer<S>& c) :
-         sys(boost::dynamic_pointer_cast<commsys<S> >(c.sys->clone())), r(
-               c.r), src(c.src)
-      {
-      }
-   exit_computer()
-      {
-      }
-   virtual ~exit_computer()
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    /*!
+     * \brief Copy constructor
+     *
+     * Initializes system with bound objects cloned from supplied system.
+     */
+    exit_computer(const exit_computer<S>& c)
+        : sys(std::dynamic_pointer_cast<commsys<S>>(c.sys->clone())), r(c.r),
+          src(c.src)
+    {
+    }
+    exit_computer() {}
+    virtual ~exit_computer() {}
+    // @}
 
-   // Experiment parameter handling
-   void seedfrom(libbase::random& r)
-      {
-      this->r.seed(r.ival());
-      src.seedfrom(r);
-      sys->seedfrom(r);
-      }
-   void set_parameter(const double x)
-      {
-      assertalways(x >= 0);
-      sigma = x;
-      }
-   double get_parameter() const
-      {
-      return sigma;
-      }
+    // Experiment parameter handling
+    void seedfrom(libbase::random& r)
+    {
+        this->r.seed(r.ival());
+        src.seedfrom(r);
+        sys->seedfrom(r);
+    }
+    void set_parameter(const double x)
+    {
+        assertalways(x >= 0);
+        sigma = x;
+    }
+    double get_parameter() const { return sigma; }
 
-   // Experiment handling
-   void sample(array1d_t& result);
-   int count() const
-      {
-      int result = 2; // default: mutual information at input+output
-      if (compute_llr_statistics)
-         result += 8; // sigma+mu for each of 0+1 at input+output
-      return result;
-      }
-   int get_multiplicity(int i) const
-      {
-      return 1;
-      }
-   std::string result_description(int i) const
-      {
-      assert(i >= 0 && i < count());
-      switch (i)
-         {
-         case 0:
+    // Experiment handling
+    void sample(array1d_t& result);
+    int count() const
+    {
+        int result = 2; // default: mutual information at input+output
+
+        if (compute_llr_statistics) {
+            result += 8; // sigma+mu for each of 0+1 at input+output
+        }
+
+        return result;
+    }
+    int get_multiplicity(int i) const { return 1; }
+    std::string result_description(int i) const
+    {
+        assert(i >= 0 && i < count());
+        switch (i) {
+        case 0:
             return "I(input)";
-         case 1:
+        case 1:
             return "I(output)";
-         case 2:
+        case 2:
             return "𝜎(0,input)";
-         case 3:
+        case 3:
             return "𝜇(0,input)";
-         case 4:
+        case 4:
             return "𝜎(1,input)";
-         case 5:
+        case 5:
             return "𝜇(1,input)";
-         case 6:
+        case 6:
             return "𝜎(0,output)";
-         case 7:
+        case 7:
             return "𝜇(0,output)";
-         case 8:
+        case 8:
             return "𝜎(1,output)";
-         case 9:
+        case 9:
             return "𝜇(1,output)";
-         }
-      return ""; // This should never happen
-      }
-   array1i_t get_event() const
-      {
-      return array1i_t();
-      }
+        }
+        return ""; // This should never happen
+    }
+    array1i_t get_event() const { return array1i_t(); }
 
-   /*! \name Component object handles */
-   //! Get communication system
-   const boost::shared_ptr<commsys<S> > getsystem() const
-      {
-      return sys;
-      }
-   // @}
+    /*! \name Component object handles */
+    //! Get communication system
+    const std::shared_ptr<commsys<S>> getsystem() const { return sys; }
+    // @}
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(exit_computer)
+    // Serialization Support
+    DECLARE_SERIALIZER(exit_computer)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

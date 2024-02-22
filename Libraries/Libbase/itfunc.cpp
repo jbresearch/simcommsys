@@ -23,77 +23,81 @@
 #include <iostream>
 #include <sstream>
 
-namespace libbase {
+namespace libbase
+{
 
 /*! \brief Binary Hamming weight
  */
-int weight(int cw)
-   {
-   int c = cw;
-   int w = 0;
-   while (c)
-      {
-      w += (c & 1);
-      c >>= 1;
-      }
-   return w;
-   }
+int
+weight(int cw)
+{
+    int c = cw;
+    int w = 0;
+    while (c) {
+        w += (c & 1);
+        c >>= 1;
+    }
+    return w;
+}
 
 /*! \brief Inverse Gray code
  */
-int32u igray(int32u n)
-   {
-   int32u r = n;
-   for (int i = 1; i < 32; i <<= 1)
-      r ^= r >> i;
-   return r;
-   }
+int32u
+igray(int32u n)
+{
+    int32u r = n;
+    for (int i = 1; i < 32; i <<= 1) {
+        r ^= r >> i;
+    }
+    return r;
+}
 
 /*! \brief Greatest common divisor
  * GCD function based on Euclid's algorithm.
  */
-int gcd(int a, int b)
-   {
-   while (b != 0)
-      {
-      int t = b;
-      b = a % b;
-      a = t;
-      }
-   return a;
-   }
+int
+gcd(int a, int b)
+{
+    while (b != 0) {
+        int t = b;
+        b = a % b;
+        a = t;
+    }
+    return a;
+}
 
 /*! \brief Converts a string to its hex representation
  */
-std::string hexify(const std::string input)
-   {
-   std::ostringstream sout;
-   sout << std::hex;
-   for (size_t i = 0; i < input.length(); i++)
-      {
-      sout.width(2);
-      sout.fill('0');
-      sout << int(int8u(input.at(i)));
-      }
-   std::string output = sout.str();
-   //trace << "(itfunc) hexify: (" << input << ") = " << output << ", length = " << output.length() << std::endl;
-   return output;
-   }
+std::string
+hexify(const std::string input)
+{
+    std::ostringstream sout;
+    sout << std::hex;
+
+    for (size_t i = 0; i < input.length(); i++) {
+        sout.width(2);
+        sout.fill('0');
+        sout << int(int8u(input.at(i)));
+    }
+
+    return sout.str();
+}
 
 /*! \brief Reconstructs a string from its hex representation
  */
-std::string dehexify(const std::string input)
-   {
-   std::string output;
-   for (size_t i = 0; i < input.length(); i += 2)
-      {
-      std::string s = input.substr(i, 2);
-      if (s.length() == 1)
-         s += '0';
-      output += char(strtoul(s.c_str(), NULL, 16));
-      }
-   //trace << "(itfunc) dehexify: " << input << " = (" << output << "), length = " << output.length() << std::endl;
-   return output;
-   }
+std::string
+dehexify(const std::string input)
+{
+    std::string output;
+    for (size_t i = 0; i < input.length(); i += 2) {
+        std::string s = input.substr(i, 2);
+        if (s.length() == 1) {
+            s += '0';
+        }
+        output += char(strtoul(s.c_str(), NULL, 16));
+    }
 
-} // end namespace
+    return output;
+}
+
+} // namespace libbase

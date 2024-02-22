@@ -1,9 +1,11 @@
 #!/bin/bash
 
-if (( $# < 4 )); then
-   echo "Usage: ${0##*/} <tag> <port> <other> [<systems>]"
+if (( $# < 5 )); then
+   echo "Usage: ${0##*/} <tag> <port> <vlimit> <other> [<systems>]"
    echo "<tag> is the build tag name (XX in simcommsys.XX.release)"
    echo "<port> is the first port to use, then decrement (or 'local')"
+   echo "<vlimit> is the virtual memory limit in KiB (or 'default' or 'unlimited')"
+   echo "   default = divide available memory by number of (virtual) CPUs"
    echo "<other> contains any other parameters to pass to simcommsys"
    echo "        (may be blank but must be present)"
    echo "<systems> is a list of systems to simulate in parallel"
@@ -21,8 +23,9 @@ fi
 path=${0%/*}
 tag=$1
 port=$2
-other=$3
-shift 3
+vlimit=$3
+other=$4
+shift 4
 # interpret port numbering
 if [[ $port != "local" ]]; then declare -i port; fi
 
@@ -33,9 +36,10 @@ while (( $# > 0 )); do
    echo "  System: $system"
    echo "  Tag:    $tag"
    echo "  Port:   $port"
+   echo "  Vlimit: $vlimit"
    echo "  Args:   $other"
 
-   screen -d -m -S "$port.$system" "$path/simcommsys-wrapper.sh" "$systempath" "$tag" "$port" "default" $other
+   screen -d -m -S "$port.$system" "$path/simcommsys-wrapper.sh" "$systempath" "$tag" "$port" "$vlimit" $other
    # interpret port numbering
    if [[ $port != "local" ]]; then (( port -- )); fi
    shift

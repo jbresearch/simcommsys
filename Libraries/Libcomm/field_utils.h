@@ -23,10 +23,12 @@
 #define FIELD_UTILS_H_
 
 #include "config.h"
+#include "randgen.h"
 #include "random.h"
 #include "vector.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Helper class for field types - template base
@@ -38,35 +40,33 @@ namespace libcomm {
  */
 
 template <class G>
-class field_utils {
+class field_utils
+{
 private:
-   //! Private constructor to prohibit objects of this type
-   field_utils()
-      {
-      }
+    //! Private constructor to prohibit objects of this type
+    field_utils() {}
+
 public:
-   //! Field size (number of elements)
-   static int elements()
-      {
-      return G::elements();
-      }
-   //! Cause a substitution error to given symbol (all other values equally likely)
-   static G corrupt(const G& s, libbase::randgen& r)
-      {
-      return s + G(r.ival(G::elements() - 1) + 1);
-      }
-   //! Add vectors of symbols, modulo the field size - binary operator
-   static libbase::vector<G> add(const libbase::vector<G>& a,
-         const libbase::vector<G>& b)
-      {
-      return a + b;
-      }
-   //! Add vectors of symbols, modulo the field size - unary operator
-   static libbase::vector<G>& add_to(libbase::vector<G>& a,
-         const libbase::vector<G>& b)
-      {
-      return a += b;
-      }
+    //! Field size (number of elements)
+    static int elements() { return G::elements(); }
+    //! Cause a substitution error to given symbol (all other values equally
+    //! likely)
+    static G corrupt(const G& s, libbase::randgen& r)
+    {
+        return s + G(r.ival(G::elements() - 1) + 1);
+    }
+    //! Add vectors of symbols, modulo the field size - binary operator
+    static libbase::vector<G> add(const libbase::vector<G>& a,
+                                  const libbase::vector<G>& b)
+    {
+        return a + b;
+    }
+    //! Add vectors of symbols, modulo the field size - unary operator
+    static libbase::vector<G>& add_to(libbase::vector<G>& a,
+                                      const libbase::vector<G>& b)
+    {
+        return a += b;
+    }
 };
 
 /*!
@@ -77,37 +77,31 @@ public:
  */
 
 template <>
-class field_utils<bool> {
+class field_utils<bool>
+{
 private:
-   //! Private constructor to prohibit objects of this type
-   field_utils()
-      {
-      }
+    //! Private constructor to prohibit objects of this type
+    field_utils() {}
+
 public:
-   //! Field size (number of elements)
-   static int elements()
-      {
-      return 2;
-      }
-   //! Cause a substitution error to given symbol
-   static bool corrupt(const bool& s, libbase::randgen& r)
-      {
-      return !s;
-      }
-   //! Add vectors of symbols, modulo 2 - binary operator
-   static libbase::vector<bool> add(const libbase::vector<bool>& a,
-         const libbase::vector<bool>& b)
-      {
-      return a ^ b;
-      }
-   //! Add vectors of symbols, modulo 2 - unary operator
-   static libbase::vector<bool>& add_to(libbase::vector<bool>& a,
-         const libbase::vector<bool>& b)
-      {
-      return a ^= b;
-      }
+    //! Field size (number of elements)
+    static int elements() { return 2; }
+    //! Cause a substitution error to given symbol
+    static bool corrupt(const bool& s, libbase::randgen& r) { return !s; }
+    //! Add vectors of symbols, modulo 2 - binary operator
+    static libbase::vector<bool> add(const libbase::vector<bool>& a,
+                                     const libbase::vector<bool>& b)
+    {
+        return a ^ b;
+    }
+    //! Add vectors of symbols, modulo 2 - unary operator
+    static libbase::vector<bool>& add_to(libbase::vector<bool>& a,
+                                         const libbase::vector<bool>& b)
+    {
+        return a ^= b;
+    }
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif /* FIELD_UTILS_H_ */

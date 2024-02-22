@@ -25,7 +25,8 @@
 #include "config.h"
 #include "vector.h"
 
-namespace libbase {
+namespace libbase
+{
 
 // Determine debug level:
 // 1 - Normal debug output only
@@ -34,8 +35,8 @@ namespace libbase {
 // NOTE: since this is a header, it may be included in other classes as well;
 //       to avoid problems, the debug level is reset at the end of this file.
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG 1
+#    undef DEBUG
+#    define DEBUG 1
 #endif
 
 /*!
@@ -46,74 +47,71 @@ namespace libbase {
  */
 
 template <class T>
-class offset_vector : public vector<T> {
-   typedef vector<T> Base;
+class offset_vector : public vector<T>
+{
+    typedef vector<T> Base;
+
 protected:
-   size_type<libbase::vector> m_offset;
+    size_type<libbase::vector> m_offset;
+
 public:
-   /*! \name Other Constructors */
-   /*! \brief Default constructor
-    * Allocates space for 'n' elements, with the index to the first element
-    * equal to 'base'. Note that this does not initialize elements.
-    */
-   explicit offset_vector(const int n = 0, const int base = 0) :
-      Base(n), m_offset(base)
-      {
-      }
-   /*! \brief On-the-fly conversion of vectors
-    * Copies the elements of the given vector and resets the index to the first
-    * element to 'base'.
-    * \note Naturally this requires a deep copy.
-    */
-   template <class A>
-   explicit offset_vector(const vector<A>& x, const int base = 0) :
-      Base(x), m_offset(base)
-      {
-      }
-   // @}
+    /*! \name Other Constructors */
+    /*! \brief Default constructor
+     * Allocates space for 'n' elements, with the index to the first element
+     * equal to 'base'. Note that this does not initialize elements.
+     */
+    explicit offset_vector(const int n = 0, const int base = 0)
+        : Base(n), m_offset(base)
+    {
+    }
+    /*! \brief On-the-fly conversion of vectors
+     * Copies the elements of the given vector and resets the index to the first
+     * element to 'base'.
+     * \note Naturally this requires a deep copy.
+     */
+    template <class A>
+    explicit offset_vector(const vector<A>& x, const int base = 0)
+        : Base(x), m_offset(base)
+    {
+    }
+    // @}
 
-   /*! \name Resizing operations */
-   /*! \brief Set index to the first element to 'base'
-    */
-   void set_base(const int base)
-      {
-      m_offset = base;
-      }
-   // @}
+    /*! \name Resizing operations */
+    /*! \brief Set index to the first element to 'base'
+     */
+    void set_base(const int base) { m_offset = base; }
+    // @}
 
-   /*! \name Element access */
-   /*! \brief Index operator (write-access)
-    * \note Performs boundary checking.
-    */
-   T& operator()(const int x)
-      {
-      test_invariant();
-      return Base(x - base);
-      }
-   /*! \brief Index operator (read-only access)
-    * \note Performs boundary checking.
-    */
-   const T& operator()(const int x) const
-      {
-      test_invariant();
-      return Base(x - base);
-      }
-   // @}
+    /*! \name Element access */
+    /*! \brief Index operator (write-access)
+     * \note Performs boundary checking.
+     */
+    T& operator()(const int x)
+    {
+        test_invariant();
+        return Base(x - base);
+    }
+    /*! \brief Index operator (read-only access)
+     * \note Performs boundary checking.
+     */
+    const T& operator()(const int x) const
+    {
+        test_invariant();
+        return Base(x - base);
+    }
+    // @}
 
-   // information services
-   //! Base index
-   size_type<libbase::vector> get_base() const
-      {
-      return m_offset;
-      }
+    // information services
+    //! Base index
+    size_type<libbase::vector> get_base() const { return m_offset; }
 };
 
 // Reset debug level, to avoid affecting other files
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG
+#    undef DEBUG
+#    define DEBUG
 #endif
 
-} // end namespace
+} // namespace libbase
 
 #endif

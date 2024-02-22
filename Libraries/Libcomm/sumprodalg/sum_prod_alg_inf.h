@@ -21,11 +21,12 @@
 
 #ifndef SUM_PROD_ALG_INF_H_
 #define SUM_PROD_ALG_INF_H_
-#include <string>
-#include "vector.h"
 #include "matrix.h"
+#include "vector.h"
+#include <string>
 
-namespace libcomm {
+namespace libcomm
+{
 /*! \brief Sum Product Algorithm(SPA) interface
  * This is the interface that all SPA implementations need
  * to inherit from. It allows the SPA to be initialise with
@@ -34,51 +35,50 @@ namespace libcomm {
  * the constructor of the SPA implementation
  */
 template <class GF_q, class real = double>
-class sum_prod_alg_inf {
+class sum_prod_alg_inf
+{
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<real> array1d_t;
-   typedef libbase::vector<array1d_t> array1vd_t;
+    /*! \name Type definitions */
+    typedef libbase::vector<real> array1d_t;
+    typedef libbase::vector<array1d_t> array1vd_t;
 
-   virtual ~sum_prod_alg_inf()
-      {
-      }
+    virtual ~sum_prod_alg_inf() {}
 
-   /*! \brief initialise the SPA with the relevant probabilities
-    *
-    */
-   virtual void spa_init(const array1vd_t& ptable)=0;
-   /*! \brief carry out the SPA iteration
-    *
-    */
-   virtual void spa_iteration(array1vd_t& ro)=0;
-   /*! \brief return the type of SPA used
-    *
-    */
-   virtual std::string spa_type()=0;
+    /*! \brief initialise the SPA with the relevant probabilities
+     *
+     */
+    virtual void spa_init(const array1vd_t& ptable) = 0;
+    /*! \brief carry out the SPA iteration
+     *
+     */
+    virtual void spa_iteration(array1vd_t& ro) = 0;
+    /*! \brief return the type of SPA used
+     *
+     */
+    virtual std::string spa_type() = 0;
 
-   /*! \brief set the way the algorithm should deal with
-    * clipping, ie replacing probabilities below a certain value
-    */
+    /*! \brief set the way the algorithm should deal with
+     * clipping, ie replacing probabilities below a certain value
+     */
 
-   virtual void set_clipping(std::string clipping_type, real almost_zero)=0;
+    virtual void set_clipping(std::string clipping_type, real almost_zero) = 0;
 
-   /*!\brief returns the type of clipping used
-    *
-    */
-   virtual std::string get_clipping_type()=0;
+    /*!\brief returns the type of clipping used
+     *
+     */
+    virtual std::string get_clipping_type() = 0;
 
-   /*!\brief returns the value of almostzero used in the clipping method
-    *
-    */
-   virtual real get_almostzero()=0;
+    /*!\brief returns the value of almostzero used in the clipping method
+     *
+     */
+    virtual real get_almostzero() = 0;
 
-   /*!\brief Perform the desired clipping
-    *
-    */
-   virtual void perform_clipping(real& num)=0;
+    /*!\brief Perform the desired clipping
+     *
+     */
+    virtual void perform_clipping(real& num) = 0;
 };
 
-}
+} // namespace libcomm
 
 #endif /* SUM_PROD_ALG_INF_H_ */

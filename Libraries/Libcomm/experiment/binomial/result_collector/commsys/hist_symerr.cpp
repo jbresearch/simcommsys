@@ -23,16 +23,19 @@
 #include "hamming.h"
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // commsys functions
 
-void hist_symerr::updateresults(libbase::vector<double>& result,
-      const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
-   {
-   int symerrors = libbase::hamming(source, decoded);
-   // Update the count for that number of symbol errors (may be zero)
-   result(symerrors)++;
-   }
+void
+hist_symerr::updateresults(libbase::vector<double>& result,
+                           const libbase::vector<int>& source,
+                           const libbase::vector<int>& decoded) const
+{
+    int symerrors = libbase::hamming(source, decoded);
+    // Update the count for that number of symbol errors (may be zero)
+    result(symerrors)++;
+}
 
-} // end namespace
+} // namespace libcomm

@@ -25,7 +25,8 @@
 #include "config.h"
 #include "interleaver/lut/named_lut.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   File-loaded LUT Interleaver.
@@ -34,15 +35,13 @@ namespace libcomm {
  */
 
 template <class real>
-class file_lut : public named_lut<real> {
+class file_lut : public named_lut<real>
+{
 public:
-   file_lut(const char *filename, const int tau, const int m);
-   ~file_lut()
-      {
-      }
+    file_lut(const char* filename, const int tau, const int m);
+    ~file_lut() {}
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

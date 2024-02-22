@@ -48,10 +48,11 @@
 #include <iostream>
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
-using libbase::vector;
 using libbase::matrix;
+using libbase::vector;
 
 // Internal functions
 
@@ -71,98 +72,109 @@ using libbase::matrix;
  * Similarly, the taps corresponding to the inputs also are irrelevant.
  */
 template <class G>
-matrix<G> grscc<G>::getstategen() const
-   {
-   // Create generator matrix in required format
-   matrix<G> stategen(this->nu, this->nu);
-   stategen = G(0);
-   // Consider each input in turn
-   for (int i = 0, row = 0; i < this->k; i++, row++)
-      {
-      // First row describes the shift-input taps, except for
-      // the first element, which corresponds to the shift-in quantity
-      for (int j = 1, col = 0; j < this->gen(i, i).size(); j++, col++)
-         stategen(col, row) = this->gen(i, i)(j);
-      // Successive rows describe the simple right-shift taps
-      for (int j = 1, col = 0; j < this->reg(i).size(); j++, col++)
-         stategen(j - 1, ++row) = 1;
-      }
-   libbase::trace << "DEBUG (grscc): state-generator matrix = " << stategen;
-   return stategen;
-   }
+matrix<G>
+grscc<G>::getstategen() const
+{
+    // Create generator matrix in required format
+    matrix<G> stategen(this->nu, this->nu);
+    stategen = G(0);
+    // Consider each input in turn
+    for (int i = 0, row = 0; i < this->k; i++, row++) {
+        // First row describes the shift-input taps, except for
+        // the first element, which corresponds to the shift-in quantity
+        for (int j = 1, col = 0; j < this->gen(i, i).size(); j++, col++) {
+            stategen(col, row) = this->gen(i, i)(j);
+        }
+
+        // Successive rows describe the simple right-shift taps
+        for (int j = 1, col = 0; j < this->reg(i).size(); j++, col++) {
+            stategen(j - 1, ++row) = G(1);
+        }
+    }
+    libbase::trace << "DEBUG (grscc): state-generator matrix = " << stategen;
+    return stategen;
+}
 
 /*!
  * \brief Initialize circulation state correspondence table
  *
- * If the feedback polynomial is primitive, the system behaves as a maximal-length
- * linear feedback shift register. We verify the period by computing the necessary
- * powers of the state-generator matrix.
+ * If the feedback polynomial is primitive, the system behaves as a
+ * maximal-length linear feedback shift register. We verify the period by
+ * computing the necessary powers of the state-generator matrix.
  */
 template <class G>
-void grscc<G>::initcsct()
-   {
-   const matrix<G> stategen = getstategen();
-   const matrix<G> eye = matrix<G>::eye(this->nu);
-   matrix<G> Gi;
-   // determine period
-   int L;
-   Gi = stategen;
-   for (L = 1; (eye + Gi).max() > 0; L++)
-      Gi *= stategen;
-   libbase::trace << "DEBUG (grscc): period = " << L << std::endl;
-   // correspondence table has first index for N%L, second index for S_N^0
-   csct.init(L, this->num_states());
-   // go through all combinations (except N%L=0, which is illegal) and fill in
-   Gi = eye;
-   for (int i = 1; i < L; i++)
-      {
-      Gi *= stategen;
-      const matrix<G> IGi = eye + Gi;
-      // check if matrix is non-invertible
-      if (IGi.rank() < IGi.size().rows())
-         {
-         // clear circulation table to indicate we cannot do this
-         csct.init(0, 0);
-         return;
-         }
-      // compute inverse and determine circulation values at this offset
-      const matrix<G> A = IGi.inverse();
-      for (int j = 0; j < this->num_states(); j++)
-         {
-         vector<G> statevec = A * ccfsm<G>::convert(j, ccfsm<G>::nu);
-         csct(i, j) = ccfsm<G>::convert(statevec);
-         }
-      }
-   }
+void
+grscc<G>::initcsct()
+{
+    const matrix<G> stategen = getstategen();
+    const matrix<G> eye = matrix<G>::eye(this->nu);
+    matrix<G> Gi;
+    // determine period
+    int L;
+    Gi = stategen;
+    for (L = 1; (eye + Gi).max() > 0; L++) {
+        Gi *= stategen;
+    }
+
+    libbase::trace << "DEBUG (grscc): period = " << L << std::endl;
+    // correspondence table has first index for N%L, second index for S_N^0
+    csct.init(L, this->num_states());
+    // go through all combinations (except N%L=0, which is illegal) and fill in
+    Gi = eye;
+    for (int i = 1; i < L; i++) {
+        Gi *= stategen;
+        const matrix<G> IGi = eye + Gi;
+        // check if matrix is non-invertible
+        if (IGi.rank() < IGi.size().rows()) {
+            // clear circulation table to indicate we cannot do this
+            csct.init(0, 0);
+            return;
+        }
+        // compute inverse and determine circulation values at this offset
+        const matrix<G> A = IGi.inverse();
+        for (int j = 0; j < this->num_states(); j++) {
+            vector<G> statevec = A * ccfsm<G>::convert(j, ccfsm<G>::nu);
+            csct(i, j) = ccfsm<G>::convert(statevec);
+        }
+    }
+}
 
 // FSM helper operations
 
 template <class G>
-vector<int> grscc<G>::determineinput(const vector<int>& input) const
-   {
-   vector<int> ip = input;
-   for (int i = 0; i < ip.size(); i++)
-      if (ip(i) == fsm::tail)
-         {
-         // Handle tailing out
-         const G zero;
-         for (int i = 0; i < this->k; i++)
-            ip(i) = this->convolve(zero, this->reg(i), this->gen(i, i));
-         }
-   return ip;
-   }
+vector<int>
+grscc<G>::determineinput(const vector<int>& input) const
+{
+    vector<int> ip = input;
+    for (int i = 0; i < ip.size(); i++) {
+        if (ip(i) == fsm::tail) {
+            // Handle tailing out
+            const G zero;
+            for (int i = 0; i < this->k; i++) {
+                ip(i) = this->convolve(zero, this->reg(i), this->gen(i, i));
+            }
+        }
+    }
+
+    return ip;
+}
 
 template <class G>
-vector<G> grscc<G>::determinefeedin(const vector<int>& input) const
-   {
-   for (int i = 0; i < input.size(); i++)
-      assert(input(i) != fsm::tail);
-   // Determine the shift-in values by convolution
-   vector<G> sin(this->k);
-   for (int i = 0; i < this->k; i++)
-      sin(i) = this->convolve(input(i), this->reg(i), this->gen(i, i));
-   return sin;
-   }
+vector<G>
+grscc<G>::determinefeedin(const vector<int>& input) const
+{
+    for (int i = 0; i < input.size(); i++) {
+        assert(input(i) != fsm::tail);
+    }
+
+    // Determine the shift-in values by convolution
+    vector<G> sin(this->k);
+    for (int i = 0; i < this->k; i++) {
+        sin(i) = this->convolve(G(input(i)), this->reg(i), this->gen(i, i));
+    }
+
+    return sin;
+}
 
 // FSM state operations (getting and resetting)
 
@@ -201,48 +213,53 @@ vector<G> grscc<G>::determinefeedin(const vector<int>& input) const
  * containing all combinations of \f$ P \f$ and \f$ S_N^0 \f$.
  */
 template <class G>
-void grscc<G>::resetcircular(const vector<int>& zerostate, int n)
-   {
-   // TODO: check the input state is valid
-   assert(csct.size() > 0);
-   const int L = csct.size().rows();
-   assert(n % L != 0);
-   const int zerostateval = ccfsm<G>::convert(vector<G> (zerostate));
-   const int circstateval = csct(n % L, zerostateval);
-   this->reset(vector<int> (ccfsm<G>::convert(circstateval, ccfsm<G>::nu)));
-   }
+void
+grscc<G>::resetcircular(const vector<int>& zerostate, int n)
+{
+    // TODO: check the input state is valid
+    assert(csct.size() > 0);
+    const int L = csct.size().rows();
+    assert(n % L != 0);
+    const int zerostateval = ccfsm<G>::convert(vector<G>(zerostate));
+    const int circstateval = csct(n % L, zerostateval);
+    this->reset(vector<int>(ccfsm<G>::convert(circstateval, ccfsm<G>::nu)));
+}
 
 // Description
 
 template <class G>
-std::string grscc<G>::description() const
-   {
-   std::ostringstream sout;
-   sout << "RSC code " << ccfsm<G>::description();
-   return sout.str();
-   }
+std::string
+grscc<G>::description() const
+{
+    std::ostringstream sout;
+    sout << "RSC code " << ccfsm<G>::description();
+    return sout.str();
+}
 
 // Serialization Support
 
 template <class G>
-std::ostream& grscc<G>::serialize(std::ostream& sout) const
-   {
-   return ccfsm<G>::serialize(sout);
-   }
+std::ostream&
+grscc<G>::serialize(std::ostream& sout) const
+{
+    return ccfsm<G>::serialize(sout);
+}
 
 template <class G>
-std::istream& grscc<G>::serialize(std::istream& sin)
-   {
-   ccfsm<G>::serialize(sin);
-   initcsct();
-   return sin;
-   }
+std::istream&
+grscc<G>::serialize(std::istream& sin)
+{
+    ccfsm<G>::serialize(sin);
+    initcsct();
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
 #include "gf.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
@@ -250,6 +267,7 @@ namespace libcomm {
 
 using libbase::serializer;
 
+// clang-format off
 #define USING_GF(r, x, type) \
       using libbase::type;
 
@@ -266,7 +284,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
          "fsm", \
          "grscc<" BOOST_PP_STRINGIZE(type) ">", \
          grscc<type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, GF_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

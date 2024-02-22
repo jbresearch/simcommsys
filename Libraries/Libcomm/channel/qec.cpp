@@ -22,7 +22,8 @@
 #include "qec.h"
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Channel function overrides
 
@@ -45,55 +46,62 @@ namespace libcomm {
  * \enddot
  */
 template <class G>
-G qec<G>::corrupt(const G& s)
-   {
-   const double p = this->r.fval_closed();
-   G rx = s;
-   if (p < Pe)
-      rx.erase();
-   return rx;
-   }
+G
+qec<G>::corrupt(const G& s)
+{
+    const double p = this->r.fval_closed();
+    G rx = s;
+    if (p < Pe) {
+        rx.erase();
+    }
+    return rx;
+}
 
 // description output
 
 template <class G>
-std::string qec<G>::description() const
-   {
-   std::ostringstream sout;
-   sout << G::elements() << "-ary Erasure channel";
-   return sout.str();
-   }
+std::string
+qec<G>::description() const
+{
+    std::ostringstream sout;
+    sout << G::elements() << "-ary Erasure channel";
+    return sout.str();
+}
 
 // object serialization - saving
 
 template <class G>
-std::ostream& qec<G>::serialize(std::ostream& sout) const
-   {
-   return sout;
-   }
+std::ostream&
+qec<G>::serialize(std::ostream& sout) const
+{
+    return sout;
+}
 
 // object serialization - loading
 
 template <class G>
-std::istream& qec<G>::serialize(std::istream& sin)
-   {
-   return sin;
-   }
+std::istream&
+qec<G>::serialize(std::istream& sin)
+{
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
-#include "gf.h"
 #include "erasable.h"
+#include "gf.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-using libbase::serializer;
 using libbase::erasable;
+using libbase::serializer;
 
+// clang-format off
 #define USING_GF(r, x, type) \
       using libbase::type;
 
@@ -121,7 +129,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
          "channel", \
          "qec<" BOOST_PP_STRINGIZE(type) ">", \
          qec<type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, ALL_SYMBOL_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

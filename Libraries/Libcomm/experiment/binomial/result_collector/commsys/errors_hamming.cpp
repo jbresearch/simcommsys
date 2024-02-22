@@ -21,10 +21,11 @@
 
 #include "errors_hamming.h"
 #include "fsm.h"
-#include "itfunc.h"
 #include "hamming.h"
+#include "itfunc.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief Update result set
@@ -35,14 +36,16 @@ namespace libcomm {
  * Results are organized as (symbol,frame) error count. Eventually these will be
  * divided by the respective multiplicity to get the average error rates.
  */
-void errors_hamming::updateresults(libbase::vector<double>& result,
-      const libbase::vector<int>& source, const libbase::vector<int>& decoded) const
-   {
-   // Count errors
-   int symerrors = libbase::hamming(source, decoded);
-   // Estimate the SER, FER
-   result(0) += symerrors;
-   result(1) += symerrors ? 1 : 0;
-   }
+void
+errors_hamming::updateresults(libbase::vector<double>& result,
+                              const libbase::vector<int>& source,
+                              const libbase::vector<int>& decoded) const
+{
+    // Count errors
+    int symerrors = libbase::hamming(source, decoded);
+    // Estimate the SER, FER
+    result(0) += symerrors;
+    result(1) += symerrors ? 1 : 0;
+}
 
-} // end namespace
+} // namespace libcomm

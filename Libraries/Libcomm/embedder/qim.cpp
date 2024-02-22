@@ -24,36 +24,43 @@
 #include <cmath>
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // description output
 
 template <class S>
-std::string qim<S>::description() const
-   {
-   std::ostringstream sout;
-   if (alpha < 1.0)
-      sout << "DC-";
-   sout << "QIM embedder (M=" << M << ", delta=" << delta;
-   if (alpha < 1.0)
-      sout << ", alpha=" << alpha;
-   sout << ")";
-   return sout.str();
-   }
+std::string
+qim<S>::description() const
+{
+    std::ostringstream sout;
+    if (alpha < 1.0) {
+        sout << "DC-";
+    }
+    sout << "QIM embedder (M=" << M << ", delta=" << delta;
+
+    if (alpha < 1.0) {
+        sout << ", alpha=" << alpha;
+    }
+
+    sout << ")";
+    return sout.str();
+}
 
 // object serialization - saving
 
 template <class S>
-std::ostream& qim<S>::serialize(std::ostream& sout) const
-   {
-   sout << "# M" << std::endl;
-   sout << M << std::endl;
-   sout << "# delta" << std::endl;
-   sout << delta << std::endl;
-   sout << "# alpha" << std::endl;
-   sout << alpha << std::endl;
-   return sout;
-   }
+std::ostream&
+qim<S>::serialize(std::ostream& sout) const
+{
+    sout << "# M" << std::endl;
+    sout << M << std::endl;
+    sout << "# delta" << std::endl;
+    sout << delta << std::endl;
+    sout << "# alpha" << std::endl;
+    sout << alpha << std::endl;
+    return sout;
+}
 
 // object serialization - loading
 
@@ -62,17 +69,19 @@ std::ostream& qim<S>::serialize(std::ostream& sout) const
  */
 
 template <class S>
-std::istream& qim<S>::serialize(std::istream& sin)
-   {
-   sin >> libbase::eatcomments >> M >> libbase::verify;
-   sin >> libbase::eatcomments >> delta >> libbase::verify;
-   sin >> libbase::eatcomments >> alpha >> libbase::verify;
-   return sin;
-   }
+std::istream&
+qim<S>::serialize(std::istream& sin)
+{
+    sin >> libbase::eatcomments >> M >> libbase::verify;
+    sin >> libbase::eatcomments >> delta >> libbase::verify;
+    sin >> libbase::eatcomments >> alpha >> libbase::verify;
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
@@ -80,6 +89,7 @@ namespace libcomm {
 
 using libbase::serializer;
 
+// clang-format off
 #define SYMBOL_TYPE_SEQ \
    (int)(float)(double)
 
@@ -94,7 +104,8 @@ using libbase::serializer;
             "embedder", \
             "qim<" BOOST_PP_STRINGIZE(type) ">", \
             qim<type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, SYMBOL_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

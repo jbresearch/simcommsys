@@ -25,7 +25,8 @@
 #include "config.h"
 #include "vector.h"
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Symbols Aggregator
@@ -45,54 +46,52 @@ namespace libbase {
  */
 
 template <class dbl, class dbl2>
-class symbol_converter {
+class symbol_converter
+{
 public:
-   /*! \name Type definitions */
-   typedef vector<dbl> array1d_t;
-   typedef vector<int> array1i_t;
-   typedef vector<array1d_t> array1vd_t;
-   // @}
+    /*! \name Type definitions */
+    typedef vector<dbl> array1d_t;
+    typedef vector<int> array1i_t;
+    typedef vector<array1d_t> array1vd_t;
+    // @}
 
 private:
-   /*! \name Internal object representation */
-   int S; //!< Alphabet size for small symbols
-   int L; //!< Alphabet size for large symbols
-   int k; //!< Number of small symbols per large symbol
-   // @}
+    /*! \name Internal object representation */
+    int S; //!< Alphabet size for small symbols
+    int L; //!< Alphabet size for large symbols
+    int k; //!< Number of small symbols per large symbol
+           // @}
 
 public:
-   /*! \name Constructors & destructor */
-   explicit symbol_converter(const int S, const int L) :
-         S(S), L(L)
-      {
-      k = get_rate(S, L);
-      }
-   virtual ~symbol_converter()
-      {
-      }
-   // @}
+    /*! \name Constructors & destructor */
+    explicit symbol_converter(const int S, const int L) : S(S), L(L)
+    {
+        k = get_rate(S, L);
+    }
+    virtual ~symbol_converter() {}
+    // @}
 
-   /*! \name Helper functions */
-   /*!
-    * \brief Determines the number of small symbols per large symbol
-    * \param[in]  S     Alphabet size for small symbols
-    * \param[in]  L     Alphabet size for large symbols
-    */
-   static int get_rate(const int S, const int L)
-      {
-      const int k = int(round(log(double(L)) / log(double(S))));
-      assertalways(k >= 1);
-      assertalways(L == pow(S,k));
-      return k;
-      }
-   // @}
+    /*! \name Helper functions */
+    /*!
+     * \brief Determines the number of small symbols per large symbol
+     * \param[in]  S     Alphabet size for small symbols
+     * \param[in]  L     Alphabet size for large symbols
+     */
+    static int get_rate(const int S, const int L)
+    {
+        const int k = int(round(log(double(L)) / log(double(S))));
+        assertalways(k >= 1);
+        assertalways(L == pow(S, k));
+        return k;
+    }
+    // @}
 
-   /*! \name Main interface */
-   void aggregate_symbols(const array1i_t& in, array1i_t& out) const;
-   void aggregate_probabilities(const array1vd_t& pin, array1vd_t& pout) const;
-   void divide_symbols(const array1i_t& in, array1i_t& out) const;
-   void divide_probabilities(const array1vd_t& pin, array1vd_t& pout) const;
-   // @}
+    /*! \name Main interface */
+    void aggregate_symbols(const array1i_t& in, array1i_t& out) const;
+    void aggregate_probabilities(const array1vd_t& pin, array1vd_t& pout) const;
+    void divide_symbols(const array1i_t& in, array1i_t& out) const;
+    void divide_probabilities(const array1vd_t& pin, array1vd_t& pout) const;
+    // @}
 };
 
 } /* namespace libbase */

@@ -25,7 +25,8 @@
 #include "blockmodem.h"
 #include "direct_modem.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Q-ary Blockwise Modulator.
@@ -36,10 +37,12 @@ namespace libcomm {
  * provided here.
  */
 
-template <class G, template <class > class C = libbase::vector,
-      class dbl = double>
+template <class G,
+          template <class> class C = libbase::vector,
+          class dbl = double>
 class direct_blockmodem : public blockmodem<G, C, dbl>,
-      protected direct_modem<G> {
+                          protected direct_modem<G>
+{
 };
 
 /*!
@@ -52,27 +55,30 @@ class direct_blockmodem : public blockmodem<G, C, dbl>,
  */
 
 template <class G, class dbl>
-class direct_blockmodem<G, libbase::vector, dbl> : public blockmodem<G,
-      libbase::vector, dbl>, protected direct_modem<G> {
+class direct_blockmodem<G, libbase::vector, dbl>
+    : public blockmodem<G, libbase::vector, dbl>, protected direct_modem<G>
+{
 public:
-   /*! \name Type definitions */
-   typedef direct_modem<G> Implementation;
-   typedef libbase::vector<dbl> array1d_t;
-   // @}
+    /*! \name Type definitions */
+    typedef direct_modem<G> Implementation;
+    typedef libbase::vector<dbl> array1d_t;
+    // @}
 protected:
-   // Interface with derived classes
-   void domodulate(const int N, const libbase::vector<int>& encoded,
-         libbase::vector<G>& tx);
-   void dodemodulate(const channel<G, libbase::vector>& chan,
-         const libbase::vector<G>& rx, libbase::vector<array1d_t>& ptable);
+    // Interface with derived classes
+    void domodulate(const int N,
+                    const libbase::vector<int>& encoded,
+                    libbase::vector<G>& tx);
+    void dodemodulate(const channel<G, libbase::vector>& chan,
+                      const libbase::vector<G>& rx,
+                      libbase::vector<array1d_t>& ptable);
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(direct_blockmodem)
+    // Serialization Support
+    DECLARE_SERIALIZER(direct_blockmodem)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

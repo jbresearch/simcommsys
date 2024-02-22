@@ -22,18 +22,19 @@
 #ifndef __fba2_interface_h
 #define __fba2_interface_h
 
-#include "config.h"
-#include "vector.h"
-#include "instrumented.h"
 #include "channel_insdel.h"
+#include "config.h"
+#include "instrumented.h"
+#include "vector.h"
 
 #include <string>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
- * \brief   Interface for Symbol-Level Forward-Backward Algorithm (for TVB codes).
- * \author  Johann Briffa
+ * \brief   Interface for Symbol-Level Forward-Backward Algorithm (for TVB
+ * codes). \author  Johann Briffa
  *
  * Defines the interface for the forward-backward algorithm for a HMM, as
  * required for the MAP decoding algorithm for a generalized class of
@@ -48,64 +49,78 @@ namespace libcomm {
  */
 
 template <class sig, class real, class real2>
-class fba2_interface {
+class fba2_interface
+{
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<sig> array1s_t;
-   typedef libbase::matrix<array1s_t> array2vs_t;
-   typedef libbase::vector<double> array1d_t;
-   typedef libbase::vector<real> array1r_t;
-   typedef libbase::vector<array1d_t> array1vd_t;
-   typedef libbase::vector<array1r_t> array1vr_t;
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<sig> array1s_t;
+    typedef libbase::matrix<array1s_t> array2vs_t;
+    typedef libbase::vector<double> array1d_t;
+    typedef libbase::vector<real> array1r_t;
+    typedef libbase::vector<array1d_t> array1vd_t;
+    typedef libbase::vector<array1r_t> array1vr_t;
+    // @}
 public:
-   /*! \name Constructors / Destructors */
-   virtual ~fba2_interface()
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    virtual ~fba2_interface() {}
+    // @}
 
-   //! Determine memory required for global storage mode (in MiB)
-   static int get_memory_required(int N, int q, int mtau_min, int mtau_max,
-         int mn_min, int mn_max)
-      {
-      // determine memory required
-      // NOTE: do all computations at 64-bit, or we get intermediate overflow!
-      libbase::int64u bytes_required = sizeof(real);
-      bytes_required *= q;
-      bytes_required *= N;
-      bytes_required *= (mtau_max - mtau_min + 1);
-      bytes_required *= (mn_max - mn_min + 1);
-      bytes_required >>= 20;
-      return int(bytes_required);
-      }
+    //! Determine memory required for global storage mode (in MiB)
+    static int get_memory_required(
+        int N, int q, int mtau_min, int mtau_max, int mn_min, int mn_max)
+    {
+        // determine memory required
+        // NOTE: do all computations at 64-bit, or we get intermediate overflow!
+        libbase::int64u bytes_required = sizeof(real);
+        bytes_required *= q;
+        bytes_required *= N;
+        bytes_required *= (mtau_max - mtau_min + 1);
+        bytes_required *= (mn_max - mn_min + 1);
+        bytes_required >>= 20;
+        return int(bytes_required);
+    }
 
-   /*! \name Interface with derived classes */
-   /*! \brief Set up code size, decoding parameters, and channel receiver
-    * Only needs to be done before the first frame.
-    */
-   virtual void init(int N, int q, int mtau_min, int mtau_max, int mn_min,
-         int mn_max, int m1_min, int m1_max, double th_inner, double th_outer,
+    /*! \name Interface with derived classes */
+    /*! \brief Set up code size, decoding parameters, and channel receiver
+     * Only needs to be done before the first frame.
+     */
+    virtual void
+    init(int N,
+         int q,
+         int mtau_min,
+         int mtau_max,
+         int mn_min,
+         int mn_max,
+         int m1_min,
+         int m1_max,
+         double th_inner,
+         double th_outer,
          int tp_states,
-         const typename libcomm::channel_insdel<sig, real2>::metric_computer& computer) = 0;
-   /*! \brief Set up encoding table
-    * Needs to be done before every frame.
-    */
-   virtual void init(const array2vs_t& encoding_table) const = 0;
+         const typename libcomm::channel_insdel<sig, real2>::metric_computer&
+             computer) = 0;
+    /*! \brief Set up encoding table
+     * Needs to be done before every frame.
+     */
+    virtual void init(const array2vs_t& encoding_table) const = 0;
 
-   // decode functions
-   virtual void decode(libcomm::instrumented& collector, const array1s_t& r,
-         const array1d_t& sof_prior, const array1d_t& eof_prior,
-         const array1vd_t& app, array1vr_t& ptable, array1r_t& sof_post,
-         array1r_t& eof_post, const int offset) = 0;
-   virtual void get_drift_pdf(array1r_t& pdf, const int i) const = 0;
-   virtual void get_drift_pdf(array1vr_t& pdftable) const = 0;
+    // decode functions
+    virtual void decode(libcomm::instrumented& collector,
+                        const array1s_t& r,
+                        const array1d_t& sof_prior,
+                        const array1d_t& eof_prior,
+                        const array1vd_t& app,
+                        array1vr_t& ptable,
+                        array1r_t& sof_post,
+                        array1r_t& eof_post,
+                        const int offset) = 0;
+    virtual void get_drift_pdf(array1r_t& pdf, const int i) const = 0;
+    virtual void get_drift_pdf(array1vr_t& pdftable) const = 0;
 
-   //! Description
-   virtual std::string description() const = 0;
-   // @}
+    //! Description
+    virtual std::string description() const = 0;
+    // @}
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

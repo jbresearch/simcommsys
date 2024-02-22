@@ -24,7 +24,8 @@
 
 #include "config.h"
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Utility class to hold public and private key
@@ -36,51 +37,44 @@ namespace libbase {
  */
 
 template <class BigInteger>
-class keypair {
+class keypair
+{
 private:
-   BigInteger pri_key;
-   BigInteger pub_key;
+    BigInteger pri_key;
+    BigInteger pub_key;
 
 public:
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   keypair()
-      {
-      }
-   explicit keypair(BigInteger pri_key, BigInteger pub_key) :
-      pri_key(pri_key), pub_key(pub_key)
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Default constructor
+    keypair() {}
+    explicit keypair(BigInteger pri_key, BigInteger pub_key)
+        : pri_key(pri_key), pub_key(pub_key)
+    {
+    }
+    // @}
 
-   /*! \name Getters */
-   const BigInteger& get_pri_key() const
-      {
-      return pri_key;
-      }
-   const BigInteger& get_pub_key() const
-      {
-      return pub_key;
-      }
-   // @}
+    /*! \name Getters */
+    const BigInteger& get_pri_key() const { return pri_key; }
+    const BigInteger& get_pub_key() const { return pub_key; }
+    // @}
 
-   /*! \name Stream I/O */
-   friend std::ostream& operator<<(std::ostream& sout, const keypair& x)
-      {
-      sout << x.pri_key << std::endl;
-      sout << x.pub_key << std::endl;
-      return sout;
-      }
+    /*! \name Stream I/O */
+    friend std::ostream& operator<<(std::ostream& sout, const keypair& x)
+    {
+        sout << x.pri_key << std::endl;
+        sout << x.pub_key << std::endl;
+        return sout;
+    }
 
-   friend std::istream& operator>>(std::istream& sin, keypair& x)
-      {
-      sin >> x.pri_key;
-      sin >> x.pub_key;
-      return sin;
-      }
-   // @}
+    friend std::istream& operator>>(std::istream& sin, keypair& x)
+    {
+        sin >> x.pri_key;
+        sin >> x.pub_key;
+        return sin;
+    }
+    // @}
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif

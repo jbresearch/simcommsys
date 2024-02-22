@@ -25,10 +25,11 @@
 #include "config.h"
 #include "vector.h"
 
-#include <string>
 #include <iostream>
+#include <string>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   UNIX Crypt Algorithm.
@@ -43,37 +44,41 @@ namespace libcomm {
  *
  * \version 1.00 (30 Oct 2006)
  * - defined class and associated data within "libcomm" namespace.
- * - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+ * - removed use of "using namespace std", replacing by tighter "using"
+ * statements as needed.
  */
 
-class crypt {
-   // constants - scalars
-   static const int BS, BS2, KS, KS2, IS, IS2;
-   // constants - vectors & matrices
-   static const char PC1[];
-   static const char PC2[];
-   static const char IP[];
-   static const char EP[];
-   static const char E0[];
-   static const char PERM[];
-   static const char S_BOX[][64];
-   // working spaces
-   char E[48];
-   char schluessel[16][48];
+class crypt
+{
+    // constants - scalars
+    static const int BS, BS2, KS, KS2, IS, IS2;
+    // constants - vectors & matrices
+    static const char PC1[];
+    static const char PC2[];
+    static const char IP[];
+    static const char EP[];
+    static const char E0[];
+    static const char PERM[];
+    static const char S_BOX[][64];
+    // working spaces
+    char E[48];
+    char schluessel[16][48];
+
 public:
-   // basic constructor/destructor
-   crypt();
-   virtual ~crypt();
-   // public functions
-   void encrypt(char *nachr, int decr);
-   void setkey(char *schl);
-   char *crypttext(const char *wort, const char *salt);
+    // basic constructor/destructor
+    crypt();
+    virtual ~crypt();
+    // public functions
+    void encrypt(char* nachr, int decr);
+    void setkey(char* schl);
+    char* crypttext(const char* wort, const char* salt);
+
 protected:
-   // private functions
-   static void perm(char *a, const char *e, const char *pc, int n);
-   void crypt_main(char *nachr_l, char *nachr_r, char *schl);
+    // private functions
+    static void perm(char* a, const char* e, const char* pc, int n);
+    void crypt_main(char* nachr_l, char* nachr_r, char* schl);
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

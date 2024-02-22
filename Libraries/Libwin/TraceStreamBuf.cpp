@@ -19,22 +19,18 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "stdafx.h"
 #include "TraceStreamBuf.h"
+#include "stdafx.h"
 
-namespace libwin {
+namespace libwin
+{
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CTraceStreamBuf::CTraceStreamBuf()
-   {
-   buffer = "";
-   }
+CTraceStreamBuf::CTraceStreamBuf() { buffer = ""; }
 
-CTraceStreamBuf::~CTraceStreamBuf()
-   {
-   }
+CTraceStreamBuf::~CTraceStreamBuf() {}
 
-} // end namespace
+} // namespace libwin

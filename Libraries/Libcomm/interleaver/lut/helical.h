@@ -26,7 +26,8 @@
 #include "interleaver/lut_interleaver.h"
 #include "serializer.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Helical Interleaver.
@@ -35,30 +36,28 @@ namespace libcomm {
  */
 
 template <class real>
-class helical : public lut_interleaver<real> {
-   int rows, cols;
+class helical : public lut_interleaver<real>
+{
+    int rows, cols;
+
 protected:
-   void init(const int tau, const int rows, const int cols);
-   helical()
-      {
-      }
+    void init(const int tau, const int rows, const int cols);
+    helical() {}
+
 public:
-   helical(const int tau, const int rows, const int cols)
-      {
-      init(tau, rows, cols);
-      }
-   ~helical()
-      {
-      }
+    helical(const int tau, const int rows, const int cols)
+    {
+        init(tau, rows, cols);
+    }
+    ~helical() {}
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(helical)
+    // Serialization Support
+    DECLARE_SERIALIZER(helical)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

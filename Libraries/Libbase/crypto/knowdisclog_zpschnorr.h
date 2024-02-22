@@ -27,7 +27,8 @@
 #include "keygenerator.h"
 #include "sha.h"
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Log-domain knowledge proof
@@ -39,66 +40,69 @@ namespace libbase {
  */
 
 template <class BigInteger>
-class knowdisclog_zpschnorr {
+class knowdisclog_zpschnorr
+{
 private:
-   BigInteger a;
-   BigInteger c;
-   BigInteger r;
-   BigInteger v;
+    BigInteger a;
+    BigInteger c;
+    BigInteger r;
+    BigInteger v;
 
 public:
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   explicit knowdisclog_zpschnorr(BigInteger a, BigInteger c, BigInteger r,
-         BigInteger v) :
-      a(a), c(c), r(r), v(v)
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    //! Default constructor
+    explicit knowdisclog_zpschnorr(BigInteger a,
+                                   BigInteger c,
+                                   BigInteger r,
+                                   BigInteger v)
+        : a(a), c(c), r(r), v(v)
+    {
+    }
+    // @}
 
-   /* \brief Proof construction
-    *
-    * p,q,g are the parameters of the ElGamal (not included here).
-    * z = random in Z_q
-    * a = g^z mod p
-    * c = hash(v,a)
-    * r = (z + cx) mod q
-    */
-   static knowdisclog_zpschnorr createProof(group<BigInteger> grp,
-         BigInteger x, BigInteger v)
-      {
-      BigInteger g = grp.get_g();
-      BigInteger z = group<BigInteger>::get_random_integer(grp.get_q());
-      BigInteger a = g.pow_mod(z, grp.get_p());
+    /* \brief Proof construction
+     *
+     * p,q,g are the parameters of the ElGamal (not included here).
+     * z = random in Z_q
+     * a = g^z mod p
+     * c = hash(v,a)
+     * r = (z + cx) mod q
+     */
+    static knowdisclog_zpschnorr
+    createProof(group<BigInteger> grp, BigInteger x, BigInteger v)
+    {
+        BigInteger g = grp.get_g();
+        BigInteger z = group<BigInteger>::get_random_integer(grp.get_q());
+        BigInteger a = g.pow_mod(z, grp.get_p());
 
-      std::vector<unsigned char> buf;
-      buf += v.bytearray();
-      buf += a.bytearray();
+        std::vector<unsigned char> buf;
+        buf += v.bytearray();
+        buf += a.bytearray();
 
-      libcomm::sha md;
-      md.process(buf);
+        libcomm::sha md;
+        md.process(buf);
 
-      BigInteger c(md);
-      c %= grp.get_q();
+        BigInteger c(md);
+        c %= grp.get_q();
 
-      BigInteger r = (z + (c * x)) % grp.get_q();
+        BigInteger r = (z + (c * x)) % grp.get_q();
 
-      return knowdisclog_zpschnorr(a, c, r, v);
-      }
+        return knowdisclog_zpschnorr(a, c, r, v);
+    }
 
-   /* \brief Proof verification
-    *
-    * To verify proof, check that g^r = av^c (mod p)
-    */
-   static bool verifyProof(group<BigInteger> grp, knowdisclog_zpschnorr E)
-      {
-      BigInteger u = grp.get_g().pow_mod(E.r, grp.get_p());
-      BigInteger w = (E.v.pow_mod(E.c, grp.get_p()) * E.a) % grp.get_p();
+    /* \brief Proof verification
+     *
+     * To verify proof, check that g^r = av^c (mod p)
+     */
+    static bool verifyProof(group<BigInteger> grp, knowdisclog_zpschnorr E)
+    {
+        BigInteger u = grp.get_g().pow_mod(E.r, grp.get_p());
+        BigInteger w = (E.v.pow_mod(E.c, grp.get_p()) * E.a) % grp.get_p();
 
-      return u == w;
-      }
+        return u == w;
+    }
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif

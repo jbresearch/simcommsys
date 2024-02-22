@@ -1,0 +1,17 @@
+{
+    "name": "Simcommsys",
+    "dockerComposeFile": [
+        "docker-compose.yml"
+    ],
+    "service": "dev",
+    "workspaceFolder": "/home/sc/simcommsys",
+    "remoteUser": "sc",
+    "shutdownAction": "stopCompose",
+    "extensions": [
+        "albert.tabout",
+        "eamodio.gitlens",
+        "mhutchie.git-graph",
+        "ms-vscode.cpptools",
+        "streetsidesoftware.code-spell-checker"
+    ]
+}

@@ -203,11 +203,11 @@ export LDflags = $(LDflag_$(RELEASE))
 CCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
 CCopts := $(CCopts) $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
 CCopts := $(CCopts) -Wall -Werror
-#CCopts := $(CCopts) -std=c++0x
-# note: below disabled to avoid problems with parallel builds
-# note: below should be replaced with the following when we move to gcc > 4.4
-#CCopts := $(CCopts) -save-temps
-#CCopts := $(CCopts) -save-temps=obj
+# Disable the array-bounds warning due to a GCC 11 bug with boost::multi_array<bool,>
+# TODO: remove when no longer needed
+CCopts := $(CCopts) -Wno-array-bounds
+CCopts := $(CCopts) -std=c++17
+
 # OMP options
 ifneq ($(USE_OMP),0)
    CCopts := $(CCopts) -DUSE_OMP -fopenmp
@@ -407,3 +407,7 @@ $(TARGETS_MAIN) $(TARGETS_TEST):	$(TARGETS_LIBS) FORCE
 $(TARGETS_LIBS):	FORCE
 	@echo "----> Making library \"$(notdir $@)\" [$(BUILDID): $(RELEASE)]."
 	@$(MAKE) -C "$(ROOTDIR)/$@" $(DOTARGET)
+
+# Format the entire source code using clang-format
+format:
+	find . -iname "*.h" -o -iname "*.cpp" -o -iname "*.cu" | xargs clang-format -i --style=file

@@ -24,7 +24,8 @@
 
 #include "channel_insdel.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Stream-Oriented Channel Interface.
@@ -37,43 +38,49 @@ namespace libcomm {
  */
 
 template <class S, class real>
-class channel_stream : public channel_insdel<S, real> {
+class channel_stream : public channel_insdel<S, real>
+{
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<double> array1d_t;
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<double> array1d_t;
+    // @}
 public:
-   /*! \name Constructors / Destructors */
-   virtual ~channel_stream()
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    virtual ~channel_stream() {}
+    // @}
 
-   /*! \name Stream-oriented channel characteristics */
-   /*!
-    * \brief Get the expected drift distribution after transmitting 'tau'
-    * symbols, assuming the start-of-frame drift is zero.
-    *
-    * For systems with a variable-size state space, this method determines the
-    * required limit, and computes the end-of-frame distribution for this range.
-    * It returns the necessary offset accordingly.
-    */
-   virtual void get_drift_pdf(int tau, double Pr, array1d_t& eof_pdf, libbase::size_type<
-         libbase::vector>& offset) const = 0;
-   /*!
-    * \brief Get the expected drift distribution after transmitting 'tau'
-    * symbols, assuming the start-of-frame distribution is as given.
-    *
-    * For systems with a variable-size state space, this method determines an
-    * updated limit, and computes the end-of-frame distribution for this range.
-    * It also resizes the start-of-frame pdf accordingly and updates the given
-    * offset.
-    */
-   virtual void get_drift_pdf(int tau, double Pr, array1d_t& sof_pdf, array1d_t& eof_pdf,
-         libbase::size_type<libbase::vector>& offset) const = 0;
-   // @}
+    /*! \name Stream-oriented channel characteristics */
+    /*!
+     * \brief Get the expected drift distribution after transmitting 'tau'
+     * symbols, assuming the start-of-frame drift is zero.
+     *
+     * For systems with a variable-size state space, this method determines the
+     * required limit, and computes the end-of-frame distribution for this
+     * range. It returns the necessary offset accordingly.
+     */
+    virtual void
+    get_drift_pdf(int tau,
+                  double Pr,
+                  array1d_t& eof_pdf,
+                  libbase::size_type<libbase::vector>& offset) const = 0;
+    /*!
+     * \brief Get the expected drift distribution after transmitting 'tau'
+     * symbols, assuming the start-of-frame distribution is as given.
+     *
+     * For systems with a variable-size state space, this method determines an
+     * updated limit, and computes the end-of-frame distribution for this range.
+     * It also resizes the start-of-frame pdf accordingly and updates the given
+     * offset.
+     */
+    virtual void
+    get_drift_pdf(int tau,
+                  double Pr,
+                  array1d_t& sof_pdf,
+                  array1d_t& eof_pdf,
+                  libbase::size_type<libbase::vector>& offset) const = 0;
+    // @}
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

@@ -25,15 +25,16 @@
 #include "config.h"
 #include "cuda-all.h"
 
-namespace cuda {
+namespace cuda
+{
 
 // Determine debug level:
 // 1 - Normal debug output only
 // NOTE: since this is a header, it may be included in other classes as well;
 //       to avoid problems, the debug level is reset at the end of this file.
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG 1
+#    undef DEBUG
+#    define DEBUG 1
 #endif
 
 #ifdef __CUDACC__
@@ -52,71 +53,60 @@ class event;
  * streams.
  */
 
-class stream {
+class stream
+{
 protected:
-   /*! \name Object representation */
-   cudaStream_t sid; //!< Stream identifier
-   // @}
+    /*! \name Object representation */
+    cudaStream_t sid; //!< Stream identifier
+                      // @}
 
 private:
-   /*! \name Law of the Big Three */
-   /*! \brief Copy constructor
-    * \note Copy construction is disabled as it has no meaning.
-    */
-   stream(const stream& x);
-   /*! \brief Copy assignment operator
-    * \note Copy assignment is disabled as it has no meaning.
-    */
-   stream& operator=(const stream& x);
-   // @}
+    /*! \name Law of the Big Three */
+    /*! \brief Copy constructor
+     * \note Copy construction is disabled as it has no meaning.
+     */
+    stream(const stream& x);
+    /*! \brief Copy assignment operator
+     * \note Copy assignment is disabled as it has no meaning.
+     */
+    stream& operator=(const stream& x);
+    // @}
 
 public:
-   /*! \name Constructors */
-   /*! \brief Default constructor
-    * Creates and initializes stream object.
-    */
-   stream()
-      {
-      cudaSafeCall(cudaStreamCreate(&sid));
-      }
-   // @}
+    /*! \name Constructors */
+    /*! \brief Default constructor
+     * Creates and initializes stream object.
+     */
+    stream() { cudaSafeCall(cudaStreamCreate(&sid)); }
+    // @}
 
-   /*! \name Law of the Big Three */
-   /*! \brief Destructor
-    * Waits for all tasks in this stream to finish, then destroys the stream
-    * object.
-    */
-   //!
-   ~stream()
-      {
-      cudaSafeCall(cudaStreamDestroy(sid));
-      }
-   // @}
+    /*! \name Law of the Big Three */
+    /*! \brief Destructor
+     * Waits for all tasks in this stream to finish, then destroys the stream
+     * object.
+     */
+    //!
+    ~stream() { cudaSafeCall(cudaStreamDestroy(sid)); }
+    // @}
 
-   /*! \name User interface */
-   //! Returns stream identifier to use in kernel calls
-   const cudaStream_t& get_id() const
-      {
-      return sid;
-      }
-   //! Waits for all tasks in this stream to finish
-   void sync() const
-      {
-      cudaSafeCall(cudaStreamSynchronize(sid));
-      }
-   //! Adds dependency on event completion before further tasks are scheduled
-   void wait(const event& e) const;
-   // @}
+    /*! \name User interface */
+    //! Returns stream identifier to use in kernel calls
+    const cudaStream_t& get_id() const { return sid; }
+    //! Waits for all tasks in this stream to finish
+    void sync() const { cudaSafeCall(cudaStreamSynchronize(sid)); }
+    //! Adds dependency on event completion before further tasks are scheduled
+    void wait(const event& e) const;
+    // @}
 };
 
 #endif
 
 // Reset debug level, to avoid affecting other files
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG
+#    undef DEBUG
+#    define DEBUG
 #endif
 
-} // end namespace
+} // namespace cuda
 
 #endif

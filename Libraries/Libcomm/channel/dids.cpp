@@ -21,21 +21,22 @@
 
 #include "dids.h"
 #include "itfunc.h"
-#include <sstream>
-#include <limits>
-#include <exception>
 #include <cmath>
+#include <exception>
+#include <limits>
+#include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Determine debug level:
 // 1 - Normal debug output only
-// 2 - Show Markov state, burst+error sequences, and tx/rx vectors during transmission process
-// 3 - Show tx/rx vectors and posterior probabilities from receive process
-// 4 - Show lattice rows as they are computed in receive process
+// 2 - Show Markov state, burst+error sequences, and tx/rx vectors during
+// transmission process 3 - Show tx/rx vectors and posterior probabilities from
+// receive process 4 - Show lattice rows as they are computed in receive process
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG 1
+#    undef DEBUG
+#    define DEBUG 1
 #endif
 
 // Internal functions
@@ -47,14 +48,15 @@ namespace libcomm {
  * user never calls set_parameter(), the values are valid.
  */
 template <class real>
-void dids<real>::init()
-   {
-   // channel parameters
-   Pd = fixedPd;
-   Pi = fixedPi;
-   Pr = fixedPr;
-   Pb = fixedPb;
-   }
+void
+dids<real>::init()
+{
+    // channel parameters
+    Pd = fixedPd;
+    Pi = fixedPi;
+    Pr = fixedPr;
+    Pb = fixedPb;
+}
 
 /*!
  * \brief Generate Markov state sequence
@@ -86,51 +88,47 @@ void dids<real>::init()
  * (where Z_1 refers to the first input bit X_1 and output bit Y_1).
  */
 template <class real>
-void dids<real>::generate_state_sequence(const int tau)
-   {
-   // Allocate and initialize Markov state sequence
-   Z.init(tau);
-   Z = 0;
-   // determine state sequence
-   int Z1 = 0;
-   int Z2 = 0;
-   for (int i = 0; i < tau; i++)
-      {
-      const double p = this->r.fval_closed();
-      // upper limit
-      if (Z1 == Zmax)
-         {
-         if (p < Pd)
-            Z(i) = Z1 - 1;
-         else
-            Z(i) = Z1;
-         }
-      else
-      // lower limit
-      if (Z1 == Zmin)
-         {
-         if (Z1 - Z2 < 1 && p < Pi)
-            Z(i) = Z1 + 1;
-         else
-            Z(i) = Z1;
-         }
-      else // general case
-         {
-         if (p < Pd)
-            Z(i) = Z1 - 1;
-         else if (Z1 - Z2 < 1 && p < (Pi + Pd))
-            Z(i) = Z1 + 1;
-         else
-            Z(i) = Z1;
-         }
-      // update for next round
-      Z2 = Z1;
-      Z1 = Z(i);
-      }
-#if DEBUG>=2
-   libbase::trace << "DEBUG (dids): Z = " << Z << std::endl;
+void
+dids<real>::generate_state_sequence(const int tau)
+{
+    // Allocate and initialize Markov state sequence
+    Z.init(tau);
+    Z = 0;
+    // determine state sequence
+    int Z1 = 0;
+    int Z2 = 0;
+    for (int i = 0; i < tau; i++) {
+        const double p = this->r.fval_closed();
+        // upper limit
+        if (Z1 == Zmax) {
+            if (p < Pd) {
+                Z(i) = Z1 - 1;
+            } else {
+                Z(i) = Z1;
+            }
+        } else if (Z1 == Zmin) { // lower limit
+            if (Z1 - Z2 < 1 && p < Pi) {
+                Z(i) = Z1 + 1;
+            } else {
+                Z(i) = Z1;
+            }
+        } else { // general case
+            if (p < Pd) {
+                Z(i) = Z1 - 1;
+            } else if (Z1 - Z2 < 1 && p < (Pi + Pd)) {
+                Z(i) = Z1 + 1;
+            } else {
+                Z(i) = Z1;
+            }
+        }
+        // update for next round
+        Z2 = Z1;
+        Z1 = Z(i);
+    }
+#if DEBUG >= 2
+    libbase::trace << "DEBUG (dids): Z = " << Z << std::endl;
 #endif
-   }
+}
 
 /*!
  * \brief Generate substitution error sequence
@@ -143,53 +141,51 @@ void dids<real>::generate_state_sequence(const int tau)
  * P_R otherwise
  */
 template <class real>
-libbase::vector<bool> dids<real>::generate_error_sequence()
-   {
-   // determine required length
-   const int tau = Z.size();
-   assert(tau > 0);
-   // allocate and initialize burst sequence
-   array1b_t B(tau);
-   B = false;
-   // determine burst sequence
-   int Zprev = 0;
-   for (int i = 0; i < tau; i++)
-      {
-      const int deltaZ = Z(i) - Zprev;
-      if (deltaZ == 1) // inserted bits
-         {
-         const int imin = std::max(0, i - L);
-         const int imax = std::min(tau - 1, i + L);
-         B.segment(imin, imax - imin + 1) = true;
-         }
-      else if (deltaZ == -1) // deleted bits
-         {
-         const int imin = std::max(0, i - L);
-         const int imax = std::min(tau - 1, i + L - 1);
-         B.segment(imin, imax - imin + 1) = true;
-         }
-      else
-         assert(deltaZ == 0);
-      // update for next round
-      Zprev = Z(i);
-      }
-   // allocate error sequence
-   array1b_t E(tau);
-   // determine error sequence
-   for (int i = 0; i < tau; i++)
-      {
-      const double p = this->r.fval_closed();
-      if (B(i))
-         E(i) = (p < Pb); // burst-error bits
-      else
-         E(i) = (p < Pr); // random-error bits
-      }
-#if DEBUG>=2
-   libbase::trace << "DEBUG (dids): B = " << B << std::endl;
-   libbase::trace << "DEBUG (dids): E = " << E << std::endl;
+libbase::vector<bool>
+dids<real>::generate_error_sequence()
+{
+    // determine required length
+    const int tau = Z.size();
+    assert(tau > 0);
+    // allocate and initialize burst sequence
+    array1b_t B(tau);
+    B = false;
+    // determine burst sequence
+    int Zprev = 0;
+    for (int i = 0; i < tau; i++) {
+        const int deltaZ = Z(i) - Zprev;
+        if (deltaZ == 1) { // inserted bits
+            const int imin = std::max(0, i - L);
+            const int imax = std::min(tau - 1, i + L);
+            B.segment(imin, imax - imin + 1) = true;
+        } else if (deltaZ == -1) { // deleted bits
+            const int imin = std::max(0, i - L);
+            const int imax = std::min(tau - 1, i + L - 1);
+            B.segment(imin, imax - imin + 1) = true;
+        } else {
+            assert(deltaZ == 0);
+        }
+
+        // update for next round
+        Zprev = Z(i);
+    }
+    // allocate error sequence
+    array1b_t E(tau);
+    // determine error sequence
+    for (int i = 0; i < tau; i++) {
+        const double p = this->r.fval_closed();
+        if (B(i)) { // burst-error bits
+            E(i) = (p < Pb);
+        } else { // random-error bits
+            E(i) = (p < Pr);
+        }
+    }
+#if DEBUG >= 2
+    libbase::trace << "DEBUG (dids): B = " << B << std::endl;
+    libbase::trace << "DEBUG (dids): E = " << E << std::endl;
 #endif
-   return E;
-   }
+    return E;
+}
 
 // Constructors / Destructors
 
@@ -199,16 +195,18 @@ libbase::vector<bool> dids<real>::generate_error_sequence()
  * \sa init()
  */
 template <class real>
-dids<real>::dids(const bool varyPd, const bool varyPi, const bool varyPr,
-      const bool varyPb) :
-      varyPd(varyPd), varyPi(varyPi), varyPr(varyPr), varyPb(varyPb), Zmax(1), Zmin(
-            0), L(0), fixedPd(0), fixedPi(0), fixedPr(0), fixedPb(0)
-   {
-   // channel update flags
-   assert(varyPd || varyPi || varyPr || varyPb);
-   // other initialization
-   init();
-   }
+dids<real>::dids(const bool varyPd,
+                 const bool varyPi,
+                 const bool varyPr,
+                 const bool varyPb)
+    : varyPd(varyPd), varyPi(varyPi), varyPr(varyPr), varyPb(varyPb), Zmax(1),
+      Zmin(0), L(0), fixedPd(0), fixedPi(0), fixedPr(0), fixedPb(0)
+{
+    // channel update flags
+    assert(varyPd || varyPi || varyPr || varyPb);
+    // other initialization
+    init();
+}
 
 // Channel parameter handling
 
@@ -224,15 +222,16 @@ dids<real>::dids(const bool varyPd, const bool varyPi, const bool varyPr,
  * the class will be in a known determined state).
  */
 template <class real>
-void dids<real>::set_parameter(const double p)
-   {
-   set_pd(varyPd ? p : fixedPd);
-   set_pi(varyPi ? p : fixedPi);
-   set_ps(varyPr ? p : fixedPr);
-   set_pb(varyPb ? p : fixedPb);
-   libbase::trace << "DEBUG (dids): Pd = " << Pd << ", Pi = " << Pi << ", Pr = "
-         << Pr << ", Pb = " << Pb << std::endl;
-   }
+void
+dids<real>::set_parameter(const double p)
+{
+    set_pd(varyPd ? p : fixedPd);
+    set_pi(varyPi ? p : fixedPi);
+    set_ps(varyPr ? p : fixedPr);
+    set_pb(varyPb ? p : fixedPb);
+    libbase::trace << "DEBUG (dids): Pd = " << Pd << ", Pi = " << Pi
+                   << ", Pr = " << Pr << ", Pb = " << Pb << std::endl;
+}
 
 /*!
  * \brief Get channel parameter
@@ -242,18 +241,22 @@ void dids<real>::set_parameter(const double p)
  * condition.
  */
 template <class real>
-double dids<real>::get_parameter() const
-   {
-   assert(varyPd || varyPi || varyPr || varyPb);
-   if (varyPd)
-      return Pd;
-   if (varyPi)
-      return Pi;
-   if (varyPr)
-      return Pr;
-   // must be varyPsi
-   return Pb;
-   }
+double
+dids<real>::get_parameter() const
+{
+    assert(varyPd || varyPi || varyPr || varyPb);
+    if (varyPd) {
+        return Pd;
+    }
+    if (varyPi) {
+        return Pi;
+    }
+    if (varyPr) {
+        return Pr;
+    }
+    // must be varyPsi
+    return Pb;
+}
 
 // Channel functions
 
@@ -277,103 +280,112 @@ double dids<real>::get_parameter() const
  * \sa corrupt()
  */
 template <class real>
-void dids<real>::transmit(const array1b_t& tx, array1b_t& rx)
-   {
-   const int tau = tx.size();
-   // Generate Markov state sequence
-   generate_state_sequence(tau);
-   // Generate substitution error sequence
-   const array1b_t E = generate_error_sequence();
-   // Initialize results vector
-   array1b_t newrx(tau);
-   // Compute the output vector (simulate the channel)
-   for (int i = 0; i < tau; i++)
-      {
-      // determine the corresponding index into input vector
-      const int j = i - Z(i);
-      // valid index
-      if (j >= 0 && j < tau)
-         newrx(i) = tx(j);
-      // early index -> equiprobable
-      else if (j < 0)
-         newrx(i) = (this->r.fval_closed() < 0.5);
-      // late index -> repeat last valid input
-      else
-         newrx(i) = tx(tau - 1);
-      }
-   // Apply substitution errors, as applicable
-   for (int i = 0; i < tau; i++)
-      {
-      if (E(i))
-         newrx(i) = !newrx(i);
-      }
-   // copy results back
-   rx = newrx;
-#if DEBUG>=2
-   libbase::trace << "DEBUG (dids): tx = " << tx << std::endl;
-   libbase::trace << "DEBUG (dids): rx = " << rx << std::endl;
+void
+dids<real>::transmit(const array1b_t& tx, array1b_t& rx)
+{
+    const int tau = tx.size();
+    // Generate Markov state sequence
+    generate_state_sequence(tau);
+    // Generate substitution error sequence
+    const array1b_t E = generate_error_sequence();
+    // Initialize results vector
+    array1b_t newrx(tau);
+    // Compute the output vector (simulate the channel)
+    for (int i = 0; i < tau; i++) {
+        // determine the corresponding index into input vector
+        const int j = i - Z(i);
+
+        if (j >= 0 && j < tau) { // valid index
+            newrx(i) = tx(j);
+        } else if (j < 0) { // early index -> equiprobable
+            newrx(i) = (this->r.fval_closed() < 0.5);
+        } else { // late index -> repeat last valid input
+            newrx(i) = tx(tau - 1);
+        }
+    }
+    // Apply substitution errors, as applicable
+    for (int i = 0; i < tau; i++) {
+        if (E(i)) {
+            newrx(i) = !newrx(i);
+        }
+    }
+    // copy results back
+    rx = newrx;
+#if DEBUG >= 2
+    libbase::trace << "DEBUG (dids): tx = " << tx << std::endl;
+    libbase::trace << "DEBUG (dids): rx = " << rx << std::endl;
 #endif
-   }
+}
 
 // description output
 
 template <class real>
-std::string dids<real>::description() const
-   {
-   std::ostringstream sout;
-   sout << "DIDS channel with BPMR-based receiver (";
-   // Specify burst length
-   sout << "L=" << L << ", ";
-   // List varying components
-   if (varyPi)
-      sout << "Pi=";
-   if (varyPd)
-      sout << "Pd=";
-   if (varyPr)
-      sout << "Pr=";
-   if (varyPb)
-      sout << "Pb=";
-   sout << "p";
-   // List non-varying components, with their value
-   if (!varyPd)
-      sout << ", Pd=" << fixedPd;
-   if (!varyPi)
-      sout << ", Pi=" << fixedPi;
-   if (!varyPr)
-      sout << ", Pr=" << fixedPr;
-   if (!varyPb)
-      sout << ", Pb=" << fixedPb;
-   sout << ")";
-   return sout.str();
-   }
+std::string
+dids<real>::description() const
+{
+    std::ostringstream sout;
+    sout << "DIDS channel with BPMR-based receiver (";
+    // Specify burst length
+    sout << "L=" << L << ", ";
+    // List varying components
+    if (varyPi) {
+        sout << "Pi=";
+    }
+    if (varyPd) {
+        sout << "Pd=";
+    }
+    if (varyPr) {
+        sout << "Pr=";
+    }
+    if (varyPb) {
+        sout << "Pb=";
+    }
+    sout << "p";
+    // List non-varying components, with their value
+    if (!varyPd) {
+        sout << ", Pd=" << fixedPd;
+    }
+    if (!varyPi) {
+        sout << ", Pi=" << fixedPi;
+    }
+    if (!varyPr) {
+        sout << ", Pr=" << fixedPr;
+    }
+    if (!varyPb) {
+        sout << ", Pb=" << fixedPb;
+    }
+    sout << ")";
+    return sout.str();
+}
 
 // object serialization - saving
 
 template <class real>
-std::ostream& dids<real>::serialize(std::ostream& sout) const
-   {
-   sout << "# Version" << std::endl;
-   sout << 1 << std::endl;
-   sout << "# L" << std::endl;
-   sout << L << std::endl;
-   sout << "# Vary Pd?" << std::endl;
-   sout << varyPd << std::endl;
-   sout << "# Vary Pi?" << std::endl;
-   sout << varyPi << std::endl;
-   sout << "# Vary Pr?" << std::endl;
-   sout << varyPr << std::endl;
-   sout << "# Vary Pb?" << std::endl;
-   sout << varyPb << std::endl;
-   sout << "# Fixed Pd value" << std::endl;
-   sout << fixedPd << std::endl;
-   sout << "# Fixed Pi value" << std::endl;
-   sout << fixedPi << std::endl;
-   sout << "# Fixed Pr value" << std::endl;
-   sout << fixedPr << std::endl;
-   sout << "# Fixed Pb value" << std::endl;
-   sout << fixedPb << std::endl;
-   return sout;
-   }
+std::ostream&
+dids<real>::serialize(std::ostream& sout) const
+{
+    sout << "# Version" << std::endl;
+    sout << 1 << std::endl;
+    sout << "# L" << std::endl;
+    sout << L << std::endl;
+    sout << "# Vary Pd?" << std::endl;
+    sout << varyPd << std::endl;
+    sout << "# Vary Pi?" << std::endl;
+    sout << varyPi << std::endl;
+    sout << "# Vary Pr?" << std::endl;
+    sout << varyPr << std::endl;
+    sout << "# Vary Pb?" << std::endl;
+    sout << varyPb << std::endl;
+    sout << "# Fixed Pd value" << std::endl;
+    sout << fixedPd << std::endl;
+    sout << "# Fixed Pi value" << std::endl;
+    sout << fixedPi << std::endl;
+    sout << "# Fixed Pr value" << std::endl;
+    sout << fixedPr << std::endl;
+    sout << "# Fixed Pb value" << std::endl;
+    sout << fixedPb << std::endl;
+    return sout;
+}
 
 // object serialization - loading
 
@@ -381,48 +393,51 @@ std::ostream& dids<real>::serialize(std::ostream& sout) const
  * \version 1 Initial version
  */
 template <class real>
-std::istream& dids<real>::serialize(std::istream& sin)
-   {
-   // get format version
-   int version;
-   sin >> libbase::eatcomments >> version >> libbase::verify;
-   // read burst length
-   sin >> libbase::eatcomments >> L >> libbase::verify;
-   // read flags
-   sin >> libbase::eatcomments >> varyPd >> libbase::verify;
-   sin >> libbase::eatcomments >> varyPi >> libbase::verify;
-   sin >> libbase::eatcomments >> varyPr >> libbase::verify;
-   sin >> libbase::eatcomments >> varyPb >> libbase::verify;
-   // read fixed error rates
-   sin >> libbase::eatcomments >> fixedPd >> libbase::verify;
-   sin >> libbase::eatcomments >> fixedPi >> libbase::verify;
-   sin >> libbase::eatcomments >> fixedPr >> libbase::verify;
-   sin >> libbase::eatcomments >> fixedPb >> libbase::verify;
-   // sanity checks
-   assertalways(L >= 0);
-   // fixed values
-   Zmin = -1;
-   Zmax = 1;
-   // initialise the object and return
-   init();
-   return sin;
-   }
+std::istream&
+dids<real>::serialize(std::istream& sin)
+{
+    // get format version
+    int version;
+    sin >> libbase::eatcomments >> version >> libbase::verify;
+    // read burst length
+    sin >> libbase::eatcomments >> L >> libbase::verify;
+    // read flags
+    sin >> libbase::eatcomments >> varyPd >> libbase::verify;
+    sin >> libbase::eatcomments >> varyPi >> libbase::verify;
+    sin >> libbase::eatcomments >> varyPr >> libbase::verify;
+    sin >> libbase::eatcomments >> varyPb >> libbase::verify;
+    // read fixed error rates
+    sin >> libbase::eatcomments >> fixedPd >> libbase::verify;
+    sin >> libbase::eatcomments >> fixedPi >> libbase::verify;
+    sin >> libbase::eatcomments >> fixedPr >> libbase::verify;
+    sin >> libbase::eatcomments >> fixedPb >> libbase::verify;
+    // sanity checks
+    assertalways(L >= 0);
+    // fixed values
+    Zmin = -1;
+    Zmax = 1;
+    // initialise the object and return
+    init();
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
-#include "mpgnu.h"
 #include "logrealfast.h"
+#include "mpgnu.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-using libbase::serializer;
-using libbase::mpgnu;
 using libbase::logrealfast;
+using libbase::mpgnu;
+using libbase::serializer;
 
+// clang-format off
 #define REAL_TYPE_SEQ \
    (float)(double)(mpgnu)(logrealfast)
 
@@ -437,7 +452,8 @@ using libbase::logrealfast;
             "channel", \
             "dids<" BOOST_PP_STRINGIZE(type) ">", \
             dids<type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

@@ -25,7 +25,8 @@
 #include "config.h"
 #include "cuda-all.h"
 
-namespace cuda {
+namespace cuda
+{
 
 // Determine debug level:
 // 1 - Normal debug output only
@@ -34,8 +35,8 @@ namespace cuda {
 // NOTE: since this is a header, it may be included in other classes as well;
 //       to avoid problems, the debug level is reset at the end of this file.
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG 1
+#    undef DEBUG
+#    define DEBUG 1
 #endif
 
 template <class T>
@@ -59,253 +60,241 @@ class value_reference;
  */
 
 template <class T>
-class value {
+class value
+{
 private:
-   // Class friends
-   friend class value_reference<T> ;
+    // Class friends
+    friend class value_reference<T>;
 
 protected:
-   /*! \name Object representation */
-   T* data __attribute__((aligned(8))); //!< Pointer to allocated memory in global device space
-   // @}
+    /*! \name Object representation */
+    T* data __attribute__((
+        aligned(8))); //!< Pointer to allocated memory in global device space
+                      // @}
 
 protected:
-   /*! \name Test and debug functions */
-   //! Outputs a standard debug header, identifying object type and address
-   std::ostream& debug_header(std::ostream& sout) const
-      {
-      sout << "DEBUG (cuda::value<" << typeid(T).name() << "> at " << this
-            << "):";
-      return sout;
-      }
-   //! Outputs a standard debug trailer, identifying object contents
-   std::ostream& debug_trailer(std::ostream& sout) const
-      {
-      if (data == NULL)
-         sout << "empty value" << std::endl;
-      else
-         sout << " element (size " << sizeof(T) << ") at " << data << std::endl;
-      return sout;
-      }
-   // @}
+    /*! \name Test and debug functions */
+    //! Outputs a standard debug header, identifying object type and address
+    std::ostream& debug_header(std::ostream& sout) const
+    {
+        sout << "DEBUG (cuda::value<" << typeid(T).name() << "> at " << this
+             << "):";
+        return sout;
+    }
+    //! Outputs a standard debug trailer, identifying object contents
+    std::ostream& debug_trailer(std::ostream& sout) const
+    {
+        if (data == NULL) {
+            sout << "empty value" << std::endl;
+        } else {
+            sout << " element (size " << sizeof(T) << ") at " << data
+                 << std::endl;
+        }
 
-   /*! \name Data setting functions */
-   //! shallow copy from an equivalent object
-#ifdef __CUDACC__
-   __device__ __host__
-#endif
-   void copyfrom(const value<T>& x)
-      {
-      data = x.data;
-      }
-   //! reset to a null value
-#ifdef __CUDACC__
-   __device__ __host__
-#endif
-   void reset()
-      {
-      data = NULL;
-      }
-   // @}
+        return sout;
+    }
+    // @}
 
-   /*! \name Memory allocation functions */
-   //! allocate requested number of elements
-   void allocate();
-   //! free memory
-   void free();
-   // @}
+    /*! \name Data setting functions */
+    //! shallow copy from an equivalent object
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
+    void copyfrom(const value<T>& x) { data = x.data; }
+    //! reset to a null value
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
+    void reset() { data = NULL; }
+    // @}
+
+    /*! \name Memory allocation functions */
+    //! allocate requested number of elements
+    void allocate();
+    //! free memory
+    void free();
+    // @}
 
 public:
-   /*! \name Constructors */
-   /*! \brief Default constructor
-    * Does not allocate space.
-    */
+    /*! \name Constructors */
+    /*! \brief Default constructor
+     * Does not allocate space.
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   value() :
-      data(NULL)
-      {
-      }
-   // @}
+    value() : data(NULL) {}
+    // @}
 
-   /*! \name Law of the Big Three */
-   //! Destructor
+    /*! \name Law of the Big Three */
+    //! Destructor
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   ~value()
-      {
+    ~value()
+    {
 #ifndef __CUDA_ARCH__ // Host code path
-      free();
+        free();
 #endif
-      }
-   /*! \brief Copy constructor
-    * \note Copy construction on a host is a deep copy.
-    * \note Copy construction on a device is a shallow copy.
-    */
+    }
+    /*! \brief Copy constructor
+     * \note Copy construction on a host is a deep copy.
+     * \note Copy construction on a device is a shallow copy.
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   value(const value<T>& x);
-   /*! \brief Copy assignment operator
-    * \note Copy assignment on a host is a deep copy.
-    * \note Copy assignment on a device is a shallow copy.
-    */
+    value(const value<T>& x);
+    /*! \brief Copy assignment operator
+     * \note Copy assignment on a host is a deep copy.
+     * \note Copy assignment on a device is a shallow copy.
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   value<T>& operator=(const value<T>& x);
-   // @}
+    value<T>& operator=(const value<T>& x);
+    // @}
 
-   /*! \name Memory operations */
-   /*! \brief Initialize allocation
-    *
-    * This method leaves the object as it is if the memory was already
-    * allocated, and allocates if necessary.
-    */
-   void init()
-      {
-      if (data != NULL)
-         return;
-      allocate();
-      }
-   /*! \brief Set device memory to the given byte value
-    *
-    * This method assumes the device object has been allocated.
-    */
-   void fill(const unsigned char value)
-      {
-      cudaSafeMemset(data, value, 1);
-      }
-   //! Returns the address in device memory where the data is held
-   const T* get_address() const
-      {
-      return data;
-      }
-   // @}
+    /*! \name Memory operations */
+    /*! \brief Initialize allocation
+     *
+     * This method leaves the object as it is if the memory was already
+     * allocated, and allocates if necessary.
+     */
+    void init()
+    {
+        if (data != NULL) {
+            return;
+        }
 
-   /*! \name Conversion to/from equivalent host objects */
-   //! copy from standard value
-   value<T>& operator=(const T& x);
-   //! copy to standard value
-   operator T() const;
-   // @}
+        allocate();
+    }
+    /*! \brief Set device memory to the given byte value
+     *
+     * This method assumes the device object has been allocated.
+     */
+    void fill(const unsigned char value) { cudaSafeMemset(data, value, 1); }
+    //! Returns the address in device memory where the data is held
+    const T* get_address() const { return data; }
+    // @}
 
-   // Methods for device code only
+    /*! \name Conversion to/from equivalent host objects */
+    //! copy from standard value
+    value<T>& operator=(const T& x);
+    //! copy to standard value
+    operator T() const;
+    // @}
+
+    // Methods for device code only
 #ifdef __CUDACC__
-   /*! \name Element access */
-   /*! \brief Index operator (write-access)
-    * \note Does not perform boundary checking.
-    */
-   __device__
-   T& operator()()
-      {
-      return *data;
-      }
-   /*! \brief Index operator (read-only access)
-    * \note Does not performs boundary checking.
-    */
-   __device__
-   const T& operator()() const
-      {
-      return *data;
-      }
-   // @}
+    /*! \name Element access */
+    /*! \brief Index operator (write-access)
+     * \note Does not perform boundary checking.
+     */
+    __device__
+    T& operator()() { return *data; }
+    /*! \brief Index operator (read-only access)
+     * \note Does not performs boundary checking.
+     */
+    __device__
+    const T& operator()() const { return *data; }
+    // @}
 #endif
 };
 
 #ifdef __CUDACC__
 template <class T>
-inline void value<T>::allocate()
-   {
-   // only allocate on an empty matrix
-   assert(data == NULL);
-   // if there is something to allocate, do it
-   data = cudaSafeMalloc<T>(1);
-   }
+inline void
+value<T>::allocate()
+{
+    // only allocate on an empty matrix
+    assert(data == NULL);
+    // if there is something to allocate, do it
+    data = cudaSafeMalloc<T>(1);
+}
 
 template <class T>
-inline void value<T>::free()
-   {
-   // if there is something allocated, free it
-   if (data != NULL)
-      {
-      // free device memory
-      cudaSafeFree(data);
-      // reset variables
-      reset();
-      }
-   }
+inline void
+value<T>::free()
+{
+    // if there is something allocated, free it
+    if (data != NULL) {
+        // free device memory
+        cudaSafeFree(data);
+        // reset variables
+        reset();
+    }
+}
 
 template <class T>
-inline value<T>::value(const value<T>& x) :
-data(NULL)
-   {
-#ifdef __CUDA_ARCH__ // Device code path (for all compute capabilities)
-   copyfrom(x);
-#else // Host code path
-   if (x.data)
-      {
-      // allocate memory
-      allocate();
-      // copy data from device to device
-      cudaSafeMemcpy(data, x.data, 1, cudaMemcpyDeviceToDevice);
-      }
-#endif
-   }
+inline value<T>::value(const value<T>& x) : data(NULL)
+{
+#    ifdef __CUDA_ARCH__ // Device code path (for all compute capabilities)
+    copyfrom(x);
+#    else // Host code path
+    if (x.data) {
+        // allocate memory
+        allocate();
+        // copy data from device to device
+        cudaSafeMemcpy(data, x.data, 1, cudaMemcpyDeviceToDevice);
+    }
+#    endif
+}
 
 template <class T>
-inline value<T>& value<T>::operator=(const value<T>& x)
-   {
-#ifdef __CUDA_ARCH__ // Device code path (for all compute capabilities)
-   copyfrom(x);
-   return *this;
-#else // Host code path
-   if (x.data == NULL)
-      {
-      // deallocate memory if needed
-      free();
-      }
-   else
-      {
-      // (re-)allocate memory if needed
-      init();
-      // copy data from device to device
-      cudaSafeMemcpy(data, x.data, 1, cudaMemcpyDeviceToDevice);
-      }
-   return *this;
-#endif
-   }
+inline value<T>&
+value<T>::operator=(const value<T>& x)
+{
+#    ifdef __CUDA_ARCH__ // Device code path (for all compute capabilities)
+    copyfrom(x);
+    return *this;
+#    else // Host code path
+    if (x.data == NULL) {
+        // deallocate memory if needed
+        free();
+    } else {
+        // (re-)allocate memory if needed
+        init();
+        // copy data from device to device
+        cudaSafeMemcpy(data, x.data, 1, cudaMemcpyDeviceToDevice);
+    }
+    return *this;
+#    endif
+}
 
 template <class T>
-inline value<T>& value<T>::operator=(const T& x)
-   {
-   // (re-)allocate memory if needed
-   init();
+inline value<T>&
+value<T>::operator=(const T& x)
+{
+    // (re-)allocate memory if needed
+    init();
 
-   // copy data from host to device if necessary
-   if (data != NULL)
-      {
-      cudaSafeMemcpy(data, &x, 1, cudaMemcpyHostToDevice);
-      }
+    // copy data from host to device if necessary
+    if (data != NULL) {
+        cudaSafeMemcpy(data, &x, 1, cudaMemcpyHostToDevice);
+    }
 
-   return *this;
-   }
+    return *this;
+}
 
 template <class T>
 inline value<T>::operator T() const
-   {
-   T x;
+{
+    T x;
 
-   // copy data from device to host if necessary
-   if (data != NULL)
-      {
-      cudaSafeMemcpy(&x, data, 1, cudaMemcpyDeviceToHost);
-      }
+    // copy data from device to host if necessary
+    if (data != NULL) {
+        cudaSafeMemcpy(&x, data, 1, cudaMemcpyDeviceToHost);
+    }
 
-   return x;
-   }
+    return x;
+}
 #endif
 
 /*!
@@ -328,129 +317,130 @@ inline value<T>::operator T() const
  * happen only through a normal value's methods.
  */
 template <class T>
-class value_reference : public value<T> {
+class value_reference : public value<T>
+{
 private:
-   // Class friends
-   friend class value<T> ;
-   // Shorthand for class hierarchy
-   typedef value<T> Base;
+    // Class friends
+    friend class value<T>;
+    // Shorthand for class hierarchy
+    typedef value<T> Base;
+
 protected:
-   /*! \name Test and debug functions */
-   //! Outputs a standard debug header, identifying object type and address
-   std::ostream& debug_header(std::ostream& sout) const
-      {
-      sout << "DEBUG (cuda::value_reference<" << typeid(T).name() << "> at "
-            << this << "):";
-      return sout;
-      }
-   //! Outputs a standard debug trailer, identifying object contents
-   std::ostream& debug_trailer(std::ostream& sout) const
-      {
-      return Base::debug_trailer(sout);
-      }
-   // @}
+    /*! \name Test and debug functions */
+    //! Outputs a standard debug header, identifying object type and address
+    std::ostream& debug_header(std::ostream& sout) const
+    {
+        sout << "DEBUG (cuda::value_reference<" << typeid(T).name() << "> at "
+             << this << "):";
+        return sout;
+    }
+    //! Outputs a standard debug trailer, identifying object contents
+    std::ostream& debug_trailer(std::ostream& sout) const
+    {
+        return Base::debug_trailer(sout);
+    }
+    // @}
 
-   /*! \name Resizing operations */
-   /*! \brief Initialize allocation
-    *
-    * This method is disabled in value references.
-    */
-   void init()
-      {
-      failwith("Not supported.");
-      }
-   // @}
+    /*! \name Resizing operations */
+    /*! \brief Initialize allocation
+     *
+     * This method is disabled in value references.
+     */
+    void init() { failwith("Not supported."); }
+    // @}
 public:
-   /*! \name Constructors */
-   /*! \brief Principal constructor
-    */
+    /*! \name Constructors */
+    /*! \brief Principal constructor
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   value_reference()
-      {
-      }
-   /*! \brief Automatic conversion from normal value
-    * \warning This allows modification of 'const' values
-    */
+    value_reference() {}
+    /*! \brief Automatic conversion from normal value
+     * \warning This allows modification of 'const' values
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   value_reference(const value<T>& x)
-      {
-      // do not invoke the base constructor, to avoid a deep copy
-      // note: this operation requires this class to be a friend of value
-      Base::copyfrom(x);
-      }
-   // @}
-   /*! \brief Assignment from normal value
-    * \note Assignment is a shallow copy.
-    * \warning This allows modification of 'const' values
-    */
+    value_reference(const value<T>& x)
+    {
+        // do not invoke the base constructor, to avoid a deep copy
+        // note: this operation requires this class to be a friend of value
+        Base::copyfrom(x);
+    }
+    // @}
+    /*! \brief Assignment from normal value
+     * \note Assignment is a shallow copy.
+     * \warning This allows modification of 'const' values
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   value_reference<T>& operator=(const value<T>& x)
-      {
-      Base::copyfrom(x);
-      return *this;
-      }
+    value_reference<T>& operator=(const value<T>& x)
+    {
+        Base::copyfrom(x);
+        return *this;
+    }
 
-   /*! \name Law of the Big Three */
-   //! Destructor
+    /*! \name Law of the Big Three */
+    //! Destructor
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   ~value_reference()
-      {
-      // reset base class, in preparation for eventual destruction
-      Base::reset();
-      }
-   /*! \brief Copy constructor
-    * \note Copy construction is a shallow copy.
-    */
+    ~value_reference()
+    {
+        // reset base class, in preparation for eventual destruction
+        Base::reset();
+    }
+    /*! \brief Copy constructor
+     * \note Copy construction is a shallow copy.
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   value_reference(const value_reference<T>& x)
-      {
-      // do not invoke the base constructor, to avoid a deep copy
-      Base::copyfrom(x);
-      }
-   /*! \brief Copy assignment operator
-    * \note Copy assignment is a shallow copy.
-    */
+    value_reference(const value_reference<T>& x)
+    {
+        // do not invoke the base constructor, to avoid a deep copy
+        Base::copyfrom(x);
+    }
+    /*! \brief Copy assignment operator
+     * \note Copy assignment is a shallow copy.
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   value_reference<T>& operator=(const value_reference<T>& x)
-      {
-      Base::copyfrom(x);
-      return *this;
-      }
-   // @}
+    value_reference<T>& operator=(const value_reference<T>& x)
+    {
+        Base::copyfrom(x);
+        return *this;
+    }
+    // @}
 
-   /*! \name Conversion to/from equivalent host objects */
-   //! copy from standard value
-   value_reference<T>& operator=(const T& x);
-   //! copy to standard value
-   operator T() const
-      {
-      return Base::operator T();
-      }
-   // @}
+    /*! \name Conversion to/from equivalent host objects */
+    //! copy from standard value
+    value_reference<T>& operator=(const T& x);
+    //! copy to standard value
+    operator T() const { return Base::operator T(); }
+    // @}
 };
 
 #ifdef __CUDACC__
 
 template <class T>
-inline value_reference<T>& value_reference<T>::operator=(const T& x)
-   {
-   assert(Base::data != NULL);
-   // copy data from host to device
-   cudaSafeMemcpy(Base::data, &x, 1, cudaMemcpyHostToDevice);
-   return *this;
-   }
+inline value_reference<T>&
+value_reference<T>::operator=(const T& x)
+{
+    assert(Base::data != NULL);
+    // copy data from host to device
+    cudaSafeMemcpy(Base::data, &x, 1, cudaMemcpyHostToDevice);
+    return *this;
+}
 
 #endif
 
@@ -463,191 +453,195 @@ inline value_reference<T>& value_reference<T>::operator=(const T& x)
  * (references to the same memory) on the device.
  */
 template <class T>
-class value_auto : public value<T> {
+class value_auto : public value<T>
+{
 private:
-   // Shorthand for class hierarchy
-   typedef value<T> Base;
+    // Shorthand for class hierarchy
+    typedef value<T> Base;
+
 private:
-   bool isowner __attribute__((aligned(8)));
+    bool isowner __attribute__((aligned(8)));
+
 protected:
-   /*! \name Test and debug functions */
-   //! Outputs a standard debug header, identifying object type and address
-   std::ostream& debug_header(std::ostream& sout) const
-      {
-      sout << "DEBUG (cuda::value_auto<" << typeid(T).name() << "> at " << this
-            << "):";
-      return sout;
-      }
-   //! Outputs a standard debug trailer, identifying object contents
-   std::ostream& debug_trailer(std::ostream& sout) const
-      {
-      if (!isowner)
-         sout << "link to ";
-      return Base::debug_trailer(sout);
-      }
-   // @}
+    /*! \name Test and debug functions */
+    //! Outputs a standard debug header, identifying object type and address
+    std::ostream& debug_header(std::ostream& sout) const
+    {
+        sout << "DEBUG (cuda::value_auto<" << typeid(T).name() << "> at "
+             << this << "):";
+
+        return sout;
+    }
+    //! Outputs a standard debug trailer, identifying object contents
+    std::ostream& debug_trailer(std::ostream& sout) const
+    {
+        if (!isowner) {
+            sout << "link to ";
+        }
+
+        return Base::debug_trailer(sout);
+    }
+    // @}
 
 private:
-   /*! \name Memory allocation functions */
-   //! allocate requested number of elements (host only)
-   void allocate()
-      {
-      // this should only be called on an owned object
-      assert(isowner);
-      Base::allocate();
-#if DEBUG>=2
-      debug_header(std::cerr);
-      std::cerr << " allocated ";
-      debug_trailer(std::cerr);
+    /*! \name Memory allocation functions */
+    //! allocate requested number of elements (host only)
+    void allocate()
+    {
+        // this should only be called on an owned object
+        assert(isowner);
+        Base::allocate();
+#if DEBUG >= 2
+        debug_header(std::cerr);
+        std::cerr << " allocated ";
+        debug_trailer(std::cerr);
 #endif
-      }
-   //! free memory if we own it, and reset pointer (host only)
-   void free()
-      {
-      if (isowner)
-         {
-#if DEBUG>=2
-         debug_header(std::cerr);
-         std::cerr << " deallocating ";
-         debug_trailer(std::cerr);
+    }
+    //! free memory if we own it, and reset pointer (host only)
+    void free()
+    {
+        if (isowner) {
+#if DEBUG >= 2
+            debug_header(std::cerr);
+            std::cerr << " deallocating ";
+            debug_trailer(std::cerr);
 #endif
-         Base::free();
-         }
-      else
-         {
-#if DEBUG>=2
-         debug_header(std::cerr);
-         std::cerr << " unlinking ";
-         debug_trailer(std::cerr);
+            Base::free();
+        } else {
+#if DEBUG >= 2
+            debug_header(std::cerr);
+            std::cerr << " unlinking ";
+            debug_trailer(std::cerr);
 #endif
-         Base::reset();
-         isowner = true;
-         }
-      }
-   // @}
+            Base::reset();
+            isowner = true;
+        }
+    }
+    // @}
 public:
-   /*! \name Law of the Big Three */
-   //! Destructor
+    /*! \name Law of the Big Three */
+    //! Destructor
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   ~value_auto()
-      {
+    ~value_auto()
+    {
 #ifndef __CUDA_ARCH__ // Host code path
-      // decide what to do before the base object is destroyed
-      free();
+        // decide what to do before the base object is destroyed
+        free();
 #endif
-      }
-   /*! \brief Copy constructor
-    * \note Copy construction is a shallow copy.
-    */
+    }
+    /*! \brief Copy constructor
+     * \note Copy construction is a shallow copy.
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   value_auto(const value_auto<T>& x) :
-      isowner(false)
-      {
-      // do not invoke the base constructor, to avoid a deep copy
-      Base::copyfrom(x);
-#if DEBUG>=2 && !defined(__CUDA_ARCH__)
-      debug_header(std::cerr);
-      std::cerr << " copy construction from " << &x << " - new ";
-      debug_trailer(std::cerr);
+    value_auto(const value_auto<T>& x) : isowner(false)
+    {
+        // do not invoke the base constructor, to avoid a deep copy
+        Base::copyfrom(x);
+#if DEBUG >= 2 && !defined(__CUDA_ARCH__)
+        debug_header(std::cerr);
+        std::cerr << " copy construction from " << &x << " - new ";
+        debug_trailer(std::cerr);
 #endif
-      }
-   /*! \brief Copy assignment operator
-    * \note Copy assignment is a shallow copy.
-    */
+    }
+    /*! \brief Copy assignment operator
+     * \note Copy assignment is a shallow copy.
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   value_auto<T>& operator=(const value_auto<T>& x)
-      {
+    value_auto<T>& operator=(const value_auto<T>& x)
+    {
 #ifndef __CUDA_ARCH__
-      // decide what to do before copying
-      free();
+        // decide what to do before copying
+        free();
 #endif
-      // do not invoke the base copy assignment, to avoid a deep copy
-      Base::copyfrom(x);
-      // determine if this should be an owner (only own an empty object)
-      isowner = (Base::data == NULL);
-#if DEBUG>=2 && !defined(__CUDA_ARCH__)
-      debug_header(std::cerr);
-      std::cerr << " copy assignment from " << &x << " - new ";
-      debug_trailer(std::cerr);
+        // do not invoke the base copy assignment, to avoid a deep copy
+        Base::copyfrom(x);
+        // determine if this should be an owner (only own an empty object)
+        isowner = (Base::data == NULL);
+#if DEBUG >= 2 && !defined(__CUDA_ARCH__)
+        debug_header(std::cerr);
+        std::cerr << " copy assignment from " << &x << " - new ";
+        debug_trailer(std::cerr);
 #endif
-      return *this;
-      }
-   // @}
+        return *this;
+    }
+    // @}
 
-   /*! \name Other Constructors */
-   /*! \brief Default constructor
-    * Does not allocate space.
-    */
+    /*! \name Other Constructors */
+    /*! \brief Default constructor
+     * Does not allocate space.
+     */
 #ifdef __CUDACC__
-   __device__ __host__
+    __device__
+    __host__
 #endif
-   value_auto() :
-      isowner(true)
-      {
-#if DEBUG>=2 && !defined(__CUDA_ARCH__)
-      debug_header(std::cerr);
-      std::cerr << " new ";
-      debug_trailer(std::cerr);
+    value_auto() : isowner(true)
+    {
+#if DEBUG >= 2 && !defined(__CUDA_ARCH__)
+        debug_header(std::cerr);
+        std::cerr << " new ";
+        debug_trailer(std::cerr);
 #endif
-      }
-   // @}
+    }
+    // @}
 
-   /*! \name Memory operations */
-   /*! \brief Initialize allocation (host only)
-    *
-    * This method leaves the object as it is if the memory was already
-    * allocated, and allocates if necessary.
-    *
-    * If re-allocation is necessary:
-    * - the old memory is only freed if this object is not a reference.
-    * - the object becomes the owner of the newly allocated memory, even if it
-    *   was only a reference to the old memory.
-    */
-   void init()
-      {
-#if DEBUG>=2
-      debug_header(std::cerr);
-      std::cerr << " initialize for ";
-      debug_trailer(std::cerr);
+    /*! \name Memory operations */
+    /*! \brief Initialize allocation (host only)
+     *
+     * This method leaves the object as it is if the memory was already
+     * allocated, and allocates if necessary.
+     *
+     * If re-allocation is necessary:
+     * - the old memory is only freed if this object is not a reference.
+     * - the object becomes the owner of the newly allocated memory, even if it
+     *   was only a reference to the old memory.
+     */
+    void init()
+    {
+#if DEBUG >= 2
+        debug_header(std::cerr);
+        std::cerr << " initialize for ";
+        debug_trailer(std::cerr);
 #endif
-      if (Base::data != NULL)
-         return;
-      allocate();
-      }
-   // @}
+        if (Base::data != NULL) {
+            return;
+        }
 
-   /*! \name Conversion to/from equivalent host objects */
-   /*! \brief Copy from standard value
-    *
-    * This method re-allocates memory, taking ownership, if necessary
-    */
-   value_auto<T>& operator=(const T& x)
-      {
-      // (re-)allocate memory if needed
-      init();
-      Base::operator=(x);
-      return *this;
-      }
-   //! copy to standard value
-   operator T() const
-      {
-      return Base::operator T();
-      }
-   // @}
+        allocate();
+    }
+    // @}
+
+    /*! \name Conversion to/from equivalent host objects */
+    /*! \brief Copy from standard value
+     *
+     * This method re-allocates memory, taking ownership, if necessary
+     */
+    value_auto<T>& operator=(const T& x)
+    {
+        // (re-)allocate memory if needed
+        init();
+        Base::operator=(x);
+        return *this;
+    }
+    //! copy to standard value
+    operator T() const { return Base::operator T(); }
+    // @}
 };
 
 // Reset debug level, to avoid affecting other files
 #ifndef NDEBUG
-#  undef DEBUG
-#  define DEBUG
+#    undef DEBUG
+#    define DEBUG
 #endif
 
-} // end namespace
+} // namespace cuda
 
 #endif

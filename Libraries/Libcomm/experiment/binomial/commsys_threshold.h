@@ -22,10 +22,11 @@
 #ifndef __commsys_threshold_h
 #define __commsys_threshold_h
 
-#include "config.h"
 #include "commsys_simulator.h"
+#include "config.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Communication System Simulator - Variation of modem threshold.
@@ -37,24 +38,25 @@ namespace libcomm {
  * \todo Remove assumption of a dminner-derived modem.
  */
 template <class S, class R>
-class commsys_threshold : public commsys_simulator<S, R> {
+class commsys_threshold : public commsys_simulator<S, R>
+{
 private:
-   // Shorthand for class hierarchy
-   typedef commsys_threshold<S, R> This;
-   typedef commsys_simulator<S, R> Base;
+    // Shorthand for class hierarchy
+    typedef commsys_threshold<S, R> This;
+    typedef commsys_simulator<S, R> Base;
 
 public:
-   // Experiment parameter handling
-   void set_parameter(const double x);
-   double get_parameter() const;
+    // Experiment parameter handling
+    void set_parameter(const double x);
+    double get_parameter() const;
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(commsys_threshold)
+    // Serialization Support
+    DECLARE_SERIALIZER(commsys_threshold)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

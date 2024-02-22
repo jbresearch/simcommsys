@@ -25,10 +25,11 @@
 #include "config.h"
 #include "interleaver/lut_interleaver.h"
 #include "serializer.h"
-#include <string>
 #include <iostream>
+#include <string>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Named LUT Interleaver.
@@ -41,22 +42,21 @@ namespace libcomm {
  */
 
 template <class real>
-class named_lut : public lut_interleaver<real> {
+class named_lut : public lut_interleaver<real>
+{
 protected:
-   std::string lutname;
-   int m;
-   named_lut()
-      {
-      }
-public:
-   // Description
-   std::string description() const;
+    std::string lutname;
+    int m;
+    named_lut() {}
 
-   // Serialization Support
-DECLARE_SERIALIZER(named_lut)
+public:
+    // Description
+    std::string description() const;
+
+    // Serialization Support
+    DECLARE_SERIALIZER(named_lut)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

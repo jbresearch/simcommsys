@@ -26,13 +26,14 @@
 
 #include "codec_softout.h"
 #include "fsm.h"
-#include "safe_bcjr.h"
 #include "itfunc.h"
+#include "safe_bcjr.h"
 #include "serializer.h"
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Maximum A-Posteriori Decoder.
@@ -42,150 +43,145 @@ namespace libcomm {
  */
 
 template <class real, class dbl = double>
-class mapcc : public codec_softout<libbase::vector, dbl> {
+class mapcc : public codec_softout<libbase::vector, dbl>
+{
 private:
-   // Shorthand for class hierarchy
-   typedef mapcc<real, dbl> This;
-   typedef codec_softout<libbase::vector, dbl> Base;
+    // Shorthand for class hierarchy
+    typedef mapcc<real, dbl> This;
+    typedef codec_softout<libbase::vector, dbl> Base;
+
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<int> array1i_t;
-   typedef libbase::matrix<int> array2i_t;
-   typedef libbase::vector<dbl> array1d_t;
-   typedef libbase::vector<array1d_t> array1vd_t;
-   typedef libbase::matrix<dbl> array2d_t;
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<int> array1i_t;
+    typedef libbase::matrix<int> array2i_t;
+    typedef libbase::vector<dbl> array1d_t;
+    typedef libbase::vector<array1d_t> array1vd_t;
+    typedef libbase::matrix<dbl> array2d_t;
+    // @}
 private:
-   /*! \name User-defined parameters */
-   boost::shared_ptr<fsm> encoder;
-   int tau; //!< Sequence length in timesteps (including tail, if any)
-   bool endatzero; //!< True for terminated trellis
-   bool circular; //!< True for circular trellis
-   // @}
-   /*! \name Internal object representation */
-   safe_bcjr<real, dbl> BCJR; //!< BCJR algorithm implementation
-   double rate;
-   array2d_t R; //!< BCJR a-priori receiver statistics
-   array2d_t app; //!< BCJR a-priori input statistics
-   // @}
+    /*! \name User-defined parameters */
+    std::shared_ptr<fsm> encoder;
+    int tau;        //!< Sequence length in timesteps (including tail, if any)
+    bool endatzero; //!< True for terminated trellis
+    bool circular;  //!< True for circular trellis
+    // @}
+    /*! \name Internal object representation */
+    safe_bcjr<real, dbl> BCJR; //!< BCJR algorithm implementation
+    double rate;
+    array2d_t R;   //!< BCJR a-priori receiver statistics
+    array2d_t app; //!< BCJR a-priori input statistics
+                   // @}
 protected:
-   /*! \name Internal functions */
-   void init();
-   void reset();
-   // @}
-   // Internal codec operations
-   void resetpriors();
-   void setpriors(const array1vd_t& ptable);
-   void setreceiver(const array1vd_t& ptable);
-   int tail_length() const
-      {
-      assertalways(encoder);
-      return endatzero ? encoder->mem_order() : 0;
-      }
-   // Interface with derived classes
-   void do_encode(const array1i_t& source, array1i_t& encoded);
-   void do_init_decoder(const array1vd_t& ptable)
-      {
-      setreceiver(ptable);
-      resetpriors();
-      }
-   void do_init_decoder(const array1vd_t& ptable, const array1vd_t& app)
-      {
-      setreceiver(ptable);
-      setpriors(app);
-      }
+    /*! \name Internal functions */
+    void init();
+    void reset();
+    // @}
+    // Internal codec operations
+    void resetpriors();
+    void setpriors(const array1vd_t& ptable);
+    void setreceiver(const array1vd_t& ptable);
+    int tail_length() const
+    {
+        assertalways(encoder);
+        return endatzero ? encoder->mem_order() : 0;
+    }
+    // Interface with derived classes
+    void do_encode(const array1i_t& source, array1i_t& encoded);
+    void do_init_decoder(const array1vd_t& ptable)
+    {
+        setreceiver(ptable);
+        resetpriors();
+    }
+    void do_init_decoder(const array1vd_t& ptable, const array1vd_t& app)
+    {
+        setreceiver(ptable);
+        setpriors(app);
+    }
+
 public:
-   /*! \name Law of the Big Three */
-   //! Destructor
-   virtual ~mapcc()
-      {
-      }
-   //! Copy constructor
-   mapcc(const mapcc<real, dbl>& x) :
-         tau(x.tau), endatzero(x.endatzero), circular(x.circular)
-      {
-      if (x.encoder)
-         {
-         encoder = boost::dynamic_pointer_cast<fsm>(x.encoder->clone());
-         init();
-         }
-      else
-         encoder.reset();
-      }
-   //! Copy assignment operator
-   mapcc<real, dbl>& operator=(const mapcc<real, dbl>& x)
-      {
-      tau = x.tau;
-      endatzero = x.endatzero;
-      circular = x.circular;
-      if (x.encoder)
-         {
-         encoder = boost::dynamic_pointer_cast<fsm>(x.encoder->clone());
-         init();
-         }
-      else
-         encoder.reset();
-      return *this;
-      }
-   // @}
-   /*! \name Constructors / Destructors */
-   //! Default constructor
-   mapcc()
-      {
-      }
-   //! Principal constructor
-   mapcc(const fsm& encoder, const int tau, const bool endatzero,
-         const bool circular) :
-         encoder(boost::dynamic_pointer_cast<fsm>(encoder.clone())), tau(tau), endatzero(
-               endatzero), circular(circular)
-      {
-      init();
-      }
-   // @}
+    /*! \name Law of the Big Three */
+    //! Destructor
+    virtual ~mapcc() {}
+    //! Copy constructor
+    mapcc(const mapcc<real, dbl>& x)
+        : tau(x.tau), endatzero(x.endatzero), circular(x.circular)
+    {
+        if (x.encoder) {
+            encoder = std::dynamic_pointer_cast<fsm>(x.encoder->clone());
+            init();
+        } else {
+            encoder.reset();
+        }
+    }
+    //! Copy assignment operator
+    mapcc<real, dbl>& operator=(const mapcc<real, dbl>& x)
+    {
+        tau = x.tau;
+        endatzero = x.endatzero;
+        circular = x.circular;
+        if (x.encoder) {
+            encoder = std::dynamic_pointer_cast<fsm>(x.encoder->clone());
+            init();
+        } else {
+            encoder.reset();
+        }
+        return *this;
+    }
+    // @}
+    /*! \name Constructors / Destructors */
+    //! Default constructor
+    mapcc() {}
+    //! Principal constructor
+    mapcc(const fsm& encoder,
+          const int tau,
+          const bool endatzero,
+          const bool circular)
+        : encoder(std::dynamic_pointer_cast<fsm>(encoder.clone())), tau(tau),
+          endatzero(endatzero), circular(circular)
+    {
+        init();
+    }
+    // @}
 
-   // Codec operations
-   void softdecode(array1vd_t& ri);
-   void softdecode(array1vd_t& ri, array1vd_t& ro);
+    // Codec operations
+    void softdecode(array1vd_t& ri);
+    void softdecode(array1vd_t& ri, array1vd_t& ro);
 
-   // Codec information functions - fundamental
-   libbase::size_type<libbase::vector> input_block_size() const
-      {
-      assertalways(encoder);
-      const int nu = tail_length();
-      const int k = encoder->num_inputs();
-      const int result = (tau - nu) * k;
-      return libbase::size_type<libbase::vector>(result);
-      }
-   libbase::size_type<libbase::vector> output_block_size() const
-      {
-      assertalways(encoder);
-      const int n = encoder->num_outputs();
-      const int result = tau * n;
-      return libbase::size_type<libbase::vector>(result);
-      }
-   int num_inputs() const
-      {
-      assertalways(encoder);
-      return encoder->num_symbols();
-      }
-   int num_outputs() const
-      {
-      assertalways(encoder);
-      return encoder->num_symbols();
-      }
-   int num_iter() const
-      {
-      return 1;
-      }
+    // Codec information functions - fundamental
+    libbase::size_type<libbase::vector> input_block_size() const
+    {
+        assertalways(encoder);
+        const int nu = tail_length();
+        const int k = encoder->num_inputs();
+        const int result = (tau - nu) * k;
+        return libbase::size_type<libbase::vector>(result);
+    }
+    libbase::size_type<libbase::vector> output_block_size() const
+    {
+        assertalways(encoder);
+        const int n = encoder->num_outputs();
+        const int result = tau * n;
+        return libbase::size_type<libbase::vector>(result);
+    }
+    int num_inputs() const
+    {
+        assertalways(encoder);
+        return encoder->num_symbols();
+    }
+    int num_outputs() const
+    {
+        assertalways(encoder);
+        return encoder->num_symbols();
+    }
+    int num_iter() const { return 1; }
 
-   // Description
-   std::string description() const;
+    // Description
+    std::string description() const;
 
-   // Serialization Support
-DECLARE_SERIALIZER(mapcc)
+    // Serialization Support
+    DECLARE_SERIALIZER(mapcc)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

@@ -22,13 +22,14 @@
 #ifndef __elgamal_h
 #define __elgamal_h
 
+#include "ciphertext.h"
 #include "config.h"
 #include "equalitydisclog_zpschnorr.h"
-#include "ciphertext.h"
 
 #include <list>
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   ElGamal cipher
@@ -41,48 +42,49 @@ namespace libbase {
  */
 
 template <class BigInteger>
-class elgamal {
+class elgamal
+{
 public:
-   static BigInteger decrypt(BigInteger p, BigInteger secretKey,
-         BigInteger cipherText)
-      {
-      BigInteger partialDecryption = cipherText.pow_mod(secretKey, p);
-      return partialDecryption;
-      }
+    static BigInteger
+    decrypt(BigInteger p, BigInteger secretKey, BigInteger cipherText)
+    {
+        BigInteger partialDecryption = cipherText.pow_mod(secretKey, p);
+        return partialDecryption;
+    }
 
-   static equalitydisclog_zpschnorr<BigInteger> createDecryptionProof(group<
-         BigInteger> grp, BigInteger secretKey, BigInteger cipherText)
-      {
-      return equalitydisclog_zpschnorr<BigInteger>::constructProof(grp,
-            grp.get_g(), cipherText, secretKey);
-      }
+    static equalitydisclog_zpschnorr<BigInteger> createDecryptionProof(
+        group<BigInteger> grp, BigInteger secretKey, BigInteger cipherText)
+    {
+        return equalitydisclog_zpschnorr<BigInteger>::constructProof(
+            grp, grp.get_g(), cipherText, secretKey);
+    }
 
-   static BigInteger combineShares(std::list<BigInteger> shares,
-         BigInteger cipherTextB, BigInteger p)
-      {
-      BigInteger plaintext(1);
-      typedef typename std::list<BigInteger>::iterator iterator;
-      for (iterator it = shares.begin(); it != shares.end(); it++)
-         {
-         plaintext = (plaintext * *it) % p;
-         }
-      plaintext = (cipherTextB * plaintext.inv_mod(p)) % p;
-      return plaintext;
-      }
+    static BigInteger combineShares(std::list<BigInteger> shares,
+                                    BigInteger cipherTextB,
+                                    BigInteger p)
+    {
+        BigInteger plaintext(1);
+        typedef typename std::list<BigInteger>::iterator iterator;
+        for (iterator it = shares.begin(); it != shares.end(); it++) {
+            plaintext = (plaintext * *it) % p;
+        }
+        plaintext = (cipherTextB * plaintext.inv_mod(p)) % p;
+        return plaintext;
+    }
 
-   static ciphertext<BigInteger> encrypt(BigInteger plainText,
-         group<BigInteger> grp, BigInteger pubKey)
-      {
-      BigInteger randomness;
-      randomness.random(grp.get_q().size());
+    static ciphertext<BigInteger>
+    encrypt(BigInteger plainText, group<BigInteger> grp, BigInteger pubKey)
+    {
+        BigInteger randomness;
+        randomness.random(grp.get_q().size());
 
-      BigInteger gr = grp.get_g().pow_mod(randomness, grp.get_p());
-      BigInteger myr = (pubKey.pow_mod(randomness, grp.get_p()) * plainText)
-            % grp.get_p();
-      return ciphertext<BigInteger> (gr, myr);
-      }
+        BigInteger gr = grp.get_g().pow_mod(randomness, grp.get_p());
+        BigInteger myr =
+            (pubKey.pow_mod(randomness, grp.get_p()) * plainText) % grp.get_p();
+        return ciphertext<BigInteger>(gr, myr);
+    }
 };
 
-} // end namespace
+} // namespace libbase
 
 #endif

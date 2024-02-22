@@ -26,7 +26,8 @@
 #include "interleaver/lut/named_lut.h"
 #include <cstdio>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Stream-loaded LUT Interleaver.
@@ -35,14 +36,13 @@ namespace libcomm {
  */
 
 template <class real>
-class stream_lut : public named_lut<real> {
+class stream_lut : public named_lut<real>
+{
 public:
-   stream_lut(const char *filename, FILE *file, const int tau, const int m);
-   ~stream_lut()
-      {
-      }
+    stream_lut(const char* filename, FILE* file, const int tau, const int m);
+    ~stream_lut() {}
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

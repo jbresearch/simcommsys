@@ -21,15 +21,16 @@
 
 #ifdef USE_GMP
 
-#include "gmp_bigint.h"
+#    include "gmp_bigint.h"
 
-namespace libbase {
+namespace libbase
+{
 
 // Static variables
 
 gmp_randstate_t gmp_bigint::state;
 bool gmp_bigint::state_initialized = false;
 
-} // end namespace
+} // namespace libbase
 
 #endif

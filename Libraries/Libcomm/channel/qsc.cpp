@@ -22,7 +22,8 @@
 #include "qsc.h"
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Channel function overrides
 
@@ -48,45 +49,51 @@ namespace libcomm {
  * likely.
  */
 template <class G>
-G qsc<G>::corrupt(const G& s)
-   {
-   const double p = this->r.fval_closed();
-   if (p < Ps)
-      return field_utils<G>::corrupt(s, this->r);
-   return s;
-   }
+G
+qsc<G>::corrupt(const G& s)
+{
+    const double p = this->r.fval_closed();
+    if (p < Ps) {
+        return field_utils<G>::corrupt(s, this->r);
+    }
+    return s;
+}
 
 // description output
 
 template <class G>
-std::string qsc<G>::description() const
-   {
-   std::ostringstream sout;
-   sout << field_utils<G>::elements() << "-ary Symmetric channel";
-   return sout.str();
-   }
+std::string
+qsc<G>::description() const
+{
+    std::ostringstream sout;
+    sout << field_utils<G>::elements() << "-ary Symmetric channel";
+    return sout.str();
+}
 
 // object serialization - saving
 
 template <class G>
-std::ostream& qsc<G>::serialize(std::ostream& sout) const
-   {
-   return sout;
-   }
+std::ostream&
+qsc<G>::serialize(std::ostream& sout) const
+{
+    return sout;
+}
 
 // object serialization - loading
 
 template <class G>
-std::istream& qsc<G>::serialize(std::istream& sin)
-   {
-   return sin;
-   }
+std::istream&
+qsc<G>::serialize(std::istream& sin)
+{
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
 #include "gf.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
@@ -94,6 +101,7 @@ namespace libcomm {
 
 using libbase::serializer;
 
+// clang-format off
 #define USING_GF(r, x, type) \
       using libbase::type;
 
@@ -114,7 +122,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
          "channel", \
          "qsc<" BOOST_PP_STRINGIZE(type) ">", \
          qsc<type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, SYMBOL_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

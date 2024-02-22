@@ -27,10 +27,11 @@
 #include <iostream>
 
 #ifdef USE_GMP
-#include <gmp.h>
+#    include <gmp.h>
 #endif
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   GNU Multi-Precision Arithmetic.
@@ -42,222 +43,238 @@ namespace libbase {
  *
  * \version 1.10 (26 Oct 2006)
  * - defined class and associated data within "libbase" namespace.
- * - removed use of "using namespace std", replacing by tighter "using" statements as needed.
+ * - removed use of "using namespace std", replacing by tighter "using"
+ * statements as needed.
  */
 
-class mpgnu {
-   static void init();
+class mpgnu
+{
+    static void init();
 #ifdef USE_GMP
-   static mpf_t dblmin, dblmax;
-   mpf_t value;
+    static mpf_t dblmin, dblmax;
+    mpf_t value;
 #endif
 public:
-   ~mpgnu();
-   mpgnu();
-   mpgnu(const mpgnu& a);
-   mpgnu(const double a);
+    ~mpgnu();
+    mpgnu();
+    mpgnu(const mpgnu& a);
+    mpgnu(const double a);
 
-   operator double() const;
+    operator double() const;
 
-   mpgnu& operator=(const mpgnu& a);
-   mpgnu& operator=(const double a);
+    mpgnu& operator=(const mpgnu& a);
+    mpgnu& operator=(const double a);
 
-   mpgnu& operator-();
-   mpgnu& operator+=(const mpgnu& a);
-   mpgnu& operator-=(const mpgnu& a);
-   mpgnu& operator*=(const mpgnu& a);
-   mpgnu& operator/=(const mpgnu& a);
+    mpgnu& operator-();
+    mpgnu& operator+=(const mpgnu& a);
+    mpgnu& operator-=(const mpgnu& a);
+    mpgnu& operator*=(const mpgnu& a);
+    mpgnu& operator/=(const mpgnu& a);
 
-   friend mpgnu operator+(const mpgnu& a, const mpgnu& b);
-   friend mpgnu operator-(const mpgnu& a, const mpgnu& b);
-   friend mpgnu operator*(const mpgnu& a, const mpgnu& b);
-   friend mpgnu operator/(const mpgnu& a, const mpgnu& b);
+    friend mpgnu operator+(const mpgnu& a, const mpgnu& b);
+    friend mpgnu operator-(const mpgnu& a, const mpgnu& b);
+    friend mpgnu operator*(const mpgnu& a, const mpgnu& b);
+    friend mpgnu operator/(const mpgnu& a, const mpgnu& b);
 
-   friend std::ostream& operator<<(std::ostream& s, const mpgnu& x);
-   friend std::istream& operator>>(std::istream& s, mpgnu& x);
+    friend std::ostream& operator<<(std::ostream& s, const mpgnu& x);
+    friend std::istream& operator>>(std::istream& s, mpgnu& x);
 };
 
 // Initialisation / Destruction
 
 inline mpgnu::~mpgnu()
-   {
+{
 #ifdef USE_GMP
-   mpf_clear(value);
+    mpf_clear(value);
 #endif
-   }
+}
 
 inline mpgnu::mpgnu()
-   {
-   init();
+{
+    init();
 #ifdef USE_GMP
-   mpf_init2(value, 256);
+    mpf_init2(value, 256);
 #endif
-   }
+}
 
 inline mpgnu::mpgnu(const mpgnu& a)
-   {
-   init();
+{
+    init();
 #ifdef USE_GMP
-   mpf_init2(value, 256);
-   mpf_set(value, a.value);
+    mpf_init2(value, 256);
+    mpf_set(value, a.value);
 #endif
-   }
+}
 
 inline mpgnu::mpgnu(const double a)
-   {
-   init();
+{
+    init();
 #ifdef USE_GMP
-   mpf_init2(value, 256);
-   mpf_set_d(value, a);
+    mpf_init2(value, 256);
+    mpf_set_d(value, a);
 #endif
-   }
+}
 
 // Conversion
 
 inline mpgnu::operator double() const
-   {
+{
 #ifndef USE_GMP
-   double result = 0;
+    double result = 0;
 #else
-   double result;
-   if(mpf_cmp(value, dblmin) <= 0)
-   result = DBL_MIN;
-   else if(mpf_cmp(value, dblmax) >= 0)
-   result = DBL_MAX;
-   else
-   result = mpf_get_d(value);
+    double result;
+    if (mpf_cmp(value, dblmin) <= 0) {
+        result = DBL_MIN;
+    } else if (mpf_cmp(value, dblmax) >= 0) {
+        result = DBL_MAX;
+    } else {
+        result = mpf_get_d(value);
+    }
 #endif
-   return result;
-   }
+    return result;
+}
 
-inline mpgnu& mpgnu::operator=(const mpgnu& a)
-   {
+inline mpgnu&
+mpgnu::operator=(const mpgnu& a)
+{
 #ifdef USE_GMP
-   mpf_set(value, a.value);
+    mpf_set(value, a.value);
 #endif
-   return *this;
-   }
+    return *this;
+}
 
-inline mpgnu& mpgnu::operator=(const double a)
-   {
+inline mpgnu&
+mpgnu::operator=(const double a)
+{
 #ifdef USE_GMP
-   mpf_set_d(value, a);
+    mpf_set_d(value, a);
 #endif
-   return *this;
-   }
+    return *this;
+}
 
 // Base Operations
 
-inline mpgnu& mpgnu::operator-()
-   {
+inline mpgnu&
+mpgnu::operator-()
+{
 #ifdef USE_GMP
-   mpf_neg(value, value);
+    mpf_neg(value, value);
 #endif
-   return *this;
-   }
+    return *this;
+}
 
-inline mpgnu& mpgnu::operator+=(const mpgnu& a)
-   {
+inline mpgnu&
+mpgnu::operator+=(const mpgnu& a)
+{
 #ifdef USE_GMP
-   mpf_add(value, value, a.value);
+    mpf_add(value, value, a.value);
 #endif
-   return *this;
-   }
+    return *this;
+}
 
-inline mpgnu& mpgnu::operator-=(const mpgnu& a)
-   {
+inline mpgnu&
+mpgnu::operator-=(const mpgnu& a)
+{
 #ifdef USE_GMP
-   mpf_sub(value, value, a.value);
+    mpf_sub(value, value, a.value);
 #endif
-   return *this;
-   }
+    return *this;
+}
 
-inline mpgnu& mpgnu::operator*=(const mpgnu& a)
-   {
+inline mpgnu&
+mpgnu::operator*=(const mpgnu& a)
+{
 #ifdef USE_GMP
-   mpf_mul(value, value, a.value);
+    mpf_mul(value, value, a.value);
 #endif
-   return *this;
-   }
+    return *this;
+}
 
-inline mpgnu& mpgnu::operator/=(const mpgnu& a)
-   {
+inline mpgnu&
+mpgnu::operator/=(const mpgnu& a)
+{
 #ifdef USE_GMP
-   mpf_div(value, value, a.value);
+    mpf_div(value, value, a.value);
 #endif
-   return *this;
-   }
+    return *this;
+}
 
 // Derived Operations (Friends)
 
-inline mpgnu operator+(const mpgnu& a, const mpgnu& b)
-   {
-   mpgnu result;
+inline mpgnu
+operator+(const mpgnu& a, const mpgnu& b)
+{
+    mpgnu result;
 #ifdef USE_GMP
-   mpf_add(result.value, a.value, b.value);
+    mpf_add(result.value, a.value, b.value);
 #endif
-   return result;
-   }
+    return result;
+}
 
-inline mpgnu operator-(const mpgnu& a, const mpgnu& b)
-   {
-   mpgnu result;
+inline mpgnu
+operator-(const mpgnu& a, const mpgnu& b)
+{
+    mpgnu result;
 #ifdef USE_GMP
-   mpf_sub(result.value, a.value, b.value);
+    mpf_sub(result.value, a.value, b.value);
 #endif
-   return result;
-   }
+    return result;
+}
 
-inline mpgnu operator*(const mpgnu& a, const mpgnu& b)
-   {
-   mpgnu result;
+inline mpgnu
+operator*(const mpgnu& a, const mpgnu& b)
+{
+    mpgnu result;
 #ifdef USE_GMP
-   mpf_mul(result.value, a.value, b.value);
+    mpf_mul(result.value, a.value, b.value);
 #endif
-   return result;
-   }
+    return result;
+}
 
-inline mpgnu operator/(const mpgnu& a, const mpgnu& b)
-   {
-   mpgnu result;
+inline mpgnu
+operator/(const mpgnu& a, const mpgnu& b)
+{
+    mpgnu result;
 #ifdef USE_GMP
-   mpf_div(result.value, a.value, b.value);
+    mpf_div(result.value, a.value, b.value);
 #endif
-   return result;
-   }
+    return result;
+}
 
 // Input/Output Operations
 
-inline std::ostream& operator<<(std::ostream& s, const mpgnu& x)
-   {
+inline std::ostream&
+operator<<(std::ostream& s, const mpgnu& x)
+{
 #ifdef USE_GMP
-   const std::ios::fmtflags flags = s.flags();
-   s.setf(std::ios::fixed, std::ios::floatfield);
+    const std::ios::fmtflags flags = s.flags();
+    s.setf(std::ios::fixed, std::ios::floatfield);
 
-   const int digits = 6;
-   mp_exp_t exponent;
-   char mantissa[digits+2];
-   mpf_get_str(mantissa, &exponent, 10, digits, x.value);
-   s << "0." << mantissa;
-   s.setf(std::ios::showpos);
-   s << "e" << exponent;
+    const int digits = 6;
+    mp_exp_t exponent;
+    char mantissa[digits + 2];
+    mpf_get_str(mantissa, &exponent, 10, digits, x.value);
+    s << "0." << mantissa;
+    s.setf(std::ios::showpos);
+    s << "e" << exponent;
 
-   s.flags(flags);
+    s.flags(flags);
 #endif
-   return s;
-   }
+    return s;
+}
 
-inline std::istream& operator>>(std::istream& s, mpgnu& x)
-   {
+inline std::istream&
+operator>>(std::istream& s, mpgnu& x)
+{
 #ifdef USE_GMP
-   std::string str;
-   s >> str;
+    std::string str;
+    s >> str;
 
-   mpf_set_str(x.value, str.c_str(), 10);
+    mpf_set_str(x.value, str.c_str(), 10);
 #endif
-   return s;
-   }
+    return s;
+}
 
-} // end namespace
+} // namespace libbase
 
 #endif

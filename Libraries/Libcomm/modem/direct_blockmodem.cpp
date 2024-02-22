@@ -23,98 +23,113 @@
 #include <cstdlib>
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
-using libbase::vector;
 using libbase::matrix;
+using libbase::vector;
 
 // *** Vector GF(q) blockmodem ***
 
 // Block modem operations
 
 template <class G, class dbl>
-void direct_blockmodem<G, vector, dbl>::domodulate(const int N,
-      const vector<int>& encoded, vector<G>& tx)
-   {
-   // Check validity
-   assertalways(encoded.size() == this->input_block_size());
-   assertalways(N == this->num_symbols());
-   // Inherit sizes
-   const int tau = encoded.size();
-   // Initialize results vector
-   tx.init(tau);
-   // Modulate encoded stream
-   for (int t = 0; t < tau; t++)
-      tx(t) = Implementation::modulate(encoded(t));
-   }
+void
+direct_blockmodem<G, vector, dbl>::domodulate(const int N,
+                                              const vector<int>& encoded,
+                                              vector<G>& tx)
+{
+    // Check validity
+    assertalways(encoded.size() == this->input_block_size());
+    assertalways(N == this->num_symbols());
+
+    // Inherit sizes
+    const int tau = encoded.size();
+
+    // Initialize results vector
+    tx.init(tau);
+
+    // Modulate encoded stream
+    for (int t = 0; t < tau; t++) {
+        tx(t) = Implementation::modulate(encoded(t));
+    }
+}
 
 template <class G, class dbl>
-void direct_blockmodem<G, vector, dbl>::dodemodulate(
-      const channel<G, vector>& chan, const vector<G>& rx,
-      vector<array1d_t>& ptable)
-   {
-   // Check validity
-   assertalways(rx.size() == this->input_block_size());
-   // Inherit sizes
-   const int M = this->num_symbols();
-   // Allocate space for temporary results
-   vector<vector<double> > ptable_double;
-      {
-      // Create a matrix of all possible transmitted symbols
-      vector<G> tx(M);
-      for (int x = 0; x < M; x++)
-         tx(x) = Implementation::modulate(x);
-      // Work out the probabilities of each possible signal
-      chan.receive(tx, rx, ptable_double);
-      }
-   // Convert result
-   ptable = ptable_double;
-   }
+void
+direct_blockmodem<G, vector, dbl>::dodemodulate(const channel<G, vector>& chan,
+                                                const vector<G>& rx,
+                                                vector<array1d_t>& ptable)
+{
+    // Check validity
+    assertalways(rx.size() == this->input_block_size());
+    // Inherit sizes
+    const int M = this->num_symbols();
+    // Allocate space for temporary results
+    vector<vector<double>> ptable_double;
+    {
+        // Create a matrix of all possible transmitted symbols
+        vector<G> tx(M);
+        for (int x = 0; x < M; x++) {
+            tx(x) = Implementation::modulate(x);
+        }
+
+        // Work out the probabilities of each possible signal
+        chan.receive(tx, rx, ptable_double);
+    }
+    // Convert result
+    ptable = ptable_double;
+}
 
 // Description
 
 template <class G, class dbl>
-std::string direct_blockmodem<G, vector, dbl>::description() const
-   {
-   std::ostringstream sout;
-   sout << "Blockwise " << Implementation::description();
-   return sout.str();
-   }
+std::string
+direct_blockmodem<G, vector, dbl>::description() const
+{
+    std::ostringstream sout;
+    sout << "Blockwise " << Implementation::description();
+    return sout.str();
+}
 
 // Serialization Support
 
 template <class G, class dbl>
-std::ostream& direct_blockmodem<G, vector, dbl>::serialize(std::ostream& sout) const
-   {
-   return sout;
-   }
+std::ostream&
+direct_blockmodem<G, vector, dbl>::serialize(std::ostream& sout) const
+{
+    return sout;
+}
 
 template <class G, class dbl>
-std::istream& direct_blockmodem<G, vector, dbl>::serialize(std::istream& sin)
-   {
-   return sin;
-   }
+std::istream&
+direct_blockmodem<G, vector, dbl>::serialize(std::istream& sin)
+{
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
-#include "gf.h"
 #include "erasable.h"
+#include "gf.h"
 #include "logrealfast.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
+#include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/seq/for_each_product.hpp>
-#include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-using libbase::serializer;
 using libbase::erasable;
 using libbase::logrealfast;
 using libbase::matrix;
+using libbase::serializer;
 using libbase::vector;
 
+// clang-format off
 #define USING_GF(r, x, type) \
       using libbase::type;
 
@@ -123,9 +138,11 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 #define SYMBOL_TYPE_SEQ \
    (bool) \
    GF_TYPE_SEQ
+
 #define CONTAINER_TYPE_SEQ \
    (vector)
    //(vector)(matrix)
+
 #define REAL_TYPE_SEQ \
    (float)(double)(logrealfast)
 
@@ -150,7 +167,9 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2,args)) ">", \
             direct_blockmodem<BOOST_PP_SEQ_ENUM(args)>::create);
+// clang-format on
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (ALL_SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ)(REAL_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(
+    INSTANTIATE, (ALL_SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ)(REAL_TYPE_SEQ))
 
-} // end namespace
+} // namespace libcomm

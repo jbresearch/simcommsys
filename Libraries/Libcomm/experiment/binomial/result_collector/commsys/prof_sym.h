@@ -26,7 +26,8 @@
 #include "errors_hamming.h"
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   CommSys Results - Symbol-Value Error Profile.
@@ -35,42 +36,37 @@ namespace libcomm {
  * Computes symbol-error histogram as dependent on source symbol value.
  */
 
-class prof_sym : public errors_hamming {
+class prof_sym : public errors_hamming
+{
 public:
-   // Public interface
-   void updateresults(libbase::vector<double>& result,
-         const libbase::vector<int>& source,
-         const libbase::vector<int>& decoded) const;
-   /*! \copydoc experiment::count()
-    * We count the number of symbol errors for every input alphabet symbol
-    * value.
-    */
-   int count() const
-      {
-      return get_alphabetsize();
-      }
-   /*! \copydoc experiment::get_multiplicity()
-    * A total equal to the number of symbols/frame may be incremented
-    * in every sample.
-    */
-   int get_multiplicity(int i) const
-      {
-      return get_symbolsperblock();
-      }
-   /*! \copydoc experiment::result_description()
-    *
-    * The description is a string SER_X, where 'X' is the symbol value
-    * (starting at zero).
-    */
-   std::string result_description(int i) const
-      {
-      assert(i >= 0 && i < count());
-      std::ostringstream sout;
-      sout << "SER_" << i;
-      return sout.str();
-      }
+    // Public interface
+    void updateresults(libbase::vector<double>& result,
+                       const libbase::vector<int>& source,
+                       const libbase::vector<int>& decoded) const;
+    /*! \copydoc experiment::count()
+     * We count the number of symbol errors for every input alphabet symbol
+     * value.
+     */
+    int count() const { return get_alphabetsize(); }
+    /*! \copydoc experiment::get_multiplicity()
+     * A total equal to the number of symbols/frame may be incremented
+     * in every sample.
+     */
+    int get_multiplicity(int i) const { return get_symbolsperblock(); }
+    /*! \copydoc experiment::result_description()
+     *
+     * The description is a string SER_X, where 'X' is the symbol value
+     * (starting at zero).
+     */
+    std::string result_description(int i) const
+    {
+        assert(i >= 0 && i < count());
+        std::ostringstream sout;
+        sout << "SER_" << i;
+        return sout.str();
+    }
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

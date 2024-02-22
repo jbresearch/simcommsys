@@ -22,55 +22,64 @@
 #include "named_lut.h"
 #include <sstream>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // description output
 
 template <class real>
-std::string named_lut<real>::description() const
-   {
-   std::ostringstream sout;
-   sout << "Named Interleaver (" << lutname;
-   if (m > 0)
-      sout << ", Forced tail length " << m << ")";
-   else
-      sout << ")";
-   return sout.str();
-   }
+std::string
+named_lut<real>::description() const
+{
+    std::ostringstream sout;
+    sout << "Named Interleaver (" << lutname;
+
+    if (m > 0) {
+        sout << ", Forced tail length " << m << ")";
+    } else {
+        sout << ")";
+    }
+
+    return sout.str();
+}
 
 // object serialization - saving
 
 template <class real>
-std::ostream& named_lut<real>::serialize(std::ostream& sout) const
-   {
-   sout << m << std::endl;
-   sout << lutname << std::endl;
-   sout << this->lut;
-   return sout;
-   }
+std::ostream&
+named_lut<real>::serialize(std::ostream& sout) const
+{
+    sout << m << std::endl;
+    sout << lutname << std::endl;
+    sout << this->lut;
+    return sout;
+}
 
 // object serialization - loading
 
 template <class real>
-std::istream& named_lut<real>::serialize(std::istream& sin)
-   {
-   sin >> libbase::eatcomments >> m >> libbase::verify;
-   sin >> libbase::eatcomments >> lutname >> libbase::verify;
-   sin >> libbase::eatcomments >> this->lut >> libbase::verify;
-   return sin;
-   }
+std::istream&
+named_lut<real>::serialize(std::istream& sin)
+{
+    sin >> libbase::eatcomments >> m >> libbase::verify;
+    sin >> libbase::eatcomments >> lutname >> libbase::verify;
+    sin >> libbase::eatcomments >> this->lut >> libbase::verify;
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-using libbase::serializer;
 using libbase::logrealfast;
+using libbase::serializer;
 
+// clang-format off
 #define REAL_TYPE_SEQ \
    (float)(double)(logrealfast)
 
@@ -86,7 +95,8 @@ using libbase::logrealfast;
          "interleaver", \
          "named_lut<" BOOST_PP_STRINGIZE(type) ">", \
          named_lut<type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

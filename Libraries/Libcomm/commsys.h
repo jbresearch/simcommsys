@@ -22,16 +22,17 @@
 #ifndef __commsys_h
 #define __commsys_h
 
-#include "config.h"
-#include "randgen.h"
-#include "codec.h"
-#include "mapper.h"
 #include "blockmodem.h"
 #include "channel.h"
-#include "serializer.h"
+#include "codec.h"
+#include "config.h"
 #include "instrumented.h"
+#include "mapper.h"
+#include "randgen.h"
+#include "serializer.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Common Base for Communication System.
@@ -45,135 +46,105 @@ namespace libcomm {
  * interface
  */
 
-template <class S, template <class > class C = libbase::vector>
-class basic_commsys : public instrumented {
+template <class S, template <class> class C = libbase::vector>
+class basic_commsys : public instrumented
+{
 public:
-   /*! \name Type definitions */
-   typedef libbase::vector<double> array1d_t;
-   // @}
+    /*! \name Type definitions */
+    typedef libbase::vector<double> array1d_t;
+    // @}
 
 protected:
-   /*! \name Bound objects */
-   boost::shared_ptr<codec<C> > cdc; //!< Error-control codec
-   boost::shared_ptr<mapper<C> > map; //!< Symbol-mapper (encoded output to transmitted symbols)
-   boost::shared_ptr<blockmodem<S, C> > mdm; //!< Modulation scheme
-   boost::shared_ptr<channel<S, C> > txchan; //!< Channel model - transmitter side
-   boost::shared_ptr<channel<S, C> > rxchan; //!< Channel model - receiver side
-   bool singlechannel; //!< Flag indicating RX = TX channel
-   // @}
+    /*! \name Bound objects */
+    std::shared_ptr<codec<C>> cdc; //!< Error-control codec
+    std::shared_ptr<mapper<C>>
+        map; //!< Symbol-mapper (encoded output to transmitted symbols)
+    std::shared_ptr<blockmodem<S, C>> mdm; //!< Modulation scheme
+    std::shared_ptr<channel<S, C>> txchan; //!< Channel model - transmitter side
+    std::shared_ptr<channel<S, C>> rxchan; //!< Channel model - receiver side
+    bool singlechannel;                    //!< Flag indicating RX = TX channel
+                                           // @}
 #ifndef NDEBUG
-   bool lastframecorrect;
-   C<int> lastsource;
+    bool lastframecorrect;
+    C<int> lastsource;
 #endif
 protected:
-   /*! \name Setup functions */
-   void init();
-   void free();
-   // @}
+    /*! \name Setup functions */
+    void init();
+    void free();
+    // @}
 public:
-   /*! \name Constructors / Destructors */
-   basic_commsys(const basic_commsys<S, C>& c);
-   basic_commsys()
-      {
-      }
-   virtual ~basic_commsys()
-      {
-      free();
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    basic_commsys(const basic_commsys<S, C>& c);
+    basic_commsys() {}
+    virtual ~basic_commsys() { free(); }
+    // @}
 
-   /*! \name Communication System Setup */
-   virtual void seedfrom(libbase::random& r);
-   //! Get error-control codec
-   boost::shared_ptr<codec<C> > getcodec() const
-      {
-      return cdc;
-      }
-   //! Get symbol mapper
-   boost::shared_ptr<mapper<C> > getmapper() const
-      {
-      return map;
-      }
-   //! Get modulation scheme
-   boost::shared_ptr<blockmodem<S, C> > getmodem() const
-      {
-      return mdm;
-      }
-   //! Get channel model - transmitter side
-   boost::shared_ptr<channel<S, C> > gettxchan() const
-      {
-      return txchan;
-      }
-   //! Get channel model - receiver side
-   boost::shared_ptr<channel<S, C> > getrxchan() const
-      {
-      return rxchan;
-      }
-   // @}
+    /*! \name Communication System Setup */
+    virtual void seedfrom(libbase::random& r);
+    //! Get error-control codec
+    std::shared_ptr<codec<C>> getcodec() const { return cdc; }
+    //! Get symbol mapper
+    std::shared_ptr<mapper<C>> getmapper() const { return map; }
+    //! Get modulation scheme
+    std::shared_ptr<blockmodem<S, C>> getmodem() const { return mdm; }
+    //! Get channel model - transmitter side
+    std::shared_ptr<channel<S, C>> gettxchan() const { return txchan; }
+    //! Get channel model - receiver side
+    std::shared_ptr<channel<S, C>> getrxchan() const { return rxchan; }
+    // @}
 
-   /*! \name Communication System Interface */
-   //! Perform complete encode path
-   virtual C<S> encode_path(const C<int>& source);
-   //! Perform channel transmission
-   virtual C<S> transmit(const C<S>& transmitted);
-   //! Perform complete receive path, except for final decoding
-   virtual void receive_path(const C<S>& received);
-   //! Perform after-demodulation receive path, except for final decoding
-   virtual void softreceive_path(const C<array1d_t>& ptable_mapped);
-   //! Perform a decoding iteration, with hard decision
-   virtual void decode(C<int>& decoded);
-   // @}
+    /*! \name Communication System Interface */
+    //! Perform complete encode path
+    virtual C<S> encode_path(const C<int>& source);
+    //! Perform channel transmission
+    virtual C<S> transmit(const C<S>& transmitted);
+    //! Perform complete receive path, except for final decoding
+    virtual void receive_path(const C<S>& received);
+    //! Perform after-demodulation receive path, except for final decoding
+    virtual void softreceive_path(const C<array1d_t>& ptable_mapped);
+    //! Perform a decoding iteration, with hard decision
+    virtual void decode(C<int>& decoded);
+    // @}
 
-   /*! \name Informative functions */
-   //! Number of iterations to perform
-   virtual int num_iter() const
-      {
-      return cdc->num_iter();
-      }
-   //! Overall mapper rate
-   double rate() const
-      {
-      return cdc->rate() * map->rate();
-      }
-   //! Input alphabet size (number of valid symbols)
-   int num_inputs() const
-      {
-      return cdc->num_inputs();
-      }
-   //! Output alphabet size (number of valid symbols)
-   int num_outputs() const
-      {
-      return mdm->num_symbols();
-      }
-   //! Input (ie. source/decoded) block size in symbols
-   libbase::size_type<C> input_block_size() const
-      {
-      return cdc->input_block_size();
-      }
-   //! Output (ie. transmitted/received) block size in symbols
-   libbase::size_type<C> output_block_size() const
-      {
-      return mdm->output_block_size();
-      }
-   // @}
+    /*! \name Informative functions */
+    //! Number of iterations to perform
+    virtual int num_iter() const { return cdc->num_iter(); }
+    //! Overall mapper rate
+    double rate() const { return cdc->rate() * map->rate(); }
+    //! Input alphabet size (number of valid symbols)
+    int num_inputs() const { return cdc->num_inputs(); }
+    //! Output alphabet size (number of valid symbols)
+    int num_outputs() const { return mdm->num_symbols(); }
+    //! Input (ie. source/decoded) block size in symbols
+    libbase::size_type<C> input_block_size() const
+    {
+        return cdc->input_block_size();
+    }
+    //! Output (ie. transmitted/received) block size in symbols
+    libbase::size_type<C> output_block_size() const
+    {
+        return mdm->output_block_size();
+    }
+    // @}
 
-   //! Clear list of timers
-   void reset_timers()
-      {
-      // clear list of timers we're keeping
-      instrumented::reset_timers();
-      // clear list of timers for all components
-      cdc->reset_timers();
-      map->reset_timers();
-      mdm->reset_timers();
-      txchan->reset_timers();
-      rxchan->reset_timers();
-      }
+    //! Clear list of timers
+    void reset_timers()
+    {
+        // clear list of timers we're keeping
+        instrumented::reset_timers();
+        // clear list of timers for all components
+        cdc->reset_timers();
+        map->reset_timers();
+        mdm->reset_timers();
+        txchan->reset_timers();
+        rxchan->reset_timers();
+    }
 
-   // Description
-   virtual std::string description() const;
-   std::ostream& serialize(std::ostream& sout) const;
-   std::istream& serialize(std::istream& sin);
+    // Description
+    virtual std::string description() const;
+    std::ostream& serialize(std::ostream& sout) const;
+    std::istream& serialize(std::istream& sin);
 };
 
 /*!
@@ -183,12 +154,13 @@ public:
  * General templated commsys, directly derived from common base.
  */
 
-template <class S, template <class > class C = libbase::vector>
-class commsys : public basic_commsys<S, C> , public libbase::serializable {
+template <class S, template <class> class C = libbase::vector>
+class commsys : public basic_commsys<S, C>, public libbase::serializable
+{
 public:
-   // Serialization Support
-DECLARE_BASE_SERIALIZER(commsys)
-DECLARE_SERIALIZER(commsys)
+    // Serialization Support
+    DECLARE_BASE_SERIALIZER(commsys)
+    DECLARE_SERIALIZER(commsys)
 };
 
 /*!
@@ -209,19 +181,20 @@ DECLARE_SERIALIZER(commsys)
  * current input files, the flag is assumed to be false (with no error)
  * if we have reached the end of the stream.
  */
-template <template <class > class C>
-class commsys<sigspace, C> : public basic_commsys<sigspace, C> ,
-      public libbase::serializable {
+template <template <class> class C>
+class commsys<sigspace, C> : public basic_commsys<sigspace, C>,
+                             public libbase::serializable
+{
 protected:
-   /*! \name Setup functions */
-   void init();
-   // @}
+    /*! \name Setup functions */
+    void init();
+    // @}
 public:
-   // Serialization Support
-DECLARE_BASE_SERIALIZER(commsys)
-DECLARE_SERIALIZER(commsys)
+    // Serialization Support
+    DECLARE_BASE_SERIALIZER(commsys)
+    DECLARE_SERIALIZER(commsys)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif

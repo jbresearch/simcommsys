@@ -22,29 +22,33 @@
 #include "commsys_timer.h"
 #include "gf.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Serialization Support
 
 template <class S>
-std::ostream& commsys_timer<S>::serialize(std::ostream& sout) const
-   {
-   simulator.serialize(sout);
-   return sout;
-   }
+std::ostream&
+commsys_timer<S>::serialize(std::ostream& sout) const
+{
+    simulator.serialize(sout);
+    return sout;
+}
 
 template <class S>
-std::istream& commsys_timer<S>::serialize(std::istream& sin)
-   {
-   simulator.serialize(sin);
-   return sin;
-   }
+std::istream&
+commsys_timer<S>::serialize(std::istream& sin)
+{
+    simulator.serialize(sin);
+    return sin;
+}
 
-} // end namespace
+} // namespace libcomm
 
 #include "gf.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Explicit Realizations
 #include <boost/preprocessor/seq/for_each.hpp>
@@ -52,6 +56,7 @@ namespace libcomm {
 
 using libbase::serializer;
 
+// clang-format off
 #define USING_GF(r, x, type) \
       using libbase::type;
 
@@ -74,7 +79,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             "experiment", \
             "commsys_timer<" BOOST_PP_STRINGIZE(type) ">", \
             commsys_timer<type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, SYMBOL_TYPE_SEQ)
 
-} // end namespace
+} // namespace libcomm

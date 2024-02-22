@@ -19,22 +19,18 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "stdafx.h"
 #include "MBoxStreamBuf.h"
+#include "stdafx.h"
 
-namespace libwin {
+namespace libwin
+{
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CMBoxStreamBuf::CMBoxStreamBuf()
-   {
-   buffer = "";
-   }
+CMBoxStreamBuf::CMBoxStreamBuf() { buffer = ""; }
 
-CMBoxStreamBuf::~CMBoxStreamBuf()
-   {
-   }
+CMBoxStreamBuf::~CMBoxStreamBuf() {}
 
-} // end namespace
+} // namespace libwin

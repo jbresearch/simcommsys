@@ -23,10 +23,11 @@
 #define HAMMING_H_
 
 #include "config.h"
-#include "vector.h"
 #include "matrix.h"
+#include "vector.h"
 
-namespace libbase {
+namespace libbase
+{
 
 /*!
  * \brief   Compute Hamming Distance
@@ -37,28 +38,29 @@ namespace libbase {
  */
 
 template <class T>
-int hamming(const vector<T>& s, const vector<T>& t)
-   {
-   const int m = s.size();
-   const int n = t.size();
+int
+hamming(const vector<T>& s, const vector<T>& t)
+{
+    const int m = s.size();
+    const int n = t.size();
 
-   assertalways(m == n);
+    assertalways(m == n);
 
-   // initialize distance
-   int d = 0;
+    // initialize distance
+    int d = 0;
 
-   // fill in the rest of the table
-   for (int i = 0; i < n; i++)
-      {
-      if (s(i) == t(i))
-         continue;
-      else
-         d++;
-      }
+    // fill in the rest of the table
+    for (int i = 0; i < n; i++) {
+        if (s(i) == t(i)) {
+            continue;
+        } else {
+            d++;
+        }
+    }
 
-   return d;
-   }
+    return d;
+}
 
-} // end namespace
+} // namespace libbase
 
 #endif /* HAMMING_H_ */

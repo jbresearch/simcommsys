@@ -23,10 +23,11 @@
 #define __source_zero_h
 
 #include "config.h"
-#include "source.h"
 #include "serializer.h"
+#include "source.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   All-zero source.
@@ -35,26 +36,20 @@ namespace libcomm {
  * Implements a trivial source that always returns the zero symbol.
  */
 
-template <class S, template <class > class C = libbase::vector>
-class zero : public source<S, C> {
+template <class S, template <class> class C = libbase::vector>
+class zero : public source<S, C>
+{
 public:
-   //! Generate a single source element
-   S generate_single()
-      {
-      return 0;
-      }
+    //! Generate a single source element
+    S generate_single() { return S(0); }
 
-   //! Description
-   std::string description() const
-      {
-      return "All-zero source";
-      }
+    //! Description
+    std::string description() const { return "All-zero source"; }
 
-   // Serialization Support
-DECLARE_SERIALIZER(zero)
+    // Serialization Support
+    DECLARE_SERIALIZER(zero)
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
-

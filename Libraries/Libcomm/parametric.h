@@ -24,7 +24,8 @@
 
 #include "config.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Parametric Class Interface.
@@ -33,23 +34,21 @@ namespace libcomm {
  * Defines a class that takes a scalar parameter.
  */
 
-class parametric {
+class parametric
+{
 public:
-   /*! \name Constructors / Destructors */
-   virtual ~parametric()
-      {
-      }
-   // @}
+    /*! \name Constructors / Destructors */
+    virtual ~parametric() {}
+    // @}
 
-   /*! \name Parameter handling */
-   //! Set the characteristic parameter
-   virtual void set_parameter(const double x) = 0;
-   //! Get the characteristic parameter
-   virtual double get_parameter() const = 0;
-   // @}
-
+    /*! \name Parameter handling */
+    //! Set the characteristic parameter
+    virtual void set_parameter(const double x) = 0;
+    //! Get the characteristic parameter
+    virtual double get_parameter() const = 0;
+    // @}
 };
 
-} // end namespace
+} // namespace libcomm
 
 #endif
