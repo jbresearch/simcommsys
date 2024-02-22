@@ -203,6 +203,9 @@ export LDflags = $(LDflag_$(RELEASE))
 CCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
 CCopts := $(CCopts) $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
 CCopts := $(CCopts) -Wall -Werror
+# Disable the array-bounds warning due to a GCC 11 bug with boost::multi_array<bool,>
+# TODO: remove when no longer needed
+CCopts := $(CCopts) -Wno-array-bounds
 CCopts := $(CCopts) -std=c++17
 
 # OMP options
