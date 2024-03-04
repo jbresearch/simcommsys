@@ -23,7 +23,7 @@
 #define __cuda_stream_h
 
 #include "config.h"
-#include "cuda-all.h"
+#include "util.h"
 
 namespace cuda
 {

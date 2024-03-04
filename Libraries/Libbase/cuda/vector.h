@@ -24,7 +24,7 @@
 
 #include "../vector.h"
 #include "config.h"
-#include "cuda-all.h"
+#include "cuda_assert.h"
 
 namespace cuda
 {

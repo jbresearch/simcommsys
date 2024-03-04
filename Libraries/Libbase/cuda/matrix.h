@@ -24,7 +24,8 @@
 
 #include "../matrix.h"
 #include "config.h"
-#include "cuda-all.h"
+#include "util.h"
+#include "vector.h"
 
 namespace cuda
 {
@@ -533,19 +534,19 @@ protected:
     /*! \name Internal functions */
     // TODO: add support for partial matrix extraction
     //! Unique constructor, can be called only by friends
-    //#ifdef __CUDACC__
-    //   __device__ __host__
-    //#endif
-    //   matrix_reference(T* start, const int n)
-    //      {
-    //      // update base class by shallow copy, as needed
-    //      if (n > 0)
-    //         {
-    //         Base::length = n;
-    //         Base::data = start;
-    //         }
-    //      }
-    // @}
+    // #ifdef __CUDACC__
+    //    __device__ __host__
+    // #endif
+    //    matrix_reference(T* start, const int n)
+    //       {
+    //       // update base class by shallow copy, as needed
+    //       if (n > 0)
+    //          {
+    //          Base::length = n;
+    //          Base::data = start;
+    //          }
+    //       }
+    //  @}
     /*! \name Resizing operations */
     /*! \brief Set to given size, freeing if and as required
      *

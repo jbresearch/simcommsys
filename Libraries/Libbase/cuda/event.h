@@ -23,7 +23,8 @@
 #define __cuda_event_h
 
 #include "config.h"
-#include "cuda-all.h"
+#include "stream.h"
+#include "util.h"
 
 namespace cuda
 {

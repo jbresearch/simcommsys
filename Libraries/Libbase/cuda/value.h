@@ -23,7 +23,6 @@
 #define __cuda_value_h
 
 #include "config.h"
-#include "cuda-all.h"
 
 namespace cuda
 {

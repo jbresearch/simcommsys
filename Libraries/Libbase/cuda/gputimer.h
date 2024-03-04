@@ -23,6 +23,7 @@
 #define __cuda_gputimer_h
 
 #include "../timer.h"
+#include "util.h"
 
 namespace cuda
 {
