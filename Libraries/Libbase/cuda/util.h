@@ -256,6 +256,27 @@ cudaSafeMalloc2D(size_t* pitch_ptr, size_t cols, size_t rows)
 }
 
 template <class T>
+inline T*
+cudaSafeMalloc3D(size_t* pitch_ptr, size_t xsize, size_t ysize, size_t zsize)
+{
+    cudaPitchedPtr pitched_ptr = {0};
+    cudaExtent extent = make_cudaExtent(xsize * sizeof(T), ysize, zsize);
+    cudaSafeCall(cudaMalloc3D(&pitched_ptr, extent));
+
+    // set pitch_ptr to pitch of newly allocated memory.
+    *pitch_ptr = pitched_ptr.pitch;
+
+#    if DEBUG >= 2
+    std::cerr << "DEBUG (util): allocated " << xsize << "×" << ysize << "x"
+              << zsize << " elements (" << getTypeInfo<T>() << ") at "
+              << pitched_ptr.ptr << " (pitch " << *pitch_ptr << ")"
+              << std::endl;
+#    endif
+
+    return (T*)pitched_ptr.ptr;
+}
+
+template <class T>
 inline void
 cudaSafeFree(T* data)
 {
