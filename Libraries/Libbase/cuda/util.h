@@ -229,6 +229,28 @@ cudaSafeMemset2D(T* data, size_t pitch, int value, size_t cols, size_t rows)
 }
 
 template <class T>
+inline void
+cudaSafeMemset3D(
+    T* data, int value, size_t pitch, size_t xsize, size_t ysize, size_t zsize)
+{
+
+#    if DEBUG >= 2
+    std::cerr << "DEBUG (util): memory set to " << value << " for " << xsize
+              << "×" << ysize << "x" << zsize << " elements ("
+              << getTypeInfo<T>() << ") at " << data << " (pitch " << pitch
+              << ")" << std::endl;
+#    endif
+    assert(data != NULL);
+    assert(xsize > 0 && ysize > 0 && zsize > 0);
+    assert(pitch >= xsize * sizeof(T));
+
+    cudaExtent extent = make_cudaExtent(xsize * sizeof(T), ysize, zsize);
+    cudaPitchedPtr pitched_ptr =
+        make_cudaPitchedPtr(data, pitch, xsize * sizeof(T), ysize);
+    cudaSafeCall(cudaMemset3D(pitched_ptr, value, extent));
+}
+
+template <class T>
 inline T*
 cudaSafeMalloc(size_t count)
 {
