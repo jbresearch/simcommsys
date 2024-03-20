@@ -201,6 +201,48 @@ cudaSafeMemcpy2D(T* dst,
 
 template <class T>
 inline void
+cudaSafeMemcpy3D(T* dst,
+                 size_t dpitch,
+                 const T* src,
+                 size_t spitch,
+                 size_t xsize,
+                 size_t ysize,
+                 size_t zsize,
+                 enum cudaMemcpyKind kind)
+{
+#    if DEBUG >= 2
+    std::cerr << "DEBUG (util): " << cudaGetDescription(kind) << " copy for "
+              << xsize << "×" << ysize << "x" << zsize << " elements ("
+              << getTypeInfo<T>() << ") from " << src << " (pitch " << spitch
+              << ") to " << dst << " (pitch " << dpitch << ")" << std::endl;
+#    endif
+    assert((xsize > 0 && ysize > 0 && zsize > 0) ||
+           (xsize == 0 && ysize == 0 && zsize == 0));
+    if (xsize > 0 && ysize > 0) {
+        assert(dst != NULL);
+        assert(dpitch >= xsize * sizeof(T));
+        assert(src != NULL);
+        assert(spitch >= xsize * sizeof(T));
+
+        // create extent; this holds size details for 3D copy
+        cudaExtent extent = make_cudaExtent(xsize * sizeof(T), ysize, zsize);
+
+        // create and populate Memcpy3DParams struct; this holds all details of
+        // the 3D copy.
+        cudaMemcpy3DParms copy_params = {0};
+        copy_params.srcPtr =
+            make_cudaPitchedPtr((void*)src, spitch, xsize * sizeof(T), ysize);
+        copy_params.dstPtr =
+            make_cudaPitchedPtr((void*)dst, dpitch, xsize * sizeof(T), ysize);
+        copy_params.extent = extent;
+        copy_params.kind = kind;
+
+        cudaSafeCall(cudaMemcpy3D(&copy_params));
+    }
+}
+
+template <class T>
+inline void
 cudaSafeMemset(T* data, int value, size_t count)
 {
 #    if DEBUG >= 2
