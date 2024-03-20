@@ -76,9 +76,9 @@ int cudaGetMaxThreadsPerBlock(const void* func);
 
 // Disable printf() for devices of compute capability < 2.0
 // [removed as it conflicts with stdio]
-//#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ < 200)
-//#define printf(f, ...) ((void)(f, __VA_ARGS__),0)
-//#endif
+// #if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ < 200)
+// #define printf(f, ...) ((void)(f, __VA_ARGS__),0)
+// #endif
 
 // error wrappers
 
