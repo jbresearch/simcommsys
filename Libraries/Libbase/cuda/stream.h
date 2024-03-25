@@ -72,6 +72,10 @@ private:
     stream& operator=(const stream& x);
     // @}
 
+    /*! \brief Internal constructor for defining the default stream.
+     */
+    stream(cudaStream_t sid) : sid(sid) {}
+
 public:
     /*! \name Constructors */
     /*! \brief Default constructor
@@ -97,6 +101,10 @@ public:
     //! Adds dependency on event completion before further tasks are scheduled
     void wait(const event& e) const;
     // @}
+
+    /*! Provide access to the default CUDA stream as a regular stream object.
+     */
+    static const stream default_stream;
 };
 
 #endif

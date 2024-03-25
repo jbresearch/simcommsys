@@ -38,4 +38,6 @@ stream::wait(const event& e) const
     cudaSafeCall(cudaStreamWaitEvent(sid, e.get_id(), 0));
 }
 
+const stream stream::default_stream = stream(0);
+
 } // namespace cuda
