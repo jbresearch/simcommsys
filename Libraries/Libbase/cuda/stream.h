@@ -69,7 +69,7 @@ private:
     /*! \brief Copy assignment operator
      * \note Copy assignment is disabled as it has no meaning.
      */
-    stream& operator=(const stream& x);
+    stream& operator=(const stream& x) = delete;
     // @}
 
     /*! \brief Internal constructor for defining the default stream.
