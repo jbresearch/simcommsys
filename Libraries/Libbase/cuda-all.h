@@ -32,6 +32,7 @@
 #    include "cuda/util.h"
 
 #    include "cuda/matrix.h"
+#    include "cuda/matrix3.h"
 #    include "cuda/value.h"
 #    include "cuda/vector.h"
 #endif
