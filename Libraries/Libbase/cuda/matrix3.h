@@ -58,8 +58,8 @@ class matrix3_reference;
  *    (references to the same memory).
  *
  * Elements are stored in row-major order in a linear array.
+ * x is the innermost index, followed by y, with the outermost index being z.
  * Elements with same y and z indices are stored consecutively.
- * Elements with same z index are stored consecutively.
  * A row in the array consists of elements with the same y and z indices but
  * varying x index; these are contiguous in memory. Each row is padded so that
  * the start of each row is aligned.
@@ -160,7 +160,7 @@ protected:
 
     /*! \name Memory allocation functions */
     //! allocate requested number of elements
-    void allocate(int n_xsize, int n_ysize, int n_zsize);
+    void allocate(int n_zsize, int n_ysize, int n_xsize);
     //! free memory
     void free();
     // @}
@@ -168,13 +168,14 @@ protected:
     /*! \name Element access */
     /*! \brief Returns row start address (write-access)
      * \note Rows in this context consist of all elements with same y, z indices
-     * but varying x \note Performs boundary checking if used on host.
+     * but varying x
+     * \note Performs boundary checking if used on host.
      */
 #ifdef __CUDACC__
     __device__
     __host__
 #endif
-    T* get_rowaddress(const int y, const int z)
+    T* get_rowaddress(const int z, const int y)
     {
         cuda_assert(y >= 0 && y < ysize);
         cuda_assert(z >= 0 && z < zsize);
@@ -182,13 +183,14 @@ protected:
     }
     /*! \brief Returns row start address (read-only access)
      * \note Rows in this context consist of all elements with same y, z indices
-     * but varying x \note Performs boundary checking if used on host.
+     * but varying x
+     * \note Performs boundary checking if used on host.
      */
 #ifdef __CUDACC__
     __device__
     __host__
 #endif
-    const T* get_rowaddress(const int y, const int z) const
+    const T* get_rowaddress(const int z, const int y) const
     {
         cuda_assert(y >= 0 && y < ysize);
         cuda_assert(z >= 0 && z < zsize);
@@ -247,14 +249,14 @@ public:
      * and frees/reallocates if necessary. This helps reduce redundant
      * free/alloc operations on objects which keep the same size.
      */
-    void init(const int n_xsize, const int n_ysize, const int n_zsize)
+    void init(const int n_zsize, const int n_ysize, const int n_xsize)
     {
         if (xsize == n_xsize && ysize == n_ysize && zsize == n_zsize) {
             return;
         }
 
         free();
-        allocate(n_xsize, n_ysize, n_zsize);
+        allocate(n_zsize, n_ysize, n_xsize);
     }
     /*! \brief Set device memory to the given byte value
      *
@@ -310,9 +312,9 @@ public:
     __device__
     __host__
 #endif
-    vector_reference<T> extract_row(const int y, const int z)
+    vector_reference<T> extract_row(const int z, const int y)
     {
-        return vector_reference<T>(get_rowaddress(y, z), xsize);
+        return vector_reference<T>(get_rowaddress(z, y), xsize);
     }
     /*! \brief Row extraction (read-only access)
      * This allows read access to row data without array copying.
@@ -321,9 +323,9 @@ public:
     __device__
     __host__
 #endif
-    const vector_reference<T> extract_row(const int y, const int z) const
+    const vector_reference<T> extract_row(const int z, const int y) const
     {
-        return vector_reference<T>(const_cast<T*>(get_rowaddress(y, z)), xsize);
+        return vector_reference<T>(const_cast<T*>(get_rowaddress(z, y)), xsize);
     }
     // @}
 
@@ -334,23 +336,23 @@ public:
      * \note Does not perform boundary checking.
      */
     __device__
-    T& operator()(const int x, const int y, const int z)
+    T& operator()(const int z, const int y, const int x)
     {
         cuda_assert(x >= 0 && x < xsize);
         cuda_assert(y >= 0 && y < ysize);
         cuda_assert(z >= 0 && z < zsize);
-        return get_rowaddress(y, z)[x];
+        return get_rowaddress(z, y)[x];
     }
     /*! \brief Index operator (read-only access)
      * \note Does not perform boundary checking.
      */
     __device__
-    const T& operator()(const int x, const int y, const int z) const
+    const T& operator()(const int z, const int y, const int x) const
     {
         cuda_assert(x >= 0 && x < xsize);
         cuda_assert(y >= 0 && y < ysize);
         cuda_assert(z >= 0 && z < zsize);
-        return get_rowaddress(y, z)[x];
+        return get_rowaddress(z, y)[x];
     }
     // @}
 #endif
@@ -359,7 +361,7 @@ public:
 #ifdef __CUDACC__
 template <class T>
 inline void
-matrix3<T>::allocate(int n_xsize, int n_ysize, int n_zsize)
+matrix3<T>::allocate(int n_zsize, int n_ysize, int n_xsize)
 {
     test_invariant();
     // check input parameters
@@ -401,7 +403,7 @@ inline matrix3<T>::matrix3(const matrix3<T>& x)
 #    else // Host code path
     if (x.data) {
         // allocate memory
-        allocate(x.xsize, x.ysize, x.zsize);
+        allocate(x.zsize, x.ysize, x.xsize);
         // copy data from device to device
         cudaSafeMemcpy3D(data,
                          pitch,
@@ -428,7 +430,7 @@ matrix3<T>::operator=(const matrix3<T>& x)
         free();
     } else {
         // (re-)allocate memory if needed
-        init(x.xsize, x.ysize, x.zsize);
+        init(x.zsize, x.ysize, x.xsize);
         // copy data from device to device
         cudaSafeMemcpy3D(data,
                          pitch,
@@ -546,7 +548,7 @@ protected:
      *
      * This method is disabled in matrix references.
      */
-    void init(const int n_xsize, const int n_ysize, const int n_zsize)
+    void init(const int n_zsize, const int n_ysize, const int n_xsize)
     {
         failwith("Not supported.");
     }
