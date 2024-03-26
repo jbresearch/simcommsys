@@ -166,14 +166,11 @@ protected:
      * the q_mxn probabilities are computed
      */
     virtual void compute_q_mn(int m, int n, const array1i_t& M_n) = 0;
-    /*! \brief Compute "pseudoposterior probabilities" from r_mxn
-     * This is the actual output of the SPA at each iteration
-     */
-    virtual void compute_probs(array1vd_t& ro);
 
 private:
     void print_marginal_probs(std::ostream& sout);
     void print_marginal_probs(int col, std::ostream& sout);
+    void compute_probs(array1vd_t& ro);
 
 protected:
     /*! \name Data structures
