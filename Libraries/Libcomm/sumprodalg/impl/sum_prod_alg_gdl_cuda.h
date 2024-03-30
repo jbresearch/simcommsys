@@ -88,7 +88,7 @@ public:
         compute_perms<GF_q>
             <<<block_dim,
                ((num_of_elements * num_of_elements) >> log_block_dim)>>>(
-                device_perms, num_of_elements);
+                ::cuda::matrix_reference<int>(device_perms), num_of_elements);
 
         // this will copy over the parity check matrix from host to the device.
         device_parity_chk_matrix = pchk_matrix;
