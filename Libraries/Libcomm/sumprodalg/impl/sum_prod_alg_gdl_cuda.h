@@ -24,6 +24,7 @@
 
 #include "../sum_prod_alg_inf.h"
 #include "cuda/matrix.h"
+#include "cuda/vector.h"
 #include "matrix.h"
 #include "vector.h"
 #include <string>
@@ -56,6 +57,7 @@ public:
     typedef libbase::vector<int> array1i_t;
     typedef libbase::vector<array1i_t> array1vi_t;
     typedef libbase::vector<array1d_t> array1vd_t;
+    typedef libbase::cuda::vector<int> cuda_array1i_t;
     typedef libbase::cuda::matrix<int> cuda_matrixi_t;
     typedef libbase::cuda::matrix<real> cuda_matrixd_t;
     // @}
@@ -93,15 +95,17 @@ public:
         // this will copy over the parity check matrix from host to the device.
         device_parity_chk_matrix = pchk_matrix;
 
-        device_qmn_row_indices.init(m, n);
-        device_qmn_row_indices.fill(-1);
-
         // we first build qmn_row_indices on the host, then copy to device.
         // Easier since this operation is inherently serial (we have a counter
         // to keep track of current index) and also we need the tanner_edges var
         // computed during this process on host to allocate memory for qmn and
         // rmn matrices.
         libbase::matrix qmn_row_indices(m, n);
+        // fill with -1 initially (means bit n does not participate in check m)
+        qmn_row_indices = -1;
+
+        // We also build non_zeros_row on the host, then copy to the device.
+        libbase::vector<int> non_zeros_row(dim_m);
 
         // counts the number of edges in the Tanner graph of the code.
         // Tells us what the size of device_rmxn and device_qmn_conv should
@@ -109,10 +113,13 @@ public:
         int tanner_edges = 0;
 
         // Populate qmn_row_indices
+        int dim_m = non_zero_row_pos.size();
         int non_zeros = 0;
         int pos = 0;
-        for (int loop_m = 0; loop_m < this->dim_m; loop_m++) {
+        for (int loop_m = 0; loop_m < dim_m; loop_m++) {
             non_zeros = non_zero_row_pos(loop_m).size();
+            // populate non_zeros_row on the host.
+            non_zeros_row(loop_m) = non_zeros;
 
             for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
                 pos =
@@ -123,11 +130,18 @@ public:
             }
         }
 
+        // Allocate memory for non_zeros_row on device
+        device_non_zeros_row.init(dim_m);
+        // Copy over to the device
+        device_non_zeros_row = non_zeros_row;
+
+        device_qmn_row_indices.init(m, n);
         // Copy qmn_row_indices to device
         device_qmn_row_indices = qmn_row_indices;
 
-        // Allocate required memory for r_mxn and qmn_conv on device.
+        // Allocate required memory for r_mxn, q_mxn and qmn_conv on device.
         device_r_mxn.init(tanner_edges, num_of_elements);
+        device_q_mxn.init(tanner_edges, num_of_elements);
         device_qmn_conv.init(tanner_edges, num_of_elements);
     }
     virtual ~sum_prod_alg_gdl_cuda()
@@ -198,7 +212,13 @@ private:
      * in check m. The mapping between (m, n) and the rows is given by
      * device_qmn_row_indices
      */
+    cuda_matrixd_t device_q_mxn;
     cuda_matrixd_t device_qmn_conv;
+
+    /*! \brief Array containing number of non-zero elements in each row of
+     * parity matrix h_m_n
+     */
+    cuda_array1i_t device_non_zeros_row;
 };
 
 } // namespace libcomm
