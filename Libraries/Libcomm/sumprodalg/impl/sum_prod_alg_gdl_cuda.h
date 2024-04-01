@@ -111,7 +111,7 @@ public:
         // check matrix.
         // Also populate pchk_row_non_zeros.
         int non_zeros = 0;
-        int max_pchk_row_non_zeros = std::numeric_limits<int>::min();
+        max_pchk_row_non_zeros = std::numeric_limits<int>::min();
         for (int loop_m = 0; loop_m < m; loop_m++) {
             non_zeros = non_zero_row_pos(loop_m).size();
 
@@ -242,6 +242,10 @@ private:
     /*! \name These fields are the representation of the parity check matrix in
      * device memory.
      */
+    /*! \brief Maximum number of non-zero elements in a row of the parity check
+     * matrix.
+     */
+    int max_pchk_row_non_zeros;
     /*! \brief Array containing number of non-zero elements in each row of
      * parity matrix h_m_n
      */
