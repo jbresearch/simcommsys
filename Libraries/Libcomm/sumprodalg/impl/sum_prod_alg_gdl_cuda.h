@@ -27,6 +27,7 @@
 #include "cuda/vector.h"
 #include "matrix.h"
 #include "vector.h"
+#include <limits>
 #include <string>
 
 namespace libcomm
@@ -57,6 +58,7 @@ public:
     typedef libbase::vector<int> array1i_t;
     typedef libbase::vector<array1i_t> array1vi_t;
     typedef libbase::vector<array1d_t> array1vd_t;
+    typedef libbase::matrix<int> matrixi_t;
     typedef libbase::cuda::vector<int> cuda_array1i_t;
     typedef libbase::cuda::matrix<int> cuda_matrixi_t;
     typedef libbase::cuda::matrix<real> cuda_matrixd_t;
@@ -92,20 +94,35 @@ public:
                ((num_of_elements * num_of_elements) >> log_block_dim)>>>(
                 ::cuda::matrix_reference<int>(device_perms), num_of_elements);
 
-        // this will copy over the parity check matrix from host to the device.
-        device_parity_chk_matrix = pchk_matrix;
-
         // we first build qmn_row_indices on the host, then copy to device.
         // Easier since this operation is inherently serial (we have a counter
         // to keep track of current index) and also we need the tanner_edges var
         // computed during this process on host to allocate memory for qmn and
         // rmn matrices.
-        libbase::matrix qmn_row_indices(m, n);
+        matrixi_t qmn_row_indices(m, n);
         // fill with -1 initially (means bit n does not participate in check m)
         qmn_row_indices = -1;
 
-        // We also build non_zeros_row on the host, then copy to the device.
-        libbase::vector<int> non_zeros_row(dim_m);
+        // We also build the various parity check matrix fields on the host,
+        // then copy to the device.
+        array1i_t pchk_row_non_zeros(m);
+
+        // Find the maximum number of non zero elements in a row of the parity
+        // check matrix.
+        // Also populate pchk_row_non_zeros.
+        int non_zeros = 0;
+        int max_pchk_row_non_zeros = std::numeric_limits<int>::min();
+        for (int loop_m = 0; loop_m < m; loop_m++) {
+            non_zeros = non_zero_row_pos(loop_m).size();
+
+            pchk_row_non_zeros(loop_m) = non_zeros;
+            max_pchk_row_non_zeros =
+                std::max(max_pchk_row_non_zeros, non_zeros);
+        }
+
+        // Host fields to build the rest of the parity check matrix repr.
+        matrixi_t pchk_row_non_zeros_pos(m, max_pchk_row_non_zeros);
+        libbase::matrix<GF_q> pchk_row_non_zeros_val(m, max_pchk_row_non_zeros);
 
         // counts the number of edges in the Tanner graph of the code.
         // Tells us what the size of device_rmxn and device_qmn_conv should
@@ -113,31 +130,41 @@ public:
         int tanner_edges = 0;
 
         // Populate qmn_row_indices
-        int dim_m = non_zero_row_pos.size();
-        int non_zeros = 0;
+        // Also populate the rest of the parity check matrix repr. on the host.
         int pos = 0;
-        for (int loop_m = 0; loop_m < dim_m; loop_m++) {
-            non_zeros = non_zero_row_pos(loop_m).size();
-            // populate non_zeros_row on the host.
-            non_zeros_row(loop_m) = non_zeros;
+        GF_q val;
+        for (int loop_m = 0; loop_m < m; loop_m++) {
 
             for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
                 pos =
                     non_zero_row_pos(loop_m)(loop_n) - 1; // we count from zero;
+                val = pchk_matrix(loop_m, pos);
 
+                // populate other pchk matrix fields on the host.
+                pchk_row_non_zeros_pos(loop_m, loop_n) = pos;
+                pchk_row_non_zeros_val(loop_m, loop_n) = val;
+
+                // assign an index in device_q_mxn, device_r_mxn and so on to a
+                // non-zero (m, n) element.
                 qmn_row_indices(loop_m, pos) = tanner_edges;
                 tanner_edges++;
             }
         }
 
-        // Allocate memory for non_zeros_row on device
-        device_non_zeros_row.init(dim_m);
-        // Copy over to the device
-        device_non_zeros_row = non_zeros_row;
-
         device_qmn_row_indices.init(m, n);
         // Copy qmn_row_indices to device
         device_qmn_row_indices = qmn_row_indices;
+
+        // Allocate memory on the device for representation of the parity check
+        // matrix
+        device_pchk_row_non_zeros.init(m);
+        device_pchk_row_non_zeros_pos.init(m, max_pchk_row_non_zeros);
+        device_pchk_row_non_zeros_val.init(m, max_pchk_row_non_zeros);
+
+        // Copy represenation of the parity check matrix to the device.
+        device_pchk_row_non_zeros = pchk_row_non_zeros;
+        device_pchk_row_non_zeros_pos = pchk_row_non_zeros_pos;
+        device_pchk_row_non_zeros_val = pchk_row_non_zeros_val;
 
         // Allocate required memory for r_mxn, q_mxn and qmn_conv on device.
         device_r_mxn.init(tanner_edges, num_of_elements);
@@ -188,9 +215,6 @@ private:
 
     cuda_matrixd_t device_received_probs;
 
-    //! \brief the parity check matrix itself
-    libbase::cuda::matrix<GF_q> device_parity_chk_matrix;
-
     /*! Matrix of indices that tell us row of device_qmn_conv that
      * contains prob distribution qmn for a particular (m, n).
      * Also works for device_r_mxn since prob. distr. qmn and r_mxn have the
@@ -215,10 +239,25 @@ private:
     cuda_matrixd_t device_q_mxn;
     cuda_matrixd_t device_qmn_conv;
 
+    /*! \name These fields are the representation of the parity check matrix in
+     * device memory.
+     */
     /*! \brief Array containing number of non-zero elements in each row of
      * parity matrix h_m_n
      */
-    cuda_array1i_t device_non_zeros_row;
+    cuda_array1i_t device_pchk_row_non_zeros;
+    /*! Matrix where each row (representing a check m) contains the position (n)
+     * of non-zero elements in the parity check matrix H (at that row of H).
+     * Extra space at the end of rows is padded with zeros/uninitalized.
+     * device_non_zeros can be used to determine end of each row
+     */
+    cuda_matrixi_t device_pchk_row_non_zeros_pos;
+    /*! Matrix where each row (representing a check m) contains the value (in
+     * GF_q) of non-zero elements in the parity check matrix H (at that row of
+     * H). Extra space at the end of rows is padded with zeros/uninitalized.
+     * device_non_zeros can be used to determine end of each row
+     */
+    libbase::cuda::matrix<GF_q> device_pchk_row_non_zeros_val;
 };
 
 } // namespace libcomm
