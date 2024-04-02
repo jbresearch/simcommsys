@@ -59,9 +59,9 @@ public:
     typedef libbase::vector<array1i_t> array1vi_t;
     typedef libbase::vector<array1d_t> array1vd_t;
     typedef libbase::matrix<int> matrixi_t;
-    typedef libbase::cuda::vector<int> cuda_array1i_t;
-    typedef libbase::cuda::matrix<int> cuda_matrixi_t;
-    typedef libbase::cuda::matrix<real> cuda_matrixd_t;
+    typedef ::cuda::vector<int> cuda_array1i_t;
+    typedef ::cuda::matrix<int> cuda_matrixi_t;
+    typedef ::cuda::matrix<real> cuda_matrixd_t;
     // @}
 
     /*! \brief constructor
@@ -261,7 +261,7 @@ private:
      * H). Extra space at the end of rows is padded with zeros/uninitalized.
      * device_non_zeros can be used to determine end of each row
      */
-    libbase::cuda::matrix<GF_q> device_pchk_row_non_zeros_val;
+    ::cuda::matrix<GF_q> device_pchk_row_non_zeros_val;
 };
 
 } // namespace libcomm
