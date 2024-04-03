@@ -180,9 +180,38 @@ public:
     void spa_init(const array1vd_t& ptable) override;
     void spa_iteration(array1vd_t& ro) override;
     std::string spa_type() override { return "gdl_cuda"; }
-    void set_clipping(std::string clipping_type, real almost_zero) override;
-    std::string get_clipping_type() override;
-    real get_almostzero() override;
+
+    /*! \brief set the way the algorithm should deal with
+     * clipping, ie replacing probabilities below a certain value
+     */
+    void set_clipping(std::string clipping_type, real almost_zero)
+    {
+        assertalways(clipping_type == "zero" || clipping_type == "clip");
+
+        if ("zero" == clipping_type) {
+            this->clipping_method = 0;
+        } else {
+            this->clipping_method = 1;
+        }
+        this->almostzero = almost_zero;
+    }
+
+    /*! \brief returns the type of clipping used
+     */
+    std::string get_clipping_type()
+    {
+        std::string clipping_type;
+        if (this->clipping_method == 1) {
+            clipping_type = "clip";
+        } else {
+            clipping_type = "zero";
+        }
+        return clipping_type;
+    }
+
+    /*! \brief returns the value of almostzero used in the clipping method
+     */
+    real get_almostzero() { return this->almostzero; }
 
 private:
     /*! \brief this holds a look-up table of the finite field multiplication
@@ -214,6 +243,16 @@ private:
      */
     cuda_matrixd_t device_q_mxn;
     cuda_matrixd_t device_qmn_conv;
+
+    /*! \name These fields are for clipping of zero or almost zero values.
+     */
+    /*! \brief the clipping method used
+     * 0-replace 0 with almostzero
+     * 1-replace all values below almostzero with almostzero
+     */
+    int clipping_method;
+    //! \brief this is the value we assign to zero probs
+    real almostzero;
 
     /*! \name These fields are the representation of the parity check matrix in
      * device memory.
