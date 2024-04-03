@@ -181,32 +181,9 @@ public:
     void spa_iteration(array1vd_t& ro) override;
     std::string spa_type() override { return "gdl_cuda"; }
     void set_clipping(std::string clipping_type, real almost_zero) override;
-    void std::string get_clipping_type() override;
+    std::string get_clipping_type() override;
     real get_almostzero() override;
     void perform_clipping(real& num) override;
-
-    // Methods to organize computation of SPA
-    void compute_r_mn(int m, int n, const array1i_t& tmpN_m);
-    void compute_q_mn(int m, int n, const array1i_t& M_n);
-    void compute_probs(array1vd_t& ro);
-
-private:
-    /*! \brief compute the Fast Hadamard transform
-     * This method will compute the Fast Fourier Transform of the
-     * elements passed in through conv_out. It does this recursively.
-     * Note the result is equivalent to the following matrix-vector
-     * multiplication:
-     * Let m be the size of conv_out, ie m=|GF_q|=power of 2
-     * Let H_m be the standard (mxm)-Hadamard matrix, ie
-     * H_2k=H_2 "*" H_k where "*" is the Kronecker product of 2 matrices and
-     *      [ 1   1 ]
-     * H_2= [       ]
-     *      [ 1  -1 ]
-     * then the result of this method is equal to H_m*conv_out^t where
-     * conv_out^t is the transpose of the conv_out vector
-     *
-     */
-    void compute_convs(array1d_t& conv_out, int pos1, int pos2);
 
 private:
     /*! \brief this holds a look-up table of the finite field multiplication
