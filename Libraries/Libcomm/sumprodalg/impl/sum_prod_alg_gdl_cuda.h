@@ -46,7 +46,7 @@ compute_perms(::cuda::matrix_reference<int> perms, int num_of_elements)
     int ix = i % num_of_elements;
     int iy = i / num_of_elements;
 
-    perms(ix, iy) = GF_q(ix) * GF_q(i_y);
+    perms(ix, iy) = GF_q(ix) * GF_q(iy);
 }
 
 template <class GF_q, class real = double>
