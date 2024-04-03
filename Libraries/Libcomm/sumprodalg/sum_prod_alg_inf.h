@@ -72,11 +72,6 @@ public:
      *
      */
     virtual real get_almostzero() = 0;
-
-    /*!\brief Perform the desired clipping
-     *
-     */
-    virtual void perform_clipping(real& num) = 0;
 };
 
 } // namespace libcomm

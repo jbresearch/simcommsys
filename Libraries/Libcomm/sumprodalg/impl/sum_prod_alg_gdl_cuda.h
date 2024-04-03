@@ -183,7 +183,6 @@ public:
     void set_clipping(std::string clipping_type, real almost_zero) override;
     std::string get_clipping_type() override;
     real get_almostzero() override;
-    void perform_clipping(real& num) override;
 
 private:
     /*! \brief this holds a look-up table of the finite field multiplication

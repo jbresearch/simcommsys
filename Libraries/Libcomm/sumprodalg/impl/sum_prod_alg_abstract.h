@@ -139,10 +139,10 @@ public:
      */
     void spa_iteration(array1vd_t& ro);
 
-    /*! brief Perform the desired clipping
+    /*! \brief Perform the desired clipping
      *
      */
-    void perform_clipping(real& num)
+    virtual void perform_clipping(real& num)
     {
         if (1 == this->clipping_method) {
             // use standard clipping
