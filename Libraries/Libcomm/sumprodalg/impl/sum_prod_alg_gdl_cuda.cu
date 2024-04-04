@@ -114,7 +114,7 @@ normalize_probs_kern(::cuda::matrix_reference<real> recvd_probs,
  * conv_out^t is the transpose of the conv_out vector
  *
  */
-template <class GF_q, class real>
+template <class real>
 __device__
 void
 compute_convs(::cuda::vector_reference<real> conv_out, int pos1, int pos2)
