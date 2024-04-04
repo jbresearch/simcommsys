@@ -37,20 +37,6 @@ namespace libcomm
 #    define DEBUG 1
 #endif
 
-/*! \brief struct wrapper for std::numeric_limits<real>::epsilon().
- *
- * This is needed because constexpr functions are not expanded when compiling
- * device code. This leads to an error where the compiler thinks we are trying
- * to call a host function.
- *
- * The use of static constexpr fields on structs like this is allowed, as it is
- * expanded by the compiler.
- */
-template <class real>
-struct epsilon {
-    static constexpr real val = std::numeric_limits<real>::epsilon();
-};
-
 /*! \brief Perform clipping of zero values to almost-zero values on device.
  */
 template <class real>
