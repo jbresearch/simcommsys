@@ -92,7 +92,8 @@ public:
     //!
     ~stream()
     {
-        if (sid != 0) // Guard so we don't try to destroy default stream
+        if (sid != cudaStreamDefault) // Guard so we don't try to destroy
+                                      // default stream
             cudaSafeCall(cudaStreamDestroy(sid));
     }
     // @}
