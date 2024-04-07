@@ -90,7 +90,11 @@ public:
      * object.
      */
     //!
-    ~stream() { cudaSafeCall(cudaStreamDestroy(sid)); }
+    ~stream()
+    {
+        if (sid != 0) // Guard so we don't try to destroy default stream
+            cudaSafeCall(cudaStreamDestroy(sid));
+    }
     // @}
 
     /*! \name User interface */
