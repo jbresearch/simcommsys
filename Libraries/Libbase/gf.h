@@ -111,6 +111,10 @@ public:
 #endif
     gf() : value(0) { assert(m < 32); }
     //! Converting from int constructor
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     gf(const int x) { init(x); }
     //! Converting from string constructor
     explicit gf(const std::string s) { init(s); }
