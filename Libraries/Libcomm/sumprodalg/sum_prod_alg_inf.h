@@ -60,18 +60,43 @@ public:
     /*! \brief set the way the algorithm should deal with
      * clipping, ie replacing probabilities below a certain value
      */
-
-    virtual void set_clipping(std::string clipping_type, real almost_zero) = 0;
+    void set_clipping(std::string clipping_type, real almost_zero)
+    {
+        if ("zero" == clipping_type) {
+            this->clipping_method = 0;
+        } else {
+            this->clipping_method = 1;
+        }
+        this->almostzero = almost_zero;
+    }
 
     /*!\brief returns the type of clipping used
      *
      */
-    virtual std::string get_clipping_type() = 0;
+    std::string get_clipping_type()
+    {
+        std::string clipping_type;
+        if (this->clipping_method == 1) {
+            clipping_type = "clip";
+        } else {
+            clipping_type = "zero";
+        }
+        return clipping_type;
+    }
 
     /*!\brief returns the value of almostzero used in the clipping method
      *
      */
-    virtual real get_almostzero() = 0;
+    real get_almostzero() { return this->almostzero; }
+
+protected:
+    //! the clipping method used
+    // 0-replace 0 with almostzero
+    // 1-replace all values below almostzero with almostzero
+    int clipping_method;
+
+    //! this is the value we assign to zero probs
+    real almostzero;
 };
 
 } // namespace libcomm

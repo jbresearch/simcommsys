@@ -101,38 +101,6 @@ public:
      */
     virtual std::string spa_type() = 0;
 
-    /*! \brief set the way the algorithm should deal with
-     * clipping, ie replacing probabilities below a certain value
-     */
-    void set_clipping(std::string clipping_type, real almost_zero)
-    {
-        if ("zero" == clipping_type) {
-            this->clipping_method = 0;
-        } else {
-            this->clipping_method = 1;
-        }
-        this->almostzero = almost_zero;
-    }
-
-    /*!\brief returns the type of clipping used
-     *
-     */
-    std::string get_clipping_type()
-    {
-        std::string clipping_type;
-        if (this->clipping_method == 1) {
-            clipping_type = "clip";
-        } else {
-            clipping_type = "zero";
-        }
-        return clipping_type;
-    }
-
-    /*!\brief returns the value of almostzero used in the clipping method
-     *
-     */
-    real get_almostzero() { return this->almostzero; }
-
     /*!\brief carry out one iteration of the SPA
      * This method will carry out the horizontal and vertical step
      * of the SPA and store the result in the ro vector
@@ -208,14 +176,6 @@ protected:
 
     //! this matrix holds the r_mxn probabilities
     libbase::matrix<marginals> marginal_probs;
-
-    //! the clipping method used
-    // 0-replace 0 with almostzero
-    // 1-replace all values below almostzero with almostzero
-    int clipping_method;
-
-    //! this is the value we assign to zero probs
-    real almostzero;
 };
 
 } // namespace libcomm
