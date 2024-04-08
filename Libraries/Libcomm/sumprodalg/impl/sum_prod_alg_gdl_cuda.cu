@@ -303,9 +303,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
 
 } // namespace libcomm
 
-#include "logrealfast.h"
-#include "mpreal.h"
-
 namespace libcomm
 {
 
@@ -313,9 +310,6 @@ namespace libcomm
 #include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/seq/for_each_product.hpp>
-
-using libbase::logrealfast;
-using libbase::mpreal;
 
 // clang-format off
 #define USING_GF(r, x, type) \
@@ -330,7 +324,7 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 /* Serialization string: ldpc<type,real>
  * where:
  *      type = gf2 | gf4 ...
- *      real = double | logrealfast | mpreal
+ *      real = double | float
  */
 #define INSTANTIATE(r, args) \
       template class sum_prod_alg_gdl_cuda<BOOST_PP_SEQ_ENUM(args)>;
