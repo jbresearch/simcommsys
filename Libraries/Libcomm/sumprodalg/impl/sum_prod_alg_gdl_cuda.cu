@@ -355,7 +355,7 @@ permute_kern(::cuda::matrix_reference<int> device_perms,
         // perform the permutation
         dst(device_qmn_row_indices(loop_m, pos_n),
             device_perms(h_m_n, loop_e)) =
-            src(device_qmn_row_indices(loop_m, pos_n), loop_e)
+            src(device_qmn_row_indices(loop_m, pos_n), loop_e);
     }
 }
 
