@@ -360,7 +360,7 @@ permute_kern(::cuda::matrix_reference<int> device_perms,
 }
 
 template <class GF_q, class real>
-void
+inline void
 hadamard_transform(::cuda::matrix<int>& device_perms,
                    ::cuda::matrix<int>& device_qmn_row_indices,
                    // device_r_mxn, or device_qmn_conv, or device_q_mxn
