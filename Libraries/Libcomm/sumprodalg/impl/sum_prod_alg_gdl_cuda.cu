@@ -387,6 +387,12 @@ hadamard_transform(::cuda::matrix<int>& device_perms,
     int swaps = 0;
 
     // possibly perform a permutation before the transform
+    // NOTE: We integrate permutation of the computed marginal probs (q_mn and
+    // r_mn) into the hadamard transform function as this minimizes
+    // device-to-device copies. If we didn't do this, the permutation before
+    // transform would have to copy result of permutation from the swap buffer
+    // back to the marginal probs matrix, but here it can just use the swap
+    // buffer as the src in the first iter.
     if (permute_before) {
 
         block_dim = dim3(32, 32);
@@ -423,6 +429,11 @@ hadamard_transform(::cuda::matrix<int>& device_perms,
     }
 
     // possibly perform a permutation after the transform
+    // NOTE: We integrate permutation of the computed marginal probs (q_mn and
+    // r_mn) into the hadamard transform function as this minimizes
+    // device-to-device copies. For example if the number of swaps performed in
+    // the Hadamard transform is odd, the result is copied from the swap buffer,
+    // only to potentially be copied back into it for permutation.
     if (permute_after) {
 
         block_dim = dim3(32, 32);
