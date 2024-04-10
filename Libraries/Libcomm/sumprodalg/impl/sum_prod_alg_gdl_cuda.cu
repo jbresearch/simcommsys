@@ -323,35 +323,130 @@ hadamard_transform_pass_kern(::cuda::matrix_reference<real> src,
 }
 
 template <class GF_q, class real>
-void
-hadamard_transform(::cuda::matrix<real>& marginal_probs,
-                   ::cuda::matrix<real>& swap_buf,
-                   int tanner_edges)
+__global__ void
+permute_kern(::cuda::matrix_reference<int> device_perms,
+             ::cuda::matrix_reference<int> device_qmn_row_indices,
+             ::cuda::matrix_reference<real> src,
+             ::cuda::matrix_reference<real> dst,
+             ::cuda::vector_reference<int> device_pchk_row_non_zeros,
+             ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
+             ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val)
 {
-    int num_of_elements = GF_q::num_elements();
+    // find loop_m
+    int loop_m = blockIdx.x * blockDim.x + threadIdx.x;
+    // bounds checking
+    int m = device_pchk_row_non_zeros.size();
+    loop_m = min(loop_m, m - 1);
 
-    dim3 block_dim = dim3(32, 32);
-    // use division which truncates upwards.
-    dim3 num_blocks =
-        dim3(-(-tanner_edges / block_dim.x), -(-num_of_elements / block_dim.y));
+    // find loop_e
+    int loop_e = blockIdx.y * blockDim.y + threadIdx.y;
+    // bounds checking
+    int num_of_elements = GF_q::elements();
+    loop_e = min(loop_e, num_of_elements - 1);
 
-    // count number of iters; at the end this will be =log_2(h)
-    int i;
-    int h;
+    int non_zeros = device_pchk_row_non_zeros(loop_m);
+    // actual value of n (loop_n ranges over the number of bits in check m)
+    int pos_n;
+    // hold value of pchk matrix at (m, n)
+    int h_m_n;
+    for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
+        pos_n = device_pchk_row_non_zeros_pos(loop_m, loop_n);
+        h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
+        // perform the permutation
+        dst(device_qmn_row_indices(loop_m, pos_n),
+            device_perms(h_m_n, loop_e)) =
+            src(device_qmn_row_indices(loop_m, pos_n), loop_e)
+    }
+}
+
+template <class GF_q, class real>
+void
+hadamard_transform(::cuda::matrix<int>& device_perms,
+                   ::cuda::matrix<int>& device_qmn_row_indices,
+                   // device_r_mxn, or device_qmn_conv, or device_q_mxn
+                   ::cuda::matrix<real>& marginal_probs,
+                   ::cuda::matrix<real>& swap_buf,
+                   ::cuda::vector<int>& device_pchk_row_non_zeros,
+                   ::cuda::matrix<int>& device_pchk_row_non_zeros_pos,
+                   ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
+                   int tanner_edges,
+                   bool permute_before,
+                   bool permute_after)
+{
+    dim3 block_dim, num_blocks;
+
     // use of references because we want = to be shallow copy when swapping
     // buffers.
     ::cuda::matrix_reference<real> src = marginal_probs;
     ::cuda::matrix_reference<real> dst = swap_buf;
-    for (i = 0, h = num_of_elements / 2; h > 0; i++, h >> 1) {
+
+    int num_of_elements = GF_q::num_elements();
+    int m = device_pchk_row_non_zeros.size();
+
+    // count number of swaps between src and dst
+    int swaps = 0;
+
+    // possibly perform a permutation before the transform
+    if (permute_before) {
+
+        block_dim = dim3(32, 32);
+        // use division which truncates upwards.
+        num_blocks =
+            dim3(-(-m / block_dim.x), -(-num_of_elements / block_dim.y));
+
+        permute_kern<<<block_dim, num_blocks>>>(
+            ::cuda::matrix_reference<int>(device_perms),
+            ::cuda::matrix_reference<int>(device_qmn_row_indices),
+            src,
+            dst,
+            ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
+            ::cuda::matrix_reference<int>(device_pchk_row_non_zeros_pos),
+            ::cuda::matrix_reference<GF_q>(device_pchk_row_non_zeros_val));
+
+        // swap as permuted result is now in swap_buf.
+        std::swap(src, dst);
+        ++swaps;
+    }
+
+    block_dim = dim3(32, 32);
+    // use division which truncates upwards.
+    num_blocks =
+        dim3(-(-tanner_edges / block_dim.x), -(-num_of_elements / block_dim.y));
+
+    int h;
+    for (h = num_of_elements / 2; h > 0; h >> 1) {
         hadamard_transform_pass_kern<<<block_dim, num_blocks>>>(
             src, dst, tanner_edges, h);
 
         std::swap(src, dst);
+        ++swaps;
+    }
+
+    // possibly perform a permutation after the transform
+    if (permute_after) {
+
+        block_dim = dim3(32, 32);
+        // use division which truncates upwards.
+        num_blocks =
+            dim3(-(-m / block_dim.x), -(-num_of_elements / block_dim.y));
+
+        permute_kern<<<block_dim, num_blocks>>>(
+            ::cuda::matrix_reference<int>(device_perms),
+            ::cuda::matrix_reference<int>(device_qmn_row_indices),
+            src,
+            dst,
+            ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
+            ::cuda::matrix_reference<int>(device_pchk_row_non_zeros_pos),
+            ::cuda::matrix_reference<GF_q>(device_pchk_row_non_zeros_val));
+
+        // swap as permuted result is now in swap_buf.
+        std::swap(src, dst);
+        ++swaps;
     }
 
     // we swapped src and dst an odd number of times, so result is in the swap
     // buffer
-    if (i % 2 == 1) {
+    if (swaps % 2 == 1) {
         // copy res to the right array
         // use of proper matrices as we want deep copy now
         marginal_probs = swap_buf;
@@ -435,10 +530,18 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
 
     // apply the FFT again to get the proper values
     int tanner_edges = device_r_mxn.get_rows();
-    hadamard_transform(device_r_mxn, device_hadamard_swap_buf, tanner_edges);
+    hadamard_transform(device_perms,
+                       device_qmn_row_indices,
+                       device_r_mxn,
+                       device_hadamard_swap_buf,
+                       device_pchk_row_non_zeros,
+                       device_pchk_row_non_zeros_pos,
+                       device_pchk_row_non_zeros_val,
+                       tanner_edges,
+                       false,
+                       true);
 
     // TODO: clipping + renormalization of r_mxn.
-    // TODO: AND ALSO PERMUTATION OF RESULT.
 }
 
 template <class GF_q, class real>
