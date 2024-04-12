@@ -168,10 +168,43 @@ divide_h_m_n_kern(::cuda::matrix_reference<int> device_perms,
                   ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
                   ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val);
 
+/*! \brief Compute the Hadamard transform of each "probability" distribution in
+ * src, and store result in dst.
+ *
+ * \param src Matrix where each row is a "probability" distribution over GF_q
+ * \param dst Matrix of same dimensions as src used to store result of Hadamard
+ * transforms.
+ */
 template <class GF_q, class real>
 inline void hadamard_transform(::cuda::matrix_reference<real> src,
                                ::cuda::matrix_reference<real> dst);
 
+/*! \brief Compute r_mxn messages from device_qmn_conv. Results are stored in
+ * device_r_mxn.
+ *
+ * Note that if device_qmn_conv stores the Hadamard transform of the actual
+ * "q_mxn"s, as in our impl., this kernel is not enough to compute the r_mn
+ * messages, but we need to apply the Hadamard transform on its results.
+ *
+ * \param device_qmn_row_indices m x n matrix containing indices of rows of
+ * src/dst that contain distributions corresponding to (m, n).
+ *
+ * \param device_r_mxn Matrix where each row will hold the computed r_mxn
+ * message for a particular (m, n). The mapping between (m, n) and rows is given
+ * by device_qmn_row_indices.
+ *
+ * \param device_qmn_conv Matrix where each row holds the q_mxn
+ * messages used to compute the "r_mxn"s for a particular (m, n). The mapping
+ * between (m, n) and rows is given by device_qmn_row_indices.
+ *
+ * \param device_pchk_row_non_zeros m-size vector containing number of non-zeros
+ * per row of the parity check matrix.
+ *
+ * \param device_pchk_row_non_zeros_pos m x max(device_pchk_row_non_zeros)
+ * matrix where each row contains the index positions (0-indexed) of non-zero
+ * values in the corresponding row of the parity check matrix. Extra slots at
+ * the end of each row are padded with zeros.
+ */
 template <class GF_q, class real>
 __global__ void
 compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
@@ -180,6 +213,52 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
                   ::cuda::vector_reference<int> device_pchk_row_non_zeros,
                   ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos);
 
+/*! \brief Full computation of r_mxn messages in the context of our algorithm.
+ * Results are stored in device_r_mxn.
+ *
+ * This function takes the following steps:
+ * - Uses the compute_r_mn_kern kernel to compute messages from
+ * device_qmn_conv.
+ *
+ * - Applies the Hadamard transform to the result of the last
+ * step
+ *
+ * - Applies the divide_h_m_n_kern to the result of the last step; this gives us
+ * the actual r_mxn messages.
+ *
+ * - Applies clipping and normalization to the r_mxn messages computed in the
+ * last step
+ *
+ * \param device_perms Look up table for Galois field multiplication in GF_q
+ *
+ * \param device_qmn_row_indices m x n matrix containing indices of rows of
+ * src/dst that contain distributions corresponding to (m, n).
+ *
+ * \param device_r_mxn Matrix where each row will hold the computed r_mxn
+ * message for a particular (m, n). The mapping between (m, n) and rows is given
+ * by device_qmn_row_indices.
+ *
+ * \param device_qmn_conv Matrix where each row holds the q_mxn
+ * messages used to compute the "r_mxn"s for a particular (m, n). The mapping
+ * between (m, n) and rows is given by device_qmn_row_indices.
+ *
+ * \param device_pchk_row_non_zeros m-size vector containing number of non-zeros
+ * per row of the parity check matrix.
+ *
+ * \param device_pchk_row_non_zeros_pos m x max(device_pchk_row_non_zeros)
+ * matrix where each row contains the index positions (0-indexed) of non-zero
+ * values in the corresponding row of the parity check matrix. Extra slots at
+ * the end of each row are padded with zeros.
+ *
+ * \param device_pchk_row_non_zeros_val m x max(device_pchk_row_non_zeros)
+ * matrix where each row contains the values in GF_q of non-zero
+ * values in the corresponding row of the parity check matrix. Extra slots at
+ * the end of each row are padded with zeros.
+ *
+ * \param device_swap_buf Matrix of same size as device_r_mxn which is used as a
+ * swap buffer when Hadamard transform/division by h_m_n values are being
+ * computed.
+ */
 template <class GF_q, class real>
 void compute_r_mn(::cuda::matrix<int>& device_perms,
                   ::cuda::matrix<int>& device_qmn_row_indices,
