@@ -37,8 +37,121 @@ namespace libcomm
 #    define DEBUG 1
 #endif
 
+// Declarations
+// ----------------------------------------------------------
+
 /*! \brief Perform clipping of zero values to almost-zero values on device.
  */
+template <class real>
+__device__
+void perform_clipping(real& num, int& clipping_method, real& almost_zero);
+
+/*! \brief Performs a single "butterfly" pass of the Hadamard-Walsh transform
+ * over a number of probability distributions.
+ *
+ * The pass uses the butterfly property to permute distributions in src into dst
+ * in a cache-efficient way.
+ *
+ * \param src n x |GF_q| matrix containing n distributions over
+ * GF_q to which the transform will be applied.
+ *
+ * \param dst n x |GF_q| matrix that result of transform on src
+ * will be stored in.
+ *
+ * \param tanner_edges Number of distributions that transform will be applied
+ * to. The name of the arg comes from the use of this function in SPA, where
+ * number of dists is equal to the edges in the Tanner graph.
+ *
+ * \param h Indicates the distance used in the "butterfly" pass (elements this
+ * distance apart within a single row of src are combined). Starts out at
+ * |GF_q|/2 and is divided by 2 at each pass.
+ */
+template <class GF_q, class real>
+__global__ void hadamard_transform_pass_kern(::cuda::matrix_reference<real> src,
+                                             ::cuda::matrix_reference<real> dst,
+                                             int tanner_edges,
+                                             int h);
+
+/*! \brief Perform a permutation of src into dst.
+ *
+ * The permutation is such that for a check m and a symbol n which participates
+ * in the check:
+ *
+ * dst(device_qmn_row_indices(m,n), h_m_n*e) =
+ * src(device_qmn_row_indices(m,n),e)
+ *
+ * for every element e in GF_q, and h_m_n is a parity check matrix
+ * element corresponding to (m, n).
+ *
+ * \param device_perms Look up table for Galois field multiplication in GF_q
+ *
+ * \param device_qmn_row_indices m x n matrix containing indices of rows of
+ * src/dst that contain distributions corresponding to (m, n).
+ *
+ * \param src Matrix where each row is a "probability" distribution over GF_q
+ * corresponding to some (m, n) pair.
+ *
+ * \param dst Destination matrix containing permuted distributions from src
+ * (result of this kernel).
+ *
+ * \param device_pchk_row_non_zeros m-size vector containing number of non-zeros
+ * per row of the parity check matrix.
+ *
+ * \param device_pchk_row_non_zeros_pos m x max(device_pchk_row_non_zeros)
+ * matrix where each row contains the index positions (0-indexed) of non-zero
+ * values in the corresponding row of the parity check matrix. Extra slots at
+ * the end of each row are padded with zeros.
+ *
+ * \param device_pchk_row_non_zeros_val m x max(device_pchk_row_non_zeros)
+ * matrix where each row contains the values in GF_q of non-zero
+ * values in the corresponding row of the parity check matrix. Extra slots at
+ * the end of each row are padded with zeros.
+ */
+template <class GF_q, class real>
+__global__ void
+permute_kern(::cuda::matrix_reference<int> device_perms,
+             ::cuda::matrix_reference<int> device_qmn_row_indices,
+             ::cuda::matrix_reference<real> src,
+             ::cuda::matrix_reference<real> dst,
+             ::cuda::vector_reference<int> device_pchk_row_non_zeros,
+             ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
+             ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val);
+
+template <class GF_q, class real>
+inline void
+hadamard_transform(::cuda::matrix<int>& device_perms,
+                   ::cuda::matrix<int>& device_qmn_row_indices,
+                   // device_r_mxn, or device_qmn_conv, or device_q_mxn
+                   ::cuda::matrix<real>& marginal_probs,
+                   ::cuda::matrix<real>& swap_buf,
+                   ::cuda::vector<int>& device_pchk_row_non_zeros,
+                   ::cuda::matrix<int>& device_pchk_row_non_zeros_pos,
+                   ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
+                   int tanner_edges,
+                   bool permute_before,
+                   bool permute_after);
+
+template <class GF_q, class real>
+__global__ void
+compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
+                  ::cuda::matrix_reference<real> device_r_mxn,
+                  ::cuda::matrix_reference<real> device_qmn_conv,
+                  ::cuda::vector_reference<int> device_pchk_row_non_zeros,
+                  ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos);
+
+template <class GF_q, class real>
+void compute_r_mn(::cuda::matrix<int>& device_perms,
+                  ::cuda::matrix<int>& device_qmn_row_indices,
+                  ::cuda::matrix<real>& device_r_mxn,
+                  ::cuda::matrix<real>& device_qmn_conv,
+                  ::cuda::vector<int>& device_pchk_row_non_zeros,
+                  ::cuda::matrix<int>& device_pchk_row_non_zeros_pos,
+                  ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
+                  ::cuda::matrix<real>& device_swap_buf);
+
+// Definitions
+// ----------------------------------------------------------
+
 template <class real>
 __device__
 void
