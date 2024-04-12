@@ -212,7 +212,7 @@ public:
         device_q_mxn.init(tanner_edges, num_of_elements);
         device_qmn_conv.init(tanner_edges, num_of_elements);
 
-        device_hadamard_swap_buf.init(tanner_edges, num_of_elements);
+        device_swap_buf.init(tanner_edges, num_of_elements);
     }
     virtual ~sum_prod_alg_gdl_cuda()
     {
@@ -254,12 +254,12 @@ private:
      */
     cuda_matrixd_t device_q_mxn;
     cuda_matrixd_t device_qmn_conv;
-    /*! This is a swap buffer used for computing the Hadamard transform on
-     * device_r_mxn or device_qmn_conv.
+    /*! This is a swap buffer used for computing the Hadamard
+     * transform/permutations on device_r_mxn or device_qmn_conv.
      *
      * It has the same dimensions as the latter fields.
      */
-    cuda_matrixd_t device_hadamard_swap_buf;
+    cuda_matrixd_t device_swap_buf;
 
     /*! \name These fields are the representation of the parity check matrix in
      * device memory.

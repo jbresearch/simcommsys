@@ -523,7 +523,7 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
              ::cuda::vector<int>& device_pchk_row_non_zeros,
              ::cuda::matrix<int>& device_pchk_row_non_zeros_pos,
              ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
-             ::cuda::matrix<real>& device_hadamard_swap_buf)
+             ::cuda::matrix<real>& device_swap_buf)
 {
     dim3 block_dim, num_blocks;
 
@@ -544,7 +544,7 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
     hadamard_transform(device_perms,
                        device_qmn_row_indices,
                        device_r_mxn,
-                       device_hadamard_swap_buf,
+                       device_swap_buf,
                        device_pchk_row_non_zeros,
                        device_pchk_row_non_zeros_pos,
                        device_pchk_row_non_zeros_val,
