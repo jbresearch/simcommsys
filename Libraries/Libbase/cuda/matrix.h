@@ -396,6 +396,15 @@ matrix<T>::operator=(const matrix<T>& x)
     if (x.data == NULL) {
         // deallocate memory if needed
         free();
+    } else if (x.data == this->data) {
+        // This case is useful when x is a matrix_reference and "this" is a
+        // regular matrix. There are situations where a matrix_reference
+        // variable ranges over "this" and other matrices, and we want to
+        // deep-copy x back to "this" at some stage.
+        //
+        // Handling this case especially gives us a zero-cost copy when x is a
+        // reference to "this".
+        return *this; // no need to copy, as the two matrices are the same.
     } else {
         // (re-)allocate memory if needed
         init(x.rows, x.cols);
