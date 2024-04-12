@@ -269,6 +269,25 @@ void compute_r_mn(::cuda::matrix<int>& device_perms,
                   ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
                   ::cuda::matrix<real>& device_swap_buf);
 
+template <class GF_q, class real>
+__global__ void
+compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
+                  ::cuda::matrix_reference<int> device_qmn_row_indices,
+                  ::cuda::matrix_reference<real> device_r_mxn,
+                  ::cuda::matrix_reference<real> device_qmn_conv,
+                  ::cuda::vector_reference<int> device_pchk_col_non_zeros,
+                  ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos);
+
+template <class GF_q, class real>
+void compute_q_mn(::cuda::matrix<int>& device_perms,
+                  ::cuda::matrix<int>& device_qmn_row_indices,
+                  ::cuda::matrix<real>& device_r_mxn,
+                  ::cuda::matrix<real>& device_qmn_conv,
+                  ::cuda::vector<int>& device_pchk_col_non_zeros,
+                  ::cuda::matrix<int>& device_pchk_col_non_zeros_pos,
+                  ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val,
+                  ::cuda::matrix<real>& device_swap_buf);
+
 // Definitions
 // ----------------------------------------------------------
 
@@ -691,7 +710,7 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
                 // we multiply by the check pos_n_dash != pos_n to ensure that
                 // bit n itself is not included in the message
                 (pos_n_dash != pos_n) *
-                device_qmn_conv(device_qmn_row_indices(loop_m, loop_n_dash),
+                device_qmn_conv(device_qmn_row_indices(loop_m, pos_n_dash),
                                 loop_e);
         }
         // Loop above has potential divergence as different m have different
@@ -758,6 +777,72 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
     device_r_mxn = dst;
 
     // TODO: clipping + renormalization of r_mxn.
+}
+
+template <class GF_q, class real>
+__global__ void
+compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
+                  ::cuda::matrix_reference<int> device_qmn_row_indices,
+                  ::cuda::matrix_reference<real> device_r_mxn,
+                  ::cuda::matrix_reference<real> device_qmn_conv,
+                  ::cuda::vector_reference<int> device_pchk_col_non_zeros,
+                  ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos)
+{
+    // find loop_n
+    int loop_n = blockIdx.x * blockDim.x + threadIdx.x;
+    // bounds checking
+    int n = device_pchk_col_non_zeros.size();
+    loop_n = min(loop_n, n - 1);
+
+    // find loop_e
+    int loop_e = blockIdx.y * blockDim.y + threadIdx.y;
+    // bounds checking
+    int num_of_elements = GF_q::elements();
+    loop_e = min(loop_e, num_of_elements - 1);
+
+    int non_zeros = device_pchk_col_non_zeros(loop_n);
+    // actual value of m (loop_m ranges over the number of symbols in check m)
+    int pos_m;
+    // if message is being computed to send over edge from n to m, then this
+    // ranges over all checks which n participates in.
+    int pos_m_dash;
+    // Holds the actual message computed
+    real q_nm;
+    for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
+        q_nm = device_received_probs(loop_n, loop_e);
+        pos_m = device_pchk_col_non_zeros_pos(loop_m, loop_n);
+
+        for (int loop_m_dash = 0; loop_m_dash < non_zeros; loop_m_dash++) {
+            pos_m_dash = device_pchk_col_non_zeros_pos(loop_m_dash, loop_n);
+
+            q_nm *=
+                // we multiply by the check pos_m_dash != pos_m to ensure that
+                // check m itself is not included in the message
+                (pos_m_dash != pos_m) *
+                device_r_mxn(device_qmn_row_indices(pos_m_dash, loop_n),
+                             loop_e);
+        }
+        // Loop above has potential divergence as different m have different
+        // degrees in general. We want to convergence again here so most iters
+        // are in sync.
+        __syncthreads();
+
+        // Uncoalesced memory access.
+        device_qmn_conv(device_qmn_row_indices(pos_m, loop_n), loop_e) = q_mn;
+    }
+}
+
+template <class GF_q, class real>
+void
+compute_q_mn(::cuda::matrix<int>& device_perms,
+             ::cuda::matrix<int>& device_qmn_row_indices,
+             ::cuda::matrix<real>& device_r_mxn,
+             ::cuda::matrix<real>& device_qmn_conv,
+             ::cuda::vector<int>& device_pchk_col_non_zeros,
+             ::cuda::matrix<int>& device_pchk_col_non_zeros_pos,
+             ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val,
+             ::cuda::matrix<real>& device_swap_buf)
+{
 }
 
 template <class GF_q, class real>
