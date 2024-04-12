@@ -427,24 +427,24 @@ spa_init_kern(::cuda::matrix_reference<int> device_perms,
     int qmn_row_idx;
     int pos;
     GF_q h_m_n;
-    // NOTE: loop_n iterates over number of bits that participate in mth
+    // NOTE: loop_n iterates over number of symbols that participate in mth
     // check of a codeword. E.g. if check involves {x_1, x_4, x_6}, loop_n
     // ranges over [0, 1, 2]
     for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-        // NOTE: pos is the actual index of the nth bit participating in the
+        // NOTE: pos is the actual index of the nth symbol participating in the
         // mth check in the codeword. E.g. if check involves {x_1, x_4, x_6}
         // and loop_n = 1, pos = 4 (-1 since we count from 0)
         pos = device_pchk_row_non_zeros_pos(loop_m, loop_n);
         // NOTE: Find corresponding value in the parity check matrix.
         // We use loop_m because this is the check index, and pos because
-        // this is the actual index of the nth bit participating in the mth
-        // check (non_zeros variable does not count bits that don't
+        // this is the actual index of the nth symbol participating in the mth
+        // check (non_zeros variable does not count symbols that don't
         // participate in the mth check).
         h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
 
         // NOTE: Initially we set (probability distribution) q_mn
-        // (which is prob. of bit n having value x given info. of all checks
-        // other than m) to simply the prior probability distribution of bit
+        // (which is prob. of symbol n having value x given info. of all checks
+        // other than m) to simply the prior probability distribution of symbol
         // n
         qmn_row_idx = device_qmn_row_indices(loop_m, pos);
         device_q_mxn(qmn_row_idx, loop_e) = device_received_probs(pos, loop_e);
@@ -598,7 +598,7 @@ multiply_h_m_n_kern(
     loop_e = min(loop_e, num_of_elements - 1);
 
     int non_zeros = device_pchk_row_non_zeros(loop_m);
-    // actual value of n (loop_n ranges over the number of bits in check m)
+    // actual value of n (loop_n ranges over the number of symbols in check m)
     int pos_n;
     // hold value of pchk matrix at (m, n)
     int h_m_n;
@@ -635,7 +635,7 @@ divide_h_m_n_kern(::cuda::matrix_reference<int> device_perms,
     loop_e = min(loop_e, num_of_elements - 1);
 
     int non_zeros = device_pchk_row_non_zeros(loop_m);
-    // actual value of n (loop_n ranges over the number of bits in check m)
+    // actual value of n (loop_n ranges over the number of symbols in check m)
     int pos_n;
     // hold value of pchk matrix at (m, n)
     int h_m_n;
@@ -691,11 +691,11 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
     loop_e = min(loop_e, num_of_elements - 1);
 
     int non_zeros = device_pchk_row_non_zeros(loop_m);
-    // actual value of n (loop_n ranges over the number of bits in check m)
+    // actual value of n (loop_n ranges over the number of symbols in check m)
     int pos_n;
     // if message is being computed to send over edge from m to n, then this
-    // ranges over all other bits that participate in check m but are not n,
-    // i.e. all bits included in the message.
+    // ranges over all other symbols that participate in check m but are not n,
+    // i.e. all symbols included in the message.
     int pos_n_dash;
     // Holds the actual message computed
     real q_nm_conv_prod;
@@ -708,7 +708,7 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
 
             q_nm_conv_prod *=
                 // we multiply by the check pos_n_dash != pos_n to ensure that
-                // bit n itself is not included in the message
+                // symbol n itself is not included in the message
                 (pos_n_dash != pos_n) *
                 device_qmn_conv(device_qmn_row_indices(loop_m, pos_n_dash),
                                 loop_e);
