@@ -169,18 +169,8 @@ divide_h_m_n_kern(::cuda::matrix_reference<int> device_perms,
                   ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val);
 
 template <class GF_q, class real>
-inline void
-hadamard_transform(::cuda::matrix<int>& device_perms,
-                   ::cuda::matrix<int>& device_qmn_row_indices,
-                   // device_r_mxn, or device_qmn_conv, or device_q_mxn
-                   ::cuda::matrix<real>& marginal_probs,
-                   ::cuda::matrix<real>& swap_buf,
-                   ::cuda::vector<int>& device_pchk_row_non_zeros,
-                   ::cuda::matrix<int>& device_pchk_row_non_zeros_pos,
-                   ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
-                   int tanner_edges,
-                   bool permute_before,
-                   bool permute_after);
+inline void hadamard_transform(::cuda::matrix_reference<real> src,
+                               ::cuda::matrix_reference<real> dst);
 
 template <class GF_q, class real>
 __global__ void
@@ -562,62 +552,15 @@ divide_h_m_n_kern(::cuda::matrix_reference<int> device_perms,
 
 template <class GF_q, class real>
 inline void
-hadamard_transform(::cuda::matrix<int>& device_perms,
-                   ::cuda::matrix<int>& device_qmn_row_indices,
-                   // device_r_mxn, or device_qmn_conv, or device_q_mxn
-                   ::cuda::matrix<real>& marginal_probs,
-                   ::cuda::matrix<real>& swap_buf,
-                   ::cuda::vector<int>& device_pchk_row_non_zeros,
-                   ::cuda::matrix<int>& device_pchk_row_non_zeros_pos,
-                   ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
-                   int tanner_edges,
-                   bool multiply_before,
-                   bool divide_after)
+hadamard_transform(::cuda::matrix_reference<real> src,
+                   ::cuda::matrix_reference<real> dst)
 {
-    dim3 block_dim, num_blocks;
-
-    // use of references because we want = to be shallow copy when swapping
-    // buffers.
-    ::cuda::matrix_reference<real> src = marginal_probs;
-    ::cuda::matrix_reference<real> dst = swap_buf;
-
     int num_of_elements = GF_q::num_elements();
-    int m = device_pchk_row_non_zeros.size();
+    int tanner_edges = src.get_rows();
 
-    // count number of swaps between src and dst
-    int swaps = 0;
-
-    // possibly perform a permutation before the transform
-    // NOTE: We integrate permutation of the computed marginal probs (q_mn and
-    // r_mn) into the hadamard transform function as this minimizes
-    // device-to-device copies. If we didn't do this, the permutation before
-    // transform would have to copy result of permutation from the swap buffer
-    // back to the marginal probs matrix, but here it can just use the swap
-    // buffer as the src in the first iter.
-    if (multiply_before) {
-
-        block_dim = dim3(32, 32);
-        // use division which truncates upwards.
-        num_blocks =
-            dim3(-(-m / block_dim.x), -(-num_of_elements / block_dim.y));
-
-        multiply_h_m_n_kern<<<block_dim, num_blocks>>>(
-            ::cuda::matrix_reference<int>(device_perms),
-            ::cuda::matrix_reference<int>(device_qmn_row_indices),
-            src,
-            dst,
-            ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
-            ::cuda::matrix_reference<int>(device_pchk_row_non_zeros_pos),
-            ::cuda::matrix_reference<GF_q>(device_pchk_row_non_zeros_val));
-
-        // swap as permuted result is now in swap_buf.
-        std::swap(src, dst);
-        ++swaps;
-    }
-
-    block_dim = dim3(32, 32);
+    dim3 block_dim = dim3(32, 32);
     // use division which truncates upwards.
-    num_blocks =
+    dim3 num_blocks =
         dim3(-(-tanner_edges / block_dim.x), -(-num_of_elements / block_dim.y));
 
     int h;
@@ -626,42 +569,6 @@ hadamard_transform(::cuda::matrix<int>& device_perms,
             src, dst, tanner_edges, h);
 
         std::swap(src, dst);
-        ++swaps;
-    }
-
-    // possibly perform a permutation after the transform
-    // NOTE: We integrate permutation of the computed marginal probs (q_mn and
-    // r_mn) into the hadamard transform function as this minimizes
-    // device-to-device copies. For example if the number of swaps performed in
-    // the Hadamard transform is odd, the result is copied from the swap buffer,
-    // only to potentially be copied back into it for permutation.
-    if (divide_after) {
-
-        block_dim = dim3(32, 32);
-        // use division which truncates upwards.
-        num_blocks =
-            dim3(-(-m / block_dim.x), -(-num_of_elements / block_dim.y));
-
-        divide_h_m_n_kern<<<block_dim, num_blocks>>>(
-            ::cuda::matrix_reference<int>(device_perms),
-            ::cuda::matrix_reference<int>(device_qmn_row_indices),
-            src,
-            dst,
-            ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
-            ::cuda::matrix_reference<int>(device_pchk_row_non_zeros_pos),
-            ::cuda::matrix_reference<GF_q>(device_pchk_row_non_zeros_val));
-
-        // swap as permuted result is now in swap_buf.
-        std::swap(src, dst);
-        ++swaps;
-    }
-
-    // we swapped src and dst an odd number of times, so result is in the swap
-    // buffer
-    if (swaps % 2 == 1) {
-        // copy res to the right array
-        // use of proper matrices as we want deep copy now
-        marginal_probs = swap_buf;
     }
 }
 
@@ -745,17 +652,31 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
         ::cuda::matrix_reference<int>(device_pchk_row_non_zeros_pos));
 
     // apply the FFT again to get the proper values
-    int tanner_edges = device_r_mxn.get_rows();
-    hadamard_transform(device_perms,
-                       device_qmn_row_indices,
-                       device_r_mxn,
-                       device_swap_buf,
-                       device_pchk_row_non_zeros,
-                       device_pchk_row_non_zeros_pos,
-                       device_pchk_row_non_zeros_val,
-                       tanner_edges,
-                       false,
-                       true);
+    // Here we use matrix references for cheap swapping. The result of the
+    // Hadamard transform will always be in src.
+    ::cuda::matrix_reference<real> src(device_r_mxn);
+    ::cuda::matrix_reference<real> dst(device_swap_buf);
+    hadamard_transform(src, dst);
+
+    block_dim = dim3(32, 32);
+    // use division which truncates upwards.
+    num_blocks = dim3(-(-m / block_dim.x), -(-num_of_elements / block_dim.y));
+
+    // Permute the distributions in src (transformed by the Hadamard transform)
+    // into dst
+    divide_h_m_n_kern<<<block_dim, num_blocks>>>(
+        ::cuda::matrix_reference<int>(device_perms),
+        ::cuda::matrix_reference<int>(device_qmn_row_indices),
+        src,
+        dst,
+        ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
+        ::cuda::matrix_reference<int>(device_pchk_row_non_zeros_pos),
+        ::cuda::matrix_reference<GF_q>(device_pchk_row_non_zeros_val));
+
+    // dst could be device_r_mxn or device_swap_buf depending on whether no. of
+    // passes in Hadamard transform is even or odd. We copy back to device_r_mxn
+    // to make sure the result is in the right array.
+    device_r_mxn = dst;
 
     // TODO: clipping + renormalization of r_mxn.
 }
