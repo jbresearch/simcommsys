@@ -83,6 +83,57 @@ __global__ void hadamard_transform_pass_kern(::cuda::matrix_reference<real> src,
  * for every element e in GF_q, and h_m_n is a parity check matrix
  * element corresponding to (m, n).
  *
+ * So effectively we are transforming a distribution over a random variable e in
+ * GF_q to a distribution over h_m_n*e
+ *
+ * \param device_perms Look up table for Galois field multiplication in GF_q
+ *
+ * \param device_qmn_row_indices m x n matrix containing indices of rows of
+ * src/dst that contain distributions corresponding to (m, n).
+ *
+ * \param src Matrix where each row is a "probability" distribution over GF_q
+ * corresponding to some (m, n) pair.
+ *
+ * \param dst Destination matrix containing permuted distributions from src
+ * (result of this kernel).
+ *
+ * \param device_pchk_row_non_zeros m-size vector containing number of non-zeros
+ * per row of the parity check matrix.
+ *
+ * \param device_pchk_row_non_zeros_pos m x max(device_pchk_row_non_zeros)
+ * matrix where each row contains the index positions (0-indexed) of non-zero
+ * values in the corresponding row of the parity check matrix. Extra slots at
+ * the end of each row are padded with zeros.
+ *
+ * \param device_pchk_row_non_zeros_val m x max(device_pchk_row_non_zeros)
+ * matrix where each row contains the values in GF_q of non-zero
+ * values in the corresponding row of the parity check matrix. Extra slots at
+ * the end of each row are padded with zeros.
+ */
+template <class GF_q, class real>
+__global__ void multiply_h_m_n_kern(
+    ::cuda::matrix_reference<int> device_perms,
+    ::cuda::matrix_reference<int> device_qmn_row_indices,
+    ::cuda::matrix_reference<real> src,
+    ::cuda::matrix_reference<real> dst,
+    ::cuda::vector_reference<int> device_pchk_row_non_zeros,
+    ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
+    ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val);
+
+/*! \brief Perform a permutation of src into dst.
+ *
+ * The permutation is such that for a check m and a symbol n which participates
+ * in the check:
+ *
+ * dst(device_qmn_row_indices(m,n),e) =
+ * src(device_qmn_row_indices(m,n),h_m_n*e)
+ *
+ * for every element e in GF_q, and h_m_n is a parity check matrix
+ * element corresponding to (m, n).
+ *
+ * So effectively we are transforming a distribution over a random variable
+ * h_m_n*e in GF_q to a distribution over e
+ *
  * \param device_perms Look up table for Galois field multiplication in GF_q
  *
  * \param device_qmn_row_indices m x n matrix containing indices of rows of
@@ -109,13 +160,13 @@ __global__ void hadamard_transform_pass_kern(::cuda::matrix_reference<real> src,
  */
 template <class GF_q, class real>
 __global__ void
-permute_kern(::cuda::matrix_reference<int> device_perms,
-             ::cuda::matrix_reference<int> device_qmn_row_indices,
-             ::cuda::matrix_reference<real> src,
-             ::cuda::matrix_reference<real> dst,
-             ::cuda::vector_reference<int> device_pchk_row_non_zeros,
-             ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
-             ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val);
+divide_h_m_n_kern(::cuda::matrix_reference<int> device_perms,
+                  ::cuda::matrix_reference<int> device_qmn_row_indices,
+                  ::cuda::matrix_reference<real> src,
+                  ::cuda::matrix_reference<real> dst,
+                  ::cuda::vector_reference<int> device_pchk_row_non_zeros,
+                  ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
+                  ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val);
 
 template <class GF_q, class real>
 inline void
@@ -437,13 +488,14 @@ hadamard_transform_pass_kern(::cuda::matrix_reference<real> src,
 
 template <class GF_q, class real>
 __global__ void
-permute_kern(::cuda::matrix_reference<int> device_perms,
-             ::cuda::matrix_reference<int> device_qmn_row_indices,
-             ::cuda::matrix_reference<real> src,
-             ::cuda::matrix_reference<real> dst,
-             ::cuda::vector_reference<int> device_pchk_row_non_zeros,
-             ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
-             ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val)
+multiply_h_m_n_kern(
+    ::cuda::matrix_reference<int> device_perms,
+    ::cuda::matrix_reference<int> device_qmn_row_indices,
+    ::cuda::matrix_reference<real> src,
+    ::cuda::matrix_reference<real> dst,
+    ::cuda::vector_reference<int> device_pchk_row_non_zeros,
+    ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
+    ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val)
 {
     // find loop_m
     int loop_m = blockIdx.x * blockDim.x + threadIdx.x;
@@ -473,6 +525,42 @@ permute_kern(::cuda::matrix_reference<int> device_perms,
 }
 
 template <class GF_q, class real>
+__global__ void
+divide_h_m_n_kern(::cuda::matrix_reference<int> device_perms,
+                  ::cuda::matrix_reference<int> device_qmn_row_indices,
+                  ::cuda::matrix_reference<real> src,
+                  ::cuda::matrix_reference<real> dst,
+                  ::cuda::vector_reference<int> device_pchk_row_non_zeros,
+                  ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
+                  ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val)
+{
+    // find loop_m
+    int loop_m = blockIdx.x * blockDim.x + threadIdx.x;
+    // bounds checking
+    int m = device_pchk_row_non_zeros.size();
+    loop_m = min(loop_m, m - 1);
+
+    // find loop_e
+    int loop_e = blockIdx.y * blockDim.y + threadIdx.y;
+    // bounds checking
+    int num_of_elements = GF_q::elements();
+    loop_e = min(loop_e, num_of_elements - 1);
+
+    int non_zeros = device_pchk_row_non_zeros(loop_m);
+    // actual value of n (loop_n ranges over the number of bits in check m)
+    int pos_n;
+    // hold value of pchk matrix at (m, n)
+    int h_m_n;
+    for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
+        pos_n = device_pchk_row_non_zeros_pos(loop_m, loop_n);
+        h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
+        // perform the permutation
+        dst(device_qmn_row_indices(loop_m, pos_n), loop_e) = src(
+            device_qmn_row_indices(loop_m, pos_n), device_perms(h_m_n, loop_e));
+    }
+}
+
+template <class GF_q, class real>
 inline void
 hadamard_transform(::cuda::matrix<int>& device_perms,
                    ::cuda::matrix<int>& device_qmn_row_indices,
@@ -483,8 +571,8 @@ hadamard_transform(::cuda::matrix<int>& device_perms,
                    ::cuda::matrix<int>& device_pchk_row_non_zeros_pos,
                    ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
                    int tanner_edges,
-                   bool permute_before,
-                   bool permute_after)
+                   bool multiply_before,
+                   bool divide_after)
 {
     dim3 block_dim, num_blocks;
 
@@ -506,14 +594,14 @@ hadamard_transform(::cuda::matrix<int>& device_perms,
     // transform would have to copy result of permutation from the swap buffer
     // back to the marginal probs matrix, but here it can just use the swap
     // buffer as the src in the first iter.
-    if (permute_before) {
+    if (multiply_before) {
 
         block_dim = dim3(32, 32);
         // use division which truncates upwards.
         num_blocks =
             dim3(-(-m / block_dim.x), -(-num_of_elements / block_dim.y));
 
-        permute_kern<<<block_dim, num_blocks>>>(
+        multiply_h_m_n_kern<<<block_dim, num_blocks>>>(
             ::cuda::matrix_reference<int>(device_perms),
             ::cuda::matrix_reference<int>(device_qmn_row_indices),
             src,
@@ -547,14 +635,14 @@ hadamard_transform(::cuda::matrix<int>& device_perms,
     // device-to-device copies. For example if the number of swaps performed in
     // the Hadamard transform is odd, the result is copied from the swap buffer,
     // only to potentially be copied back into it for permutation.
-    if (permute_after) {
+    if (divide_after) {
 
         block_dim = dim3(32, 32);
         // use division which truncates upwards.
         num_blocks =
             dim3(-(-m / block_dim.x), -(-num_of_elements / block_dim.y));
 
-        permute_kern<<<block_dim, num_blocks>>>(
+        divide_h_m_n_kern<<<block_dim, num_blocks>>>(
             ::cuda::matrix_reference<int>(device_perms),
             ::cuda::matrix_reference<int>(device_qmn_row_indices),
             src,
