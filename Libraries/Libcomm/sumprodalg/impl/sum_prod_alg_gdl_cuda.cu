@@ -800,6 +800,9 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
     int num_of_elements = GF_q::elements();
     loop_e = min(loop_e, num_of_elements - 1);
 
+    // Current probability that received symbol n has value e.
+    real recvd_prob = device_received_probs(loop_n, loop_e);
+
     int non_zeros = device_pchk_col_non_zeros(loop_n);
     // actual value of m (loop_m ranges over the number of symbols in check m)
     int pos_m;
@@ -809,7 +812,7 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
     // Holds the actual message computed
     real q_nm;
     for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
-        q_nm = device_received_probs(loop_n, loop_e);
+        q_nm = recvd_prob;
         pos_m = device_pchk_col_non_zeros_pos(loop_m, loop_n);
 
         for (int loop_m_dash = 0; loop_m_dash < non_zeros; loop_m_dash++) {
@@ -828,7 +831,7 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
         __syncthreads();
 
         // Uncoalesced memory access.
-        device_qmn_conv(device_qmn_row_indices(pos_m, loop_n), loop_e) = q_mn;
+        device_qmn_conv(device_qmn_row_indices(pos_m, loop_n), loop_e) = q_nm;
     }
 }
 
