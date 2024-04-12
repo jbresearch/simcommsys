@@ -500,8 +500,12 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
         for (int loop_n_dash = 0; loop_n_dash < non_zeros; loop_n_dash++) {
             pos_n_dash = device_pchk_row_non_zeros_pos(loop_m, loop_n_dash);
 
-            q_nm_conv_prod *= device_qmn_conv(
-                device_qmn_row_indices(loop_m, loop_n_dash), loop_e);
+            q_nm_conv_prod *=
+                // we multiply by the check pos_n_dash != pos_n to ensure that
+                // bit n itself is not included in the message
+                (pos_n_dash != pos_n) *
+                device_qmn_conv(device_qmn_row_indices(loop_m, loop_n_dash),
+                                loop_e);
         }
         // Loop above has potential divergence as different m have different
         // degrees in general. We want to convergence again here so most iters
