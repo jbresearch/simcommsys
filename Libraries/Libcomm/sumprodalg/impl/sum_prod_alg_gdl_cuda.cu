@@ -279,10 +279,14 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
                   ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos);
 
 template <class GF_q, class real>
-void compute_q_mn(::cuda::matrix<int>& device_perms,
+void compute_q_mn(::cuda::matrix_reference<real> device_received_probs,
+                  ::cuda::matrix<int>& device_perms,
                   ::cuda::matrix<int>& device_qmn_row_indices,
                   ::cuda::matrix<real>& device_r_mxn,
                   ::cuda::matrix<real>& device_qmn_conv,
+                  ::cuda::vector<int>& device_pchk_row_non_zeros,
+                  ::cuda::matrix<int>& device_pchk_row_non_zeros_pos,
+                  ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
                   ::cuda::vector<int>& device_pchk_col_non_zeros,
                   ::cuda::matrix<int>& device_pchk_col_non_zeros_pos,
                   ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val,
@@ -837,15 +841,64 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
 
 template <class GF_q, class real>
 void
-compute_q_mn(::cuda::matrix<int>& device_perms,
+compute_q_mn(::cuda::matrix_reference<real> device_received_probs,
+             ::cuda::matrix<int>& device_perms,
              ::cuda::matrix<int>& device_qmn_row_indices,
              ::cuda::matrix<real>& device_r_mxn,
              ::cuda::matrix<real>& device_qmn_conv,
+             ::cuda::vector<int>& device_pchk_row_non_zeros,
+             ::cuda::matrix<int>& device_pchk_row_non_zeros_pos,
+             ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
              ::cuda::vector<int>& device_pchk_col_non_zeros,
              ::cuda::matrix<int>& device_pchk_col_non_zeros_pos,
              ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val,
              ::cuda::matrix<real>& device_swap_buf)
 {
+
+    dim3 block_dim, num_blocks;
+
+    int n = device_pchk_col_non_zeros.size();
+    int num_of_elements = GF_q::num_elements();
+    block_dim = dim3(32, 32);
+    // use division which truncates upwards.
+    num_blocks = dim3(-(-n / block_dim.x), -(-num_of_elements / block_dim.y));
+    compute_q_mn_kern<<<block_dim, num_blocks>>>(
+        ::cuda::matrix_reference<real>(device_received_probs),
+        ::cuda::matrix_reference<int>(device_qmn_row_indices),
+        ::cuda::matrix_reference<real>(device_r_mxn),
+        ::cuda::matrix_reference<real>(device_qmn_conv),
+        ::cuda::vector_reference<int>(device_pchk_col_non_zeros),
+        ::cuda::matrix_reference<int>(device_pchk_col_non_zeros_pos));
+
+    // TODO: Clipping and normalize
+    // TODO: FIX FROM HERE ONWARDS.
+
+    // Here we use matrix references for cheap swapping.
+    ::cuda::matrix_reference<real> src(device_r_mxn);
+    ::cuda::matrix_reference<real> dst(device_swap_buf);
+
+    int m = device_pchk_row_non_zeros.size();
+    block_dim = dim3(32, 32);
+    // use division which truncates upwards.
+    num_blocks = dim3(-(-m / block_dim.x), -(-num_of_elements / block_dim.y));
+
+    // Permute the distributions in src into dst
+    multiply_h_m_n_kern<<<block_dim, num_blocks>>>(
+        ::cuda::matrix_reference<int>(device_perms),
+        ::cuda::matrix_reference<int>(device_qmn_row_indices),
+        src,
+        dst,
+        ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
+        ::cuda::matrix_reference<int>(device_pchk_row_non_zeros_pos),
+        ::cuda::matrix_reference<GF_q>(device_pchk_row_non_zeros_val));
+    std::swap(src, dst);
+
+    // Compute Hadamard transform on the result.
+    hadamard_transform(src, dst);
+
+    // Result of the Hadamard transform is always stored in src, copy to
+    // device_qmn_conv in case src is the swap buffer.
+    device_qmn_conv = src;
 }
 
 template <class GF_q, class real>
