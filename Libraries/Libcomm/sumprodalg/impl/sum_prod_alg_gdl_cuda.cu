@@ -70,6 +70,46 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
                               int clipping_method,
                               real almost_zero);
 
+/*! \brief Initializes device arrays for SPA, particularly device_qmn_conv and
+ * device_r_mxn.
+ *
+ * device_qmn_conv is initialized using the probabilities in
+ * device_receieved_probs (permuted to account for multiplication by values in
+ * the parity check matrix).
+ *
+ * device_r_mxn is zero initialized. TODO: Use cudaMemset to zero initialize
+ * instead, also maybe we don't even need to zero initialize
+ *
+ * \param device_received_probs Prior probability distributions over GF(q) for
+ * each symbol n
+ *
+ * \param device_perms Look up table for Galois field multiplication in GF_q
+ *
+ * \param device_qmn_row_indices m x n matrix containing indices of rows of
+ * src/dst that contain distributions corresponding to (m, n).
+ *
+ * \param device_r_mxn Matrix where each row will hold the computed r_mxn
+ * message for a particular (m, n). The mapping between (m, n) and rows is given
+ * by device_qmn_row_indices.
+ *
+ * \param device_qmn_conv Matrix where each row holds the q_mxn
+ * messages (really their Hadamard transform) used to compute the "r_mxn"s for a
+ * particular (m, n). The mapping between (m, n) and rows is given by
+ * device_qmn_row_indices.
+ *
+ * \param device_pchk_row_non_zeros m-size vector containing number of non-zeros
+ * per row of the parity check matrix.
+ *
+ * \param device_pchk_row_non_zeros_pos m x max(device_pchk_row_non_zeros)
+ * matrix where each row contains the index positions (0-indexed) of non-zero
+ * values in the corresponding row of the parity check matrix. Extra slots at
+ * the end of each row are padded with zeros.
+ *
+ * \param device_pchk_row_non_zeros_val m x max(device_pchk_row_non_zeros)
+ * matrix where each row contains the values in GF_q of non-zero
+ * values in the corresponding row of the parity check matrix. Extra slots at
+ * the end of each row are padded with zeros.
+ */
 template <class GF_q, class real>
 __global__ void
 spa_init_kern(::cuda::matrix_reference<real> device_received_probs,
