@@ -292,6 +292,23 @@ void compute_q_mn(::cuda::matrix<real>& device_received_probs,
                   ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val,
                   ::cuda::matrix<real>& device_swap_buf);
 
+template <class GF_q, class real>
+__global__ void compute_probs_kern(
+    ::cuda::matrix_reference<real> device_received_probs,
+    ::cuda::matrix_reference<int> device_qmn_row_indices,
+    ::cuda::matrix_reference<real> device_r_mxn,
+    ::cuda::vector_reference<int> device_pchk_col_non_zeros,
+    ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos,
+    ::cuda::matrix_reference<GF_q> device_pchk_col_non_zeros_val);
+
+template <class GF_q, class real>
+void compute_probs(::cuda::matrix<real>& device_received_probs,
+                   ::cuda::matrix<int>& device_qmn_row_indices,
+                   ::cuda::matrix<real>& device_r_mxn,
+                   ::cuda::vector<int>& device_pchk_col_non_zeros,
+                   ::cuda::matrix<int>& device_pchk_col_non_zeros_pos,
+                   ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val);
+
 // Definitions
 // ----------------------------------------------------------
 
@@ -902,6 +919,70 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
 }
 
 template <class GF_q, class real>
+__global__ void
+compute_probs_kern(::cuda::matrix_reference<real> device_received_probs,
+                   ::cuda::matrix_reference<int> device_qmn_row_indices,
+                   ::cuda::matrix_reference<real> device_r_mxn,
+                   ::cuda::vector_reference<int> device_pchk_col_non_zeros,
+                   ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos,
+                   ::cuda::matrix_reference<GF_q> device_pchk_col_non_zeros_val)
+{
+
+    // find loop_n
+    int loop_n = blockIdx.x * blockDim.x + threadIdx.x;
+    // bounds checking
+    int n = device_pchk_col_non_zeros.size();
+    loop_n = min(loop_n, n - 1);
+
+    // find loop_e
+    int loop_e = blockIdx.y * blockDim.y + threadIdx.y;
+    // bounds checking
+    int num_of_elements = GF_q::elements();
+    loop_e = min(loop_e, num_of_elements - 1);
+
+    int non_zeros = device_pchk_col_non_zeros(loop_n);
+    // actual value of m (loop_m ranges over the number of symbols in check m)
+    int pos_m;
+    // Holds the prob computed
+    real prob;
+    for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
+        prob = 1.0;
+        pos_m = device_pchk_col_non_zeros_pos(loop_m, loop_n);
+
+        prob *= device_r_mxn(device_qmn_row_indices(pos_m, loop_n), loop_e);
+    }
+
+    device_received_probs(loop_n, loop_e) = prob;
+}
+
+template <class GF_q, class real>
+void
+compute_probs(::cuda::matrix<real>& device_received_probs,
+              ::cuda::matrix<int>& device_qmn_row_indices,
+              ::cuda::matrix<real>& device_r_mxn,
+              ::cuda::vector<int>& device_pchk_col_non_zeros,
+              ::cuda::matrix<int>& device_pchk_col_non_zeros_pos,
+              ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val)
+{
+    dim3 block_dim, num_blocks;
+
+    int n = device_pchk_col_non_zeros.size();
+    int num_of_elements = GF_q::elements();
+    block_dim = dim3(32, 32);
+    // use division which truncates upwards.
+    num_blocks = dim3(-(-n / block_dim.x), -(-num_of_elements / block_dim.y));
+    compute_probs_kern<GF_q, real><<<block_dim, num_blocks>>>(
+        ::cuda::matrix_reference<real>(device_received_probs),
+        ::cuda::matrix_reference<int>(device_qmn_row_indices),
+        ::cuda::matrix_reference<real>(device_r_mxn),
+        ::cuda::vector_reference<int>(device_pchk_col_non_zeros),
+        ::cuda::matrix_reference<int>(device_pchk_col_non_zeros_pos),
+        ::cuda::matrix_reference<GF_q>(device_pchk_col_non_zeros_val));
+
+    // TODO: Clipping and normalize...
+}
+
+template <class GF_q, class real>
 void
 sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
 {
@@ -942,7 +1023,20 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
                  this->device_pchk_col_non_zeros_val,
                  this->device_swap_buf);
 
-    // TODO: Compute probs.
+    // compute the new probabilities for all symbols given the information in
+    // this iteration. This will be used in a tentative decoding to see whether
+    // we have found a codeword
+    compute_probs(this->device_received_probs,
+                  this->device_qmn_row_indices,
+                  this->device_r_mxn,
+                  this->device_pchk_col_non_zeros,
+                  this->device_pchk_col_non_zeros_pos,
+                  this->device_pchk_col_non_zeros_val);
+
+    // Copy received probabilities from device to host.
+    for (int n = 0; n < ro.size(); n++)
+        ro(n) =
+            (libbase::vector<real>)this->device_received_probs.extract_row(n);
 }
 
 } // namespace libcomm
