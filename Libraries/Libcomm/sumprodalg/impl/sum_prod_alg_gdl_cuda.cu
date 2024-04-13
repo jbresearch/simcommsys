@@ -657,7 +657,7 @@ inline void
 hadamard_transform(::cuda::matrix_reference<real> src,
                    ::cuda::matrix_reference<real> dst)
 {
-    int num_of_elements = GF_q::num_elements();
+    int num_of_elements = GF_q::elements();
     int tanner_edges = src.get_rows();
 
     dim3 block_dim = dim3(32, 32);
@@ -667,8 +667,8 @@ hadamard_transform(::cuda::matrix_reference<real> src,
 
     int h;
     for (h = num_of_elements / 2; h > 0; h >> 1) {
-        hadamard_transform_pass_kern<<<block_dim, num_blocks>>>(
-            src, dst, tanner_edges, h);
+        hadamard_transform_pass_kern<GF_q, real>
+            <<<block_dim, num_blocks>>>(src, dst, tanner_edges, h);
 
         std::swap(src, dst);
     }
@@ -742,11 +742,11 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
     dim3 block_dim, num_blocks;
 
     int m = device_pchk_row_non_zeros.size();
-    int num_of_elements = GF_q::num_elements();
+    int num_of_elements = GF_q::elements();
     block_dim = dim3(32, 32);
     // use division which truncates upwards.
     num_blocks = dim3(-(-m / block_dim.x), -(-num_of_elements / block_dim.y));
-    compute_r_mn_kern<<<block_dim, num_blocks>>>(
+    compute_r_mn_kern<GF_q, real><<<block_dim, num_blocks>>>(
         ::cuda::matrix_reference<int>(device_qmn_row_indices),
         ::cuda::matrix_reference<real>(device_r_mxn),
         ::cuda::matrix_reference<real>(device_qmn_conv),
@@ -758,7 +758,7 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
     // Hadamard transform will always be in src.
     ::cuda::matrix_reference<real> src(device_r_mxn);
     ::cuda::matrix_reference<real> dst(device_swap_buf);
-    hadamard_transform(src, dst);
+    hadamard_transform<GF_q, real>(src, dst);
 
     block_dim = dim3(32, 32);
     // use division which truncates upwards.
@@ -858,11 +858,11 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
     dim3 block_dim, num_blocks;
 
     int n = device_pchk_col_non_zeros.size();
-    int num_of_elements = GF_q::num_elements();
+    int num_of_elements = GF_q::elements();
     block_dim = dim3(32, 32);
     // use division which truncates upwards.
     num_blocks = dim3(-(-n / block_dim.x), -(-num_of_elements / block_dim.y));
-    compute_q_mn_kern<<<block_dim, num_blocks>>>(
+    compute_q_mn_kern<GF_q, real><<<block_dim, num_blocks>>>(
         ::cuda::matrix_reference<real>(device_received_probs),
         ::cuda::matrix_reference<int>(device_qmn_row_indices),
         ::cuda::matrix_reference<real>(device_r_mxn),
@@ -894,7 +894,7 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
     std::swap(src, dst);
 
     // Compute Hadamard transform on the result.
-    hadamard_transform(src, dst);
+    hadamard_transform<GF_q, real>(src, dst);
 
     // Result of the Hadamard transform is always stored in src, copy to
     // device_qmn_conv in case src is the swap buffer.
