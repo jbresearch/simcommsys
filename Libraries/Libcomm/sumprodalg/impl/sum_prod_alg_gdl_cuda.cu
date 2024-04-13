@@ -395,6 +395,44 @@ __global__ void compute_probs_kern(
     ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos,
     ::cuda::matrix_reference<GF_q> device_pchk_col_non_zeros_val);
 
+/*! \brief Compute posterior probabilities from r_mn messages in \p device_r_mxn
+ * . The results are stored in \p device_received_probs.
+ *
+ * For a particular symbol n, the posterior probability that symbol n has value
+ * e is the product of
+ *
+ * device_r_mxn(device_qmn_row_indices(m, n), e)
+ *
+ * where m ranges over checks which symbol n participates in.
+ *
+ * \param device_receieved_probs n x |GF(q)| matrix where the posterior
+ * probability distributions will be stored.
+ *
+ * \param device_qmn_row_indices m x n matrix containing indices of rows of
+ * src/dst that contain distributions corresponding to (m, n).
+ *
+ * \param device_r_mxn Matrix where each row will hold the computed r_mxn
+ * message for a particular (m, n). The mapping between (m, n) and rows is given
+ * by \p device_qmn_row_indices.
+ *
+ * \param device_pchk_col_non_zeros n-size vector containing number of non-zeros
+ * per column of the parity check matrix.
+ *
+ * \param device_pchk_col_non_zeros_pos n x max(device_pchk_col_non_zeros)
+ * matrix where each row contains the index positions (0-indexed) of non-zero
+ * values in a column of the parity check matrix. Extra slots at
+ * the end of each row are padded with zeros.
+ *
+ * \param device_pchk_col_non_zeros_val n x max(device_pchk_col_non_zeros)
+ * matrix where each row contains the values in GF_q of non-zero
+ * values in a column of the parity check matrix. Extra slots at
+ * the end of each row are padded with zeros.
+ *
+ * \param clipping_method The clipping method used to determine which almost
+ * zero/zero values to clip.
+ *
+ * \param almost_zero Clipped values are set to this value.
+ */
 template <class GF_q, class real>
 void compute_probs(::cuda::matrix<real>& device_received_probs,
                    ::cuda::matrix<int>& device_qmn_row_indices,
