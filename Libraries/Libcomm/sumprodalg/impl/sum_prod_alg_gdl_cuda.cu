@@ -522,7 +522,6 @@ spa_init_kern(::cuda::matrix_reference<int> device_perms,
               ::cuda::matrix_reference<real> device_received_probs,
               ::cuda::matrix_reference<int> device_qmn_row_indices,
               ::cuda::matrix_reference<real> device_r_mxn,
-              ::cuda::matrix_reference<real> device_q_mxn,
               ::cuda::matrix_reference<real> device_qmn_conv,
               ::cuda::vector_reference<int> device_pchk_row_non_zeros,
               ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
@@ -559,13 +558,6 @@ spa_init_kern(::cuda::matrix_reference<int> device_perms,
         // check (non_zeros variable does not count symbols that don't
         // participate in the mth check).
         h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
-
-        // NOTE: Initially we set (probability distribution) q_mn
-        // (which is prob. of symbol n having value x given info. of all checks
-        // other than m) to simply the prior probability distribution of symbol
-        // n
-        qmn_row_idx = device_qmn_row_indices(loop_m, pos);
-        device_q_mxn(qmn_row_idx, loop_e) = device_received_probs(pos, loop_e);
 
         // In fact the probability we are given are not for the x_i but
         // for the value h_m_n*xi hence all we need to do is copy the
@@ -639,7 +631,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
                                     this->device_received_probs,
                                     this->device_qmn_row_indices,
                                     this->device_r_mxn,
-                                    this->device_q_mxn,
                                     this->device_qmn_conv,
                                     this->device_pchk_row_non_zeros,
                                     this->device_pchk_row_non_zeros_pos,

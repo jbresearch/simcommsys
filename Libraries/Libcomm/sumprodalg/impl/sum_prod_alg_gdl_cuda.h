@@ -162,8 +162,8 @@ public:
                 pchk_row_non_zeros_pos(loop_m, loop_n) = pos;
                 pchk_row_non_zeros_val(loop_m, loop_n) = val;
 
-                // assign an index in device_q_mxn, device_r_mxn and so on to a
-                // non-zero (m, n) element.
+                // assign an index in device_q_mn_conv, device_r_mxn and so on
+                // to a non-zero (m, n) element.
                 qmn_row_indices(loop_m, pos) = tanner_edges;
                 tanner_edges++;
             }
@@ -209,7 +209,6 @@ public:
 
         // Allocate required memory for r_mxn, q_mxn and qmn_conv on device.
         device_r_mxn.init(tanner_edges, num_of_elements);
-        device_q_mxn.init(tanner_edges, num_of_elements);
         device_qmn_conv.init(tanner_edges, num_of_elements);
 
         device_swap_buf.init(tanner_edges, num_of_elements);
@@ -247,12 +246,13 @@ private:
      * device_qmn_row_indices
      */
     cuda_matrixd_t device_r_mxn;
-    /*! Each row of this matrix is a probability distribution q_mn.
+    /*! Each row of this matrix is a probability distribution q_mn (or more
+     * accurately the Hadamard transform of the q_mn in usual SPA).
+     *
      * There is a row for each combination (m, n) such that bit n participates
      * in check m. The mapping between (m, n) and the rows is given by
      * device_qmn_row_indices
      */
-    cuda_matrixd_t device_q_mxn;
     cuda_matrixd_t device_qmn_conv;
     /*! This is a swap buffer used for computing the Hadamard
      * transform/permutations on device_r_mxn or device_qmn_conv.
