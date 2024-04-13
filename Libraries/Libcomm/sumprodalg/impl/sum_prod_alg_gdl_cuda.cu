@@ -279,7 +279,7 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
                   ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos);
 
 template <class GF_q, class real>
-void compute_q_mn(::cuda::matrix_reference<real> device_received_probs,
+void compute_q_mn(::cuda::matrix<real>& device_received_probs,
                   ::cuda::matrix<int>& device_perms,
                   ::cuda::matrix<int>& device_qmn_row_indices,
                   ::cuda::matrix<real>& device_r_mxn,
@@ -841,7 +841,7 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
 
 template <class GF_q, class real>
 void
-compute_q_mn(::cuda::matrix_reference<real> device_received_probs,
+compute_q_mn(::cuda::matrix<real>& device_received_probs,
              ::cuda::matrix<int>& device_perms,
              ::cuda::matrix<int>& device_qmn_row_indices,
              ::cuda::matrix<real>& device_r_mxn,
