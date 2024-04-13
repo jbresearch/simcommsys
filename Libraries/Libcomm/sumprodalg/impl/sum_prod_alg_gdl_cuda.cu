@@ -48,12 +48,39 @@ template <class real>
 __device__
 void perform_clipping(real& num, int& clipping_method, real& almost_zero);
 
+/*! \brief Kernel to apply clipping to and normalize probability distributions
+ * in a matrix.
+ *
+ * This kernel operates on a matrix where each row is a probability
+ * distribution. For each row, the kernel
+ * - Clips values close to 0 (we decide on values to be clipped based on
+ * clipping_method), and
+ * - Normalizes all values in a probability distribution so that sum of the
+ * distribution is 1.0, even after clipping.
+ *
+ * \param probs Matrix where each row is a probability distribution.
+ *
+ * \param clipping_method The clipping method used.
+ *
+ * \param almost_zero Value which clipped values are set to.
+ */
 template <class GF_q, class real>
 __global__ void
 clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
                               int clipping_method,
                               real almost_zero);
 
+/*! \brief Wrapper for clip_and_normalize_probs_kern.
+ *
+ * Takes care of the kernel call, including passing the size of dynamically
+ * allocated shared memory used by the kernel.
+ *
+ * \param probs Matrix where each row is a probability distribution.
+ *
+ * \param clipping_method The clipping method used.
+ *
+ * \param almost_zero Value which clipped values are set to.
+ */
 template <class GF_q, class real>
 void clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
                               int clipping_method,
@@ -320,7 +347,9 @@ void compute_probs(::cuda::matrix<real>& device_received_probs,
                    ::cuda::matrix<real>& device_r_mxn,
                    ::cuda::vector<int>& device_pchk_col_non_zeros,
                    ::cuda::matrix<int>& device_pchk_col_non_zeros_pos,
-                   ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val);
+                   ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val,
+                   int clipping_method,
+                   real almost_zero);
 
 // Definitions
 // ----------------------------------------------------------
