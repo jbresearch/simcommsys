@@ -54,7 +54,7 @@ void perform_clipping(real& num, int& clipping_method, real& almost_zero);
  * This kernel operates on a matrix where each row is a probability
  * distribution. For each row, the kernel
  * - Clips values close to 0 (we decide on values to be clipped based on
- * clipping_method), and
+ * \p clipping_method), and
  * - Normalizes all values in a probability distribution so that sum of the
  * distribution is 1.0, even after clipping.
  *
@@ -70,14 +70,14 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
                               int clipping_method,
                               real almost_zero);
 
-/*! \brief Initializes device arrays for SPA, particularly device_qmn_conv and
- * device_r_mxn.
+/*! \brief Initializes device arrays for SPA, particularly \p device_qmn_conv
+ * and \p device_r_mxn.
  *
- * device_qmn_conv is initialized using the probabilities in
- * device_receieved_probs (permuted to account for multiplication by values in
- * the parity check matrix).
+ * \p device_qmn_conv is initialized using the probabilities in
+ * \p device_receieved_probs (permuted to account for multiplication by values
+ * in the parity check matrix).
  *
- * device_r_mxn is zero initialized. TODO: Use cudaMemset to zero initialize
+ * \p device_r_mxn is zero initialized. TODO: Use cudaMemset to zero initialize
  * instead, also maybe we don't even need to zero initialize
  *
  * \param device_received_probs Prior probability distributions over GF(q) for
@@ -90,12 +90,11 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
  *
  * \param device_r_mxn Matrix where each row will hold the computed r_mxn
  * message for a particular (m, n). The mapping between (m, n) and rows is given
- * by device_qmn_row_indices.
+ * by \p device_qmn_row_indices.
  *
- * \param device_qmn_conv Matrix where each row holds the q_mxn
- * messages (really their Hadamard transform) used to compute the "r_mxn"s for a
- * particular (m, n). The mapping between (m, n) and rows is given by
- * device_qmn_row_indices.
+ * \param device_qmn_conv Matrix where each row holds the Hadamard transform for
+ * q_mxn messages used to compute the "r_mxn"s for a particular (m, n). The
+ * mapping between (m, n) and rows is given by \p device_qmn_row_indices.
  *
  * \param device_pchk_row_non_zeros m-size vector containing number of non-zeros
  * per row of the parity check matrix.
@@ -121,7 +120,7 @@ spa_init_kern(::cuda::matrix_reference<real> device_received_probs,
               ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
               ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val);
 
-/*! \brief Wrapper for clip_and_normalize_probs_kern.
+/*! \brief Wrapper for clip_and_normalize_probs_kern().
  *
  * Takes care of the kernel call, including passing the size of dynamically
  * allocated shared memory used by the kernel.
@@ -140,8 +139,8 @@ void clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
 /*! \brief Performs a single "butterfly" pass of the Hadamard-Walsh transform
  * over a number of probability distributions.
  *
- * The pass uses the butterfly property to permute distributions in src into dst
- * in a cache-efficient way.
+ * The pass uses the butterfly property to permute distributions in \p src into
+ * \p dst in a cache-efficient way.
  *
  * \param src n x |GF_q| matrix containing n distributions over
  * GF_q to which the transform will be applied.
@@ -151,7 +150,7 @@ void clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
  *
  * \param tanner_edges Number of distributions that transform will be applied
  * to. The name of the arg comes from the use of this function in SPA, where
- * number of dists is equal to the edges in the Tanner graph.
+ * number of distributions is equal to the edges in the Tanner graph.
  *
  * \param h Indicates the distance used in the "butterfly" pass (elements this
  * distance apart within a single row of src are combined). Starts out at
@@ -163,7 +162,7 @@ __global__ void hadamard_transform_pass_kern(::cuda::matrix_reference<real> src,
                                              int tanner_edges,
                                              int h);
 
-/*! \brief Perform a permutation of src into dst.
+/*! \brief Perform a permutation of \p src into \p dst.
  *
  * The permutation is such that for a check m and a symbol n which participates
  * in the check:
@@ -211,7 +210,7 @@ __global__ void multiply_h_m_n_kern(
     ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
     ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val);
 
-/*! \brief Perform a permutation of src into dst.
+/*! \brief Perform a permutation of \p src into \p dst.
  *
  * The permutation is such that for a check m and a symbol n which participates
  * in the check:
@@ -260,7 +259,7 @@ divide_h_m_n_kern(::cuda::matrix_reference<int> device_perms,
                   ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val);
 
 /*! \brief Compute the Hadamard transform of each "probability" distribution in
- * src, and store result in dst.
+ * \p src, and store result in \p dst.
  *
  * \param src Matrix where each row is a "probability" distribution over GF_q
  * \param dst Matrix of same dimensions as src used to store result of Hadamard
@@ -270,10 +269,10 @@ template <class GF_q, class real>
 void hadamard_transform(::cuda::matrix_reference<real> src,
                         ::cuda::matrix_reference<real> dst);
 
-/*! \brief Compute r_mxn messages from device_qmn_conv. Results are stored in
- * device_r_mxn.
+/*! \brief Compute r_mxn messages from \p device_qmn_conv. Results are stored in
+ * \p device_r_mxn.
  *
- * Note that if device_qmn_conv stores the Hadamard transform of the actual
+ * Note that if \p device_qmn_conv stores the Hadamard transform of the actual
  * "q_mxn"s, as in our impl., this kernel is not enough to compute the r_mn
  * messages, but we need to apply the Hadamard transform on its results.
  *
@@ -282,11 +281,11 @@ void hadamard_transform(::cuda::matrix_reference<real> src,
  *
  * \param device_r_mxn Matrix where each row will hold the computed r_mxn
  * message for a particular (m, n). The mapping between (m, n) and rows is given
- * by device_qmn_row_indices.
+ * by \p device_qmn_row_indices.
  *
- * \param device_qmn_conv Matrix where each row holds the q_mxn
- * messages used to compute the "r_mxn"s for a particular (m, n). The mapping
- * between (m, n) and rows is given by device_qmn_row_indices.
+ * \param device_qmn_conv Matrix where each row holds the Hadamard transform of
+ * q_mxn messages used to compute the "r_mxn"s for a particular (m, n). The
+ * mapping between (m, n) and rows is given by \p device_qmn_row_indices.
  *
  * \param device_pchk_row_non_zeros m-size vector containing number of non-zeros
  * per row of the parity check matrix.
@@ -305,11 +304,11 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
                   ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos);
 
 /*! \brief Full computation of r_mxn messages in the context of our algorithm.
- * Results are stored in device_r_mxn.
+ * Results are stored in \p device_r_mxn.
  *
  * This function takes the following steps:
- * - Uses the compute_r_mn_kern kernel to compute messages from
- * device_qmn_conv.
+ * - Uses the compute_r_mn_kern() kernel to compute messages from
+ * \p device_qmn_conv.
  *
  * - Applies the Hadamard transform to the result of the last
  * step
@@ -327,11 +326,11 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
  *
  * \param device_r_mxn Matrix where each row will hold the computed r_mxn
  * message for a particular (m, n). The mapping between (m, n) and rows is given
- * by device_qmn_row_indices.
+ * by \p device_qmn_row_indices.
  *
- * \param device_qmn_conv Matrix where each row holds the q_mxn
- * messages used to compute the "r_mxn"s for a particular (m, n). The mapping
- * between (m, n) and rows is given by device_qmn_row_indices.
+ * \param device_qmn_conv Matrix where each row holds the Hadamard transform of
+ * q_mxn messages used to compute the "r_mxn"s for a particular (m, n). The
+ * mapping between (m, n) and rows is given by \p device_qmn_row_indices.
  *
  * \param device_pchk_row_non_zeros m-size vector containing number of non-zeros
  * per row of the parity check matrix.
@@ -346,8 +345,8 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
  * values in the corresponding row of the parity check matrix. Extra slots at
  * the end of each row are padded with zeros.
  *
- * \param device_swap_buf Matrix of same size as device_r_mxn which is used as a
- * swap buffer when Hadamard transform/division by h_m_n values are being
+ * \param device_swap_buf Matrix of same size as \p device_r_mxn which is used
+ * as a swap buffer when Hadamard transform/division by h_m_n values are being
  * computed.
  */
 template <class GF_q, class real>
