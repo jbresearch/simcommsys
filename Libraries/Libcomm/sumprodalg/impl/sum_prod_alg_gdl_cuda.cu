@@ -689,6 +689,10 @@ multiply_h_m_n_kern(
     ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
     ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val)
 {
+    // src and dst need to have the same dimensions
+    cuda_assert(src.get_cols() == dst.get_cols() &&
+                src.get_rows() == dst.get_rows());
+
     // find loop_m
     int loop_m = blockIdx.x * blockDim.x + threadIdx.x;
     // bounds checking
@@ -726,6 +730,10 @@ divide_h_m_n_kern(::cuda::matrix_reference<int> device_perms,
                   ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
                   ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val)
 {
+    // src and dst need to have the same dimensions
+    cuda_assert(src.get_cols() == dst.get_cols() &&
+                src.get_rows() == dst.get_rows());
+
     // find loop_m
     int loop_m = blockIdx.x * blockDim.x + threadIdx.x;
     // bounds checking
@@ -757,6 +765,10 @@ inline void
 hadamard_transform(::cuda::matrix_reference<real> src,
                    ::cuda::matrix_reference<real> dst)
 {
+    // src and dst need to have the same dimensions
+    cuda_assert(src.get_cols() == dst.get_cols() &&
+                src.get_rows() == dst.get_rows());
+
     int num_of_elements = GF_q::elements();
     int tanner_edges = src.get_rows();
 
