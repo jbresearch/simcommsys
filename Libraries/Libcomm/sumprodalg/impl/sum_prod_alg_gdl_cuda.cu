@@ -328,34 +328,68 @@ perform_clipping(real& num, int& clipping_method, real& almost_zero)
 
 template <class GF_q, class real>
 __global__ void
-normalize_probs_kern(::cuda::matrix_reference<real> recvd_probs,
-                     int clipping_method,
-                     real almost_zero)
+clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
+                              int clipping_method,
+                              real almost_zero)
 {
+    // ranges over probability distributions in prob.
     int loop_n = blockIdx.x * blockDim.x + threadIdx.x;
-
     // bounds checking
-    int dim_n = recvd_probs.get_rows();
-    loop_n = min(loop_n, dim_n - 1);
+    int n = probs.get_rows();
+    loop_n = min(loop_n, n - 1);
 
     int num_of_elements = GF_q::elements();
     real tmp_prob;
+
+    // partial sums for each thread.
+    // Using a simple declaration here like
+    // extern __shared__ real partial_sums[]
+    // does not work, because CUDA will attempt to create the same global symbol
+    // for all template instantiations. Therefore we follow solution given in
+    // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
+    // i.e. create a single extern shared byte array, and then reinterpret as
+    // needed.
+    extern __shared__ __align__(sizeof(real)) unsigned char partial_sums_raw[];
+    real* partial_sums = reinterpret_cast<real*>(partial_sums_raw);
+
+    // smallest idx for threads within a block which share same threadIdx.x.
+    int sum_idx_base = threadIdx.x * blockDim.x;
+    // idx for partial sum accumulated by this thread.
+    int sum_idx = sum_idx_base + threadIdx.y;
     real alpha = real(0.0);
 
     // perform clipping of zero values to almost zero
-    // also accumulate the sum of all probabilities into alpha
-    for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
+    // also accumulate the sum of all probabilities
+    // Each thread accumulates its own partial sum, and these are later
+    // accumulated into alpha.
+    for (int loop_e = 0; loop_e < num_of_elements; loop_e += blockDim.y) {
+        int thread_loop_e = loop_e + threadIdx.y;
+        // should we include the result from this thread in partial sum or is it
+        // out of range
+        bool include_in_partial_sum = thread_loop_e < num_of_elements;
+        // Bounds check.
+        thread_loop_e = min(thread_loop_e, num_of_elements - 1);
         // Clipping HACK
-        tmp_prob = recvd_probs(loop_n, loop_e);
+        tmp_prob = probs(loop_n, thread_loop_e);
         perform_clipping(tmp_prob, clipping_method, almost_zero);
-        recvd_probs(loop_n, loop_e) = tmp_prob;
-        alpha += tmp_prob;
+        probs(loop_n, thread_loop_e) = tmp_prob;
+        partial_sums[sum_idx] += include_in_partial_sum * tmp_prob;
     }
+
+    // linear reduce of partial sums; negligible cost
+    for (int i = 0; i < blockDim.y; i++)
+        alpha += partial_sums[sum_idx_base + i];
+
+    // reduce partial sums into one total sum
     cuda_assertalways(alpha != real(0.0));
 
     // normalize probabilities (divide by alpha)
-    for (int loop_e = 0; loop_e < num_of_elements; loop_e++)
-        recvd_probs(loop_n, loop_e) /= alpha;
+    for (int loop_e = 0; loop_e < num_of_elements; loop_e += blockDim.y) {
+        int thread_loop_e = loop_e + threadIdx.y;
+        // Bounds check.
+        thread_loop_e = min(thread_loop_e, num_of_elements - 1);
+        probs(loop_n, thread_loop_e) /= alpha;
+    }
 }
 
 /*! \brief compute the Fast Hadamard transform
@@ -512,14 +546,15 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
     for (int loop_n = 0; loop_n < dim_n; loop_n++)
         this->device_received_probs.extract_row(loop_n) = recvd_probs(loop_n);
 
-    block_dim = dim3(1024);
+    block_dim = dim3(16, 32);
     // use division which truncates upwards.
-    num_blocks = dim3(-(-dim_n / block_dim.x));
+    num_blocks = dim3(-(-dim_n / block_dim.x), 1);
     // normalize probabilities (and also convert zeros to almost zeros)
-    normalize_probs_kern<GF_q, real><<<block_dim, num_blocks>>>(
-        ::cuda::matrix_reference<real>(device_received_probs),
-        this->clipping_method,
-        this->almostzero);
+    clip_and_normalize_probs_kern<GF_q, real>
+        <<<block_dim, num_blocks, sizeof(real) * block_dim.y * block_dim.x>>>(
+            ::cuda::matrix_reference<real>(device_received_probs),
+            this->clipping_method,
+            this->almostzero);
 
     // TODO: Fix this.
 #if DEBUG >= 2
