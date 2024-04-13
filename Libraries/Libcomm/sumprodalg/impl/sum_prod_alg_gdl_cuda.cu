@@ -905,6 +905,44 @@ template <class GF_q, class real>
 void
 sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
 {
+    // carry out the horizontal step
+    // this uses the description of the algorithm as given by
+    // MacKay in Information Theory, Inference and Learning Algorithms(2003)
+    // on page 560 - chapter 47.3
+
+    // r_mxn(0)=\sum_{x_n'|n'\in N(m)\n'} ( P(z_m=0|x_n=0) * \prod_{n'\in
+    // N(m)\n}q_mxn(x_{n') ) Essentially, what we are doing is the following:
+    // Assume x_n=0
+    // we need to sum over all possibilities that such that the parity check is
+    // satisfied, ie =0 if the parity check is satisfied the conditional
+    // probability is 1 and 0 otherwise so we are simply adding up the products
+    // for which the parity check is satisfied.
+
+    compute_r_mn(this->device_perms,
+                 this->device_qmn_row_indices,
+                 this->device_r_mxn,
+                 this->device_qmn_conv,
+                 this->device_pchk_row_non_zeros,
+                 this->device_pchk_row_non_zeros_pos,
+                 this->device_pchk_row_non_zeros_val,
+                 this->device_swap_buf);
+
+    // loop over all the symbol nodes - the vertical step
+
+    compute_q_mn(this->device_received_probs,
+                 this->device_perms,
+                 this->device_qmn_row_indices,
+                 this->device_r_mxn,
+                 this->device_qmn_conv,
+                 this->device_pchk_row_non_zeros,
+                 this->device_pchk_row_non_zeros_pos,
+                 this->device_pchk_row_non_zeros_val,
+                 this->device_pchk_col_non_zeros,
+                 this->device_pchk_col_non_zeros_pos,
+                 this->device_pchk_col_non_zeros_val,
+                 this->device_swap_buf);
+
+    // TODO: Compute probs.
 }
 
 } // namespace libcomm
