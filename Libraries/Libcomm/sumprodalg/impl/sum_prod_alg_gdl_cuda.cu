@@ -21,9 +21,11 @@
 
 #include "cuda/cuda_assert.h"
 #include "cuda/matrix.h"
+#include "cuda/util.h"
 #include "cuda/vector.h"
 #include "gf.h"
 #include "sum_prod_alg_gdl_cuda.h"
+#include "vector.h"
 #include <cmath>
 #include <limits>
 
@@ -550,11 +552,13 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
     // use division which truncates upwards.
     num_blocks = dim3(-(-dim_n / block_dim.x), 1);
     // normalize probabilities (and also convert zeros to almost zeros)
+
     clip_and_normalize_probs_kern<GF_q, real>
         <<<block_dim, num_blocks, sizeof(real) * block_dim.y * block_dim.x>>>(
             ::cuda::matrix_reference<real>(device_received_probs),
             this->clipping_method,
             this->almostzero);
+    cudaSafeCall(cudaGetLastError());
 
     // TODO: Fix this.
 #if DEBUG >= 2
@@ -588,6 +592,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
                                     this->device_pchk_row_non_zeros,
                                     this->device_pchk_row_non_zeros_pos,
                                     this->device_pchk_row_non_zeros_val);
+    cudaSafeCall(cudaGetLastError());
 
     // TODO: Fix this.
 #if DEBUG >= 2
@@ -721,6 +726,7 @@ hadamard_transform(::cuda::matrix_reference<real> src,
     for (h = num_of_elements / 2; h > 0; h >> 1) {
         hadamard_transform_pass_kern<GF_q, real>
             <<<block_dim, num_blocks>>>(src, dst, tanner_edges, h);
+        cudaSafeCall(cudaGetLastError());
 
         std::swap(src, dst);
     }
@@ -804,6 +810,7 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
         ::cuda::matrix_reference<real>(device_qmn_conv),
         ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
         ::cuda::matrix_reference<int>(device_pchk_row_non_zeros_pos));
+    cudaSafeCall(cudaGetLastError());
 
     // apply the FFT again to get the proper values
     // Here we use matrix references for cheap swapping. The result of the
@@ -826,6 +833,7 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
         ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
         ::cuda::matrix_reference<int>(device_pchk_row_non_zeros_pos),
         ::cuda::matrix_reference<GF_q>(device_pchk_row_non_zeros_val));
+    cudaSafeCall(cudaGetLastError());
 
     // dst could be device_r_mxn or device_swap_buf depending on whether no. of
     // passes in Hadamard transform is even or odd. We copy back to device_r_mxn
@@ -921,6 +929,7 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
         ::cuda::matrix_reference<real>(device_qmn_conv),
         ::cuda::vector_reference<int>(device_pchk_col_non_zeros),
         ::cuda::matrix_reference<int>(device_pchk_col_non_zeros_pos));
+    cudaSafeCall(cudaGetLastError());
 
     // TODO: Clipping and normalize
     // TODO: FIX FROM HERE ONWARDS.
@@ -943,6 +952,7 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
         ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
         ::cuda::matrix_reference<int>(device_pchk_row_non_zeros_pos),
         ::cuda::matrix_reference<GF_q>(device_pchk_row_non_zeros_val));
+    cudaSafeCall(cudaGetLastError());
     std::swap(src, dst);
 
     // Compute Hadamard transform on the result.
@@ -1013,6 +1023,7 @@ compute_probs(::cuda::matrix<real>& device_received_probs,
         ::cuda::vector_reference<int>(device_pchk_col_non_zeros),
         ::cuda::matrix_reference<int>(device_pchk_col_non_zeros_pos),
         ::cuda::matrix_reference<GF_q>(device_pchk_col_non_zeros_val));
+    cudaSafeCall(cudaGetLastError());
 
     // TODO: Clipping and normalize...
 }
