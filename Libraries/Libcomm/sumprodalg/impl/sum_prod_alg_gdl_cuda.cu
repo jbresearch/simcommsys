@@ -1007,7 +1007,9 @@ compute_probs(::cuda::matrix<real>& device_received_probs,
               ::cuda::matrix<real>& device_r_mxn,
               ::cuda::vector<int>& device_pchk_col_non_zeros,
               ::cuda::matrix<int>& device_pchk_col_non_zeros_pos,
-              ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val)
+              ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val,
+              int clipping_method,
+              real almost_zero)
 {
     dim3 block_dim, num_blocks;
 
@@ -1025,7 +1027,16 @@ compute_probs(::cuda::matrix<real>& device_received_probs,
         ::cuda::matrix_reference<GF_q>(device_pchk_col_non_zeros_val));
     cudaSafeCall(cudaGetLastError());
 
-    // TODO: Clipping and normalize...
+    // Normalize the computed probabilities.
+    block_dim = dim3(16, 32);
+    // use division which truncates upwards.
+    num_blocks = dim3(-(-n / block_dim.x), 1);
+    clip_and_normalize_probs_kern<GF_q, real>
+        <<<block_dim, num_blocks, sizeof(real) * block_dim.y * block_dim.x>>>(
+            ::cuda::matrix_reference<real>(device_received_probs),
+            clipping_method,
+            almost_zero);
+    cudaSafeCall(cudaGetLastError());
 }
 
 template <class GF_q, class real>
@@ -1077,7 +1088,9 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
                   this->device_r_mxn,
                   this->device_pchk_col_non_zeros,
                   this->device_pchk_col_non_zeros_pos,
-                  this->device_pchk_col_non_zeros_val);
+                  this->device_pchk_col_non_zeros_val,
+                  this->clipping_method,
+                  this->almostzero);
 
     // Copy received probabilities from device to host.
     for (int n = 0; n < ro.size(); n++)
