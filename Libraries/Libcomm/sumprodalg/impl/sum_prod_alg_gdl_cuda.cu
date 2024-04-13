@@ -48,6 +48,17 @@ template <class real>
 __device__
 void perform_clipping(real& num, int& clipping_method, real& almost_zero);
 
+template <class GF_q, class real>
+__global__ void
+clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
+                              int clipping_method,
+                              real almost_zero);
+
+template <class GF_q, class real>
+void clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
+                              int clipping_method,
+                              real almost_zero);
+
 /*! \brief Performs a single "butterfly" pass of the Hadamard-Walsh transform
  * over a number of probability distributions.
  *
@@ -178,8 +189,8 @@ divide_h_m_n_kern(::cuda::matrix_reference<int> device_perms,
  * transforms.
  */
 template <class GF_q, class real>
-inline void hadamard_transform(::cuda::matrix_reference<real> src,
-                               ::cuda::matrix_reference<real> dst);
+void hadamard_transform(::cuda::matrix_reference<real> src,
+                        ::cuda::matrix_reference<real> dst);
 
 /*! \brief Compute r_mxn messages from device_qmn_conv. Results are stored in
  * device_r_mxn.
@@ -394,6 +405,23 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
     }
 }
 
+template <class GF_q, class real>
+inline void
+clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
+                         int clipping_method,
+                         real almost_zero)
+{
+    int n = probs.get_rows();
+
+    dim3 block_dim(16, 32);
+    dim3 num_blocks(-(-n / block_dim.x), 1);
+
+    clip_and_normalize_probs_kern<GF_q, real>
+        <<<block_dim, num_blocks, sizeof(real) * block_dim.y * block_dim.x>>>(
+            probs, clipping_method, almost_zero);
+    cudaSafeCall(cudaGetLastError());
+}
+
 /*! \brief compute the Fast Hadamard transform
  * This method will compute the Fast Fourier Transform of the
  * elements passed in through conv_out. It does this recursively.
@@ -548,17 +576,8 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
     for (int loop_n = 0; loop_n < dim_n; loop_n++)
         this->device_received_probs.extract_row(loop_n) = recvd_probs(loop_n);
 
-    block_dim = dim3(16, 32);
-    // use division which truncates upwards.
-    num_blocks = dim3(-(-dim_n / block_dim.x), 1);
-    // normalize probabilities (and also convert zeros to almost zeros)
-
-    clip_and_normalize_probs_kern<GF_q, real>
-        <<<block_dim, num_blocks, sizeof(real) * block_dim.y * block_dim.x>>>(
-            ::cuda::matrix_reference<real>(device_received_probs),
-            this->clipping_method,
-            this->almostzero);
-    cudaSafeCall(cudaGetLastError());
+    clip_and_normalize_probs<GF_q, real>(
+        this->device_received_probs, this->clipping_method, this->almostzero);
 
     // TODO: Fix this.
 #if DEBUG >= 2
@@ -1028,15 +1047,8 @@ compute_probs(::cuda::matrix<real>& device_received_probs,
     cudaSafeCall(cudaGetLastError());
 
     // Normalize the computed probabilities.
-    block_dim = dim3(16, 32);
-    // use division which truncates upwards.
-    num_blocks = dim3(-(-n / block_dim.x), 1);
-    clip_and_normalize_probs_kern<GF_q, real>
-        <<<block_dim, num_blocks, sizeof(real) * block_dim.y * block_dim.x>>>(
-            ::cuda::matrix_reference<real>(device_received_probs),
-            clipping_method,
-            almost_zero);
-    cudaSafeCall(cudaGetLastError());
+    clip_and_normalize_probs<GF_q, real>(
+        device_received_probs, clipping_method, almost_zero);
 }
 
 template <class GF_q, class real>
