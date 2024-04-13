@@ -70,6 +70,17 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
                               int clipping_method,
                               real almost_zero);
 
+template <class GF_q, class real>
+__global__ void
+spa_init_kern(::cuda::matrix_reference<real> device_received_probs,
+              ::cuda::matrix_reference<int> device_perms,
+              ::cuda::matrix_reference<int> device_qmn_row_indices,
+              ::cuda::matrix_reference<real> device_r_mxn,
+              ::cuda::matrix_reference<real> device_qmn_conv,
+              ::cuda::vector_reference<int> device_pchk_row_non_zeros,
+              ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
+              ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val);
+
 /*! \brief Wrapper for clip_and_normalize_probs_kern.
  *
  * Takes care of the kernel call, including passing the size of dynamically
@@ -455,71 +466,10 @@ clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
     cudaSafeCall(cudaGetLastError());
 }
 
-/*! \brief compute the Fast Hadamard transform
- * This method will compute the Fast Fourier Transform of the
- * elements passed in through conv_out. It does this recursively.
- * Note the result is equivalent to the following matrix-vector
- * multiplication:
- * Let m be the size of conv_out, ie m=|GF_q|=power of 2
- * Let H_m be the standard (mxm)-Hadamard matrix, ie
- * H_2k=H_2 "*" H_k where "*" is the Kronecker product of 2 matrices and
- *      [ 1   1 ]
- * H_2= [       ]
- *      [ 1  -1 ]
- * then the result of this method is equal to H_m*conv_out^t where
- * conv_out^t is the transpose of the conv_out vector
- *
- */
-template <class real>
-__device__
-void
-compute_convs(::cuda::vector_reference<real> conv_out, int pos1, int pos2)
-{
-    // this is in fact the Hadamard transform using the butterfly property
-    // of the fast Fourier transform.
-    if ((pos2 - pos1) == 1) {
-        real tmp1 = conv_out(pos1);
-        real tmp2 = conv_out(pos2);
-        conv_out(pos1) = tmp1 + tmp2;
-        conv_out(pos2) = tmp1 - tmp2;
-    } else {
-        int midpoint = pos1 + (pos2 - pos1 + 1) / 2;
-        // NOTE: Compute H_{m-1}x_u, and store in first half of conv_out
-        // Here H_{m-1} is a Hadamard matrix one less than the current one,
-        // and x_u is upper half of conv_out
-        compute_convs(conv_out, pos1, midpoint - 1);
-        // NOTE: Compute H_{m-1}x_b, and store in second half of conv_out
-        // Here H_{m-1} is a Hadamard matrix one less than the current one,
-        // and x_b is lower half of conv_out
-        compute_convs(conv_out, midpoint, pos2);
-        pos2 = midpoint;
-        // NOTE: Iterate over H_{m-1}x_u and H_{m-1}x_b at the same time.
-        // Both are vectors of length 2^{m-1} stored in upper and lower half
-        // of conv_out.
-        for (int loop1 = pos1; loop1 < midpoint; loop1++) {
-            // NOTE: Get (H_{m-1}x_u)[i]
-            real tmp1 = conv_out(loop1);
-            // NOTE: Get (H_{m-1}x_b)[i]
-            real tmp2 = conv_out(pos2);
-            // NOTE: Here we are effectively computing ith and i + 2^{m-1}th
-            // elements of the transform:
-
-            // [H_{m-1}     H_{m-1}] [x_u] = [H_{m-1}x_u + H_{m-1}x_b]
-            //  [H_{m-1}    -H_{m-1}] [x_b]   [H_{m-1}x_u - H_{m-1}x_b]
-
-            // NOTE: Compute (H_{m-1}x_u)[i] + (H_{m-1}x_b)[i]
-            conv_out(loop1) = tmp1 + tmp2;
-            // NOTE: Compute (H_{m-1}x_u)[i] - (H_{m-1}x_b)[i]
-            conv_out(pos2) = tmp1 - tmp2;
-            pos2++;
-        }
-    }
-}
-
 template <class GF_q, class real>
 __global__ void
-spa_init_kern(::cuda::matrix_reference<int> device_perms,
-              ::cuda::matrix_reference<real> device_received_probs,
+spa_init_kern(::cuda::matrix_reference<real> device_received_probs,
+              ::cuda::matrix_reference<int> device_perms,
               ::cuda::matrix_reference<int> device_qmn_row_indices,
               ::cuda::matrix_reference<real> device_r_mxn,
               ::cuda::matrix_reference<real> device_qmn_conv,
@@ -559,6 +509,9 @@ spa_init_kern(::cuda::matrix_reference<int> device_perms,
         // participate in the mth check).
         h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
 
+        // get index into device_qmn_conv and device_r_mxn
+        qmn_row_idx = device_qmn_row_indices(loop_m, pos);
+
         // In fact the probability we are given are not for the x_i but
         // for the value h_m_n*xi hence all we need to do is copy the
         // values into the array with a slightly amended index:
@@ -574,9 +527,6 @@ spa_init_kern(::cuda::matrix_reference<int> device_perms,
         // it in the qmn_conv array.
         device_qmn_conv(qmn_row_idx, device_perms(h_m_n, loop_e)) =
             device_received_probs(pos, loop_e);
-
-        compute_convs(
-            device_qmn_conv.extract_row(qmn_row_idx), 0, num_of_elements - 1);
 
         // r_mxn is initialized as 0.
         device_r_mxn(qmn_row_idx, loop_e) = 0.0;
@@ -627,8 +577,8 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
     num_blocks =
         dim3(-(-dim_n / block_dim.x), -(-num_of_elements / block_dim.y));
     spa_init_kern<GF_q, real>
-        <<<block_dim, num_blocks>>>(this->device_perms,
-                                    this->device_received_probs,
+        <<<block_dim, num_blocks>>>(this->device_received_probs,
+                                    this->device_perms,
                                     this->device_qmn_row_indices,
                                     this->device_r_mxn,
                                     this->device_qmn_conv,
@@ -636,6 +586,17 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
                                     this->device_pchk_row_non_zeros_pos,
                                     this->device_pchk_row_non_zeros_val);
     cudaSafeCall(cudaGetLastError());
+
+    // apply the FFT again to get the proper values
+    // Here we use matrix references for cheap swapping. The result of the
+    // Hadamard transform will always be in src.
+    ::cuda::matrix_reference<real> src(device_qmn_conv);
+    ::cuda::matrix_reference<real> dst(device_swap_buf);
+    hadamard_transform<GF_q, real>(src, dst);
+
+    // Result of the Hadamard transform is always stored in src, copy to
+    // device_qmn_conv in case src is the swap buffer.
+    device_qmn_conv = src;
 
     // TODO: Fix this.
 #if DEBUG >= 2
