@@ -307,7 +307,9 @@ void compute_r_mn(::cuda::matrix<int>& device_perms,
                   ::cuda::vector<int>& device_pchk_row_non_zeros,
                   ::cuda::matrix<int>& device_pchk_row_non_zeros_pos,
                   ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
-                  ::cuda::matrix<real>& device_swap_buf);
+                  ::cuda::matrix<real>& device_swap_buf,
+                  int clipping_method,
+                  real almost_zero);
 
 template <class GF_q, class real>
 __global__ void
@@ -330,7 +332,9 @@ void compute_q_mn(::cuda::matrix<real>& device_received_probs,
                   ::cuda::vector<int>& device_pchk_col_non_zeros,
                   ::cuda::matrix<int>& device_pchk_col_non_zeros_pos,
                   ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val,
-                  ::cuda::matrix<real>& device_swap_buf);
+                  ::cuda::matrix<real>& device_swap_buf,
+                  int clipping_method,
+                  real almost_zero);
 
 template <class GF_q, class real>
 __global__ void compute_probs_kern(
@@ -843,7 +847,9 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
              ::cuda::vector<int>& device_pchk_row_non_zeros,
              ::cuda::matrix<int>& device_pchk_row_non_zeros_pos,
              ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
-             ::cuda::matrix<real>& device_swap_buf)
+             ::cuda::matrix<real>& device_swap_buf,
+             int clipping_method,
+             real almost_zero)
 {
     dim3 block_dim, num_blocks;
 
@@ -888,7 +894,11 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
     // to make sure the result is in the right array.
     device_r_mxn = dst;
 
-    // TODO: clipping + renormalization of r_mxn.
+    // Apply clipping + normalization to the computed r_mn values.
+    clip_and_normalize_probs<GF_q, real>(
+        ::cuda::matrix_reference<real>(device_r_mxn),
+        clipping_method,
+        almost_zero);
 }
 
 template <class GF_q, class real>
@@ -960,7 +970,9 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
              ::cuda::vector<int>& device_pchk_col_non_zeros,
              ::cuda::matrix<int>& device_pchk_col_non_zeros_pos,
              ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val,
-             ::cuda::matrix<real>& device_swap_buf)
+             ::cuda::matrix<real>& device_swap_buf,
+             int clipping_method,
+             real almost_zero)
 {
 
     dim3 block_dim, num_blocks;
@@ -979,8 +991,11 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
         ::cuda::matrix_reference<int>(device_pchk_col_non_zeros_pos));
     cudaSafeCall(cudaGetLastError());
 
-    // TODO: Clipping and normalize
-    // TODO: FIX FROM HERE ONWARDS.
+    // Apply clipping + normalization to the computed q_mn values.
+    clip_and_normalize_probs<GF_q, real>(
+        ::cuda::matrix_reference<real>(device_qmn_conv),
+        clipping_method,
+        almost_zero);
 
     // Here we use matrix references for cheap swapping.
     ::cuda::matrix_reference<real> src(device_r_mxn);
@@ -1104,7 +1119,9 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
                  this->device_pchk_row_non_zeros,
                  this->device_pchk_row_non_zeros_pos,
                  this->device_pchk_row_non_zeros_val,
-                 this->device_swap_buf);
+                 this->device_swap_buf,
+                 this->clipping_method,
+                 this->almostzero);
 
     // loop over all the symbol nodes - the vertical step
 
@@ -1119,7 +1136,9 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
                  this->device_pchk_col_non_zeros,
                  this->device_pchk_col_non_zeros_pos,
                  this->device_pchk_col_non_zeros_val,
-                 this->device_swap_buf);
+                 this->device_swap_buf,
+                 this->clipping_method,
+                 this->almostzero);
 
     // compute the new probabilities for all symbols given the information in
     // this iteration. This will be used in a tentative decoding to see whether
