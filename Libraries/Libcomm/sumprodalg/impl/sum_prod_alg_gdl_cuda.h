@@ -19,8 +19,8 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SUM_PROD_ALG_GDL_H_
-#define SUM_PROD_ALG_GDL_H_
+#ifndef SUM_PROD_ALG_GDL_CUDA_H_
+#define SUM_PROD_ALG_GDL_CUDA_H_
 
 #include "../sum_prod_alg_inf.h"
 #include "cuda/matrix.h"
@@ -321,4 +321,4 @@ private:
 
 } // namespace libcomm
 
-#endif /* SUM_PROD_ALG_GDL_H_ */
+#endif /* SUM_PROD_ALG_GDL_CUDA_H_ */
