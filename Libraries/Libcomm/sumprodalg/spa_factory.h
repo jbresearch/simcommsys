@@ -36,11 +36,12 @@ namespace libcomm
 {
 /*! \brief factory to return the desired SPA implementation
  * This factory allows the user to choose the SPA implementation
- * required for the code. Two choices are currently supported:
- * trad and gdl
+ * required for the code. Three choices are currently supported:
+ * trad, gdl and gdl_cuda
  * trad is computationally expensive but easy to understand
  * gdl uses Fast Hadamard/Fourier Transforms to speed up the
  * computations.
+ * gdl_cuda is an optimized port of gdl to CUDA C/C++
  */
 template <class GF_q, class real = double>
 class spa_factory
