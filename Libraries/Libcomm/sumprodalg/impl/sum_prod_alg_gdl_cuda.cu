@@ -454,8 +454,10 @@ void compute_probs(::cuda::matrix<real>& device_received_probs,
 
 template <class GF_q>
 __global__ void
-compute_perms(::cuda::matrix_reference<int> perms, int num_of_elements)
+compute_perms(::cuda::matrix_reference<int> perms)
 {
+    int num_of_elements = GF_q::elements();
+
     // use 1D index to take advantage of memory layout of perms (row-major)
     // Note that there is no need for bounds checking here since num_of_elements
     // is always a power of two. Hence granted blockDim is a power of two as
@@ -489,7 +491,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     // num_of_elements is divided perfectly by blockDim.
     compute_perms<GF_q>
         <<<block_dim, ((num_of_elements * num_of_elements) >> log_block_dim)>>>(
-            ::cuda::matrix_reference<int>(device_perms), num_of_elements);
+            ::cuda::matrix_reference<int>(device_perms));
 
     // we first build qmn_row_indices on the host, then copy to device.
     // Easier since this operation is inherently serial (we have a counter
