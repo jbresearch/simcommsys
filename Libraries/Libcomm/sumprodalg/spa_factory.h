@@ -25,6 +25,7 @@
 #include "matrix.h"
 #include "sum_prod_alg_inf.h"
 #include "sumprodalg/impl/sum_prod_alg_gdl.h"
+#include "sumprodalg/impl/sum_prod_alg_gdl_cuda.h"
 #include "sumprodalg/impl/sum_prod_alg_trad.h"
 
 #include "logrealfast.h"
@@ -69,6 +70,10 @@ public:
         } else if ("gdl" == type) {
             spa_ptr = std::shared_ptr<sum_prod_alg_inf<GF_q, real>>(
                 new sum_prod_alg_gdl<GF_q, real>(
+                    n, m, non_zero_col_pos, non_zero_row_pos, pchk_matrix));
+        } else if ("gdl_cuda" == type) {
+            spa_ptr = std::shared_ptr<sum_prod_alg_inf<GF_q, real>>(
+                new sum_prod_alg_gdl_cuda<GF_q, real>(
                     n, m, non_zero_col_pos, non_zero_row_pos, pchk_matrix));
         } else {
             std::string error_msg(type + " is not a valid SPA type");
