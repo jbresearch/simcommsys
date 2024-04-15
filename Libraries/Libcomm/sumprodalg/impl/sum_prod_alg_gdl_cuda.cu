@@ -544,37 +544,42 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
 
     // Populate qmn_row_indices
     // Also populate the rest of the parity check matrix repr. on the host.
-    int pos = 0;
+    // Actual n value, since loop_n is just an index ranging over the number of
+    // non-zero values in a row of pchk_matrix.
+    int pos_n;
     GF_q val;
     for (int loop_m = 0; loop_m < m; loop_m++) {
         // non-zeros for this row of the parity check matrix
         non_zeros = pchk_row_non_zeros(loop_m);
 
         for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-            pos = non_zero_row_pos(loop_m)(loop_n) - 1; // we count from zero;
-            val = pchk_matrix(loop_m, pos);
+            pos_n = non_zero_row_pos(loop_m)(loop_n) - 1; // we count from zero;
+            val = pchk_matrix(loop_m, pos_n);
 
             // populate other pchk matrix fields on the host.
-            pchk_row_non_zeros_pos(loop_m, loop_n) = pos;
+            pchk_row_non_zeros_pos(loop_m, loop_n) = pos_n;
             pchk_row_non_zeros_val(loop_m, loop_n) = val;
 
             // assign an index in device_q_mn_conv, device_r_mxn and so on
             // to a non-zero (m, n) element.
-            qmn_row_indices(loop_m, pos) = tanner_edges;
+            qmn_row_indices(loop_m, pos_n) = tanner_edges;
             tanner_edges++;
         }
     }
 
+    // Actual m value, since loop_m is just an index ranging over the number of
+    // non-zero values in a column of pchk_matrix.
+    int pos_m;
     for (int loop_n = 0; loop_n < n; loop_n++) {
         // non-zeros for this col of the parity check matrix
         non_zeros = pchk_col_non_zeros(loop_n);
 
         for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
-            pos = non_zero_col_pos(loop_n)(loop_m) - 1; // we count from zero;
-            val = pchk_matrix(loop_n, pos);
+            pos_m = non_zero_col_pos(loop_n)(loop_m) - 1; // we count from zero;
+            val = pchk_matrix(pos_m, loop_n);
 
             // populate other pchk matrix fields on the host.
-            pchk_col_non_zeros_pos(loop_n, loop_m) = pos;
+            pchk_col_non_zeros_pos(loop_n, loop_m) = pos_m;
             pchk_col_non_zeros_val(loop_n, loop_m) = val;
         }
     }
@@ -701,7 +706,7 @@ clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
     dim3 num_blocks(-(-n / block_dim.x), 1);
 
     clip_and_normalize_probs_kern<GF_q, real>
-        <<<block_dim, num_blocks, sizeof(real) * block_dim.y * block_dim.x>>>(
+        <<<num_blocks, block_dim, sizeof(real) * block_dim.y * block_dim.x>>>(
             probs, clipping_method, almost_zero);
     cudaSafeCall(cudaGetLastError());
 }
@@ -817,7 +822,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
     num_blocks =
         dim3(-(-dim_n / block_dim.x), -(-num_of_elements / block_dim.y));
     spa_init_kern<GF_q, real>
-        <<<block_dim, num_blocks>>>(this->device_received_probs,
+        <<<num_blocks, block_dim>>>(this->device_received_probs,
                                     this->device_perms,
                                     this->device_qmn_row_indices,
                                     this->device_r_mxn,
@@ -981,7 +986,7 @@ hadamard_transform(::cuda::matrix_reference<real> src,
     int h;
     for (h = num_of_elements / 2; h > 0; h >> 1) {
         hadamard_transform_pass_kern<GF_q, real>
-            <<<block_dim, num_blocks>>>(src, dst, tanner_edges, h);
+            <<<num_blocks, block_dim>>>(src, dst, tanner_edges, h);
         cudaSafeCall(cudaGetLastError());
 
         std::swap(src, dst);
@@ -1062,7 +1067,7 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
     block_dim = dim3(32, 32);
     // use division which truncates upwards.
     num_blocks = dim3(-(-m / block_dim.x), -(-num_of_elements / block_dim.y));
-    compute_r_mn_kern<GF_q, real><<<block_dim, num_blocks>>>(
+    compute_r_mn_kern<GF_q, real><<<num_blocks, block_dim>>>(
         ::cuda::matrix_reference<int>(device_qmn_row_indices),
         ::cuda::matrix_reference<real>(device_r_mxn),
         ::cuda::matrix_reference<real>(device_qmn_conv),
@@ -1083,7 +1088,7 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
 
     // Permute the distributions in src (transformed by the Hadamard transform)
     // into dst
-    divide_h_m_n_kern<<<block_dim, num_blocks>>>(
+    divide_h_m_n_kern<<<num_blocks, block_dim>>>(
         ::cuda::matrix_reference<int>(device_perms),
         ::cuda::matrix_reference<int>(device_qmn_row_indices),
         src,
@@ -1186,7 +1191,7 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
     block_dim = dim3(32, 32);
     // use division which truncates upwards.
     num_blocks = dim3(-(-n / block_dim.x), -(-num_of_elements / block_dim.y));
-    compute_q_mn_kern<GF_q, real><<<block_dim, num_blocks>>>(
+    compute_q_mn_kern<GF_q, real><<<num_blocks, block_dim>>>(
         ::cuda::matrix_reference<real>(device_received_probs),
         ::cuda::matrix_reference<int>(device_qmn_row_indices),
         ::cuda::matrix_reference<real>(device_r_mxn),
@@ -1211,7 +1216,7 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
     num_blocks = dim3(-(-m / block_dim.x), -(-num_of_elements / block_dim.y));
 
     // Permute the distributions in src into dst
-    multiply_h_m_n_kern<<<block_dim, num_blocks>>>(
+    multiply_h_m_n_kern<<<num_blocks, block_dim>>>(
         ::cuda::matrix_reference<int>(device_perms),
         ::cuda::matrix_reference<int>(device_qmn_row_indices),
         src,
@@ -1285,7 +1290,7 @@ compute_probs(::cuda::matrix<real>& device_received_probs,
     block_dim = dim3(32, 32);
     // use division which truncates upwards.
     num_blocks = dim3(-(-n / block_dim.x), -(-num_of_elements / block_dim.y));
-    compute_probs_kern<GF_q, real><<<block_dim, num_blocks>>>(
+    compute_probs_kern<GF_q, real><<<num_blocks, block_dim>>>(
         ::cuda::matrix_reference<real>(device_received_probs),
         ::cuda::matrix_reference<int>(device_qmn_row_indices),
         ::cuda::matrix_reference<real>(device_r_mxn),
