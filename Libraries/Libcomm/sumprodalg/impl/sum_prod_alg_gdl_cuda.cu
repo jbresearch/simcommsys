@@ -482,7 +482,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
 
     device_perms.init(num_of_elements, num_of_elements);
 
-    int log_block_dim = 5;
+    int log_block_dim = 10;
     int block_dim = 1 << log_block_dim;
     // we can use shift for dividing since block size is a power of two.
     // Note that there is no need to account for division that rounds
