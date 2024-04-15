@@ -702,7 +702,7 @@ clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
 {
     int n = probs.get_rows();
 
-    dim3 block_dim(16, 32);
+    dim3 block_dim(8, 16);
     dim3 num_blocks(-(-n / block_dim.x), 1);
 
     clip_and_normalize_probs_kern<GF_q, real>
