@@ -39,6 +39,10 @@ namespace libcomm
 #    define DEBUG 1
 #endif
 
+/*! \brief Compute ceil(X / Y)
+ */
+#define ROUND_UP_DIV(X, Y) (((X) + (Y)-1) / (Y))
+
 // Declarations
 // ----------------------------------------------------------
 
@@ -703,7 +707,7 @@ clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
     int n = probs.get_rows();
 
     dim3 block_dim(8, 16);
-    dim3 num_blocks(-(-n / (int)block_dim.x), 1);
+    dim3 num_blocks(ROUND_UP_DIV(n, (int)block_dim.x));
 
     clip_and_normalize_probs_kern<GF_q, real>
         <<<num_blocks, block_dim, sizeof(real) * block_dim.y * block_dim.x>>>(
@@ -819,8 +823,8 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
 
     block_dim = dim3(32, 32);
     // use division which truncates upwards.
-    num_blocks = dim3(-(-dim_n / (int)block_dim.x),
-                      -(-num_of_elements / (int)block_dim.y));
+    num_blocks = dim3(ROUND_UP_DIV(dim_n, (int)block_dim.x),
+                      ROUND_UP_DIV(num_of_elements, (int)block_dim.y));
     spa_init_kern<GF_q, real>
         <<<num_blocks, block_dim>>>(this->device_received_probs,
                                     this->device_perms,
@@ -980,8 +984,8 @@ hadamard_transform(::cuda::matrix_reference<real> src,
 
     dim3 block_dim = dim3(32, 32);
     // use division which truncates upwards.
-    dim3 num_blocks = dim3(-(-tanner_edges / (int)block_dim.x),
-                           -(-num_of_elements / (int)block_dim.y));
+    dim3 num_blocks = dim3(ROUND_UP_DIV(tanner_edges, (int)block_dim.x),
+                           ROUND_UP_DIV(num_of_elements, (int)block_dim.y));
 
     int h;
     for (h = num_of_elements / 2; h > 0; h >> 1) {
@@ -1066,8 +1070,8 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
     int num_of_elements = GF_q::elements();
     block_dim = dim3(32, 32);
     // use division which truncates upwards.
-    num_blocks =
-        dim3(-(-m / (int)block_dim.x), -(-num_of_elements / (int)block_dim.y));
+    num_blocks = dim3(ROUND_UP_DIV(m, (int)block_dim.x),
+                      ROUND_UP_DIV(num_of_elements, (int)block_dim.y));
     compute_r_mn_kern<GF_q, real><<<num_blocks, block_dim>>>(
         ::cuda::matrix_reference<int>(device_qmn_row_indices),
         ::cuda::matrix_reference<real>(device_r_mxn),
@@ -1085,8 +1089,8 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
 
     block_dim = dim3(32, 32);
     // use division which truncates upwards.
-    num_blocks =
-        dim3(-(-m / (int)block_dim.x), -(-num_of_elements / (int)block_dim.y));
+    num_blocks = dim3(ROUND_UP_DIV(m, (int)block_dim.x),
+                      ROUND_UP_DIV(num_of_elements, (int)block_dim.y));
 
     // Permute the distributions in src (transformed by the Hadamard transform)
     // into dst
@@ -1192,8 +1196,8 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
     int num_of_elements = GF_q::elements();
     block_dim = dim3(32, 32);
     // use division which truncates upwards.
-    num_blocks =
-        dim3(-(-n / (int)block_dim.x), -(-num_of_elements / (int)block_dim.y));
+    num_blocks = dim3(ROUND_UP_DIV(n, (int)block_dim.x),
+                      ROUND_UP_DIV(num_of_elements, (int)block_dim.y));
     compute_q_mn_kern<GF_q, real><<<num_blocks, block_dim>>>(
         ::cuda::matrix_reference<real>(device_received_probs),
         ::cuda::matrix_reference<int>(device_qmn_row_indices),
@@ -1216,8 +1220,8 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
     int m = device_pchk_row_non_zeros.size();
     block_dim = dim3(32, 32);
     // use division which truncates upwards.
-    num_blocks =
-        dim3(-(-m / (int)block_dim.x), -(-num_of_elements / (int)block_dim.y));
+    num_blocks = dim3(ROUND_UP_DIV(m, (int)block_dim.x),
+                      ROUND_UP_DIV(num_of_elements, (int)block_dim.y));
 
     // Permute the distributions in src into dst
     multiply_h_m_n_kern<<<num_blocks, block_dim>>>(
@@ -1293,8 +1297,8 @@ compute_probs(::cuda::matrix<real>& device_received_probs,
     int num_of_elements = GF_q::elements();
     block_dim = dim3(32, 32);
     // use division which truncates upwards.
-    num_blocks =
-        dim3(-(-n / (int)block_dim.x), -(-num_of_elements / (int)block_dim.y));
+    num_blocks = dim3(ROUND_UP_DIV(n, (int)block_dim.x),
+                      ROUND_UP_DIV(num_of_elements, (int)block_dim.y));
     compute_probs_kern<GF_q, real><<<num_blocks, block_dim>>>(
         ::cuda::matrix_reference<real>(device_received_probs),
         ::cuda::matrix_reference<int>(device_qmn_row_indices),
