@@ -468,8 +468,8 @@ compute_perms(::cuda::matrix_reference<int> perms)
     // well, num_of_elements * num_of_elements is divided perfectly by blockDim.
     int i = blockIdx.x * blockDim.x + threadIdx.x;
 
-    int ix = i % num_of_elements;
-    int iy = i / num_of_elements;
+    int ix = min(i % num_of_elements, num_of_elements - 1);
+    int iy = min(i / num_of_elements, num_of_elements - 1);
 
     perms(ix, iy) = GF_q(ix) * GF_q(iy);
 }
@@ -488,14 +488,16 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
 
     int log_block_dim = 10;
     int block_dim = 1 << log_block_dim;
+    int num_blocks = (num_of_elements * num_of_elements) >> log_block_dim;
+    num_blocks = max(num_blocks, 1);
+
     // we can use shift for dividing since block size is a power of two.
     // Note that there is no need to account for division that rounds
     // towards zero since num_of_elements is always a power of two for GF_q.
     // Hence granted blockDim is a power of two as well, num_of_elements *
     // num_of_elements is divided perfectly by blockDim.
-    compute_perms<GF_q>
-        <<<block_dim, ((num_of_elements * num_of_elements) >> log_block_dim)>>>(
-            ::cuda::matrix_reference<int>(device_perms));
+    compute_perms<GF_q><<<num_blocks, block_dim>>>(
+        ::cuda::matrix_reference<int>(device_perms));
     cudaSafeCall(cudaGetLastError());
 
     // we first build qmn_row_indices on the host, then copy to device.
