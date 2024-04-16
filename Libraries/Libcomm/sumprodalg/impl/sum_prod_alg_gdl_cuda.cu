@@ -496,6 +496,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     compute_perms<GF_q>
         <<<block_dim, ((num_of_elements * num_of_elements) >> log_block_dim)>>>(
             ::cuda::matrix_reference<int>(device_perms));
+    cudaSafeCall(cudaGetLastError());
 
     // we first build qmn_row_indices on the host, then copy to device.
     // Easier since this operation is inherently serial (we have a counter
