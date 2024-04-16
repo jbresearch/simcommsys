@@ -682,6 +682,9 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
         partial_sums[sum_idx] += include_in_partial_sum * tmp_prob;
     }
 
+    // Barrier for access to results in shared mem from other threads.
+    __syncthreads();
+
     // linear reduce of partial sums; negligible cost
     for (int i = 0; i < blockDim.y; i++)
         alpha += partial_sums[sum_idx_base + i];
@@ -1043,6 +1046,7 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
         // Loop above has potential divergence as different m have different
         // degrees in general. We want to convergence again here so most iters
         // are in sync.
+        // TODO: Test impact of this.
         __syncthreads();
         // coalesced memory access due to syncthreads above
         // We store in r_mxn but this is not the final result.
@@ -1165,6 +1169,7 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
         // Loop above has potential divergence as different m have different
         // degrees in general. We want to convergence again here so most iters
         // are in sync.
+        // TODO: Test impact of this.
         __syncthreads();
 
         // Uncoalesced memory access.
