@@ -667,6 +667,8 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
     int sum_idx = sum_idx_base + threadIdx.y;
     real alpha = real(0.0);
 
+    partial_sums[sum_idx] = 0.0;
+
     // perform clipping of zero values to almost zero
     // also accumulate the sum of all probabilities
     // Each thread accumulates its own partial sum, and these are later
@@ -692,7 +694,6 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
     for (int i = 0; i < blockDim.y; i++)
         alpha += partial_sums[sum_idx_base + i];
 
-    // reduce partial sums into one total sum
     cuda_assertalways(alpha != real(0.0));
 
     // normalize probabilities (divide by alpha)
