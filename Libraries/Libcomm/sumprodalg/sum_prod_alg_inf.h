@@ -90,13 +90,16 @@ public:
     real get_almostzero() { return this->almostzero; }
 
 protected:
+    /*! \name Clipping parameters with default values.`
+     */
+
     //! the clipping method used
     // 0-replace 0 with almostzero
     // 1-replace all values below almostzero with almostzero
-    int clipping_method;
+    int clipping_method = 0;
 
     //! this is the value we assign to zero probs
-    real almostzero;
+    real almostzero = real(1E-100);
 };
 
 } // namespace libcomm
