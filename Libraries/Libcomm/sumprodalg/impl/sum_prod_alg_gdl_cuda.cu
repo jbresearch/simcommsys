@@ -648,60 +648,22 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
     loop_n = min(loop_n, n - 1);
 
     int num_of_elements = GF_q::elements();
-    real tmp_prob;
-
-    // partial sums for each thread.
-    // Using a simple declaration here like
-    // extern __shared__ real partial_sums[]
-    // does not work, because CUDA will attempt to create the same global symbol
-    // for all template instantiations. Therefore we follow solution given in
-    // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
-    // i.e. create a single extern shared byte array, and then reinterpret as
-    // needed.
-    extern __shared__ __align__(sizeof(real)) unsigned char partial_sums_raw[];
-    real* partial_sums = reinterpret_cast<real*>(partial_sums_raw);
-
-    // smallest idx for threads within a block which share same threadIdx.x.
-    int sum_idx_base = threadIdx.x * blockDim.x;
-    // idx for partial sum accumulated by this thread.
-    int sum_idx = sum_idx_base + threadIdx.y;
     real alpha = real(0.0);
 
-    partial_sums[sum_idx] = 0.0;
-
-    // perform clipping of zero values to almost zero
-    // also accumulate the sum of all probabilities
-    // Each thread accumulates its own partial sum, and these are later
-    // accumulated into alpha.
-    for (int loop_e = 0; loop_e < num_of_elements; loop_e += blockDim.y) {
-        int thread_loop_e = loop_e + threadIdx.y;
-        // should we include the result from this thread in partial sum or is it
-        // out of range
-        bool include_in_partial_sum = thread_loop_e < num_of_elements;
-        // Bounds check.
-        thread_loop_e = min(thread_loop_e, num_of_elements - 1);
+    real tmp_prob;
+    for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
         // Clipping HACK
-        tmp_prob = probs(loop_n, thread_loop_e);
+        tmp_prob = probs(loop_n, loop_e);
         perform_clipping(tmp_prob, clipping_method, almost_zero);
-        probs(loop_n, thread_loop_e) = tmp_prob;
-        partial_sums[sum_idx] += include_in_partial_sum * tmp_prob;
+        probs(loop_n, loop_e) = tmp_prob;
+        alpha += tmp_prob;
     }
-
-    // Barrier for access to results in shared mem from other threads.
-    __syncthreads();
-
-    // linear reduce of partial sums; negligible cost
-    for (int i = 0; i < blockDim.y; i++)
-        alpha += partial_sums[sum_idx_base + i];
 
     cuda_assertalways(alpha != real(0.0));
 
     // normalize probabilities (divide by alpha)
-    for (int loop_e = 0; loop_e < num_of_elements; loop_e += blockDim.y) {
-        int thread_loop_e = loop_e + threadIdx.y;
-        // Bounds check.
-        thread_loop_e = min(thread_loop_e, num_of_elements - 1);
-        probs(loop_n, thread_loop_e) /= alpha;
+    for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
+        probs(loop_n, loop_e) /= alpha;
     }
 }
 
@@ -713,12 +675,11 @@ clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
 {
     int n = probs.get_rows();
 
-    dim3 block_dim(8, 16);
+    dim3 block_dim(1024);
     dim3 num_blocks(ROUND_UP_DIV(n, (int)block_dim.x));
 
     clip_and_normalize_probs_kern<GF_q, real>
-        <<<num_blocks, block_dim, sizeof(real) * block_dim.y * block_dim.x>>>(
-            probs, clipping_method, almost_zero);
+        <<<num_blocks, block_dim>>>(probs, clipping_method, almost_zero);
     cudaSafeCall(cudaGetLastError());
 }
 
@@ -995,7 +956,7 @@ hadamard_transform(::cuda::matrix_reference<real> src,
                            ROUND_UP_DIV(num_of_elements, (int)block_dim.y));
 
     int h;
-    for (h = num_of_elements / 2; h > 0; h >> 1) {
+    for (h = num_of_elements / 2; h > 0; h = h >> 1) {
         hadamard_transform_pass_kern<GF_q, real>
             <<<num_blocks, block_dim>>>(src, dst, tanner_edges, h);
         cudaSafeCall(cudaGetLastError());
