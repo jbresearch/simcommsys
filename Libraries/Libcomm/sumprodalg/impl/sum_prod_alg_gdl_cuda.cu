@@ -956,7 +956,7 @@ hadamard_transform(::cuda::matrix_reference<real> src,
                            ROUND_UP_DIV(num_of_elements, (int)block_dim.y));
 
     int h;
-    for (h = num_of_elements / 2; h > 0; h = h >> 1) {
+    for (h = 1; h < num_of_elements; h <<= 1) {
         hadamard_transform_pass_kern<GF_q, real>
             <<<num_blocks, block_dim>>>(src, dst, tanner_edges, h);
         cudaSafeCall(cudaGetLastError());
