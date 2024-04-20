@@ -1341,9 +1341,16 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
                   this->almostzero);
 
     // Copy received probabilities from device to host.
-    for (int n = 0; n < ro.size(); n++)
+
+    // ensure ro has the right size
+    ro.init(this->device_received_probs.get_rows());
+
+    for (int n = 0; n < ro.size(); n++) {
+        // allocate memory on host for probability distribution of symbol n
+        ro(n).init(this->device_received_probs.get_cols());
         ro(n) =
             (libbase::vector<real>)this->device_received_probs.extract_row(n);
+    }
 }
 
 } // namespace libcomm
