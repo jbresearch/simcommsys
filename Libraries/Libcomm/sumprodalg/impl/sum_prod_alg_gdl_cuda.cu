@@ -1015,7 +1015,7 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
         __syncthreads();
         // coalesced memory access due to syncthreads above
         // We store in r_mxn but this is not the final result.
-        device_r_mxn(device_qmn_row_indices(loop_m, loop_n), loop_e) =
+        device_r_mxn(device_qmn_row_indices(loop_m, pos_n), loop_e) =
             q_nm_conv_prod;
     }
 }
