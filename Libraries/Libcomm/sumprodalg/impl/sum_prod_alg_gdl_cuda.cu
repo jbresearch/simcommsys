@@ -1280,7 +1280,9 @@ compute_probs(::cuda::matrix<real>& device_received_probs,
 
     // Normalize the computed probabilities.
     clip_and_normalize_probs<GF_q, real>(
-        device_received_probs, clipping_method, almost_zero);
+        ::cuda::matrix_reference<real>(device_received_probs),
+        clipping_method,
+        almost_zero);
 }
 
 template <class GF_q, class real>
