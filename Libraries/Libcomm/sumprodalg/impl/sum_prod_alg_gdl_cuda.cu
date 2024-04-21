@@ -1001,12 +1001,17 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
         for (int loop_n_dash = 0; loop_n_dash < non_zeros; loop_n_dash++) {
             pos_n_dash = device_pchk_row_non_zeros_pos(loop_m, loop_n_dash);
 
+            // NOTE: Branchless computation
             q_nm_conv_prod *=
-                // we multiply by the check pos_n_dash != pos_n to ensure that
-                // symbol n itself is not included in the message
+                // Branch where pos_n_dash != pos_n and we
+                // include the corresponding qmn in the
+                // message
                 (pos_n_dash != pos_n) *
-                device_qmn_conv(device_qmn_row_indices(loop_m, pos_n_dash),
-                                loop_e);
+                    device_qmn_conv(device_qmn_row_indices(loop_m, pos_n_dash),
+                                    loop_e) +
+                // Branch where we multiply by 1, effectively removing
+                // q_nm for pos_n from the computed message.
+                (pos_n_dash == pos_n);
         }
         // Loop above has potential divergence as different m have different
         // degrees in general. We want to convergence again here so most iters
@@ -1124,12 +1129,17 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
         for (int loop_m_dash = 0; loop_m_dash < non_zeros; loop_m_dash++) {
             pos_m_dash = device_pchk_col_non_zeros_pos(loop_m_dash, loop_n);
 
+            // NOTE: Branchless computation
             q_nm *=
-                // we multiply by the check pos_m_dash != pos_m to ensure that
-                // check m itself is not included in the message
+                // Branch where pos_m_dash != pos_m and we
+                // include the corresponding r_mn in the
+                // message
                 (pos_m_dash != pos_m) *
-                device_r_mxn(device_qmn_row_indices(pos_m_dash, loop_n),
-                             loop_e);
+                    device_r_mxn(device_qmn_row_indices(pos_m_dash, loop_n),
+                                 loop_e) +
+                // Branch where we multiply by 1, effectively removing
+                // r_mn for pos_m from the computed message.
+                (pos_m_dash == pos_m);
         }
         // Loop above has potential divergence as different m have different
         // degrees in general. We want to convergence again here so most iters
