@@ -157,15 +157,6 @@ private:
      * row
      */
     cuda_matrixi_t device_pchk_col_non_zeros_pos;
-    /*! Matrix where each row (representing a codeword bit n) contains the value
-     * (in GF_q) of non-zero elements in the parity check matrix H (at that nth
-     * col of H).
-     *
-     * Extra space at the end of rows is padded with zeros/uninitalized.
-     *
-     * device_pchk_col_non_zeros can be used to determine end of each row
-     */
-    ::cuda::matrix<GF_q> device_pchk_col_non_zeros_val;
 };
 
 } // namespace libcomm

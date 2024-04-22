@@ -391,19 +391,17 @@ void compute_q_mn(::cuda::matrix<real>& device_received_probs,
                   ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
                   ::cuda::vector<int>& device_pchk_col_non_zeros,
                   ::cuda::matrix<int>& device_pchk_col_non_zeros_pos,
-                  ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val,
                   ::cuda::matrix<real>& device_swap_buf,
                   int clipping_method,
                   real almost_zero);
 
 template <class GF_q, class real>
-__global__ void compute_probs_kern(
-    ::cuda::matrix_reference<real> device_received_probs,
-    ::cuda::matrix_reference<int> device_qmn_row_indices,
-    ::cuda::matrix_reference<real> device_r_mxn,
-    ::cuda::vector_reference<int> device_pchk_col_non_zeros,
-    ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos,
-    ::cuda::matrix_reference<GF_q> device_pchk_col_non_zeros_val);
+__global__ void
+compute_probs_kern(::cuda::matrix_reference<real> device_received_probs,
+                   ::cuda::matrix_reference<int> device_qmn_row_indices,
+                   ::cuda::matrix_reference<real> device_r_mxn,
+                   ::cuda::vector_reference<int> device_pchk_col_non_zeros,
+                   ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos);
 
 /*! \brief Compute posterior probabilities from r_mn messages in \p device_r_mxn
  * . The results are stored in \p device_received_probs.
@@ -433,11 +431,6 @@ __global__ void compute_probs_kern(
  * values in a column of the parity check matrix. Extra slots at
  * the end of each row are padded with zeros.
  *
- * \param device_pchk_col_non_zeros_val n x max(device_pchk_col_non_zeros)
- * matrix where each row contains the values in GF_q of non-zero
- * values in a column of the parity check matrix. Extra slots at
- * the end of each row are padded with zeros.
- *
  * \param clipping_method The clipping method used to determine which almost
  * zero/zero values to clip.
  *
@@ -449,7 +442,6 @@ void compute_probs(::cuda::matrix<real>& device_received_probs,
                    ::cuda::matrix<real>& device_r_mxn,
                    ::cuda::vector<int>& device_pchk_col_non_zeros,
                    ::cuda::matrix<int>& device_pchk_col_non_zeros_pos,
-                   ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val,
                    int clipping_method,
                    real almost_zero);
 
@@ -546,7 +538,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     libbase::matrix<GF_q> pchk_row_non_zeros_val(m, max_pchk_row_non_zeros);
 
     matrixi_t pchk_col_non_zeros_pos(n, max_pchk_col_non_zeros);
-    libbase::matrix<GF_q> pchk_col_non_zeros_val(n, max_pchk_col_non_zeros);
 
     // counts the number of edges in the Tanner graph of the code.
     // Tells us what the size of device_rmxn and device_qmn_conv should
@@ -587,11 +578,9 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
 
         for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
             pos_m = non_zero_col_pos(loop_n)(loop_m) - 1; // we count from zero;
-            val = pchk_matrix(pos_m, loop_n);
 
             // populate other pchk matrix fields on the host.
             pchk_col_non_zeros_pos(loop_n, loop_m) = pos_m;
-            pchk_col_non_zeros_val(loop_n, loop_m) = val;
         }
     }
 
@@ -607,7 +596,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
 
     device_pchk_col_non_zeros.init(n);
     device_pchk_col_non_zeros_pos.init(n, max_pchk_col_non_zeros);
-    device_pchk_col_non_zeros_val.init(n, max_pchk_col_non_zeros);
 
     // Copy represenation of the parity check matrix to the device.
     device_pchk_row_non_zeros = pchk_row_non_zeros;
@@ -616,7 +604,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
 
     device_pchk_col_non_zeros = pchk_col_non_zeros;
     device_pchk_col_non_zeros_pos = pchk_col_non_zeros_pos;
-    device_pchk_col_non_zeros_val = pchk_col_non_zeros_val;
 
     // Allocate required memory for r_mxn, q_mxn and qmn_conv on device.
     device_r_mxn.init(tanner_edges, num_of_elements);
@@ -1192,7 +1179,6 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
              ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
              ::cuda::vector<int>& device_pchk_col_non_zeros,
              ::cuda::matrix<int>& device_pchk_col_non_zeros_pos,
-             ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val,
              ::cuda::matrix<real>& device_swap_buf,
              int clipping_method,
              real almost_zero)
@@ -1265,8 +1251,7 @@ compute_probs_kern(::cuda::matrix_reference<real> device_received_probs,
                    ::cuda::matrix_reference<int> device_qmn_row_indices,
                    ::cuda::matrix_reference<real> device_r_mxn,
                    ::cuda::vector_reference<int> device_pchk_col_non_zeros,
-                   ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos,
-                   ::cuda::matrix_reference<GF_q> device_pchk_col_non_zeros_val)
+                   ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos)
 {
 
     // find loop_n
@@ -1303,7 +1288,6 @@ compute_probs(::cuda::matrix<real>& device_received_probs,
               ::cuda::matrix<real>& device_r_mxn,
               ::cuda::vector<int>& device_pchk_col_non_zeros,
               ::cuda::matrix<int>& device_pchk_col_non_zeros_pos,
-              ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val,
               int clipping_method,
               real almost_zero)
 {
@@ -1320,8 +1304,7 @@ compute_probs(::cuda::matrix<real>& device_received_probs,
         ::cuda::matrix_reference<int>(device_qmn_row_indices),
         ::cuda::matrix_reference<real>(device_r_mxn),
         ::cuda::vector_reference<int>(device_pchk_col_non_zeros),
-        ::cuda::matrix_reference<int>(device_pchk_col_non_zeros_pos),
-        ::cuda::matrix_reference<GF_q>(device_pchk_col_non_zeros_val));
+        ::cuda::matrix_reference<int>(device_pchk_col_non_zeros_pos));
     cudaSafeCall(cudaGetLastError());
 
 #ifdef DEBUG
@@ -1375,7 +1358,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
                  this->device_pchk_row_non_zeros_val,
                  this->device_pchk_col_non_zeros,
                  this->device_pchk_col_non_zeros_pos,
-                 this->device_pchk_col_non_zeros_val,
                  this->device_swap_buf,
                  this->clipping_method,
                  this->almostzero);
@@ -1383,14 +1365,13 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
     // compute the new probabilities for all symbols given the information in
     // this iteration. This will be used in a tentative decoding to see whether
     // we have found a codeword
-    compute_probs(this->device_received_probs,
-                  this->device_qmn_row_indices,
-                  this->device_r_mxn,
-                  this->device_pchk_col_non_zeros,
-                  this->device_pchk_col_non_zeros_pos,
-                  this->device_pchk_col_non_zeros_val,
-                  this->clipping_method,
-                  this->almostzero);
+    compute_probs<GF_q, real>(this->device_received_probs,
+                              this->device_qmn_row_indices,
+                              this->device_r_mxn,
+                              this->device_pchk_col_non_zeros,
+                              this->device_pchk_col_non_zeros_pos,
+                              this->clipping_method,
+                              this->almostzero);
 
     // Copy received probabilities from device to host.
 
