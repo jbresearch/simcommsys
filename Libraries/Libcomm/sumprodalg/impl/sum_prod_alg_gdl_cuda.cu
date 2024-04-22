@@ -500,6 +500,10 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
         ::cuda::matrix_reference<int>(device_perms));
     cudaSafeCall(cudaGetLastError());
 
+#ifdef DEBUG
+    cudaDeviceSynchronize();
+#endif
+
     // we first build qmn_row_indices on the host, then copy to device.
     // Easier since this operation is inherently serial (we have a counter
     // to keep track of current index) and also we need the tanner_edges var
@@ -681,6 +685,10 @@ clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
     clip_and_normalize_probs_kern<GF_q, real>
         <<<num_blocks, block_dim>>>(probs, clipping_method, almost_zero);
     cudaSafeCall(cudaGetLastError());
+
+#ifdef DEBUG
+    cudaDeviceSynchronize();
+#endif
 }
 
 template <class GF_q, class real>
@@ -769,7 +777,9 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
         this->device_received_probs.extract_row(loop_n) = recvd_probs(loop_n);
 
     clip_and_normalize_probs<GF_q, real>(
-        this->device_received_probs, this->clipping_method, this->almostzero);
+        ::cuda::matrix_reference<real>(this->device_received_probs),
+        this->clipping_method,
+        this->almostzero);
 
     // TODO: Fix this.
 #if DEBUG >= 2
@@ -803,6 +813,10 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
                                     this->device_pchk_row_non_zeros_pos,
                                     this->device_pchk_row_non_zeros_val);
     cudaSafeCall(cudaGetLastError());
+
+#ifdef DEBUG
+    cudaDeviceSynchronize();
+#endif
 
     // apply the FFT again to get the proper values
     // Here we use matrix references for cheap swapping. The result of the
@@ -961,6 +975,10 @@ hadamard_transform(::cuda::matrix_reference<real> src,
             <<<num_blocks, block_dim>>>(src, dst, tanner_edges, h);
         cudaSafeCall(cudaGetLastError());
 
+#ifdef DEBUG
+        cudaDeviceSynchronize();
+#endif
+
         std::swap(src, dst);
     }
 }
@@ -1054,6 +1072,10 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
         ::cuda::matrix_reference<int>(device_pchk_row_non_zeros_pos));
     cudaSafeCall(cudaGetLastError());
 
+#ifdef DEBUG
+    cudaDeviceSynchronize();
+#endif
+
     // apply the FFT again to get the proper values
     // Here we use matrix references for cheap swapping. The result of the
     // Hadamard transform will always be in src.
@@ -1077,6 +1099,10 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
         ::cuda::matrix_reference<int>(device_pchk_row_non_zeros_pos),
         ::cuda::matrix_reference<GF_q>(device_pchk_row_non_zeros_val));
     cudaSafeCall(cudaGetLastError());
+
+#ifdef DEBUG
+    cudaDeviceSynchronize();
+#endif
 
     // dst could be device_r_mxn or device_swap_buf depending on whether no. of
     // passes in Hadamard transform is even or odd. We copy back to device_r_mxn
@@ -1187,6 +1213,10 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
         ::cuda::matrix_reference<int>(device_pchk_col_non_zeros_pos));
     cudaSafeCall(cudaGetLastError());
 
+#ifdef DEBUG
+    cudaDeviceSynchronize();
+#endif
+
     // Apply clipping + normalization to the computed q_mn values.
     clip_and_normalize_probs<GF_q, real>(
         ::cuda::matrix_reference<real>(device_qmn_conv),
@@ -1214,6 +1244,10 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
         ::cuda::matrix_reference<GF_q>(device_pchk_row_non_zeros_val));
     cudaSafeCall(cudaGetLastError());
     std::swap(src, dst);
+
+#ifdef DEBUG
+    cudaDeviceSynchronize();
+#endif
 
     // Compute Hadamard transform on the result.
     hadamard_transform<GF_q, real>(src, dst);
@@ -1287,6 +1321,10 @@ compute_probs(::cuda::matrix<real>& device_received_probs,
         ::cuda::matrix_reference<int>(device_pchk_col_non_zeros_pos),
         ::cuda::matrix_reference<GF_q>(device_pchk_col_non_zeros_val));
     cudaSafeCall(cudaGetLastError());
+
+#ifdef DEBUG
+    cudaDeviceSynchronize();
+#endif
 
     // Normalize the computed probabilities.
     clip_and_normalize_probs<GF_q, real>(
