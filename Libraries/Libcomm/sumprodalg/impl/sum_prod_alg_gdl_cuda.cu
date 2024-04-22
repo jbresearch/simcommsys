@@ -1150,10 +1150,10 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
     real q_nm;
     for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
         q_nm = recvd_prob;
-        pos_m = device_pchk_col_non_zeros_pos(loop_m, loop_n);
+        pos_m = device_pchk_col_non_zeros_pos(loop_n, loop_m);
 
         for (int loop_m_dash = 0; loop_m_dash < non_zeros; loop_m_dash++) {
-            pos_m_dash = device_pchk_col_non_zeros_pos(loop_m_dash, loop_n);
+            pos_m_dash = device_pchk_col_non_zeros_pos(loop_n, loop_m_dash);
 
             // NOTE: Branchless computation
             q_nm *=
@@ -1288,7 +1288,7 @@ compute_probs_kern(::cuda::matrix_reference<real> device_received_probs,
     real prob;
     for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
         prob = 1.0;
-        pos_m = device_pchk_col_non_zeros_pos(loop_m, loop_n);
+        pos_m = device_pchk_col_non_zeros_pos(loop_n, loop_m);
 
         prob *= device_r_mxn(device_qmn_row_indices(pos_m, loop_n), loop_e);
     }
