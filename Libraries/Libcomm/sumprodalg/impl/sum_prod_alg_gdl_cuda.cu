@@ -276,8 +276,8 @@ divide_h_m_n_kern(::cuda::matrix_reference<int> device_perms,
  * transforms.
  */
 template <class GF_q, class real>
-void hadamard_transform(::cuda::matrix_reference<real> src,
-                        ::cuda::matrix_reference<real> dst);
+void hadamard_transform(::cuda::matrix_reference<real>& src,
+                        ::cuda::matrix_reference<real>& dst);
 
 /*! \brief Compute r_mxn messages from \p device_qmn_conv. Results are stored in
  * \p device_r_mxn.
@@ -825,8 +825,9 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
     ::cuda::matrix_reference<real> dst(device_swap_buf);
     hadamard_transform<GF_q, real>(src, dst);
 
-    // Result of the Hadamard transform is always stored in src, copy to
-    // device_qmn_conv in case src is the swap buffer.
+    // Result of the Hadamard transform is always stored in first arg passed to
+    // hadamard_transform(), copy to device_qmn_conv in case src is the swap
+    // buffer.
     device_qmn_conv = src;
 
     // TODO: Fix this.
@@ -954,8 +955,8 @@ divide_h_m_n_kern(::cuda::matrix_reference<int> device_perms,
 
 template <class GF_q, class real>
 inline void
-hadamard_transform(::cuda::matrix_reference<real> src,
-                   ::cuda::matrix_reference<real> dst)
+hadamard_transform(::cuda::matrix_reference<real>& src,
+                   ::cuda::matrix_reference<real>& dst)
 {
     // src and dst need to have the same dimensions
     cuda_assert(src.get_cols() == dst.get_cols() &&
@@ -1077,8 +1078,7 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
 #endif
 
     // apply the FFT again to get the proper values
-    // Here we use matrix references for cheap swapping. The result of the
-    // Hadamard transform will always be in src.
+    // Here we use matrix references for cheap swapping.
     ::cuda::matrix_reference<real> src(device_r_mxn);
     ::cuda::matrix_reference<real> dst(device_swap_buf);
     hadamard_transform<GF_q, real>(src, dst);
@@ -1243,18 +1243,18 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
         ::cuda::matrix_reference<int>(device_pchk_row_non_zeros_pos),
         ::cuda::matrix_reference<GF_q>(device_pchk_row_non_zeros_val));
     cudaSafeCall(cudaGetLastError());
-    std::swap(src, dst);
 
 #ifdef DEBUG
     cudaDeviceSynchronize();
 #endif
 
     // Compute Hadamard transform on the result.
-    hadamard_transform<GF_q, real>(src, dst);
+    hadamard_transform<GF_q, real>(dst, src);
 
-    // Result of the Hadamard transform is always stored in src, copy to
-    // device_qmn_conv in case src is the swap buffer.
-    device_qmn_conv = src;
+    // Result of the Hadamard transform is always stored in first arg passed to
+    // hadamard_transform(), copy to device_qmn_conv in case dst is the swap
+    // buffer.
+    device_qmn_conv = dst;
 }
 
 template <class GF_q, class real>
