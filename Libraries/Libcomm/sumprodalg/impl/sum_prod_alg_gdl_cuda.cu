@@ -1175,6 +1175,8 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
 
         // Uncoalesced memory access.
         device_qmn_conv(device_qmn_row_indices(pos_m, loop_n), loop_e) = q_nm;
+        // resynchronize after uncoalesced memory access
+        __syncthreads();
     }
 }
 
