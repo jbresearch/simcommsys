@@ -54,6 +54,9 @@ namespace libcomm
 template <class GF_q, class real = double>
 class ldpc : public codec_softout<libbase::vector, double>
 {
+private:
+    // Shorthand for class hierarchy
+    typedef codec_softout<libbase::vector, double> Base;
 
 public:
     /*! \name Type definitions */
@@ -124,6 +127,8 @@ public:
     //! Seeds any random generators from a pseudo-random sequence
     void seedfrom(libbase::random& r)
     {
+        // Call base method first
+        Base::seedfrom(r);
         // Seed hard-decision box
         hd_functor.seedfrom(r);
     }
