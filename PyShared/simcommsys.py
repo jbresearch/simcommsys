@@ -307,7 +307,7 @@ def loadresults(filename,latest=True):
    if header == []:
       # number of data columns
       n = len(data[0])
-      n = (n-2)/2
+      n = (n-2)//2
       # prefix
       header.append('Par')
       # main
