@@ -77,7 +77,14 @@ private:
      */
     cuda_matrixi_t device_perms;
 
+    /*! \brief this is an n x |GF_q| size matrix that holds prior probability
+     * distributions of each symbol in a codeword.
+     */
     cuda_matrixd_t device_received_probs;
+    /*! \brief this is an n x |GF_q| size matrix that holds posterior
+     * probability distributions of each symbol in a codeword.
+     */
+    cuda_matrixd_t device_out_probs;
 
     /*! Matrix of indices that tell us row of device_qmn_conv that
      * contains prob distribution qmn for a particular (m, n).
