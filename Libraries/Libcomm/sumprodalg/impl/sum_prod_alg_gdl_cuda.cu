@@ -1216,7 +1216,7 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
         almost_zero);
 
     // Here we use matrix references for cheap swapping.
-    ::cuda::matrix_reference<real> src(device_r_mxn);
+    ::cuda::matrix_reference<real> src(device_qmn_conv);
     ::cuda::matrix_reference<real> dst(device_swap_buf);
 
     int m = device_pchk_row_non_zeros.size();
