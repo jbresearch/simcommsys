@@ -637,10 +637,10 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
                               real almost_zero)
 {
     // ranges over probability distributions in prob.
-    int loop_n = blockIdx.x * blockDim.x + threadIdx.x;
+    int loop_n_unbounded = blockIdx.x * blockDim.x + threadIdx.x;
     // bounds checking
     int n = probs.get_rows();
-    loop_n = min(loop_n, n - 1);
+    int loop_n = min(loop_n_unbounded, n - 1);
 
     int num_of_elements = GF_q::elements();
     real alpha = real(0.0);
@@ -658,7 +658,8 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
 
     // normalize probabilities (divide by alpha)
     for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
-        probs(loop_n, loop_e) /= alpha;
+        if (loop_n_unbounded < n) // make sure to only apply division once.
+            probs(loop_n, loop_e) /= alpha;
     }
 }
 
