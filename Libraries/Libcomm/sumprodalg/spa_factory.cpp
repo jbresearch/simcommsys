@@ -42,7 +42,7 @@ using libbase::mpreal;
 BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
 #define REAL_TYPE_SEQ \
-      (double)(logrealfast)(mpreal)
+      (double)(float)
 
 #define INSTANTIATE(r, args) \
       template class spa_factory<BOOST_PP_SEQ_ENUM(args)>;

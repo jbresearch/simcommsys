@@ -118,7 +118,7 @@ BOOST_PP_SEQ_FOR_EACH(INSTANTIATE_UNCODED, x, (double))
 
 #undef  REAL_TYPE_SEQ
 #define REAL_TYPE_SEQ \
-   (double)(mpreal)
+   (double)(float)
 
 /* Serialization string: ldpc<type,real>
  * where:
