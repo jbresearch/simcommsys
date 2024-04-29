@@ -1258,7 +1258,6 @@ compute_probs_kern(::cuda::matrix_reference<real> device_received_probs,
                    ::cuda::vector_reference<int> device_pchk_col_non_zeros,
                    ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos)
 {
-
     // find loop_e
     int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
     // bounds checking
