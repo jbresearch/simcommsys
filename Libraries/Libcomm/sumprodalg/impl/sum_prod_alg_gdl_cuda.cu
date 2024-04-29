@@ -46,12 +46,6 @@ namespace libcomm
 // Declarations
 // ----------------------------------------------------------
 
-/*! \brief Compute LUT for multiplication in GF_q
- */
-template <class GF_q>
-__global__ void compute_perms(::cuda::matrix_reference<int> perms,
-                              int num_of_elements);
-
 /*! \brief Perform clipping of zero values to almost-zero values on device.
  */
 template <class real>
@@ -93,8 +87,6 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
  * \param device_received_probs Prior probability distributions over GF(q) for
  * each symbol n
  *
- * \param device_perms Look up table for Galois field multiplication in GF_q
- *
  * \param device_qmn_row_indices m x n matrix containing indices of rows of
  * src/dst that contain distributions corresponding to (m, n).
  *
@@ -122,7 +114,6 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
 template <class GF_q, class real>
 __global__ void
 spa_init_kern(::cuda::matrix_reference<real> device_received_probs,
-              ::cuda::matrix_reference<int> device_perms,
               ::cuda::matrix_reference<int> device_qmn_row_indices,
               ::cuda::matrix_reference<real> device_r_mxn,
               ::cuda::matrix_reference<real> device_qmn_conv,
@@ -186,8 +177,6 @@ __global__ void hadamard_transform_pass_kern(::cuda::matrix_reference<real> src,
  * So effectively we are transforming a distribution over a random variable e in
  * GF_q to a distribution over h_m_n*e
  *
- * \param device_perms Look up table for Galois field multiplication in GF_q
- *
  * \param device_qmn_row_indices m x n matrix containing indices of rows of
  * src/dst that contain distributions corresponding to (m, n).
  *
@@ -212,7 +201,6 @@ __global__ void hadamard_transform_pass_kern(::cuda::matrix_reference<real> src,
  */
 template <class GF_q, class real>
 __global__ void multiply_h_m_n_kern(
-    ::cuda::matrix_reference<int> device_perms,
     ::cuda::matrix_reference<int> device_qmn_row_indices,
     ::cuda::matrix_reference<real> src,
     ::cuda::matrix_reference<real> dst,
@@ -233,8 +221,6 @@ __global__ void multiply_h_m_n_kern(
  *
  * So effectively we are transforming a distribution over a random variable
  * h_m_n*e in GF_q to a distribution over e
- *
- * \param device_perms Look up table for Galois field multiplication in GF_q
  *
  * \param device_qmn_row_indices m x n matrix containing indices of rows of
  * src/dst that contain distributions corresponding to (m, n).
@@ -260,8 +246,7 @@ __global__ void multiply_h_m_n_kern(
  */
 template <class GF_q, class real>
 __global__ void
-divide_h_m_n_kern(::cuda::matrix_reference<int> device_perms,
-                  ::cuda::matrix_reference<int> device_qmn_row_indices,
+divide_h_m_n_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
                   ::cuda::matrix_reference<real> src,
                   ::cuda::matrix_reference<real> dst,
                   ::cuda::vector_reference<int> device_pchk_row_non_zeros,
@@ -329,8 +314,6 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
  * - Applies clipping and normalization to the r_mxn messages computed in the
  * last step
  *
- * \param device_perms Look up table for Galois field multiplication in GF_q
- *
  * \param device_qmn_row_indices m x n matrix containing indices of rows of
  * src/dst that contain distributions corresponding to (m, n).
  *
@@ -360,8 +343,7 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
  * computed.
  */
 template <class GF_q, class real>
-void compute_r_mn(::cuda::matrix<int>& device_perms,
-                  ::cuda::matrix<int>& device_qmn_row_indices,
+void compute_r_mn(::cuda::matrix<int>& device_qmn_row_indices,
                   ::cuda::matrix<real>& device_r_mxn,
                   ::cuda::matrix<real>& device_qmn_conv,
                   ::cuda::vector<int>& device_pchk_row_non_zeros,
@@ -382,7 +364,6 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
 
 template <class GF_q, class real>
 void compute_q_mn(::cuda::matrix<real>& device_received_probs,
-                  ::cuda::matrix<int>& device_perms,
                   ::cuda::matrix<int>& device_qmn_row_indices,
                   ::cuda::matrix<real>& device_r_mxn,
                   ::cuda::matrix<real>& device_qmn_conv,
@@ -450,24 +431,6 @@ void compute_probs(::cuda::matrix<real>& device_received_probs,
 // Definitions
 // ----------------------------------------------------------
 
-template <class GF_q>
-__global__ void
-compute_perms(::cuda::matrix_reference<int> perms)
-{
-    int num_of_elements = GF_q::elements();
-
-    // use 1D index to take advantage of memory layout of perms (row-major)
-    // Note that there is no need for bounds checking here since num_of_elements
-    // is always a power of two. Hence granted blockDim is a power of two as
-    // well, num_of_elements * num_of_elements is divided perfectly by blockDim.
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-
-    int ix = min(i % num_of_elements, num_of_elements - 1);
-    int iy = min(i / num_of_elements, num_of_elements - 1);
-
-    perms(ix, iy) = GF_q(ix) * GF_q(iy);
-}
-
 template <class GF_q, class real>
 sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     int n,
@@ -477,26 +440,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     const libbase::matrix<GF_q>& pchk_matrix)
 {
     int num_of_elements = GF_q::elements();
-
-    device_perms.init(num_of_elements, num_of_elements);
-
-    int log_block_dim = 10;
-    int block_dim = 1 << log_block_dim;
-    int num_blocks = (num_of_elements * num_of_elements) >> log_block_dim;
-    num_blocks = max(num_blocks, 1);
-
-    // we can use shift for dividing since block size is a power of two.
-    // Note that there is no need to account for division that rounds
-    // towards zero since num_of_elements is always a power of two for GF_q.
-    // Hence granted blockDim is a power of two as well, num_of_elements *
-    // num_of_elements is divided perfectly by blockDim.
-    compute_perms<GF_q><<<num_blocks, block_dim>>>(
-        ::cuda::matrix_reference<int>(device_perms));
-    cudaSafeCall(cudaGetLastError());
-
-#ifdef DEBUG
-    cudaDeviceSynchronize();
-#endif
 
     // we first build qmn_row_indices on the host, then copy to device.
     // Easier since this operation is inherently serial (we have a counter
@@ -685,7 +628,6 @@ clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
 template <class GF_q, class real>
 __global__ void
 spa_init_kern(::cuda::matrix_reference<real> device_received_probs,
-              ::cuda::matrix_reference<int> device_perms,
               ::cuda::matrix_reference<int> device_qmn_row_indices,
               ::cuda::matrix_reference<real> device_r_mxn,
               ::cuda::matrix_reference<real> device_qmn_conv,
@@ -741,7 +683,7 @@ spa_init_kern(::cuda::matrix_reference<real> device_received_probs,
         // NOTE: Here we are permuting the prior probability
         // distribution by multiplying it with h_m_n before placing
         // it in the qmn_conv array.
-        device_qmn_conv(qmn_row_idx, device_perms(h_m_n, loop_e)) =
+        device_qmn_conv(qmn_row_idx, h_m_n * GF_q(loop_e)) =
             device_received_probs(pos, loop_e);
 
         // r_mxn is initialized as 0.
@@ -796,7 +738,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
                       ROUND_UP_DIV(dim_n, (int)block_dim.y));
     spa_init_kern<GF_q, real>
         <<<num_blocks, block_dim>>>(this->device_received_probs,
-                                    this->device_perms,
                                     this->device_qmn_row_indices,
                                     this->device_r_mxn,
                                     this->device_qmn_conv,
@@ -865,7 +806,6 @@ hadamard_transform_pass_kern(::cuda::matrix_reference<real> src,
 template <class GF_q, class real>
 __global__ void
 multiply_h_m_n_kern(
-    ::cuda::matrix_reference<int> device_perms,
     ::cuda::matrix_reference<int> device_qmn_row_indices,
     ::cuda::matrix_reference<real> src,
     ::cuda::matrix_reference<real> dst,
@@ -893,21 +833,19 @@ multiply_h_m_n_kern(
     // actual value of n (loop_n ranges over the number of symbols in check m)
     int pos_n;
     // hold value of pchk matrix at (m, n)
-    int h_m_n;
+    GF_q h_m_n;
     for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
         pos_n = device_pchk_row_non_zeros_pos(loop_m, loop_n);
         h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
         // perform the permutation
-        dst(device_qmn_row_indices(loop_m, pos_n),
-            device_perms(h_m_n, loop_e)) =
+        dst(device_qmn_row_indices(loop_m, pos_n), h_m_n * GF_q(loop_e)) =
             src(device_qmn_row_indices(loop_m, pos_n), loop_e);
     }
 }
 
 template <class GF_q, class real>
 __global__ void
-divide_h_m_n_kern(::cuda::matrix_reference<int> device_perms,
-                  ::cuda::matrix_reference<int> device_qmn_row_indices,
+divide_h_m_n_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
                   ::cuda::matrix_reference<real> src,
                   ::cuda::matrix_reference<real> dst,
                   ::cuda::vector_reference<int> device_pchk_row_non_zeros,
@@ -934,13 +872,13 @@ divide_h_m_n_kern(::cuda::matrix_reference<int> device_perms,
     // actual value of n (loop_n ranges over the number of symbols in check m)
     int pos_n;
     // hold value of pchk matrix at (m, n)
-    int h_m_n;
+    GF_q h_m_n;
     for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
         pos_n = device_pchk_row_non_zeros_pos(loop_m, loop_n);
         h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
         // perform the permutation
-        dst(device_qmn_row_indices(loop_m, pos_n), loop_e) = src(
-            device_qmn_row_indices(loop_m, pos_n), device_perms(h_m_n, loop_e));
+        dst(device_qmn_row_indices(loop_m, pos_n), loop_e) =
+            src(device_qmn_row_indices(loop_m, pos_n), h_m_n * GF_q(loop_e));
     }
 }
 
@@ -1037,8 +975,7 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
 
 template <class GF_q, class real>
 void
-compute_r_mn(::cuda::matrix<int>& device_perms,
-             ::cuda::matrix<int>& device_qmn_row_indices,
+compute_r_mn(::cuda::matrix<int>& device_qmn_row_indices,
              ::cuda::matrix<real>& device_r_mxn,
              ::cuda::matrix<real>& device_qmn_conv,
              ::cuda::vector<int>& device_pchk_row_non_zeros,
@@ -1082,7 +1019,6 @@ compute_r_mn(::cuda::matrix<int>& device_perms,
     // Permute the distributions in src (transformed by the Hadamard transform)
     // into dst
     divide_h_m_n_kern<<<num_blocks, block_dim>>>(
-        ::cuda::matrix_reference<int>(device_perms),
         ::cuda::matrix_reference<int>(device_qmn_row_indices),
         src,
         dst,
@@ -1174,7 +1110,6 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
 template <class GF_q, class real>
 void
 compute_q_mn(::cuda::matrix<real>& device_received_probs,
-             ::cuda::matrix<int>& device_perms,
              ::cuda::matrix<int>& device_qmn_row_indices,
              ::cuda::matrix<real>& device_r_mxn,
              ::cuda::matrix<real>& device_qmn_conv,
@@ -1227,7 +1162,6 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
 
     // Permute the distributions in src into dst
     multiply_h_m_n_kern<<<num_blocks, block_dim>>>(
-        ::cuda::matrix_reference<int>(device_perms),
         ::cuda::matrix_reference<int>(device_qmn_row_indices),
         src,
         dst,
@@ -1340,8 +1274,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
     // probability is 1 and 0 otherwise so we are simply adding up the products
     // for which the parity check is satisfied.
 
-    compute_r_mn(this->device_perms,
-                 this->device_qmn_row_indices,
+    compute_r_mn(this->device_qmn_row_indices,
                  this->device_r_mxn,
                  this->device_qmn_conv,
                  this->device_pchk_row_non_zeros,
@@ -1354,7 +1287,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
     // loop over all the symbol nodes - the vertical step
 
     compute_q_mn(this->device_received_probs,
-                 this->device_perms,
                  this->device_qmn_row_indices,
                  this->device_r_mxn,
                  this->device_qmn_conv,

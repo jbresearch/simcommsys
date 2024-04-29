@@ -73,10 +73,6 @@ public:
     std::string spa_type() override { return "gdl_cuda"; }
 
 private:
-    /*! \brief this holds a look-up table of the finite field multiplication
-     */
-    cuda_matrixi_t device_perms;
-
     /*! \brief this is an n x |GF_q| size matrix that holds prior probability
      * distributions of each symbol in a codeword.
      */
