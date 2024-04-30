@@ -65,7 +65,7 @@ public:
     __device__
     __host__
 #endif
-    static int elements() { return 1 << m; }
+    static constexpr int elements() { return 1 << m; }
 
     /*! \name Class parameters */
     //! Log base 2 of the number of elements in the field
