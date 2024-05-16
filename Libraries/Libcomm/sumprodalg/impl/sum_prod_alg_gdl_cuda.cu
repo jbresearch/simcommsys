@@ -41,7 +41,7 @@ namespace libcomm
 
 /*! \brief Compute ceil(X / Y)
  */
-#define ROUND_UP_DIV(X, Y) (((X) + (Y)-1) / (Y))
+#define ROUND_UP_DIV(X, Y) (((X) + (Y) - 1) / (Y))
 
 // Declarations
 // ----------------------------------------------------------
@@ -776,6 +776,55 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
 #endif
 }
 
+// Inspired by
+// https://developer.download.nvidia.com/compute/cuda/1.1-Beta/x86_64_website/samples.html#fastWalshTransform
+template <class GF_q, class real>
+__global__ void
+hadamard_transform_kern(::cuda::matrix_reference<real> src,
+                        int tanner_edges,
+                        int hmax)
+{
+    // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
+    extern __shared__ __align__(sizeof(real)) unsigned char sbuf[];
+    real* sdata = reinterpret_cast<real*>(sbuf);
+
+    int tid_mod_hmax = threadIdx.x & (hmax - 1);
+    int i1 = 2 * (threadIdx.x - tid_mod_hmax) + tid_mod_hmax;
+    int i2 = i1 + hmax;
+
+    int bid_mod_hmax = (blockIdx.x * blockDim.x) & (hmax - 1);
+    int bi = 2 * (blockIdx.x * blockDim.x - bid_mod_hmax) + bid_mod_hmax;
+
+    int num_of_elements = GF_q::elements();
+    int log2_num_of_elements = GF_q::log2_elements();
+
+    int loop_i = (bi + i1) >> log2_num_of_elements;
+    int loop_e = (bi + i1) & (num_of_elements - 1);
+
+    if (loop_i < tanner_edges) {
+        sdata[i1] = src(loop_i, loop_e);
+        sdata[i2] = src(loop_i, loop_e + hmax);
+        __syncthreads();
+
+        for (int h = 1; h <= hmax; h <<= 1) {
+            int tid_mod_h = threadIdx.x & (h - 1);
+            int i1 = 2 * (threadIdx.x - tid_mod_h) + tid_mod_h;
+            int i2 = i1 + h;
+
+            real tmp1 = sdata[i1];
+            real tmp2 = sdata[i2];
+
+            sdata[i1] = tmp1 + tmp2;
+            sdata[i2] = tmp1 - tmp2;
+
+            __syncthreads();
+        }
+
+        src(loop_i, loop_e) = sdata[i1];
+        src(loop_i, loop_e + hmax) = sdata[i2];
+    }
+}
+
 template <class GF_q, class real>
 __global__ void
 hadamard_transform_pass_kern(::cuda::matrix_reference<real> src,
@@ -785,9 +834,6 @@ hadamard_transform_pass_kern(::cuda::matrix_reference<real> src,
 {
     // find loop_e
     int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
-    // bounds checking
-    int num_of_elements = GF_q::elements();
-    loop_e = min(loop_e, num_of_elements - 1);
 
     // this is just a generic index that ranges over [0, tanner_edges)
     int i = blockIdx.y * blockDim.y + threadIdx.y;
@@ -894,13 +940,33 @@ hadamard_transform(::cuda::matrix_reference<real>& src,
     int num_of_elements = GF_q::elements();
     int tanner_edges = src.get_rows();
 
-    dim3 block_dim = dim3(32, 32);
-    // use division which truncates upwards.
-    dim3 num_blocks = dim3(ROUND_UP_DIV(num_of_elements, (int)block_dim.x),
-                           ROUND_UP_DIV(tanner_edges, (int)block_dim.y));
+    int device = ::cuda::cudaGetCurrentDevice();
+    int max_threads_per_block = ::cuda::cudaGetMaxThreadsPerBlock(device);
+    int max_smem_per_block = ::cuda::cudaGetSharedMemPerBlock(device);
 
-    int h;
-    for (h = 1; h < num_of_elements; h <<= 1) {
+    dim3 block_dim = dim3(min(max_threads_per_block,
+                              max_smem_per_block / (int)(2 * sizeof(real))));
+    // use division which truncates upwards.
+    // divide num_of_elements by 2 as each block processes two elements.
+    dim3 num_blocks = dim3(
+        ROUND_UP_DIV((num_of_elements >> 1) * tanner_edges, (int)block_dim.x));
+
+    int hmax = min(num_of_elements >> 1, block_dim.x);
+    hadamard_transform_kern<GF_q, real>
+        <<<num_blocks, block_dim, 2 * sizeof(real) * block_dim.x>>>(
+            src, tanner_edges, hmax);
+    cudaSafeCall(cudaGetLastError());
+
+#ifdef DEBUG
+    cudaDeviceSynchronize();
+#endif
+
+    block_dim = dim3(32, 32);
+    // use division which truncates upwards.
+    num_blocks = dim3(ROUND_UP_DIV(num_of_elements, (int)block_dim.x),
+                      ROUND_UP_DIV(tanner_edges, (int)block_dim.y));
+
+    for (int h = hmax << 1; h < num_of_elements; h <<= 1) {
         hadamard_transform_pass_kern<GF_q, real>
             <<<num_blocks, block_dim>>>(src, dst, tanner_edges, h);
         cudaSafeCall(cudaGetLastError());
