@@ -478,7 +478,8 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
         max_pchk_col_non_zeros = std::max(max_pchk_col_non_zeros, non_zeros);
     }
 
-    // Host fields to build the rest of the parity check matrix repr.
+    // TODO: Use libbase::vector instead so we can use a single cudaMemcpy2D
+    // later Host fields to build the rest of the parity check matrix repr.
     matrixi_t pchk_row_non_zeros_pos(m, max_pchk_row_non_zeros);
     libbase::matrix<GF_q> pchk_row_non_zeros_val(m, max_pchk_row_non_zeros);
 
@@ -1378,14 +1379,17 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
                               this->almostzero);
 
     // Copy received probabilities from device to host.
+    array1d_t ro_m = (::libbase::vector<real>)this->device_out_probs;
 
     // ensure ro has the right size
     ro.init(this->device_out_probs.get_rows());
 
+    int cols = this->device_out_probs.get_cols();
     for (int n = 0; n < ro.size(); n++) {
         // allocate memory on host for probability distribution of symbol n
-        ro(n).init(this->device_out_probs.get_cols());
-        ro(n) = (libbase::vector<real>)this->device_out_probs.extract_row(n);
+        ro(n).init(cols);
+        for (int loop_e = 0; loop_e < ro(n).size(); loop_e++)
+            ro(n)(loop_e) = ro_m(n * cols + loop_e);
     }
 }
 
