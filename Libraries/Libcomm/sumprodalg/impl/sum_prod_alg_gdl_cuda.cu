@@ -431,7 +431,9 @@ clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
 {
     int n = probs.get_rows();
 
-    dim3 block_dim(::cuda::cudaGetWarpSize());
+    int device = ::cuda::cudaGetCurrentDevice();
+    int max_threads_per_block = ::cuda::cudaGetMaxThreadsPerBlock(device);
+    dim3 block_dim(max_threads_per_block);
     dim3 num_blocks(ROUND_UP_DIV(n, (int)block_dim.x));
 
     clip_and_normalize_probs_kern<GF_q, real>
@@ -829,12 +831,6 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
 #ifdef DEBUG
     cudaDeviceSynchronize();
 #endif
-
-    // Apply clipping + normalization to the computed q_mn values.
-    clip_and_normalize_probs<GF_q, real>(
-        ::cuda::matrix_reference<real>(device_qmn_conv),
-        clipping_method,
-        almost_zero);
 
     // Here we use matrix references for cheap swapping.
     ::cuda::matrix_reference<real> src(device_qmn_conv);
