@@ -43,394 +43,6 @@ namespace libcomm
  */
 #define ROUND_UP_DIV(X, Y) (((X) + (Y) - 1) / (Y))
 
-// Declarations
-// ----------------------------------------------------------
-
-/*! \brief Perform clipping of zero values to almost-zero values on device.
- */
-template <class real>
-__device__
-void perform_clipping(real& num, int& clipping_method, real& almost_zero);
-
-/*! \brief Kernel to apply clipping to and normalize probability distributions
- * in a matrix.
- *
- * This kernel operates on a matrix where each row is a probability
- * distribution. For each row, the kernel
- * - Clips values close to 0 (we decide on values to be clipped based on
- * \p clipping_method), and
- * - Normalizes all values in a probability distribution so that sum of the
- * distribution is 1.0, even after clipping.
- *
- * \param probs Matrix where each row is a probability distribution.
- *
- * \param clipping_method The clipping method used.
- *
- * \param almost_zero Value which clipped values are set to.
- */
-template <class GF_q, class real>
-__global__ void
-clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
-                              int clipping_method,
-                              real almost_zero);
-
-/*! \brief Initializes device arrays for SPA, particularly \p device_qmn_conv
- * and \p device_r_mxn.
- *
- * \p device_qmn_conv is initialized using the probabilities in
- * \p device_receieved_probs (permuted to account for multiplication by values
- * in the parity check matrix).
- *
- * \p device_r_mxn is zero initialized. TODO: Use cudaMemset to zero initialize
- * instead, also maybe we don't even need to zero initialize
- *
- * \param device_received_probs Prior probability distributions over GF(q) for
- * each symbol n
- *
- * \param device_qmn_row_indices m x n matrix containing indices of rows of
- * src/dst that contain distributions corresponding to (m, n).
- *
- * \param device_r_mxn Matrix where each row will hold the computed r_mxn
- * message for a particular (m, n). The mapping between (m, n) and rows is given
- * by \p device_qmn_row_indices.
- *
- * \param device_qmn_conv Matrix where each row holds the Hadamard transform for
- * q_mxn messages used to compute the "r_mxn"s for a particular (m, n). The
- * mapping between (m, n) and rows is given by \p device_qmn_row_indices.
- *
- * \param device_pchk_row_non_zeros m-size vector containing number of non-zeros
- * per row of the parity check matrix.
- *
- * \param device_pchk_row_non_zeros_pos m x max(device_pchk_row_non_zeros)
- * matrix where each row contains the index positions (0-indexed) of non-zero
- * values in the corresponding row of the parity check matrix. Extra slots at
- * the end of each row are padded with zeros.
- *
- * \param device_pchk_row_non_zeros_val m x max(device_pchk_row_non_zeros)
- * matrix where each row contains the values in GF_q of non-zero
- * values in the corresponding row of the parity check matrix. Extra slots at
- * the end of each row are padded with zeros.
- */
-template <class GF_q, class real>
-__global__ void
-spa_init_kern(::cuda::matrix_reference<real> device_received_probs,
-              ::cuda::matrix_reference<int> device_qmn_row_indices,
-              ::cuda::matrix_reference<real> device_r_mxn,
-              ::cuda::matrix_reference<real> device_qmn_conv,
-              ::cuda::vector_reference<int> device_pchk_row_non_zeros,
-              ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
-              ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val);
-
-/*! \brief Wrapper for clip_and_normalize_probs_kern().
- *
- * Takes care of the kernel call, including passing the size of dynamically
- * allocated shared memory used by the kernel.
- *
- * \param probs Matrix where each row is a probability distribution.
- *
- * \param clipping_method The clipping method used.
- *
- * \param almost_zero Value which clipped values are set to.
- */
-template <class GF_q, class real>
-void clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
-                              int clipping_method,
-                              real almost_zero);
-
-/*! \brief Performs a single "butterfly" pass of the Hadamard-Walsh transform
- * over a number of probability distributions.
- *
- * The pass uses the butterfly property to permute distributions in \p src into
- * \p dst in a cache-efficient way.
- *
- * \param src n x |GF_q| matrix containing n distributions over
- * GF_q to which the transform will be applied.
- *
- * \param dst n x |GF_q| matrix that result of transform on src
- * will be stored in.
- *
- * \param tanner_edges Number of distributions that transform will be applied
- * to. The name of the arg comes from the use of this function in SPA, where
- * number of distributions is equal to the edges in the Tanner graph.
- *
- * \param h Indicates the distance used in the "butterfly" pass (elements this
- * distance apart within a single row of src are combined). Starts out at
- * |GF_q|/2 and is divided by 2 at each pass.
- */
-template <class GF_q, class real>
-__global__ void hadamard_transform_pass_kern(::cuda::matrix_reference<real> src,
-                                             ::cuda::matrix_reference<real> dst,
-                                             int tanner_edges,
-                                             int h);
-
-/*! \brief Perform a permutation of \p src into \p dst.
- *
- * The permutation is such that for a check m and a symbol n which participates
- * in the check:
- *
- * dst(device_qmn_row_indices(m,n), h_m_n*e) =
- * src(device_qmn_row_indices(m,n),e)
- *
- * for every element e in GF_q, and h_m_n is a parity check matrix
- * element corresponding to (m, n).
- *
- * So effectively we are transforming a distribution over a random variable e in
- * GF_q to a distribution over h_m_n*e
- *
- * \param device_qmn_row_indices m x n matrix containing indices of rows of
- * src/dst that contain distributions corresponding to (m, n).
- *
- * \param src Matrix where each row is a "probability" distribution over GF_q
- * corresponding to some (m, n) pair.
- *
- * \param dst Destination matrix containing permuted distributions from src
- * (result of this kernel).
- *
- * \param device_pchk_row_non_zeros m-size vector containing number of non-zeros
- * per row of the parity check matrix.
- *
- * \param device_pchk_row_non_zeros_pos m x max(device_pchk_row_non_zeros)
- * matrix where each row contains the index positions (0-indexed) of non-zero
- * values in the corresponding row of the parity check matrix. Extra slots at
- * the end of each row are padded with zeros.
- *
- * \param device_pchk_row_non_zeros_val m x max(device_pchk_row_non_zeros)
- * matrix where each row contains the values in GF_q of non-zero
- * values in the corresponding row of the parity check matrix. Extra slots at
- * the end of each row are padded with zeros.
- */
-template <class GF_q, class real>
-__global__ void multiply_h_m_n_kern(
-    ::cuda::matrix_reference<int> device_qmn_row_indices,
-    ::cuda::matrix_reference<real> src,
-    ::cuda::matrix_reference<real> dst,
-    ::cuda::vector_reference<int> device_pchk_row_non_zeros,
-    ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
-    ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val);
-
-/*! \brief Perform a permutation of \p src into \p dst.
- *
- * The permutation is such that for a check m and a symbol n which participates
- * in the check:
- *
- * dst(device_qmn_row_indices(m,n),e) =
- * src(device_qmn_row_indices(m,n),h_m_n*e)
- *
- * for every element e in GF_q, and h_m_n is a parity check matrix
- * element corresponding to (m, n).
- *
- * So effectively we are transforming a distribution over a random variable
- * h_m_n*e in GF_q to a distribution over e
- *
- * \param device_qmn_row_indices m x n matrix containing indices of rows of
- * src/dst that contain distributions corresponding to (m, n).
- *
- * \param src Matrix where each row is a "probability" distribution over GF_q
- * corresponding to some (m, n) pair.
- *
- * \param dst Destination matrix containing permuted distributions from src
- * (result of this kernel).
- *
- * \param device_pchk_row_non_zeros m-size vector containing number of non-zeros
- * per row of the parity check matrix.
- *
- * \param device_pchk_row_non_zeros_pos m x max(device_pchk_row_non_zeros)
- * matrix where each row contains the index positions (0-indexed) of non-zero
- * values in the corresponding row of the parity check matrix. Extra slots at
- * the end of each row are padded with zeros.
- *
- * \param device_pchk_row_non_zeros_val m x max(device_pchk_row_non_zeros)
- * matrix where each row contains the values in GF_q of non-zero
- * values in the corresponding row of the parity check matrix. Extra slots at
- * the end of each row are padded with zeros.
- */
-template <class GF_q, class real>
-__global__ void
-divide_h_m_n_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
-                  ::cuda::matrix_reference<real> src,
-                  ::cuda::matrix_reference<real> dst,
-                  ::cuda::vector_reference<int> device_pchk_row_non_zeros,
-                  ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
-                  ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val);
-
-/*! \brief Compute the Hadamard transform of each "probability" distribution in
- * \p src, and store result in \p dst.
- *
- * \param src Matrix where each row is a "probability" distribution over GF_q
- * \param dst Matrix of same dimensions as src used to store result of Hadamard
- * transforms.
- */
-template <class GF_q, class real>
-void hadamard_transform(::cuda::matrix_reference<real>& src,
-                        ::cuda::matrix_reference<real>& dst);
-
-/*! \brief Compute r_mxn messages from \p device_qmn_conv. Results are stored in
- * \p device_r_mxn.
- *
- * Note that if \p device_qmn_conv stores the Hadamard transform of the actual
- * "q_mxn"s, as in our impl., this kernel is not enough to compute the r_mn
- * messages, but we need to apply the Hadamard transform on its results.
- *
- * \param device_qmn_row_indices m x n matrix containing indices of rows of
- * src/dst that contain distributions corresponding to (m, n).
- *
- * \param device_r_mxn Matrix where each row will hold the computed r_mxn
- * message for a particular (m, n). The mapping between (m, n) and rows is given
- * by \p device_qmn_row_indices.
- *
- * \param device_qmn_conv Matrix where each row holds the Hadamard transform of
- * q_mxn messages used to compute the "r_mxn"s for a particular (m, n). The
- * mapping between (m, n) and rows is given by \p device_qmn_row_indices.
- *
- * \param device_pchk_row_non_zeros m-size vector containing number of non-zeros
- * per row of the parity check matrix.
- *
- * \param device_pchk_row_non_zeros_pos m x max(device_pchk_row_non_zeros)
- * matrix where each row contains the index positions (0-indexed) of non-zero
- * values in the corresponding row of the parity check matrix. Extra slots at
- * the end of each row are padded with zeros.
- */
-template <class GF_q, class real>
-__global__ void
-compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
-                  ::cuda::matrix_reference<real> device_r_mxn,
-                  ::cuda::matrix_reference<real> device_qmn_conv,
-                  ::cuda::vector_reference<int> device_pchk_row_non_zeros,
-                  ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos);
-
-/*! \brief Full computation of r_mxn messages in the context of our algorithm.
- * Results are stored in \p device_r_mxn.
- *
- * This function takes the following steps:
- * - Uses the compute_r_mn_kern() kernel to compute messages from
- * \p device_qmn_conv.
- *
- * - Applies the Hadamard transform to the result of the last
- * step
- *
- * - Applies the divide_h_m_n_kern to the result of the last step; this gives us
- * the actual r_mxn messages.
- *
- * - Applies clipping and normalization to the r_mxn messages computed in the
- * last step
- *
- * \param device_qmn_row_indices m x n matrix containing indices of rows of
- * src/dst that contain distributions corresponding to (m, n).
- *
- * \param device_r_mxn Matrix where each row will hold the computed r_mxn
- * message for a particular (m, n). The mapping between (m, n) and rows is given
- * by \p device_qmn_row_indices.
- *
- * \param device_qmn_conv Matrix where each row holds the Hadamard transform of
- * q_mxn messages used to compute the "r_mxn"s for a particular (m, n). The
- * mapping between (m, n) and rows is given by \p device_qmn_row_indices.
- *
- * \param device_pchk_row_non_zeros m-size vector containing number of non-zeros
- * per row of the parity check matrix.
- *
- * \param device_pchk_row_non_zeros_pos m x max(device_pchk_row_non_zeros)
- * matrix where each row contains the index positions (0-indexed) of non-zero
- * values in the corresponding row of the parity check matrix. Extra slots at
- * the end of each row are padded with zeros.
- *
- * \param device_pchk_row_non_zeros_val m x max(device_pchk_row_non_zeros)
- * matrix where each row contains the values in GF_q of non-zero
- * values in the corresponding row of the parity check matrix. Extra slots at
- * the end of each row are padded with zeros.
- *
- * \param device_swap_buf Matrix of same size as \p device_r_mxn which is used
- * as a swap buffer when Hadamard transform/division by h_m_n values are being
- * computed.
- */
-template <class GF_q, class real>
-void compute_r_mn(::cuda::matrix<int>& device_qmn_row_indices,
-                  ::cuda::matrix<real>& device_r_mxn,
-                  ::cuda::matrix<real>& device_qmn_conv,
-                  ::cuda::vector<int>& device_pchk_row_non_zeros,
-                  ::cuda::matrix<int>& device_pchk_row_non_zeros_pos,
-                  ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
-                  ::cuda::matrix<real>& device_swap_buf,
-                  int clipping_method,
-                  real almost_zero);
-
-template <class GF_q, class real>
-__global__ void
-compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
-                  ::cuda::matrix_reference<int> device_qmn_row_indices,
-                  ::cuda::matrix_reference<real> device_r_mxn,
-                  ::cuda::matrix_reference<real> device_qmn_conv,
-                  ::cuda::vector_reference<int> device_pchk_col_non_zeros,
-                  ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos);
-
-template <class GF_q, class real>
-void compute_q_mn(::cuda::matrix<real>& device_received_probs,
-                  ::cuda::matrix<int>& device_qmn_row_indices,
-                  ::cuda::matrix<real>& device_r_mxn,
-                  ::cuda::matrix<real>& device_qmn_conv,
-                  ::cuda::vector<int>& device_pchk_row_non_zeros,
-                  ::cuda::matrix<int>& device_pchk_row_non_zeros_pos,
-                  ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
-                  ::cuda::vector<int>& device_pchk_col_non_zeros,
-                  ::cuda::matrix<int>& device_pchk_col_non_zeros_pos,
-                  ::cuda::matrix<real>& device_swap_buf,
-                  int clipping_method,
-                  real almost_zero);
-
-template <class GF_q, class real>
-__global__ void
-compute_probs_kern(::cuda::matrix_reference<real> device_received_probs,
-                   ::cuda::matrix_reference<real> device_out_probs,
-                   ::cuda::matrix_reference<int> device_qmn_row_indices,
-                   ::cuda::matrix_reference<real> device_r_mxn,
-                   ::cuda::vector_reference<int> device_pchk_col_non_zeros,
-                   ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos);
-
-/*! \brief Compute posterior probabilities from r_mn messages in \p device_r_mxn
- * . The results are stored in \p device_received_probs.
- *
- * For a particular symbol n, the posterior probability that symbol n has value
- * e is the product of
- *
- * device_r_mxn(device_qmn_row_indices(m, n), e)
- *
- * where m ranges over checks which symbol n participates in.
- *
- * \param device_receieved_probs n x |GF(q)| matrix where the posterior
- * probability distributions will be stored.
- *
- * \param device_qmn_row_indices m x n matrix containing indices of rows of
- * src/dst that contain distributions corresponding to (m, n).
- *
- * \param device_r_mxn Matrix where each row will hold the computed r_mxn
- * message for a particular (m, n). The mapping between (m, n) and rows is given
- * by \p device_qmn_row_indices.
- *
- * \param device_pchk_col_non_zeros n-size vector containing number of non-zeros
- * per column of the parity check matrix.
- *
- * \param device_pchk_col_non_zeros_pos n x max(device_pchk_col_non_zeros)
- * matrix where each row contains the index positions (0-indexed) of non-zero
- * values in a column of the parity check matrix. Extra slots at
- * the end of each row are padded with zeros.
- *
- * \param clipping_method The clipping method used to determine which almost
- * zero/zero values to clip.
- *
- * \param almost_zero Clipped values are set to this value.
- */
-template <class GF_q, class real>
-void compute_probs(::cuda::matrix<real>& device_received_probs,
-                   ::cuda::matrix<real>& device_out_probs,
-                   ::cuda::matrix<int>& device_qmn_row_indices,
-                   ::cuda::matrix<real>& device_r_mxn,
-                   ::cuda::vector<int>& device_pchk_col_non_zeros,
-                   ::cuda::matrix<int>& device_pchk_col_non_zeros_pos,
-                   int clipping_method,
-                   real almost_zero);
-
-// Definitions
-// ----------------------------------------------------------
-
 template <class GF_q, class real>
 sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     int n,
@@ -558,6 +170,209 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     device_swap_buf.init(tanner_edges, num_of_elements);
 
     device_out_probs.init(n, num_of_elements);
+}
+
+// Inspired by
+// https://developer.download.nvidia.com/compute/cuda/1.1-Beta/x86_64_website/samples.html#fastWalshTransform
+template <class GF_q, class real>
+__global__ void
+hadamard_transform_kern(::cuda::matrix_reference<real> src,
+                        int tanner_edges,
+                        int hmax)
+{
+    // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
+    extern __shared__ __align__(sizeof(real)) unsigned char sbuf[];
+    real* sdata = reinterpret_cast<real*>(sbuf);
+
+    int tid_mod_hmax = threadIdx.x & (hmax - 1);
+    int i1 = 2 * (threadIdx.x - tid_mod_hmax) + tid_mod_hmax;
+    int i2 = i1 + hmax;
+
+    int bid_mod_hmax = (blockIdx.x * blockDim.x) & (hmax - 1);
+    int bi = 2 * (blockIdx.x * blockDim.x - bid_mod_hmax) + bid_mod_hmax;
+
+    int num_of_elements = GF_q::elements();
+    int log2_num_of_elements = GF_q::log2_elements();
+
+    int loop_i = (bi + i1) >> log2_num_of_elements;
+    int loop_e = (bi + i1) & (num_of_elements - 1);
+
+    if (loop_i < tanner_edges) {
+        sdata[i1] = src(loop_i, loop_e);
+        sdata[i2] = src(loop_i, loop_e + hmax);
+        __syncthreads();
+
+        for (int h = 1; h <= hmax; h <<= 1) {
+            int tid_mod_h = threadIdx.x & (h - 1);
+            int i1 = 2 * (threadIdx.x - tid_mod_h) + tid_mod_h;
+            int i2 = i1 + h;
+
+            real tmp1 = sdata[i1];
+            real tmp2 = sdata[i2];
+
+            sdata[i1] = tmp1 + tmp2;
+            sdata[i2] = tmp1 - tmp2;
+
+            __syncthreads();
+        }
+
+        src(loop_i, loop_e) = sdata[i1];
+        src(loop_i, loop_e + hmax) = sdata[i2];
+    }
+}
+
+template <class GF_q, class real>
+__global__ void
+hadamard_transform_pass_kern(::cuda::matrix_reference<real> src,
+                             ::cuda::matrix_reference<real> dst,
+                             int tanner_edges,
+                             int h)
+{
+    // find loop_e
+    int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
+
+    // this is just a generic index that ranges over [0, tanner_edges)
+    int i = blockIdx.y * blockDim.y + threadIdx.y;
+    i = min(i, tanner_edges - 1);
+
+    // If floor(loop_e / h) is odd, sign is -1.0
+    // If floor(loop_e / h) is even, sign is 1.0
+    int sign = ((real)((loop_e / h) % 2 == 0) - 0.5) * 2.0;
+
+    // From the butterfly property:
+    // If floor(loop_e / h) is odd, result of the pass is P[loop_e - h] - P[e]
+    // If floor(loop_e / h) is even, result of the pass is P[loop_e + h] + P[e]
+    dst(i, loop_e) = src(i, loop_e + sign * h) + sign * src(i, loop_e);
+}
+
+template <class GF_q, class real>
+__global__ void
+multiply_h_m_n_kern(
+    ::cuda::matrix_reference<int> device_qmn_row_indices,
+    ::cuda::matrix_reference<real> src,
+    ::cuda::matrix_reference<real> dst,
+    ::cuda::vector_reference<int> device_pchk_row_non_zeros,
+    ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
+    ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val)
+{
+    // src and dst need to have the same dimensions
+    cuda_assert(src.get_cols() == dst.get_cols() &&
+                src.get_rows() == dst.get_rows());
+
+    // find loop_e
+    int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
+    // bounds checking
+    int num_of_elements = GF_q::elements();
+    loop_e = min(loop_e, num_of_elements - 1);
+
+    // find loop_m
+    int loop_m = blockIdx.y * blockDim.y + threadIdx.y;
+    // bounds checking
+    int m = device_pchk_row_non_zeros.size();
+    loop_m = min(loop_m, m - 1);
+
+    int non_zeros = device_pchk_row_non_zeros(loop_m);
+    // actual value of n (loop_n ranges over the number of symbols in check m)
+    int pos_n;
+    // hold value of pchk matrix at (m, n)
+    GF_q h_m_n;
+    for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
+        pos_n = device_pchk_row_non_zeros_pos(loop_m, loop_n);
+        h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
+        // perform the permutation
+        dst(device_qmn_row_indices(loop_m, pos_n), h_m_n * GF_q(loop_e)) =
+            src(device_qmn_row_indices(loop_m, pos_n), loop_e);
+    }
+}
+
+template <class GF_q, class real>
+__global__ void
+divide_h_m_n_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
+                  ::cuda::matrix_reference<real> src,
+                  ::cuda::matrix_reference<real> dst,
+                  ::cuda::vector_reference<int> device_pchk_row_non_zeros,
+                  ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
+                  ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val)
+{
+    // src and dst need to have the same dimensions
+    cuda_assert(src.get_cols() == dst.get_cols() &&
+                src.get_rows() == dst.get_rows());
+
+    // find loop_e
+    int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
+    // bounds checking
+    int num_of_elements = GF_q::elements();
+    loop_e = min(loop_e, num_of_elements - 1);
+
+    // find loop_m
+    int loop_m = blockIdx.y * blockDim.y + threadIdx.y;
+    // bounds checking
+    int m = device_pchk_row_non_zeros.size();
+    loop_m = min(loop_m, m - 1);
+
+    int non_zeros = device_pchk_row_non_zeros(loop_m);
+    // actual value of n (loop_n ranges over the number of symbols in check m)
+    int pos_n;
+    // hold value of pchk matrix at (m, n)
+    GF_q h_m_n;
+    for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
+        pos_n = device_pchk_row_non_zeros_pos(loop_m, loop_n);
+        h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
+        // perform the permutation
+        dst(device_qmn_row_indices(loop_m, pos_n), loop_e) =
+            src(device_qmn_row_indices(loop_m, pos_n), h_m_n * GF_q(loop_e));
+    }
+}
+
+template <class GF_q, class real>
+inline void
+hadamard_transform(::cuda::matrix_reference<real>& src,
+                   ::cuda::matrix_reference<real>& dst)
+{
+    // src and dst need to have the same dimensions
+    cuda_assert(src.get_cols() == dst.get_cols() &&
+                src.get_rows() == dst.get_rows());
+
+    int num_of_elements = GF_q::elements();
+    int tanner_edges = src.get_rows();
+
+    int device = ::cuda::cudaGetCurrentDevice();
+    int max_threads_per_block = ::cuda::cudaGetMaxThreadsPerBlock(device);
+    int max_smem_per_block = ::cuda::cudaGetSharedMemPerBlock(device);
+
+    dim3 block_dim = dim3(min(max_threads_per_block,
+                              max_smem_per_block / (int)(2 * sizeof(real))));
+    // use division which truncates upwards.
+    // divide num_of_elements by 2 as each block processes two elements.
+    dim3 num_blocks = dim3(
+        ROUND_UP_DIV((num_of_elements >> 1) * tanner_edges, (int)block_dim.x));
+
+    int hmax = min(num_of_elements >> 1, block_dim.x);
+    hadamard_transform_kern<GF_q, real>
+        <<<num_blocks, block_dim, 2 * sizeof(real) * block_dim.x>>>(
+            src, tanner_edges, hmax);
+    cudaSafeCall(cudaGetLastError());
+
+#ifdef DEBUG
+    cudaDeviceSynchronize();
+#endif
+
+    block_dim = dim3(32, 32);
+    // use division which truncates upwards.
+    num_blocks = dim3(ROUND_UP_DIV(num_of_elements, (int)block_dim.x),
+                      ROUND_UP_DIV(tanner_edges, (int)block_dim.y));
+
+    for (int h = hmax << 1; h < num_of_elements; h <<= 1) {
+        hadamard_transform_pass_kern<GF_q, real>
+            <<<num_blocks, block_dim>>>(src, dst, tanner_edges, h);
+        cudaSafeCall(cudaGetLastError());
+
+#ifdef DEBUG
+        cudaDeviceSynchronize();
+#endif
+
+        std::swap(src, dst);
+    }
 }
 
 template <class real>
@@ -775,209 +590,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
                    << "The marginal matrix is given by:" << std::endl;
     this->print_marginal_probs(libbase::trace);
 #endif
-}
-
-// Inspired by
-// https://developer.download.nvidia.com/compute/cuda/1.1-Beta/x86_64_website/samples.html#fastWalshTransform
-template <class GF_q, class real>
-__global__ void
-hadamard_transform_kern(::cuda::matrix_reference<real> src,
-                        int tanner_edges,
-                        int hmax)
-{
-    // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
-    extern __shared__ __align__(sizeof(real)) unsigned char sbuf[];
-    real* sdata = reinterpret_cast<real*>(sbuf);
-
-    int tid_mod_hmax = threadIdx.x & (hmax - 1);
-    int i1 = 2 * (threadIdx.x - tid_mod_hmax) + tid_mod_hmax;
-    int i2 = i1 + hmax;
-
-    int bid_mod_hmax = (blockIdx.x * blockDim.x) & (hmax - 1);
-    int bi = 2 * (blockIdx.x * blockDim.x - bid_mod_hmax) + bid_mod_hmax;
-
-    int num_of_elements = GF_q::elements();
-    int log2_num_of_elements = GF_q::log2_elements();
-
-    int loop_i = (bi + i1) >> log2_num_of_elements;
-    int loop_e = (bi + i1) & (num_of_elements - 1);
-
-    if (loop_i < tanner_edges) {
-        sdata[i1] = src(loop_i, loop_e);
-        sdata[i2] = src(loop_i, loop_e + hmax);
-        __syncthreads();
-
-        for (int h = 1; h <= hmax; h <<= 1) {
-            int tid_mod_h = threadIdx.x & (h - 1);
-            int i1 = 2 * (threadIdx.x - tid_mod_h) + tid_mod_h;
-            int i2 = i1 + h;
-
-            real tmp1 = sdata[i1];
-            real tmp2 = sdata[i2];
-
-            sdata[i1] = tmp1 + tmp2;
-            sdata[i2] = tmp1 - tmp2;
-
-            __syncthreads();
-        }
-
-        src(loop_i, loop_e) = sdata[i1];
-        src(loop_i, loop_e + hmax) = sdata[i2];
-    }
-}
-
-template <class GF_q, class real>
-__global__ void
-hadamard_transform_pass_kern(::cuda::matrix_reference<real> src,
-                             ::cuda::matrix_reference<real> dst,
-                             int tanner_edges,
-                             int h)
-{
-    // find loop_e
-    int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
-
-    // this is just a generic index that ranges over [0, tanner_edges)
-    int i = blockIdx.y * blockDim.y + threadIdx.y;
-    i = min(i, tanner_edges - 1);
-
-    // If floor(loop_e / h) is odd, sign is -1.0
-    // If floor(loop_e / h) is even, sign is 1.0
-    int sign = ((real)((loop_e / h) % 2 == 0) - 0.5) * 2.0;
-
-    // From the butterfly property:
-    // If floor(loop_e / h) is odd, result of the pass is P[loop_e - h] - P[e]
-    // If floor(loop_e / h) is even, result of the pass is P[loop_e + h] + P[e]
-    dst(i, loop_e) = src(i, loop_e + sign * h) + sign * src(i, loop_e);
-}
-
-template <class GF_q, class real>
-__global__ void
-multiply_h_m_n_kern(
-    ::cuda::matrix_reference<int> device_qmn_row_indices,
-    ::cuda::matrix_reference<real> src,
-    ::cuda::matrix_reference<real> dst,
-    ::cuda::vector_reference<int> device_pchk_row_non_zeros,
-    ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
-    ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val)
-{
-    // src and dst need to have the same dimensions
-    cuda_assert(src.get_cols() == dst.get_cols() &&
-                src.get_rows() == dst.get_rows());
-
-    // find loop_e
-    int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
-    // bounds checking
-    int num_of_elements = GF_q::elements();
-    loop_e = min(loop_e, num_of_elements - 1);
-
-    // find loop_m
-    int loop_m = blockIdx.y * blockDim.y + threadIdx.y;
-    // bounds checking
-    int m = device_pchk_row_non_zeros.size();
-    loop_m = min(loop_m, m - 1);
-
-    int non_zeros = device_pchk_row_non_zeros(loop_m);
-    // actual value of n (loop_n ranges over the number of symbols in check m)
-    int pos_n;
-    // hold value of pchk matrix at (m, n)
-    GF_q h_m_n;
-    for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-        pos_n = device_pchk_row_non_zeros_pos(loop_m, loop_n);
-        h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
-        // perform the permutation
-        dst(device_qmn_row_indices(loop_m, pos_n), h_m_n * GF_q(loop_e)) =
-            src(device_qmn_row_indices(loop_m, pos_n), loop_e);
-    }
-}
-
-template <class GF_q, class real>
-__global__ void
-divide_h_m_n_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
-                  ::cuda::matrix_reference<real> src,
-                  ::cuda::matrix_reference<real> dst,
-                  ::cuda::vector_reference<int> device_pchk_row_non_zeros,
-                  ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
-                  ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val)
-{
-    // src and dst need to have the same dimensions
-    cuda_assert(src.get_cols() == dst.get_cols() &&
-                src.get_rows() == dst.get_rows());
-
-    // find loop_e
-    int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
-    // bounds checking
-    int num_of_elements = GF_q::elements();
-    loop_e = min(loop_e, num_of_elements - 1);
-
-    // find loop_m
-    int loop_m = blockIdx.y * blockDim.y + threadIdx.y;
-    // bounds checking
-    int m = device_pchk_row_non_zeros.size();
-    loop_m = min(loop_m, m - 1);
-
-    int non_zeros = device_pchk_row_non_zeros(loop_m);
-    // actual value of n (loop_n ranges over the number of symbols in check m)
-    int pos_n;
-    // hold value of pchk matrix at (m, n)
-    GF_q h_m_n;
-    for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-        pos_n = device_pchk_row_non_zeros_pos(loop_m, loop_n);
-        h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
-        // perform the permutation
-        dst(device_qmn_row_indices(loop_m, pos_n), loop_e) =
-            src(device_qmn_row_indices(loop_m, pos_n), h_m_n * GF_q(loop_e));
-    }
-}
-
-template <class GF_q, class real>
-inline void
-hadamard_transform(::cuda::matrix_reference<real>& src,
-                   ::cuda::matrix_reference<real>& dst)
-{
-    // src and dst need to have the same dimensions
-    cuda_assert(src.get_cols() == dst.get_cols() &&
-                src.get_rows() == dst.get_rows());
-
-    int num_of_elements = GF_q::elements();
-    int tanner_edges = src.get_rows();
-
-    int device = ::cuda::cudaGetCurrentDevice();
-    int max_threads_per_block = ::cuda::cudaGetMaxThreadsPerBlock(device);
-    int max_smem_per_block = ::cuda::cudaGetSharedMemPerBlock(device);
-
-    dim3 block_dim = dim3(min(max_threads_per_block,
-                              max_smem_per_block / (int)(2 * sizeof(real))));
-    // use division which truncates upwards.
-    // divide num_of_elements by 2 as each block processes two elements.
-    dim3 num_blocks = dim3(
-        ROUND_UP_DIV((num_of_elements >> 1) * tanner_edges, (int)block_dim.x));
-
-    int hmax = min(num_of_elements >> 1, block_dim.x);
-    hadamard_transform_kern<GF_q, real>
-        <<<num_blocks, block_dim, 2 * sizeof(real) * block_dim.x>>>(
-            src, tanner_edges, hmax);
-    cudaSafeCall(cudaGetLastError());
-
-#ifdef DEBUG
-    cudaDeviceSynchronize();
-#endif
-
-    block_dim = dim3(32, 32);
-    // use division which truncates upwards.
-    num_blocks = dim3(ROUND_UP_DIV(num_of_elements, (int)block_dim.x),
-                      ROUND_UP_DIV(tanner_edges, (int)block_dim.y));
-
-    for (int h = hmax << 1; h < num_of_elements; h <<= 1) {
-        hadamard_transform_pass_kern<GF_q, real>
-            <<<num_blocks, block_dim>>>(src, dst, tanner_edges, h);
-        cudaSafeCall(cudaGetLastError());
-
-#ifdef DEBUG
-        cudaDeviceSynchronize();
-#endif
-
-        std::swap(src, dst);
-    }
 }
 
 template <class GF_q, class real>
