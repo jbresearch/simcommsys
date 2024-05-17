@@ -58,7 +58,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     // to keep track of current index) and also we need the tanner_edges var
     // computed during this process on host to allocate memory for qmn and
     // rmn matrices.
-    matrixi_t qmn_row_indices(m, n);
+    array1i_t qmn_row_indices(m * n);
     // fill with -1 initially (means bit n does not participate in check m)
     qmn_row_indices = -1;
 
@@ -90,12 +90,11 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
         max_pchk_col_non_zeros = std::max(max_pchk_col_non_zeros, non_zeros);
     }
 
-    // TODO: Use libbase::vector instead so we can use a single cudaMemcpy2D
-    // later Host fields to build the rest of the parity check matrix repr.
-    matrixi_t pchk_row_non_zeros_pos(m, max_pchk_row_non_zeros);
-    libbase::matrix<GF_q> pchk_row_non_zeros_val(m, max_pchk_row_non_zeros);
+    // Host fields to build the rest of the parity check matrix repr.
+    array1i_t pchk_row_non_zeros_pos(m * max_pchk_row_non_zeros);
+    libbase::vector<GF_q> pchk_row_non_zeros_val(m * max_pchk_row_non_zeros);
 
-    matrixi_t pchk_col_non_zeros_pos(n, max_pchk_col_non_zeros);
+    array1i_t pchk_col_non_zeros_pos(n * max_pchk_col_non_zeros);
 
     // counts the number of edges in the Tanner graph of the code.
     // Tells us what the size of device_rmxn and device_qmn_conv should
@@ -117,12 +116,14 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
             val = pchk_matrix(loop_m, pos_n);
 
             // populate other pchk matrix fields on the host.
-            pchk_row_non_zeros_pos(loop_m, loop_n) = pos_n;
-            pchk_row_non_zeros_val(loop_m, loop_n) = val;
+            pchk_row_non_zeros_pos(loop_m * max_pchk_row_non_zeros + loop_n) =
+                pos_n;
+            pchk_row_non_zeros_val(loop_m * max_pchk_row_non_zeros + loop_n) =
+                val;
 
             // assign an index in device_q_mn_conv, device_r_mxn and so on
             // to a non-zero (m, n) element.
-            qmn_row_indices(loop_m, pos_n) = tanner_edges;
+            qmn_row_indices(loop_m * n + pos_n) = tanner_edges;
             tanner_edges++;
         }
     }
@@ -138,7 +139,8 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
             pos_m = non_zero_col_pos(loop_n)(loop_m) - 1; // we count from zero;
 
             // populate other pchk matrix fields on the host.
-            pchk_col_non_zeros_pos(loop_n, loop_m) = pos_m;
+            pchk_col_non_zeros_pos(loop_n * max_pchk_col_non_zeros + loop_m) =
+                pos_m;
         }
     }
 
@@ -520,10 +522,15 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
     // Allocate memory for recieved probabilities.
     this->device_received_probs.init(dim_n, num_of_elements);
 
-    // Copy probabilities to device row-by-row since they are provided in a
-    // ragged list.
+    // Convert vector of vectors into a single vector so that it can be copied
+    // to device more efficiently
+    array1d_t recvd_probs_flat(dim_n * num_of_elements);
     for (int loop_n = 0; loop_n < dim_n; loop_n++)
-        this->device_received_probs.extract_row(loop_n) = recvd_probs(loop_n);
+        for (int loop_e = 0; loop_e < num_of_elements; loop_e++)
+            recvd_probs_flat(loop_n * num_of_elements + loop_e) =
+                recvd_probs(loop_n)(loop_e);
+
+    this->device_received_probs = recvd_probs_flat;
 
     clip_and_normalize_probs<GF_q, real>(
         ::cuda::matrix_reference<real>(this->device_received_probs),
