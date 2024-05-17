@@ -397,29 +397,82 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
                               int clipping_method,
                               real almost_zero)
 {
+    // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
+    extern __shared__ __align__(sizeof(real)) unsigned char sbuf[];
+    real* sdata = reinterpret_cast<real*>(sbuf);
+
     // ranges over probability distributions in prob.
-    int loop_n = blockIdx.x * blockDim.x + threadIdx.x;
+    int loop_n = blockIdx.y * blockDim.y + threadIdx.y;
+
     // bounds checking
     int n = probs.get_rows();
-    loop_n = min(loop_n, n - 1);
+    if (loop_n < n) {
+        int i = threadIdx.y * blockDim.x + threadIdx.x;
+        sdata[i] = 0.0;
 
-    int num_of_elements = GF_q::elements();
-    real alpha = real(0.0);
+        int num_of_elements = GF_q::elements();
 
-    real tmp_prob;
-    for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
-        // Clipping HACK
-        tmp_prob = probs(loop_n, loop_e);
-        perform_clipping(tmp_prob, clipping_method, almost_zero);
-        probs(loop_n, loop_e) = tmp_prob;
-        alpha += tmp_prob;
+        real tmp_prob;
+        for (int loop_e = threadIdx.x; loop_e < num_of_elements;
+             loop_e += blockDim.x) {
+            // Clipping HACK
+            tmp_prob = probs(loop_n, loop_e);
+            perform_clipping(tmp_prob, clipping_method, almost_zero);
+            probs(loop_n, loop_e) = tmp_prob;
+            sdata[i] += tmp_prob;
+        }
+
+        __syncthreads();
+
+        real alpha = 0.0;
+        // linear reduce of partial sums, fast
+        for (int i = 0; i < blockDim.x; i++)
+            alpha += sdata[i];
+
+        cuda_assertalways(alpha != real(0.0));
+
+        // normalize probabilities (divide by alpha)
+        for (int loop_e = threadIdx.x; loop_e < num_of_elements;
+             loop_e += blockDim.x) {
+            probs(loop_n, loop_e) /= alpha;
+        }
     }
+}
 
-    cuda_assertalways(alpha != real(0.0));
+template <class GF_q, class real>
+__global__ void
+clip_and_normalize_probs_fast_kern(::cuda::matrix_reference<real> probs,
+                                   int clipping_method,
+                                   real almost_zero)
+{
+    // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
+    extern __shared__ __align__(sizeof(real)) unsigned char sbuf[];
+    real* psums = reinterpret_cast<real*>(sbuf);
+    real* sdata = reinterpret_cast<real*>(sbuf) + blockDim.x;
 
-    // normalize probabilities (divide by alpha)
-    for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
-        probs(loop_n, loop_e) /= alpha;
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+
+    constexpr int num_of_elements = GF_q::elements();
+    int loop_e = i & (num_of_elements - 1);
+    int loop_n = i >> num_of_elements;
+
+    int n = probs.get_rows();
+    if (loop_n < n) {
+        sdata[threadIdx.x] = probs(loop_n, loop_e);
+        perform_clipping(sdata[threadIdx.x], clipping_method, almost_zero);
+
+        psums[threadIdx.x] = sdata[threadIdx.x];
+
+        for (int stride = 1; stride < num_of_elements; stride <<= 1) {
+            // NOTE: reads may be out of bounds but we will just end up in sdata
+            // buffer
+            psums[threadIdx.x] += psums[threadIdx.x + stride];
+            __syncthreads();
+        }
+
+        sdata[threadIdx.x] /=
+            psums[(threadIdx.x >> num_of_elements) << num_of_elements];
+        probs(loop_n, loop_e) = sdata[threadIdx.x];
     }
 }
 
@@ -430,14 +483,47 @@ clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
                          real almost_zero)
 {
     int n = probs.get_rows();
+    int num_of_elements = GF_q::elements();
 
     int device = ::cuda::cudaGetCurrentDevice();
+    int warpsize = ::cuda::cudaGetWarpSize(device);
     int max_threads_per_block = ::cuda::cudaGetMaxThreadsPerBlock(device);
-    dim3 block_dim(max_threads_per_block);
-    dim3 num_blocks(ROUND_UP_DIV(n, (int)block_dim.x));
+    int shared_mem_per_block = ::cuda::cudaGetSharedMemPerBlock(device);
 
-    clip_and_normalize_probs_kern<GF_q, real>
-        <<<num_blocks, block_dim>>>(probs, clipping_method, almost_zero);
+    dim3 block_dim, num_blocks;
+
+// TODO: This only works for double or float; turn into a template at some point
+#define LOG2(X) (sizeof(X) * 8 - __builtin_clz(X) - 1)
+
+    // What is the maximum number of elements that can fit into a block with the
+    // fast kernel? Note that each element occupies 2 * sizeof(real) in shared
+    // mem
+    int max_elements_per_block = min(
+        shared_mem_per_block / (int)(2 * sizeof(real)), max_threads_per_block);
+    if (num_of_elements <= max_elements_per_block) {
+        // What is k such that 2^k elements will fit into a block?
+        // Note that 2^k > 2^p = |GF_q| due to the condition
+        int log2_max_elements_per_block = LOG2(max_elements_per_block);
+        // this ensures that block size is always a multiple of field size.
+        block_dim = dim3(1 << log2_max_elements_per_block);
+        num_blocks = dim3(ROUND_UP_DIV(n, (int)block_dim.x));
+        clip_and_normalize_probs_fast_kern<GF_q, real>
+            <<<num_blocks, block_dim, 2 * sizeof(real) * block_dim.x>>>(
+                probs, clipping_method, almost_zero);
+    } else {
+        block_dim =
+            dim3(warpsize,
+                 min(max_threads_per_block / warpsize,
+                     shared_mem_per_block / (int)(sizeof(real) * warpsize)));
+        num_blocks = dim3(1, ROUND_UP_DIV(n, (int)block_dim.y));
+
+        clip_and_normalize_probs_kern<GF_q, real>
+            <<<num_blocks,
+               block_dim,
+               block_dim.x * block_dim.y * sizeof(real)>>>(
+                probs, clipping_method, almost_zero);
+    }
+
     cudaSafeCall(cudaGetLastError());
 
 #ifdef DEBUG
