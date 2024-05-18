@@ -42,7 +42,6 @@ public:
     typedef libbase::vector<int> array1i_t;
     typedef libbase::vector<array1i_t> array1vi_t;
     typedef libbase::vector<array1d_t> array1vd_t;
-    typedef libbase::matrix<int> matrixi_t;
     typedef ::cuda::vector<int> cuda_array1i_t;
     typedef ::cuda::matrix<int> cuda_matrixi_t;
     typedef ::cuda::matrix<real> cuda_matrixd_t;
