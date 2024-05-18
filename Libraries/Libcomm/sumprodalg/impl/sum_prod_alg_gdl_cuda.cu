@@ -470,6 +470,7 @@ clip_and_normalize_probs_fast_kern(::cuda::matrix_reference<real> probs,
         perform_clipping(sdata[threadIdx.x], clipping_method, almost_zero);
 
         psums[threadIdx.x] = sdata[threadIdx.x];
+        __syncthreads();
 
         for (int stride = 1; stride < num_of_elements; stride <<= 1) {
             // NOTE: reads may be out of bounds but we will just end up in sdata
@@ -518,8 +519,7 @@ clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
         clip_and_normalize_probs_fast_kern<GF_q, real>
             <<<num_blocks, block_dim, 2 * sizeof(real) * block_dim.x>>>(
                 probs, clipping_method, almost_zero);
-    } else {
-      */
+    } else {*/
     block_dim =
         dim3(warpsize,
              min(max_threads_per_block / warpsize,
