@@ -82,19 +82,17 @@ private:
     cuda_matrixd_t device_out_probs;
 
     /*! Matrix of indices that tell us row of device_qmn_conv that
-     * contains prob distribution qmn for a particular (m, n).
+     * contains prob distribution qmn for a particular (m, loop_n).
      * Also works for device_r_mxn since prob. distr. qmn and r_mxn have the
      * same size (size of GF(q) as there is one prob. for each element of GF(q))
-     *
-     * If bit n does not participate in check m, i.e. h_mn = 0, then the
-     * corresponding element of this matrix is -1 by convention.
      */
-    cuda_matrixi_t device_qmn_row_indices;
+    cuda_matrixi_t device_mxn_row_idx_lut;
+    cuda_matrixi_t device_nxm_row_idx_lut;
 
     /*! Each row of this matrix is a probability distribution r_mxn.
      * There is a row for each combination (m, n) such that bit n participates
      * in check m. The mapping between (m, n) and the rows is given by
-     * device_qmn_row_indices
+     * device_mxn_row_idx_lut, device_nxm_row_idx_lut
      */
     cuda_matrixd_t device_r_mxn;
     /*! Each row of this matrix is a probability distribution q_mn (or more
@@ -102,7 +100,7 @@ private:
      *
      * There is a row for each combination (m, n) such that bit n participates
      * in check m. The mapping between (m, n) and the rows is given by
-     * device_qmn_row_indices
+     * device_mxn_row_idx_lut, device_nxm_row_idx_lut
      */
     cuda_matrixd_t device_qmn_conv;
     /*! This is a swap buffer used for computing the Hadamard
