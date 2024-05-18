@@ -85,8 +85,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     array1i_t pchk_row_non_zeros_pos(m * max_pchk_row_non_zeros);
     libbase::vector<GF_q> pchk_row_non_zeros_val(m * max_pchk_row_non_zeros);
 
-    array1i_t pchk_col_non_zeros_pos(n * max_pchk_col_non_zeros);
-
     // we first build mxn_row_idx_lut on the host, then copy to device.
     // Easier since this operation is inherently serial (we have a counter
     // to keep track of current index) and also we need the tanner_edges var
@@ -136,22 +134,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
         }
     }
 
-    // Actual m value, since loop_m is just an index ranging over the number of
-    // non-zero values in a column of pchk_matrix.
-    int pos_m;
-    for (int loop_n = 0; loop_n < n; loop_n++) {
-        // non-zeros for this col of the parity check matrix
-        non_zeros = pchk_col_non_zeros(loop_n);
-
-        for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
-            pos_m = non_zero_col_pos(loop_n)(loop_m) - 1; // we count from zero;
-
-            // populate other pchk matrix fields on the host.
-            pchk_col_non_zeros_pos(loop_n * max_pchk_col_non_zeros + loop_m) =
-                pos_m;
-        }
-    }
-
     device_mxn_row_idx_lut.init(m, max_pchk_row_non_zeros);
     device_nxm_row_idx_lut.init(n, max_pchk_col_non_zeros);
     // Copy mxn_row_idx_lut to device
@@ -165,7 +147,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     device_pchk_row_non_zeros_val.init(m, max_pchk_row_non_zeros);
 
     device_pchk_col_non_zeros.init(n);
-    device_pchk_col_non_zeros_pos.init(n, max_pchk_col_non_zeros);
 
     // Copy represenation of the parity check matrix to the device.
     device_pchk_row_non_zeros = pchk_row_non_zeros;
@@ -173,7 +154,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     device_pchk_row_non_zeros_val = pchk_row_non_zeros_val;
 
     device_pchk_col_non_zeros = pchk_col_non_zeros;
-    device_pchk_col_non_zeros_pos = pchk_col_non_zeros_pos;
 
     // Allocate required memory for r_mxn, q_mxn and qmn_conv on device.
     device_r_mxn.init(tanner_edges, num_of_elements);
@@ -264,7 +244,6 @@ multiply_h_m_n_kern(
     ::cuda::matrix_reference<real> src,
     ::cuda::matrix_reference<real> dst,
     ::cuda::vector_reference<int> device_pchk_row_non_zeros,
-    ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
     ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val)
 {
     // src and dst need to have the same dimensions
@@ -302,7 +281,6 @@ divide_h_m_n_kern(::cuda::matrix_reference<int> device_mxn_row_idx_lut,
                   ::cuda::matrix_reference<real> src,
                   ::cuda::matrix_reference<real> dst,
                   ::cuda::vector_reference<int> device_pchk_row_non_zeros,
-                  ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
                   ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val)
 {
     // src and dst need to have the same dimensions
@@ -499,32 +477,11 @@ clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
     int max_threads_per_block = ::cuda::cudaGetMaxThreadsPerBlock(device);
     int shared_mem_per_block = ::cuda::cudaGetSharedMemPerBlock(device);
 
-    dim3 block_dim, num_blocks;
-
-// TODO: This only works for double or float; turn into a template at some point
-#define LOG2(X) (sizeof(X) * 8 - __builtin_clz(X) - 1)
-
-    // What is the maximum number of elements that can fit into a block with the
-    // fast kernel? Note that each element occupies 2 * sizeof(real) in shared
-    // mem
-    int max_elements_per_block = min(
-        shared_mem_per_block / (int)(2 * sizeof(real)), max_threads_per_block);
-    /*if (num_of_elements <= max_elements_per_block) {
-        // What is k such that 2^k elements will fit into a block?
-        // Note that 2^k > 2^p = |GF_q| due to the condition
-        int log2_max_elements_per_block = LOG2(max_elements_per_block);
-        // this ensures that block size is always a multiple of field size.
-        block_dim = dim3(1 << log2_max_elements_per_block);
-        num_blocks = dim3(ROUND_UP_DIV(n, (int)block_dim.x));
-        clip_and_normalize_probs_fast_kern<GF_q, real>
-            <<<num_blocks, block_dim, 2 * sizeof(real) * block_dim.x>>>(
-                probs, clipping_method, almost_zero);
-    } else {*/
-    block_dim =
+    dim3 block_dim =
         dim3(warpsize,
              min(max_threads_per_block / warpsize,
                  shared_mem_per_block / (int)(sizeof(real) * warpsize)));
-    num_blocks = dim3(1, ROUND_UP_DIV(n, (int)block_dim.y));
+    dim3 num_blocks = dim3(1, ROUND_UP_DIV(n, (int)block_dim.y));
 
     clip_and_normalize_probs_kern<GF_q, real>
         <<<num_blocks, block_dim, block_dim.x * block_dim.y * sizeof(real)>>>(
@@ -699,8 +656,7 @@ __global__ void
 compute_r_mn_kern(::cuda::matrix_reference<int> device_mxn_row_idx_lut,
                   ::cuda::matrix_reference<real> device_r_mxn,
                   ::cuda::matrix_reference<real> device_qmn_conv,
-                  ::cuda::vector_reference<int> device_pchk_row_non_zeros,
-                  ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos)
+                  ::cuda::vector_reference<int> device_pchk_row_non_zeros)
 {
     // find loop_e
     int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
@@ -752,7 +708,6 @@ compute_r_mn(::cuda::matrix<int>& device_mxn_row_idx_lut,
              ::cuda::matrix<real>& device_r_mxn,
              ::cuda::matrix<real>& device_qmn_conv,
              ::cuda::vector<int>& device_pchk_row_non_zeros,
-             ::cuda::matrix<int>& device_pchk_row_non_zeros_pos,
              ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
              ::cuda::matrix<real>& device_swap_buf,
              int clipping_method,
@@ -770,8 +725,7 @@ compute_r_mn(::cuda::matrix<int>& device_mxn_row_idx_lut,
         ::cuda::matrix_reference<int>(device_mxn_row_idx_lut),
         ::cuda::matrix_reference<real>(device_r_mxn),
         ::cuda::matrix_reference<real>(device_qmn_conv),
-        ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
-        ::cuda::matrix_reference<int>(device_pchk_row_non_zeros_pos));
+        ::cuda::vector_reference<int>(device_pchk_row_non_zeros));
     cudaSafeCall(cudaGetLastError());
 
 #ifdef DEBUG
@@ -796,7 +750,6 @@ compute_r_mn(::cuda::matrix<int>& device_mxn_row_idx_lut,
         src,
         dst,
         ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
-        ::cuda::matrix_reference<int>(device_pchk_row_non_zeros_pos),
         ::cuda::matrix_reference<GF_q>(device_pchk_row_non_zeros_val));
     cudaSafeCall(cudaGetLastError());
 
@@ -822,8 +775,7 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
                   ::cuda::matrix_reference<int> device_nxm_row_idx_lut,
                   ::cuda::matrix_reference<real> device_r_mxn,
                   ::cuda::matrix_reference<real> device_qmn_conv,
-                  ::cuda::vector_reference<int> device_pchk_col_non_zeros,
-                  ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos)
+                  ::cuda::vector_reference<int> device_pchk_col_non_zeros)
 {
     // find loop_e
     int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
@@ -881,10 +833,8 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
              ::cuda::matrix<real>& device_r_mxn,
              ::cuda::matrix<real>& device_qmn_conv,
              ::cuda::vector<int>& device_pchk_row_non_zeros,
-             ::cuda::matrix<int>& device_pchk_row_non_zeros_pos,
              ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
              ::cuda::vector<int>& device_pchk_col_non_zeros,
-             ::cuda::matrix<int>& device_pchk_col_non_zeros_pos,
              ::cuda::matrix<real>& device_swap_buf,
              int clipping_method,
              real almost_zero)
@@ -903,8 +853,7 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
         ::cuda::matrix_reference<int>(device_nxm_row_idx_lut),
         ::cuda::matrix_reference<real>(device_r_mxn),
         ::cuda::matrix_reference<real>(device_qmn_conv),
-        ::cuda::vector_reference<int>(device_pchk_col_non_zeros),
-        ::cuda::matrix_reference<int>(device_pchk_col_non_zeros_pos));
+        ::cuda::vector_reference<int>(device_pchk_col_non_zeros));
     cudaSafeCall(cudaGetLastError());
 
 #ifdef DEBUG
@@ -927,7 +876,6 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
         src,
         dst,
         ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
-        ::cuda::matrix_reference<int>(device_pchk_row_non_zeros_pos),
         ::cuda::matrix_reference<GF_q>(device_pchk_row_non_zeros_val));
     cudaSafeCall(cudaGetLastError());
 
@@ -950,8 +898,7 @@ compute_probs_kern(::cuda::matrix_reference<real> device_received_probs,
                    ::cuda::matrix_reference<real> device_out_probs,
                    ::cuda::matrix_reference<int> device_nxm_row_idx_lut,
                    ::cuda::matrix_reference<real> device_r_mxn,
-                   ::cuda::vector_reference<int> device_pchk_col_non_zeros,
-                   ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos)
+                   ::cuda::vector_reference<int> device_pchk_col_non_zeros)
 {
     // find loop_e
     int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
@@ -984,7 +931,6 @@ compute_probs(::cuda::matrix<real>& device_received_probs,
               ::cuda::matrix<int>& device_nxm_row_idx_lut,
               ::cuda::matrix<real>& device_r_mxn,
               ::cuda::vector<int>& device_pchk_col_non_zeros,
-              ::cuda::matrix<int>& device_pchk_col_non_zeros_pos,
               int clipping_method,
               real almost_zero)
 {
@@ -1001,8 +947,7 @@ compute_probs(::cuda::matrix<real>& device_received_probs,
         ::cuda::matrix_reference<real>(device_out_probs),
         ::cuda::matrix_reference<int>(device_nxm_row_idx_lut),
         ::cuda::matrix_reference<real>(device_r_mxn),
-        ::cuda::vector_reference<int>(device_pchk_col_non_zeros),
-        ::cuda::matrix_reference<int>(device_pchk_col_non_zeros_pos));
+        ::cuda::vector_reference<int>(device_pchk_col_non_zeros));
     cudaSafeCall(cudaGetLastError());
 
 #ifdef DEBUG
@@ -1037,7 +982,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
                  this->device_r_mxn,
                  this->device_qmn_conv,
                  this->device_pchk_row_non_zeros,
-                 this->device_pchk_row_non_zeros_pos,
                  this->device_pchk_row_non_zeros_val,
                  this->device_swap_buf,
                  this->clipping_method,
@@ -1051,10 +995,8 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
                  this->device_r_mxn,
                  this->device_qmn_conv,
                  this->device_pchk_row_non_zeros,
-                 this->device_pchk_row_non_zeros_pos,
                  this->device_pchk_row_non_zeros_val,
                  this->device_pchk_col_non_zeros,
-                 this->device_pchk_col_non_zeros_pos,
                  this->device_swap_buf,
                  this->clipping_method,
                  this->almostzero);
@@ -1067,7 +1009,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
                               this->device_nxm_row_idx_lut,
                               this->device_r_mxn,
                               this->device_pchk_col_non_zeros,
-                              this->device_pchk_col_non_zeros_pos,
                               this->clipping_method,
                               this->almostzero);
 

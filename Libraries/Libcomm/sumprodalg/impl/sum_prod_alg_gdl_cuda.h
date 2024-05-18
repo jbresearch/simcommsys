@@ -147,16 +147,6 @@ private:
      * parity matrix h_m_n
      */
     cuda_array1i_t device_pchk_col_non_zeros;
-    /*! Matrix where each row (representing a codeword bit n) contains the
-     * position (m) of non-zero elements in the parity check matrix H (at the
-     * nth col of H).
-     *
-     * Extra space at the end of rows is padded with zeros/uninitalized.
-     *
-     * device_pchk_col_non_zeros can be used to determine end of each
-     * row
-     */
-    cuda_matrixi_t device_pchk_col_non_zeros_pos;
 };
 
 } // namespace libcomm
