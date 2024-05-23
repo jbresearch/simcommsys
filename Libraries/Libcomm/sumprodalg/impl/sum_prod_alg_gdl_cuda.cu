@@ -90,7 +90,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     // to keep track of current index) and also we need the tanner_edges var
     // computed during this process on host to allocate memory for qmn and
     // rmn matrices.
-    array1i_t mxn_row_idx_lut(m * max_pchk_row_non_zeros);
+    array1i_t mx0_row_idx_lut(m);
     array1i_t nxm_row_idx_lut(n * max_pchk_col_non_zeros);
 
     // counts the number of edges in the Tanner graph of the code.
@@ -107,6 +107,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     for (int pos_m = 0; pos_m < m; pos_m++) {
         // non-zeros for this row of the parity check matrix
         non_zeros = pchk_row_non_zeros(pos_m);
+        mx0_row_idx_lut(pos_m) = tanner_edges;
 
         for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
             pos_n = non_zero_row_pos(pos_m)(loop_n) - 1; // we count from zero;
@@ -126,18 +127,16 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
 
             // assign an index in device_q_mn_conv, device_r_mxn and so on
             // to a non-zero (m, n) element.
-            mxn_row_idx_lut(pos_m * max_pchk_row_non_zeros + loop_n) =
-                tanner_edges;
             nxm_row_idx_lut(pos_n * max_pchk_col_non_zeros + loop_m) =
                 tanner_edges;
             tanner_edges++;
         }
     }
 
-    device_mxn_row_idx_lut.init(m, max_pchk_row_non_zeros);
+    device_mx0_row_idx_lut.init(m);
     device_nxm_row_idx_lut.init(n, max_pchk_col_non_zeros);
     // Copy mxn_row_idx_lut to device
-    device_mxn_row_idx_lut = mxn_row_idx_lut;
+    device_mx0_row_idx_lut = mx0_row_idx_lut;
     device_nxm_row_idx_lut = nxm_row_idx_lut;
 
     // Allocate memory on the device for representation of the parity check
@@ -240,7 +239,7 @@ hadamard_transform_pass_kern(::cuda::matrix_reference<real> src,
 template <class GF_q, class real>
 __global__ void
 multiply_h_m_n_kern(
-    ::cuda::matrix_reference<int> device_mxn_row_idx_lut,
+    ::cuda::vector_reference<int> device_mx0_row_idx_lut,
     ::cuda::matrix_reference<real> src,
     ::cuda::matrix_reference<real> dst,
     ::cuda::vector_reference<int> device_pchk_row_non_zeros,
@@ -270,14 +269,14 @@ multiply_h_m_n_kern(
     for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
         h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
         // perform the permutation
-        dst(device_mxn_row_idx_lut(loop_m, loop_n), h_m_n * GF_q(loop_e)) =
-            src(device_mxn_row_idx_lut(loop_m, loop_n), loop_e);
+        dst(device_mx0_row_idx_lut(loop_m) + loop_n, h_m_n * GF_q(loop_e)) =
+            src(device_mx0_row_idx_lut(loop_m) + loop_n, loop_e);
     }
 }
 
 template <class GF_q, class real>
 __global__ void
-divide_h_m_n_kern(::cuda::matrix_reference<int> device_mxn_row_idx_lut,
+divide_h_m_n_kern(::cuda::vector_reference<int> device_mx0_row_idx_lut,
                   ::cuda::matrix_reference<real> src,
                   ::cuda::matrix_reference<real> dst,
                   ::cuda::vector_reference<int> device_pchk_row_non_zeros,
@@ -307,8 +306,8 @@ divide_h_m_n_kern(::cuda::matrix_reference<int> device_mxn_row_idx_lut,
     for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
         h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
         // perform the permutation
-        dst(device_mxn_row_idx_lut(loop_m, loop_n), loop_e) =
-            src(device_mxn_row_idx_lut(loop_m, loop_n), h_m_n * GF_q(loop_e));
+        dst(device_mx0_row_idx_lut(loop_m) + loop_n, loop_e) =
+            src(device_mx0_row_idx_lut(loop_m) + loop_n, h_m_n * GF_q(loop_e));
     }
 }
 
@@ -498,7 +497,7 @@ clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
 template <class GF_q, class real>
 __global__ void
 spa_init_kern(::cuda::matrix_reference<real> device_received_probs,
-              ::cuda::matrix_reference<int> device_mxn_row_idx_lut,
+              ::cuda::vector_reference<int> device_mx0_row_idx_lut,
               ::cuda::matrix_reference<real> device_r_mxn,
               ::cuda::matrix_reference<real> device_qmn_conv,
               ::cuda::vector_reference<int> device_pchk_row_non_zeros,
@@ -538,7 +537,7 @@ spa_init_kern(::cuda::matrix_reference<real> device_received_probs,
         h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
 
         // get index into device_qmn_conv and device_r_mxn
-        qmn_row_idx = device_mxn_row_idx_lut(loop_m, loop_n);
+        qmn_row_idx = device_mx0_row_idx_lut(loop_m) + loop_n;
 
         // In fact the probability we are given are not for the x_i but
         // for the value h_m_n*xi hence all we need to do is copy the
@@ -613,7 +612,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
                       ROUND_UP_DIV(dim_n, (int)block_dim.y));
     spa_init_kern<GF_q, real>
         <<<num_blocks, block_dim>>>(this->device_received_probs,
-                                    this->device_mxn_row_idx_lut,
+                                    this->device_mx0_row_idx_lut,
                                     this->device_r_mxn,
                                     this->device_qmn_conv,
                                     this->device_pchk_row_non_zeros,
@@ -653,7 +652,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
 
 template <class GF_q, class real>
 __global__ void
-compute_r_mn_kern(::cuda::matrix_reference<int> device_mxn_row_idx_lut,
+compute_r_mn_kern(::cuda::vector_reference<int> device_mx0_row_idx_lut,
                   ::cuda::matrix_reference<real> device_r_mxn,
                   ::cuda::matrix_reference<real> device_qmn_conv,
                   ::cuda::vector_reference<int> device_pchk_row_non_zeros)
@@ -672,39 +671,30 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_mxn_row_idx_lut,
 
     int non_zeros = device_pchk_row_non_zeros(loop_m);
     // Holds the actual message computed
-    real q_nm_conv_prod;
+    real q_nm_conv_prod = 1.0;
     for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-        q_nm_conv_prod = 1.0;
+        // NOTE: Branchless computation
+        q_nm_conv_prod *=
+            device_qmn_conv(device_mx0_row_idx_lut(loop_m) + loop_n, loop_e);
+    }
+    // Loop above has potential divergence as different m have different
+    // degrees in general. We want to convergence again here so most iters
+    // are in sync.
+    // TODO: Test impact of this.
+    __syncthreads();
 
-        for (int loop_n_dash = 0; loop_n_dash < non_zeros; loop_n_dash++) {
-
-            // NOTE: Branchless computation
-            q_nm_conv_prod *=
-                // Branch where pos_n_dash != pos_n and we
-                // include the corresponding qmn in the
-                // message
-                (loop_n_dash != loop_n) *
-                    device_qmn_conv(device_mxn_row_idx_lut(loop_m, loop_n_dash),
-                                    loop_e) +
-                // Branch where we multiply by 1, effectively removing
-                // q_nm for pos_n from the computed message.
-                (loop_n_dash == loop_n);
-        }
-        // Loop above has potential divergence as different m have different
-        // degrees in general. We want to convergence again here so most iters
-        // are in sync.
-        // TODO: Test impact of this.
-        __syncthreads();
+    for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
+        int row_idx = device_mx0_row_idx_lut(loop_m) + loop_n;
         // coalesced memory access due to syncthreads above
         // We store in r_mxn but this is not the final result.
-        device_r_mxn(device_mxn_row_idx_lut(loop_m, loop_n), loop_e) =
-            q_nm_conv_prod;
+        device_r_mxn(row_idx, loop_e) =
+            q_nm_conv_prod / device_qmn_conv(row_idx, loop_e);
     }
 }
 
 template <class GF_q, class real>
 void
-compute_r_mn(::cuda::matrix<int>& device_mxn_row_idx_lut,
+compute_r_mn(::cuda::vector<int>& device_mx0_row_idx_lut,
              ::cuda::matrix<real>& device_r_mxn,
              ::cuda::matrix<real>& device_qmn_conv,
              ::cuda::vector<int>& device_pchk_row_non_zeros,
@@ -722,7 +712,7 @@ compute_r_mn(::cuda::matrix<int>& device_mxn_row_idx_lut,
     num_blocks = dim3(ROUND_UP_DIV(num_of_elements, (int)block_dim.x),
                       ROUND_UP_DIV(m, (int)block_dim.y));
     compute_r_mn_kern<GF_q, real><<<num_blocks, block_dim>>>(
-        ::cuda::matrix_reference<int>(device_mxn_row_idx_lut),
+        ::cuda::vector_reference<int>(device_mx0_row_idx_lut),
         ::cuda::matrix_reference<real>(device_r_mxn),
         ::cuda::matrix_reference<real>(device_qmn_conv),
         ::cuda::vector_reference<int>(device_pchk_row_non_zeros));
@@ -746,7 +736,7 @@ compute_r_mn(::cuda::matrix<int>& device_mxn_row_idx_lut,
     // Permute the distributions in src (transformed by the Hadamard transform)
     // into dst
     divide_h_m_n_kern<<<num_blocks, block_dim>>>(
-        ::cuda::matrix_reference<int>(device_mxn_row_idx_lut),
+        ::cuda::vector_reference<int>(device_mx0_row_idx_lut),
         src,
         dst,
         ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
@@ -791,44 +781,32 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
 
     // Current probability that received symbol n has value e.
     real recvd_prob = device_received_probs(loop_n, loop_e);
+    // Holds the actual message computed
+    real q_nm = recvd_prob;
 
     int non_zeros = device_pchk_col_non_zeros(loop_n);
-    // Holds the actual message computed
-    real q_nm;
     for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
-        q_nm = recvd_prob;
 
-        for (int loop_m_dash = 0; loop_m_dash < non_zeros; loop_m_dash++) {
+        // NOTE: Branchless computation
+        q_nm *= device_r_mxn(device_nxm_row_idx_lut(loop_n, loop_m), loop_e);
+    }
+    // Loop above has potential divergence as different m have different
+    // degrees in general. We want to convergence again here so most iters
+    // are in sync.
+    // TODO: Test impact of this.
+    __syncthreads();
 
-            // NOTE: Branchless computation
-            q_nm *=
-                // Branch where pos_m_dash != pos_m and we
-                // include the corresponding r_mn in the
-                // message
-                (loop_m_dash != loop_m) *
-                    device_r_mxn(device_nxm_row_idx_lut(loop_n, loop_m_dash),
-                                 loop_e) +
-                // Branch where we multiply by 1, effectively removing
-                // r_mn for pos_m from the computed message.
-                (loop_m_dash == loop_m);
-        }
-        // Loop above has potential divergence as different m have different
-        // degrees in general. We want to convergence again here so most iters
-        // are in sync.
-        // TODO: Test impact of this.
-        __syncthreads();
-
+    for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
+        int row_idx = device_nxm_row_idx_lut(loop_n, loop_m);
         // Uncoalesced memory access.
-        device_qmn_conv(device_nxm_row_idx_lut(loop_n, loop_m), loop_e) = q_nm;
-        // resynchronize after uncoalesced memory access
-        __syncthreads();
+        device_qmn_conv(row_idx, loop_e) = q_nm / device_r_mxn(row_idx, loop_e);
     }
 }
 
 template <class GF_q, class real>
 void
 compute_q_mn(::cuda::matrix<real>& device_received_probs,
-             ::cuda::matrix<int>& device_mxn_row_idx_lut,
+             ::cuda::vector<int>& device_mx0_row_idx_lut,
              ::cuda::matrix<int>& device_nxm_row_idx_lut,
              ::cuda::matrix<real>& device_r_mxn,
              ::cuda::matrix<real>& device_qmn_conv,
@@ -872,7 +850,7 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
 
     // Permute the distributions in src into dst
     multiply_h_m_n_kern<<<num_blocks, block_dim>>>(
-        ::cuda::matrix_reference<int>(device_mxn_row_idx_lut),
+        ::cuda::vector_reference<int>(device_mx0_row_idx_lut),
         src,
         dst,
         ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
@@ -978,7 +956,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
     // probability is 1 and 0 otherwise so we are simply adding up the products
     // for which the parity check is satisfied.
 
-    compute_r_mn(this->device_mxn_row_idx_lut,
+    compute_r_mn(this->device_mx0_row_idx_lut,
                  this->device_r_mxn,
                  this->device_qmn_conv,
                  this->device_pchk_row_non_zeros,
@@ -990,7 +968,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
     // loop over all the symbol nodes - the vertical step
 
     compute_q_mn(this->device_received_probs,
-                 this->device_mxn_row_idx_lut,
+                 this->device_mx0_row_idx_lut,
                  this->device_nxm_row_idx_lut,
                  this->device_r_mxn,
                  this->device_qmn_conv,
