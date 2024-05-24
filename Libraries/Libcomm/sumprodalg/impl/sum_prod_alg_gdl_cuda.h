@@ -86,7 +86,7 @@ private:
      * Also works for device_r_mxn since prob. distr. qmn and r_mxn have the
      * same size (size of GF(q) as there is one prob. for each element of GF(q))
      */
-    cuda_matrixi_t device_mxn_row_idx_lut;
+    cuda_array1i_t device_mx0_row_idx_lut;
     cuda_matrixi_t device_nxm_row_idx_lut;
 
     /*! Each row of this matrix is a probability distribution r_mxn.
@@ -138,6 +138,7 @@ private:
      * device_pchk_row_non_zero can be used to determine end of each row
      */
     ::cuda::matrix<GF_q> device_pchk_row_non_zeros_val;
+    ::cuda::matrix<GF_q> device_pchk_col_non_zeros_val;
 
     /*! \brief Maximum number of non-zero elements in a column of the parity
      * check matrix.
