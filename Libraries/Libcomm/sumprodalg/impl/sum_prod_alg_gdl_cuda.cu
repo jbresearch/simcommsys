@@ -599,38 +599,30 @@ compute_r_mn_kern(::cuda::vector_reference<int> device_mx0_row_idx_lut,
                   ::cuda::matrix_reference<real> device_qmn_conv,
                   ::cuda::vector_reference<int> device_pchk_row_non_zeros)
 {
-    // find loop_e
-    int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
-    // bounds checking
     int num_of_elements = GF_q::elements();
-    loop_e = min(loop_e, num_of_elements - 1);
-
-    // find loop_m
-    int loop_m = blockIdx.y * blockDim.y + threadIdx.y;
-    // bounds checking
     int m = device_pchk_row_non_zeros.size();
-    loop_m = min(loop_m, m - 1);
 
-    int non_zeros = device_pchk_row_non_zeros(loop_m);
-    // Holds the actual message computed
-    real q_nm_conv_prod = 1.0;
-    for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-        // NOTE: Branchless computation
-        q_nm_conv_prod *=
-            device_qmn_conv(device_mx0_row_idx_lut(loop_m) + loop_n, loop_e);
-    }
-    // Loop above has potential divergence as different m have different
-    // degrees in general. We want to convergence again here so most iters
-    // are in sync.
-    // TODO: Test impact of this.
-    __syncthreads();
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int loop_e = i % num_of_elements;
+    int loop_m = i / num_of_elements;
 
-    for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-        int row_idx = device_mx0_row_idx_lut(loop_m) + loop_n;
-        // coalesced memory access due to syncthreads above
-        // We store in r_mxn but this is not the final result.
-        device_r_mxn(row_idx, loop_e) =
-            q_nm_conv_prod / device_qmn_conv(row_idx, loop_e);
+    if (loop_m < m) {
+        int non_zeros = device_pchk_row_non_zeros(loop_m);
+        // Holds the actual message computed
+        real q_nm_conv_prod = 1.0;
+        for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
+            // NOTE: Branchless computation
+            q_nm_conv_prod *= device_qmn_conv(
+                device_mx0_row_idx_lut(loop_m) + loop_n, loop_e);
+        }
+
+        for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
+            int row_idx = device_mx0_row_idx_lut(loop_m) + loop_n;
+            // coalesced memory access due to syncthreads above
+            // We store in r_mxn but this is not the final result.
+            device_r_mxn(row_idx, loop_e) =
+                q_nm_conv_prod / device_qmn_conv(row_idx, loop_e);
+        }
     }
 }
 
@@ -649,10 +641,13 @@ compute_r_mn(::cuda::vector<int>& device_mx0_row_idx_lut,
 
     int m = device_pchk_row_non_zeros.size();
     int num_of_elements = GF_q::elements();
-    block_dim = dim3(32, 32);
+
+    int device = ::cuda::cudaGetCurrentDevice();
+    int warpsize = ::cuda::cudaGetWarpSize();
+
+    block_dim = dim3(warpsize);
     // use division which truncates upwards.
-    num_blocks = dim3(ROUND_UP_DIV(num_of_elements, (int)block_dim.x),
-                      ROUND_UP_DIV(m, (int)block_dim.y));
+    num_blocks = dim3(ROUND_UP_DIV(num_of_elements * m, (int)block_dim.x));
     compute_r_mn_kern<GF_q, real><<<num_blocks, block_dim>>>(
         ::cuda::vector_reference<int>(device_mx0_row_idx_lut),
         ::cuda::matrix_reference<real>(device_r_mxn),
