@@ -377,11 +377,10 @@ clip_and_normalize_probs_fast_kern(::cuda::matrix_reference<real> probs,
     real* psums = reinterpret_cast<real*>(sbuf);
     real* sdata = reinterpret_cast<real*>(sbuf) + blockDim.x;
 
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
-
     constexpr int num_of_elements = GF_q::elements();
-    int loop_e = i & (num_of_elements - 1);
-    int loop_n = i >> num_of_elements;
+
+    int loop_e = threadIdx.x;
+    int loop_n = blockIdx.x * blockDim.x;
 
     int n = probs.get_rows();
     if (loop_n < n) {
@@ -398,8 +397,7 @@ clip_and_normalize_probs_fast_kern(::cuda::matrix_reference<real> probs,
             __syncthreads();
         }
 
-        sdata[threadIdx.x] /=
-            psums[(threadIdx.x >> num_of_elements) << num_of_elements];
+        sdata[threadIdx.x] /= psums[0];
         probs(loop_n, loop_e) = sdata[threadIdx.x];
     }
 }
@@ -415,19 +413,32 @@ clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
 
     int device = ::cuda::cudaGetCurrentDevice();
     int warpsize = ::cuda::cudaGetWarpSize(device);
-    int max_threads_per_block = ::cuda::cudaGetMaxThreadsPerBlock(device);
-    int shared_mem_per_block = ::cuda::cudaGetSharedMemPerBlock(device);
 
-    dim3 block_dim =
-        dim3(warpsize,
-             min(max_threads_per_block / warpsize,
-                 shared_mem_per_block / (int)(sizeof(real) * warpsize)));
-    dim3 num_blocks = dim3(1, ROUND_UP_DIV(n, (int)block_dim.y));
+    dim3 block_dim, num_blocks;
 
-    clip_and_normalize_probs_kern<GF_q, real>
-        <<<num_blocks, block_dim, block_dim.x * block_dim.y * sizeof(real)>>>(
-            probs, clipping_method, almost_zero);
-    //}
+    if (num_of_elements < warpsize) {
+        int max_threads_per_block = ::cuda::cudaGetMaxThreadsPerBlock(device);
+        int shared_mem_per_block = ::cuda::cudaGetSharedMemPerBlock(device);
+
+        block_dim = dim3(
+            warpsize,
+            min(max_threads_per_block / warpsize,
+                shared_mem_per_block / (int)(2 * sizeof(real) * warpsize)));
+        num_blocks = dim3(1, ROUND_UP_DIV(n, (int)block_dim.y));
+
+        clip_and_normalize_probs_kern<GF_q, real>
+            <<<num_blocks,
+               block_dim,
+               2 * block_dim.x * block_dim.y * sizeof(real)>>>(
+                probs, clipping_method, almost_zero);
+    } else {
+        block_dim = dim3(num_of_elements);
+        num_blocks = dim3(ROUND_UP_DIV(n, (int)block_dim.y));
+
+        clip_and_normalize_probs_fast_kern<GF_q, real>
+            <<<num_blocks, block_dim, 2 * sizeof(real) * block_dim.x>>>(
+                probs, clipping_method, almost_zero);
+    }
 
     cudaSafeCall(cudaGetLastError());
 
@@ -462,19 +473,20 @@ spa_init_kern(::cuda::matrix_reference<real> device_received_probs,
         int qmn_row_idx;
         int pos;
         GF_q h_m_n;
-        // NOTE: loop_n iterates over number of symbols that participate in mth
-        // check of a codeword. E.g. if check involves {x_1, x_4, x_6}, loop_n
-        // ranges over [0, 1, 2]
+        // NOTE: loop_n iterates over number of symbols that participate in
+        // mth check of a codeword. E.g. if check involves {x_1, x_4, x_6},
+        // loop_n ranges over [0, 1, 2]
         for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-            // NOTE: pos is the actual index of the nth symbol participating in
-            // the mth check in the codeword. E.g. if check involves {x_1, x_4,
-            // x_6} and loop_n = 1, pos = 4 (-1 since we count from 0)
+            // NOTE: pos is the actual index of the nth symbol participating
+            // in the mth check in the codeword. E.g. if check involves
+            // {x_1, x_4, x_6} and loop_n = 1, pos = 4 (-1 since we count
+            // from 0)
             pos = device_pchk_row_non_zeros_pos(loop_m, loop_n);
             // NOTE: Find corresponding value in the parity check matrix.
-            // We use loop_m because this is the check index, and pos because
-            // this is the actual index of the nth symbol participating in the
-            // mth check (non_zeros variable does not count symbols that don't
-            // participate in the mth check).
+            // We use loop_m because this is the check index, and pos
+            // because this is the actual index of the nth symbol
+            // participating in the mth check (non_zeros variable does not
+            // count symbols that don't participate in the mth check).
             h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
 
             // get index into device_qmn_conv and device_r_mxn
@@ -512,8 +524,8 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
     // Allocate memory for recieved probabilities.
     this->device_received_probs.init(dim_n, num_of_elements);
 
-    // Convert vector of vectors into a single vector so that it can be copied
-    // to device more efficiently
+    // Convert vector of vectors into a single vector so that it can be
+    // copied to device more efficiently
     array1d_t recvd_probs_flat(dim_n * num_of_elements);
     for (int loop_n = 0; loop_n < dim_n; loop_n++)
         for (int loop_e = 0; loop_e < num_of_elements; loop_e++)
@@ -570,9 +582,9 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
     ::cuda::matrix_reference<real> dst(device_swap_buf);
     hadamard_transform<GF_q, real>(src, dst);
 
-    // Result of the Hadamard transform is always stored in first arg passed to
-    // hadamard_transform(), copy to device_qmn_conv in case src is the swap
-    // buffer.
+    // Result of the Hadamard transform is always stored in first arg passed
+    // to hadamard_transform(), copy to device_qmn_conv in case src is the
+    // swap buffer.
     device_qmn_conv = src;
 
     // TODO: Fix this.
@@ -662,9 +674,9 @@ compute_r_mn(::cuda::vector<int>& device_mx0_row_idx_lut,
     ::cuda::matrix_reference<real> dst(device_swap_buf);
     hadamard_transform<GF_q, real>(src, dst);
 
-    // dst could be device_r_mxn or device_swap_buf depending on whether no. of
-    // passes in Hadamard transform is even or odd. We copy back to device_r_mxn
-    // to make sure the result is in the right array.
+    // dst could be device_r_mxn or device_swap_buf depending on whether no.
+    // of passes in Hadamard transform is even or odd. We copy back to
+    // device_r_mxn to make sure the result is in the right array.
     device_r_mxn = src;
 
     // Apply clipping + normalization to the computed r_mn values.
@@ -765,9 +777,9 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
     // Compute Hadamard transform on the result.
     hadamard_transform<GF_q, real>(src, dst);
 
-    // Result of the Hadamard transform is always stored in first arg passed to
-    // hadamard_transform(), copy to device_qmn_conv in case dst is the swap
-    // buffer.
+    // Result of the Hadamard transform is always stored in first arg passed
+    // to hadamard_transform(), copy to device_qmn_conv in case dst is the
+    // swap buffer.
     device_qmn_conv = src;
 }
 
@@ -855,12 +867,12 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
     // on page 560 - chapter 47.3
 
     // r_mxn(0)=\sum_{x_n'|n'\in N(m)\n'} ( P(z_m=0|x_n=0) * \prod_{n'\in
-    // N(m)\n}q_mxn(x_{n') ) Essentially, what we are doing is the following:
-    // Assume x_n=0
-    // we need to sum over all possibilities that such that the parity check is
-    // satisfied, ie =0 if the parity check is satisfied the conditional
-    // probability is 1 and 0 otherwise so we are simply adding up the products
-    // for which the parity check is satisfied.
+    // N(m)\n}q_mxn(x_{n') ) Essentially, what we are doing is the
+    // following: Assume x_n=0 we need to sum over all possibilities that
+    // such that the parity check is satisfied, ie =0 if the parity check is
+    // satisfied the conditional probability is 1 and 0 otherwise so we are
+    // simply adding up the products for which the parity check is
+    // satisfied.
 
     compute_r_mn(this->device_mx0_row_idx_lut,
                  this->device_r_mxn,
@@ -886,9 +898,9 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
                  this->clipping_method,
                  this->almostzero);
 
-    // compute the new probabilities for all symbols given the information in
-    // this iteration. This will be used in a tentative decoding to see whether
-    // we have found a codeword
+    // compute the new probabilities for all symbols given the information
+    // in this iteration. This will be used in a tentative decoding to see
+    // whether we have found a codeword
     compute_probs<GF_q, real>(this->device_received_probs,
                               this->device_out_probs,
                               this->device_nxm_row_idx_lut,
