@@ -446,59 +446,56 @@ spa_init_kern(::cuda::matrix_reference<real> device_received_probs,
               ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
               ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val)
 {
-    // find loop_e
-    int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
-    // bounds checking
     int num_of_elements = GF_q::elements();
-    loop_e = min(loop_e, num_of_elements - 1);
 
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    // find loop_e
+    int loop_e = i % num_of_elements;
     // find loop_m
-    int loop_m = blockIdx.y * blockDim.y + threadIdx.y;
+    int loop_m = i / num_of_elements;
+
     // bounds checking
     int m = device_pchk_row_non_zeros.size();
-    loop_m = min(loop_m, m - 1);
+    if (loop_m < m) {
+        int non_zeros = device_pchk_row_non_zeros(loop_m);
 
-    int non_zeros = device_pchk_row_non_zeros(loop_m);
+        int qmn_row_idx;
+        int pos;
+        GF_q h_m_n;
+        // NOTE: loop_n iterates over number of symbols that participate in mth
+        // check of a codeword. E.g. if check involves {x_1, x_4, x_6}, loop_n
+        // ranges over [0, 1, 2]
+        for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
+            // NOTE: pos is the actual index of the nth symbol participating in
+            // the mth check in the codeword. E.g. if check involves {x_1, x_4,
+            // x_6} and loop_n = 1, pos = 4 (-1 since we count from 0)
+            pos = device_pchk_row_non_zeros_pos(loop_m, loop_n);
+            // NOTE: Find corresponding value in the parity check matrix.
+            // We use loop_m because this is the check index, and pos because
+            // this is the actual index of the nth symbol participating in the
+            // mth check (non_zeros variable does not count symbols that don't
+            // participate in the mth check).
+            h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
 
-    int qmn_row_idx;
-    int pos;
-    GF_q h_m_n;
-    // NOTE: loop_n iterates over number of symbols that participate in mth
-    // check of a codeword. E.g. if check involves {x_1, x_4, x_6}, loop_n
-    // ranges over [0, 1, 2]
-    for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-        // NOTE: pos is the actual index of the nth symbol participating in the
-        // mth check in the codeword. E.g. if check involves {x_1, x_4, x_6}
-        // and loop_n = 1, pos = 4 (-1 since we count from 0)
-        pos = device_pchk_row_non_zeros_pos(loop_m, loop_n);
-        // NOTE: Find corresponding value in the parity check matrix.
-        // We use loop_m because this is the check index, and pos because
-        // this is the actual index of the nth symbol participating in the mth
-        // check (non_zeros variable does not count symbols that don't
-        // participate in the mth check).
-        h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
+            // get index into device_qmn_conv and device_r_mxn
+            qmn_row_idx = device_mx0_row_idx_lut(loop_m) + loop_n;
 
-        // get index into device_qmn_conv and device_r_mxn
-        qmn_row_idx = device_mx0_row_idx_lut(loop_m) + loop_n;
+            // In fact the probability we are given are not for the x_i but
+            // for the value h_m_n*xi hence all we need to do is copy the
+            // values into the array with a slightly amended index:
+            // probs(h_m_n*x)=received_prob(x) for all x in GF_q and
+            // 0!=h_m_n in GF_q.
+            // Declerq&Fossorier: Decoding Algs for non-binary LDPC Codes
+            // over GF(q)
+            // perms(h_m_n)(loop)=GF_q(h_m_n)*GF_q(loop) - a look-up is
+            // quicker than a computation (I hope)
 
-        // In fact the probability we are given are not for the x_i but
-        // for the value h_m_n*xi hence all we need to do is copy the
-        // values into the array with a slightly amended index:
-        // probs(h_m_n*x)=received_prob(x) for all x in GF_q and
-        // 0!=h_m_n in GF_q.
-        // Declerq&Fossorier: Decoding Algs for non-binary LDPC Codes
-        // over GF(q)
-        // perms(h_m_n)(loop)=GF_q(h_m_n)*GF_q(loop) - a look-up is
-        // quicker than a computation (I hope)
-
-        // NOTE: Here we are permuting the prior probability
-        // distribution by multiplying it with h_m_n before placing
-        // it in the qmn_conv array.
-        device_qmn_conv(qmn_row_idx, h_m_n * GF_q(loop_e)) =
-            device_received_probs(pos, loop_e);
-
-        // r_mxn is initialized as 0.
-        device_r_mxn(qmn_row_idx, loop_e) = 0.0;
+            // NOTE: Here we are permuting the prior probability
+            // distribution by multiplying it with h_m_n before placing
+            // it in the qmn_conv array.
+            device_qmn_conv(qmn_row_idx, h_m_n * GF_q(loop_e)) =
+                device_received_probs(pos, loop_e);
+        }
     }
 }
 
@@ -548,10 +545,10 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
 
     // some helper variables
 
-    block_dim = dim3(32, 32);
+    int m = this->device_pchk_row_non_zeros.size();
+    block_dim = dim3(512);
     // use division which truncates upwards.
-    num_blocks = dim3(ROUND_UP_DIV(num_of_elements, (int)block_dim.x),
-                      ROUND_UP_DIV(dim_n, (int)block_dim.y));
+    num_blocks = dim3(ROUND_UP_DIV(num_of_elements * m, (int)block_dim.x));
     spa_init_kern<GF_q, real>
         <<<num_blocks, block_dim>>>(this->device_received_probs,
                                     this->device_mx0_row_idx_lut,
