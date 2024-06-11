@@ -24,12 +24,15 @@
 
 #include "config.h"
 
+#include "experiment.h"
 #include "sha.h"
 #include "walltimer.h"
 #include <iostream>
 
 namespace libcomm
 {
+
+class montecarlo;
 
 /*!
  * \brief   Results File Handler.
@@ -82,6 +85,12 @@ private:
     sha filedigest; //!< Digest of file as at last update
     libbase::walltimer t; //!< Timer to keep track of running estimate
                           // @}
+
+protected:
+    // backpointers
+    montecarlo* simulator;
+    experiment* system;
+
 private:
     /*! \name Results file helper functions */
     void writeheaderifneeded(std::fstream& file);
@@ -101,8 +110,9 @@ protected:
 public:
     /*! \name Constructor/destructor */
     // Constructor/destructor
-    resultsfile()
-        : filesetup(false), headerwritten(false), t("resultsfile", false)
+    resultsfile(montecarlo& simulator)
+        : filesetup(false), headerwritten(false), t("resultsfile", false),
+          simulator(&simulator)
     {
     }
     virtual ~resultsfile() { assert(!t.isrunning()); }
@@ -126,6 +136,8 @@ public:
     void writefinalresults(libbase::vector<double>& result,
                            libbase::vector<double>& errormargin,
                            bool savestate = false);
+
+    void set_system(experiment& system) { this->system = &system; }
     // @}
 };
 

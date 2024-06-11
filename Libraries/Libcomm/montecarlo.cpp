@@ -24,7 +24,6 @@
 #include "fsm.h"
 #include "itfunc.h"
 #include "randgen.h"
-#include "version.h"
 #include <limits>
 #include <sstream>
 
@@ -120,124 +119,6 @@ montecarlo::seed_experiment()
     prng.seed(seed);
     system->seedfrom(prng);
     std::cerr << "Seed: " << seed << std::endl;
-}
-
-// System-specific file-handler functions
-
-void
-montecarlo::writeheader(std::ostream& sout) const
-{
-    assert(sout.good());
-    assert(system != NULL);
-    libbase::trace << "DEBUG (montecarlo): writing results header."
-                   << std::endl;
-    // Print information on the simulation being performed
-    libbase::trace << "DEBUG (montecarlo): position before = " << sout.tellp()
-                   << std::endl;
-    sout << "#% " << system->description() << std::endl;
-    sout << "#% Confidence Level: " << get_confidence_level() << std::endl;
-    sout << "#% Convergence Mode: " << get_convergence_mode() << std::endl;
-    sout << "#% Date: " << libbase::timer::date() << std::endl;
-    sout << "#% Build: " << SIMCOMMSYS_BUILD << std::endl;
-    sout << "#% Version: " << SIMCOMMSYS_VERSION << std::endl;
-    sout << "#" << std::endl;
-
-    // Print results header
-    sout << "# Par";
-    for (int i = 0; i < system->count(); i++) {
-        sout << "\t" << system->result_description(i) << "\tTol";
-    }
-    sout << "\tSamples\tCPUtime" << std::endl;
-    libbase::trace << "DEBUG (montecarlo): position after = " << sout.tellp()
-                   << std::endl;
-}
-
-void
-montecarlo::writeresults(std::ostream& sout,
-                         libbase::vector<double>& result,
-                         libbase::vector<double>& errormargin) const
-{
-    assert(sout.good());
-    if (get_samplecount() == 0) {
-        return;
-    }
-
-    libbase::trace << "DEBUG (montecarlo): writing results." << std::endl;
-    // Write current estimates to file
-    libbase::trace << "DEBUG (montecarlo): position before = " << sout.tellp()
-                   << std::endl;
-    sout << system->get_parameter();
-
-    for (int i = 0; i < system->count(); i++) {
-        sout << '\t' << result(i) << '\t' << errormargin(i);
-    }
-
-    sout << '\t' << get_samplecount();
-    sout << '\t' << cluster.getcputime() << std::endl;
-    libbase::trace << "DEBUG (montecarlo): position after = " << sout.tellp()
-                   << std::endl;
-}
-
-void
-montecarlo::writestate(std::ostream& sout) const
-{
-    assert(sout.good());
-    if (get_samplecount() == 0) {
-        return;
-    }
-
-    libbase::trace << "DEBUG (montecarlo): writing state." << std::endl;
-    // Write accumulated values to file
-    libbase::trace << "DEBUG (montecarlo): position before = " << sout.tellp()
-                   << std::endl;
-    libbase::vector<double> state;
-    system->get_state(state);
-    sout << "## System: " << sysdigest << std::endl;
-    sout << "## Parameter: " << system->get_parameter() << std::endl;
-    sout << "## Samples: " << get_samplecount() << std::endl;
-    sout << "## State: " << state.size() << '\t';
-    state.serialize(sout, '\t');
-    sout << std::flush;
-    libbase::trace << "DEBUG (montecarlo): position after = " << sout.tellp()
-                   << std::endl;
-}
-
-void
-montecarlo::lookforstate(std::istream& sin)
-{
-    assert(sin.good());
-    // state variables to read
-    std::string digest;
-    double parameter = 0;
-    libbase::int64u samplecount = 0;
-    vector<double> state;
-    // read through entire file
-    libbase::trace << "DEBUG (montecarlo): looking for state." << std::endl;
-    sin.seekg(0);
-    while (!sin.eof()) {
-        std::string s;
-        getline(sin, s);
-
-        if (s.substr(0, 10) == "## System:") {
-            digest = s.substr(10);
-        } else if (s.substr(0, 13) == "## Parameter:") {
-            std::istringstream(s.substr(13)) >> parameter;
-        } else if (s.substr(0, 11) == "## Samples:") {
-            std::istringstream(s.substr(11)) >> samplecount;
-        } else if (s.substr(0, 9) == "## State:") {
-            std::istringstream is(s.substr(9));
-            is >> state;
-        }
-    }
-    // reset file
-    sin.clear();
-    // check that results correspond to system under simulation
-    if (digest == std::string(sysdigest) &&
-        parameter == system->get_parameter()) {
-        std::cerr << "NOTICE: Reloading state with " << samplecount
-                  << " samples." << std::endl;
-        system->accumulate_state(samplecount, state);
-    }
 }
 
 // overrideable user-interface functions
@@ -438,8 +319,8 @@ montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
     sysdigest.process(is);
 
     // Initialize results-writing system (if we're using it)
-    if (resultsfile::isinitialized()) {
-        setupfile();
+    if (results_file->isinitialized()) {
+        results_file->setupfile();
     }
 
     // Set up for master-slave system (if necessary)
@@ -515,8 +396,8 @@ montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
             // print something to inform the user of our progress
             display(result, errormargin);
             // write interim results
-            if (resultsfile::isinitialized()) {
-                writeinterimresults(result, errormargin);
+            if (results_file->isinitialized()) {
+                results_file->writeinterimresults(result, errormargin);
             }
         }
 
@@ -528,8 +409,8 @@ montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
     }
 
     // write final results
-    if (resultsfile::isinitialized()) {
-        writefinalresults(result, errormargin, interrupt());
+    if (results_file->isinitialized()) {
+        results_file->writefinalresults(result, errormargin, interrupt());
     }
 
     t.stop();

@@ -32,6 +32,8 @@
 #include "walltimer.h"
 #include <sstream>
 
+#include "resultsfile_text.h"
+
 namespace libcomm
 {
 
@@ -40,7 +42,7 @@ namespace libcomm
  * \author  Johann Briffa
  */
 
-class montecarlo : private resultsfile
+class montecarlo
 {
 private:
     // shorthand for masterslave data types
@@ -48,6 +50,7 @@ private:
 
 private:
     /*! \name Bound objects */
+    std::unique_ptr<resultsfile> results_file;
     std::shared_ptr<experiment> system; //!< System being sampled
     libbase::masterslave cluster;       //!< Master/slave interface
     // @}
@@ -101,13 +104,6 @@ private:
     bool readpendingslaves();
     // @}
 protected:
-    // System-specific file-handler functions
-    void writeheader(std::ostream& sout) const;
-    void writeresults(std::ostream& sout,
-                      libbase::vector<double>& result,
-                      libbase::vector<double>& errormargin) const;
-    void writestate(std::ostream& sout) const;
-    void lookforstate(std::istream& sin);
     /*! \name Overrideable user-interface functions */
     /*! \brief User-interrupt check
      * This function should return true if the user has requested an interrupt.
@@ -136,7 +132,8 @@ protected:
 public:
     /*! \name Constructor/destructor */
     montecarlo()
-        : min_samples(128), confidence(0.95), threshold(0.10),
+        : results_file(std::make_unique<resultsfile_text>(*this)),
+          min_samples(128), confidence(0.95), threshold(0.10),
           mode(mode_relative_error), t("montecarlo"),
           tupdate("montecarlo_update")
     {
@@ -167,13 +164,17 @@ public:
     }
     // @}
     /*! \name Simulation binding/releasing */
-    void bind(std::shared_ptr<experiment> system) { this->system = system; }
+    void bind(std::shared_ptr<experiment> system)
+    {
+        this->system = system;
+        this->results_file->set_system(*system);
+    }
     // @}
     /*! \name Simulation parameters */
     //! Set system initialization seed
     void set_seed(libbase::int32u seed)
     {
-        if (isinitialized()) {
+        if (results_file->isinitialized()) {
             std::cerr << "WARNING (montecarlo): seed value unused in "
                          "master-slave system"
                       << std::endl;
@@ -229,7 +230,11 @@ public:
         this->mode = mode_accumulated_result;
     }
     //! Associates with given results file
-    void set_resultsfile(const std::string& fname) { resultsfile::init(fname); }
+    void set_resultsfile(const std::string& fname)
+    {
+        results_file->init(fname);
+        results_file->set_system(*system);
+    }
     //! Get confidence level as a string
     std::string get_confidence_level() const
     {
@@ -272,6 +277,8 @@ public:
     void estimate(libbase::vector<double>& result,
                   libbase::vector<double>& errormargin);
     // @}
+    const sha& get_sysdigest() { return this->sysdigest; }
+    const libbase::masterslave& get_cluster() { return this->cluster; }
 };
 
 } // namespace libcomm
