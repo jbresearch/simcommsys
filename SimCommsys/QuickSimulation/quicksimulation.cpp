@@ -267,13 +267,17 @@ main(int argc, char* argv[])
                      << "," << std::endl;
 
                 for (int j = 0; j < system->count(); j++) {
+                    double errmargin = fabs(100 * errormargin(j) / estimate(j));
+
                     cout << "\t\"" << system->result_description(j) << "\": {"
                          << std::endl;
                     cout << "\t\t\"Value\": " << setprecision(6) << estimate(j)
                          << "," << std::endl;
-                    cout << "\t\t\"Tolerance\": " << setprecision(3)
-                         << fabs(100 * errormargin(j) / estimate(j))
-                         << std::endl;
+                    if (isnan(errmargin))
+                        cout << "\t\t\"Tolerance\": \"NaN\"" << std::endl;
+                    else
+                        cout << "\t\t\"Tolerance\": " << setprecision(3)
+                             << errmargin << std::endl;
                     cout << "\t}," << std::endl;
                 }
 
