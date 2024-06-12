@@ -307,14 +307,14 @@ hadamard_transform(::cuda::matrix_reference<real>& src,
 template <class real>
 __device__
 void
-perform_clipping(real& num, int& clipping_method, real& almost_zero)
+perform_clipping(real& num, int& clipping_method, real& almostzero)
 {
     if (1 == clipping_method) {
         // use standard clipping
-        num = max(num, almost_zero);
+        num = max(num, almostzero);
     } else {
         // branchless computation.
-        num = (num <= real(0.0)) * almost_zero + (num > real(0.0)) * num;
+        num = (num <= real(0.0)) * almostzero + (num > real(0.0)) * num;
     }
 }
 
@@ -322,7 +322,7 @@ template <class GF_q, class real>
 __global__ void
 clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
                               int clipping_method,
-                              real almost_zero)
+                              real almostzero)
 {
     // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
     extern __shared__ __align__(sizeof(real)) unsigned char sbuf[];
@@ -344,7 +344,7 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
              loop_e += blockDim.x) {
             // Clipping HACK
             tmp_prob = probs(loop_n, loop_e);
-            perform_clipping(tmp_prob, clipping_method, almost_zero);
+            perform_clipping(tmp_prob, clipping_method, almostzero);
             probs(loop_n, loop_e) = tmp_prob;
             sdata[i] += tmp_prob;
         }
@@ -370,7 +370,7 @@ template <class GF_q, class real>
 __global__ void
 clip_and_normalize_probs_fast_kern(::cuda::matrix_reference<real> probs,
                                    int clipping_method,
-                                   real almost_zero)
+                                   real almostzero)
 {
     // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
     extern __shared__ __align__(sizeof(real)) unsigned char sbuf[];
@@ -385,7 +385,7 @@ clip_and_normalize_probs_fast_kern(::cuda::matrix_reference<real> probs,
     int n = probs.get_rows();
     if (loop_n < n) {
         sdata[threadIdx.x] = probs(loop_n, loop_e);
-        perform_clipping(sdata[threadIdx.x], clipping_method, almost_zero);
+        perform_clipping(sdata[threadIdx.x], clipping_method, almostzero);
 
         psums[threadIdx.x] = sdata[threadIdx.x];
         __syncthreads();
@@ -406,7 +406,7 @@ template <class GF_q, class real>
 inline void
 clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
                          int clipping_method,
-                         real almost_zero)
+                         real almostzero)
 {
     int n = probs.get_rows();
     int num_of_elements = GF_q::elements();
@@ -430,14 +430,14 @@ clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
             <<<num_blocks,
                block_dim,
                2 * block_dim.x * block_dim.y * sizeof(real)>>>(
-                probs, clipping_method, almost_zero);
+                probs, clipping_method, almostzero);
     } else {
         block_dim = dim3(num_of_elements);
         num_blocks = dim3(ROUND_UP_DIV(n, (int)block_dim.y));
 
         clip_and_normalize_probs_fast_kern<GF_q, real>
             <<<num_blocks, block_dim, 2 * sizeof(real) * block_dim.x>>>(
-                probs, clipping_method, almost_zero);
+                probs, clipping_method, almostzero);
     }
 
     cudaSafeCall(cudaGetLastError());
@@ -637,14 +637,7 @@ compute_r_mn_kern(::cuda::vector_reference<int> device_mx0_row_idx_lut,
 
 template <class GF_q, class real>
 void
-compute_r_mn(::cuda::vector<int>& device_mx0_row_idx_lut,
-             ::cuda::matrix<real>& device_r_mxn,
-             ::cuda::matrix<real>& device_qmn_conv,
-             ::cuda::vector<int>& device_pchk_row_non_zeros,
-             ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
-             ::cuda::matrix<real>& device_swap_buf,
-             int clipping_method,
-             real almost_zero)
+sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
 {
     dim3 block_dim, num_blocks;
 
@@ -682,8 +675,8 @@ compute_r_mn(::cuda::vector<int>& device_mx0_row_idx_lut,
     // Apply clipping + normalization to the computed r_mn values.
     clip_and_normalize_probs<GF_q, real>(
         ::cuda::matrix_reference<real>(device_r_mxn),
-        clipping_method,
-        almost_zero);
+        this->clipping_method,
+        this->almostzero);
 }
 
 template <class GF_q, class real>
@@ -735,18 +728,7 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
 
 template <class GF_q, class real>
 void
-compute_q_mn(::cuda::matrix<real>& device_received_probs,
-             ::cuda::vector<int>& device_mx0_row_idx_lut,
-             ::cuda::matrix<int>& device_nxm_row_idx_lut,
-             ::cuda::matrix<real>& device_r_mxn,
-             ::cuda::matrix<real>& device_qmn_conv,
-             ::cuda::vector<int>& device_pchk_row_non_zeros,
-             ::cuda::matrix<GF_q>& device_pchk_row_non_zeros_val,
-             ::cuda::vector<int>& device_pchk_col_non_zeros,
-             ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val,
-             ::cuda::matrix<real>& device_swap_buf,
-             int clipping_method,
-             real almost_zero)
+sum_prod_alg_gdl_cuda<GF_q, real>::compute_q_mn()
 {
 
     dim3 block_dim, num_blocks;
@@ -769,6 +751,12 @@ compute_q_mn(::cuda::matrix<real>& device_received_probs,
 #ifdef DEBUG
     cudaDeviceSynchronize();
 #endif
+
+    // Apply clipping + normalization to the computed r_mn values.
+    clip_and_normalize_probs<GF_q, real>(
+        ::cuda::matrix_reference<real>(device_qmn_conv),
+        this->clipping_method,
+        this->almostzero);
 
     // Here we use matrix references for cheap swapping.
     ::cuda::matrix_reference<real> src(device_qmn_conv);
@@ -820,14 +808,7 @@ compute_probs_kern(::cuda::matrix_reference<real> device_received_probs,
 
 template <class GF_q, class real>
 void
-compute_probs(::cuda::matrix<real>& device_received_probs,
-              ::cuda::matrix<real>& device_out_probs,
-              ::cuda::matrix<int>& device_nxm_row_idx_lut,
-              ::cuda::matrix<real>& device_r_mxn,
-              ::cuda::vector<int>& device_pchk_col_non_zeros,
-              ::cuda::matrix<GF_q>& device_pchk_col_non_zeros_val,
-              int clipping_method,
-              real almost_zero)
+sum_prod_alg_gdl_cuda<GF_q, real>::compute_probs()
 {
     dim3 block_dim, num_blocks;
 
@@ -853,8 +834,8 @@ compute_probs(::cuda::matrix<real>& device_received_probs,
     // Normalize the computed probabilities.
     clip_and_normalize_probs<GF_q, real>(
         ::cuda::matrix_reference<real>(device_out_probs),
-        clipping_method,
-        almost_zero);
+        this->clipping_method,
+        this->almostzero);
 }
 
 template <class GF_q, class real>
@@ -873,42 +854,15 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
     // satisfied the conditional probability is 1 and 0 otherwise so we are
     // simply adding up the products for which the parity check is
     // satisfied.
-
-    compute_r_mn(this->device_mx0_row_idx_lut,
-                 this->device_r_mxn,
-                 this->device_qmn_conv,
-                 this->device_pchk_row_non_zeros,
-                 this->device_pchk_row_non_zeros_val,
-                 this->device_swap_buf,
-                 this->clipping_method,
-                 this->almostzero);
+    compute_r_mn();
 
     // loop over all the symbol nodes - the vertical step
-
-    compute_q_mn(this->device_received_probs,
-                 this->device_mx0_row_idx_lut,
-                 this->device_nxm_row_idx_lut,
-                 this->device_r_mxn,
-                 this->device_qmn_conv,
-                 this->device_pchk_row_non_zeros,
-                 this->device_pchk_row_non_zeros_val,
-                 this->device_pchk_col_non_zeros,
-                 this->device_pchk_col_non_zeros_val,
-                 this->device_swap_buf,
-                 this->clipping_method,
-                 this->almostzero);
+    compute_q_mn();
 
     // compute the new probabilities for all symbols given the information
     // in this iteration. This will be used in a tentative decoding to see
     // whether we have found a codeword
-    compute_probs<GF_q, real>(this->device_received_probs,
-                              this->device_out_probs,
-                              this->device_nxm_row_idx_lut,
-                              this->device_r_mxn,
-                              this->device_pchk_col_non_zeros,
-                              this->device_pchk_col_non_zeros_val,
-                              this->clipping_method,
-                              this->almostzero);
+    compute_probs();
 
     // Copy received probabilities from device to host.
     array1d_t ro_m = (::libbase::vector<real>)this->device_out_probs;

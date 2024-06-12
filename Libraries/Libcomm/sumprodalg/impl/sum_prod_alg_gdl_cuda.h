@@ -72,6 +72,11 @@ public:
     std::string spa_type() override { return "gdl_cuda"; }
 
 private:
+    /** \name Internal methods for steps within an SPA iteration */
+    void compute_q_mn();
+    void compute_r_mn();
+    void compute_probs();
+
     /*! \brief this is an n x |GF_q| size matrix that holds prior probability
      * distributions of each symbol in a codeword.
      */
