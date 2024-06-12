@@ -27,12 +27,11 @@
 #include "experiment.h"
 #include "masterslave.h"
 #include "resultsfile/resultsfile.h"
+#include "resultsfile/resultsfile_factory.h"
 #include "sha.h"
 #include "truerand.h"
 #include "walltimer.h"
 #include <sstream>
-
-#include "resultsfile/resultsfile_text.h"
 
 namespace libcomm
 {
@@ -132,7 +131,7 @@ protected:
 public:
     /*! \name Constructor/destructor */
     montecarlo()
-        : results_file(std::make_unique<resultsfile_text>(*this)),
+        : results_file(resultsfile_factory::get_resultsfile("text", *this)),
           min_samples(128), confidence(0.95), threshold(0.10),
           mode(mode_relative_error), t("montecarlo"),
           tupdate("montecarlo_update")
