@@ -19,6 +19,7 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "assertalways.h"
 #include "montecarlo.h"
 #include "serializer_libcomm.h"
 #include "timer.h"
@@ -134,6 +135,11 @@ main(int argc, char* argv[])
         "overrides absolute and relative error if specified");
     desc.add_options()(
         "min-samples", po::value<int>(), "minimum number of samples");
+    desc.add_options()("output-format",
+                       po::value<std::string>()->default_value("text"),
+                       "output format; use text for regular human-readable "
+                       "output, json for machine-readable JSON output.");
+
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
@@ -203,45 +209,94 @@ main(int argc, char* argv[])
         const libbase::int64u samples = estimator->get_samplecount();
 
         if (!vm["quiet"].as<bool>()) {
-            // Write some information on the code
-            cout << std::endl << std::endl;
-            cout << "System Used:" << std::endl;
-            cout << "~~~~~~~~~~~~" << std::endl;
-            cout << system->description() << std::endl;
-            // cout << "Rate: " << system-> << std::endl;
-            cout << "Confidence Level: " << estimator->get_confidence_level()
-                 << std::endl;
-            cout << "Convergence Mode: " << estimator->get_convergence_mode()
-                 << std::endl;
-            cout << "Date: " << libbase::timer::date() << std::endl;
-            // TODO: add method to system to get parameter name
-            cout << "Simulating at system parameter = "
-                 << system->get_parameter() << std::endl;
+            std::string output_format = vm["output-format"].as<std::string>();
+            if (output_format == "text") {
+                // Write some information on the code
+                cout << std::endl << std::endl;
+                cout << "System Used:" << std::endl;
+                cout << "~~~~~~~~~~~~" << std::endl;
+                cout << system->description() << std::endl;
+                // cout << "Rate: " << system-> << std::endl;
+                cout << "Confidence Level: "
+                     << estimator->get_confidence_level() << std::endl;
+                cout << "Convergence Mode: "
+                     << estimator->get_convergence_mode() << std::endl;
+                cout << "Date: " << libbase::timer::date() << std::endl;
+                // TODO: add method to system to get parameter name
+                cout << "Simulating at system parameter = "
+                     << system->get_parameter() << std::endl;
 
-            // Print results (for confirming accuracy)
-            cout << std::endl;
-            cout << "Results:" << std::endl;
-            cout << "~~~~~~~~" << std::endl;
-            for (int j = 0; j < system->count(); j++) {
-                cout << system->result_description(j) << '\t';
-                cout << setprecision(6) << estimate(j);
-                cout << "\t[±" << setprecision(3)
-                     << fabs(100 * errormargin(j) / estimate(j)) << "%]";
+                // Print results (for confirming accuracy)
                 cout << std::endl;
+                cout << "Results:" << std::endl;
+                cout << "~~~~~~~~" << std::endl;
+                for (int j = 0; j < system->count(); j++) {
+                    cout << system->result_description(j) << '\t';
+                    cout << setprecision(6) << estimate(j);
+                    cout << "\t[±" << setprecision(3)
+                         << fabs(100 * errormargin(j) / estimate(j)) << "%]";
+                    cout << std::endl;
+                }
+
+                // Output timing statistics
+                cout << std::endl;
+                cout << "Build: " << SIMCOMMSYS_BUILD << std::endl;
+                cout << "Version: " << SIMCOMMSYS_VERSION << std::endl;
+                cout << "Statistics: " << samples << " samples in "
+                     << estimator->get_timer() << "." << std::endl;
+
+                // Output overall benchmark
+                cout << "Simulation Speed: " << setprecision(4)
+                     << samples / estimator->get_timer().elapsed()
+                     << " samples/sec" << std::endl;
+
+            } else if (output_format == "json") {
+                cout << "{" << std::endl;
+                // Write some information on the code
+                cout << "\t\"System\": \"" << system->description() << "\","
+                     << std::endl;
+                // cout << "Rate: " << system-> << std::endl;
+                cout << "\t\"Confidence Level\": \""
+                     << estimator->get_confidence_level() << "\"," << std::endl;
+                cout << "\t\"Convergence Mode\": \""
+                     << estimator->get_convergence_mode() << "\"," << std::endl;
+                cout << "\t\"Date\": \"" << libbase::timer::date() << "\","
+                     << std::endl;
+                // TODO: add method to system to get parameter name
+                cout << "\t\"System Parameter\": " << system->get_parameter()
+                     << "," << std::endl;
+
+                for (int j = 0; j < system->count(); j++) {
+                    cout << "\t\"" << system->result_description(j) << "\": {"
+                         << std::endl;
+                    cout << "\t\t\"Value\": " << setprecision(6) << estimate(j)
+                         << "," << std::endl;
+                    cout << "\t\t\"Tolerance\": " << setprecision(3)
+                         << fabs(100 * errormargin(j) / estimate(j))
+                         << std::endl;
+                    cout << "\t}," << std::endl;
+                }
+
+                // Output timing statistics
+                cout << "\t\"Build\": \"" << SIMCOMMSYS_BUILD << "\","
+                     << std::endl;
+                cout << "\t\"Version\": \"" << SIMCOMMSYS_VERSION << "\","
+                     << std::endl;
+                cout << "\t\"Samples\": " << samples << "," << std::endl;
+                cout << "\t\"Time\": \"" << estimator->get_timer() << "\","
+                     << std::endl;
+                cout << "\t\"Simulation Speed\": \"" << setprecision(4)
+                     << samples / estimator->get_timer().elapsed()
+                     << " samples/sec\"" << std::endl;
+                cout << "}" << std::endl;
+
+            } else {
+                std::string error_msg(
+                    "Invalid output format " + output_format +
+                    " specified; accepted values are text or json.");
+                failwith(error_msg.c_str());
             }
-
-            // Output timing statistics
-            cout << std::endl;
-            cout << "Build: " << SIMCOMMSYS_BUILD << std::endl;
-            cout << "Version: " << SIMCOMMSYS_VERSION << std::endl;
-            cout << "Statistics: " << samples << " samples in "
-                 << estimator->get_timer() << "." << std::endl;
         }
-
-        // Output overall benchmark
-        cout << "Simulation Speed: " << setprecision(4)
-             << samples / estimator->get_timer().elapsed() << " samples/sec"
-             << std::endl;
     } break;
     }
     return 0;
