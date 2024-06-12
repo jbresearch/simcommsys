@@ -26,13 +26,13 @@
 
 #include "experiment.h"
 #include "masterslave.h"
-#include "resultsfile.h"
+#include "resultsfile/resultsfile.h"
 #include "sha.h"
 #include "truerand.h"
 #include "walltimer.h"
 #include <sstream>
 
-#include "resultsfile_text.h"
+#include "resultsfile/resultsfile_text.h"
 
 namespace libcomm
 {
