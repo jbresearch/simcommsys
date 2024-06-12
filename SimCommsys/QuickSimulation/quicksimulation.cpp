@@ -30,11 +30,15 @@
 #include <cstring>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <sstream>
 
 namespace po = boost::program_options;
 
-class mymontecarlo : public libcomm::montecarlo
+/** \brief Subclass of montecarlo which stops simulation if simulation time has
+ * exceeded timeout.
+ */
+class montecarlo_timeout : public libcomm::montecarlo
 {
 protected:
     bool interrupt()
@@ -44,6 +48,26 @@ protected:
 
 public:
     double timeout;
+
+    montecarlo_timeout(double timeout) : timeout(timeout) {}
+};
+
+/** \brief Subclass of montecarlo which stops simulation if samples taken
+ * exceeds a maximum threshold.
+ * \author Mark Mizzi
+ */
+class montecarlo_max_samples : public libcomm::montecarlo
+{
+protected:
+    bool interrupt()
+    {
+        return montecarlo::interrupt() || get_samplecount() >= max_samples;
+    }
+
+public:
+    unsigned max_samples;
+
+    montecarlo_max_samples(unsigned max_samples) : max_samples(max_samples) {}
 };
 
 /*!
@@ -76,6 +100,12 @@ main(int argc, char* argv[])
     desc.add_options()("time,t",
                        po::value<double>()->default_value(60),
                        "benchmark duration in seconds");
+    desc.add_options()(
+        "num-samples,n",
+        po::value<unsigned>()->default_value(static_cast<unsigned>(0)),
+        "maximum number of samples taken in the simulation. Ignored if value "
+        "given is 0 or no value is given. Overrides timeout if a +ve value is "
+        "specified.");
     desc.add_options()(
         "parameter,r", po::value<double>(), "channel parameter (e.g. SNR)");
     desc.add_options()("system-file,i",
@@ -114,11 +144,20 @@ main(int argc, char* argv[])
         return 1;
     }
 
-    // Create estimator object and initilize cluster
-    mymontecarlo estimator;
-    switch (estimator.enable(vm["endpoint"].as<std::string>(),
-                             vm["quiet"].as<bool>(),
-                             vm["priority"].as<int>())) {
+    // Create estimator object
+    std::unique_ptr<libcomm::montecarlo> estimator;
+    unsigned num_samples = vm["num-samples"].as<unsigned>();
+    if (num_samples > 0) {
+        estimator = std::make_unique<montecarlo_max_samples>(num_samples);
+    } else {
+        estimator =
+            std::make_unique<montecarlo_timeout>(vm["time"].as<double>());
+    }
+
+    // Initilize cluster
+    switch (estimator->enable(vm["endpoint"].as<std::string>(),
+                              vm["quiet"].as<bool>(),
+                              vm["priority"].as<int>())) {
     case libbase::masterslave::mode_slave:
         break;
 
@@ -133,25 +172,24 @@ main(int argc, char* argv[])
         std::shared_ptr<libcomm::experiment> system;
         system = libcomm::loadfromfile<libcomm::experiment>(
             vm["system-file"].as<std::string>());
-        estimator.bind(system);
-        estimator.set_confidence(vm["confidence"].as<double>());
+        estimator->bind(system);
+        estimator->set_confidence(vm["confidence"].as<double>());
 
         if (vm.count("accumulated-result")) {
-            estimator.set_accumulated_result(
+            estimator->set_accumulated_result(
                 vm["accumulated-result"].as<double>());
         } else if (vm.count("absolute-error")) {
-            estimator.set_absolute_error(vm["absolute-error"].as<double>());
+            estimator->set_absolute_error(vm["absolute-error"].as<double>());
         } else {
-            estimator.set_relative_error(vm["relative-error"].as<double>());
+            estimator->set_relative_error(vm["relative-error"].as<double>());
         }
 
         if (vm.count("min-samples")) {
-            estimator.set_min_samples(vm["min-samples"].as<int>());
+            estimator->set_min_samples(vm["min-samples"].as<int>());
         }
         if (vm.count("seed")) {
-            estimator.set_seed(vm["seed"].as<libbase::int32u>());
+            estimator->set_seed(vm["seed"].as<libbase::int32u>());
         }
-        estimator.timeout = vm["time"].as<double>();
 
         // Work out at the SNR value required
         system->set_parameter(vm["parameter"].as<double>());
@@ -161,8 +199,8 @@ main(int argc, char* argv[])
 
         // Perform the simulation
         libbase::vector<double> estimate, errormargin;
-        estimator.estimate(estimate, errormargin);
-        const libbase::int64u samples = estimator.get_samplecount();
+        estimator->estimate(estimate, errormargin);
+        const libbase::int64u samples = estimator->get_samplecount();
 
         if (!vm["quiet"].as<bool>()) {
             // Write some information on the code
@@ -171,9 +209,9 @@ main(int argc, char* argv[])
             cout << "~~~~~~~~~~~~" << std::endl;
             cout << system->description() << std::endl;
             // cout << "Rate: " << system-> << std::endl;
-            cout << "Confidence Level: " << estimator.get_confidence_level()
+            cout << "Confidence Level: " << estimator->get_confidence_level()
                  << std::endl;
-            cout << "Convergence Mode: " << estimator.get_convergence_mode()
+            cout << "Convergence Mode: " << estimator->get_convergence_mode()
                  << std::endl;
             cout << "Date: " << libbase::timer::date() << std::endl;
             // TODO: add method to system to get parameter name
@@ -197,12 +235,12 @@ main(int argc, char* argv[])
             cout << "Build: " << SIMCOMMSYS_BUILD << std::endl;
             cout << "Version: " << SIMCOMMSYS_VERSION << std::endl;
             cout << "Statistics: " << samples << " samples in "
-                 << estimator.get_timer() << "." << std::endl;
+                 << estimator->get_timer() << "." << std::endl;
         }
 
         // Output overall benchmark
         cout << "Simulation Speed: " << setprecision(4)
-             << samples / estimator.get_timer().elapsed() << " samples/sec"
+             << samples / estimator->get_timer().elapsed() << " samples/sec"
              << std::endl;
     } break;
     }
