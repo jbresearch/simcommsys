@@ -31,8 +31,10 @@
 #include <cstring>
 #include <iomanip>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <sstream>
+#include <string>
 
 namespace po = boost::program_options;
 
@@ -266,11 +268,20 @@ main(int argc, char* argv[])
                 cout << "\t\"System Parameter\": " << system->get_parameter()
                      << "," << std::endl;
 
+                // keep track of duplicate labels for JSON output.
+                std::map<std::string, int> result_labels;
+
                 for (int j = 0; j < system->count(); j++) {
                     double errmargin = fabs(100 * errormargin(j) / estimate(j));
 
-                    cout << "\t\"" << system->result_description(j) << "\": {"
-                         << std::endl;
+                    // increment number of occurrences of this result name
+                    result_labels[system->result_description(j)]++;
+
+                    cout << "\t\"" << system->result_description(j);
+                    if (result_labels[system->result_description(j)] > 1)
+                        cout << result_labels[system->result_description(j)];
+                    cout << "\": {" << std::endl;
+
                     cout << "\t\t\"Value\": " << setprecision(6) << estimate(j)
                          << "," << std::endl;
                     if (isnan(errmargin))
