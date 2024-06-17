@@ -42,6 +42,7 @@ public:
     typedef libbase::vector<int> array1i_t;
     typedef libbase::vector<array1i_t> array1vi_t;
     typedef libbase::vector<array1d_t> array1vd_t;
+    typedef libbase::matrix<int> matrixi_t;
     typedef ::cuda::vector<int> cuda_array1i_t;
     typedef ::cuda::matrix<int> cuda_matrixi_t;
     typedef ::cuda::matrix<real> cuda_matrixd_t;
@@ -72,11 +73,12 @@ public:
     std::string spa_type() override { return "gdl_cuda"; }
 
 private:
-    /** \name Internal methods for steps within an SPA iteration */
-    void compute_q_mn();
+    /*! \name Internal methods for a single SPA iteration */
     void compute_r_mn();
+    void compute_q_mn();
     void compute_probs();
 
+    /*! \name State variables */
     /*! \brief this is an n x |GF_q| size matrix that holds prior probability
      * distributions of each symbol in a codeword.
      */
@@ -87,17 +89,19 @@ private:
     cuda_matrixd_t device_out_probs;
 
     /*! Matrix of indices that tell us row of device_qmn_conv that
-     * contains prob distribution qmn for a particular (m, loop_n).
+     * contains prob distribution qmn for a particular (m, n).
      * Also works for device_r_mxn since prob. distr. qmn and r_mxn have the
      * same size (size of GF(q) as there is one prob. for each element of GF(q))
+     *
+     * If bit n does not participate in check m, i.e. h_mn = 0, then the
+     * corresponding element of this matrix is -1 by convention.
      */
-    cuda_array1i_t device_mx0_row_idx_lut;
-    cuda_matrixi_t device_nxm_row_idx_lut;
+    cuda_matrixi_t device_qmn_row_indices;
 
     /*! Each row of this matrix is a probability distribution r_mxn.
      * There is a row for each combination (m, n) such that bit n participates
      * in check m. The mapping between (m, n) and the rows is given by
-     * device_mxn_row_idx_lut, device_nxm_row_idx_lut
+     * device_qmn_row_indices
      */
     cuda_matrixd_t device_r_mxn;
     /*! Each row of this matrix is a probability distribution q_mn (or more
@@ -105,7 +109,7 @@ private:
      *
      * There is a row for each combination (m, n) such that bit n participates
      * in check m. The mapping between (m, n) and the rows is given by
-     * device_mxn_row_idx_lut, device_nxm_row_idx_lut
+     * device_qmn_row_indices
      */
     cuda_matrixd_t device_qmn_conv;
     /*! This is a swap buffer used for computing the Hadamard
@@ -143,7 +147,6 @@ private:
      * device_pchk_row_non_zero can be used to determine end of each row
      */
     ::cuda::matrix<GF_q> device_pchk_row_non_zeros_val;
-    ::cuda::matrix<GF_q> device_pchk_col_non_zeros_val;
 
     /*! \brief Maximum number of non-zero elements in a column of the parity
      * check matrix.
@@ -153,6 +156,16 @@ private:
      * parity matrix h_m_n
      */
     cuda_array1i_t device_pchk_col_non_zeros;
+    /*! Matrix where each row (representing a codeword bit n) contains the
+     * position (m) of non-zero elements in the parity check matrix H (at the
+     * nth col of H).
+     *
+     * Extra space at the end of rows is padded with zeros/uninitalized.
+     *
+     * device_pchk_col_non_zeros can be used to determine end of each
+     * row
+     */
+    cuda_matrixi_t device_pchk_col_non_zeros_pos;
 };
 
 } // namespace libcomm
