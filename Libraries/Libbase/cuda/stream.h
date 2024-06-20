@@ -84,6 +84,10 @@ public:
     stream() { cudaSafeCall(cudaStreamCreate(&sid)); }
     // @}
 
+    /*! \brief Move assignment operator
+     */
+    stream& operator=(stream&& x) = default;
+
     /*! \name Law of the Big Three */
     /*! \brief Destructor
      * Waits for all tasks in this stream to finish, then destroys the stream

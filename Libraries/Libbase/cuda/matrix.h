@@ -24,6 +24,7 @@
 
 #include "../matrix.h"
 #include "config.h"
+#include "stream.h"
 #include "util.h"
 #include "vector.h"
 
@@ -282,6 +283,11 @@ public:
     operator libbase::vector<T>() const;
     // @}
 
+#ifdef __CUDACC__
+    void async_copyrowfrom(libbase::matrix<T>& x, int i, const stream& s);
+    void async_copyrowto(libbase::matrix<T>& x, int i, const stream& s);
+#endif
+
     /*! \name Element access */
     /*! \brief Row extraction (write-access)
      * This allows write access to row data without array copying.
@@ -490,6 +496,28 @@ inline matrix<T>::operator libbase::vector<T>() const
     return x;
 }
 #endif
+
+#ifdef __CUDACC__
+
+template <typename T>
+inline void
+matrix<T>::async_copyrowfrom(libbase::matrix<T>& x, int i, const stream& s)
+{
+    assert(this->rows > i);
+    libbase::indirect_vector<T> v(&x(i, 0), this->cols);
+    this->extract_row(i).async_copyfrom(v, s);
+}
+
+template <typename T>
+inline void
+matrix<T>::async_copyrowto(libbase::matrix<T>& x, int i, const stream& s)
+{
+    assert(this->rows > i);
+    libbase::indirect_vector<T> v(&x(i, 0), this->cols);
+    this->extract_row(i).async_copyto(v, s);
+}
+
+#endif // __CUDACC__
 
 // Prior definition of matrix class
 

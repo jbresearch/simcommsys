@@ -25,6 +25,7 @@
 #include "../vector.h"
 #include "config.h"
 #include "cuda_assert.h"
+#include "stream.h"
 
 namespace cuda
 {
@@ -256,6 +257,11 @@ public:
     operator libbase::vector<T>() const;
     // @}
 
+#ifdef __CUDACC__
+    void async_copyfrom(libbase::vector<T>& x, const stream& s);
+    void async_copyto(libbase::vector<T>& x, const stream& s);
+#endif
+
     /*! \name Element access */
     /*! \brief Extract a sub-vector as a reference into this vector
      * This allows read access to sub-vector data without array copying.
@@ -416,6 +422,54 @@ vector<T>::operator=(const libbase::vector<T>& x)
     }
     return *this;
 }
+
+#    ifdef __CUDACC__
+
+template <typename T>
+inline void
+vector<T>::async_copyfrom(libbase::vector<T>& x, const stream& s)
+{
+
+#        if DEBUG >= 2
+    debug_header(std::cerr);
+    std::cerr << " async copy from host object " << &x << std::endl;
+#        endif
+    // (re-)allocate memory if needed
+    init(x.size().length());
+    // copy data from host to device if necessary
+    if (length > 0) {
+        assert(data != nullptr);
+        cudaSafeCall(cudaMemcpyAsync(data,
+                                     &x(0),
+                                     length * sizeof(T),
+                                     cudaMemcpyHostToDevice,
+                                     s.get_id()));
+    }
+}
+
+template <typename T>
+inline void
+vector<T>::async_copyto(libbase::vector<T>& x, const stream& s)
+{
+
+#        if DEBUG >= 2
+    debug_header(std::cerr);
+    std::cerr << " async copy to host object " << &x << std::endl;
+#        endif
+    // (re-)allocate memory if needed
+    init(x.size().length());
+    // copy data from device to host if necessary
+    if (length > 0) {
+        assert(data != nullptr);
+        cudaSafeCall(cudaMemcpyAsync(&x(0),
+                                     data,
+                                     length * sizeof(T),
+                                     cudaMemcpyDeviceToHost,
+                                     s.get_id()));
+    }
+}
+
+#    endif // __CUDACC__
 
 template <class T>
 inline vector<T>::operator libbase::vector<T>() const
