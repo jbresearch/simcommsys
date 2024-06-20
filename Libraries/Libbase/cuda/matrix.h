@@ -286,6 +286,8 @@ public:
 #ifdef __CUDACC__
     void async_copyrowfrom(libbase::matrix<T>& x, int i, const stream& s);
     void async_copyrowto(libbase::matrix<T>& x, int i, const stream& s);
+    void async_copyrowfrom(const libbase::vector<T>& x, int i, const stream& s);
+    void async_copyrowto(libbase::vector<T>& x, int i, const stream& s);
 #endif
 
     /*! \name Element access */
@@ -517,6 +519,24 @@ matrix<T>::async_copyrowto(libbase::matrix<T>& x, int i, const stream& s)
     this->extract_row(i).async_copyto(v, s);
 }
 
+template <typename T>
+inline void
+matrix<T>::async_copyrowfrom(const libbase::vector<T>& x,
+                             int i,
+                             const stream& s)
+{
+    assert(this->rows > i);
+    this->extract_row(i).async_copyfrom(x, s);
+}
+
+template <typename T>
+inline void
+matrix<T>::async_copyrowto(libbase::vector<T>& x, int i, const stream& s)
+{
+    assert(this->rows > i);
+    this->extract_row(i).async_copyto(x, s);
+}
+
 #endif // __CUDACC__
 
 // Prior definition of matrix class
@@ -613,6 +633,22 @@ public:
         // note: this operation requires this class to be a friend of matrix
         Base::copyfrom(x);
     }
+
+    /*! \brief Get a matrix "slice" from a normal matrix
+     * \warning This allows modification of 'const' matrixs
+     */
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
+    matrix_reference(const matrix<T>& x, int i1, int i2)
+    {
+        Base::data = x.data + i1 * x.pitch;
+        Base::rows = i2 - i1;
+        Base::cols = x.cols;
+        Base::pitch = x.pitch;
+    }
+
     // @}
     /*! \brief Assignment from normal matrix
      * \note Assignment is a shallow copy.

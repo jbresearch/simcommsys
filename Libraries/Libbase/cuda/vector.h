@@ -258,7 +258,7 @@ public:
     // @}
 
 #ifdef __CUDACC__
-    void async_copyfrom(libbase::vector<T>& x, const stream& s);
+    void async_copyfrom(const libbase::vector<T>& x, const stream& s);
     void async_copyto(libbase::vector<T>& x, const stream& s);
 #endif
 
@@ -427,7 +427,7 @@ vector<T>::operator=(const libbase::vector<T>& x)
 
 template <typename T>
 inline void
-vector<T>::async_copyfrom(libbase::vector<T>& x, const stream& s)
+vector<T>::async_copyfrom(const libbase::vector<T>& x, const stream& s)
 {
 
 #        if DEBUG >= 2
