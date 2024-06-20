@@ -24,16 +24,19 @@
 
 #include "../sum_prod_alg_inf.h"
 #include "cuda/matrix.h"
+#include "cuda/stream.h"
 #include "cuda/vector.h"
 #include "matrix.h"
 #include "vector.h"
+#include <array>
 #include <limits>
 #include <string>
 
 namespace libcomm
 {
 
-template <class GF_q, class real = double>
+#ifdef __CUDACC__
+template <class GF_q, class real = double, unsigned num_streams = 8>
 class sum_prod_alg_gdl_cuda : public sum_prod_alg_inf<GF_q, real>
 {
 public:
@@ -77,6 +80,8 @@ private:
     void compute_r_mn();
     void compute_q_mn();
     void compute_probs();
+
+    std::array<cuda::stream, num_streams> streams;
 
     /*! \name State variables */
     /*! \brief this is an n x |GF_q| size matrix that holds prior probability
@@ -167,6 +172,8 @@ private:
      */
     cuda_matrixi_t device_pchk_col_non_zeros_pos;
 };
+
+#endif // __CUDACC__
 
 } // namespace libcomm
 

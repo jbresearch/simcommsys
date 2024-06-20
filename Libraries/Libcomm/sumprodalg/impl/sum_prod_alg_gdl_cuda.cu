@@ -21,6 +21,7 @@
 
 #include "cuda/cuda_assert.h"
 #include "cuda/matrix.h"
+#include "cuda/stream.h"
 #include "cuda/util.h"
 #include "cuda/vector.h"
 #include "gf.h"
@@ -180,14 +181,17 @@ hadamard_transform(::cuda::matrix_reference<real>& src,
     }
 }
 
-template <class GF_q, class real>
-sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
+template <class GF_q, class real, unsigned num_streams>
+sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::sum_prod_alg_gdl_cuda(
     int n,
     int m,
     const array1vi_t& non_zero_col_pos,
     const array1vi_t& non_zero_row_pos,
     const libbase::matrix<GF_q>& pchk_matrix)
 {
+    for (cuda::stream& s : streams)
+        s = cuda::stream();
+
     int num_of_elements = GF_q::elements();
 
     // we first build qmn_row_indices on the host, then copy to device.
@@ -440,9 +444,10 @@ spa_init_kern(::cuda::matrix_reference<real> device_received_probs,
     }
 }
 
-template <class GF_q, class real>
+template <class GF_q, class real, unsigned num_streams>
 void
-sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
+sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::spa_init(
+    const array1vd_t& recvd_probs)
 {
     dim3 block_dim;
     dim3 num_blocks;
@@ -585,9 +590,9 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
     }
 }
 
-template <class GF_q, class real>
+template <class GF_q, class real, unsigned num_streams>
 void
-sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
+sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_r_mn()
 {
     dim3 block_dim, num_blocks;
 
@@ -711,9 +716,9 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
     }
 }
 
-template <class GF_q, class real>
+template <class GF_q, class real, unsigned num_streams>
 void
-sum_prod_alg_gdl_cuda<GF_q, real>::compute_q_mn()
+sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_q_mn()
 {
 
     dim3 block_dim, num_blocks;
@@ -811,9 +816,9 @@ compute_probs_kern(::cuda::matrix_reference<real> device_received_probs,
     device_out_probs(loop_n, loop_e) = prob;
 }
 
-template <class GF_q, class real>
+template <class GF_q, class real, unsigned num_streams>
 void
-sum_prod_alg_gdl_cuda<GF_q, real>::compute_probs()
+sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_probs()
 {
     dim3 block_dim, num_blocks;
 
@@ -843,9 +848,9 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_probs()
         this->almostzero);
 }
 
-template <class GF_q, class real>
+template <class GF_q, class real, unsigned num_streams>
 void
-sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(array1vd_t& ro)
+sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::spa_iteration(array1vd_t& ro)
 {
     // carry out the horizontal step
     // this uses the description of the algorithm as given by

@@ -73,13 +73,13 @@ public:
                 new sum_prod_alg_gdl<GF_q, real>(
                     n, m, non_zero_col_pos, non_zero_row_pos, pchk_matrix));
         }
-#ifdef USE_CUDA
+#ifdef __CUDACC__
         else if ("gdl_cuda" == type) {
             spa_ptr = std::shared_ptr<sum_prod_alg_inf<GF_q, real>>(
                 new sum_prod_alg_gdl_cuda<GF_q, real>(
                     n, m, non_zero_col_pos, non_zero_row_pos, pchk_matrix));
         }
-#endif // USE_CUDA
+#endif // __CUDACC__
         else {
             std::string error_msg(type + " is not a valid SPA type");
             failwith(error_msg.c_str());
