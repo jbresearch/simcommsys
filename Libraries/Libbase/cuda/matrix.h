@@ -340,6 +340,11 @@ public:
     }
     // @}
 #endif
+
+#ifdef __CUDACC__
+    __host__
+#endif
+    matrix_reference<T> slice(int start, int end) const;
 };
 
 #ifdef __CUDACC__
@@ -634,6 +639,7 @@ public:
         Base::copyfrom(x);
     }
 
+private:
     /*! \brief Get a matrix "slice" from a normal matrix
      * \warning This allows modification of 'const' matrixs
      */
@@ -643,12 +649,17 @@ public:
 #endif
     matrix_reference(const matrix<T>& x, int i1, int i2)
     {
+        assert(i1 > 0);
+        assert(i2 >= i1);
+        assert(i2 <= x.rows);
+
         Base::data = x.data + i1 * x.pitch;
         Base::rows = i2 - i1;
         Base::cols = x.cols;
         Base::pitch = x.pitch;
     }
 
+public:
     // @}
     /*! \brief Assignment from normal matrix
      * \note Assignment is a shallow copy.
@@ -939,6 +950,16 @@ public:
     }
     // @}
 };
+
+template <class T>
+#ifdef __CUDACC__
+__host__
+#endif
+matrix_reference<T>
+matrix<T>::slice(int i1, int i2) const
+{
+    return matrix_reference<T>(*this, i1, i2);
+}
 
 // Reset debug level, to avoid affecting other files
 #ifndef NDEBUG
