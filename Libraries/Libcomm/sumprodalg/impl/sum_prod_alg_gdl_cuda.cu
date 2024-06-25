@@ -189,9 +189,6 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::sum_prod_alg_gdl_cuda(
     const array1vi_t& non_zero_row_pos,
     const libbase::matrix<GF_q>& pchk_matrix)
 {
-    for (cuda::stream& s : streams)
-        s = cuda::stream();
-
     int num_of_elements = GF_q::elements();
 
     // we first build qmn_row_indices on the host, then copy to device.
@@ -360,9 +357,11 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
 
 template <class GF_q, class real>
 inline void
-clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
-                         int clipping_method,
-                         real almostzero)
+clip_and_normalize_probs(
+    ::cuda::matrix_reference<real> probs,
+    int clipping_method,
+    real almostzero,
+    const ::cuda::stream& stream = ::cuda::stream::default_stream)
 {
     int n = probs.get_rows();
 
@@ -370,7 +369,8 @@ clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
     dim3 num_blocks(ROUND_UP_DIV(n, (int)block_dim.x));
 
     clip_and_normalize_probs_kern<GF_q, real>
-        <<<num_blocks, block_dim>>>(probs, clipping_method, almostzero);
+        <<<num_blocks, block_dim, 0, stream.get_id()>>>(
+            probs, clipping_method, almostzero);
     cudaSafeCall(cudaGetLastError());
 
 #ifdef DEBUG
@@ -460,13 +460,25 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::spa_init(
 
     // Copy probabilities to device row-by-row since they are provided in a
     // ragged list.
-    for (int loop_n = 0; loop_n < dim_n; loop_n++)
-        this->device_received_probs.extract_row(loop_n) = recvd_probs(loop_n);
+    int rowsperstream = -(-dim_n / streams.size());
+    for (int s = 0; s < streams.size(); s++)
+        for (int loop_n = s * rowsperstream;
+             loop_n < std::min((s + 1) * rowsperstream, dim_n);
+             loop_n++)
+            this->device_received_probs.async_copyrowfrom(
+                recvd_probs(loop_n), loop_n, streams[s]);
 
-    clip_and_normalize_probs<GF_q, real>(
-        ::cuda::matrix_reference<real>(this->device_received_probs),
-        this->clipping_method,
-        this->almostzero);
+    for (int s = 0; s < streams.size(); s++) {
+        int i1 = s * rowsperstream;
+        int i2 = std::min((s + 1) * rowsperstream, dim_n);
+        clip_and_normalize_probs<GF_q, real>(
+            this->device_received_probs.slice(i1, i2),
+            this->clipping_method,
+            this->almostzero,
+            streams[s]);
+    }
+
+    cudaDeviceSynchronize();
 
     // TODO: Fix this.
 #if DEBUG >= 2

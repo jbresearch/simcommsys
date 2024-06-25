@@ -34,8 +34,6 @@
 
 namespace libcomm
 {
-
-#ifdef __CUDACC__
 template <class GF_q, class real = double, unsigned num_streams = 8>
 class sum_prod_alg_gdl_cuda : public sum_prod_alg_inf<GF_q, real>
 {
@@ -46,6 +44,7 @@ public:
     typedef libbase::vector<array1i_t> array1vi_t;
     typedef libbase::vector<array1d_t> array1vd_t;
     typedef libbase::matrix<int> matrixi_t;
+
     typedef ::cuda::vector<int> cuda_array1i_t;
     typedef ::cuda::matrix<int> cuda_matrixi_t;
     typedef ::cuda::matrix<real> cuda_matrixd_t;
@@ -76,13 +75,6 @@ public:
     std::string spa_type() override { return "gdl_cuda"; }
 
 private:
-    /*! \name Internal methods for a single SPA iteration */
-    void compute_r_mn();
-    void compute_q_mn();
-    void compute_probs();
-
-    std::array<cuda::stream, num_streams> streams;
-
     /*! \name State variables */
     /*! \brief this is an n x |GF_q| size matrix that holds prior probability
      * distributions of each symbol in a codeword.
@@ -171,9 +163,19 @@ private:
      * row
      */
     cuda_matrixi_t device_pchk_col_non_zeros_pos;
-};
 
-#endif // __CUDACC__
+#ifdef __CUDACC__
+    /*! \brief Array of streams used to interleave memory transfer and
+     * computation. */
+    std::array<cuda::stream, num_streams> streams;
+#endif
+
+private:
+    /*! \name Internal methods for a single SPA iteration */
+    void compute_r_mn();
+    void compute_q_mn();
+    void compute_probs();
+};
 
 } // namespace libcomm
 
