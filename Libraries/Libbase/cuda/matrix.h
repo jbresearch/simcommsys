@@ -653,7 +653,7 @@ private:
         assert(i2 > i1);
         assert(i2 <= x.rows);
 
-        Base::data = x.data + i1 * x.pitch;
+        Base::data = x.data + i1 * x.pitch / sizeof(T);
         Base::rows = i2 - i1;
         Base::cols = x.cols;
         Base::pitch = x.pitch;
