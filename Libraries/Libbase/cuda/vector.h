@@ -318,6 +318,11 @@ public:
     }
     // @}
 #endif
+
+#ifdef __CUDACC__
+    __host__
+#endif
+    vector_reference<T> slice(int start, int end) const;
 };
 
 #ifdef __CUDACC__
@@ -579,6 +584,22 @@ public:
         debug_trailer(std::cerr);
 #endif
     }
+
+private:
+    /*! \brief Automatic conversion from normal vector
+     * \warning This allows modification of 'const' vectors
+     */
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
+    vector_reference(const vector<T>& x, int start, int end)
+    {
+        Base::data = x.data + start;
+        Base::length = end - start;
+    }
+
+public:
     //! Unique constructor
 #ifdef __CUDACC__
     __device__
@@ -904,6 +925,16 @@ public:
     }
     // @}
 };
+
+template <class T>
+#ifdef __CUDACC__
+__host__
+#endif
+vector_reference<T>
+vector<T>::slice(int start, int end) const
+{
+    return vector_reference<T>(*this, start, end);
+}
 
 // Reset debug level, to avoid affecting other files
 #ifndef NDEBUG
