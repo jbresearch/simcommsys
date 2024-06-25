@@ -595,6 +595,10 @@ private:
 #endif
     vector_reference(const vector<T>& x, int start, int end)
     {
+        assert(start >= 0);
+        assert(end > start);
+        assert(end <= Base::length);
+
         Base::data = x.data + start;
         Base::length = end - start;
     }

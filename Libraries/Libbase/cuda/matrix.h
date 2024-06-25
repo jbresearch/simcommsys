@@ -649,8 +649,8 @@ private:
 #endif
     matrix_reference(const matrix<T>& x, int i1, int i2)
     {
-        assert(i1 > 0);
-        assert(i2 >= i1);
+        assert(i1 >= 0);
+        assert(i2 > i1);
         assert(i2 <= x.rows);
 
         Base::data = x.data + i1 * x.pitch;
