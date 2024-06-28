@@ -77,9 +77,9 @@ multiply_h_m_n_kern(
     ::cuda::matrix_reference<int> device_qmn_row_indices,
     ::cuda::matrix_reference<real> src,
     ::cuda::matrix_reference<real> dst,
-    ::cuda::vector_reference<int> device_pchk_row_non_zeros,
-    ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
-    ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val)
+    ::cuda::vector_reference<int> device_pchk_col_non_zeros,
+    ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos,
+    ::cuda::matrix_reference<GF_q> device_pchk_col_non_zeros_val)
 {
     // src and dst need to have the same dimensions
     cuda_assert(src.get_cols() == dst.get_cols() &&
@@ -91,23 +91,24 @@ multiply_h_m_n_kern(
     int num_of_elements = GF_q::elements();
     loop_e = min(loop_e, num_of_elements - 1);
 
-    // find loop_m
-    int loop_m = blockIdx.y * blockDim.y + threadIdx.y;
+    // find pos_n
+    int pos_n = blockIdx.y * blockDim.y + threadIdx.y;
     // bounds checking
-    int m = device_pchk_row_non_zeros.size();
-    loop_m = min(loop_m, m - 1);
+    int n = device_pchk_col_non_zeros.size();
+    pos_n = min(pos_n, n - 1);
 
-    int non_zeros = device_pchk_row_non_zeros(loop_m);
-    // actual value of n (loop_n ranges over the number of symbols in check m)
-    int pos_n;
+    int non_zeros = device_pchk_col_non_zeros(pos_n);
+    // actual value of m (loop_m ranges over the number of checks that symbol
+    // pos_n participates in)
+    int pos_m;
     // hold value of pchk matrix at (m, n)
     GF_q h_m_n;
-    for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-        pos_n = device_pchk_row_non_zeros_pos(loop_m, loop_n);
-        h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
+    for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
+        pos_m = device_pchk_col_non_zeros_pos(pos_n, loop_m);
+        h_m_n = device_pchk_col_non_zeros_val(pos_n, loop_m);
         // perform the permutation
-        dst(device_qmn_row_indices(loop_m, pos_n), h_m_n * GF_q(loop_e)) =
-            src(device_qmn_row_indices(loop_m, pos_n), loop_e);
+        dst(device_qmn_row_indices(pos_n, pos_m), h_m_n * GF_q(loop_e)) =
+            src(device_qmn_row_indices(pos_n, pos_m), loop_e);
     }
 }
 
@@ -116,9 +117,9 @@ __global__ void
 divide_h_m_n_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
                   ::cuda::matrix_reference<real> src,
                   ::cuda::matrix_reference<real> dst,
-                  ::cuda::vector_reference<int> device_pchk_row_non_zeros,
-                  ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
-                  ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val)
+                  ::cuda::vector_reference<int> device_pchk_col_non_zeros,
+                  ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos,
+                  ::cuda::matrix_reference<GF_q> device_pchk_col_non_zeros_val)
 {
     // src and dst need to have the same dimensions
     cuda_assert(src.get_cols() == dst.get_cols() &&
@@ -130,23 +131,24 @@ divide_h_m_n_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
     int num_of_elements = GF_q::elements();
     loop_e = min(loop_e, num_of_elements - 1);
 
-    // find loop_m
-    int loop_m = blockIdx.y * blockDim.y + threadIdx.y;
+    // find pos_n
+    int pos_n = blockIdx.y * blockDim.y + threadIdx.y;
     // bounds checking
-    int m = device_pchk_row_non_zeros.size();
-    loop_m = min(loop_m, m - 1);
+    int n = device_pchk_col_non_zeros.size();
+    pos_n = min(pos_n, n - 1);
 
-    int non_zeros = device_pchk_row_non_zeros(loop_m);
-    // actual value of n (loop_n ranges over the number of symbols in check m)
-    int pos_n;
+    int non_zeros = device_pchk_col_non_zeros(pos_n);
+    // actual value of m (loop_m ranges over the number of checks that symbol
+    // pos_n participates in)
+    int pos_m;
     // hold value of pchk matrix at (m, n)
     GF_q h_m_n;
-    for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-        pos_n = device_pchk_row_non_zeros_pos(loop_m, loop_n);
-        h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
+    for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
+        pos_m = device_pchk_col_non_zeros_pos(pos_n, loop_m);
+        h_m_n = device_pchk_col_non_zeros_val(pos_n, loop_m);
         // perform the permutation
-        dst(device_qmn_row_indices(loop_m, pos_n), loop_e) =
-            src(device_qmn_row_indices(loop_m, pos_n), h_m_n * GF_q(loop_e));
+        dst(device_qmn_row_indices(pos_n, pos_m), loop_e) =
+            src(device_qmn_row_indices(pos_n, pos_m), h_m_n * GF_q(loop_e));
     }
 }
 
@@ -196,7 +198,7 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::sum_prod_alg_gdl_cuda(
     // to keep track of current index) and also we need the tanner_edges var
     // computed during this process on host to allocate memory for qmn and
     // rmn matrices.
-    matrixi_t qmn_row_indices(m, n);
+    matrixi_t qmn_row_indices(n, m);
     // fill with -1 initially (means bit n does not participate in check m)
     qmn_row_indices = -1;
 
@@ -230,9 +232,9 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::sum_prod_alg_gdl_cuda(
 
     // Host fields to build the rest of the parity check matrix repr.
     matrixi_t pchk_row_non_zeros_pos(m, max_pchk_row_non_zeros);
-    libbase::matrix<GF_q> pchk_row_non_zeros_val(m, max_pchk_row_non_zeros);
 
     matrixi_t pchk_col_non_zeros_pos(n, max_pchk_col_non_zeros);
+    libbase::matrix<GF_q> pchk_col_non_zeros_val(n, max_pchk_col_non_zeros);
 
     // counts the number of edges in the Tanner graph of the code.
     // Tells us what the size of device_rmxn and device_qmn_conv should
@@ -241,45 +243,43 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::sum_prod_alg_gdl_cuda(
 
     // Populate qmn_row_indices
     // Also populate the rest of the parity check matrix repr. on the host.
-    // Actual n value, since loop_n is just an index ranging over the number of
-    // non-zero values in a row of pchk_matrix.
-    int pos_n;
-    GF_q val;
-    for (int loop_m = 0; loop_m < m; loop_m++) {
-        // non-zeros for this row of the parity check matrix
-        non_zeros = pchk_row_non_zeros(loop_m);
+    // Actual m value, since loop_m is just an index ranging over the number of
+    // non-zero values in a col of pchk_matrix.
+    int pos_m;
+    for (int pos_n = 0; pos_n < n; pos_n++) {
+        // non-zeros for this col of the parity check matrix
+        non_zeros = pchk_col_non_zeros(pos_n);
 
-        for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-            pos_n = non_zero_row_pos(loop_m)(loop_n) - 1; // we count from zero;
-            val = pchk_matrix(loop_m, pos_n);
+        for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
+            pos_m = non_zero_col_pos(pos_n)(loop_m) - 1; // we count from zero;
 
             // populate other pchk matrix fields on the host.
-            pchk_row_non_zeros_pos(loop_m, loop_n) = pos_n;
-            pchk_row_non_zeros_val(loop_m, loop_n) = val;
+            pchk_col_non_zeros_pos(pos_n, loop_m) = pos_m;
+            pchk_col_non_zeros_val(pos_n, loop_m) = pchk_matrix(pos_m, pos_n);
 
             // assign an index in device_q_mn_conv, device_r_mxn and so on
             // to a non-zero (m, n) element.
-            qmn_row_indices(loop_m, pos_n) = tanner_edges;
+            qmn_row_indices(pos_n, pos_m) = tanner_edges;
             tanner_edges++;
         }
     }
 
-    // Actual m value, since loop_m is just an index ranging over the number of
-    // non-zero values in a column of pchk_matrix.
-    int pos_m;
-    for (int loop_n = 0; loop_n < n; loop_n++) {
+    // Actual n value, since loop_n is just an index ranging over the number of
+    // non-zero values in a row of pchk_matrix.
+    int pos_n;
+    for (int pos_m = 0; pos_m < m; pos_m++) {
         // non-zeros for this col of the parity check matrix
-        non_zeros = pchk_col_non_zeros(loop_n);
+        non_zeros = pchk_row_non_zeros(pos_m);
 
-        for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
-            pos_m = non_zero_col_pos(loop_n)(loop_m) - 1; // we count from zero;
+        for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
+            pos_n = non_zero_row_pos(pos_m)(loop_n) - 1; // we count from zero;
 
             // populate other pchk matrix fields on the host.
-            pchk_col_non_zeros_pos(loop_n, loop_m) = pos_m;
+            pchk_row_non_zeros_pos(pos_m, loop_n) = pos_n;
         }
     }
 
-    device_qmn_row_indices.init(m, n);
+    device_qmn_row_indices.init(n, m);
     // Copy qmn_row_indices to device
     device_qmn_row_indices = qmn_row_indices;
 
@@ -287,18 +287,18 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::sum_prod_alg_gdl_cuda(
     // matrix
     device_pchk_row_non_zeros.init(m);
     device_pchk_row_non_zeros_pos.init(m, max_pchk_row_non_zeros);
-    device_pchk_row_non_zeros_val.init(m, max_pchk_row_non_zeros);
 
     device_pchk_col_non_zeros.init(n);
     device_pchk_col_non_zeros_pos.init(n, max_pchk_col_non_zeros);
+    device_pchk_col_non_zeros_val.init(n, max_pchk_col_non_zeros);
 
     // Copy represenation of the parity check matrix to the device.
     device_pchk_row_non_zeros = pchk_row_non_zeros;
     device_pchk_row_non_zeros_pos = pchk_row_non_zeros_pos;
-    device_pchk_row_non_zeros_val = pchk_row_non_zeros_val;
 
     device_pchk_col_non_zeros = pchk_col_non_zeros;
     device_pchk_col_non_zeros_pos = pchk_col_non_zeros_pos;
+    device_pchk_col_non_zeros_val = pchk_col_non_zeros_val;
 
     // Allocate required memory for r_mxn, q_mxn and qmn_conv on device.
     device_r_mxn.init(tanner_edges, num_of_elements);
@@ -384,9 +384,9 @@ spa_init_kern(::cuda::matrix_reference<real> device_received_probs,
               ::cuda::matrix_reference<int> device_qmn_row_indices,
               ::cuda::matrix_reference<real> device_r_mxn,
               ::cuda::matrix_reference<real> device_qmn_conv,
-              ::cuda::vector_reference<int> device_pchk_row_non_zeros,
-              ::cuda::matrix_reference<int> device_pchk_row_non_zeros_pos,
-              ::cuda::matrix_reference<GF_q> device_pchk_row_non_zeros_val)
+              ::cuda::vector_reference<int> device_pchk_col_non_zeros,
+              ::cuda::matrix_reference<int> device_pchk_col_non_zeros_pos,
+              ::cuda::matrix_reference<GF_q> device_pchk_col_non_zeros_val)
 {
     // find loop_e
     int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
@@ -394,34 +394,28 @@ spa_init_kern(::cuda::matrix_reference<real> device_received_probs,
     int num_of_elements = GF_q::elements();
     loop_e = min(loop_e, num_of_elements - 1);
 
-    // find loop_m
-    int loop_m = blockIdx.y * blockDim.y + threadIdx.y;
+    // find pos_n
+    int pos_n = blockIdx.y * blockDim.y + threadIdx.y;
     // bounds checking
-    int m = device_pchk_row_non_zeros.size();
-    loop_m = min(loop_m, m - 1);
+    int n = device_pchk_col_non_zeros.size();
+    pos_n = min(pos_n, n - 1);
 
-    int non_zeros = device_pchk_row_non_zeros(loop_m);
+    int non_zeros = device_pchk_col_non_zeros(pos_n);
 
     int qmn_row_idx;
-    int pos;
+    // NOTE: pos is the actual index of a check that the symbol pos_n
+    // participates in
+    int pos_m;
     GF_q h_m_n;
-    // NOTE: loop_n iterates over number of symbols that participate in mth
-    // check of a codeword. E.g. if check involves {x_1, x_4, x_6}, loop_n
-    // ranges over [0, 1, 2]
-    for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-        // NOTE: pos is the actual index of the nth symbol participating in the
-        // mth check in the codeword. E.g. if check involves {x_1, x_4, x_6}
-        // and loop_n = 1, pos = 4 (-1 since we count from 0)
-        pos = device_pchk_row_non_zeros_pos(loop_m, loop_n);
+    // NOTE: loop_m iterates over the number of checks that symbol pos_n
+    // participates in.
+    for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
+        pos_m = device_pchk_col_non_zeros_pos(pos_n, loop_m);
         // NOTE: Find corresponding value in the parity check matrix.
-        // We use loop_m because this is the check index, and pos because
-        // this is the actual index of the nth symbol participating in the mth
-        // check (non_zeros variable does not count symbols that don't
-        // participate in the mth check).
-        h_m_n = device_pchk_row_non_zeros_val(loop_m, loop_n);
+        h_m_n = device_pchk_col_non_zeros_val(pos_n, loop_m);
 
         // get index into device_qmn_conv and device_r_mxn
-        qmn_row_idx = device_qmn_row_indices(loop_m, pos);
+        qmn_row_idx = device_qmn_row_indices(pos_n, pos_m);
 
         // In fact the probability we are given are not for the x_i but
         // for the value h_m_n*xi hence all we need to do is copy the
@@ -437,10 +431,7 @@ spa_init_kern(::cuda::matrix_reference<real> device_received_probs,
         // distribution by multiplying it with h_m_n before placing
         // it in the qmn_conv array.
         device_qmn_conv(qmn_row_idx, h_m_n * GF_q(loop_e)) =
-            device_received_probs(pos, loop_e);
-
-        // r_mxn is initialized as 0.
-        device_r_mxn(qmn_row_idx, loop_e) = 0.0;
+            device_received_probs(pos_n, loop_e);
     }
 }
 
@@ -507,9 +498,9 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::spa_init(
                                     this->device_qmn_row_indices,
                                     this->device_r_mxn,
                                     this->device_qmn_conv,
-                                    this->device_pchk_row_non_zeros,
-                                    this->device_pchk_row_non_zeros_pos,
-                                    this->device_pchk_row_non_zeros_val);
+                                    this->device_pchk_col_non_zeros,
+                                    this->device_pchk_col_non_zeros_pos,
+                                    this->device_pchk_col_non_zeros_val);
     cudaSafeCall(cudaGetLastError());
 
 #ifdef DEBUG
@@ -557,12 +548,12 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
     loop_e = min(loop_e, num_of_elements - 1);
 
     // find loop_m
-    int loop_m = blockIdx.y * blockDim.y + threadIdx.y;
+    int pos_m = blockIdx.y * blockDim.y + threadIdx.y;
     // bounds checking
     int m = device_pchk_row_non_zeros.size();
-    loop_m = min(loop_m, m - 1);
+    pos_m = min(pos_m, m - 1);
 
-    int non_zeros = device_pchk_row_non_zeros(loop_m);
+    int non_zeros = device_pchk_row_non_zeros(pos_m);
     // actual value of n (loop_n ranges over the number of symbols in check m)
     int pos_n;
     // if message is being computed to send over edge from m to n, then this
@@ -573,10 +564,10 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
     real q_nm_conv_prod;
     for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
         q_nm_conv_prod = 1.0;
-        pos_n = device_pchk_row_non_zeros_pos(loop_m, loop_n);
+        pos_n = device_pchk_row_non_zeros_pos(pos_m, loop_n);
 
         for (int loop_n_dash = 0; loop_n_dash < non_zeros; loop_n_dash++) {
-            pos_n_dash = device_pchk_row_non_zeros_pos(loop_m, loop_n_dash);
+            pos_n_dash = device_pchk_row_non_zeros_pos(pos_m, loop_n_dash);
 
             // NOTE: Branchless computation
             q_nm_conv_prod *=
@@ -584,7 +575,7 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
                 // include the corresponding qmn in the
                 // message
                 (pos_n_dash != pos_n) *
-                    device_qmn_conv(device_qmn_row_indices(loop_m, pos_n_dash),
+                    device_qmn_conv(device_qmn_row_indices(pos_n_dash, pos_m),
                                     loop_e) +
                 // Branch where we multiply by 1, effectively removing
                 // q_nm for pos_n from the computed message.
@@ -597,7 +588,7 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_indices,
         __syncthreads();
         // coalesced memory access due to syncthreads above
         // We store in r_mxn but this is not the final result.
-        device_r_mxn(device_qmn_row_indices(loop_m, pos_n), loop_e) =
+        device_r_mxn(device_qmn_row_indices(pos_n, pos_m), loop_e) =
             q_nm_conv_prod;
     }
 }
@@ -632,10 +623,11 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_r_mn()
     ::cuda::matrix_reference<real> dst(device_swap_buf);
     hadamard_transform<GF_q, real>(src, dst);
 
+    int n = device_pchk_col_non_zeros.size();
     block_dim = dim3(32, 32);
     // use division which truncates upwards.
     num_blocks = dim3(ROUND_UP_DIV(num_of_elements, (int)block_dim.x),
-                      ROUND_UP_DIV(m, (int)block_dim.y));
+                      ROUND_UP_DIV(n, (int)block_dim.y));
 
     // Permute the distributions in src (transformed by the Hadamard transform)
     // into dst
@@ -643,9 +635,9 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_r_mn()
         ::cuda::matrix_reference<int>(device_qmn_row_indices),
         src,
         dst,
-        ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
-        ::cuda::matrix_reference<int>(device_pchk_row_non_zeros_pos),
-        ::cuda::matrix_reference<GF_q>(device_pchk_row_non_zeros_val));
+        ::cuda::vector_reference<int>(device_pchk_col_non_zeros),
+        ::cuda::matrix_reference<int>(device_pchk_col_non_zeros_pos),
+        ::cuda::matrix_reference<GF_q>(device_pchk_col_non_zeros_val));
     cudaSafeCall(cudaGetLastError());
 
 #ifdef DEBUG
@@ -680,15 +672,15 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
     loop_e = min(loop_e, num_of_elements - 1);
 
     // find loop_n
-    int loop_n = blockIdx.y * blockDim.y + threadIdx.y;
+    int pos_n = blockIdx.y * blockDim.y + threadIdx.y;
     // bounds checking
     int n = device_pchk_col_non_zeros.size();
-    loop_n = min(loop_n, n - 1);
+    pos_n = min(pos_n, n - 1);
 
     // Current probability that received symbol n has value e.
-    real recvd_prob = device_received_probs(loop_n, loop_e);
+    real recvd_prob = device_received_probs(pos_n, loop_e);
 
-    int non_zeros = device_pchk_col_non_zeros(loop_n);
+    int non_zeros = device_pchk_col_non_zeros(pos_n);
     // actual value of m (loop_m ranges over the number of symbols in check m)
     int pos_m;
     // if message is being computed to send over edge from n to m, then this
@@ -698,10 +690,10 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
     real q_nm;
     for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
         q_nm = recvd_prob;
-        pos_m = device_pchk_col_non_zeros_pos(loop_n, loop_m);
+        pos_m = device_pchk_col_non_zeros_pos(pos_n, loop_m);
 
         for (int loop_m_dash = 0; loop_m_dash < non_zeros; loop_m_dash++) {
-            pos_m_dash = device_pchk_col_non_zeros_pos(loop_n, loop_m_dash);
+            pos_m_dash = device_pchk_col_non_zeros_pos(pos_n, loop_m_dash);
 
             // NOTE: Branchless computation
             q_nm *=
@@ -709,7 +701,7 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
                 // include the corresponding r_mn in the
                 // message
                 (pos_m_dash != pos_m) *
-                    device_r_mxn(device_qmn_row_indices(pos_m_dash, loop_n),
+                    device_r_mxn(device_qmn_row_indices(pos_n, pos_m_dash),
                                  loop_e) +
                 // Branch where we multiply by 1, effectively removing
                 // r_mn for pos_m from the computed message.
@@ -722,7 +714,7 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
         __syncthreads();
 
         // Uncoalesced memory access.
-        device_qmn_conv(device_qmn_row_indices(pos_m, loop_n), loop_e) = q_nm;
+        device_qmn_conv(device_qmn_row_indices(pos_n, pos_m), loop_e) = q_nm;
         // resynchronize after uncoalesced memory access
         __syncthreads();
     }
@@ -764,20 +756,19 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_q_mn()
     ::cuda::matrix_reference<real> src(device_qmn_conv);
     ::cuda::matrix_reference<real> dst(device_swap_buf);
 
-    int m = device_pchk_row_non_zeros.size();
     block_dim = dim3(32, 32);
     // use division which truncates upwards.
     num_blocks = dim3(ROUND_UP_DIV(num_of_elements, (int)block_dim.x),
-                      ROUND_UP_DIV(m, (int)block_dim.y));
+                      ROUND_UP_DIV(n, (int)block_dim.y));
 
     // Permute the distributions in src into dst
     multiply_h_m_n_kern<<<num_blocks, block_dim>>>(
         ::cuda::matrix_reference<int>(device_qmn_row_indices),
         src,
         dst,
-        ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
-        ::cuda::matrix_reference<int>(device_pchk_row_non_zeros_pos),
-        ::cuda::matrix_reference<GF_q>(device_pchk_row_non_zeros_val));
+        ::cuda::vector_reference<int>(device_pchk_col_non_zeros),
+        ::cuda::matrix_reference<int>(device_pchk_col_non_zeros_pos),
+        ::cuda::matrix_reference<GF_q>(device_pchk_col_non_zeros_val));
     cudaSafeCall(cudaGetLastError());
 
 #ifdef DEBUG
@@ -809,23 +800,22 @@ compute_probs_kern(::cuda::matrix_reference<real> device_received_probs,
     loop_e = min(loop_e, num_of_elements - 1);
 
     // find loop_n
-    int loop_n = blockIdx.y * blockDim.y + threadIdx.y;
+    int pos_n = blockIdx.y * blockDim.y + threadIdx.y;
     // bounds checking
     int n = device_pchk_col_non_zeros.size();
-    loop_n = min(loop_n, n - 1);
+    pos_n = min(pos_n, n - 1);
 
-    int non_zeros = device_pchk_col_non_zeros(loop_n);
+    int non_zeros = device_pchk_col_non_zeros(pos_n);
     // actual value of m (loop_m ranges over the number of symbols in check m)
     int pos_m;
     // Holds the prob computed
-    real prob = device_received_probs(loop_n, loop_e);
+    real prob = device_received_probs(pos_n, loop_e);
     for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
-        pos_m = device_pchk_col_non_zeros_pos(loop_n, loop_m);
-
-        prob *= device_r_mxn(device_qmn_row_indices(pos_m, loop_n), loop_e);
+        pos_m = device_pchk_col_non_zeros_pos(pos_n, loop_m);
+        prob *= device_r_mxn(device_qmn_row_indices(pos_n, pos_m), loop_e);
     }
 
-    device_out_probs(loop_n, loop_e) = prob;
+    device_out_probs(pos_n, loop_e) = prob;
 }
 
 template <class GF_q, class real, unsigned num_streams>

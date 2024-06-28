@@ -135,15 +135,6 @@ private:
      * device_pchk_row_non_zero can be used to determine end of each row
      */
     cuda_matrixi_t device_pchk_row_non_zeros_pos;
-    /*! Matrix where each row (representing a check m) contains the value (in
-     * GF_q) of non-zero elements in the parity check matrix H (at that row of
-     * H).
-     *
-     * Extra space at the end of rows is padded with zeros/uninitalized.
-     *
-     * device_pchk_row_non_zero can be used to determine end of each row
-     */
-    ::cuda::matrix<GF_q> device_pchk_row_non_zeros_val;
 
     /*! \brief Maximum number of non-zero elements in a column of the parity
      * check matrix.
@@ -163,6 +154,15 @@ private:
      * row
      */
     cuda_matrixi_t device_pchk_col_non_zeros_pos;
+    /*! Matrix where each row (representing a symbol n) contains the value (in
+     * GF_q) of non-zero elements in the parity check matrix H (at that column
+     * of H).
+     *
+     * Extra space at the end of rows is padded with zeros/uninitalized.
+     *
+     * device_pchk_col_non_zero can be used to determine end of each row
+     */
+    ::cuda::matrix<GF_q> device_pchk_col_non_zeros_val;
 
 #ifdef __CUDACC__
     /*! \brief Array of streams used to interleave memory transfer and
