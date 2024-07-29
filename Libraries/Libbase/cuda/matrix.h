@@ -42,7 +42,7 @@ namespace cuda
 #    define DEBUG 1
 #endif
 
-template <class T>
+template <class T, bool pitched>
 class matrix_reference;
 
 /*!
@@ -65,12 +65,12 @@ class matrix_reference;
  *       reorganization, based on their intended use cases.
  */
 
-template <class T>
+template <class T, bool pitched = true>
 class matrix
 {
 private:
     // Class friends
-    friend class matrix_reference<T>;
+    friend class matrix_reference<T, pitched>;
 
 protected:
     /*! \name Object representation */
@@ -102,7 +102,8 @@ protected:
     //! Outputs a standard debug header, identifying object type and address
     std::ostream& debug_header(std::ostream& sout) const
     {
-        sout << "DEBUG (cuda::matrix<" << typeid(T).name() << "> at " << this
+        sout << "DEBUG (cuda::matrix<" << typeid(T).name()
+             << ", pitched=" << (pitched ? "true" : "false") << "> at " << this
              << "):";
         return sout;
     }
@@ -213,7 +214,7 @@ public:
     __device__
     __host__
 #endif
-    matrix(const matrix<T>& x);
+    matrix(const matrix<T, pitched>& x);
     /*! \brief Copy assignment operator
      * \note Copy assignment on a host is a deep copy.
      * \note Copy assignment on a device is a shallow copy.
@@ -222,7 +223,7 @@ public:
     __device__
     __host__
 #endif
-    matrix<T>& operator=(const matrix<T>& x);
+    matrix<T, pitched>& operator=(const matrix<T, pitched>& x);
     // @}
 
     /*! \name Memory operations */
@@ -247,7 +248,10 @@ public:
      */
     void fill(const unsigned char value)
     {
-        cudaSafeMemset2D(data, pitch, value, cols, rows);
+        if (pitched)
+            cudaSafeMemset2D(data, pitch, value, cols, rows);
+        else
+            cudaSafeMemset(data, value, rows * cols);
     }
     // @}
 
@@ -274,11 +278,11 @@ public:
 
     /*! \name Conversion to/from equivalent host objects */
     //! copy from standard matrix
-    matrix<T>& operator=(const libbase::matrix<T>& x);
+    matrix<T, pitched>& operator=(const libbase::matrix<T>& x);
     //! copy to standard matrix
     operator libbase::matrix<T>() const;
     //! copy from standard vector (matrix in row major order)
-    matrix<T>& operator=(const libbase::vector<T>& x);
+    matrix<T, pitched>& operator=(const libbase::vector<T>& x);
     //! copy to standard vector (matrix in row major order)
     operator libbase::vector<T>() const;
     // @}
@@ -344,13 +348,13 @@ public:
 #ifdef __CUDACC__
     __host__
 #endif
-    matrix_reference<T> slice(int start, int end) const;
+    matrix_reference<T, pitched> slice(int start, int end) const;
 };
 
 #ifdef __CUDACC__
-template <class T>
+template <class T, bool pitched>
 inline void
-matrix<T>::allocate(int m, int n)
+matrix<T, pitched>::allocate(int m, int n)
 {
     test_invariant();
     // check input parameters
@@ -361,14 +365,19 @@ matrix<T>::allocate(int m, int n)
     if (m > 0 && n > 0) {
         rows = m;
         cols = n;
-        data = cudaSafeMalloc2D<T>(&pitch, cols, rows);
+        if (pitched) {
+            data = cudaSafeMalloc2D<T>(&pitch, cols, rows);
+        } else {
+            data = cudaSafeMalloc<T>(cols * rows);
+            pitch = cols * sizeof(T);
+        }
     }
     test_invariant();
 }
 
-template <class T>
+template <class T, bool pitched>
 inline void
-matrix<T>::free()
+matrix<T, pitched>::free()
 {
     test_invariant();
     // if there is something allocated, free it
@@ -381,8 +390,8 @@ matrix<T>::free()
     test_invariant();
 }
 
-template <class T>
-inline matrix<T>::matrix(const matrix<T>& x)
+template <class T, bool pitched>
+inline matrix<T, pitched>::matrix(const matrix<T, pitched>& x)
     : data(NULL), pitch(0), rows(0), cols(0)
 {
 #    ifdef __CUDA_ARCH__ // Device code path (for all compute capabilities)
@@ -391,16 +400,25 @@ inline matrix<T>::matrix(const matrix<T>& x)
     if (x.data) {
         // allocate memory
         allocate(x.rows, x.cols);
-        // copy data from device to device
-        cudaSafeMemcpy2D(
-            data, pitch, x.data, x.pitch, cols, rows, cudaMemcpyDeviceToDevice);
+        if (pitched) {
+            // copy data from device to device
+            cudaSafeMemcpy2D(data,
+                             pitch,
+                             x.data,
+                             x.pitch,
+                             cols,
+                             rows,
+                             cudaMemcpyDeviceToDevice);
+        } else {
+            cudaSafeMemcpy(data, x.data, rows * cols, cudaMemcpyDeviceToDevice);
+        }
     }
 #    endif
 }
 
-template <class T>
-inline matrix<T>&
-matrix<T>::operator=(const matrix<T>& x)
+template <class T, bool pitched>
+inline matrix<T, pitched>&
+matrix<T, pitched>::operator=(const matrix<T, pitched>& x)
 {
 #    ifdef __CUDA_ARCH__ // Device code path (for all compute capabilities)
     copyfrom(x);
@@ -422,16 +440,24 @@ matrix<T>::operator=(const matrix<T>& x)
         // (re-)allocate memory if needed
         init(x.rows, x.cols);
         // copy data from device to device
-        cudaSafeMemcpy2D(
-            data, pitch, x.data, x.pitch, cols, rows, cudaMemcpyDeviceToDevice);
+        if (pitched)
+            cudaSafeMemcpy2D(data,
+                             pitch,
+                             x.data,
+                             x.pitch,
+                             cols,
+                             rows,
+                             cudaMemcpyDeviceToDevice);
+        else
+            cudaSafeMemcpy(data, x.data, rows * cols, cudaMemcpyDeviceToDevice);
     }
     return *this;
 #    endif
 }
 
-template <class T>
-inline matrix<T>&
-matrix<T>::operator=(const libbase::matrix<T>& x)
+template <class T, bool pitched>
+inline matrix<T, pitched>&
+matrix<T, pitched>::operator=(const libbase::matrix<T>& x)
 {
     // (re-)allocate memory if needed
     init(x.size().rows(), x.size().cols());
@@ -447,8 +473,8 @@ matrix<T>::operator=(const libbase::matrix<T>& x)
     return *this;
 }
 
-template <class T>
-inline matrix<T>::operator libbase::matrix<T>() const
+template <class T, bool pitched>
+inline matrix<T, pitched>::operator libbase::matrix<T>() const
 {
     libbase::matrix<T> x(rows, cols);
 
@@ -463,41 +489,47 @@ inline matrix<T>::operator libbase::matrix<T>() const
     return x;
 }
 
-template <class T>
-inline matrix<T>&
-matrix<T>::operator=(const libbase::vector<T>& x)
+template <class T, bool pitched>
+inline matrix<T, pitched>&
+matrix<T, pitched>::operator=(const libbase::vector<T>& x)
 {
     // can only copy from vector of the right size
     assertalways(x.size() == rows * cols);
 
     // copy data from host to device if necessary
     if (data != NULL) {
-        cudaSafeMemcpy2D(data,
-                         pitch,
-                         &x(0),
-                         cols * sizeof(T),
-                         cols,
-                         rows,
-                         cudaMemcpyHostToDevice);
+        if (pitched)
+            cudaSafeMemcpy2D(data,
+                             pitch,
+                             &x(0),
+                             cols * sizeof(T),
+                             cols,
+                             rows,
+                             cudaMemcpyHostToDevice);
+        else
+            cudaSafeMemcpy(data, &x(0), rows * cols, cudaMemcpyHostToDevice);
     }
 
     return *this;
 }
 
-template <class T>
-inline matrix<T>::operator libbase::vector<T>() const
+template <class T, bool pitched>
+inline matrix<T, pitched>::operator libbase::vector<T>() const
 {
     libbase::vector<T> x(rows * cols);
 
     // copy data from device to host if necessary
     if (data != NULL) {
-        cudaSafeMemcpy2D(&x(0),
-                         cols * sizeof(T),
-                         data,
-                         pitch,
-                         cols,
-                         rows,
-                         cudaMemcpyDeviceToHost);
+        if (pitched)
+            cudaSafeMemcpy2D(&x(0),
+                             cols * sizeof(T),
+                             data,
+                             pitch,
+                             cols,
+                             rows,
+                             cudaMemcpyDeviceToHost);
+        else
+            cudaSafeMemcpy(&x(0), data, rows * cols, cudaMemcpyDeviceToHost);
     }
 
     return x;
@@ -506,37 +538,43 @@ inline matrix<T>::operator libbase::vector<T>() const
 
 #ifdef __CUDACC__
 
-template <typename T>
+template <typename T, bool pitched>
 inline void
-matrix<T>::async_copyrowfrom(libbase::matrix<T>& x, int i, const stream& s)
+matrix<T, pitched>::async_copyrowfrom(libbase::matrix<T>& x,
+                                      int i,
+                                      const stream& s)
 {
     assert(this->rows > i);
     libbase::indirect_vector<T> v(&x(i, 0), this->cols);
     this->extract_row(i).async_copyfrom(v, s);
 }
 
-template <typename T>
+template <typename T, bool pitched>
 inline void
-matrix<T>::async_copyrowto(libbase::matrix<T>& x, int i, const stream& s)
+matrix<T, pitched>::async_copyrowto(libbase::matrix<T>& x,
+                                    int i,
+                                    const stream& s)
 {
     assert(this->rows > i);
     libbase::indirect_vector<T> v(&x(i, 0), this->cols);
     this->extract_row(i).async_copyto(v, s);
 }
 
-template <typename T>
+template <typename T, bool pitched>
 inline void
-matrix<T>::async_copyrowfrom(const libbase::vector<T>& x,
-                             int i,
-                             const stream& s)
+matrix<T, pitched>::async_copyrowfrom(const libbase::vector<T>& x,
+                                      int i,
+                                      const stream& s)
 {
     assert(this->rows > i);
     this->extract_row(i).async_copyfrom(x, s);
 }
 
-template <typename T>
+template <typename T, bool pitched>
 inline void
-matrix<T>::async_copyrowto(libbase::vector<T>& x, int i, const stream& s)
+matrix<T, pitched>::async_copyrowto(libbase::vector<T>& x,
+                                    int i,
+                                    const stream& s)
 {
     assert(this->rows > i);
     this->extract_row(i).async_copyto(x, s);
@@ -546,7 +584,7 @@ matrix<T>::async_copyrowto(libbase::vector<T>& x, int i, const stream& s)
 
 // Prior definition of matrix class
 
-template <class T>
+template <class T, bool pitched>
 class matrix;
 
 /*!
@@ -568,22 +606,23 @@ class matrix;
  * not take reference arguments in the usual way. Otherwise, creation should
  * happen only through a normal matrix's methods.
  */
-template <class T>
-class matrix_reference : public matrix<T>
+template <class T, bool pitched = true>
+class matrix_reference : public matrix<T, pitched>
 {
 private:
     // Class friends
-    friend class matrix<T>;
+    friend class matrix<T, pitched>;
     // Shorthand for class hierarchy
-    typedef matrix<T> Base;
+    typedef matrix<T, pitched> Base;
 
 protected:
     /*! \name Test and debug functions */
     //! Outputs a standard debug header, identifying object type and address
     std::ostream& debug_header(std::ostream& sout) const
     {
-        sout << "DEBUG (cuda::matrix_reference<" << typeid(T).name() << "> at "
-             << this << "):";
+        sout << "DEBUG (cuda::matrix_reference<" << typeid(T).name()
+             << ", pitched=" << (pitched ? "true" : "false") << "> at " << this
+             << "):";
         return sout;
     }
     //! Outputs a standard debug trailer, identifying object contents
@@ -632,7 +671,7 @@ public:
     __device__
     __host__
 #endif
-    matrix_reference(const matrix<T>& x)
+    matrix_reference(const matrix<T, pitched>& x)
     {
         // do not invoke the base constructor, to avoid a deep copy
         // note: this operation requires this class to be a friend of matrix
@@ -647,7 +686,7 @@ private:
     __device__
     __host__
 #endif
-    matrix_reference(const matrix<T>& x, int i1, int i2)
+    matrix_reference(const matrix<T, pitched>& x, int i1, int i2)
     {
         assert(i1 >= 0);
         assert(i2 > i1);
@@ -669,7 +708,7 @@ public:
     __device__
     __host__
 #endif
-    matrix_reference<T>& operator=(const matrix<T>& x)
+    matrix_reference<T, pitched>& operator=(const matrix<T, pitched>& x)
     {
         Base::copyfrom(x);
         return *this;
@@ -693,7 +732,7 @@ public:
     __device__
     __host__
 #endif
-    matrix_reference(const matrix_reference<T>& x)
+    matrix_reference(const matrix_reference<T, pitched>& x)
     {
         // do not invoke the base constructor, to avoid a deep copy
         Base::copyfrom(x);
@@ -705,7 +744,8 @@ public:
     __device__
     __host__
 #endif
-    matrix_reference<T>& operator=(const matrix_reference<T>& x)
+    matrix_reference<T, pitched>&
+    operator=(const matrix_reference<T, pitched>& x)
     {
         Base::copyfrom(x);
         return *this;
@@ -714,7 +754,7 @@ public:
 
     /*! \name Conversion to/from equivalent host objects */
     //! copy from standard matrix
-    matrix_reference<T>& operator=(const libbase::matrix<T>& x);
+    matrix_reference<T, pitched>& operator=(const libbase::matrix<T>& x);
     //! copy to standard matrix
     operator libbase::matrix<T>() const
     {
@@ -725,9 +765,9 @@ public:
 
 #ifdef __CUDACC__
 
-template <class T>
-inline matrix_reference<T>&
-matrix_reference<T>::operator=(const libbase::matrix<T>& x)
+template <class T, bool pitched>
+inline matrix_reference<T, pitched>&
+matrix_reference<T, pitched>::operator=(const libbase::matrix<T>& x)
 {
     assert(x.size().rows() == Base::rows);
     assert(x.size().cols() == Base::cols);
@@ -951,14 +991,14 @@ public:
     // @}
 };
 
-template <class T>
+template <class T, bool pitched>
 #ifdef __CUDACC__
 __host__
 #endif
-matrix_reference<T>
-matrix<T>::slice(int i1, int i2) const
+matrix_reference<T, pitched>
+matrix<T, pitched>::slice(int i1, int i2) const
 {
-    return matrix_reference<T>(*this, i1, i2);
+    return matrix_reference<T, pitched>(*this, i1, i2);
 }
 
 // Reset debug level, to avoid affecting other files

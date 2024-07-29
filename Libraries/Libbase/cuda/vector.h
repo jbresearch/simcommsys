@@ -495,7 +495,7 @@ inline vector<T>::operator libbase::vector<T>() const
 
 // Prior definition of matrix class
 
-template <class T>
+template <class T, bool pitched>
 class matrix;
 
 /*!
@@ -523,7 +523,8 @@ class vector_reference : public vector<T>
 private:
     // Class friends
     friend class vector<T>;
-    friend class matrix<T>;
+    friend class matrix<T, true>;
+    friend class matrix<T, false>;
     // Shorthand for class hierarchy
     typedef vector<T> Base;
 
