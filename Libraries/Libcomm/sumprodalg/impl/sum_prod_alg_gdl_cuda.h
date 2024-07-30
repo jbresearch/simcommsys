@@ -164,12 +164,6 @@ private:
      */
     ::cuda::matrix<GF_q> device_pchk_col_non_zeros_val;
 
-#ifdef __CUDACC__
-    /*! \brief Array of streams used to interleave memory transfer and
-     * computation. */
-    std::array<cuda::stream, num_streams> streams;
-#endif
-
 private:
     /*! \name Internal methods for a single SPA iteration */
     void compute_r_mn();
