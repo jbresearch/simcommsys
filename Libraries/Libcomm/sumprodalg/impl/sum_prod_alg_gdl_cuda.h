@@ -93,7 +93,8 @@ private:
      * If bit n does not participate in check m, i.e. h_mn = 0, then the
      * corresponding element of this matrix is -1 by convention.
      */
-    cuda_matrixi_t device_qmn_row_indices;
+    cuda_matrixi_t device_qmn_row_mxn_indices;
+    cuda_matrixi_t device_qmn_row_nxm_indices;
 
     /*! Each row of this matrix is a probability distribution r_mxn.
      * There is a row for each combination (m, n) such that bit n participates
@@ -127,14 +128,6 @@ private:
      * parity matrix h_m_n
      */
     cuda_array1i_t device_pchk_row_non_zeros;
-    /*! Matrix where each row (representing a check m) contains the position (n)
-     * of non-zero elements in the parity check matrix H (at that row of H).
-     *
-     * Extra space at the end of rows is padded with zeros/uninitalized.
-     *
-     * device_pchk_row_non_zero can be used to determine end of each row
-     */
-    cuda_matrixi_t device_pchk_row_non_zeros_pos;
 
     /*! \brief Maximum number of non-zero elements in a column of the parity
      * check matrix.
@@ -144,16 +137,6 @@ private:
      * parity matrix h_m_n
      */
     cuda_array1i_t device_pchk_col_non_zeros;
-    /*! Matrix where each row (representing a codeword bit n) contains the
-     * position (m) of non-zero elements in the parity check matrix H (at the
-     * nth col of H).
-     *
-     * Extra space at the end of rows is padded with zeros/uninitalized.
-     *
-     * device_pchk_col_non_zeros can be used to determine end of each
-     * row
-     */
-    cuda_matrixi_t device_pchk_col_non_zeros_pos;
     /*! Matrix where each row (representing a symbol n) contains the value (in
      * GF_q) of non-zero elements in the parity check matrix H (at that column
      * of H).
