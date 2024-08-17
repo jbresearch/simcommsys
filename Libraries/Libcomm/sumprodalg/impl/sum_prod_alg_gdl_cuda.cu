@@ -426,8 +426,6 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::spa_init(
     clip_and_normalize_probs<GF_q, real>(
         this->device_received_probs, this->clipping_method, this->almostzero);
 
-    cudaDeviceSynchronize();
-
     // TODO: Fix this.
 #if DEBUG >= 2
     libbase::trace << std::endl
