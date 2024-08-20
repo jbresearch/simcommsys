@@ -46,8 +46,8 @@ public:
     typedef libbase::matrix<int> matrixi_t;
 
     typedef ::cuda::vector<int> cuda_array1i_t;
-    typedef ::cuda::matrix<int> cuda_matrixi_t;
-    typedef ::cuda::matrix<real> cuda_matrixd_t;
+    typedef ::cuda::matrix<int, false> cuda_matrixi_t;
+    typedef ::cuda::matrix<real, false> cuda_matrixd_t;
     // @}
 
     /*! \brief constructor
@@ -145,7 +145,7 @@ private:
      *
      * device_pchk_col_non_zero can be used to determine end of each row
      */
-    ::cuda::matrix<GF_q> device_pchk_col_non_zeros_val;
+    ::cuda::matrix<GF_q, false> device_pchk_col_non_zeros_val;
 
 private:
     /*! \name Internal methods for a single SPA iteration */

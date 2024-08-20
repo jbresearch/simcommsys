@@ -51,14 +51,13 @@ hadamard_transform_pass_kern(::cuda::matrix_reference<real> src,
                              int tanner_edges,
                              int h)
 {
-    // find loop_e
-    int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
-    // bounds checking
     int num_of_elements = GF_q::elements();
-    loop_e = min(loop_e, num_of_elements - 1);
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    int loop_e = idx % num_of_elements;
 
     // this is just a generic index that ranges over [0, tanner_edges)
-    int i = blockIdx.y * blockDim.y + threadIdx.y;
+    int i = idx / num_of_elements;
     i = min(i, tanner_edges - 1);
 
     // If floor(loop_e / h) is odd, sign is -1.0
@@ -84,14 +83,14 @@ multiply_h_m_n_kern(
     cuda_assert(src.get_cols() == dst.get_cols() &&
                 src.get_rows() == dst.get_rows());
 
-    // find loop_e
-    int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
-    // bounds checking
     int num_of_elements = GF_q::elements();
-    loop_e = min(loop_e, num_of_elements - 1);
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    // find loop_e
+    int loop_e = idx % num_of_elements;
 
     // find pos_n
-    int pos_n = blockIdx.y * blockDim.y + threadIdx.y;
+    int pos_n = idx / num_of_elements;
     // bounds checking
     int n = device_pchk_col_non_zeros.size();
     pos_n = min(pos_n, n - 1);
@@ -119,14 +118,14 @@ divide_h_m_n_kern(::cuda::matrix_reference<int> device_qmn_row_nxm_indices,
     cuda_assert(src.get_cols() == dst.get_cols() &&
                 src.get_rows() == dst.get_rows());
 
-    // find loop_e
-    int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
-    // bounds checking
     int num_of_elements = GF_q::elements();
-    loop_e = min(loop_e, num_of_elements - 1);
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    // find loop_e
+    int loop_e = idx % num_of_elements;
 
     // find pos_n
-    int pos_n = blockIdx.y * blockDim.y + threadIdx.y;
+    int pos_n = idx / num_of_elements;
     // bounds checking
     int n = device_pchk_col_non_zeros.size();
     pos_n = min(pos_n, n - 1);
@@ -154,10 +153,10 @@ hadamard_transform(::cuda::matrix_reference<real>& src,
     int num_of_elements = GF_q::elements();
     int tanner_edges = src.get_rows();
 
-    dim3 block_dim = dim3(32, 32);
+    dim3 block_dim(1024);
     // use division which truncates upwards.
-    dim3 num_blocks = dim3(ROUND_UP_DIV(num_of_elements, (int)block_dim.x),
-                           ROUND_UP_DIV(tanner_edges, (int)block_dim.y));
+    dim3 num_blocks(
+        ROUND_UP_DIV(num_of_elements * tanner_edges, (int)block_dim.x));
 
     int h;
     for (h = 1; h < num_of_elements; h <<= 1) {
@@ -342,7 +341,8 @@ clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
 {
     int n = probs.get_rows();
 
-    dim3 block_dim(::cuda::cudaGetWarpSize());
+    int device = ::cuda::cudaGetCurrentDevice();
+    dim3 block_dim(::cuda::cudaGetWarpSize(device));
     dim3 num_blocks(ROUND_UP_DIV(n, (int)block_dim.x));
 
     clip_and_normalize_probs_kern<GF_q, real>
@@ -363,14 +363,14 @@ spa_init_kern(::cuda::matrix_reference<real> device_received_probs,
               ::cuda::vector_reference<int> device_pchk_col_non_zeros,
               ::cuda::matrix_reference<GF_q> device_pchk_col_non_zeros_val)
 {
-    // find loop_e
-    int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
-    // bounds checking
     int num_of_elements = GF_q::elements();
-    loop_e = min(loop_e, num_of_elements - 1);
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    // find loop_e
+    int loop_e = idx % num_of_elements;
 
     // find pos_n
-    int pos_n = blockIdx.y * blockDim.y + threadIdx.y;
+    int pos_n = idx / num_of_elements;
     // bounds checking
     int n = device_pchk_col_non_zeros.size();
     pos_n = min(pos_n, n - 1);
@@ -444,10 +444,9 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::spa_init(
 
     // some helper variables
 
-    block_dim = dim3(32, 32);
+    block_dim = dim3(1024);
     // use division which truncates upwards.
-    num_blocks = dim3(ROUND_UP_DIV(num_of_elements, (int)block_dim.x),
-                      ROUND_UP_DIV(dim_n, (int)block_dim.y));
+    num_blocks = dim3(ROUND_UP_DIV(num_of_elements * dim_n, (int)block_dim.x));
     spa_init_kern<GF_q, real>
         <<<num_blocks, block_dim>>>(this->device_received_probs,
                                     this->device_qmn_row_nxm_indices,
@@ -494,14 +493,14 @@ compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_mxn_indices,
                   ::cuda::matrix_reference<real> device_qmn_conv,
                   ::cuda::vector_reference<int> device_pchk_row_non_zeros)
 {
-    // find loop_e
-    int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
-    // bounds checking
     int num_of_elements = GF_q::elements();
-    loop_e = min(loop_e, num_of_elements - 1);
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    // find loop_e
+    int loop_e = idx % num_of_elements;
 
     // find loop_m
-    int pos_m = blockIdx.y * blockDim.y + threadIdx.y;
+    int pos_m = idx / num_of_elements;
     // bounds checking
     int m = device_pchk_row_non_zeros.size();
     pos_m = min(pos_m, m - 1);
@@ -545,10 +544,9 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_r_mn()
 
     int m = device_pchk_row_non_zeros.size();
     int num_of_elements = GF_q::elements();
-    block_dim = dim3(32, 32);
+    block_dim = dim3(1024);
     // use division which truncates upwards.
-    num_blocks = dim3(ROUND_UP_DIV(num_of_elements, (int)block_dim.x),
-                      ROUND_UP_DIV(m, (int)block_dim.y));
+    num_blocks = dim3(ROUND_UP_DIV(num_of_elements * m, (int)block_dim.x));
     compute_r_mn_kern<GF_q, real><<<num_blocks, block_dim>>>(
         ::cuda::matrix_reference<int>(device_qmn_row_mxn_indices),
         ::cuda::matrix_reference<real>(device_r_mxn),
@@ -567,10 +565,9 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_r_mn()
     hadamard_transform<GF_q, real>(src, dst);
 
     int n = device_pchk_col_non_zeros.size();
-    block_dim = dim3(32, 32);
+    block_dim = dim3(1024);
     // use division which truncates upwards.
-    num_blocks = dim3(ROUND_UP_DIV(num_of_elements, (int)block_dim.x),
-                      ROUND_UP_DIV(n, (int)block_dim.y));
+    num_blocks = dim3(ROUND_UP_DIV(num_of_elements * n, (int)block_dim.x));
 
     // Permute the distributions in src (transformed by the Hadamard transform)
     // into dst
@@ -606,14 +603,14 @@ compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
                   ::cuda::matrix_reference<real> device_qmn_conv,
                   ::cuda::vector_reference<int> device_pchk_col_non_zeros)
 {
-    // find loop_e
-    int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
-    // bounds checking
     int num_of_elements = GF_q::elements();
-    loop_e = min(loop_e, num_of_elements - 1);
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    // find loop_e
+    int loop_e = idx % num_of_elements;
 
     // find loop_n
-    int pos_n = blockIdx.y * blockDim.y + threadIdx.y;
+    int pos_n = idx / num_of_elements;
     // bounds checking
     int n = device_pchk_col_non_zeros.size();
     pos_n = min(pos_n, n - 1);
@@ -663,10 +660,9 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_q_mn()
 
     int n = device_pchk_col_non_zeros.size();
     int num_of_elements = GF_q::elements();
-    block_dim = dim3(32, 32);
+    block_dim = dim3(1024);
     // use division which truncates upwards.
-    num_blocks = dim3(ROUND_UP_DIV(num_of_elements, (int)block_dim.x),
-                      ROUND_UP_DIV(n, (int)block_dim.y));
+    num_blocks = dim3(ROUND_UP_DIV(num_of_elements * n, (int)block_dim.x));
     compute_q_mn_kern<GF_q, real><<<num_blocks, block_dim>>>(
         ::cuda::matrix_reference<real>(device_received_probs),
         ::cuda::matrix_reference<int>(device_qmn_row_nxm_indices),
@@ -689,10 +685,9 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_q_mn()
     ::cuda::matrix_reference<real> src(device_qmn_conv);
     ::cuda::matrix_reference<real> dst(device_swap_buf);
 
-    block_dim = dim3(32, 32);
+    block_dim = dim3(1024);
     // use division which truncates upwards.
-    num_blocks = dim3(ROUND_UP_DIV(num_of_elements, (int)block_dim.x),
-                      ROUND_UP_DIV(n, (int)block_dim.y));
+    num_blocks = dim3(ROUND_UP_DIV(num_of_elements * n, (int)block_dim.x));
 
     // Permute the distributions in src into dst
     multiply_h_m_n_kern<<<num_blocks, block_dim>>>(
@@ -724,14 +719,14 @@ compute_probs_kern(::cuda::matrix_reference<real> device_received_probs,
                    ::cuda::matrix_reference<real> device_r_mxn,
                    ::cuda::vector_reference<int> device_pchk_col_non_zeros)
 {
-    // find loop_e
-    int loop_e = blockIdx.x * blockDim.x + threadIdx.x;
-    // bounds checking
     int num_of_elements = GF_q::elements();
-    loop_e = min(loop_e, num_of_elements - 1);
+    // find loop_e
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    int loop_e = idx % num_of_elements;
 
     // find loop_n
-    int pos_n = blockIdx.y * blockDim.y + threadIdx.y;
+    int pos_n = idx / num_of_elements;
     // bounds checking
     int n = device_pchk_col_non_zeros.size();
     pos_n = min(pos_n, n - 1);
@@ -754,10 +749,9 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_probs()
 
     int n = device_pchk_col_non_zeros.size();
     int num_of_elements = GF_q::elements();
-    block_dim = dim3(32, 32);
+    block_dim = dim3(1024);
     // use division which truncates upwards.
-    num_blocks = dim3(ROUND_UP_DIV(num_of_elements, (int)block_dim.x),
-                      ROUND_UP_DIV(n, (int)block_dim.y));
+    num_blocks = dim3(ROUND_UP_DIV(num_of_elements * n, (int)block_dim.x));
     compute_probs_kern<GF_q, real><<<num_blocks, block_dim>>>(
         ::cuda::matrix_reference<real>(device_received_probs),
         ::cuda::matrix_reference<real>(device_out_probs),
