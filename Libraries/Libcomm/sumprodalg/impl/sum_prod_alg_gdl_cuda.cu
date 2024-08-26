@@ -46,8 +46,8 @@ namespace libcomm
 
 template <class GF_q, class real>
 __global__ void
-hadamard_transform_pass_kern(::cuda::matrix_reference<real> src,
-                             ::cuda::matrix_reference<real> dst,
+hadamard_transform_pass_kern(::cuda::matrix_reference<real, false> src,
+                             ::cuda::matrix_reference<real, false> dst,
                              int tanner_edges,
                              int h)
 {
@@ -73,11 +73,11 @@ hadamard_transform_pass_kern(::cuda::matrix_reference<real> src,
 template <class GF_q, class real>
 __global__ void
 multiply_h_m_n_kern(
-    ::cuda::matrix_reference<int> device_qmn_row_nxm_indices,
-    ::cuda::matrix_reference<real> src,
-    ::cuda::matrix_reference<real> dst,
+    ::cuda::matrix_reference<int, false> device_qmn_row_nxm_indices,
+    ::cuda::matrix_reference<real, false> src,
+    ::cuda::matrix_reference<real, false> dst,
     ::cuda::vector_reference<int> device_pchk_col_non_zeros,
-    ::cuda::matrix_reference<GF_q> device_pchk_col_non_zeros_val)
+    ::cuda::matrix_reference<GF_q, false> device_pchk_col_non_zeros_val)
 {
     // src and dst need to have the same dimensions
     cuda_assert(src.get_cols() == dst.get_cols() &&
@@ -108,11 +108,12 @@ multiply_h_m_n_kern(
 
 template <class GF_q, class real>
 __global__ void
-divide_h_m_n_kern(::cuda::matrix_reference<int> device_qmn_row_nxm_indices,
-                  ::cuda::matrix_reference<real> src,
-                  ::cuda::matrix_reference<real> dst,
-                  ::cuda::vector_reference<int> device_pchk_col_non_zeros,
-                  ::cuda::matrix_reference<GF_q> device_pchk_col_non_zeros_val)
+divide_h_m_n_kern(
+    ::cuda::matrix_reference<int, false> device_qmn_row_nxm_indices,
+    ::cuda::matrix_reference<real, false> src,
+    ::cuda::matrix_reference<real, false> dst,
+    ::cuda::vector_reference<int> device_pchk_col_non_zeros,
+    ::cuda::matrix_reference<GF_q, false> device_pchk_col_non_zeros_val)
 {
     // src and dst need to have the same dimensions
     cuda_assert(src.get_cols() == dst.get_cols() &&
@@ -143,8 +144,8 @@ divide_h_m_n_kern(::cuda::matrix_reference<int> device_qmn_row_nxm_indices,
 
 template <class GF_q, class real>
 inline void
-hadamard_transform(::cuda::matrix_reference<real>& src,
-                   ::cuda::matrix_reference<real>& dst)
+hadamard_transform(::cuda::matrix_reference<real, false>& src,
+                   ::cuda::matrix_reference<real, false>& dst)
 {
     // src and dst need to have the same dimensions
     cuda_assert(src.get_cols() == dst.get_cols() &&
@@ -303,7 +304,7 @@ perform_clipping(real& num, int& clipping_method, real& almostzero)
 
 template <class GF_q, class real>
 __global__ void
-clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
+clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
                               int clipping_method,
                               real almostzero)
 {
@@ -335,7 +336,7 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real> probs,
 
 template <class GF_q, class real>
 inline void
-clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
+clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
                          int clipping_method,
                          real almostzero)
 {
@@ -346,7 +347,7 @@ clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
     dim3 num_blocks(ROUND_UP_DIV(n, (int)block_dim.x));
 
     clip_and_normalize_probs_kern<GF_q, real>
-        <<<num_blocks, block_dim, 0>>>(probs, clipping_method, almostzero);
+        <<<num_blocks, block_dim>>>(probs, clipping_method, almostzero);
     cudaSafeCall(cudaGetLastError());
 
 #ifdef DEBUG
@@ -356,12 +357,13 @@ clip_and_normalize_probs(::cuda::matrix_reference<real> probs,
 
 template <class GF_q, class real>
 __global__ void
-spa_init_kern(::cuda::matrix_reference<real> device_received_probs,
-              ::cuda::matrix_reference<int> device_qmn_row_nxm_indices,
-              ::cuda::matrix_reference<real> device_r_mxn,
-              ::cuda::matrix_reference<real> device_qmn_conv,
-              ::cuda::vector_reference<int> device_pchk_col_non_zeros,
-              ::cuda::matrix_reference<GF_q> device_pchk_col_non_zeros_val)
+spa_init_kern(
+    ::cuda::matrix_reference<real, false> device_received_probs,
+    ::cuda::matrix_reference<int, false> device_qmn_row_nxm_indices,
+    ::cuda::matrix_reference<real, false> device_r_mxn,
+    ::cuda::matrix_reference<real, false> device_qmn_conv,
+    ::cuda::vector_reference<int> device_pchk_col_non_zeros,
+    ::cuda::matrix_reference<GF_q, false> device_pchk_col_non_zeros_val)
 {
     int num_of_elements = GF_q::elements();
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -463,8 +465,8 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::spa_init(
     // apply the FFT again to get the proper values
     // Here we use matrix references for cheap swapping. The result of the
     // Hadamard transform will always be in src.
-    ::cuda::matrix_reference<real> src(device_qmn_conv);
-    ::cuda::matrix_reference<real> dst(device_swap_buf);
+    ::cuda::matrix_reference<real, false> src(device_qmn_conv);
+    ::cuda::matrix_reference<real, false> dst(device_swap_buf);
     hadamard_transform<GF_q, real>(src, dst);
 
     // Result of the Hadamard transform is always stored in first arg passed to
@@ -488,10 +490,11 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::spa_init(
 
 template <class GF_q, class real>
 __global__ void
-compute_r_mn_kern(::cuda::matrix_reference<int> device_qmn_row_mxn_indices,
-                  ::cuda::matrix_reference<real> device_r_mxn,
-                  ::cuda::matrix_reference<real> device_qmn_conv,
-                  ::cuda::vector_reference<int> device_pchk_row_non_zeros)
+compute_r_mn_kern(
+    ::cuda::matrix_reference<int, false> device_qmn_row_mxn_indices,
+    ::cuda::matrix_reference<real, false> device_r_mxn,
+    ::cuda::matrix_reference<real, false> device_qmn_conv,
+    ::cuda::vector_reference<int> device_pchk_row_non_zeros)
 {
     int num_of_elements = GF_q::elements();
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -548,9 +551,9 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_r_mn()
     // use division which truncates upwards.
     num_blocks = dim3(ROUND_UP_DIV(num_of_elements * m, (int)block_dim.x));
     compute_r_mn_kern<GF_q, real><<<num_blocks, block_dim>>>(
-        ::cuda::matrix_reference<int>(device_qmn_row_mxn_indices),
-        ::cuda::matrix_reference<real>(device_r_mxn),
-        ::cuda::matrix_reference<real>(device_qmn_conv),
+        ::cuda::matrix_reference<int, false>(device_qmn_row_mxn_indices),
+        ::cuda::matrix_reference<real, false>(device_r_mxn),
+        ::cuda::matrix_reference<real, false>(device_qmn_conv),
         ::cuda::vector_reference<int>(device_pchk_row_non_zeros));
     cudaSafeCall(cudaGetLastError());
 
@@ -560,8 +563,8 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_r_mn()
 
     // apply the FFT again to get the proper values
     // Here we use matrix references for cheap swapping.
-    ::cuda::matrix_reference<real> src(device_r_mxn);
-    ::cuda::matrix_reference<real> dst(device_swap_buf);
+    ::cuda::matrix_reference<real, false> src(device_r_mxn);
+    ::cuda::matrix_reference<real, false> dst(device_swap_buf);
     hadamard_transform<GF_q, real>(src, dst);
 
     int n = device_pchk_col_non_zeros.size();
@@ -572,11 +575,11 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_r_mn()
     // Permute the distributions in src (transformed by the Hadamard transform)
     // into dst
     divide_h_m_n_kern<<<num_blocks, block_dim>>>(
-        ::cuda::matrix_reference<int>(device_qmn_row_nxm_indices),
+        ::cuda::matrix_reference<int, false>(device_qmn_row_nxm_indices),
         src,
         dst,
         ::cuda::vector_reference<int>(device_pchk_col_non_zeros),
-        ::cuda::matrix_reference<GF_q>(device_pchk_col_non_zeros_val));
+        ::cuda::matrix_reference<GF_q, false>(device_pchk_col_non_zeros_val));
     cudaSafeCall(cudaGetLastError());
 
 #ifdef DEBUG
@@ -590,18 +593,19 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_r_mn()
 
     // Apply clipping + normalization to the computed r_mn values.
     clip_and_normalize_probs<GF_q, real>(
-        ::cuda::matrix_reference<real>(device_r_mxn),
+        ::cuda::matrix_reference<real, false>(device_r_mxn),
         this->clipping_method,
         this->almostzero);
 }
 
 template <class GF_q, class real>
 __global__ void
-compute_q_mn_kern(::cuda::matrix_reference<real> device_received_probs,
-                  ::cuda::matrix_reference<int> device_qmn_row_nxm_indices,
-                  ::cuda::matrix_reference<real> device_r_mxn,
-                  ::cuda::matrix_reference<real> device_qmn_conv,
-                  ::cuda::vector_reference<int> device_pchk_col_non_zeros)
+compute_q_mn_kern(
+    ::cuda::matrix_reference<real, false> device_received_probs,
+    ::cuda::matrix_reference<int, false> device_qmn_row_nxm_indices,
+    ::cuda::matrix_reference<real, false> device_r_mxn,
+    ::cuda::matrix_reference<real, false> device_qmn_conv,
+    ::cuda::vector_reference<int> device_pchk_col_non_zeros)
 {
     int num_of_elements = GF_q::elements();
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -664,10 +668,10 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_q_mn()
     // use division which truncates upwards.
     num_blocks = dim3(ROUND_UP_DIV(num_of_elements * n, (int)block_dim.x));
     compute_q_mn_kern<GF_q, real><<<num_blocks, block_dim>>>(
-        ::cuda::matrix_reference<real>(device_received_probs),
-        ::cuda::matrix_reference<int>(device_qmn_row_nxm_indices),
-        ::cuda::matrix_reference<real>(device_r_mxn),
-        ::cuda::matrix_reference<real>(device_qmn_conv),
+        ::cuda::matrix_reference<real, false>(device_received_probs),
+        ::cuda::matrix_reference<int, false>(device_qmn_row_nxm_indices),
+        ::cuda::matrix_reference<real, false>(device_r_mxn),
+        ::cuda::matrix_reference<real, false>(device_qmn_conv),
         ::cuda::vector_reference<int>(device_pchk_col_non_zeros));
     cudaSafeCall(cudaGetLastError());
 
@@ -677,13 +681,13 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_q_mn()
 
     // Apply clipping + normalization to the computed q_mn values.
     clip_and_normalize_probs<GF_q, real>(
-        ::cuda::matrix_reference<real>(device_qmn_conv),
+        ::cuda::matrix_reference<real, false>(device_qmn_conv),
         this->clipping_method,
         this->almostzero);
 
     // Here we use matrix references for cheap swapping.
-    ::cuda::matrix_reference<real> src(device_qmn_conv);
-    ::cuda::matrix_reference<real> dst(device_swap_buf);
+    ::cuda::matrix_reference<real, false> src(device_qmn_conv);
+    ::cuda::matrix_reference<real, false> dst(device_swap_buf);
 
     block_dim = dim3(1024);
     // use division which truncates upwards.
@@ -691,11 +695,11 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_q_mn()
 
     // Permute the distributions in src into dst
     multiply_h_m_n_kern<<<num_blocks, block_dim>>>(
-        ::cuda::matrix_reference<int>(device_qmn_row_nxm_indices),
+        ::cuda::matrix_reference<int, false>(device_qmn_row_nxm_indices),
         src,
         dst,
         ::cuda::vector_reference<int>(device_pchk_col_non_zeros),
-        ::cuda::matrix_reference<GF_q>(device_pchk_col_non_zeros_val));
+        ::cuda::matrix_reference<GF_q, false>(device_pchk_col_non_zeros_val));
     cudaSafeCall(cudaGetLastError());
 
 #ifdef DEBUG
@@ -713,11 +717,12 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_q_mn()
 
 template <class GF_q, class real>
 __global__ void
-compute_probs_kern(::cuda::matrix_reference<real> device_received_probs,
-                   ::cuda::matrix_reference<real> device_out_probs,
-                   ::cuda::matrix_reference<int> device_qmn_row_nxm_indices,
-                   ::cuda::matrix_reference<real> device_r_mxn,
-                   ::cuda::vector_reference<int> device_pchk_col_non_zeros)
+compute_probs_kern(
+    ::cuda::matrix_reference<real, false> device_received_probs,
+    ::cuda::matrix_reference<real, false> device_out_probs,
+    ::cuda::matrix_reference<int, false> device_qmn_row_nxm_indices,
+    ::cuda::matrix_reference<real, false> device_r_mxn,
+    ::cuda::vector_reference<int> device_pchk_col_non_zeros)
 {
     int num_of_elements = GF_q::elements();
     // find loop_e
@@ -753,10 +758,10 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_probs()
     // use division which truncates upwards.
     num_blocks = dim3(ROUND_UP_DIV(num_of_elements * n, (int)block_dim.x));
     compute_probs_kern<GF_q, real><<<num_blocks, block_dim>>>(
-        ::cuda::matrix_reference<real>(device_received_probs),
-        ::cuda::matrix_reference<real>(device_out_probs),
-        ::cuda::matrix_reference<int>(device_qmn_row_nxm_indices),
-        ::cuda::matrix_reference<real>(device_r_mxn),
+        ::cuda::matrix_reference<real, false>(device_received_probs),
+        ::cuda::matrix_reference<real, false>(device_out_probs),
+        ::cuda::matrix_reference<int, false>(device_qmn_row_nxm_indices),
+        ::cuda::matrix_reference<real, false>(device_r_mxn),
         ::cuda::vector_reference<int>(device_pchk_col_non_zeros));
     cudaSafeCall(cudaGetLastError());
 
@@ -766,7 +771,7 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_probs()
 
     // Normalize the computed probabilities.
     clip_and_normalize_probs<GF_q, real>(
-        ::cuda::matrix_reference<real>(device_out_probs),
+        ::cuda::matrix_reference<real, false>(device_out_probs),
         this->clipping_method,
         this->almostzero);
 }
