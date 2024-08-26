@@ -46,10 +46,14 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 // clang-format on
 
 #define INSTANTIATE(r, x, type)                                                \
-    template class matrix<type>;                                               \
-    template class matrix<vector<type>>;                                       \
-    template class matrix<vector_reference<type>>;                             \
-    template class matrix<vector_auto<type>>;
+    template class matrix<type, true>;                                         \
+    template class matrix<vector<type>, true>;                                 \
+    template class matrix<vector_reference<type>, true>;                       \
+    template class matrix<vector_auto<type>, true>;                            \
+    template class matrix<type, false>;                                        \
+    template class matrix<vector<type>, false>;                                \
+    template class matrix<vector_reference<type>, false>;                      \
+    template class matrix<vector_auto<type>, false>;
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, TYPE_SEQ)
 

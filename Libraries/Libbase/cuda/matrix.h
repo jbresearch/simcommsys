@@ -127,7 +127,7 @@ protected:
     __device__
     __host__
 #endif
-    void copyfrom(const matrix<T>& x)
+    void copyfrom(const matrix<T, pitched>& x)
     {
         data = x.data;
         rows = x.rows;
@@ -613,7 +613,7 @@ private:
     // Class friends
     friend class matrix<T, pitched>;
     // Shorthand for class hierarchy
-    typedef matrix<T, pitched> Base;
+    using Base = matrix<T, pitched>;
 
 protected:
     /*! \name Test and debug functions */
