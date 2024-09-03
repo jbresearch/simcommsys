@@ -37,7 +37,7 @@ To contact us:
 
 # Copyright and license
 
-Copyright (c) 2010-2013 Johann A. Briffa
+Copyright (c) 2010-2024 Johann A. Briffa
 
 This file is part of SimCommSys.
 
