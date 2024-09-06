@@ -47,17 +47,78 @@ class randgen : public random
 {
 private:
     /*! \name Object representation */
-    static const int32s mbig;
-    static const int32s mseed;
+    static constexpr int32s mbig = 1000000000L;
+    static constexpr int32s mseed = 161803398L;
     int32s next, nextp;
     int32s ma[56], mj;
     // @}
 
 protected:
     // Interface with random
-    void init(int32u s);
-    void advance();
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
+    void init(int32u s)
+    {
+        next = 0L;
+        nextp = 31L;
+        mj = (mseed - s) % mbig;
+        ma[55] = mj;
+        int32s mk = 1;
+
+        for (int i = 1; i <= 54; i++) {
+            int ii = (21 * i) % 55;
+            ma[ii] = mk;
+            mk = mj - mk;
+            if (mk < 0) {
+                mk += mbig;
+            }
+            mj = ma[ii];
+        }
+
+        for (int k = 1; k <= 4; k++) {
+            for (int i = 1; i <= 54; i++) {
+                ma[i] -= ma[1 + (i + 30) % 55];
+                if (ma[i] < 0) {
+                    ma[i] += mbig;
+                }
+            }
+        }
+    }
+
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
+    void advance()
+    {
+        if (++next >= 56) {
+            next = 1;
+        }
+
+        if (++nextp >= 56) {
+            nextp = 1;
+        }
+
+        mj = ma[next] - ma[nextp];
+
+        if (mj < 0) {
+            mj += mbig;
+        }
+
+        ma[next] = mj;
+    }
+
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     int32u get_value() const { return mj; }
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     int32u get_max() const { return mbig; }
 };
 

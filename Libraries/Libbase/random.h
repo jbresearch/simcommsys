@@ -64,20 +64,40 @@ private:
     // @}
 
 protected:
-    /*! \name Interface with derived classes */
-    //! Initialize generator with given seed
+/*! \name Interface with derived classes */
+//! Initialize generator with given seed
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     virtual void init(int32u s) = 0;
-    //! Advance generator by one step
+//! Advance generator by one step
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     virtual void advance() = 0;
-    //! The current generator output value
+//! The current generator output value
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     virtual int32u get_value() const = 0;
-    //! The largest returnable value
+//! The largest returnable value
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     virtual int32u get_max() const = 0;
     // @}
 
 public:
-    /*! \name Constructors / Destructors */
-    //! Principal constructor
+/*! \name Constructors / Destructors */
+//! Principal constructor
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     random()
     {
 #ifndef NDEBUG
@@ -89,7 +109,11 @@ public:
 #endif
         next_gval_available = false;
     }
-    //! Copy constructor
+//! Copy constructor
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     random(const random& r)
         :
 #ifndef NDEBUG
@@ -102,7 +126,11 @@ public:
                   << &r << ")." << std::endl;
 #endif
     }
-    //! Copy assignment
+//! Copy assignment
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     random& operator=(const random& r)
     {
 #ifndef NDEBUG
@@ -117,7 +145,11 @@ public:
 #endif
         return *this;
     }
-    //! Virtual destructor
+//! Virtual destructor
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     virtual ~random()
     {
 #if DEBUG >= 2
@@ -125,12 +157,35 @@ public:
                   << counter << " steps." << std::endl;
 #endif
     }
-    // @}
+// @}
 
-    /*! \name Random generator interface */
-    //! Seed random generator
-    void seed(int32u s);
-    //! Uniformly-distributed unsigned integer in closed interval [0,get_max()]
+/*! \name Random generator interface */
+//! Seed random generator
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
+    void seed(int32u s)
+    {
+#if DEBUG >= 2
+        std::cerr << "DEBUG: random (" << this << ") reseeded with " << s
+                  << " after " << counter << " steps." << std::endl;
+#endif
+#ifndef NDEBUG
+        counter = 0;
+        initialized = true;
+#endif
+        // this makes sure any stored gval is discarded
+        next_gval_available = false;
+        // initialize underlying generator
+        init(s);
+    }
+
+//! Uniformly-distributed unsigned integer in closed interval [0,get_max()]
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     int32u ival()
     {
 #ifndef NDEBUG
@@ -144,19 +199,56 @@ public:
         advance();
         return get_value();
     }
-    //! Uniformly-distributed unsigned integer in half-open interval [0,m)
+//! Uniformly-distributed unsigned integer in half-open interval [0,m)
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     int32u ival(int32u m)
     {
         assert(m - 1 <= get_max());
         return int(floor(fval_halfopen() * m));
     }
-    //! Uniformly-distributed floating point value in closed interval [0,1]
+//! Uniformly-distributed floating point value in closed interval [0,1]
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     double fval_closed() { return ival() / double(get_max()); }
-    //! Uniformly-distributed floating point value in half-open interval [0,1)
+//! Uniformly-distributed floating point value in half-open interval [0,1)
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     double fval_halfopen() { return ival() / (double(get_max()) + 1.0); }
-    //! Return Gaussian-distributed double (zero mean, unit variance)
-    double gval();
-    //! Return Gaussian-distributed double (zero mean, variance sigma^2)
+//! Return Gaussian-distributed double (zero mean, unit variance)
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
+    double gval()
+    {
+        if (next_gval_available) {
+            next_gval_available = false;
+            return next_gval;
+        }
+
+        double v1, v2, rsq;
+        do {
+            v1 = 2.0 * fval_closed() - 1.0;
+            v2 = 2.0 * fval_closed() - 1.0;
+            rsq = (v1 * v1) + (v2 * v2);
+        } while (rsq >= 1.0 || rsq == 0.0);
+        double fac = sqrt(-2.0 * log(rsq) / rsq);
+        next_gval = v2 * fac;
+        next_gval_available = true;
+        return (v1 * fac);
+    }
+//! Return Gaussian-distributed double (zero mean, variance sigma^2)
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     double gval(double sigma) { return gval() * sigma; }
     // @}
 };
