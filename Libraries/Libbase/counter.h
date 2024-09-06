@@ -92,15 +92,24 @@ private:
                       // @}
 
 public:
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     /*! \name Constructors / Destructors */
     //! Default constructor
     matching_counter(const std::string& name = "")
         : name(name), matches(0), events(0)
     {
     }
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     //! Virtual destructor
     virtual ~matching_counter()
     {
+#ifndef __CUDA_ARCH__
         // only show count if there was at least an event
         if (events > 0) {
             std::clog << "Counter";
@@ -109,9 +118,14 @@ public:
             }
             std::clog << ": " << matches << " of " << events << std::endl;
         }
+#endif
     }
     // @}
 
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     /*! \name Counter operation */
     //! Resets the counter
     void reset()
@@ -119,18 +133,38 @@ public:
         matches = 0;
         events = 0;
     }
-    //! Increments the match counter
+//! Increments the match counter
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     void increment_matches() { matches++; }
-    //! Increments the event counter
+//! Increments the event counter
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     void increment_events() { events++; }
-    // @}
+// @}
 
-    /*! \name Timer information */
-    //! Return current count of events
+/*! \name Timer information */
+//! Return current count of events
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     size_t get_matches() const { return matches; }
-    //! Return current count of events
+//! Return current count of events
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     size_t get_events() const { return events; }
-    //! Return counter name
+//! Return counter name
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     std::string get_name() const { return name; }
     // @}
 };
