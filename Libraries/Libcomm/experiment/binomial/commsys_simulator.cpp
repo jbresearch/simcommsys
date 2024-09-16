@@ -97,16 +97,22 @@ commsys_simulator<S, R>::sample(libbase::vector<double>& result)
     sys->receive_path(received);
     // For every iteration
     libbase::vector<int> decoded;
-    for (int i = 0; i < sys->num_iter(); i++) {
-        // Decode
-        sys->decode(decoded);
+    /*for (int i = 0; i < sys->num_iter(); i++) {
         // Update results if necessary
         if (!rc) {
             libbase::indirect_vector<double> result_segment =
                 result.segment(R::count() * i, R::count());
             R::updateresults(result_segment, source, decoded);
         }
+    }*/
+    // Decode
+    sys->decode(decoded);
+    if (!rc) {
+        libbase::indirect_vector<double> result_segment =
+            result.segment(0, R::count());
+        R::updateresults(result_segment, source, decoded);
     }
+
 #if DEBUG >= 2
     std::cout << "Decoded: " << decoded << std::endl;
 #endif
@@ -346,8 +352,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             "experiment", \
             "commsys_simulator<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
-            commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::create); \
-// clang-format on
+            commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::create);                                                            \
+    // clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
                               (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ))
