@@ -25,8 +25,10 @@
 #include "../sum_prod_alg_inf.h"
 #include "cuda/matrix.h"
 #include "cuda/stream.h"
+#include "cuda/util.h"
 #include "cuda/vector.h"
 #include "matrix.h"
+#include "random.h"
 #include "vector.h"
 #include <array>
 #include <limits>
@@ -34,7 +36,7 @@
 
 namespace libcomm
 {
-template <class GF_q, class real = double, unsigned num_streams = 8>
+template <class GF_q, class real = double>
 class sum_prod_alg_gdl_cuda : public sum_prod_alg_inf<GF_q, real>
 {
 public:
@@ -48,6 +50,8 @@ public:
     typedef ::cuda::vector<int> cuda_array1i_t;
     typedef ::cuda::matrix<int, false> cuda_matrixi_t;
     typedef ::cuda::matrix<real, false> cuda_matrixd_t;
+
+    typedef sum_prod_alg_inf<GF_q, real> Base;
     // @}
 
     /*! \brief constructor
@@ -71,8 +75,11 @@ public:
 
     // Overriden methods from sum_prod_alg_inf.
     void spa_init(const array1vd_t& ptable) override;
-    void spa_iteration(array1vd_t& ro) override;
     std::string spa_type() override { return "gdl_cuda"; }
+
+    void decode(libbase::vector<GF_q>& received_word, int max_iters) override;
+
+    void seedfrom(libbase::random& r) override;
 
 private:
     /*! \name State variables */
@@ -128,6 +135,23 @@ private:
      * parity matrix h_m_n
      */
     cuda_array1i_t device_pchk_row_non_zeros;
+    /*! Matrix where each row (representing a pchk m) contains the position of
+     * non-zero elements in the parity check matrix H (at that row of H).
+     *
+     * Extra space at the end of rows is padded with zeros/uninitalized.
+     *
+     * device_pchk_row_non_zero can be used to determine end of each row
+     */
+    cuda_matrixi_t device_pchk_row_non_zeros_pos;
+    /*! Matrix where each row (representing a pchk m) contains the value (in
+     * GF_q) of non-zero elements in the parity check matrix H (at that row
+     * of H).
+     *
+     * Extra space at the end of rows is padded with zeros/uninitalized.
+     *
+     * device_pchk_row_non_zero can be used to determine end of each row
+     */
+    ::cuda::matrix<GF_q, false> device_pchk_row_non_zeros_val;
 
     /*! \brief Maximum number of non-zero elements in a column of the parity
      * check matrix.
@@ -146,6 +170,21 @@ private:
      * device_pchk_col_non_zero can be used to determine end of each row
      */
     ::cuda::matrix<GF_q, false> device_pchk_col_non_zeros_val;
+
+    /*! \brief Stores the received codeword according to decoder. */
+    ::cuda::vector<GF_q> device_received_word;
+    /*! \brief Used when computing syndrome to check if an iteration has yielded
+     * valid codeword or not. */
+    ::cuda::vector<GF_q> device_syndrome;
+
+    /*! \brief Set to true when iteration yields a valid codeword, false
+     * otherwise. */
+    ::cuda::device_ptr<bool> device_decode_success;
+    /*! \brief Hard-decision box used when determining codeword from
+     * probabilities. */
+    ::cuda::device_ptr<
+        basic_hard_decision<real, GF_q, ::cuda::vector_reference<real>>>
+        hd_functor;
 
 private:
     /*! \name Internal methods for a single SPA iteration */

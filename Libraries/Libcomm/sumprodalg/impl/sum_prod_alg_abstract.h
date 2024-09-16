@@ -23,7 +23,9 @@
 #define SUM_PROD_ALG_ABSTRACT_H_
 
 #include "config.h"
+#include "hard_decision.h"
 #include "matrix.h"
+#include "random.h"
 #include "sumprodalg/sum_prod_alg_inf.h"
 #include "vector.h"
 #include <limits>
@@ -52,6 +54,8 @@ public:
     typedef libbase::vector<int> array1i_t;
     typedef libbase::vector<array1i_t> array1vi_t;
     typedef libbase::vector<array1d_t> array1vd_t;
+
+    typedef sum_prod_alg_inf<GF_q, real> Base;
     // @}
 
     /*! \brief constructor
@@ -103,6 +107,18 @@ public:
      */
     void spa_iteration(array1vd_t& ro);
 
+    void decode(libbase::vector<GF_q>& received_word, int max_iters) override
+    {
+        for (int curr_cdc_iter = 0; curr_cdc_iter < max_iters;
+             curr_cdc_iter++) {
+            this->spa_iteration(received_probs);
+            hd_functor(received_probs, received_word);
+
+            if (is_codeword(received_word))
+                break;
+        }
+    }
+
     /*! \brief Perform the desired clipping
      *
      */
@@ -121,6 +137,14 @@ public:
         }
     }
 
+    void seedfrom(libbase::random& r)
+    {
+        // Call base method first
+        Base::seedfrom(r);
+        // Seed hard-decision box
+        hd_functor.seedfrom(r);
+    }
+
 protected:
     /*! \brief carries out the horizontal step of SPA
      * The r_mxn probabilities are computed
@@ -135,6 +159,31 @@ private:
     void print_marginal_probs(std::ostream& sout);
     void print_marginal_probs(int col, std::ostream& sout);
     void compute_probs(array1vd_t& ro);
+
+    bool is_codeword(libbase::vector<GF_q>& received_word)
+    {
+        int dim_pchk = N_m.size();
+        bool dec_success = true;
+        int num_of_entries = 0;
+        int pos_n = 0;
+
+        GF_q tmp_val = GF_q(0);
+        for (int pos_m = 0; pos_m < dim_pchk && dec_success; pos_m++) {
+            tmp_val = GF_q(0);
+            num_of_entries = this->N_m(pos_m).size();
+            for (int loop_n = 0; loop_n < num_of_entries; loop_n++) {
+                pos_n = this->N_m(pos_m)(loop_n) - 1; // we count from zero
+                tmp_val += this->marginal_probs(pos_m, pos_n).val *
+                           received_word(pos_n);
+            }
+            if (tmp_val != GF_q(0)) {
+                // the syndrome is non-zero
+                dec_success = false;
+            }
+        }
+
+        return dec_success;
+    }
 
 protected:
     /*! \name Data structures
@@ -172,6 +221,9 @@ protected:
 
     //! this matrix holds the r_mxn probabilities
     libbase::matrix<marginals> marginal_probs;
+
+    //! Hard-decision box
+    hard_decision<libbase::vector, real, GF_q> hd_functor;
 };
 
 } // namespace libcomm

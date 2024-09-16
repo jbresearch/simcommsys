@@ -22,6 +22,7 @@
 #ifndef SUM_PROD_ALG_INF_H_
 #define SUM_PROD_ALG_INF_H_
 #include "matrix.h"
+#include "random.h"
 #include "vector.h"
 #include <string>
 
@@ -48,10 +49,10 @@ public:
      *
      */
     virtual void spa_init(const array1vd_t& ptable) = 0;
-    /*! \brief carry out the SPA iteration
-     *
+    /*! \brief Perform entire decoding process.
      */
-    virtual void spa_iteration(array1vd_t& ro) = 0;
+    virtual void decode(libbase::vector<GF_q>& received_word,
+                        int max_iters) = 0;
     /*! \brief return the type of SPA used
      *
      */
@@ -88,6 +89,9 @@ public:
      *
      */
     real get_almostzero() { return this->almostzero; }
+
+    //! Seeds any random generators from a pseudo-random sequence
+    virtual void seedfrom(libbase::random& r) {}
 
 protected:
     /*! \name Clipping parameters with default values.`

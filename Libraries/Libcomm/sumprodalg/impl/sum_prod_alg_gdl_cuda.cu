@@ -25,10 +25,12 @@
 #include "cuda/util.h"
 #include "cuda/vector.h"
 #include "gf.h"
+#include "hard_decision.h"
 #include "sum_prod_alg_gdl_cuda.h"
 #include "vector.h"
 #include <cmath>
 #include <limits>
+#include <memory>
 
 namespace libcomm
 {
@@ -39,6 +41,28 @@ namespace libcomm
 #    undef DEBUG
 #    define DEBUG 1
 #endif
+
+template <class GF_q, class real>
+__global__ void
+seed_hd_functor(
+    basic_hard_decision<real, GF_q, ::cuda::vector_reference<real>>* hd_functor,
+    libbase::int32u rval)
+{
+    if (blockIdx.x == 0 && threadIdx.x == 0)
+        hd_functor->seedfrom(rval);
+}
+
+template <class GF_q, class real>
+void
+sum_prod_alg_gdl_cuda<GF_q, real>::seedfrom(libbase::random& r)
+{
+    // Call base method first
+    Base::seedfrom(r);
+
+    int device = ::cuda::cudaGetCurrentDevice();
+    int warp_size = ::cuda::cudaGetWarpSize(device);
+    seed_hd_functor<<<warp_size, 1>>>(this->hd_functor.get(), r.ival());
+}
 
 /*! \brief Compute ceil(X / Y)
  */
@@ -173,8 +197,8 @@ hadamard_transform(::cuda::matrix_reference<real, false>& src,
     }
 }
 
-template <class GF_q, class real, unsigned num_streams>
-sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::sum_prod_alg_gdl_cuda(
+template <class GF_q, class real>
+sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     int n,
     int m,
     const array1vi_t& non_zero_col_pos,
@@ -198,6 +222,24 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::sum_prod_alg_gdl_cuda(
 
         pchk_row_non_zeros(loop_m) = non_zeros;
         max_pchk_row_non_zeros = std::max(max_pchk_row_non_zeros, non_zeros);
+    }
+
+    matrixi_t pchk_row_non_zeros_pos(m, max_pchk_row_non_zeros);
+    libbase::matrix<GF_q> pchk_row_non_zeros_val(m, max_pchk_row_non_zeros);
+
+    // Populate per-row representation of the parity check matrix.
+    int pos_n;
+    for (int pos_m = 0; pos_m < m; pos_m++) {
+        // non-zeros for this row of the parity check matrix
+        non_zeros = pchk_row_non_zeros(pos_m);
+
+        for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
+            pos_n = non_zero_row_pos(pos_m)(loop_n) - 1; // we count from zero;
+
+            // populate other pchk matrix fields on the host.
+            pchk_row_non_zeros_pos(pos_m, loop_n) = pos_n;
+            pchk_row_non_zeros_val(pos_m, loop_n) = pchk_matrix(pos_m, pos_n);
+        }
     }
 
     // Find the maximum number of non zero elements in a col of the parity
@@ -269,12 +311,16 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::sum_prod_alg_gdl_cuda(
     // Allocate memory on the device for representation of the parity check
     // matrix
     device_pchk_row_non_zeros.init(m);
+    device_pchk_row_non_zeros_pos.init(m, max_pchk_row_non_zeros);
+    device_pchk_row_non_zeros_val.init(m, max_pchk_row_non_zeros);
 
     device_pchk_col_non_zeros.init(n);
     device_pchk_col_non_zeros_val.init(n, max_pchk_col_non_zeros);
 
     // Copy represenation of the parity check matrix to the device.
     device_pchk_row_non_zeros = pchk_row_non_zeros;
+    device_pchk_row_non_zeros_pos = pchk_row_non_zeros_pos;
+    device_pchk_row_non_zeros_val = pchk_row_non_zeros_val;
 
     device_pchk_col_non_zeros = pchk_col_non_zeros;
     device_pchk_col_non_zeros_val = pchk_col_non_zeros_val;
@@ -286,6 +332,9 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::sum_prod_alg_gdl_cuda(
     device_swap_buf.init(tanner_edges, num_of_elements);
 
     device_out_probs.init(n, num_of_elements);
+
+    device_received_word.init(n);
+    device_syndrome.init(m);
 }
 
 template <class real>
@@ -408,10 +457,9 @@ spa_init_kern(
     }
 }
 
-template <class GF_q, class real, unsigned num_streams>
+template <class GF_q, class real>
 void
-sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::spa_init(
-    const array1vd_t& recvd_probs)
+sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
 {
     dim3 block_dim;
     dim3 num_blocks;
@@ -539,9 +587,9 @@ compute_r_mn_kern(
     }
 }
 
-template <class GF_q, class real, unsigned num_streams>
+template <class GF_q, class real>
 void
-sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_r_mn()
+sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
 {
     dim3 block_dim, num_blocks;
 
@@ -655,9 +703,9 @@ compute_q_mn_kern(
     }
 }
 
-template <class GF_q, class real, unsigned num_streams>
+template <class GF_q, class real>
 void
-sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_q_mn()
+sum_prod_alg_gdl_cuda<GF_q, real>::compute_q_mn()
 {
 
     dim3 block_dim, num_blocks;
@@ -746,9 +794,9 @@ compute_probs_kern(
     device_out_probs(pos_n, loop_e) = prob;
 }
 
-template <class GF_q, class real, unsigned num_streams>
+template <class GF_q, class real>
 void
-sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_probs()
+sum_prod_alg_gdl_cuda<GF_q, real>::compute_probs()
 {
     dim3 block_dim, num_blocks;
 
@@ -776,44 +824,119 @@ sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::compute_probs()
         this->almostzero);
 }
 
-template <class GF_q, class real, unsigned num_streams>
-void
-sum_prod_alg_gdl_cuda<GF_q, real, num_streams>::spa_iteration(array1vd_t& ro)
+template <class GF_q, class real>
+__global__ void
+hard_decision_kern(
+    ::cuda::matrix_reference<real, false> device_out_probs,
+    ::cuda::vector_reference<GF_q> received_word,
+    basic_hard_decision<real, GF_q, ::cuda::vector_reference<real>>* hd_functor)
 {
-    // carry out the horizontal step
-    // this uses the description of the algorithm as given by
-    // MacKay in Information Theory, Inference and Learning Algorithms(2003)
-    // on page 560 - chapter 47.3
+    int n = received_word.size();
+    int pos_n = blockIdx.x * blockDim.x + threadIdx.x;
 
-    // r_mxn(0)=\sum_{x_n'|n'\in N(m)\n'} ( P(z_m=0|x_n=0) * \prod_{n'\in
-    // N(m)\n}q_mxn(x_{n') ) Essentially, what we are doing is the following:
-    // Assume x_n=0
-    // we need to sum over all possibilities that such that the parity check is
-    // satisfied, ie =0 if the parity check is satisfied the conditional
-    // probability is 1 and 0 otherwise so we are simply adding up the products
-    // for which the parity check is satisfied.
-
-    compute_r_mn();
-
-    // loop over all the symbol nodes - the vertical step
-
-    compute_q_mn();
-
-    // compute the new probabilities for all symbols given the information
-    // in this iteration. This will be used in a tentative decoding to see
-    // whether we have found a codeword
-    compute_probs();
-
-    // Copy received probabilities from device to host.
-
-    // ensure ro has the right size
-    ro.init(this->device_out_probs.get_rows());
-
-    for (int n = 0; n < ro.size(); n++) {
-        // allocate memory on host for probability distribution of symbol n
-        ro(n).init(this->device_out_probs.get_cols());
-        ro(n) = (libbase::vector<real>)this->device_out_probs.extract_row(n);
+    if (pos_n < n) {
+        received_word(pos_n) =
+            (*hd_functor)(device_out_probs.extract_row(pos_n));
     }
+}
+
+template <class GF_q, class real>
+__global__ void
+compute_syndrome_kern(
+    ::cuda::vector_reference<int> device_pchk_row_non_zeros,
+    ::cuda::matrix_reference<int, false> device_pchk_row_non_zeros_pos,
+    ::cuda::matrix_reference<GF_q, false> device_pchk_row_non_zeros_val,
+    ::cuda::vector_reference<GF_q> device_received_word,
+    ::cuda::vector_reference<GF_q> device_syndrome)
+{
+    int m = device_syndrome.size();
+    int pos_m = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (pos_m < m) {
+        GF_q synd = 0;
+        for (int loop_n = 0; loop_n < device_pchk_row_non_zeros(pos_m);
+             loop_n++) {
+            int pos_n = device_pchk_row_non_zeros_pos(pos_m, loop_n);
+            synd += device_pchk_row_non_zeros_val(pos_m, loop_n) *
+                    device_received_word(pos_n);
+        }
+
+        device_syndrome(pos_m) = synd;
+    }
+}
+
+template <class GF_q, class real>
+__global__ void
+check_syndrome_kern(::cuda::vector_reference<GF_q> device_syndrome,
+                    bool* decode_success)
+{
+    if (blockIdx.x == 0 && threadIdx.x == 0) {
+        bool success = true;
+
+        for (int pos_m = 0; pos_m < device_syndrome.size(); pos_m++)
+            success &= !(bool)device_syndrome(pos_m);
+
+        *decode_success = success;
+    }
+}
+
+template <class GF_q, class real>
+void
+sum_prod_alg_gdl_cuda<GF_q, real>::decode(libbase::vector<GF_q>& received_word,
+                                          int max_iters)
+{
+    // block size for any kernels called within this function
+    int blockdim = 32;
+
+    int n = this->device_received_word.size();
+    int m = this->device_syndrome.size();
+
+    bool success;
+    for (int curr_cdc_iter = 0; curr_cdc_iter < max_iters; curr_cdc_iter++) {
+
+        // carry out the horizontal step
+        // this uses the description of the algorithm as given by
+        // MacKay in Information Theory, Inference and Learning Algorithms(2003)
+        // on page 560 - chapter 47.3
+
+        // r_mxn(0)=\sum_{x_n'|n'\in N(m)\n'} ( P(z_m=0|x_n=0) * \prod_{n'\in
+        // N(m)\n}q_mxn(x_{n') ) Essentially, what we are doing is the
+        // following: Assume x_n=0 we need to sum over all possibilities that
+        // such that the parity check is satisfied, ie =0 if the parity check is
+        // satisfied the conditional probability is 1 and 0 otherwise so we are
+        // simply adding up the products for which the parity check is
+        // satisfied.
+        compute_r_mn();
+
+        // loop over all the symbol nodes - the vertical step
+        compute_q_mn();
+
+        // compute the new probabilities for all symbols given the information
+        // in this iteration. This will be used in a tentative decoding to see
+        // whether we have found a codeword
+        compute_probs();
+
+        hard_decision_kern<GF_q, real><<<blockdim, ROUND_UP_DIV(n, blockdim)>>>(
+            this->device_out_probs,
+            this->device_received_word,
+            this->hd_functor.get());
+        compute_syndrome_kern<GF_q, real>
+            <<<blockdim, ROUND_UP_DIV(m, blockdim)>>>(
+                this->device_pchk_row_non_zeros,
+                this->device_pchk_row_non_zeros_pos,
+                this->device_pchk_row_non_zeros_val,
+                this->device_received_word,
+                this->device_syndrome);
+        check_syndrome_kern<GF_q, real><<<blockdim, 1>>>(
+            this->device_syndrome, this->device_decode_success.get());
+
+        this->device_decode_success.to_host(&success);
+        if (success)
+            break;
+    }
+
+    received_word.init(n);
+    received_word = (libbase::vector<GF_q>)this->device_received_word;
 }
 
 } // namespace libcomm
