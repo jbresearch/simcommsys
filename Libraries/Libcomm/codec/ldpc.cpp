@@ -120,6 +120,11 @@ ldpc<GF_q, real>::ldpc(libbase::matrix<GF_q> paritycheck_mat,
         }
     }
 
+    this->reduce_to_ref = false;
+    this->rand_prov_values = "provided";
+    // we are done and can call init now.
+    this->init();
+
     // use sensible default values for the rest
     std::string spa_type = "gdl";
     this->spa_alg =
@@ -133,12 +138,6 @@ ldpc<GF_q, real>::ldpc(libbase::matrix<GF_q> paritycheck_mat,
     std::string clipping_type = "zero";
     real almost_zero = real(1E-100);
     this->spa_alg->set_clipping(clipping_type, almost_zero);
-
-    this->reduce_to_ref = false;
-    this->rand_prov_values = "provided";
-    this->decodingSuccess = false;
-    // we are done and can call init now.
-    this->init();
 }
 
 template <class GF_q, class real>
@@ -188,7 +187,6 @@ ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable)
 {
 
     this->current_iteration = 0;
-    this->decodingSuccess = false;
 
 #if DEBUG >= 2
     libbase::trace << std::endl
@@ -205,9 +203,6 @@ ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable)
             this->received_probs(loop_n)(loop_e) = real(ptable(loop_n)(loop_e));
         }
     }
-
-    // determine the most likely symbol
-    hd_functor(this->received_probs, this->received_word_hd);
 
 #if DEBUG >= 2
     libbase::trace << std::endl
@@ -247,36 +242,7 @@ ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable)
     this->spa_alg->spa_init(this->received_probs);
     //   }
 }
-template <class GF_q, class real>
-void
-ldpc<GF_q, real>::isCodeword()
-{
-    bool dec_success = true;
-    int num_of_entries = 0;
-    int pos_n = 0;
 
-    GF_q tmp_val = GF_q(0);
-    int rows = 0;
-    while (dec_success && rows < this->dim_pchk) {
-        tmp_val = GF_q(0);
-        num_of_entries = this->N_m(rows).size();
-        for (int loop = 0; loop < num_of_entries; loop++) {
-            pos_n = this->N_m(rows)(loop) - 1; // we count from zero
-            tmp_val += this->pchk_matrix(rows, pos_n) * received_word_hd(pos_n);
-        }
-        if (tmp_val != GF_q(0)) {
-            // the syndrome is non-zero
-            dec_success = false;
-        }
-        rows++;
-    }
-    this->decodingSuccess = dec_success;
-#if DEBUG >= 2
-    if (dec_success) {
-        libbase::trace << "We have a solution" << std::endl;
-    }
-#endif
-}
 template <class GF_q, class real>
 void
 ldpc<GF_q, real>::do_encode(const libbase::vector<int>& source,
@@ -287,10 +253,10 @@ ldpc<GF_q, real>::do_encode(const libbase::vector<int>& source,
 
 #if DEBUG >= 2
     this->received_word_hd = encoded;
-    this->isCodeword();
-    assertalways(this->decodingSuccess);
-    // extract the info symbols from the codeword word and compare them to the
-    // original
+    // this->isCodeword();
+    // assertalways(this->decodingSuccess);
+    //  extract the info symbols from the codeword word and compare them to the
+    //  original
     for (int loop_i = 0; loop_i < this->dim_k; loop_i++) {
         assertalways(source(loop_i) == encoded(this->info_symb_pos(loop_i)));
     }
@@ -299,80 +265,6 @@ ldpc<GF_q, real>::do_encode(const libbase::vector<int>& source,
     libbase::trace << "The encoded word is:" << std::endl;
     encoded.serialize(libbase::trace, ' ');
     libbase::trace << std::endl;
-#endif
-}
-
-template <class GF_q, class real>
-void
-ldpc<GF_q, real>::softdecode(array1vdbl_t& ri, array1vdbl_t& ro)
-{
-    // update the iteration counter
-    this->current_iteration++;
-    // init the received sd information vector;
-    ri.init(this->dim_k);
-
-    // Only continue if we haven't already computed a solution in a previous
-    // iteration
-    if (this->decodingSuccess) {
-        // initialise the output vector to the previously computed solution
-        ro = this->computed_solution;
-    } else {
-        array1vd_t tmp_ro;
-        this->spa_alg->spa_iteration(tmp_ro);
-
-#if DEBUG >= 3
-        libbase::trace << std::endl
-                       << "This is iteration: " << this->current_iteration
-                       << std::endl;
-        libbase::trace
-            << "The newly computed normalised probabilities are given by:"
-            << std::endl;
-        ro.serialize(libbase::trace, ' ');
-#endif
-
-        // determine the most likely symbol
-        hd_functor(tmp_ro, this->received_word_hd);
-
-        // cast the values back from real to double
-        int num_of_elements = GF_q::elements();
-        ro.init(this->length_n);
-        for (int loop_n = 0; loop_n < this->length_n; loop_n++) {
-            ro(loop_n).init(num_of_elements);
-            for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
-                ro(loop_n)(loop_e) =
-                    static_cast<double>(tmp_ro(loop_n)(loop_e));
-            }
-        }
-        // do we have a solution?
-        this->isCodeword();
-        if (this->decodingSuccess) {
-            // store the solution for the next iteration
-            this->computed_solution = ro;
-        }
-
-#if DEBUG >= 2
-        libbase::trace << std::endl
-                       << "This is iteration: " << this->current_iteration
-                       << std::endl;
-        libbase::trace << "The most likely received word is now given by:"
-                       << std::endl;
-        this->received_word_hd.serialize(libbase::trace, ' ');
-#endif
-        // finished decoding
-    }
-
-    // extract the info symbols from the received word
-    for (int loop_i = 0; loop_i < this->dim_k; loop_i++) {
-        ri(loop_i) = ro(this->info_symb_pos(loop_i));
-    }
-#if DEBUG >= 3
-    libbase::trace << std::endl
-                   << "This is iteration: " << this->current_iteration
-                   << std::endl;
-    libbase::trace << std::endl
-                   << "The info symbol probabilities are given by:"
-                   << std::endl;
-    ri.serialize(libbase::trace, ' ');
 #endif
 }
 
@@ -661,6 +553,7 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
         // tmp_pos should now correspond to the given row weight
         assertalways(tmp_pos == this->row_weight(loop1));
     }
+    this->init();
     this->spa_alg =
         libcomm::spa_factory<GF_q, real>::get_spa(spa_type,
                                                   this->length_n,
@@ -669,7 +562,6 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
                                                   this->N_m,
                                                   this->pchk_matrix);
     this->spa_alg->set_clipping(clipping_type, almost_zero);
-    this->init();
     return sin;
 }
 
@@ -940,6 +832,7 @@ ldpc<GF_q, real>::read_alist(std::istream& sin)
     } else {
         this->rand_prov_values = "provided";
     }
+    this->init();
     this->spa_alg =
         libcomm::spa_factory<GF_q, real>::get_spa("gdl",
                                                   this->length_n,
@@ -948,7 +841,6 @@ ldpc<GF_q, real>::read_alist(std::istream& sin)
                                                   this->N_m,
                                                   this->pchk_matrix);
     this->spa_alg->set_clipping("zero", real(1e-100));
-    this->init();
     return sin;
 }
 

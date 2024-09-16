@@ -31,7 +31,6 @@
 
 #include "codec_softout.h"
 #include "config.h"
-#include "hard_decision.h"
 #include "matrix.h"
 #include "sumprodalg/sum_prod_alg_inf.h"
 #include "vector.h"
@@ -114,7 +113,7 @@ public:
     /*! \brief default constructor
      *
      */
-    ldpc() { this->decodingSuccess = false; }
+    ldpc() {}
     /*! \brief constructor using a parity check matrix
      * and the number of iterations - the remaining
      * parameters are either calculated or set to
@@ -129,8 +128,18 @@ public:
     {
         // Call base method first
         Base::seedfrom(r);
-        // Seed hard-decision box
-        hd_functor.seedfrom(r);
+        // Seed hard-decision box of SPA algorithm
+        this->spa_alg->seedfrom(r);
+    }
+
+    void decode_all_iters(libbase::vector<int>& decoded) override
+    {
+        libbase::vector<GF_q> received_word(this->length_n);
+        this->spa_alg->decode(received_word, this->num_iter());
+
+        decoded.init(this->info_symb_pos.size());
+        for (int k = 0; k < this->info_symb_pos.size(); k++)
+            decoded(k) = received_word(this->info_symb_pos(k));
     }
 
     /*! \name Softout codec operations */
@@ -139,8 +148,8 @@ public:
      * \brief Decoding process
      * \param[out] ri Likelihood table for input symbols at every timestep
      *
-     * \note Each call to decode will perform a single iteration (with respect
-     * to num_iter).
+     * \note Each call to decode will perform a single iteration (with
+     * respect to num_iter).
      */
     void softdecode(array1vdbl_t& ri)
     {
@@ -156,7 +165,10 @@ public:
      * \note Each call to decode will perform a single iteration (with respect
      * to num_iter).
      */
-    void softdecode(array1vdbl_t& ri, array1vdbl_t& ro);
+    void softdecode(array1vdbl_t& ri, array1vdbl_t& ro)
+    {
+        failwith("Not implemented");
+    };
 
     /*
      * some more necessary functions for the codec interface
@@ -210,13 +222,6 @@ private:
     // simply initialises the LDPC code and checks that the parity check matrix
     // has the right dimensions
     void init();
-
-    /*! \brief checks whether the current solution is a codeword
-     * This computes the syndrome of a received word using the fact that the
-     * matrix is sparse However, as soon as the syndrome contains a non-zero
-     * value it stops as this means the current solution cannot be a codeword
-     */
-    void isCodeword();
 
     /*
      * internal variables needed by the LDPC code
@@ -282,13 +287,6 @@ private:
     //! the normalised received probabilities per symbol of the received word
     array1vd_t received_probs;
 
-    //! the probabilities per symbol of the computed solution
-    array1vdbl_t computed_solution;
-
-    //! flag indicating whether or not the current iteration
-    // has resulted in a codeword
-    bool decodingSuccess;
-
     //! flag indicating whether the generator matrix should be reduced to
     // REF form in the hope of getting a proper systematic code.
     // If set to false, initialisation is quicker and the info symbols are
@@ -308,9 +306,6 @@ private:
     // currently we have trad(=traditional and slow) and
     // gdl(=general distribution law and fast)
     std::shared_ptr<sum_prod_alg_inf<GF_q, real>> spa_alg;
-
-    //! Hard-decision box
-    hard_decision<libbase::vector, real, GF_q> hd_functor;
 };
 
 } // namespace libcomm
