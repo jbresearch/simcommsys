@@ -394,7 +394,68 @@ count(const dim3& size)
     return size.x * size.y * size.z;
 }
 
+#endif // __CUDACC__
+
+/*!
+ * \brief   A smart pointer for device memory
+ * \author  Mark Mizzi
+ *
+ * This class represents a single device variable, accessed through a pointer.
+ */
+template <class T>
+class device_ptr
+{
+private:
+    T* ptr;
+
+public:
+#ifdef __CUDACC__
+    __host__
 #endif
+    device_ptr()
+    {
+#ifdef __CUDACC__
+        ptr = cudaSafeMalloc<T>(static_cast<size_t>(1));
+#endif
+    }
+
+#ifdef __CUDACC__
+    __host__
+#endif
+    ~device_ptr()
+    {
+#ifdef __CUDACC__
+        cudaSafeFree(ptr);
+#endif
+    }
+
+#ifdef __CUDACC__
+    __host__
+#endif
+    void to_host(T* val)
+    {
+#ifdef __CUDACC__
+        cudaSafeMemcpy(
+            val, this->ptr, static_cast<size_t>(1), cudaMemcpyDeviceToHost);
+#endif
+    }
+
+#ifdef __CUDACC__
+    __device__
+#endif
+    T& operator*() { return *this->ptr; }
+
+#ifdef __CUDACC__
+    __device__
+#endif
+    T* operator->() { return this->ptr; }
+
+#ifdef __CUDACC__
+    __host__
+    __device__
+#endif
+    T* get() { return this->ptr; }
+};
 
 // Reset debug level, to avoid affecting other files
 #ifndef NDEBUG
