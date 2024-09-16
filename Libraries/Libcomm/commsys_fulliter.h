@@ -63,7 +63,6 @@ private:
     int iter; //!< Number of full-system iterations
     // @}
     /*! \name Internal state */
-    int cur_cdc_iter;   //!< Current decoder iteration
     int cur_mdm_iter;   //!< Current modem iteration
     C<S> last_received; //!< Last received block
     C<array1d_t>

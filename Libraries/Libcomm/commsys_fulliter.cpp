@@ -55,8 +55,6 @@ commsys_fulliter<S, C>::receive_path(const C<S>& received)
     ptable_ext_modem.init(0);
     ptable_ext_codec.init(0);
     cur_mdm_iter = 0;
-    // Reset decoder
-    cur_cdc_iter = 0;
 }
 
 template <class S, template <class> class C>
@@ -67,64 +65,59 @@ commsys_fulliter<S, C>::decode(C<int>& decoded)
     libbase::trace << "DEBUG (fulliter): Starting decode cycle " << cur_mdm_iter
                    << "/" << cur_cdc_iter << "." << std::endl;
 #endif
-    // If this is the first decode cycle, we need to do the receive-path first
-    if (cur_cdc_iter == 0) {
-        // ** Inner code (modem class) **
-        // Demodulate
-        C<array1d_t> ptable_post_modem;
-        informed_modulator<S>& m =
-            dynamic_cast<informed_modulator<S>&>(*this->mdm);
-        m.demodulate(
-            *this->rxchan, last_received, ptable_ext_modem, ptable_post_modem);
-        // Normalize posterior information
-        libbase::normalize_results(ptable_post_modem, ptable_post_modem);
-        // Inverse Map posterior information
-        C<array1d_t> ptable_post_codec;
-        this->map->inverse(ptable_post_modem, ptable_post_codec);
-        // Compute extrinsic information from uncoded posteriors and priors
-        // (codec alphabet)
-        libbase::compute_extrinsic(
-            ptable_ext_codec, ptable_post_codec, ptable_ext_codec);
-        // Pass extrinsic information through mapper
-        this->map->transform(ptable_ext_codec, ptable_ext_modem);
-        // Mark mapper as clean (we will need to use again this cycle)
-        this->map->mark_as_clean();
+    // we need to do the receive-path first
+    // ** Inner code (modem class) **
+    // Demodulate
+    C<array1d_t> ptable_post_modem;
+    informed_modulator<S>& m = dynamic_cast<informed_modulator<S>&>(*this->mdm);
+    m.demodulate(
+        *this->rxchan, last_received, ptable_ext_modem, ptable_post_modem);
+    // Normalize posterior information
+    libbase::normalize_results(ptable_post_modem, ptable_post_modem);
+    // Inverse Map posterior information
+    C<array1d_t> ptable_post_codec;
+    this->map->inverse(ptable_post_modem, ptable_post_codec);
+    // Compute extrinsic information from uncoded posteriors and priors
+    // (codec alphabet)
+    libbase::compute_extrinsic(
+        ptable_ext_codec, ptable_post_codec, ptable_ext_codec);
+    // Pass extrinsic information through mapper
+    this->map->transform(ptable_ext_codec, ptable_ext_modem);
+    // Mark mapper as clean (we will need to use again this cycle)
+    this->map->mark_as_clean();
 
-        // ** Outer code (codec class) **
-        // Translate
-        this->cdc->init_decoder(ptable_ext_codec);
-    }
+    // ** Outer code (codec class) **
+    // Translate
+    this->cdc->init_decoder(ptable_ext_codec);
 
-    // Perform soft-output decoding
     codec_softout<C>& c = dynamic_cast<codec_softout<C>&>(*this->cdc);
     C<array1d_t> ri_codec;
     C<array1d_t> ro_codec;
-    c.softdecode(ri_codec, ro_codec);
-    // Compute hard-decision for results gatherer
-    hd_functor(ri_codec, decoded);
-    // Compute feedback path if this is the last codec iteration
-    if (++cur_cdc_iter == this->cdc->num_iter()) {
-        // Normalize posterior information
-        libbase::normalize_results(ro_codec, ro_codec);
-        // Pass posterior information through mapper
-        C<array1d_t> ro_modem;
-        this->map->transform(ro_codec, ro_modem);
-        // Compute extrinsic information from encoded posteriors and priors
-        // (modem alphabet)
-        libbase::compute_extrinsic(
-            ptable_ext_modem, ro_modem, ptable_ext_modem);
-        // Inverse Map extrinsic information
-        this->map->inverse(ptable_ext_modem, ptable_ext_codec);
+    for (int curr_cdc_iter = 0; this->cdc->num_iter(); curr_cdc_iter++) {
+        // Perform soft-output decoding
+        c.softdecode(ri_codec, ro_codec);
+        // Compute hard-decision for results gatherer
+        hd_functor(ri_codec, decoded);
+    }
 
-        // Reset decoder iteration count
-        cur_cdc_iter = 0;
-        // Update modem iteration count
-        cur_mdm_iter++;
-        // If this was not the last iteration, mark components as clean
-        if (cur_mdm_iter < iter) {
-            this->mdm->mark_as_clean();
-            this->map->mark_as_clean();
-        }
+    // Compute feedback path
+    // Normalize posterior information
+    libbase::normalize_results(ro_codec, ro_codec);
+    // Pass posterior information through mapper
+    C<array1d_t> ro_modem;
+    this->map->transform(ro_codec, ro_modem);
+    // Compute extrinsic information from encoded posteriors and priors
+    // (modem alphabet)
+    libbase::compute_extrinsic(ptable_ext_modem, ro_modem, ptable_ext_modem);
+    // Inverse Map extrinsic information
+    this->map->inverse(ptable_ext_modem, ptable_ext_codec);
+
+    // Update modem iteration count
+    cur_mdm_iter++;
+    // If this was not the last iteration, mark components as clean
+    if (cur_mdm_iter < iter) {
+        this->mdm->mark_as_clean();
+        this->map->mark_as_clean();
     }
 }
 
@@ -206,8 +199,9 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
     const serializer commsys_fulliter<BOOST_PP_SEQ_ENUM(args)>::shelper(       \
         "commsys",                                                             \
         "commsys_fulliter<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(              \
-            0, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) ">",  \
-        commsys_fulliter<BOOST_PP_SEQ_ENUM(args)>::create);
+            0, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) ">",      \
+                                          commsys_fulliter<BOOST_PP_SEQ_ENUM(  \
+                                              args)>::create);
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
                               (SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ))

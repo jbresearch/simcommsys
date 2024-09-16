@@ -262,7 +262,7 @@ basic_commsys<S, C>::decode(C<int>& decoded)
 {
     // Decode
     this->cdc->reset_timers();
-    this->cdc->decode(decoded);
+    this->cdc->decode_all_iters(decoded);
     this->add_timers(*this->cdc);
     // Keep track of correct decodings
 #if DEBUG >= 2
@@ -506,8 +506,9 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
     const serializer commsys<BOOST_PP_SEQ_ENUM(args)>::shelper(                \
         "commsys",                                                             \
         "commsys<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(                       \
-            0, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) ">",  \
-        commsys<BOOST_PP_SEQ_ENUM(args)>::create);
+            0, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) ">",    \
+                                            commsys<BOOST_PP_SEQ_ENUM(         \
+                                                args)>::create);
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
                               (SYMBOL_TYPE_SEQ)(CONTAINER_TYPE_SEQ))

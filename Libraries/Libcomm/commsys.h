@@ -103,7 +103,7 @@ public:
     virtual void receive_path(const C<S>& received);
     //! Perform after-demodulation receive path, except for final decoding
     virtual void softreceive_path(const C<array1d_t>& ptable_mapped);
-    //! Perform a decoding iteration, with hard decision
+    //! Perform all decoding iterations, with hard decision
     virtual void decode(C<int>& decoded);
     // @}
 

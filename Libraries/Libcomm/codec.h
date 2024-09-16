@@ -100,6 +100,8 @@ public:
         mark_as_dirty();
         add_timer(t);
     }
+
+protected:
     /*!
      * \brief Decoding process
      * \param[out] decoded Most likely sequence of information symbols
@@ -110,6 +112,23 @@ public:
      * to num_iter).
      */
     virtual void decode(C<int>& decoded) = 0;
+
+public:
+    /*!
+     * \brief Decoding process
+     * \param[out] decoded Most likely sequence of information symbols
+     *
+     * \note Observe that this output necessarily constitutes a hard decision.
+     *
+     * \note Each call to decode_all_iters performs full decoding, rather than
+     * just a single iteration.
+     */
+    virtual void decode_all_iters(C<int>& decoded)
+    {
+        for (int curr_cdc_iter = 0; curr_cdc_iter < this->num_iter();
+             curr_cdc_iter++)
+            this->decode(decoded);
+    }
     // @}
 
     /*! \name Codec information functions - fundamental */
