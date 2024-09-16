@@ -24,6 +24,8 @@
 
 #include "config.h"
 #include "counter.h"
+#include "cuda/cuda_assert.h"
+#include "cuda/vector.h"
 #include "matrix.h"
 #include "randgen.h"
 #include "vector.h"
@@ -44,13 +46,14 @@ namespace libcomm
 #    define DEBUG 2
 #endif
 
-template <class dbl, class S>
+template <class dbl, class S, class array1d_t = libbase::vector<dbl>>
 class basic_hard_decision
 {
 public:
     /*! \name Type definitions */
-    typedef libbase::vector<dbl> array1d_t;
+    typedef array1d_t prob_dist_container;
     // @}
+
 private:
     /*! \name Internal object representation */
     libbase::randgen r; //!< Random source for resolving tie-breaks
@@ -61,19 +64,37 @@ private:
 public:
 #if DEBUG >= 2
     //! Default constructor
+#    ifdef __CUDACC__
+    __device__
+    __host__
+#    endif
     basic_hard_decision() : ties("hard_decision tie-breaks") {}
 #endif
-    //! Seeds random generator from a pseudo-random sequence
+//! Seeds random generator from a pseudo-random sequence
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
     void seedfrom(libbase::random& r) { this->r.seed(r.ival()); }
-    /*!
-     * \brief Hard decision on soft information
-     * \param[in] ri Likelihood table for input symbols
-     * \return Index of the most likely input symbol
-     *
-     * Decide which input symbol was most probable. In case of ties, pick
-     * randomly from tied values.
-     */
-    S operator()(const array1d_t& ri)
+//! Seeds random generator from a defined seed
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
+    void seedfrom(libbase::int32u rval) { this->r.seed(rval); }
+/*!
+ * \brief Hard decision on soft information
+ * \param[in] ri Likelihood table for input symbols
+ * \return Index of the most likely input symbol
+ *
+ * Decide which input symbol was most probable. In case of ties, pick
+ * randomly from tied values.
+ */
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
+    S operator()(const prob_dist_container& ri)
     {
 #if DEBUG >= 2
         ties.increment_events();
@@ -81,36 +102,42 @@ public:
         // Inherit size
         const int K = ri.size();
         assert(K > 0);
-        // Keep track of maximum value and list of indices
+
+        // Keep track of maximum value
         dbl maxval = 0;
-        std::list<int> indices;
-        // Find list of indices with maximum value
+        // Keep track of index we will return
+        int index = 0;
+#if DEBUG >= 2
+        // keep track of whether there are matches or not.
+        bool matches;
+#endif
+
         for (int i = 0; i < K; i++) {
             if (ri(i) > maxval) {
                 maxval = ri(i);
-                indices.clear();
-                indices.push_back(i);
+                index = i;
+#if DEBUG >= 2
+                matches = false;
+#endif
             } else if (ri(i) == maxval) {
-                indices.push_back(i);
+                // flip a coin to see whether we should switch index
+                bool flip = r.ival(1);
+                if (flip) {
+                    index = i;
+                }
+#if DEBUG >= 2
+                matches = true;
+#endif
             }
         }
-        // Return index of maximum value, if there is only one
-        assert(indices.size() > 0);
-        if (indices.size() == 1) {
-            return S(indices.front());
-        }
-        // pick randomly in case of ties
+
 #if DEBUG >= 2
-        ties.increment_matches();
-#endif
-        std::list<int>::const_iterator it = indices.begin();
-        const int skip = r.ival(indices.size());
-
-        for (int i = 0; i < skip; i++) {
-            it++;
+        if (matches) {
+            ties.increment_matches();
         }
+#endif
 
-        return S(*it);
+        return S(index);
     }
 };
 
@@ -119,10 +146,16 @@ class hard_decision : public basic_hard_decision<dbl, S>
 {
 public:
     /*! \name Type definitions */
-    typedef libbase::vector<dbl> array1d_t;
+    typedef basic_hard_decision<dbl, S> Base;
     // @}
+
 public:
-    void operator()(const C<array1d_t>& ri, C<S>& decoded);
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
+    void operator()(const C<class Base::prob_dist_container>& ri,
+                    C<S>& decoded);
 };
 
 template <class dbl, class S>
@@ -131,8 +164,9 @@ class hard_decision<libbase::vector, dbl, S>
 {
 public:
     /*! \name Type definitions */
-    typedef libbase::vector<dbl> array1d_t;
+    typedef basic_hard_decision<dbl, S> Base;
     // @}
+
 public:
     /*!
      * \brief Hard decision on soft information
@@ -142,7 +176,7 @@ public:
      *
      * Decide which input sequence was most probable.
      */
-    void operator()(const libbase::vector<array1d_t>& ri,
+    void operator()(const libbase::vector<class Base::prob_dist_container>& ri,
                     libbase::vector<S>& decoded)
     {
         // Determine sizes from input matrix
@@ -167,8 +201,9 @@ class hard_decision<libbase::matrix, dbl, S>
 {
 public:
     /*! \name Type definitions */
-    typedef libbase::vector<dbl> array1d_t;
+    typedef basic_hard_decision<dbl, S> Base;
     // @}
+
 public:
     /*!
      * \brief Hard decision on soft information
@@ -178,7 +213,7 @@ public:
      *
      * Decide which input sequence was most probable.
      */
-    void operator()(const libbase::matrix<array1d_t>& ri,
+    void operator()(const libbase::matrix<class Base::prob_dist_container>& ri,
                     libbase::matrix<S>& decoded)
     {
         // Determine sizes from input matrix
