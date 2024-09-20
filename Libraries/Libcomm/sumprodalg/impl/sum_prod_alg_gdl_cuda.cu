@@ -48,8 +48,7 @@ seed_hd_functor(
     basic_hard_decision<real, GF_q, ::cuda::vector_reference<real>>* hd_functor,
     libbase::int32u rval)
 {
-    if (blockIdx.x == 0 && threadIdx.x == 0)
-        hd_functor->seedfrom(rval);
+    hd_functor->seed(rval);
 }
 
 template <class GF_q, class real>
@@ -60,8 +59,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::seedfrom(libbase::random& r)
     Base::seedfrom(r);
 
     int device = ::cuda::cudaGetCurrentDevice();
-    int warp_size = ::cuda::cudaGetWarpSize(device);
-    seed_hd_functor<<<warp_size, 1>>>(this->hd_functor.get(), r.ival());
+    seed_hd_functor<<<1, 1>>>(this->hd_functor.get(), r.ival());
 }
 
 /*! \brief Compute ceil(X / Y)
@@ -870,14 +868,12 @@ __global__ void
 check_syndrome_kern(::cuda::vector_reference<GF_q> device_syndrome,
                     bool* decode_success)
 {
-    if (blockIdx.x == 0 && threadIdx.x == 0) {
-        bool success = true;
+    bool success = true;
 
-        for (int pos_m = 0; pos_m < device_syndrome.size(); pos_m++)
-            success &= !(bool)device_syndrome(pos_m);
+    for (int pos_m = 0; pos_m < device_syndrome.size(); pos_m++)
+        success &= !(bool)device_syndrome(pos_m);
 
-        *decode_success = success;
-    }
+    *decode_success = success;
 }
 
 template <class GF_q, class real>
@@ -927,7 +923,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::decode(libbase::vector<GF_q>& received_word,
                 this->device_pchk_row_non_zeros_val,
                 this->device_received_word,
                 this->device_syndrome);
-        check_syndrome_kern<GF_q, real><<<blockdim, 1>>>(
+        check_syndrome_kern<GF_q, real><<<1, 1>>>(
             this->device_syndrome, this->device_decode_success.get());
 
         this->device_decode_success.to_host(&success);
