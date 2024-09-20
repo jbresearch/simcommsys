@@ -396,6 +396,36 @@ count(const dim3& size)
 
 #endif // __CUDACC__
 
+#ifdef __CUDACC__
+/*! \brief Initializes a given pointer by calling constructor T(args...)
+ *
+ * This kernel is needed because __device__ instances are allocated with
+ * cudaMalloc() which does not initialize them using a constructor. This is
+ * problematic especially when the allocated class contains virtual methods,
+ * as virtual table is not initialized.
+ *
+ * This kernel initializes a temporary automatic object using constructor
+ * T(args...), and then copies this object byte by byte into an object allocated
+ * with cudaMalloc. Virtual table should be copied correctly and so should any
+ * fields which do not contain pointers.
+ */
+template <class T, class... Args>
+__global__ void
+init_ptr_kern(T* ptr, Args... args)
+{
+    // initialize an automatic object
+    T tmp(args...);
+
+    // Copy contents of automatic object into the ptr, byte by byte
+    // This will copy the virtual table initialized in the automatic object,
+    // and should also work correctly with fields
+    // provided tmp does not contain any pointers
+    for (int i = 0; i < sizeof(T); i++)
+        ((char*)ptr)[i] = ((char*)&tmp)[i];
+}
+
+#endif
+
 /*!
  * \brief   A smart pointer for device memory
  * \author  Mark Mizzi
@@ -409,16 +439,22 @@ private:
     T* ptr;
 
 public:
+    /*! \brief Constructor that allocates memory for device instance of \p T and
+     * initializes it with constructor T(args...).
+     */
+    template <class... Args>
 #ifdef __CUDACC__
     __host__
 #endif
-    device_ptr()
+    device_ptr(Args... args)
     {
 #ifdef __CUDACC__
         ptr = cudaSafeMalloc<T>(static_cast<size_t>(1));
+        init_ptr_kern<<<1, 1>>>(get(), args...);
 #endif
     }
 
+public:
 #ifdef __CUDACC__
     __host__
 #endif
@@ -428,6 +464,18 @@ public:
         cudaSafeFree(ptr);
 #endif
     }
+
+    // delete copy constructors as device_ptr owns its pointer;
+    // copying would result in double-frees, and so on.
+    // Compare to unique_ptr.
+    device_ptr(const device_ptr&) = delete;
+    device_ptr& operator=(const device_ptr&) = delete;
+
+    // ensure move constructors are defined
+    // Compare to unique_ptr; device_ptr also owns its pointer,
+    // so it can only be moved not copied.
+    device_ptr(device_ptr&&) = default;
+    device_ptr& operator=(device_ptr&&) = default;
 
 #ifdef __CUDACC__
     __host__
