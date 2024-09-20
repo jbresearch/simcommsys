@@ -29,7 +29,7 @@
 #ifndef LDPC_H_
 #define LDPC_H_
 
-#include "codec_softout.h"
+#include "codec.h"
 #include "config.h"
 #include "matrix.h"
 #include "sumprodalg/sum_prod_alg_inf.h"
@@ -51,11 +51,11 @@ namespace libcomm
  */
 
 template <class GF_q, class real = double>
-class ldpc : public codec_softout<libbase::vector, double>
+class ldpc : public codec<libbase::vector, double>
 {
 private:
     // Shorthand for class hierarchy
-    typedef codec_softout<libbase::vector, double> Base;
+    typedef codec<libbase::vector, double> Base;
 
 public:
     /*! \name Type definitions */
@@ -81,7 +81,7 @@ protected:
      * aggregation of a set of symbols, the combination/division has to
      * be done externally.
      */
-    void do_encode(const array1i_t& source, array1i_t& encoded);
+    void do_encode(const array1i_t& source, array1i_t& encoded) override;
     /*!
      * \brief Receiver translation process
      * \param[in] ptable Likelihoods of each possible encoded symbol at every
@@ -92,22 +92,7 @@ protected:
      * This function should be called before the first decode iteration
      * for each block.
      */
-    void do_init_decoder(const array1vdbl_t& ptable);
-    /*!
-     * \brief Receiver translation process (with given priors)
-     * \param[in] ptable Likelihoods of each possible encoded symbol at every
-     * index \param[in] app Likelihoods of each possible input symbol at every
-     * index
-     *
-     * This function initializes the decoder with the probability tables for
-     * each encoded symbol as received from the blockmodem.
-     * This function should be called before the first decode iteration
-     * for each block.
-     */
-    void do_init_decoder(const array1vdbl_t& ptable, const array1vdbl_t& app)
-    {
-        failwith("Not implemented");
-    }
+    void do_init_decoder(const array1vdbl_t& ptable) override;
 
 public:
     /*! \brief default constructor
@@ -132,43 +117,24 @@ public:
         this->spa_alg->seedfrom(r);
     }
 
+    void decode(libbase::vector<int>& decoded) override
+    {
+        failwith("Not implemented.");
+    }
+
     void decode_all_iters(libbase::vector<int>& decoded) override
     {
+        libbase::cputimer t("t_decode");
+
         libbase::vector<GF_q> received_word(this->length_n);
         this->spa_alg->decode(received_word, this->num_iter());
 
         decoded.init(this->info_symb_pos.size());
         for (int k = 0; k < this->info_symb_pos.size(); k++)
             decoded(k) = received_word(this->info_symb_pos(k));
+
+        this->add_timer(t);
     }
-
-    /*! \name Softout codec operations */
-
-    /*!
-     * \brief Decoding process
-     * \param[out] ri Likelihood table for input symbols at every timestep
-     *
-     * \note Each call to decode will perform a single iteration (with
-     * respect to num_iter).
-     */
-    void softdecode(array1vdbl_t& ri)
-    {
-        array1vdbl_t ro;
-        this->softdecode(ri, ro);
-    }
-
-    /*!
-     * \brief Decoding process
-     * \param[out] ri Likelihood table for input symbols at every timestep
-     * \param[out] ro Likelihood table for output symbols at every timestep
-     *
-     * \note Each call to decode will perform a single iteration (with respect
-     * to num_iter).
-     */
-    void softdecode(array1vdbl_t& ri, array1vdbl_t& ro)
-    {
-        failwith("Not implemented");
-    };
 
     /*
      * some more necessary functions for the codec interface
@@ -176,27 +142,27 @@ public:
 
     /*! \name Codec information functions - fundamental */
     //! Input block size in symbols, ie the dimension of the code
-    libbase::size_type<libbase::vector> input_block_size() const
+    libbase::size_type<libbase::vector> input_block_size() const override
     {
         return libbase::size_type<libbase::vector>(this->dim_k);
     }
 
     //! Output block size in symbols, ie the length of the code
-    libbase::size_type<libbase::vector> output_block_size() const
+    libbase::size_type<libbase::vector> output_block_size() const override
     {
         return libbase::size_type<libbase::vector>(this->length_n);
     }
     //! Number of valid input combinations
-    int num_inputs() const { return GF_q::elements(); }
+    int num_inputs() const override { return GF_q::elements(); }
 
     //! Number of valid output combinations
-    int num_outputs() const { return GF_q::elements(); }
+    int num_outputs() const override { return GF_q::elements(); }
 
     //! Number of iterations per decoding cycle
-    int num_iter() const { return this->max_iter; }
+    int num_iter() const override { return this->max_iter; }
 
     //! Description output - describe the LDPC code in detail
-    std::string description() const;
+    std::string description() const override;
     // @}
 
     // \name Codec information functions - derived */
