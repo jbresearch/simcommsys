@@ -68,14 +68,7 @@ public:
     __device__
     __host__
 #    endif
-    basic_hard_decision()
-#    ifndef __CUDA_ARCH__
-        // std::string is not supported on a CUDA device, so we cannot call this
-        // constructor unless we are on the host
-        : ties("hard_decision tie-breaks")
-#    endif
-    {
-    }
+    basic_hard_decision() : ties("hard_decision tie-breaks") {}
 #endif
 
 //! Seeds random generator from a pseudo-random sequence
