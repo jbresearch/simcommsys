@@ -23,8 +23,8 @@
 #define __counter_h
 
 #include "config.h"
+#include <cstring>
 #include <iostream>
-#include <string>
 
 namespace libbase
 {
@@ -86,7 +86,7 @@ class matching_counter
 {
 private:
     /*! \name Internal representation */
-    std::string name; //!< Counter name
+    const char* name; //!< Counter name
     size_t matches;   //!< Internal count of matches
     size_t events;    //!< Internal count of events
                       // @}
@@ -98,8 +98,7 @@ public:
 #endif
     /*! \name Constructors / Destructors */
     //! Default constructor
-    matching_counter(const std::string& name = "")
-        : name(name), matches(0), events(0)
+    matching_counter(const char* name = "") : name(name), matches(0), events(0)
     {
     }
 #ifdef __CUDACC__
@@ -113,7 +112,8 @@ public:
         // only show count if there was at least an event
         if (events > 0) {
             std::clog << "Counter";
-            if (name != "") {
+            // check if name is given or not.
+            if (*name != '\0') {
                 std::clog << " (" << name << ")";
             }
             std::clog << ": " << matches << " of " << events << std::endl;
