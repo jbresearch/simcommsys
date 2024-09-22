@@ -389,8 +389,7 @@ clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
 {
     int n = probs.get_rows();
 
-    int device = ::cuda::cudaGetCurrentDevice();
-    dim3 block_dim(::cuda::cudaGetWarpSize(device));
+    dim3 block_dim(1024);
     dim3 num_blocks(ROUND_UP_DIV(n, (int)block_dim.x));
 
     clip_and_normalize_probs_kern<GF_q, real>
