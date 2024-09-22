@@ -20,9 +20,9 @@
  */
 
 #include "cuda/cuda_assert.h"
+#include "cuda/device_ptr.h"
 #include "cuda/matrix.h"
 #include "cuda/stream.h"
-#include "cuda/util.h"
 #include "cuda/vector.h"
 #include "gf.h"
 #include "hard_decision.h"
@@ -57,8 +57,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::seedfrom(libbase::random& r)
 {
     // Call base method first
     Base::seedfrom(r);
-
-    int device = ::cuda::cudaGetCurrentDevice();
     seed_hd_functor<<<1, 1>>>(this->hd_functor.get(), r.ival());
 }
 

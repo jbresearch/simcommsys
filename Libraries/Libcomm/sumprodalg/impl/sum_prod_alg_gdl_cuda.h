@@ -23,9 +23,9 @@
 #define SUM_PROD_ALG_GDL_CUDA_H_
 
 #include "../sum_prod_alg_inf.h"
+#include "cuda/device_ptr.h"
 #include "cuda/matrix.h"
 #include "cuda/stream.h"
-#include "cuda/util.h"
 #include "cuda/vector.h"
 #include "matrix.h"
 #include "random.h"
