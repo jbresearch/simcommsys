@@ -51,12 +51,12 @@ namespace libcomm
  * \tparam real Floating-point type for metric computer interface
  */
 template <class S, class R, class real>
-class commsys_stream_simulator : public commsys_simulator<S, R>
+class commsys_stream_simulator : public commsys_simulator<S, R, true>
 {
 private:
     // Shorthand for class hierarchy
     typedef commsys_stream_simulator<S, R, real> This;
-    typedef commsys_simulator<S, R> Base;
+    typedef commsys_simulator<S, R, true> Base;
 
 public:
     /*! \name Type definitions */
@@ -153,12 +153,11 @@ protected:
 public:
     /*! \name Constructors / Destructors */
     commsys_stream_simulator(const commsys_stream_simulator<S, R, real>& c)
-        : commsys_simulator<S, R>(c), stream_mode(c.stream_mode), N(c.N),
-          source(c.source), received(c.received), eof_post(c.eof_post),
-          offset(c.offset), estimated_drift(c.estimated_drift),
-          act_bdry_drift(c.act_bdry_drift), actual_drift(c.actual_drift),
-          drift_error(c.drift_error), frames_encoded(c.frames_encoded),
-          frames_decoded(c.frames_decoded)
+        : Base(c), stream_mode(c.stream_mode), N(c.N), source(c.source),
+          received(c.received), eof_post(c.eof_post), offset(c.offset),
+          estimated_drift(c.estimated_drift), act_bdry_drift(c.act_bdry_drift),
+          actual_drift(c.actual_drift), drift_error(c.drift_error),
+          frames_encoded(c.frames_encoded), frames_decoded(c.frames_decoded)
     {
         sys_enc =
             std::dynamic_pointer_cast<commsys_stream<S, libbase::vector, real>>(

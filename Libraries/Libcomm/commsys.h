@@ -30,6 +30,7 @@
 #include "mapper.h"
 #include "randgen.h"
 #include "serializer.h"
+#include "vector.h"
 
 namespace libcomm
 {
@@ -105,6 +106,8 @@ public:
     virtual void softreceive_path(const C<array1d_t>& ptable_mapped);
     //! Perform all decoding iterations, with hard decision
     virtual void decode(C<int>& decoded);
+    //! Perform all decoding iterations, with hard decision; also returning the codeword at each iteration in the process.
+    virtual void decode(libbase::vector<C<int>>& decoded);
     // @}
 
     /*! \name Informative functions */

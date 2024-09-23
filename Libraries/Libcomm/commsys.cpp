@@ -274,6 +274,24 @@ basic_commsys<S, C>::decode(C<int>& decoded)
 #endif
 }
 
+template <class S, template <class> class C>
+void
+basic_commsys<S, C>::decode(libbase::vector<C<int>>& decoded)
+{
+    // Decode
+    this->cdc->reset_timers();
+    this->cdc->decode_all_iters(decoded);
+    this->add_timers(*this->cdc);
+    // Keep track of correct decodings
+#if DEBUG >= 2
+    if (lastsource.size() > 0) {
+        bool thisframecorrect = decoded.isequalto(lastsource);
+        assert(!(lastframecorrect && !thisframecorrect));
+        lastframecorrect = thisframecorrect;
+    }
+#endif
+}
+
 // Description & Serialization
 
 template <class S, template <class> class C>

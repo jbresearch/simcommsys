@@ -28,17 +28,17 @@ namespace libcomm
 
 // Experiment parameter handling
 
-template <class S, class R>
+template <class S, class R, bool analyze_decode_iters>
 void
-commsys_threshold<S, R>::set_parameter(const double x)
+commsys_threshold<S, R, analyze_decode_iters>::set_parameter(const double x)
 {
     parametric& m = dynamic_cast<parametric&>(*this->sys->getmodem());
     m.set_parameter(x);
 }
 
-template <class S, class R>
+template <class S, class R, bool analyze_decode_iters>
 double
-commsys_threshold<S, R>::get_parameter() const
+commsys_threshold<S, R, analyze_decode_iters>::get_parameter() const
 {
     const parametric& m =
         dynamic_cast<const parametric&>(*this->sys->getmodem());
@@ -47,9 +47,9 @@ commsys_threshold<S, R>::get_parameter() const
 
 // Description & Serialization
 
-template <class S, class R>
+template <class S, class R, bool analyze_decode_iters>
 std::string
-commsys_threshold<S, R>::description() const
+commsys_threshold<S, R, analyze_decode_iters>::description() const
 {
     std::ostringstream sout;
     sout << "Modem-threshold-varying ";
@@ -57,18 +57,19 @@ commsys_threshold<S, R>::description() const
     return sout.str();
 }
 
-template <class S, class R>
+template <class S, class R, bool analyze_decode_iters>
 std::ostream&
-commsys_threshold<S, R>::serialize(std::ostream& sout) const
+commsys_threshold<S, R, analyze_decode_iters>::serialize(
+    std::ostream& sout) const
 {
     sout << Base::get_parameter() << std::endl;
     Base::serialize(sout);
     return sout;
 }
 
-template <class S, class R>
+template <class S, class R, bool analyze_decode_iters>
 std::istream&
-commsys_threshold<S, R>::serialize(std::istream& sin)
+commsys_threshold<S, R, analyze_decode_iters>::serialize(std::istream& sin)
 {
     double x;
     sin >> libbase::eatcomments >> x >> libbase::verify;
@@ -116,6 +117,9 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
    (prof_pos) \
    (prof_sym) \
    (hist_symerr)
+#define BOOL_SEQ \
+    (true) \
+    (false)
 
 /* Serialization string: commsys_threshold<type,collector>
  * where:
@@ -129,10 +133,10 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             "experiment", \
             "commsys_threshold<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
-            commsys_threshold<BOOST_PP_SEQ_ENUM(args)>::create); \
-// clang-format on
+            commsys_threshold<BOOST_PP_SEQ_ENUM(args)>::create);                                                            \
+    // clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
-                              (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ))
+                              (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ)(BOOL_SEQ))
 
 } // namespace libcomm

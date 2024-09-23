@@ -101,18 +101,19 @@ public:
      */
     virtual std::string spa_type() = 0;
 
-    /*!\brief carry out one iteration of the SPA
+    /*! \brief carry out one iteration of the SPA
      * This method will carry out the horizontal and vertical step
-     * of the SPA and store the result in the ro vector
+     * of the SPA and store the result of a hard decision on posteriors in the
+     * received_word
      */
-    void spa_iteration(array1vd_t& ro);
-
+    void spa_iteration(libbase::vector<GF_q>& received_word) override;
+    /*! \brief Perform entire decoding process.
+     */
     void decode(libbase::vector<GF_q>& received_word, int max_iters) override
     {
         for (int curr_cdc_iter = 0; curr_cdc_iter < max_iters;
              curr_cdc_iter++) {
-            this->spa_iteration(received_probs);
-            hd_functor(received_probs, received_word);
+            this->spa_iteration(received_word);
 
             if (is_codeword(received_word))
                 break;
@@ -160,6 +161,8 @@ private:
     void print_marginal_probs(int col, std::ostream& sout);
     void compute_probs(array1vd_t& ro);
 
+protected:
+    /*! \brief Computes syndrome of received_word, returns true if this is 0. */
     bool is_codeword(libbase::vector<GF_q>& received_word)
     {
         int dim_pchk = N_m.size();

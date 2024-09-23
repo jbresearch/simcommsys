@@ -129,6 +129,23 @@ public:
              curr_cdc_iter++)
             this->decode(decoded);
     }
+    /*!
+     * \brief Decoding process
+     * \param[out] decoded Most likely sequence of information symbols at each
+     * iteration of decoding
+     *
+     * \note Observe that this output necessarily constitutes a hard decision.
+     *
+     * \note Each call to decode_all_iters performs full decoding, rather than
+     * just a single iteration.
+     */
+    virtual void decode_all_iters(libbase::vector<C<int>>& decoded)
+    {
+        decoded.init(this->num_iter());
+        for (int curr_cdc_iter = 0; curr_cdc_iter < this->num_iter();
+             curr_cdc_iter++)
+            this->decode(decoded(curr_cdc_iter));
+    }
     // @}
 
     /*! \name Codec information functions - fundamental */

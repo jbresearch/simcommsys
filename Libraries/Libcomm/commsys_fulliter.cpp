@@ -23,6 +23,7 @@
 #include "codec/codec_softout.h"
 #include "gf.h"
 #include "modem/informed_modulator.h"
+#include "vector.h"
 #include "vector_itfunc.h"
 #include "vectorutils.h"
 
@@ -59,14 +60,8 @@ commsys_fulliter<S, C>::receive_path(const C<S>& received)
 
 template <class S, template <class> class C>
 void
-commsys_fulliter<S, C>::decode(C<int>& decoded)
+commsys_fulliter<S, C>::demodulate_and_inverse_map()
 {
-#if DEBUG >= 2
-    libbase::trace << "DEBUG (fulliter): Starting decode cycle " << cur_mdm_iter
-                   << "/" << cur_cdc_iter << "." << std::endl;
-#endif
-    // we need to do the receive-path first
-    // ** Inner code (modem class) **
     // Demodulate
     C<array1d_t> ptable_post_modem;
     informed_modulator<S>& m = dynamic_cast<informed_modulator<S>&>(*this->mdm);
@@ -85,6 +80,36 @@ commsys_fulliter<S, C>::decode(C<int>& decoded)
     this->map->transform(ptable_ext_codec, ptable_ext_modem);
     // Mark mapper as clean (we will need to use again this cycle)
     this->map->mark_as_clean();
+}
+
+template <class S, template <class> class C>
+void
+commsys_fulliter<S, C>::inverse_map_ext_info(C<array1d_t>& ro_codec)
+{
+    // Compute feedback path
+    // Normalize posterior information
+    libbase::normalize_results(ro_codec, ro_codec);
+    // Pass posterior information through mapper
+    C<array1d_t> ro_modem;
+    this->map->transform(ro_codec, ro_modem);
+    // Compute extrinsic information from encoded posteriors and priors
+    // (modem alphabet)
+    libbase::compute_extrinsic(ptable_ext_modem, ro_modem, ptable_ext_modem);
+    // Inverse Map extrinsic information
+    this->map->inverse(ptable_ext_modem, ptable_ext_codec);
+}
+
+template <class S, template <class> class C>
+void
+commsys_fulliter<S, C>::decode(C<int>& decoded)
+{
+#if DEBUG >= 2
+    libbase::trace << "DEBUG (fulliter): Starting decode cycle " << cur_mdm_iter
+                   << "." << std::endl;
+#endif
+    // we need to do the receive-path first
+    // ** Inner code (modem class) **
+    this->demodulate_and_inverse_map();
 
     // ** Outer code (codec class) **
     // Translate
@@ -100,17 +125,44 @@ commsys_fulliter<S, C>::decode(C<int>& decoded)
         hd_functor(ri_codec, decoded);
     }
 
-    // Compute feedback path
-    // Normalize posterior information
-    libbase::normalize_results(ro_codec, ro_codec);
-    // Pass posterior information through mapper
-    C<array1d_t> ro_modem;
-    this->map->transform(ro_codec, ro_modem);
-    // Compute extrinsic information from encoded posteriors and priors
-    // (modem alphabet)
-    libbase::compute_extrinsic(ptable_ext_modem, ro_modem, ptable_ext_modem);
-    // Inverse Map extrinsic information
-    this->map->inverse(ptable_ext_modem, ptable_ext_codec);
+    inverse_map_ext_info(ro_codec);
+
+    // Update modem iteration count
+    cur_mdm_iter++;
+    // If this was not the last iteration, mark components as clean
+    if (cur_mdm_iter < iter) {
+        this->mdm->mark_as_clean();
+        this->map->mark_as_clean();
+    }
+}
+
+template <class S, template <class> class C>
+void
+commsys_fulliter<S, C>::decode(libbase::vector<C<int>>& decoded)
+{
+#if DEBUG >= 2
+    libbase::trace << "DEBUG (fulliter): Starting decode cycle " << cur_mdm_iter
+                   << "." << std::endl;
+#endif
+    // we need to do the receive-path first
+    // ** Inner code (modem class) **
+    this->demodulate_and_inverse_map();
+
+    // ** Outer code (codec class) **
+    // Translate
+    this->cdc->init_decoder(ptable_ext_codec);
+
+    codec_softout<C>& c = dynamic_cast<codec_softout<C>&>(*this->cdc);
+    C<array1d_t> ri_codec;
+    C<array1d_t> ro_codec;
+    for (int curr_cdc_iter = 0; this->cdc->num_iter(); curr_cdc_iter++) {
+        // Perform soft-output decoding
+        c.softdecode(ri_codec, ro_codec);
+        // Compute hard-decision for results gatherer
+        hd_functor(ri_codec, decoded(curr_cdc_iter));
+    }
+
+    inverse_map_ext_info(ro_codec);
 
     // Update modem iteration count
     cur_mdm_iter++;

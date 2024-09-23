@@ -77,6 +77,7 @@ public:
     void spa_init(const array1vd_t& ptable) override;
     std::string spa_type() override { return "gdl_cuda"; }
 
+    void spa_iteration(libbase::vector<GF_q>& received_word) override;
     void decode(libbase::vector<GF_q>& received_word, int max_iters) override;
 
     void seedfrom(libbase::random& r) override;
@@ -186,8 +187,22 @@ private:
         basic_hard_decision<real, GF_q, ::cuda::vector_reference<real>>>
         hd_functor;
 
+    /*! \name Variables used only when decoding is done through calls to
+     * spa_iteration().
+     */
+    /*! \brief Stores received codeword when one is found using spa_iteration().
+     */
+    libbase::vector<GF_q> received_word;
+    /*! \brief Indicates whether a previous call to spa_iteration() has already
+     * successfully found a codeword. */
+    bool decode_success;
+
 private:
     /*! \name Internal methods for a single SPA iteration */
+    /*! \brief carry out one iteration of the SPA but do not copy results from
+     * the GPU.
+     * \return Whether or not a codeword has been found. */
+    bool spa_iteration();
     void compute_r_mn();
     void compute_q_mn();
     void compute_probs();

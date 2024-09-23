@@ -49,6 +49,13 @@ public:
      *
      */
     virtual void spa_init(const array1vd_t& ptable) = 0;
+
+    /*! \brief carry out one iteration of the SPA
+     * This method will carry out the horizontal and vertical step
+     * of the SPA and store the result of a hard decision on posteriors in the
+     * received_word
+     */
+    virtual void spa_iteration(libbase::vector<GF_q>& received_word) = 0;
     /*! \brief Perform entire decoding process.
      */
     virtual void decode(libbase::vector<GF_q>& received_word,

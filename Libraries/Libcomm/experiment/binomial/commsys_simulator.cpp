@@ -62,9 +62,10 @@ namespace libcomm
  * so that every call adds to the existing result. This explains the need to
  * initialize the result vector to zero.
  */
-template <class S, class R>
+template <class S, class R, bool analyze_decode_iters>
 void
-commsys_simulator<S, R>::sample(libbase::vector<double>& result)
+commsys_simulator<S, R, analyze_decode_iters>::sample(
+    libbase::vector<double>& result)
 {
     // Reset timers
     this->reset_timers();
@@ -95,76 +96,108 @@ commsys_simulator<S, R>::sample(libbase::vector<double>& result)
 
     // Demodulate -> Inverse Map -> Translate
     sys->receive_path(received);
-    // For every iteration
-    libbase::vector<int> decoded;
 
     // Decode
-    sys->decode(decoded);
-    if (!rc) {
+    if (analyze_decode_iters || rc) {
+        // We check that rc since analyze_decode_iters does not matter in
+        // context of codeword boundary analysis; we always need all iters
+
+        // Collect codewords at each iteration
+        libbase::vector<libbase::vector<int>> decoded;
+        sys->decode(decoded);
+#if DEBUG >= 2
+        std::cout << "Decoded: " << decoded(this->num_iters() - 1) << std::endl;
+#endif
+
+        if (!rc) {
+            // collect results for each iteration
+            for (int curr_cdc_iter = 0; curr_cdc_iter < this->sys->num_iter();
+                 curr_cdc_iter++) {
+                libbase::indirect_vector<double> result_segment =
+                    result.segment(curr_cdc_iter * R::count(), R::count());
+                R::updateresults(
+                    result_segment, source, decoded(curr_cdc_iter));
+            }
+        } else { // perform codeword boundary analysis if this is indicated
+
+            // Get access to the modem in stream mode
+            stream_modulator<S, libbase::vector>& modem_stream =
+                dynamic_cast<stream_modulator<S, libbase::vector>&>(
+                    *sys->getmodem());
+            // Get access to the TX channel in insdel mode
+            channel_insdel<S, real>& txchan_insdel =
+                dynamic_cast<channel_insdel<S, real>&>(*sys->gettxchan());
+
+            // get codeword boundary positions from modem (encoder-side)
+            const array1i_t boundary_pos = modem_stream.get_boundaries();
+            // get actual drift at codeword boundary positions from channel
+            // (decoder-side)
+            const array1i_t act_drift = txchan_insdel.get_drift(boundary_pos);
+
+            // get estimated drift pdfs
+            array1vd_t post_pdftable;
+            libbase::size_type<libbase::vector> offset;
+            modem_stream.get_post_drift_pdf(post_pdftable, offset);
+            // get most probable estimated drift positions
+            array1i_t est_drift(post_pdftable.size());
+            for (int i = 0; i < post_pdftable.size(); i++) {
+                est_drift(i) =
+                    commsys_stream<S, libbase::vector, real>::estimate_drift(
+                        post_pdftable(i), offset);
+            }
+
+            // Tell user what we're doing
+#if DEBUG >= 4
+            std::cerr << "DEBUG (commsys_simulator): act bdry drift = "
+                      << act_drift << std::endl;
+            std::cerr << "DEBUG (commsys_simulator): est bdry drift = "
+                      << est_drift << std::endl;
+#endif
+            // accumulate results
+            rc->updateresults(result, act_drift, est_drift);
+        }
+
+        // Keep record of what we last simulated
+        const int tau = sys->input_block_size();
+        assert(source.size() == tau);
+        for (int curr_cdc_iter = 0; curr_cdc_iter < this->sys->num_iter();
+             curr_cdc_iter++)
+            assert(decoded(curr_cdc_iter).size() == tau);
+        last_event.init(2 * tau);
+        for (int i = 0; i < tau; i++) {
+            last_event(i) = source(i);
+            last_event(i + tau) = decoded(this->sys->num_iter() - 1)(i);
+        }
+
+    } else { // We collect results for last iteration only
+
+        libbase::vector<int> decoded;
+        sys->decode(decoded);
+#if DEBUG >= 2
+        std::cout << "Decoded: " << decoded << std::endl;
+#endif
+
         libbase::indirect_vector<double> result_segment =
             result.segment(0, R::count());
         R::updateresults(result_segment, source, decoded);
-    }
 
-#if DEBUG >= 2
-    std::cout << "Decoded: " << decoded << std::endl;
-#endif
-
-    // perform codeword boundary analysis if this is indicated
-    if (rc) {
-        // Get access to the modem in stream mode
-        stream_modulator<S, libbase::vector>& modem_stream =
-            dynamic_cast<stream_modulator<S, libbase::vector>&>(
-                *sys->getmodem());
-        // Get access to the TX channel in insdel mode
-        channel_insdel<S, real>& txchan_insdel =
-            dynamic_cast<channel_insdel<S, real>&>(*sys->gettxchan());
-
-        // get codeword boundary positions from modem (encoder-side)
-        const array1i_t boundary_pos = modem_stream.get_boundaries();
-        // get actual drift at codeword boundary positions from channel
-        // (decoder-side)
-        const array1i_t act_drift = txchan_insdel.get_drift(boundary_pos);
-
-        // get estimated drift pdfs
-        array1vd_t post_pdftable;
-        libbase::size_type<libbase::vector> offset;
-        modem_stream.get_post_drift_pdf(post_pdftable, offset);
-        // get most probable estimated drift positions
-        array1i_t est_drift(post_pdftable.size());
-        for (int i = 0; i < post_pdftable.size(); i++) {
-            est_drift(i) =
-                commsys_stream<S, libbase::vector, real>::estimate_drift(
-                    post_pdftable(i), offset);
+        // Keep record of what we last simulated
+        const int tau = sys->input_block_size();
+        assert(source.size() == tau);
+        assert(decoded.size() == tau);
+        last_event.init(2 * tau);
+        for (int i = 0; i < tau; i++) {
+            last_event(i) = source(i);
+            last_event(i + tau) = decoded(i);
         }
-
-        // Tell user what we're doing
-#if DEBUG >= 4
-        std::cerr << "DEBUG (commsys_simulator): act bdry drift = " << act_drift
-                  << std::endl;
-        std::cerr << "DEBUG (commsys_simulator): est bdry drift = " << est_drift
-                  << std::endl;
-#endif
-        // accumulate results
-        rc->updateresults(result, act_drift, est_drift);
-    }
-
-    // Keep record of what we last simulated
-    const int tau = sys->input_block_size();
-    assert(source.size() == tau);
-    assert(decoded.size() == tau);
-    last_event.init(2 * tau);
-    for (int i = 0; i < tau; i++) {
-        last_event(i) = source(i);
-        last_event(i + tau) = decoded(i);
     }
 }
 
 // Description & Serialization
 
-template <class S, class R>
+template <class S, class R, bool analyze_decode_iters>
 std::string
-commsys_simulator<S, R>::description() const
+commsys_simulator<S, R, analyze_decode_iters>::description() const
 {
     std::ostringstream sout;
     sout << "Simulator for ";
@@ -176,9 +209,10 @@ commsys_simulator<S, R>::description() const
 
 // object serialization - saving
 
-template <class S, class R>
+template <class S, class R, bool analyze_decode_iters>
 std::ostream&
-commsys_simulator<S, R>::serialize(std::ostream& sout) const
+commsys_simulator<S, R, analyze_decode_iters>::serialize(
+    std::ostream& sout) const
 {
     // format version
     sout << "# Version" << std::endl;
@@ -202,9 +236,9 @@ commsys_simulator<S, R>::serialize(std::ostream& sout) const
  * \version 3 Using source-generator object
  */
 
-template <class S, class R>
+template <class S, class R, bool analyze_decode_iters>
 std::istream&
-commsys_simulator<S, R>::serialize(std::istream& sin)
+commsys_simulator<S, R, analyze_decode_iters>::serialize(std::istream& sin)
 {
     assertalways(sin.good());
     // get format version
@@ -332,11 +366,15 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
    (prof_sym) \
    (hist_symerr) \
    (fidelity_pos)
+#define BOOL_SEQ \
+    (true) \
+    (false)
 
-/* Serialization string: commsys_simulator<type,collector>
+/* Serialization string: commsys_simulator<type,collector,bool>
  * where:
  *      type = sigspace | bool | gf2 | gf4 ...
  *      collector = errors_hamming | errors_levenshtein | ...
+ *      bool = true | false
  */
 #define INSTANTIATE(r, args) \
       template class commsys_simulator<BOOST_PP_SEQ_ENUM(args)>; \
@@ -344,11 +382,12 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
       const serializer commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::shelper( \
             "experiment", \
             "commsys_simulator<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
-            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
-            commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::create);                                                            \
-    // clang-format on
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) "," \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2,args)) ">", \
+            commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
-                              (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ))
+                              (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ)(BOOL_SEQ))
 
 } // namespace libcomm

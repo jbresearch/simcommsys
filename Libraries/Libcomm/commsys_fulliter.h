@@ -24,6 +24,7 @@
 
 #include "commsys.h"
 #include "hard_decision.h"
+#include "vector.h"
 
 namespace libcomm
 {
@@ -71,6 +72,10 @@ private:
         ptable_ext_codec; //!< Extrinsic information vector (codec alphabet)
     hard_decision<C, double, int> hd_functor; //!< Hard-decision box
                                               // @}
+
+    void demodulate_and_inverse_map();
+    void inverse_map_ext_info(C<array1d_t>& ro_codec);
+
 public:
     // Communication System Setup
     void seedfrom(libbase::random& r)
@@ -83,6 +88,7 @@ public:
     // Communication System Interface
     void receive_path(const C<S>& received);
     void decode(C<int>& decoded);
+    void decode(libbase::vector<C<int>>& decoded);
     // Informative functions
     int num_iter() const { return this->cdc->num_iter() * iter; }
 

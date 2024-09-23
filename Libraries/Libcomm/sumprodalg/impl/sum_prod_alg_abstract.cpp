@@ -33,8 +33,11 @@ namespace libcomm
 
 template <class GF_q, class real>
 void
-sum_prod_alg_abstract<GF_q, real>::spa_iteration(array1vd_t& ro)
+sum_prod_alg_abstract<GF_q, real>::spa_iteration(
+    libbase::vector<GF_q>& received_word)
 {
+    array1vd_t ro;
+
     // carry out the horizontal step
     // this uses the description of the algorithm as given by
     // MacKay in Information Theory, Inference and Learning Algorithms(2003)
@@ -104,6 +107,8 @@ sum_prod_alg_abstract<GF_q, real>::spa_iteration(array1vd_t& ro)
         << std::endl;
     ro.serialize(libbase::trace, ' ');
 #endif
+
+    hd_functor(ro, received_word);
 }
 
 template <class GF_q, class real>

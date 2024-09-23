@@ -529,6 +529,8 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
                    << "The marginal matrix is given by:" << std::endl;
     this->print_marginal_probs(libbase::trace);
 #endif
+
+    decode_success = false;
 }
 
 template <class GF_q, class real>
@@ -874,61 +876,87 @@ check_syndrome_kern(::cuda::vector_reference<GF_q> device_syndrome,
 }
 
 template <class GF_q, class real>
-void
-sum_prod_alg_gdl_cuda<GF_q, real>::decode(libbase::vector<GF_q>& received_word,
-                                          int max_iters)
+bool
+sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration()
 {
     // block size for any kernels called within this function
     int blockdim = 32;
-
     int n = this->device_received_word.size();
     int m = this->device_syndrome.size();
 
     bool success;
-    for (int curr_cdc_iter = 0; curr_cdc_iter < max_iters; curr_cdc_iter++) {
 
-        // carry out the horizontal step
-        // this uses the description of the algorithm as given by
-        // MacKay in Information Theory, Inference and Learning Algorithms(2003)
-        // on page 560 - chapter 47.3
+    // carry out the horizontal step
+    // this uses the description of the algorithm as given by
+    // MacKay in Information Theory, Inference and Learning Algorithms(2003)
+    // on page 560 - chapter 47.3
 
-        // r_mxn(0)=\sum_{x_n'|n'\in N(m)\n'} ( P(z_m=0|x_n=0) * \prod_{n'\in
-        // N(m)\n}q_mxn(x_{n') ) Essentially, what we are doing is the
-        // following: Assume x_n=0 we need to sum over all possibilities that
-        // such that the parity check is satisfied, ie =0 if the parity check is
-        // satisfied the conditional probability is 1 and 0 otherwise so we are
-        // simply adding up the products for which the parity check is
-        // satisfied.
-        compute_r_mn();
+    // r_mxn(0)=\sum_{x_n'|n'\in N(m)\n'} ( P(z_m=0|x_n=0) * \prod_{n'\in
+    // N(m)\n}q_mxn(x_{n') ) Essentially, what we are doing is the
+    // following: Assume x_n=0 we need to sum over all possibilities that
+    // such that the parity check is satisfied, ie =0 if the parity check is
+    // satisfied the conditional probability is 1 and 0 otherwise so we are
+    // simply adding up the products for which the parity check is
+    // satisfied.
+    compute_r_mn();
 
-        // loop over all the symbol nodes - the vertical step
-        compute_q_mn();
+    // loop over all the symbol nodes - the vertical step
+    compute_q_mn();
 
-        // compute the new probabilities for all symbols given the information
-        // in this iteration. This will be used in a tentative decoding to see
-        // whether we have found a codeword
-        compute_probs();
+    // compute the new probabilities for all symbols given the information
+    // in this iteration. This will be used in a tentative decoding to see
+    // whether we have found a codeword
+    compute_probs();
 
-        hard_decision_kern<GF_q, real><<<blockdim, ROUND_UP_DIV(n, blockdim)>>>(
-            this->device_out_probs,
-            this->device_received_word,
-            this->hd_functor.get());
-        compute_syndrome_kern<GF_q, real>
-            <<<blockdim, ROUND_UP_DIV(m, blockdim)>>>(
-                this->device_pchk_row_non_zeros,
-                this->device_pchk_row_non_zeros_pos,
-                this->device_pchk_row_non_zeros_val,
-                this->device_received_word,
-                this->device_syndrome);
-        check_syndrome_kern<GF_q, real><<<1, 1>>>(
-            this->device_syndrome, this->device_decode_success.get());
+    hard_decision_kern<GF_q, real>
+        <<<blockdim, ROUND_UP_DIV(n, blockdim)>>>(this->device_out_probs,
+                                                  this->device_received_word,
+                                                  this->hd_functor.get());
+    compute_syndrome_kern<GF_q, real><<<blockdim, ROUND_UP_DIV(m, blockdim)>>>(
+        this->device_pchk_row_non_zeros,
+        this->device_pchk_row_non_zeros_pos,
+        this->device_pchk_row_non_zeros_val,
+        this->device_received_word,
+        this->device_syndrome);
+    check_syndrome_kern<GF_q, real>
+        <<<1, 1>>>(this->device_syndrome, this->device_decode_success.get());
 
-        this->device_decode_success.to_host(&success);
-        if (success)
-            break;
+    this->device_decode_success.to_host(&success);
+
+    return success;
+}
+
+template <class GF_q, class real>
+void
+sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(
+    libbase::vector<GF_q>& received_word)
+{
+    if (this->decode_success) { // codeword was found in previous iteration
+        received_word = this->received_word;
+        return;
     }
 
-    received_word.init(n);
+    if (spa_iteration()) { // this was the last iteration; we found a codeword
+        received_word = this->received_word =
+            (libbase::vector<GF_q>)this->device_received_word;
+        this->decode_success = true;
+        return;
+    }
+
+    received_word = (libbase::vector<GF_q>)this->device_received_word;
+}
+
+template <class GF_q, class real>
+void
+sum_prod_alg_gdl_cuda<GF_q, real>::decode(libbase::vector<GF_q>& received_word,
+                                          int max_iters)
+{
+    bool codeword_found;
+    for (int curr_cdc_iter = 0; curr_cdc_iter < max_iters; curr_cdc_iter++)
+        if ((codeword_found = this->spa_iteration()))
+            break;
+
+    // Copy the received codeword from the GPU.
     received_word = (libbase::vector<GF_q>)this->device_received_word;
 }
 

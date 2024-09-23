@@ -119,14 +119,23 @@ public:
 
     void decode(libbase::vector<int>& decoded) override
     {
-        failwith("Not implemented.");
+        libbase::cputimer t("t_decode");
+
+        libbase::vector<GF_q> received_word;
+        this->spa_alg->spa_iteration(received_word);
+
+        decoded.init(this->info_symb_pos.size());
+        for (int k = 0; k < this->info_symb_pos.size(); k++)
+            decoded(k) = received_word(this->info_symb_pos(k));
+
+        this->add_timer(t);
     }
 
     void decode_all_iters(libbase::vector<int>& decoded) override
     {
         libbase::cputimer t("t_decode");
 
-        libbase::vector<GF_q> received_word(this->length_n);
+        libbase::vector<GF_q> received_word;
         this->spa_alg->decode(received_word, this->num_iter());
 
         decoded.init(this->info_symb_pos.size());

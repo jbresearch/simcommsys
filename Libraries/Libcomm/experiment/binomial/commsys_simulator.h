@@ -26,6 +26,7 @@
 #include "config.h"
 #include "experiment/experiment_binomial.h"
 #include "randgen.h"
+#include "result_collector/commsys/fidelity_pos.h"
 #include "serializer.h"
 #include "source.h"
 #include <sstream>
@@ -42,7 +43,7 @@ namespace libcomm
  * \todo Update interface to allow use of source<S> rather than source<int>
  */
 
-template <class S, class R>
+template <class S, class R, bool analyze_decode_iters = false>
 class commsys_simulator : public experiment_binomial, public R
 {
 public:
@@ -78,7 +79,7 @@ public:
      *
      * Initializes system with bound objects cloned from supplied system.
      */
-    commsys_simulator(const commsys_simulator<S, R>& c)
+    commsys_simulator(const commsys_simulator<S, R, analyze_decode_iters>& c)
         : src(std::dynamic_pointer_cast<source<int>>(c.src->clone())),
           sys(std::dynamic_pointer_cast<commsys<S>>(c.sys->clone()))
     {
@@ -107,7 +108,14 @@ public:
 
     // Experiment handling
     void sample(array1d_t& result);
-    int count() const { return R::count() * sys->num_iter(); }
+    int count() const
+    {
+        const fidelity_pos* rc = dynamic_cast<const fidelity_pos*>(this);
+        if (analyze_decode_iters || rc)
+            return R::count() * sys->num_iter();
+        else
+            return R::count();
+    }
     int get_multiplicity(int i) const
     {
         assert(i >= 0 && i < count());
