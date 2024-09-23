@@ -29,31 +29,20 @@ namespace cuda
 
 #ifdef __CUDACC__
 
-/*! \brief Initializes a given pointer by calling constructor T(args...)
+/*! \brief Initializes a given pointer by calling in place new with constructor
+ * T(args...)
  *
  * This kernel is needed because __device__ instances are allocated with
  * cudaMalloc() which does not initialize them using a constructor. This is
  * problematic especially when the allocated class contains virtual methods,
  * as virtual table is not initialized.
- *
- * This kernel initializes a temporary automatic object using constructor
- * T(args...), and then copies this object byte by byte into an object allocated
- * with cudaMalloc. Virtual table should be copied correctly and so should any
- * fields which do not contain pointers.
  */
 template <class T, class... Args>
 __global__ void
 init_ptr_kern(T* ptr, Args... args)
 {
-    // initialize an automatic object
-    T tmp(args...);
-
-    // Copy contents of automatic object into the ptr, byte by byte
-    // This will copy the virtual table initialized in the automatic object,
-    // and should also work correctly with fields
-    // provided tmp does not contain any pointers
-    for (int i = 0; i < sizeof(T); i++)
-        ((char*)ptr)[i] = ((char*)&tmp)[i];
+    // in place construction of object
+    new (ptr) T(args...);
 }
 
 #endif
@@ -82,7 +71,7 @@ public:
     {
 #ifdef __CUDACC__
         ptr = cudaSafeMalloc<T>(static_cast<size_t>(1));
-        init_ptr_kern<<<1, 1>>>(get(), args...);
+        init_ptr_kern<<<1, 1>>>(this->get(), args...);
 #endif
     }
 
