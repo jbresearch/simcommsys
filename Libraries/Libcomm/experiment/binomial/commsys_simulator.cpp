@@ -97,14 +97,7 @@ commsys_simulator<S, R>::sample(libbase::vector<double>& result)
     sys->receive_path(received);
     // For every iteration
     libbase::vector<int> decoded;
-    /*for (int i = 0; i < sys->num_iter(); i++) {
-        // Update results if necessary
-        if (!rc) {
-            libbase::indirect_vector<double> result_segment =
-                result.segment(R::count() * i, R::count());
-            R::updateresults(result_segment, source, decoded);
-        }
-    }*/
+
     // Decode
     sys->decode(decoded);
     if (!rc) {
