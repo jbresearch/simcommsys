@@ -91,6 +91,12 @@ public:
         base.decode_iter(decoded_v);
         decoded = decoded_v;
     }
+    void decode(libbase::matrix<int>& decoded) override
+    {
+        libbase::vector<int> decoded_v;
+        base.decode(decoded_v);
+        decoded = decoded_v;
+    }
 
     // Codec information functions - fundamental
     libbase::size_type<libbase::matrix> input_block_size() const
