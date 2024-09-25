@@ -139,7 +139,7 @@ public:
      * \note Each call to decode_all_iters performs full decoding, rather than
      * just a single iteration.
      */
-    virtual void decode(libbase::vector<C<int>>& decoded)
+    void decode(libbase::vector<C<int>>& decoded)
     {
         decoded.init(this->num_iter());
         for (int curr_cdc_iter = 0; curr_cdc_iter < this->num_iter();
