@@ -108,11 +108,11 @@ public:
      * \note Each call to decode will perform a single iteration (with respect
      * to num_iter).
      */
-    void softdecode(array1vd_t& ri)
+    void softdecode_iter(array1vd_t& ri) override
     {
         // set up space for output-referred statistics (to be discarded)
         array1vd_t ro;
-        softdecode(ri, ro);
+        softdecode_iter(ri, ro);
     }
     /*!
      * \brief Decoding process
@@ -122,7 +122,7 @@ public:
      * \note Each call to decode will perform a single iteration (with respect
      * to num_iter).
      */
-    void softdecode(array1vd_t& ri, array1vd_t& ro);
+    void softdecode_iter(array1vd_t& ri, array1vd_t& ro) override;
     // @}
 
     /*! \name Codec information functions - fundamental */

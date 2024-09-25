@@ -68,7 +68,7 @@ uncoded<dbl>::do_init_decoder(const array1vd_t& ptable, const array1vd_t& app)
 
 template <class dbl>
 void
-uncoded<dbl>::softdecode(array1vd_t& ri)
+uncoded<dbl>::softdecode_iter(array1vd_t& ri)
 {
     // Set input-referred statistics to stored values
     ri = R;
@@ -76,7 +76,7 @@ uncoded<dbl>::softdecode(array1vd_t& ri)
 
 template <class dbl>
 void
-uncoded<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
+uncoded<dbl>::softdecode_iter(array1vd_t& ri, array1vd_t& ro)
 {
     // Set input-referred statistics to stored values
     ri = R;

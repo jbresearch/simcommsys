@@ -109,7 +109,7 @@ memoryless<dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
 
 template <class dbl>
 void
-memoryless<dbl>::softdecode(array1vd_t& ri)
+memoryless<dbl>::softdecode_iter(array1vd_t& ri)
 {
     // Inherit sizes
     const int k = enc_inputs();
@@ -141,9 +141,9 @@ memoryless<dbl>::softdecode(array1vd_t& ri)
 
 template <class dbl>
 void
-memoryless<dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
+memoryless<dbl>::softdecode_iter(array1vd_t& ri, array1vd_t& ro)
 {
-    softdecode(ri);
+    softdecode_iter(ri);
     // Inherit sizes
     const int k = enc_inputs();
     const int n = enc_outputs();
@@ -265,8 +265,8 @@ using libbase::serializer;
       const serializer memoryless<type>::shelper( \
             "codec", \
             "memoryless<" BOOST_PP_STRINGIZE(type) ">", \
-            memoryless<type>::create); \
-// clang-format on
+            memoryless<type>::create);                                                            \
+    // clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 

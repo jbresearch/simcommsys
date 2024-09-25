@@ -253,7 +253,7 @@ exit_computer<S>::sample(array1d_t& result)
         // Perform soft-output decoding for as many iterations as required
         array1vd_t ri;
         for (int i = 0; i < c.num_iter(); i++) {
-            c.softdecode(ri);
+            c.softdecode_iter(ri);
         }
 
         // Compute extrinsic information
@@ -278,7 +278,7 @@ exit_computer<S>::sample(array1d_t& result)
         array1vd_t ri;
         array1vd_t ro;
         for (int i = 0; i < c.num_iter(); i++) {
-            c.softdecode(ri, ro);
+            c.softdecode_iter(ri, ro);
         }
 
         // Compute extrinsic information
@@ -315,7 +315,7 @@ exit_computer<S>::sample(array1d_t& result)
         array1vd_t ri;
         array1vd_t ro;
         for (int i = 0; i < c.num_iter(); i++) {
-            c.softdecode(ri, ro);
+            c.softdecode_iter(ri, ro);
         }
 
         // compute results
@@ -339,7 +339,7 @@ exit_computer<S>::sample(array1d_t& result)
         array1vd_t ri_codec;
         array1vd_t ro_codec;
         for (int i = 0; i < c.num_iter(); i++) {
-            c.softdecode(ri_codec, ro_codec);
+            c.softdecode_iter(ri_codec, ro_codec);
         }
         // Map the soft-output
         array1vd_t ro_modem;

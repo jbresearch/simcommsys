@@ -111,7 +111,7 @@ protected:
      * \note Each call to decode will perform a single iteration (with respect
      * to num_iter).
      */
-    virtual void decode(C<int>& decoded) = 0;
+    virtual void decode_iter(C<int>& decoded) = 0;
 
 public:
     /*!
@@ -123,11 +123,11 @@ public:
      * \note Each call to decode_all_iters performs full decoding, rather than
      * just a single iteration.
      */
-    virtual void decode_all_iters(C<int>& decoded)
+    virtual void decode(C<int>& decoded)
     {
         for (int curr_cdc_iter = 0; curr_cdc_iter < this->num_iter();
              curr_cdc_iter++)
-            this->decode(decoded);
+            this->decode_iter(decoded);
     }
     /*!
      * \brief Decoding process
@@ -139,12 +139,12 @@ public:
      * \note Each call to decode_all_iters performs full decoding, rather than
      * just a single iteration.
      */
-    virtual void decode_all_iters(libbase::vector<C<int>>& decoded)
+    virtual void decode(libbase::vector<C<int>>& decoded)
     {
         decoded.init(this->num_iter());
         for (int curr_cdc_iter = 0; curr_cdc_iter < this->num_iter();
              curr_cdc_iter++)
-            this->decode(decoded(curr_cdc_iter));
+            this->decode_iter(decoded(curr_cdc_iter));
     }
     // @}
 

@@ -87,7 +87,7 @@ reedsolomon<GF_q>::do_init_decoder(const array1vd_t& ptable,
 
 template <class GF_q>
 void
-reedsolomon<GF_q>::softdecode(array1vd_t& ri, array1vd_t& ro)
+reedsolomon<GF_q>::softdecode_iter(array1vd_t& ri, array1vd_t& ro)
 {
     // determine the most likely symbol
     hd_functor(this->received_likelihoods, this->received_word_hd);

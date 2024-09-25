@@ -250,7 +250,7 @@ commsys_stream_simulator<S, R, real>::sample(libbase::vector<double>& result)
         for (int iter_codec = 0; iter_codec < sys_dec.num_iter();
              iter_codec++) {
             // Perform soft-output decoding
-            sys_dec.getcodec_softout().softdecode(ri_codec, ro_codec);
+            sys_dec.getcodec_softout().softdecode_iter(ri_codec, ro_codec);
             // Compute hard-decision for results gatherer
             hd_functor(ri_codec, decoded);
             // Update results if necessary
@@ -510,8 +510,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             "commsys_stream_simulator<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2,args)) ">", \
-            commsys_stream_simulator<BOOST_PP_SEQ_ENUM(args)>::create); \
-// clang-format on
+            commsys_stream_simulator<BOOST_PP_SEQ_ENUM(args)>::create);                                                            \
+    // clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(
     INSTANTIATE, (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ)(REAL_TYPE_SEQ))

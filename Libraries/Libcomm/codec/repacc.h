@@ -131,8 +131,8 @@ public:
         // Seed interleaver
         inter->seedfrom(r);
     }
-    void softdecode(array1vd_t& ri);
-    void softdecode(array1vd_t& ri, array1vd_t& ro);
+    void softdecode_iter(array1vd_t& ri) override;
+    void softdecode_iter(array1vd_t& ri, array1vd_t& ro) override;
 
     // Codec information functions - fundamental
     libbase::size_type<libbase::vector> input_block_size() const

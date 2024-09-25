@@ -172,7 +172,7 @@ mapcc<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
 
 template <class real, class dbl>
 void
-mapcc<real, dbl>::softdecode(array1vd_t& ri)
+mapcc<real, dbl>::softdecode_iter(array1vd_t& ri)
 {
     // temporary space to hold complete results (ie. with tail)
     array2d_t rif_bcjr;
@@ -204,7 +204,7 @@ mapcc<real, dbl>::softdecode(array1vd_t& ri)
 
 template <class real, class dbl>
 void
-mapcc<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
+mapcc<real, dbl>::softdecode_iter(array1vd_t& ri, array1vd_t& ro)
 {
     // temporary space to hold complete results (ie. with tail)
     array2d_t rif_bcjr, rof_bcjr;
@@ -345,8 +345,8 @@ using libbase::serializer;
             "codec", \
             "mapcc<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
-            mapcc<BOOST_PP_SEQ_ENUM(args)>::create); \
-// clang-format on
+            mapcc<BOOST_PP_SEQ_ENUM(args)>::create);                                                            \
+    // clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (REAL1_TYPE_SEQ)(REAL2_TYPE_SEQ))
 

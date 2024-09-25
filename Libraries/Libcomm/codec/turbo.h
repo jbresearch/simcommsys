@@ -228,8 +228,8 @@ public:
 
     // Codec operations
     void seedfrom(libbase::random& r);
-    void softdecode(array1vd_t& ri);
-    void softdecode(array1vd_t& ri, array1vd_t& ro);
+    void softdecode_iter(array1vd_t& ri) override;
+    void softdecode_iter(array1vd_t& ri, array1vd_t& ro) override;
     // (necessary because inheriting methods from templated base)
     using Base::decode;
 

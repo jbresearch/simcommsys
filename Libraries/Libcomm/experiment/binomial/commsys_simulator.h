@@ -107,7 +107,7 @@ public:
     }
 
     // Experiment handling
-    void sample(array1d_t& result);
+    void sample(array1d_t& result) override;
     int count() const
     {
         const fidelity_pos* rc = dynamic_cast<const fidelity_pos*>(this);

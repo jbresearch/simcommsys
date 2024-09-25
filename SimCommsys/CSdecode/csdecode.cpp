@@ -253,7 +253,7 @@ decode_soft(std::ostream& sout, std::shared_ptr<libcomm::commsys<S, C>> system)
     codec_so& cdc = dynamic_cast<codec_so&>(*system->getcodec());
     C<array1d_t> ptable_out;
     for (int i = 0; i < system->num_iter(); i++) {
-        cdc.softdecode(ptable_out);
+        cdc.softdecode_iter(ptable_out);
     }
     ptable_out.serialize(sout);
 }

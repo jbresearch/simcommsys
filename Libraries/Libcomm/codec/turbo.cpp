@@ -469,7 +469,7 @@ turbo<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
 
 template <class real, class dbl>
 void
-turbo<real, dbl>::softdecode(array1vd_t& ri)
+turbo<real, dbl>::softdecode_iter(array1vd_t& ri)
 {
     // temporary space to hold complete results (ie. with tail)
     array2d_t rif;
@@ -490,7 +490,7 @@ turbo<real, dbl>::softdecode(array1vd_t& ri)
 
 template <class real, class dbl>
 void
-turbo<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
+turbo<real, dbl>::softdecode_iter(array1vd_t& ri, array1vd_t& ro)
 {
     failwith("Not yet implemented");
 }

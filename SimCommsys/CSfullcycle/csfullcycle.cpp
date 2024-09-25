@@ -63,7 +63,7 @@ process(const std::string& fname,
                 dynamic_cast<libcomm::codec_softout<C>&>(*system->getcodec());
             C<libbase::vector<double>> ptable;
             for (int i = 0; i < system->getcodec()->num_iter(); i++) {
-                cdc.softdecode(ptable);
+                cdc.softdecode_iter(ptable);
             }
             std::cerr << ".";
             ptable.serialize(sout);

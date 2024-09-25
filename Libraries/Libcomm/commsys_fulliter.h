@@ -87,8 +87,8 @@ public:
     }
     // Communication System Interface
     void receive_path(const C<S>& received);
-    void decode(C<int>& decoded);
-    void decode(libbase::vector<C<int>>& decoded);
+    void decode(C<int>& decoded) override;
+    void decode(libbase::vector<C<int>>& decoded) override;
     // Informative functions
     int num_iter() const { return this->cdc->num_iter() * iter; }
 

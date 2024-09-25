@@ -120,7 +120,7 @@ commsys_fulliter<S, C>::decode(C<int>& decoded)
     C<array1d_t> ro_codec;
     for (int curr_cdc_iter = 0; this->cdc->num_iter(); curr_cdc_iter++) {
         // Perform soft-output decoding
-        c.softdecode(ri_codec, ro_codec);
+        c.softdecode_iter(ri_codec, ro_codec);
         // Compute hard-decision for results gatherer
         hd_functor(ri_codec, decoded);
     }
@@ -157,7 +157,7 @@ commsys_fulliter<S, C>::decode(libbase::vector<C<int>>& decoded)
     C<array1d_t> ro_codec;
     for (int curr_cdc_iter = 0; this->cdc->num_iter(); curr_cdc_iter++) {
         // Perform soft-output decoding
-        c.softdecode(ri_codec, ro_codec);
+        c.softdecode_iter(ri_codec, ro_codec);
         // Compute hard-decision for results gatherer
         hd_functor(ri_codec, decoded(curr_cdc_iter));
     }

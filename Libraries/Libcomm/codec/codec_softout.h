@@ -70,11 +70,11 @@ public:
         // Seed hard-decision box
         hd_functor.seedfrom(r);
     }
-    void decode(C<int>& decoded)
+    void decode_iter(C<int>& decoded)
     {
         libbase::cputimer t("t_decode");
         C<array1d_t> ri;
-        this->softdecode(ri);
+        this->softdecode_iter(ri);
         hd_functor(ri, decoded);
         this->add_timer(t);
     }
@@ -106,7 +106,7 @@ public:
      * \note Each call to decode will perform a single iteration (with respect
      * to num_iter).
      */
-    virtual void softdecode(C<array1d_t>& ri) = 0;
+    virtual void softdecode_iter(C<array1d_t>& ri) = 0;
     /*!
      * \brief Decoding process
      * \param[out] ri Likelihood table for input symbols at every timestep
@@ -115,7 +115,7 @@ public:
      * \note Each call to decode will perform a single iteration (with respect
      * to num_iter).
      */
-    virtual void softdecode(C<array1d_t>& ri, C<array1d_t>& ro) = 0;
+    virtual void softdecode_iter(C<array1d_t>& ri, C<array1d_t>& ro) = 0;
     // @}
 };
 

@@ -99,8 +99,8 @@ public:
         cdc_enc =
             std::dynamic_pointer_cast<codec_softout<C, dbl>>(cdc->clone());
     }
-    void softdecode(C<array1d_t>& ri);
-    void softdecode(C<array1d_t>& ri, C<array1d_t>& ro);
+    void softdecode_iter(C<array1d_t>& ri) override;
+    void softdecode_iter(C<array1d_t>& ri, C<array1d_t>& ro) override;
 
     // Codec information functions - fundamental
     libbase::size_type<C> input_block_size() const

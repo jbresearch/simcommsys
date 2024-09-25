@@ -78,7 +78,7 @@ codec_concatenated<C, dbl>::do_encode(const C<int>& source, C<int>& encoded)
 
 template <template <class> class C, class dbl>
 void
-codec_concatenated<C, dbl>::softdecode(C<array1d_t>& ri)
+codec_concatenated<C, dbl>::softdecode_iter(C<array1d_t>& ri)
 {
     test_invariant();
     // reverse iterators for codec and mapper to use
@@ -89,7 +89,7 @@ codec_concatenated<C, dbl>::softdecode(C<array1d_t>& ri)
 
     // pass through first codec
     for (int i = 0; i < (*codec_it)->num_iter(); i++) {
-        (*codec_it)->softdecode(ri_codec);
+        (*codec_it)->softdecode_iter(ri_codec);
     }
 
     // pass through all mapper+codec combinations (everything after first codec)
@@ -105,7 +105,7 @@ codec_concatenated<C, dbl>::softdecode(C<array1d_t>& ri)
 
         // Perform soft-output decoding
         for (int i = 0; i < (*codec_it)->num_iter(); i++) {
-            (*codec_it)->softdecode(ri_codec);
+            (*codec_it)->softdecode_iter(ri_codec);
         }
     }
     // copy result
@@ -115,7 +115,7 @@ codec_concatenated<C, dbl>::softdecode(C<array1d_t>& ri)
 
 template <template <class> class C, class dbl>
 void
-codec_concatenated<C, dbl>::softdecode(C<array1d_t>& ri, C<array1d_t>& ro)
+codec_concatenated<C, dbl>::softdecode_iter(C<array1d_t>& ri, C<array1d_t>& ro)
 {
     test_invariant();
     // reverse iterators for codec and mapper to use
@@ -127,7 +127,7 @@ codec_concatenated<C, dbl>::softdecode(C<array1d_t>& ri, C<array1d_t>& ro)
 
     // pass through first codec
     for (int i = 0; i < (*codec_it)->num_iter(); i++) {
-        (*codec_it)->softdecode(ri_codec, ro_codec);
+        (*codec_it)->softdecode_iter(ri_codec, ro_codec);
     }
 
     // pass through all mapper+codec combinations (everything after first codec)
@@ -140,7 +140,7 @@ codec_concatenated<C, dbl>::softdecode(C<array1d_t>& ri, C<array1d_t>& ro)
         (*codec_it)->init_decoder(ri_mapper);
         // Perform soft-output decoding
         for (int i = 0; i < (*codec_it)->num_iter(); i++) {
-            (*codec_it)->softdecode(ri_codec);
+            (*codec_it)->softdecode_iter(ri_codec);
         }
     }
     // copy result
@@ -293,8 +293,8 @@ using libbase::serializer;
       const serializer codec_concatenated<libbase::vector, type>::shelper( \
             "codec", \
             "codec_concatenated<" BOOST_PP_STRINGIZE(type) ">", \
-            codec_concatenated<libbase::vector, type>::create); \
-// clang-format on
+            codec_concatenated<libbase::vector, type>::create);                                                            \
+    // clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, (double))
 // BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)

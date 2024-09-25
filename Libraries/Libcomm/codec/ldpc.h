@@ -117,13 +117,14 @@ public:
         this->spa_alg->seedfrom(r);
     }
 
-    void decode(libbase::vector<int>& decoded) override
+    void decode_iter(libbase::vector<int>& decoded) override
     {
         libbase::cputimer t("t_decode");
 
         libbase::vector<GF_q> received_word;
         this->spa_alg->spa_iteration(received_word);
 
+        // extract information symbols from the received codeword
         decoded.init(this->info_symb_pos.size());
         for (int k = 0; k < this->info_symb_pos.size(); k++)
             decoded(k) = received_word(this->info_symb_pos(k));
@@ -131,13 +132,14 @@ public:
         this->add_timer(t);
     }
 
-    void decode_all_iters(libbase::vector<int>& decoded) override
+    void decode(libbase::vector<int>& decoded) override
     {
         libbase::cputimer t("t_decode");
 
         libbase::vector<GF_q> received_word;
         this->spa_alg->decode(received_word, this->num_iter());
 
+        // extract information symbols from the received codeword
         decoded.init(this->info_symb_pos.size());
         for (int k = 0; k < this->info_symb_pos.size(); k++)
             decoded(k) = received_word(this->info_symb_pos(k));

@@ -85,10 +85,10 @@ public:
 
     // Codec operations
     void seedfrom(libbase::random& r) { base.seedfrom(r); }
-    void decode(libbase::matrix<int>& decoded)
+    void decode_iter(libbase::matrix<int>& decoded) override
     {
         libbase::vector<int> decoded_v;
-        base.decode(decoded_v);
+        base.decode_iter(decoded_v);
         decoded = decoded_v;
     }
 

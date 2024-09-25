@@ -262,7 +262,7 @@ basic_commsys<S, C>::decode(C<int>& decoded)
 {
     // Decode
     this->cdc->reset_timers();
-    this->cdc->decode_all_iters(decoded);
+    this->cdc->decode(decoded);
     this->add_timers(*this->cdc);
     // Keep track of correct decodings
 #if DEBUG >= 2
@@ -280,7 +280,7 @@ basic_commsys<S, C>::decode(libbase::vector<C<int>>& decoded)
 {
     // Decode
     this->cdc->reset_timers();
-    this->cdc->decode_all_iters(decoded);
+    this->cdc->decode(decoded);
     this->add_timers(*this->cdc);
     // Keep track of correct decodings
 #if DEBUG >= 2

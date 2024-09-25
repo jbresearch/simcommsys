@@ -241,7 +241,7 @@ repacc<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
  */
 template <class real, class dbl>
 void
-repacc<real, dbl>::softdecode(array1vd_t& ri)
+repacc<real, dbl>::softdecode_iter(array1vd_t& ri)
 {
     // decode accumulator
 
@@ -283,7 +283,7 @@ repacc<real, dbl>::softdecode(array1vd_t& ri)
     // decode repetition code (based on extrinsic information only)
     array1vd_t ro;
     rep.init_decoder(ravd, rp);
-    rep.softdecode(ri, ro);
+    rep.softdecode_iter(ri, ro);
 
 #if DEBUG >= 2
     functor(ro, dec);
@@ -313,7 +313,7 @@ repacc<real, dbl>::softdecode(array1vd_t& ri)
 
 template <class real, class dbl>
 void
-repacc<real, dbl>::softdecode(array1vd_t& ri, array1vd_t& ro)
+repacc<real, dbl>::softdecode_iter(array1vd_t& ri, array1vd_t& ro)
 {
     failwith("Not yet implemented");
 }
@@ -438,8 +438,8 @@ using libbase::serializer;
             "codec", \
             "repacc<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
-            repacc<BOOST_PP_SEQ_ENUM(args)>::create); \
-// clang-format on
+            repacc<BOOST_PP_SEQ_ENUM(args)>::create);                                                            \
+    // clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (REAL1_TYPE_SEQ)(REAL2_TYPE_SEQ))
 

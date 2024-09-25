@@ -191,7 +191,7 @@ public:
     // @}
 
     // Experiment handling
-    void sample(libbase::vector<double>& result);
+    void sample(libbase::vector<double>& result) override;
     int count() const
     {
         // Get access to the results collector in codeword boundary analysis

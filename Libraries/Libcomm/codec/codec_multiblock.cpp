@@ -48,7 +48,7 @@ codec_multiblock<C, dbl>::do_encode(const C<int>& source, C<int>& encoded)
 
 template <template <class> class C, class dbl>
 void
-codec_multiblock<C, dbl>::softdecode(C<array1d_t>& ri)
+codec_multiblock<C, dbl>::softdecode_iter(C<array1d_t>& ri)
 {
     test_invariant();
     // allocate output vector
@@ -71,7 +71,7 @@ codec_multiblock<C, dbl>::softdecode(C<array1d_t>& ri)
         for (int j = 0; j < cdc->num_iter(); j++) {
             libbase::indirect_vector<array1d_t> ri_segment = ri.segment(
                 cdc->input_block_size() * i, cdc->input_block_size());
-            cdc->softdecode(ri_segment);
+            cdc->softdecode_iter(ri_segment);
         }
     }
     test_invariant();
@@ -79,7 +79,7 @@ codec_multiblock<C, dbl>::softdecode(C<array1d_t>& ri)
 
 template <template <class> class C, class dbl>
 void
-codec_multiblock<C, dbl>::softdecode(C<array1d_t>& ri, C<array1d_t>& ro)
+codec_multiblock<C, dbl>::softdecode_iter(C<array1d_t>& ri, C<array1d_t>& ro)
 {
     test_invariant();
     // allocate output vectors
@@ -105,7 +105,7 @@ codec_multiblock<C, dbl>::softdecode(C<array1d_t>& ri, C<array1d_t>& ro)
                 cdc->input_block_size() * i, cdc->input_block_size());
             libbase::indirect_vector<array1d_t> ro_segment = ro.segment(
                 cdc->output_block_size() * i, cdc->output_block_size());
-            cdc->softdecode(ri_segment, ro_segment);
+            cdc->softdecode_iter(ri_segment, ro_segment);
         }
     }
     test_invariant();
@@ -201,8 +201,8 @@ using libbase::serializer;
       const serializer codec_multiblock<libbase::vector, type>::shelper( \
             "codec", \
             "codec_multiblock<" BOOST_PP_STRINGIZE(type) ">", \
-            codec_multiblock<libbase::vector, type>::create); \
-// clang-format on
+            codec_multiblock<libbase::vector, type>::create);                                                            \
+    // clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, (double))
 // BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
