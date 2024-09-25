@@ -98,7 +98,7 @@ commsys_simulator<S, R, analyze_decode_iters>::sample(
     sys->receive_path(received);
 
     // Decode
-    if (analyze_decode_iters || rc) {
+    if (analyze_decode_iters && !rc) {
         // We check that rc since analyze_decode_iters does not matter in
         // context of codeword boundary analysis; we always need all iters
 
@@ -109,15 +109,39 @@ commsys_simulator<S, R, analyze_decode_iters>::sample(
         std::cout << "Decoded: " << decoded(this->num_iters() - 1) << std::endl;
 #endif
 
+        // collect results for each iteration
+        for (int curr_cdc_iter = 0; curr_cdc_iter < this->sys->num_iter();
+             curr_cdc_iter++) {
+            libbase::indirect_vector<double> result_segment =
+                result.segment(curr_cdc_iter * R::count(), R::count());
+            R::updateresults(result_segment, source, decoded(curr_cdc_iter));
+        }
+
+        // Keep record of what we last simulated
+        const int tau = sys->input_block_size();
+        assert(source.size() == tau);
+        for (int curr_cdc_iter = 0; curr_cdc_iter < this->sys->num_iter();
+             curr_cdc_iter++)
+            assert(decoded(curr_cdc_iter).size() == tau);
+        last_event.init(2 * tau);
+        for (int i = 0; i < tau; i++) {
+            last_event(i) = source(i);
+            last_event(i + tau) = decoded(this->sys->num_iter() - 1)(i);
+        }
+
+    } else { // We collect results for last iteration only
+
+        libbase::vector<int> decoded;
+        sys->decode(decoded);
+#if DEBUG >= 2
+        std::cout << "Decoded: " << decoded << std::endl;
+#endif
+
         if (!rc) {
-            // collect results for each iteration
-            for (int curr_cdc_iter = 0; curr_cdc_iter < this->sys->num_iter();
-                 curr_cdc_iter++) {
-                libbase::indirect_vector<double> result_segment =
-                    result.segment(curr_cdc_iter * R::count(), R::count());
-                R::updateresults(
-                    result_segment, source, decoded(curr_cdc_iter));
-            }
+            libbase::indirect_vector<double> result_segment =
+                result.segment(0, R::count());
+            R::updateresults(result_segment, source, decoded);
+
         } else { // perform codeword boundary analysis if this is indicated
 
             // Get access to the modem in stream mode
@@ -156,30 +180,6 @@ commsys_simulator<S, R, analyze_decode_iters>::sample(
             // accumulate results
             rc->updateresults(result, act_drift, est_drift);
         }
-
-        // Keep record of what we last simulated
-        const int tau = sys->input_block_size();
-        assert(source.size() == tau);
-        for (int curr_cdc_iter = 0; curr_cdc_iter < this->sys->num_iter();
-             curr_cdc_iter++)
-            assert(decoded(curr_cdc_iter).size() == tau);
-        last_event.init(2 * tau);
-        for (int i = 0; i < tau; i++) {
-            last_event(i) = source(i);
-            last_event(i + tau) = decoded(this->sys->num_iter() - 1)(i);
-        }
-
-    } else { // We collect results for last iteration only
-
-        libbase::vector<int> decoded;
-        sys->decode(decoded);
-#if DEBUG >= 2
-        std::cout << "Decoded: " << decoded << std::endl;
-#endif
-
-        libbase::indirect_vector<double> result_segment =
-            result.segment(0, R::count());
-        R::updateresults(result_segment, source, decoded);
 
         // Keep record of what we last simulated
         const int tau = sys->input_block_size();

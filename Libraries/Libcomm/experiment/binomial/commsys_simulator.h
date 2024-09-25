@@ -111,7 +111,7 @@ public:
     int count() const
     {
         const fidelity_pos* rc = dynamic_cast<const fidelity_pos*>(this);
-        if (analyze_decode_iters || rc)
+        if (analyze_decode_iters && !rc)
             return R::count() * sys->num_iter();
         else
             return R::count();
