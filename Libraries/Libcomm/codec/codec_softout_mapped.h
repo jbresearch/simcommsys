@@ -80,7 +80,7 @@ public:
     // @}
 
     // Codec operations
-    void softdecode(array1vd_t& ri, array1vd_t& ro);
+    void softdecode_iter(array1vd_t& ri, array1vd_t& ro) override;
 
     // Codec information functions - fundamental
     libbase::size_type<libbase::vector> output_block_size() const
@@ -174,12 +174,12 @@ codec_softout_mapped<base_codec_softout, dbl>::do_init_decoder(
 
 template <class base_codec_softout, class dbl>
 void
-codec_softout_mapped<base_codec_softout, dbl>::softdecode(array1vd_t& ri,
-                                                          array1vd_t& ro)
+codec_softout_mapped<base_codec_softout, dbl>::softdecode_iter(array1vd_t& ri,
+                                                               array1vd_t& ro)
 {
     // Decode to a temporary space
     array1vd_t ro_wide;
-    Base::softdecode(ri, ro_wide);
+    Base::softdecode_iter(ri, ro_wide);
 #if DEBUG >= 3
     array1i_t dec;
     hard_decision<libbase::vector, dbl, int> functor;
