@@ -230,7 +230,7 @@ repacc<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
 #endif
 }
 
-/*! \copydoc codec_softout::softdecode()
+/*! \copydoc codec_softout::softdecode_iter()
  *
  * \note Implements soft-decision decoding according to Alexandre's
  * interpretation:
