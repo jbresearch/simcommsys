@@ -55,12 +55,11 @@ commsys_fulliter<S, C>::receive_path(const C<S>& received)
     // Reset modem
     ptable_ext_modem.init(0);
     ptable_ext_codec.init(0);
-    cur_mdm_iter = 0;
 }
 
 template <class S, template <class> class C>
 void
-commsys_fulliter<S, C>::demodulate_and_inverse_map()
+commsys_fulliter<S, C>::before_decode()
 {
     // Demodulate
     C<array1d_t> ptable_post_modem;
@@ -84,7 +83,7 @@ commsys_fulliter<S, C>::demodulate_and_inverse_map()
 
 template <class S, template <class> class C>
 void
-commsys_fulliter<S, C>::inverse_map_ext_info(C<array1d_t>& ro_codec)
+commsys_fulliter<S, C>::after_decode(C<array1d_t>& ro_codec)
 {
     // Compute feedback path
     // Normalize posterior information
@@ -104,35 +103,31 @@ void
 commsys_fulliter<S, C>::decode(C<int>& decoded)
 {
 #if DEBUG >= 2
-    libbase::trace << "DEBUG (fulliter): Starting decode cycle " << cur_mdm_iter
-                   << "." << std::endl;
+    libbase::trace << "DEBUG (fulliter): decode with " << iter
+                   << " modem iterations and "
+                   << this->cdc->num_iter() " << codec iterations."
+                   << std::endl;
 #endif
-    // we need to do the receive-path first
-    // ** Inner code (modem class) **
-    this->demodulate_and_inverse_map();
+    for (int curr_mdm_iter = 0; curr_mdm_iter < this->iter; curr_mdm_iter++) {
+        // we need to do the receive-path first
+        // ** Inner code (modem class) **
+        this->before_decode();
 
-    // ** Outer code (codec class) **
-    // Translate
-    this->cdc->init_decoder(ptable_ext_codec);
+        // ** Outer code (codec class) **
+        // Translate
+        this->cdc->init_decoder(ptable_ext_codec);
 
-    codec_softout<C>& c = dynamic_cast<codec_softout<C>&>(*this->cdc);
-    C<array1d_t> ri_codec;
-    C<array1d_t> ro_codec;
-    for (int curr_cdc_iter = 0; this->cdc->num_iter(); curr_cdc_iter++) {
-        // Perform soft-output decoding
-        c.softdecode_iter(ri_codec, ro_codec);
-        // Compute hard-decision for results gatherer
-        hd_functor(ri_codec, decoded);
-    }
+        codec_softout<C>& c = dynamic_cast<codec_softout<C>&>(*this->cdc);
+        C<array1d_t> ri_codec;
+        C<array1d_t> ro_codec;
+        for (int curr_cdc_iter = 0; this->cdc->num_iter(); curr_cdc_iter++) {
+            // Perform soft-output decoding
+            c.softdecode_iter(ri_codec, ro_codec);
+            // Compute hard-decision for results gatherer
+            hd_functor(ri_codec, decoded);
+        }
 
-    inverse_map_ext_info(ro_codec);
-
-    // Update modem iteration count
-    cur_mdm_iter++;
-    // If this was not the last iteration, mark components as clean
-    if (cur_mdm_iter < iter) {
-        this->mdm->mark_as_clean();
-        this->map->mark_as_clean();
+        this->after_decode(ro_codec);
     }
 }
 
@@ -141,35 +136,31 @@ void
 commsys_fulliter<S, C>::decode(libbase::vector<C<int>>& decoded)
 {
 #if DEBUG >= 2
-    libbase::trace << "DEBUG (fulliter): Starting decode cycle " << cur_mdm_iter
-                   << "." << std::endl;
+    libbase::trace << "DEBUG (fulliter): decode with " << iter
+                   << " modem iterations and "
+                   << this->cdc->num_iter() " << codec iterations."
+                   << std::endl;
 #endif
-    // we need to do the receive-path first
-    // ** Inner code (modem class) **
-    this->demodulate_and_inverse_map();
+    for (int curr_mdm_iter = 0; curr_mdm_iter < this->iter; curr_mdm_iter++) {
+        // we need to do the receive-path first
+        // ** Inner code (modem class) **
+        this->before_decode();
 
-    // ** Outer code (codec class) **
-    // Translate
-    this->cdc->init_decoder(ptable_ext_codec);
+        // ** Outer code (codec class) **
+        // Translate
+        this->cdc->init_decoder(ptable_ext_codec);
 
-    codec_softout<C>& c = dynamic_cast<codec_softout<C>&>(*this->cdc);
-    C<array1d_t> ri_codec;
-    C<array1d_t> ro_codec;
-    for (int curr_cdc_iter = 0; this->cdc->num_iter(); curr_cdc_iter++) {
-        // Perform soft-output decoding
-        c.softdecode_iter(ri_codec, ro_codec);
-        // Compute hard-decision for results gatherer
-        hd_functor(ri_codec, decoded(curr_cdc_iter));
-    }
+        codec_softout<C>& c = dynamic_cast<codec_softout<C>&>(*this->cdc);
+        C<array1d_t> ri_codec;
+        C<array1d_t> ro_codec;
+        for (int curr_cdc_iter = 0; this->cdc->num_iter(); curr_cdc_iter++) {
+            // Perform soft-output decoding
+            c.softdecode_iter(ri_codec, ro_codec);
+            // Compute hard-decision for results gatherer
+            hd_functor(ri_codec, decoded(curr_cdc_iter));
+        }
 
-    inverse_map_ext_info(ro_codec);
-
-    // Update modem iteration count
-    cur_mdm_iter++;
-    // If this was not the last iteration, mark components as clean
-    if (cur_mdm_iter < iter) {
-        this->mdm->mark_as_clean();
-        this->map->mark_as_clean();
+        this->after_decode(ro_codec);
     }
 }
 

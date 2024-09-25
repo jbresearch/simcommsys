@@ -64,7 +64,6 @@ private:
     int iter; //!< Number of full-system iterations
     // @}
     /*! \name Internal state */
-    int cur_mdm_iter;   //!< Current modem iteration
     C<S> last_received; //!< Last received block
     C<array1d_t>
         ptable_ext_modem; //!< Extrinsic information vector (modem alphabet)
@@ -73,10 +72,13 @@ private:
     hard_decision<C, double, int> hd_functor; //!< Hard-decision box
                                               // @}
 
-    void demodulate_and_inverse_map();
-    void inverse_map_ext_info(C<array1d_t>& ro_codec);
+    /*! \name Wrapper methods to facilitate implementing two versions of
+     * decode() */
+    void before_decode();
+    void after_decode(C<array1d_t>& ro_codec);
 
 public:
+    /*! \name Communication System methods */
     // Communication System Setup
     void seedfrom(libbase::random& r)
     {
