@@ -21,6 +21,7 @@
 
 #ifndef SUM_PROD_ALG_INF_H_
 #define SUM_PROD_ALG_INF_H_
+#include "instrumented.h"
 #include "matrix.h"
 #include "random.h"
 #include "vector.h"
@@ -36,7 +37,7 @@ namespace libcomm
  * the constructor of the SPA implementation
  */
 template <class GF_q, class real = double>
-class sum_prod_alg_inf
+class sum_prod_alg_inf : public instrumented
 {
 public:
     /*! \name Type definitions */
