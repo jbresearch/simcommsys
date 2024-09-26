@@ -130,6 +130,9 @@ public:
             decoded(k) = received_word(this->info_symb_pos(k));
 
         this->add_timer(t);
+        // add all granular timers from sum_prod_alg.
+        this->add_timers(*this->spa_alg);
+        this->spa_alg->reset_timers();
     }
 
     void decode(libbase::vector<int>& decoded) override
@@ -145,6 +148,9 @@ public:
             decoded(k) = received_word(this->info_symb_pos(k));
 
         this->add_timer(t);
+        // add all granular timers from sum_prod_alg.
+        this->add_timers(*this->spa_alg);
+        this->spa_alg->reset_timers();
     }
 
     /*
