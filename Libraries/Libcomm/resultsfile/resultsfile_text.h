@@ -31,9 +31,12 @@ namespace libcomm
 class resultsfile_text : public resultsfile
 {
 private:
+    /*! \name Internal variables */
+    bool headerwritten; //!< Flag to indicate that the results header has been
+                        //!< written
     std::streampos
         fileptr; //!< Position in file where we should write the next result
-
+    // @}
 protected:
     /*! \name System-specific functions */
     void writeheader(std::ostream& sout) const;
@@ -55,7 +58,10 @@ protected:
     // @}
 
 public:
-    using resultsfile::resultsfile;
+    resultsfile_text(montecarlo& simulator)
+        : resultsfile(simulator), headerwritten(false)
+    {
+    }
 
     void setupfile() override;
 };

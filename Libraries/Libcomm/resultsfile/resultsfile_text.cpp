@@ -212,7 +212,7 @@ resultsfile_text::setupfile()
 {
     resultsfile::setupfile();
     // open file for input and output
-    std::fstream file(fname.c_str());
+    std::fstream file(this->get_fname().c_str());
     assertalways(file);
     // set write position at end
     file.seekp(0, std::ios_base::end);

@@ -73,19 +73,15 @@ class montecarlo;
 class resultsfile
 {
 protected:
-    /*! \name User-specified parameters */
-    std::string fname; //!< Filename for associated results file
-    // @}
-    /*! \name Internal variables */
-    bool headerwritten; //!< Flag to indicate that the results header has been
-                        //!< written
-                        // @}
     /*! \name Backpointers */
     montecarlo* simulator;
     experiment* system;
     // @}
 
 private:
+    /*! \name User-specified parameters */
+    std::string fname; //!< Filename for associated results file
+    // @}
     /*! \name Internal variables */
     bool filesetup;       //!< Flag to indicate that the results file was set up
     sha filedigest;       //!< Digest of file as at last update
@@ -93,6 +89,8 @@ private:
                           // @}
 
 protected:
+    const std::string& get_fname() const { return fname; }
+
     /*! \name Results file helper functions */
     void finishwithfile(std::fstream& file);
     void truncate(std::streampos length);
@@ -108,8 +106,7 @@ public:
     /*! \name Constructor/destructor */
     // Constructor/destructor
     resultsfile(montecarlo& simulator)
-        : headerwritten(false), simulator(&simulator), filesetup(false),
-          t("resultsfile", false)
+        : simulator(&simulator), filesetup(false), t("resultsfile", false)
     {
     }
     virtual ~resultsfile() { assert(!t.isrunning()); }

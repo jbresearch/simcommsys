@@ -88,9 +88,10 @@ resultsfile::wasmodified(std::fstream& file)
 void
 resultsfile::init(const std::string& fname)
 {
+    // Can't initialize a file more than once.
+    assert(!isinitialized());
     assert(!t.isrunning());
     filesetup = false;
-    headerwritten = false;
     resultsfile::fname = fname;
 }
 
