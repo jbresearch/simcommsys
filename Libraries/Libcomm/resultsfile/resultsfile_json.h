@@ -33,11 +33,11 @@ class resultsfile_json : public resultsfile
 protected:
     /*! \name System-specific functions */
     void lookforstate(std::istream& sin) override;
-    void writeresults(std::fstream& file,
-                      libbase::vector<double>& result,
-                      libbase::vector<double>& errormargin,
-                      bool savestate,
-                      bool interim) override;
+    void writeresultsandstate(std::fstream& file,
+                              libbase::vector<double>& result,
+                              libbase::vector<double>& errormargin,
+                              bool savestate,
+                              bool interim) override;
     // @}
 public:
     using resultsfile::resultsfile;

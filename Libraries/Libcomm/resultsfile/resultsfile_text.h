@@ -45,11 +45,11 @@ protected:
                       libbase::vector<double>& errormargin) const;
     void writestate(std::ostream& sout) const;
     void lookforstate(std::istream& sin) override;
-    void writeresults(std::fstream& file,
-                      libbase::vector<double>& result,
-                      libbase::vector<double>& errormargin,
-                      bool savestate,
-                      bool interim) override;
+    void writeresultsandstate(std::fstream& file,
+                              libbase::vector<double>& result,
+                              libbase::vector<double>& errormargin,
+                              bool savestate,
+                              bool interim) override;
     // @}
 
     /*! \name Results file text helper functions */

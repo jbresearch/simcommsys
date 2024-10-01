@@ -153,7 +153,7 @@ resultsfile::writeinterimresults(libbase::vector<double>& result,
     // open file for input and output
     std::fstream file(fname.c_str());
     assertalways(file.good());
-    writeresults(file, result, errormargin, true, true);
+    writeresultsandstate(file, result, errormargin, true, true);
     finishwithfile(file);
     // restart timer
     t.start();
@@ -175,7 +175,7 @@ resultsfile::writefinalresults(libbase::vector<double>& result,
     // open file for input and output
     std::fstream file(fname.c_str());
     assertalways(file.good());
-    writeresults(file, result, errormargin, savestate, false);
+    writeresultsandstate(file, result, errormargin, savestate, false);
     finishwithfile(file);
     // stop timer and clear setup flag (in preparation for next simulation run)
     t.stop();

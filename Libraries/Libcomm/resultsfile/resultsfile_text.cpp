@@ -183,11 +183,11 @@ resultsfile_text::checkformodifications(std::fstream& file)
  * updated.
  */
 void
-resultsfile_text::writeresults(std::fstream& file,
-                               libbase::vector<double>& result,
-                               libbase::vector<double>& errormargin,
-                               bool savestate,
-                               bool interim)
+resultsfile_text::writeresultsandstate(std::fstream& file,
+                                       libbase::vector<double>& result,
+                                       libbase::vector<double>& errormargin,
+                                       bool savestate,
+                                       bool interim)
 {
     checkformodifications(file);
     writeheaderifneeded(file);

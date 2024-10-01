@@ -96,11 +96,11 @@ protected:
     void truncate(std::streampos length);
     bool wasmodified(std::fstream& file);
     virtual void lookforstate(std::istream& sin) = 0;
-    virtual void writeresults(std::fstream& file,
-                              libbase::vector<double>& result,
-                              libbase::vector<double>& errormargin,
-                              bool savestate,
-                              bool interim) = 0;
+    virtual void writeresultsandstate(std::fstream& file,
+                                      libbase::vector<double>& result,
+                                      libbase::vector<double>& errormargin,
+                                      bool savestate,
+                                      bool interim) = 0;
     // @}
 public:
     /*! \name Constructor/destructor */
