@@ -19,8 +19,8 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __resultsfile_text_h
-#define __resultsfile_text_h
+#ifndef __resultsfile_json_h
+#define __resultsfile_json_h
 
 #include "resultsfile.h"
 #include <iostream>
@@ -28,31 +28,16 @@
 namespace libcomm
 {
 
-class resultsfile_text : public resultsfile
+class resultsfile_json : public resultsfile
 {
-private:
-    std::streampos
-        fileptr; //!< Position in file where we should write the next result
-
 protected:
     /*! \name System-specific functions */
-    void writeheader(std::ostream& sout) const;
-    void writeresults(std::ostream& sout,
-                      libbase::vector<double>& result,
-                      libbase::vector<double>& errormargin) const;
-    void writestate(std::ostream& sout) const;
     void lookforstate(std::istream& sin) override;
-    // @}
-
-    /*! \name Results file text helper functions */
-    void writeheaderifneeded(std::fstream& file);
-    void checkformodifications(std::fstream& file);
     // @}
 
 public:
     using resultsfile::resultsfile;
 
-    void setupfile() override;
     void writeinterimresults(libbase::vector<double>& result,
                              libbase::vector<double>& errormargin) override;
     void writefinalresults(libbase::vector<double>& result,
@@ -61,4 +46,4 @@ public:
 };
 } // namespace libcomm
 
-#endif // __resultsfile_text_h
+#endif // __resultsfile_json_h

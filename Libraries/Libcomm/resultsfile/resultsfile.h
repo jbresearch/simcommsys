@@ -72,39 +72,28 @@ class montecarlo;
 
 class resultsfile
 {
-private:
+protected:
     /*! \name User-specified parameters */
     std::string fname; //!< Filename for associated results file
     // @}
     /*! \name Internal variables */
-    bool filesetup;     //!< Flag to indicate that the results file was set up
-    bool headerwritten; //!< Flag to indicate that the results header has been
-                        //!< written
-    std::streampos
-        fileptr;    //!< Position in file where we should write the next result
-    sha filedigest; //!< Digest of file as at last update
+    bool filesetup;       //!< Flag to indicate that the results file was set up
+    bool headerwritten;   //!< Flag to indicate that the results header has been
+                          //!< written
     libbase::walltimer t; //!< Timer to keep track of running estimate
                           // @}
-
-protected:
     // backpointers
     montecarlo* simulator;
     experiment* system;
 
 private:
+    sha filedigest; //!< Digest of file as at last update
+
+protected:
     /*! \name Results file helper functions */
-    void writeheaderifneeded(std::fstream& file);
     void finishwithfile(std::fstream& file);
     void truncate(std::streampos length);
-    void checkformodifications(std::fstream& file);
-    // @}
-protected:
-    /*! \name System-specific functions */
-    virtual void writeheader(std::ostream& sout) const = 0;
-    virtual void writeresults(std::ostream& sout,
-                              libbase::vector<double>& result,
-                              libbase::vector<double>& errormargin) const = 0;
-    virtual void writestate(std::ostream& sout) const = 0;
+    bool wasmodified(std::fstream& file);
     virtual void lookforstate(std::istream& sin) = 0;
     // @}
 public:
@@ -130,12 +119,24 @@ public:
     // @}
 
     /*! \name Results handling interface */
-    void setupfile();
-    void writeinterimresults(libbase::vector<double>& result,
-                             libbase::vector<double>& errormargin);
-    void writefinalresults(libbase::vector<double>& result,
-                           libbase::vector<double>& errormargin,
-                           bool savestate = false);
+    virtual void setupfile();
+
+    /*! \brief Write current results and state
+     * This method can be called as many times as required; usually this is
+     * called after every update. It may be wise for implementing subclasses to
+     * limit file writes to occur no more often than a certain frequency.
+     */
+    virtual void writeinterimresults(libbase::vector<double>& result,
+                                     libbase::vector<double>& errormargin) = 0;
+
+    /*! \brief Write final results and state
+     * This method is called when the final result is reached. A file write is
+     * guaranteed to occur. If requested, the final state is also
+     * written.
+     */
+    virtual void writefinalresults(libbase::vector<double>& result,
+                                   libbase::vector<double>& errormargin,
+                                   bool savestate = false) = 0;
 
     void set_system(experiment& system) { this->system = &system; }
     // @}

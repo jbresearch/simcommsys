@@ -24,6 +24,7 @@
 
 #include "assertalways.h"
 #include "resultsfile.h"
+#include "resultsfile_json.h"
 #include "resultsfile_text.h"
 
 #include <memory>
@@ -51,6 +52,8 @@ public:
 
         if (type == "text") {
             resultsfile_ptr = std::make_unique<resultsfile_text>(simulator);
+        } else if (type == "json") {
+            resultsfile_ptr = std::make_unique<resultsfile_json>(simulator);
         } else {
             std::string error_msg(type + " is not a valid SPA type");
             failwith(error_msg.c_str());
