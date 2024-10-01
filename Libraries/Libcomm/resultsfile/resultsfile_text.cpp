@@ -177,67 +177,26 @@ resultsfile_text::checkformodifications(std::fstream& file)
     }
 }
 
-/*! \brief Write current results and state
- * This method can be called as many times as required; usually this is
- * called after every update. File writes are limited to occur no more often
- * than 30 seconds (this quantity is hard-wired).
- *
- * \note This method does not change the write position so that this result is
- * overwritten on the next write.
+/*! \brief Write current results and perhaps the state
+ * \note If the state being written is final rather than interim, the write
+ * position is updated so that it is not overwritten. Otherwise it is not
+ * updated.
  */
 void
-resultsfile_text::writeinterimresults(libbase::vector<double>& result,
-                                      libbase::vector<double>& errormargin)
+resultsfile_text::writeresults(std::fstream& file,
+                               libbase::vector<double>& result,
+                               libbase::vector<double>& errormargin,
+                               bool savestate,
+                               bool interim)
 {
-    assert(filesetup);
-    assert(t.isrunning());
-    // restrict updates to occur every 30 seconds or less
-    if (t.elapsed() < 30) {
-        return;
-    }
-    // open file for input and output
-    std::fstream file(fname.c_str());
-    assertalways(file.good());
     checkformodifications(file);
     writeheaderifneeded(file);
     writeresults(file, result, errormargin);
-    writestate(file);
-    finishwithfile(file);
-    // restart timer
-    t.start();
-}
-
-/*! \brief Write final results and state
- * This method is called when the final result is reached. A file write is
- * guaranteed to occur. The write-limiting timer is also stopped to avoid
- * lapsing on object destruction. If requested, the final state is also
- * written.
- *
- * \note This method also updates the write position so that this result is not
- * overwritten.
- */
-void
-resultsfile_text::writefinalresults(libbase::vector<double>& result,
-                                    libbase::vector<double>& errormargin,
-                                    bool savestate)
-{
-    assert(filesetup);
-    assert(t.isrunning());
-    // open file for input and output
-    std::fstream file(fname.c_str());
-    assertalways(file.good());
-    checkformodifications(file);
-    writeheaderifneeded(file);
-    writeresults(file, result, errormargin);
-    if (savestate) {
+    if (savestate)
         writestate(file);
-    }
-    // update write-position
-    fileptr = file.tellp();
-    finishwithfile(file);
-    // stop timer and clear setup flag (in preparation for next simulation run)
-    t.stop();
-    filesetup = false;
+    if (!interim)
+        // update write-position
+        fileptr = file.tellp();
 }
 
 /*! \brief Set up the results file and look for a state

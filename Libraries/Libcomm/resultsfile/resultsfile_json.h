@@ -33,16 +33,14 @@ class resultsfile_json : public resultsfile
 protected:
     /*! \name System-specific functions */
     void lookforstate(std::istream& sin) override;
+    void writeresults(std::fstream& file,
+                      libbase::vector<double>& result,
+                      libbase::vector<double>& errormargin,
+                      bool savestate,
+                      bool interim) override;
     // @}
-
 public:
     using resultsfile::resultsfile;
-
-    void writeinterimresults(libbase::vector<double>& result,
-                             libbase::vector<double>& errormargin) override;
-    void writefinalresults(libbase::vector<double>& result,
-                           libbase::vector<double>& errormargin,
-                           bool savestate) override;
 };
 } // namespace libcomm
 

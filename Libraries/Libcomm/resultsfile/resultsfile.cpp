@@ -134,4 +134,51 @@ resultsfile::setupfile()
     filesetup = true;
 }
 
+/*! \brief Write current results and state
+ * This method can be called as many times as required; usually this is
+ * called after every update. File writes are limited to occur no more often
+ * than 30 seconds (this quantity is hard-wired).
+ */
+void
+resultsfile::writeinterimresults(libbase::vector<double>& result,
+                                 libbase::vector<double>& errormargin)
+{
+    assert(filesetup);
+    assert(t.isrunning());
+    // restrict updates to occur every 30 seconds or less
+    if (t.elapsed() < 30) {
+        return;
+    }
+    // open file for input and output
+    std::fstream file(fname.c_str());
+    assertalways(file.good());
+    writeresults(file, result, errormargin, true, true);
+    finishwithfile(file);
+    // restart timer
+    t.start();
+}
+
+/*! \brief Write final results and state
+ * This method is called when the final result is reached. A file write is
+ * guaranteed to occur. The write-limiting timer is also stopped to avoid
+ * lapsing on object destruction. If requested, the final state is also
+ * written.
+ */
+void
+resultsfile::writefinalresults(libbase::vector<double>& result,
+                               libbase::vector<double>& errormargin,
+                               bool savestate)
+{
+    assert(filesetup);
+    assert(t.isrunning());
+    // open file for input and output
+    std::fstream file(fname.c_str());
+    assertalways(file.good());
+    writeresults(file, result, errormargin, savestate, false);
+    finishwithfile(file);
+    // stop timer and clear setup flag (in preparation for next simulation run)
+    t.stop();
+    filesetup = false;
+}
+
 } // namespace libcomm

@@ -42,6 +42,11 @@ protected:
                       libbase::vector<double>& errormargin) const;
     void writestate(std::ostream& sout) const;
     void lookforstate(std::istream& sin) override;
+    void writeresults(std::fstream& file,
+                      libbase::vector<double>& result,
+                      libbase::vector<double>& errormargin,
+                      bool savestate,
+                      bool interim) override;
     // @}
 
     /*! \name Results file text helper functions */
@@ -53,11 +58,6 @@ public:
     using resultsfile::resultsfile;
 
     void setupfile() override;
-    void writeinterimresults(libbase::vector<double>& result,
-                             libbase::vector<double>& errormargin) override;
-    void writefinalresults(libbase::vector<double>& result,
-                           libbase::vector<double>& errormargin,
-                           bool savestate) override;
 };
 } // namespace libcomm
 

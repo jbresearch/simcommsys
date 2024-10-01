@@ -34,16 +34,14 @@ resultsfile_json::lookforstate(std::istream& sin)
 {
 }
 
+/*! \brief Write current results and perhaps the state
+ */
 void
-resultsfile_json::writeinterimresults(libbase::vector<double>& result,
-                                      libbase::vector<double>& errormargin)
-{
-}
-
-void
-resultsfile_json::writefinalresults(libbase::vector<double>& result,
-                                    libbase::vector<double>& errormargin,
-                                    bool savestate)
+resultsfile_json::writeresults(std::fstream& file,
+                               libbase::vector<double>& result,
+                               libbase::vector<double>& errormargin,
+                               bool savestate,
+                               bool interim)
 {
 }
 
