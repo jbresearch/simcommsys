@@ -20,6 +20,7 @@
  */
 
 #include "resultsfile_json.h"
+#include "assertalways.h"
 #include "config.h"
 #include "montecarlo.h"
 #include "timer.h"
@@ -28,6 +29,7 @@
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -49,7 +51,14 @@ resultsfile_json::readjson(std::fstream& sout) const
     if (!isempty(sout)) {
         // file is not empty, we need to update contents of it.
         sout.seekg(0); // ensure we are reading from start of file.
-        data = json::parse(sout);
+        try {
+            data = json::parse(sout);
+        } catch (json::parse_error& e) {
+            std::stringstream err;
+            err << "JSON parse Error when reading results file " << get_fname()
+                << " at byte " << e.byte;
+            failwith(err.str());
+        }
     }
     return data;
 }
