@@ -31,6 +31,7 @@
 #    include <sys/types.h>
 #    include <unistd.h>
 #endif
+#include <cerrno>
 
 namespace libcomm
 {
@@ -55,7 +56,7 @@ resultsfile::finishwithfile(std::fstream& file)
 }
 
 void
-resultsfile::truncate(std::streampos length)
+resultsfile::truncate(std::streampos length) const
 {
     assert(!fname.empty());
 #ifdef _WIN32
@@ -64,7 +65,8 @@ resultsfile::truncate(std::streampos length)
     _chsize_s(fd, length);
     _close(fd);
 #else
-    assertalways(::truncate(fname.c_str(), length) == 0);
+    if (::truncate(fname.c_str(), length) != 0)
+        failwith(strerror(errno));
 #endif
 }
 
