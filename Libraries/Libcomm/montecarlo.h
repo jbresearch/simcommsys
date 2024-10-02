@@ -26,7 +26,7 @@
 
 #include "experiment.h"
 #include "masterslave.h"
-#include "resultsfile/resultsfile.h"
+#include "resultsfile.h"
 #include "resultsfile/resultsfile_factory.h"
 #include "sha.h"
 #include "truerand.h"
