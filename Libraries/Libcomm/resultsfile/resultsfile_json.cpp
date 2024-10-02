@@ -26,6 +26,7 @@
 #include "timer.h"
 #include "version.h"
 
+#include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -39,20 +40,20 @@ namespace libcomm
 {
 
 inline bool
-isempty(std::fstream& f)
+isempty(std::string fname)
 {
-    std::streampos offset = f.tellg();
-    f.seekg(0, std::ios_base::end);
-    bool isempty = f.peek() == std::fstream::traits_type::eof();
-    f.seekg(offset);
-    return isempty;
+    FILE* fp = fopen(fname.c_str(), "r");
+    fseek(fp, 0, SEEK_END);
+    int size = ftell(fp);
+    fclose(fp);
+    return size == 0;
 }
 
 json
 resultsfile_json::readjson(std::fstream& sout) const
 {
     json data;
-    if (!isempty(sout)) {
+    if (!isempty(this->get_fname())) {
         // file is not empty, we need to update contents of it.
         sout.seekg(0); // ensure we are reading from start of file.
         try {
@@ -75,10 +76,8 @@ resultsfile_json::writejson(std::fstream& sout, const json& data) const
     // truncate contents of file, so we are writing to an empty file.
     this->truncate(sout.tellp());
     // get dump of data and write it to the file.
-    std::string dump = data.dump();
-    sout.write(dump.c_str(), dump.size());
-    // set sout to point to end-of-file.
-    sout.seekp(0, std::ios_base::end);
+    std::string dump = data.dump(1);
+    sout << dump << std::flush;
 }
 
 void
@@ -203,7 +202,7 @@ resultsfile_json::writemetadata(std::fstream& sout) const
 void
 resultsfile_json::writemetadataifneeded(std::fstream& sout) const
 {
-    if (isempty(sout)) {
+    if (isempty(this->get_fname())) {
         // file is empty, we are opening it for the first time.
         writemetadata(sout);
     }
