@@ -229,6 +229,8 @@ public:
         *this = dynamic_cast<const vector<A>&>(x);
         return *this;
     }
+    //! \brief copy to standard vector
+    operator std::vector<T>() const;
     // @}
 
     /*! \brief Swap two vectors (constant time)
@@ -708,6 +710,15 @@ vector<T>::operator=(const A x)
 #endif
     test_invariant();
     return *this;
+}
+
+template <class T>
+inline vector<T>::operator std::vector<T>() const
+{
+    std::vector<T> x(m_size.length());
+    for (int i = 0; i < m_size.length(); i++)
+        x[i] = (*this)(i);
+    return x;
 }
 
 // Resizing operations
