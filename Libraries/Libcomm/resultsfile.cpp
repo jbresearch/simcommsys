@@ -80,7 +80,7 @@ resultsfile::wasmodified(std::fstream& file)
     curdigest.process(file);
     // reset file
     file.clear();
-    return curdigest == filedigest;
+    return curdigest != filedigest;
 }
 
 // File handling interface

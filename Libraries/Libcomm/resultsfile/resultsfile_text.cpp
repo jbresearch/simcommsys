@@ -179,13 +179,13 @@ void
 resultsfile_text::checkformodifications(std::fstream& file)
 {
     if (wasmodified(file)) {
-        file.seekp(fileptr);
-    } else {
         std::cerr << "NOTICE: file modifications found - appending."
                   << std::endl;
         // set current write position to end-of-file
         file.seekp(0, std::ios_base::end);
         fileptr = file.tellp();
+    } else {
+        file.seekp(fileptr);
     }
 }
 
