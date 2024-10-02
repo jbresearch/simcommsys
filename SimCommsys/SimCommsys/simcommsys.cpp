@@ -212,6 +212,10 @@ main(int argc, char* argv[])
     desc.add_options()("seed,s",
                        po::value<libbase::int32u>(),
                        "system initialization seed (random if not stated)");
+    desc.add_options()("output-format,f",
+                       po::value<std::string>()->default_value("text"),
+                       "output format; use text for regular human-readable "
+                       "output, json for machine-readable JSON output.");
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
@@ -244,6 +248,7 @@ main(int argc, char* argv[])
         // main process
         {
             // Simulation system & parameters
+            estimator.set_output_format(vm["output-format"].as<std::string>());
             estimator.set_resultsfile(vm["results-file"].as<std::string>());
             std::shared_ptr<libcomm::experiment> system =
                 createsystem(vm["system-file"].as<std::string>());

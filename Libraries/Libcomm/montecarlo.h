@@ -131,8 +131,7 @@ protected:
 public:
     /*! \name Constructor/destructor */
     montecarlo()
-        : results_file(resultsfile_factory::get_resultsfile("text", *this)),
-          min_samples(128), confidence(0.95), threshold(0.10),
+        : min_samples(128), confidence(0.95), threshold(0.10),
           mode(mode_relative_error), t("montecarlo"),
           tupdate("montecarlo_update")
     {
@@ -227,6 +226,15 @@ public:
                        << threshold << std::endl;
         this->threshold = threshold;
         this->mode = mode_accumulated_result;
+    }
+    /*! \brief Set the output format.
+     * \note This creates the \ref resultsfile object used by \ref montecarlo
+     * and hence must be called before montecarlo::set_resultsfile.
+     */
+    void set_output_format(std::string output_format)
+    {
+        results_file =
+            resultsfile_factory::get_resultsfile(output_format, *this);
     }
     //! Associates with given results file
     void set_resultsfile(const std::string& fname)
