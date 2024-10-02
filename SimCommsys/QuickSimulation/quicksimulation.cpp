@@ -137,7 +137,7 @@ main(int argc, char* argv[])
         "overrides absolute and relative error if specified");
     desc.add_options()(
         "min-samples", po::value<int>(), "minimum number of samples");
-    desc.add_options()("output-format",
+    desc.add_options()("output-format,f",
                        po::value<std::string>()->default_value("text"),
                        "output format; use text for regular human-readable "
                        "output, json for machine-readable JSON output.");
