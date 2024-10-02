@@ -104,6 +104,9 @@ resultsfile::init(const std::string& fname)
  *
  * \note The current simulation must be already set up at this point, so that
  * a valid comparison can be made.
+ *
+ * \note Subclasses of \ref resultsfile should typically call
+ * resultsfile::setupfile() or duplicate the work done in it.
  */
 void
 resultsfile::setupfile()

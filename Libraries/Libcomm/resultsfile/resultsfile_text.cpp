@@ -58,9 +58,14 @@ resultsfile_text::writeheader(std::ostream& sout) const
                    << sout.tellp() << std::endl;
 }
 
-/*! \brief If this is the first time, write the header
- * \note This method also updates the write position so that the header is not
- * overwritten on the next write.
+/*! \brief Checks whether header has already been written and writes it if
+ * not.
+ *
+ * The resultsfile_text::headerwritten member variable keeps track of
+ * whether or not header has been written.
+ *
+ * \note This method also updates the write position so that the header is
+ * not overwritten on the next write.
  */
 void
 resultsfile_text::writeheaderifneeded(std::fstream& file)
@@ -163,6 +168,13 @@ resultsfile_text::lookforstate(std::istream& sin)
     }
 }
 
+/*! \brief Checks if file has been modified using resultsfile::wasmodified(), if
+ * yes sets fileptr to EOF.
+ *
+ * This ensures that if file is modified by a user or external process while
+ * we are handling it, we start appending to the end of the file instead of
+ * risking a corrupted file.
+ */
 void
 resultsfile_text::checkformodifications(std::fstream& file)
 {
@@ -203,9 +215,6 @@ resultsfile_text::writeresultsandstate(std::fstream& file,
  * If the file does not exist, a new one is created. Otherwise, the write
  * point is set to the end of file and a digest of the current file contents
  * is kept. A search for a saved state is also initiated by this method.
- *
- * \note The current simulation must be already set up at this point, so that
- * a valid comparison can be made.
  */
 void
 resultsfile_text::setupfile()

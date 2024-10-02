@@ -28,6 +28,16 @@
 namespace libcomm
 {
 
+/*!
+ * \brief   Results Text File Handler.
+ * \author  Johann Briffa, Mark Mizzi
+ *
+ * This class encapsulates the process of writing results to a file in the
+ * legacy text format. The user is allowed to manipulate the file between
+ * writes, in which case output will be appended to the end of the file.
+ * External modifications are tracked by \ref resultsfile using the
+ * resultsfile::filedigest and associated mechanisms.
+ */
 class resultsfile_text : public resultsfile
 {
 private:

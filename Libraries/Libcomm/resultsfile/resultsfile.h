@@ -36,15 +36,18 @@ class montecarlo;
 
 /*!
  * \brief   Results File Handler.
- * \author  Johann Briffa
+ * \author  Johann Briffa, Mark Mizzi
  *
  * This class encapsulates the process of writing results to a file. It opens
  * and closes the file for every write, ensuring that written results are
- * flushed, and also allowing the user to manipulate the file between writes.
+ * flushed, and also detecting external modifications of the file.
  *
  * The handler keeps track of the file digest between writes, checking for
- * any external changes. In such cases, the file is considered 'modified'
- * and the next write happens at the end of the file.
+ * any external changes. In such cases, the file is considered 'modified'.
+ * External modifications are handled by subclasses which can choose whether or
+ * not they are allowed; modifications can be detected within subclasses using
+ * resultsfile::wasmodified() which checks the file against
+ * resultsfile::filedigest.
  *
  * The handler also allows 'interim' result writing. In this case, the result
  * is written together with the simulation state. This allows the user to
@@ -53,21 +56,13 @@ class montecarlo;
  * state is performed. If this matches the current system at the current
  * parameter, this state needs to be loaded.
  *
- * \note The handler does not specify the format for writing any of the
- * header, result lines, or state. Instead, these functions are performed
- * by virtual methods.
+ * \note The handler does not specify the format for writing results or state.
+ * Instead, these functions are performed by the
+ * resultsfile::writeresultsandstate() pure virtual method.
  *
  * Classes implementing this interface need to:
- * 1) provide implementations for virtual methods (writing header, results
- *    and state, and seeking + reading state)
- * 2) use the interface as follows:
- *    a) init() to provide filename, after which the following may be used:
- *    b) setupfile() to look for a state; the current simulation must be
- *       already set up at this point, so that a valid comparison can be made.
- *    c) writeinterimresults() as many times as required; usually this is
- *       called after every update. The handler limits file writes to occur
- *       no more often than 30 seconds.
- *    d) writefinalresults() one last time; this is guaranteed to happen.
+ * 1) provide implementations for virtual methods (writing results and state,
+ * looking for a state)
  */
 
 class resultsfile

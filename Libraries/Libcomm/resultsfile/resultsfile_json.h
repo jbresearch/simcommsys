@@ -28,6 +28,16 @@
 namespace libcomm
 {
 
+/*!
+ * \brief   Results JSON File Handler.
+ * \author  Mark Mizzi
+ *
+ * This class encapsulates the process of writing results to a file in the
+ * JSON format. The user is not allowed to manipulate the file between
+ * writes; detecting an external modification will trigger a fatal error.
+ * External modifications are tracked by \ref resultsfile using the
+ * resultsfile::filedigest and associated mechanisms.
+ */
 class resultsfile_json : public resultsfile
 {
 protected:
