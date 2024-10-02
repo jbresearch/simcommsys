@@ -41,7 +41,11 @@ namespace libcomm
 inline bool
 isempty(std::fstream& f)
 {
-    return f.peek() == std::ifstream::traits_type::eof();
+    std::streampos offset = f.tellg();
+    f.seekg(0, std::ios_base::end);
+    bool isempty = f.peek() == std::fstream::traits_type::eof();
+    f.seekg(offset);
+    return isempty;
 }
 
 json
@@ -66,12 +70,15 @@ resultsfile_json::readjson(std::fstream& sout) const
 void
 resultsfile_json::writejson(std::fstream& sout, const json& data) const
 {
-    // Re-open file so as to truncate all current contents.
-    sout.open(this->get_fname(),
-              std::fstream::in | std::fstream::out | std::fstream::trunc);
+    // set write pos to start of file
+    sout.seekp(0);
+    // truncate contents of file, so we are writing to an empty file.
+    this->truncate(sout.tellp());
     // get dump of data and write it to the file.
     std::string dump = data.dump();
     sout.write(dump.c_str(), dump.size());
+    // set sout to point to end-of-file.
+    sout.seekp(0, std::ios_base::end);
 }
 
 void
@@ -88,7 +95,7 @@ resultsfile_json::lookforstate(std::fstream& sin)
     libbase::trace << "DEBUG (resultsfile_json): looking for state."
                    << std::endl;
 
-    json data = readjson(sin);
+    json data = this->readjson(sin);
 
     if (data.contains("state")) {
         json& state_json = data["state"];
