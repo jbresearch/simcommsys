@@ -130,7 +130,7 @@ resultsfile_text::writestate(std::ostream& sout) const
 }
 
 void
-resultsfile_text::lookforstate(std::istream& sin)
+resultsfile_text::lookforstate(std::fstream& sin)
 {
     assert(sin.good());
     // state variables to read

@@ -22,8 +22,12 @@
 #ifndef __resultsfile_json_h
 #define __resultsfile_json_h
 
+#include "assertalways.h"
 #include "resultsfile.h"
+
+#include <fstream>
 #include <iostream>
+#include <nlohmann/json.hpp>
 
 namespace libcomm
 {
@@ -40,14 +44,59 @@ namespace libcomm
  */
 class resultsfile_json : public resultsfile
 {
+private:
+    /*! \name System-specific functions */
+    /*! \brief Writes results for a specific parameter to output file in JSON
+     * format. */
+    void writeresults(std::fstream& sout,
+                      libbase::vector<double>& result,
+                      libbase::vector<double>& errormargin) const;
+    /*! \brief Writes state to output file in JSON format. */
+    void writestate(std::fstream& sout) const;
+    /*! \brief Writes metadata to the output file, such as date and Simcommsys
+     * version. */
+    void writemetadata(std::fstream& sout) const;
+    /*! \brief Determines if metadata needs to be written to output file;
+     * metadata should only be written once to an output file.
+     *
+     * \note At the moment this function simply checks if the file is empty or
+     * not. If empty it writes metadata.
+     */
+    void writemetadataifneeded(std::fstream& sout) const;
+    // @}
+
+    /*! \name Helper methods for reading/writing JSON data to the files. */
+    /*! \brief Read JSON data in \p sout if any and return it (empty JSON object
+     * is returned if file is empty)
+     */
+    nlohmann::json readjson(std::fstream& sout) const;
+    /*! \brief Write JSON \p data to file specified by \p sout
+     * \note Contents of \p sout are truncated when writing.
+     */
+    void writejson(std::fstream& sout, const nlohmann::json& data) const;
+    // @}
+
 protected:
     /*! \name System-specific functions */
-    void lookforstate(std::istream& sin) override;
+    void lookforstate(std::fstream& sin) override;
+    /*! \brief Write current results and perhaps the state
+     */
     void writeresultsandstate(std::fstream& file,
                               libbase::vector<double>& result,
                               libbase::vector<double>& errormargin,
                               bool savestate,
-                              bool interim) override;
+                              bool interim) override
+    {
+        if (this->wasmodified(file))
+            failwith(
+                "Output file cannot be modified during simulation when using "
+                "JSON format.");
+
+        writemetadataifneeded(file);
+        writeresults(file, result, errormargin);
+        if (savestate)
+            writestate(file);
+    };
     // @}
 public:
     using resultsfile::resultsfile;

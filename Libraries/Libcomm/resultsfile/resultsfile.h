@@ -90,7 +90,7 @@ protected:
     void finishwithfile(std::fstream& file);
     void truncate(std::streampos length);
     bool wasmodified(std::fstream& file);
-    virtual void lookforstate(std::istream& sin) = 0;
+    virtual void lookforstate(std::fstream& sin) = 0;
     virtual void writeresultsandstate(std::fstream& file,
                                       libbase::vector<double>& result,
                                       libbase::vector<double>& errormargin,

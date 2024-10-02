@@ -23,6 +23,7 @@
 #define __resultsfile_text_h
 
 #include "resultsfile.h"
+#include <fstream>
 #include <iostream>
 
 namespace libcomm
@@ -54,7 +55,7 @@ protected:
                       libbase::vector<double>& result,
                       libbase::vector<double>& errormargin) const;
     void writestate(std::ostream& sout) const;
-    void lookforstate(std::istream& sin) override;
+    void lookforstate(std::fstream& sin) override;
     void writeresultsandstate(std::fstream& file,
                               libbase::vector<double>& result,
                               libbase::vector<double>& errormargin,
