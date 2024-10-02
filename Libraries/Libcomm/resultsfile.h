@@ -88,9 +88,14 @@ protected:
 
     /*! \name Results file helper functions */
     void finishwithfile(std::fstream& file);
-    void truncate(std::streampos length);
+    void truncate(std::streampos length) const;
     bool wasmodified(std::fstream& file);
     virtual void lookforstate(std::fstream& sin) = 0;
+    /*! \brief Write results and possibly state to output file.
+     * \note Implementing classes should always set \ref std::fstream to point
+     * to the end of the data they are writing, as anything after will be
+     * truncated.
+     */
     virtual void writeresultsandstate(std::fstream& file,
                                       libbase::vector<double>& result,
                                       libbase::vector<double>& errormargin,
