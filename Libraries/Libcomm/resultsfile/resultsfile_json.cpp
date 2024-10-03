@@ -76,7 +76,7 @@ resultsfile_json::writejson(std::fstream& sout, const json& data) const
     // truncate contents of file, so we are writing to an empty file.
     this->truncate(sout.tellp());
     // get dump of data and write it to the file.
-    std::string dump = data.dump(1);
+    std::string dump = data.dump(1, '\t', true);
     sout << dump << std::flush;
 }
 
@@ -114,6 +114,9 @@ resultsfile_json::lookforstate(std::fstream& sin)
         std::cerr << "NOTICE: Reloading state with " << samplecount
                   << " samples." << std::endl;
         system->accumulate_state(samplecount, state);
+    } else if (!digest.empty() &&
+               digest != std::string(simulator->get_sysdigest())) {
+        failwith("User tried using results file for different system.");
     }
 }
 
