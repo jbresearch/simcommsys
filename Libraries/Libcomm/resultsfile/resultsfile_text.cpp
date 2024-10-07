@@ -23,6 +23,7 @@
 #include "montecarlo.h"
 #include "vector.h"
 #include "version.h"
+#include <cassert>
 #include <fstream>
 
 namespace libcomm
@@ -190,7 +191,7 @@ resultsfile_text::checkformodifications(std::fstream& file)
 }
 
 /*! \brief Write current results and perhaps the state
- * \note If the state being written is final rather than interim, the write
+ * \note If the result being written is final rather than interim, the write
  * position is updated so that it is not overwritten. Otherwise it is not
  * updated.
  */
@@ -204,11 +205,15 @@ resultsfile_text::writeresultsandstate(std::fstream& file,
     checkformodifications(file);
     writeheaderifneeded(file);
     writeresults(file, result, errormargin);
+    if (!interim)
+        // update write-position so we don't overwrite these results on next
+        // run.
+        fileptr = file.tellp();
     if (savestate)
         writestate(file);
     if (!interim)
-        // update write-position
-        fileptr = file.tellp();
+        // truncate to remove extra content related to state
+        this->truncate(fileptr);
 }
 
 /*! \brief Set up the results file and look for a state

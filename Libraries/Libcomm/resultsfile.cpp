@@ -40,18 +40,13 @@ using libbase::vector;
 
 // Results file helper functions
 
-/*! \brief Close and truncate the file, and update digest
- * Truncation is needed to remove any detritus from previously-saved states.
+/*! \brief Update \ref filedigest
  */
 void
 resultsfile::finishwithfile(std::fstream& file)
 {
-    std::streampos length = file.tellp();
-    // close and truncate file
-    file.close();
-    truncate(length);
-    // re-open and update digest
-    file.open(fname.c_str(), std::ios::in);
+    // update the filedigest
+    file.seekg(0);
     filedigest.process(file);
 }
 
