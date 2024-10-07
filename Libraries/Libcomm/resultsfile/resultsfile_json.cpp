@@ -58,6 +58,7 @@ resultsfile_json::readjson(std::fstream& sout) const
         sout.seekg(0); // ensure we are reading from start of file.
         try {
             data = json::parse(sout);
+            sout.clear();
         } catch (json::parse_error& e) {
             std::stringstream err;
             err << "JSON parse Error when reading results file " << get_fname()
@@ -76,6 +77,7 @@ resultsfile_json::writejson(std::fstream& sout, const json& data) const
     // truncate contents of file, so we are writing to an empty file.
     this->truncate(sout.tellp());
     // get dump of data and write it to the file.
+    assert(sout.good());
     std::string dump = data.dump(1, '\t', true);
     sout << dump << std::flush;
 }
@@ -118,6 +120,15 @@ resultsfile_json::lookforstate(std::fstream& sin)
                digest != std::string(simulator->get_sysdigest())) {
         failwith("User tried using results file for different system.");
     }
+}
+
+void
+resultsfile_json::deletestate(std::fstream& sout)
+{
+    json data = this->readjson(sout);
+    if (data.contains("state"))
+        data.erase("state");
+    this->writejson(sout, data);
 }
 
 void

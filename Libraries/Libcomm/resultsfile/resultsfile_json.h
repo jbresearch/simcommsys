@@ -79,6 +79,8 @@ private:
 protected:
     /*! \name System-specific functions */
     void lookforstate(std::fstream& sin) override;
+    void deletestate(std::fstream& sout);
+
     /*! \brief Write current results and perhaps the state
      */
     void writeresultsandstate(std::fstream& file,
@@ -94,8 +96,10 @@ protected:
 
         writemetadataifneeded(file);
         writeresults(file, result, errormargin);
-        if (savestate)
+        if (savestate && interim)
             writestate(file);
+        if (!interim)
+            deletestate(file);
     };
     // @}
 public:
