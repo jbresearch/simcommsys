@@ -45,31 +45,31 @@
             {
                 "NodeType": "encode",
                 "Codec": "codec1",
-                "Outputs": ["encoded"]   
+                "Output": "encoded"   
             },
             {
                 "NodeType": "map",
                 "Mapper": "mapper1",
                 "Inputs": ["encoded"],
-                "Outputs": ["mapped"]   
+                "Output": "mapped"   
             },
             {
                 "NodeType": "modulate",
                 "Modem": "mymodem1",
                 "Inputs": ["mapped"],
-                "Outputs": ["modulated"]   
+                "Output": "modulated"   
             },
             {
                 "NodeType": "transmit",
                 "Channel": "mychannel1",
                 "Inputs": ["modulated"],
-                "Outputs": ["transmitted"]   
+                "Output": "transmitted"   
             },
             {
                 "NodeType": "demodulate",
                 "Modem": "mymodem1",
                 "Inputs": ["transmitted"],
-                "Outputs": ["demodulated"] 
+                "Output": "demodulated" 
             },
             // ...
             {
@@ -80,105 +80,17 @@
                     {
                         "NodeType": "decode",
                         "Codec": "codec1",
-                        "Outputs": ["decoded"] 
+                        "Output": "decoded" 
                     }
                 ],
                 "NIters": 100,
                 "Inputs": ["unmapped"],
-                "Outputs": ["decoded"] 
+                "Output": "decoded" 
             }
         ]
     }
 }
 ```
-
-### Specifying `commsys_fulliter` using the new language
-
-TODO: Continue
-
-``` json
-{
-    "Simulator": "commsys_simulator",
-    "InputMode": "random",
-    "Codecs": [
-        "Name": "codec1",
-        "Codec": "ldpc<gf16,float>",
-        "Args": {
-            "Version": "5",
-            "SPAType": "gdl_cuda",
-            ...
-        },
-    ],
-    "Mappers": [
-        {
-            "Name": "mapper1",
-            "Mapper": "map_straight<vector,double>",
-        }
-    ],
-    "Modems": [
-        {
-            "Name": "mymodem1",
-            "Modem": "direct_blockmodem<gf16,vector,double>"
-        }
-    ],
-    "Channels": [
-        {
-            "Name": "mychannel1",
-            "Channel": "qsc<gf16>"
-        }
-    ]
-    "System": {
-        "ClassName": "commsys",
-        "InputType": "vector<gf16>",
-        "OutputType": "vector<vector<gf16>>",
-        "StartIdx": 0,
-        "Nodes": [
-            {
-                "NodeType": "encode",
-                "Codec": "codec1",
-                "Outputs": ["encoded"]   
-            },
-            {
-                "NodeType": "map",
-                "Codec": "mapper1",
-                "Inputs": ["encoded"],
-                "Outputs": ["mapped"]   
-            },
-            {
-                "NodeType": "modulate",
-                "Codec": "mymodem1",
-                "Inputs": ["mapped"],
-                "Outputs": ["modulated"]   
-            },
-            {
-                "NodeType": "transmit",
-                "Codec": "mychannel1",
-                "Inputs": ["modulated"],
-                "Outputs": ["transmitted"]   
-            },
-            {
-                "NodeType": "zeros",
-                "Type": "vector<vector<double>>",
-                "Outputs": ["ptable_ext_modem"] 
-            },
-            {
-                "NodeType": "repeat",
-
-            }
-            // ... CONTINUE
-            {
-                "NodeType": "informed_demodulate",
-                "Modem": "stream_modulator<gf16, vector>",
-                "Inputs": []
-            }
-        ]
-    }
-}
-```
-
-### Specifying `commsys_stream` using the new language
-
-TODO: Continue
 
 ## Implementation
 
