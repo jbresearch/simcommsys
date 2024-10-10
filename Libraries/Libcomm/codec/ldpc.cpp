@@ -501,7 +501,7 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
                     GF_q(1 + int(rng.ival(num_of_non_zero_elements)));
             }
             assertalways(non_zero_vals.min() != GF_q(0));
-        } else {
+        } else { // has to be "provided"
             sin >> libbase::eatcomments >> non_zero_vals >> libbase::verify;
             assertalways(non_zero_vals.min() != GF_q(0));
         }
