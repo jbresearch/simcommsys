@@ -698,8 +698,8 @@ std::istream&
 ldpc<GF_q, real>::read_alist(std::istream& sin)
 {
     assertalways(sin.good());
-    int numOfElements = GF_q::elements();
-    bool nonbinary = (numOfElements > 2);
+    const int numOfElements = GF_q::elements();
+    const bool nonbinary = (numOfElements > 2);
 
     sin >> libbase::eatcomments >> this->length_n >> libbase::verify;
     sin >> libbase::eatcomments >> this->dim_pchk >> libbase::verify;
