@@ -159,29 +159,6 @@ square(const T x)
 typedef SSIZE_T ssize_t;
 #endif
 
-// Define math functions to identify NaN and Inf values
-
-#ifdef _WIN32
-inline int
-isnan(double value)
-{
-    return _isnan(value);
-}
-
-inline int
-isinf(double value)
-{
-    switch (_fpclass(value)) {
-    case _FPCLASS_NINF:
-        return -1;
-    case _FPCLASS_PINF:
-        return +1;
-    default:
-        return 0;
-    }
-}
-#endif // ifdef _WIN32
-
 // C99 Names for integer types - only on Windows prior to MSVC++ 10.0 (VS 2010)
 #if defined(_WIN32) && (_MSC_VER < 1600)
 typedef __int8 int8_t;
