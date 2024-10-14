@@ -189,6 +189,9 @@ CCopts := $(CCopts) -Wall -Werror
 # Disable the array-bounds warning due to a GCC 11 bug with boost::multi_array<bool,>
 # TODO: remove when no longer needed
 CCopts := $(CCopts) -Wno-array-bounds
+# Disable: stringop-overflow, restrict, overloaded-virtual
+# TODO: remove when no longer needed
+CCopts := $(CCopts) -Wno-stringop-overflow -Wno-restrict -Wno-overloaded-virtual
 CCopts := $(CCopts) -std=c++17
 # Architecture-specific options (auto-detected from build computer)
 CCopts := $(CCopts) -march=$(USE_ARCH)
