@@ -207,6 +207,8 @@ CCopts := $(CCopts) -Wall -Werror
 # TODO: remove when no longer needed
 CCopts := $(CCopts) -Wno-array-bounds
 CCopts := $(CCopts) -std=c++17
+# -fPIE is required for libraries to be usable from Rust
+CCopts := $(CCopts) -fPIE
 
 # OMP options
 ifneq ($(USE_OMP),0)
