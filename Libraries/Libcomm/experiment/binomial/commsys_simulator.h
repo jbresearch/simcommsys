@@ -43,7 +43,7 @@ namespace libcomm
  * \todo Update interface to allow use of source<S> rather than source<int>
  */
 
-template <class S, class R, bool analyze_decode_iters = false>
+template <class S, class R>
 class commsys_simulator : public experiment_binomial, public R
 {
 public:
@@ -63,6 +63,8 @@ protected:
     array1i_t last_event;
     // @}
 
+    bool analyze_decode_iters = false;
+
 protected:
     // System Interface for Results
     int get_symbolsperframe() const
@@ -79,7 +81,7 @@ public:
      *
      * Initializes system with bound objects cloned from supplied system.
      */
-    commsys_simulator(const commsys_simulator<S, R, analyze_decode_iters>& c)
+    commsys_simulator(const commsys_simulator<S, R>& c)
         : src(std::dynamic_pointer_cast<source<int>>(c.src->clone())),
           sys(std::dynamic_pointer_cast<commsys<S>>(c.sys->clone()))
     {

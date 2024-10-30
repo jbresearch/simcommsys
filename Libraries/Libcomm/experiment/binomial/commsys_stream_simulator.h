@@ -51,12 +51,12 @@ namespace libcomm
  * \tparam real Floating-point type for metric computer interface
  */
 template <class S, class R, class real>
-class commsys_stream_simulator : public commsys_simulator<S, R, true>
+class commsys_stream_simulator : public commsys_simulator<S, R>
 {
 private:
     // Shorthand for class hierarchy
     typedef commsys_stream_simulator<S, R, real> This;
-    typedef commsys_simulator<S, R, true> Base;
+    typedef commsys_simulator<S, R> Base;
 
 public:
     /*! \name Type definitions */

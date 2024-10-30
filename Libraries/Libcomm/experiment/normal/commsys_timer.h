@@ -41,7 +41,7 @@ template <class S>
 class commsys_timer : public experiment_normal
 {
 private:
-    commsys_simulator<S, errors_hamming, false> simulator; //!< Base simulator object
+    commsys_simulator<S, errors_hamming> simulator; //!< Base simulator object
     std::vector<double> timings;    //!< List of timings from last cycle
     std::vector<std::string> names; //!< List of timer names from last cycle
 

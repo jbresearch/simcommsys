@@ -62,10 +62,9 @@ namespace libcomm
  * so that every call adds to the existing result. This explains the need to
  * initialize the result vector to zero.
  */
-template <class S, class R, bool analyze_decode_iters>
+template <class S, class R>
 void
-commsys_simulator<S, R, analyze_decode_iters>::sample(
-    libbase::vector<double>& result)
+commsys_simulator<S, R>::sample(libbase::vector<double>& result)
 {
     // Reset timers
     this->reset_timers();
@@ -195,9 +194,9 @@ commsys_simulator<S, R, analyze_decode_iters>::sample(
 
 // Description & Serialization
 
-template <class S, class R, bool analyze_decode_iters>
+template <class S, class R>
 std::string
-commsys_simulator<S, R, analyze_decode_iters>::description() const
+commsys_simulator<S, R>::description() const
 {
     std::ostringstream sout;
     sout << "Simulator for ";
@@ -209,14 +208,15 @@ commsys_simulator<S, R, analyze_decode_iters>::description() const
 
 // object serialization - saving
 
-template <class S, class R, bool analyze_decode_iters>
+template <class S, class R>
 std::ostream&
-commsys_simulator<S, R, analyze_decode_iters>::serialize(
-    std::ostream& sout) const
+commsys_simulator<S, R>::serialize(std::ostream& sout) const
 {
     // format version
     sout << "# Version" << std::endl;
     sout << 3 << std::endl;
+    sout << "# Analyze all decode iterations" << std::endl;
+    sout << analyze_decode_iters << std::endl;
     sout << "# Source generator" << std::endl;
     sout << src;
     sout << "# Communication system" << std::endl;
@@ -236,9 +236,9 @@ commsys_simulator<S, R, analyze_decode_iters>::serialize(
  * \version 3 Using source-generator object
  */
 
-template <class S, class R, bool analyze_decode_iters>
+template <class S, class R>
 std::istream&
-commsys_simulator<S, R, analyze_decode_iters>::serialize(std::istream& sin)
+commsys_simulator<S, R>::serialize(std::istream& sin)
 {
     assertalways(sin.good());
     // get format version
@@ -249,6 +249,9 @@ commsys_simulator<S, R, analyze_decode_iters>::serialize(std::istream& sin)
         version = 0;
         sin.clear();
     }
+    // get analyze_decode_iters
+    sin >> libbase::eatcomments >> this->analyze_decode_iters >>
+        libbase::verify;
     // source-generator section depending on version
     if (version >= 3) {
         // source generator
@@ -366,15 +369,11 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
    (prof_sym) \
    (hist_symerr) \
    (fidelity_pos)
-#define BOOL_SEQ \
-    (true) \
-    (false)
 
 /* Serialization string: commsys_simulator<type,collector,bool>
  * where:
  *      type = sigspace | bool | gf2 | gf4 ...
  *      collector = errors_hamming | errors_levenshtein | ...
- *      bool = true | false
  */
 #define INSTANTIATE(r, args) \
       template class commsys_simulator<BOOST_PP_SEQ_ENUM(args)>; \
@@ -382,12 +381,11 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
       const serializer commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::shelper( \
             "experiment", \
             "commsys_simulator<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
-            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) "," \
-            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2,args)) ">", \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
             commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::create);
 // clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
-                              (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ)(BOOL_SEQ))
+                              (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ))
 
 } // namespace libcomm

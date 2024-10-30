@@ -55,6 +55,8 @@ template <class S, class R, class real>
 void
 commsys_stream_simulator<S, R, real>::sample(libbase::vector<double>& result)
 {
+    // Commsys stream files should have analyze_decode_iters set to true.
+    assertalways(this->analyze_decode_iters);
     assert(sys_enc);
 #ifndef NDEBUG
     std::cerr << "DEBUG (commsys_stream_simulator): sample() BEGIN"

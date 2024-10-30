@@ -37,13 +37,13 @@ namespace libcomm
  *
  * \todo Remove assumption of a dminner-derived modem.
  */
-template <class S, class R, bool analyze_decode_iters = false>
-class commsys_threshold : public commsys_simulator<S, R, analyze_decode_iters>
+template <class S, class R>
+class commsys_threshold : public commsys_simulator<S, R>
 {
 private:
     // Shorthand for class hierarchy
-    typedef commsys_threshold<S, R, analyze_decode_iters> This;
-    typedef commsys_simulator<S, R, analyze_decode_iters> Base;
+    typedef commsys_threshold<S, R> This;
+    typedef commsys_simulator<S, R> Base;
 
 public:
     // Experiment parameter handling
