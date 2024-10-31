@@ -319,7 +319,7 @@ montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
     sysdigest.process(is);
 
     // Initialize results-writing system (if we're using it)
-    if (results_file->isinitialized()) {
+    if (results_file != nullptr && results_file->isinitialized()) {
         results_file->setupfile();
     }
 
@@ -396,7 +396,7 @@ montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
             // print something to inform the user of our progress
             display(result, errormargin);
             // write interim results
-            if (results_file->isinitialized()) {
+            if (results_file != nullptr && results_file->isinitialized()) {
                 results_file->writeinterimresults(result, errormargin);
             }
         }
@@ -409,7 +409,7 @@ montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
     }
 
     // write final results
-    if (results_file->isinitialized()) {
+    if (results_file != nullptr && results_file->isinitialized()) {
         results_file->writefinalresults(result, errormargin, interrupt());
     }
 

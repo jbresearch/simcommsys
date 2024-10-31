@@ -49,7 +49,7 @@ private:
 
 private:
     /*! \name Bound objects */
-    std::unique_ptr<resultsfile> results_file;
+    std::unique_ptr<resultsfile> results_file = nullptr;
     std::shared_ptr<experiment> system; //!< System being sampled
     libbase::masterslave cluster;       //!< Master/slave interface
     // @}
@@ -165,7 +165,8 @@ public:
     void bind(std::shared_ptr<experiment> system)
     {
         this->system = system;
-        this->results_file->set_system(*system);
+        if (this->results_file != nullptr)
+            this->results_file->set_system(*system);
     }
     // @}
     /*! \name Simulation parameters */
