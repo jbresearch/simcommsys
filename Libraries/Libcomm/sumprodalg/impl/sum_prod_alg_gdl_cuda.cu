@@ -356,29 +356,50 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
                               int clipping_method,
                               real almostzero)
 {
+    int num_of_elements = GF_q::elements();
+
     // ranges over probability distributions in prob.
-    int loop_n = blockIdx.x * blockDim.x + threadIdx.x;
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    int loop_n = idx / num_of_elements;
     // bounds checking
     int n = probs.get_rows();
-    loop_n = min(loop_n, n - 1);
 
-    int num_of_elements = GF_q::elements();
-    real alpha = real(0.0);
+    if (loop_n < n) {
 
-    real tmp_prob;
-    for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
-        // Clipping HACK
-        tmp_prob = probs(loop_n, loop_e);
-        perform_clipping(tmp_prob, clipping_method, almostzero);
-        probs(loop_n, loop_e) = tmp_prob;
-        alpha += tmp_prob;
-    }
+        int loop_e = idx % num_of_elements;
 
-    cuda_assertalways(alpha != real(0.0));
+        // load probability for this thread and clip it.
+        real prob = probs(loop_n, loop_e);
+        perform_clipping(prob, clipping_method, almostzero);
 
-    // normalize probabilities (divide by alpha)
-    for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
-        probs(loop_n, loop_e) /= alpha;
+        // compute alpha
+        // Declaring a type-parametrized extern symbol in a template function
+        // will cause a name conflict if the template is instantiated multiple
+        // times. This is a problem since dynamically sized shared memory in
+        // CUDA is an extern symbol. So we declare a buffer of char aligned to
+        // the required type and then cast to a pointer of the type parameter.
+        // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
+        extern __shared__ __align__(sizeof(real)) char psums_buf[];
+        real* psums = reinterpret_cast<real*>(psums_buf);
+        psums[threadIdx.x] = prob;
+        __syncthreads();
+
+        // (almost) divergence free, parallel optimized summation.
+        // NOTE: GF_q::elements() is used instead of num_of_elements to
+        // encourage loop unrolling
+        for (int stride = 1; stride < GF_q::elements(); stride *= 2) {
+            if (threadIdx.x < GF_q::elements() / (2 * stride)) {
+                psums[threadIdx.x * stride * 2] +=
+                    psums[threadIdx.x * stride * 2 + stride];
+            }
+            __syncthreads();
+        }
+
+        real alpha = psums[0];
+        cuda_assertalways(alpha != real(0.0));
+
+        // normalize probabilities (divide by alpha)
+        probs(loop_n, loop_e) = prob / alpha;
     }
 }
 
@@ -390,12 +411,20 @@ clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
 {
     int n = probs.get_rows();
 
-    int warpsize = ::cuda::cudaGetWarpSize(::cuda::cudaGetCurrentDevice());
-    dim3 block_dim(warpsize);
-    dim3 num_blocks(ROUND_UP_DIV(n, (int)block_dim.x));
+    int max_threads_per_block =
+        ::cuda::cudaGetMaxThreadsPerBlock(::cuda::cudaGetCurrentDevice());
+    int smem_per_block =
+        ::cuda::cudaGetSharedMemPerBlock(::cuda::cudaGetCurrentDevice());
+    dim3 block_dim(
+        std::min(max_threads_per_block, smem_per_block / (int)sizeof(real)));
+    dim3 num_blocks(ROUND_UP_DIV(n * GF_q::elements(), (int)block_dim.x));
+
+    // summation of probabilities over a field must always fit in a block.
+    assertalways(block_dim.x >= GF_q::elements());
 
     clip_and_normalize_probs_kern<GF_q, real>
-        <<<num_blocks, block_dim>>>(probs, clipping_method, almostzero);
+        <<<num_blocks, block_dim, block_dim.x * sizeof(real)>>>(
+            probs, clipping_method, almostzero);
     cudaSafeCall(cudaGetLastError());
 
 #ifdef DEBUG
