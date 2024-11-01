@@ -711,7 +711,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
         this->clipping_method,
         this->almostzero);
 
-    this->add_timer(t_inv_hadamard);
+    this->add_timer(t_norm_r_mn);
     ////// END NORMALIZE
 }
 
