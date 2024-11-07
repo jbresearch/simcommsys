@@ -413,8 +413,12 @@ clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
 
     int max_threads_per_block =
         ::cuda::cudaGetMaxThreadsPerBlock(::cuda::cudaGetCurrentDevice());
+    // NOTE: As a heuristic we assume that we have half the actual smem
+    // available per block; this allows for the compiler to use some of the smem
+    // for vars without the kernel launch crashing.
+    // TODO: Optimize.
     int smem_per_block =
-        ::cuda::cudaGetSharedMemPerBlock(::cuda::cudaGetCurrentDevice());
+        ::cuda::cudaGetSharedMemPerBlock(::cuda::cudaGetCurrentDevice()) / 2;
     dim3 block_dim(
         std::min(max_threads_per_block, smem_per_block / (int)sizeof(real)));
     dim3 num_blocks(ROUND_UP_DIV(n * GF_q::elements(), (int)block_dim.x));
