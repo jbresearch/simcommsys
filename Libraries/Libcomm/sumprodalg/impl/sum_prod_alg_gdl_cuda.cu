@@ -31,6 +31,7 @@
 #include "vector.h"
 #include <cassert>
 #include <cmath>
+#include <cstdio>
 #include <limits>
 #include <memory>
 #include <string>
@@ -359,14 +360,13 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
     int num_of_elements = GF_q::elements();
 
     // ranges over probability distributions in prob.
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    int loop_n = idx / num_of_elements;
+    int loop_n = int(blockIdx.x * blockDim.x + threadIdx.x) / num_of_elements;
     // bounds checking
     int n = probs.get_rows();
 
     if (loop_n < n) {
 
-        int loop_e = idx % num_of_elements;
+        int loop_e = int(threadIdx.x) % num_of_elements;
 
         // load probability for this thread and clip it.
         real prob = probs(loop_n, loop_e);
@@ -384,19 +384,46 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
         psums[threadIdx.x] = prob;
         __syncthreads();
 
+#ifdef DEBUG
+        if (blockIdx.x + threadIdx.x == 0) {
+            printf("Initial: ");
+            for (int i = 0; i < num_of_elements; i++)
+                printf("%f, ", psums[i]);
+            printf("\n");
+        }
+        __syncthreads();
+#endif
+
         // (almost) divergence free, parallel optimized summation.
         // NOTE: GF_q::elements() is used instead of num_of_elements to
         // encourage loop unrolling
         for (int stride = 1; stride < GF_q::elements(); stride *= 2) {
-            if (threadIdx.x < GF_q::elements() / (2 * stride)) {
+            if (threadIdx.x < int(blockDim.x) / (2 * stride)) {
                 psums[threadIdx.x * stride * 2] +=
                     psums[threadIdx.x * stride * 2 + stride];
             }
+
             __syncthreads();
+
+#ifdef DEBUG
+            if (blockIdx.x + threadIdx.x == 0) {
+                printf("Stride=%d: ", stride);
+                for (int i = 0; i < num_of_elements; i++)
+                    printf("%f, ", psums[i]);
+                printf("\n");
+            }
+            __syncthreads();
+#endif
         }
 
-        real alpha = psums[0];
+        real alpha = psums[(threadIdx.x >> GF_q::log2_elements())
+                           << GF_q::log2_elements()];
         cuda_assertalways(alpha != real(0.0));
+
+#ifdef DEBUG
+        if (blockIdx.x + threadIdx.x == 0)
+            printf("Alpha=%f\n", alpha);
+#endif
 
         // normalize probabilities (divide by alpha)
         probs(loop_n, loop_e) = prob / alpha;
@@ -418,7 +445,7 @@ clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
     // for vars without the kernel launch crashing.
     // TODO: Optimize.
     int smem_per_block =
-        ::cuda::cudaGetSharedMemPerBlock(::cuda::cudaGetCurrentDevice()) / 2;
+        ::cuda::cudaGetSharedMemPerBlock(::cuda::cudaGetCurrentDevice());
     dim3 block_dim(
         std::min(max_threads_per_block, smem_per_block / (int)sizeof(real)));
     dim3 num_blocks(ROUND_UP_DIV(n * GF_q::elements(), (int)block_dim.x));
