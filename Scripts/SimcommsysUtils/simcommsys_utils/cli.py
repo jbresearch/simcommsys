@@ -172,7 +172,9 @@ def make_simulators(
 
             # Simulators without parameters: open-ended streams
             with open(
-                os.path.join(output_dir, f"{resultscollector}-{input_mode}-{sysfile}"),
+                os.path.join(
+                    output_dir, f"{resultscollector}-{input_mode.value}-{sysfile}"
+                ),
                 "w",
             ) as fl:
 
@@ -210,7 +212,7 @@ def make_simulators(
                 with open(
                     os.path.join(
                         output_dir,
-                        f"{resultscollector}-{input_mode}-stream-reset-{reset_frames}-{sysfile}",
+                        f"{resultscollector}-{input_mode.value}-stream-reset-{reset_frames}-{sysfile}",
                     ),
                     "w",
                 ) as fl:
@@ -250,7 +252,7 @@ def make_simulators(
                 with open(
                     os.path.join(
                         output_dir,
-                        f"{resultscollector}-{input_mode}-stream-term-{term_frames}-{sysfile}",
+                        f"{resultscollector}-{input_mode.value}-stream-term-{term_frames}-{sysfile}",
                     ),
                     "w",
                 ) as fl:
@@ -287,7 +289,9 @@ def make_simulators(
 
         elif match := re.match(r"commsys[^<]*<(.*),(.*)>", commsys):
             with open(
-                os.path.join(output_dir, f"{resultscollector}-{input_mode}-{sysfile}"),
+                os.path.join(
+                    output_dir, f"{resultscollector}-{input_mode.value}-{sysfile}"
+                ),
                 "w",
             ) as fl:
                 fl.write(
@@ -349,7 +353,7 @@ def make_timers(
 
         if match := re.match(r"commsys[^<]*<([^,>]*)", commsys):
             with open(
-                os.path.join(output_dir, f"{sysfile}"),
+                os.path.join(output_dir, sysfile),
                 "w",
             ) as fl:
                 fl.write(
