@@ -793,7 +793,7 @@ def run_jobs(
                 name=jobfile.removesuffix(".txt"),
                 inputfile=jobfile,
                 outputfile=os.path.join(
-                    output_dir, os.path.basename(jobfile).removesuffix(".txt") + ".json"
+                    os.path.basename(config_file), output_dir, os.path.basename(jobfile).removesuffix(".txt") + ".json"
                 ),
                 start=start,
                 stop=stop,
