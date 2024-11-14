@@ -579,12 +579,13 @@ clip
                                 + "."
                                 + code_file.removesuffix(".txt")
                                 + "."
-                                + str(r)
+                                + r.value
                                 + "."
-                                + str(s)
+                                + s.value
                                 + "."
                                 + os.path.basename(template_file),
-                            )
+                            ),
+                            "w",
                         ) as fl:
                             fl.write(commsys)
 
