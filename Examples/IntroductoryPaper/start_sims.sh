@@ -2,6 +2,6 @@
 
 set -e
 
-cd ../../Scripts/SimcommsysUtils
+cd ../../Utils
 poetry run simcommsys-utils run-jobs --config-file \
-   ../../Examples/IntroductoryPaper/Configurations/local-jobs.yaml
+   ../Examples/IntroductoryPaper/Configurations/local-jobs.yaml

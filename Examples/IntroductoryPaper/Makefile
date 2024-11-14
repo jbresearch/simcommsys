@@ -20,10 +20,10 @@ all: simulators
 .PHONY: simulators clean
 
 simulators:
-	cd ../../Scripts/SimcommsysUtils; \
+	cd ../../Utils; \
 	poetry run simcommsys-utils make-simulators \
-		--resultscollector error_hamming --input-mode random \
-		../../Examples/IntroductoryPaper/Systems ../../Examples/IntroductoryPaper/Simulators
+		--resultscollector errors_hamming --input-mode random \
+		../Examples/IntroductoryPaper/Systems ../Examples/IntroductoryPaper/Simulators
 
 clean:
 	rm -rf Simulators/*
