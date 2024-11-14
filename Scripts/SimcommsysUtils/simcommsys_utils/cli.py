@@ -521,7 +521,7 @@ def make_ldpc_systems(
 
     One system file is created for each combination of template file, code file, real type (specified by --real-type), Galois field (specified by --gf) and SPA type (specified by --spa-type).
 
-    The system files are generated in the output directory specified by --output-dir and have a filename following the scheme <gf>.<ldpc-code-filename>.<real-type>.<spa-type>.<template-filename>
+    The system files are generated in the output directory specified by --output-dir and have a filename following the scheme <template-filename>.<gf>.<ldpc-code-filename>.<real-type>.<spa-type>.txt
 
     The template file should contain all system components up until the codec.
 
@@ -540,11 +540,23 @@ def make_ldpc_systems(
     ), f"Output directory given {output_dir} does not exist."
 
     for template_file in os.listdir(templates_dir):
+        if not template_file.endswith(".txt"):
+            logging.warning(
+                f"{template_file} does not appear to be a template file (as it does not have a .txt suffix), skipping..."
+            )
+            continue
+
         commsys_template: str
         with open(os.path.join(templates_dir, template_file), "r") as fl:
             commsys_template = fl.read()
 
         for code_file in os.listdir(codes_dir):
+            if not code_file.endswith(".txt") and not code_file.endswith(".alist"):
+                logging.warning(
+                    f"{code_file} does not appear to be an alist file (as it does not have a .txt/.alist suffix), skipping..."
+                )
+                continue
+
             code: str
             with open(os.path.join(codes_dir, code_file), "r") as fl:
                 code = fl.read()
@@ -575,15 +587,16 @@ clip
                         with open(
                             os.path.join(
                                 output_dir,
-                                g
+                                os.path.basename(template_file).removesuffix(".txt")
+                                + "."
+                                + g
                                 + "."
                                 + code_file.removesuffix(".txt")
                                 + "."
                                 + r.value
                                 + "."
                                 + s.value
-                                + "."
-                                + os.path.basename(template_file),
+                                + ".txt",
                             ),
                             "w",
                         ) as fl:
