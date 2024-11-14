@@ -651,9 +651,9 @@ def convert_alist(
     """
 
     assert os.path.isfile(input), f"Input file given {input} does not exist."
-    assert not output or os.path.isfile(
-        output
-    ), f"Output file given {output} does not exist."
+    assert not output or os.path.isdir(
+        os.path.dirname(output)
+    ), f"Directory for output file given {output} does not exist."
 
     alist: str
     with open(input) as fl:
