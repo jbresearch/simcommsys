@@ -793,7 +793,9 @@ def run_jobs(
                 name=jobfile.removesuffix(".txt"),
                 inputfile=jobfile,
                 outputfile=os.path.join(
-                    os.path.basename(config_file), output_dir, os.path.basename(jobfile).removesuffix(".txt") + ".json"
+                    os.path.dirname(config_file),
+                    output_dir,
+                    os.path.basename(jobfile).removesuffix(".txt") + ".json",
                 ),
                 start=start,
                 stop=stop,
@@ -805,7 +807,7 @@ def run_jobs(
             )
             for jobfile in glob(
                 jobsspec.pop("glob"),
-                root_dir=os.path.basename(config_file),
+                root_dir=os.path.dirname(config_file)
             )
         ]
 
@@ -813,11 +815,6 @@ def run_jobs(
     selected_groups: set[str] = set(config["jobs"].keys())
     if group is not None:
         selected_groups = set(group)
-        jobs_by_group = {
-            groupname: jobs
-            for groupname, jobs in jobs_by_group.items()
-            if groupname in selected_groups
-        }
 
     for groupname, jobsspec in config["jobs"].items():
         if groupname in selected_groups:
