@@ -519,16 +519,13 @@ def make_ldpc_systems(
     """
     Creates LDPC system files from the templates specified by --templates-dir and the LDPC codes specified by --codes-dir
 
-    One system file is created for each combination of template file, code file, real type (specified by --real-type), Galois field
-    (specified by --gf) and SPA type (specified by --spa-type).
+    One system file is created for each combination of template file, code file, real type (specified by --real-type), Galois field (specified by --gf) and SPA type (specified by --spa-type).
 
-    The system files are generated in the output directory specified by --output-dir and have a filename following the scheme
-    <gf>.<ldpc-code-filename>.<real-type>.<spa-type>.<template-filename>
+    The system files are generated in the output directory specified by --output-dir and have a filename following the scheme <gf>.<ldpc-code-filename>.<real-type>.<spa-type>.<template-filename>
 
     The template file should contain all system components up until the codec.
 
-    If there are components which depend on the Galois field, the Galois field can be specified as {gf} in the template; this will then
-    be substituted for the actual field when instantiating the template.
+    If there are components which depend on the Galois field, the Galois field can be specified as {gf} in the template; this will then be substituted for the actual field when instantiating the template.
     """
 
     assert os.path.isdir(
@@ -630,6 +627,7 @@ def convert_alist(
     """
     This command can be used to convert one alist format to another.
 
+    \b
     The currently supported formats are:
     - binary: This is the most commonly used format but can only accomodate binary LDPC codes. It was introduced and described by Mackay, e.g. in http://www.inference.org.uk/mackay/codes/alist.html
     - non-binary:
@@ -637,22 +635,19 @@ def convert_alist(
 
     The command tries to accomodate the format conversions specified by the user as best as possible given the input file.
 
-    If the input format is "binary", it will be read into memory with values_method set to "ones". If the user specifies --values-method as
-    "provided" in this case, the command will set values_method to "provided" and generate non-zero values in the field specified by --gfsize.
-    If the output format is then one which supports non-binary codes (such as "non-binary" or "simcommsys"), the generated values will show
-    in this output; otherwise they are obviously discarded.
-    If --values-method is specified as "random", the command will set values_method to "random" and set the random seed to that specified by
-    --random-seed. This will then show in the output if the output format is "simcommsys".
+    \b
+    If the input format is "binary", it will be read into memory with values_method set to "ones". If the user specifies --values-method as "provided" in this case, the command will set values_method to "provided" and generate non-zero values in the field specified by --gfsize.
+    If the output format is then one which supports non-binary codes (such as "non-binary" or "simcommsys"), the generated values will show in this output; otherwise they are obviously discarded.
+    If --values-method is specified as "random", the command will set values_method to "random" and set the random seed to that specified by --random-seed. This will then show in the output if the output format is "simcommsys".
     If --values-method is specified as "ones", nothing needs to be done, as the input already contains 1s as all non-zero values.
 
-    If the input format is "non-binary", it will be read into memory with values_method set to "provided". If the user specifies --values-method
-    as "provided" in this case, nothing will happen, as the input already provides non-zero values. The --gfsize argument will be ignored.
+    \b
+    If the input format is "non-binary", it will be read into memory with values_method set to "provided". If the user specifies --values-method as "provided" in this case, nothing will happen, as the input already provides non-zero values. The --gfsize argument will be ignored.
     If the user specifies --values-method as "ones", all non-zero values will be set to 1 in the output.
-    If the user specifies --values-method as "random" the command will set values_method to "random" and set the random seed to that specified by
-    --random-seed. This will then show in the output if the output format is "simcommsys".
+    If the user specifies --values-method as "random" the command will set values_method to "random" and set the random seed to that specified by --random-seed. This will then show in the output if the output format is "simcommsys".
 
-    If the input format is "simcommsys" the behaviour is similar to the "binary" or "non-binary" case, depending on what the values_method
-    specified in the input is.
+    \b
+    If the input format is "simcommsys" the behaviour is similar to the "binary" or "non-binary" case, depending on what the values_method specified in the input is.
     """
 
     assert os.path.isfile(input), f"Input file given {input} does not exist."
@@ -712,9 +707,9 @@ def run_jobs(
     """
     This command can be used to run a batch of Simcommsys simulations.
 
-    The user specifies a path to a configuration file using --config-file. This file specifies
-    the simulations to be run and must be in the following format:
+    The user specifies a path to a configuration file (in YAML format) using --config-file. This file specifies the simulations to be run and must be in the following format:
 
+    \b
     # specify executor (how Simcommsys simulations are run) and its details
     executor:
         type: slurm | local
@@ -742,13 +737,9 @@ def run_jobs(
             [key: value]*
         ]*
 
-    As shown in the above specification, Simcommsys simulations are grouped into named groups
-    within the configuration file. The user can run just a select few of the groups specified in the
-    configuration file using the --group option (by default all groups are run).
+    As shown in the above specification, Simcommsys simulations are grouped into named groups within the configuration file. The user can run just a select few of the groups specified in the configuration file using the --group option (by default all groups are run).
 
-    For example if the configuration file contains the groups with names "cpu-eccperf", "gpu-eccperf",
-    "cpu-timings" and "gpu-timings", the user can choose to run the simulations in the first
-    two groups only by specifying --group cpu-eccperf --group gpu-eccperf.
+    For example if the configuration file contains the groups with names "cpu-eccperf", "gpu-eccperf", "cpu-timings" and "gpu-timings", the user can choose to run the simulations in the first two groups only by specifying --group cpu-eccperf --group gpu-eccperf.
     """
 
     assert os.path.isfile(
