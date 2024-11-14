@@ -541,12 +541,12 @@ def make_ldpc_systems(
 
     for template_file in os.listdir(templates_dir):
         commsys_template: str
-        with open(template_file, "r") as fl:
+        with open(os.path.join(templates_dir, template_file), "r") as fl:
             commsys_template = fl.read()
 
         for code_file in os.listdir(codes_dir):
             code: str
-            with open(code_file, "r") as fl:
+            with open(os.path.join(codes_dir, code_file), "r") as fl:
                 code = fl.read()
 
             for r in real_type:
