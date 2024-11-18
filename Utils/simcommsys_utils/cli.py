@@ -788,12 +788,14 @@ def run_jobs(
         relative_error = jobsspec.pop("relative_error")
         floor_min = jobsspec.pop("floor_min")
 
+        # Input and output files are considered relative to the directory of the config file
+        config_dir = os.path.dirname(config_file)
         jobs_by_group[groupname] = [
             SimcommsysJob(
                 name=jobfile.removesuffix(".txt"),
-                inputfile=jobfile,
+                inputfile=os.path.join(config_dir, jobfile),
                 outputfile=os.path.join(
-                    os.path.dirname(config_file),
+                    config_dir,
                     output_dir,
                     os.path.basename(jobfile).removesuffix(".txt") + ".json",
                 ),
@@ -805,10 +807,7 @@ def run_jobs(
                 relative_error=relative_error,
                 floor_min=floor_min,
             )
-            for jobfile in glob(
-                jobsspec.pop("glob"),
-                root_dir=os.path.dirname(config_file)
-            )
+            for jobfile in glob(jobsspec.pop("glob"), root_dir=config_dir)
         ]
 
     # by default all group names are selected
