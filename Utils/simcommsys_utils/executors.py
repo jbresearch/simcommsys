@@ -157,3 +157,74 @@ class LocalSimcommsysExecutor(SimcommsysExecutor):
 
             logging.debug(cmd)
             subprocess.run(cmd, shell=True)
+
+
+class MasterSlaveSimcommsysExecutor(SimcommsysExecutor):
+    def run(  # type:ignore
+        self,
+        simcommsys_tag: str,
+        simcommsys_type: Literal["debug", "release"],
+        jobs: list[SimcommsysJob],
+        *,
+        memlimit_gb=100,
+        port: int | str = 3008,
+        workers: int | str = cpu_count(),
+    ):
+        try:
+            workers = workers if isinstance(workers, int) else int(workers)
+        except ValueError:
+            logging.error(
+                f"Invalid value supplied for workers: {workers}, must be integer."
+            )
+            exit(-1)
+
+        try:
+            port = port if isinstance(port, int) else int(port)
+        except ValueError:
+            logging.error(f"Invalid value supplied for port: {port}, must be integer.")
+            exit(-1)
+
+        for job in jobs:
+            # build command to submit to shell.
+            simcommsys_cmd = self._get_simcommsys_cmd(
+                simcommsys_tag, simcommsys_type, job
+            )
+            launch_slaves = f"""
+# Wait for server to open its port
+timeout 30 sh -c 'until netcat -z localhost {port}; do sleep 1; done'
+
+# Launch the workers in the bg
+for i in {{1..{workers}}}
+do
+    simcommsys.{simcommsys_tag}.{simcommsys_type} -e localhost:{port} 1>/dev/null 2>&1 &
+done
+"""
+            # the command:
+            # 1. sets a memory limit using ulimit -v.
+            # 2. starts the simcommsys master in a screen session
+            # 3. starts the simcommsys slaves in the background
+            # 4. brings the simcommsys master to the foreground
+            cmd = f"""set -e
+ulimit -v {memlimit_gb * 1024 * 1024}
+screen -d -m -S "{port}.{simcommsys_tag}.{simcommsys_type}" {simcommsys_cmd} -e :{port}
+SERVER_PID=$!
+
+{launch_slaves}
+
+handler () {{
+    echo 'Killing {job.name} server...'
+    screen -XS "{port}.{simcommsys_tag}.{simcommsys_type}" quit
+}}
+
+trap handler INT
+
+echo "Started simulation of {job.name} with {workers} workers."
+echo "Press Ctrl+C to interrupt..."
+while screen -list | grep -q "{port}.{simcommsys_tag}.{simcommsys_type}"
+do
+    sleep 1
+done
+"""
+
+            logging.debug(cmd)
+            subprocess.run(cmd, shell=True)
