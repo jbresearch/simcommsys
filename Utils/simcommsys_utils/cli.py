@@ -799,7 +799,7 @@ def run_jobs(
         config_dir = os.path.dirname(config_file)
         jobs_by_group[groupname] = [
             SimcommsysJob(
-                name=jobfile.removesuffix(".txt"),
+                name=os.path.basename(jobfile.removesuffix(".txt")),
                 inputfile=os.path.join(config_dir, jobfile),
                 outputfile=os.path.join(
                     config_dir,

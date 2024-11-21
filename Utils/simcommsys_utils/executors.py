@@ -21,6 +21,7 @@ from dataclasses import dataclass
 from typing import Literal
 import logging
 from multiprocessing import cpu_count
+import os
 
 
 @dataclass
@@ -189,21 +190,28 @@ class MasterSlaveSimcommsysExecutor(SimcommsysExecutor):
             simcommsys_cmd = self._get_simcommsys_cmd(
                 simcommsys_tag, simcommsys_type, job
             )
+
+            # logfile where output from workers will be stored.
+            logfile = os.path.join(
+                os.path.dirname(job.outputfile), f"worker-$i.{job.name}.log"
+            )
             launch_slaves = f"""
 # Wait for server to open its port
 timeout 30 sh -c 'until netcat -z localhost {port}; do sleep 1; done'
 
 # Launch the workers in the bg
-for i in {{1..{workers}}}
+for i in $(seq 1 {workers})
 do
-    simcommsys.{simcommsys_tag}.{simcommsys_type} -e localhost:{port} 1>/dev/null 2>&1 &
+    echo "Starting worker $i"
+    simcommsys.{simcommsys_tag}.{simcommsys_type} -e localhost:{port} 1>"{logfile}" 2>&1 &
 done
 """
             # the command:
             # 1. sets a memory limit using ulimit -v.
             # 2. starts the simcommsys master in a screen session
-            # 3. starts the simcommsys slaves in the background
-            # 4. brings the simcommsys master to the foreground
+            # 3. starts the simcommsys slaves in the background, with stderr and stdout suppressed.
+            # 4. Registers a handler for Ctrl+C that can kill the simcommsys server screen session
+            # 5. Waits for the simcommsys server screen session to terminate or for the user to press Ctrl+C
             cmd = f"""set -e
 ulimit -v {memlimit_gb * 1024 * 1024}
 screen -d -m -S "{port}.{simcommsys_tag}.{simcommsys_type}" {simcommsys_cmd} -e :{port}
