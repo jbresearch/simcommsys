@@ -37,6 +37,7 @@ from .executors import (
     SlurmSimcommsysExecutor,
     SimcommsysExecutor,
     LocalSimcommsysExecutor,
+    MasterSlaveSimcommsysExecutor,
 )
 from .alist import PchkMatrixAlist, AlistFormat, ValuesMethod
 
@@ -149,6 +150,10 @@ def make_simulators(
             help="List of stream lengths to work with for termination. Only applicable to commsys_stream. Default is [1]."
         ),
     ] = None,
+    random_seed: Annotated[
+        int,
+        typer.Option(help="Random seed to be included in output if needed."),
+    ] = 0,
 ):
     """
     Create Simcommsys simulator files from a set of Simcommsys system files in --input-dir.
@@ -193,7 +198,7 @@ def make_simulators(
 """
                 )
 
-                if input_mode == "user":
+                if input_mode == InputMode.USER:
                     fl.write(
                         """#: input symbols - count
 1
@@ -233,7 +238,7 @@ def make_simulators(
 """
                     )
 
-                    if input_mode == "user":
+                    if input_mode == InputMode.USER:
                         fl.write(
                             """#: input symbols - count
 1
@@ -273,7 +278,7 @@ def make_simulators(
 """
                     )
 
-                    if input_mode == "user":
+                    if input_mode == InputMode.USER:
                         fl.write(
                             """#: input symbols - count
 1
@@ -304,7 +309,7 @@ def make_simulators(
 {input_mode_code}
 """
                 )
-                if input_mode == "user":
+                if input_mode == InputMode.USER:
                     fl.write(
                         """#: input symbols - count
 1
@@ -571,11 +576,11 @@ def make_ldpc_systems(
                         commsys = (
                             commsys_template.format(gf=g)
                             + f"""## Codec
-ldpc<{g},{r}>
+ldpc<{g},{r.value}>
 # Version
 5
 # SPA type (trad|gdl|gdl_cuda)
-{s}
+{s.value}
 # Number of iterations
 100
 # Clipping method (zero=replace only zeros, clip=replace values below almostzero)
@@ -730,7 +735,7 @@ def run_jobs(
     \b
     # specify executor (how Simcommsys simulations are run) and its details
     executor:
-        type: slurm | local
+        type: slurm | local | masterslave
         # additional dynamic params that are specific to an executor type.
         [key: value]*
     # Specify simulations to be run.
@@ -774,6 +779,8 @@ def run_jobs(
             executor = SlurmSimcommsysExecutor(**config["executor"])
         case "local":
             executor = LocalSimcommsysExecutor(**config["executor"])
+        case "masterslave":
+            executor = MasterSlaveSimcommsysExecutor(**config["executor"])
         case _:
             raise RuntimeError("Unrecognized executor type.")
 
