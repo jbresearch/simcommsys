@@ -18,12 +18,18 @@
 from dataclasses import dataclass
 from enum import Enum
 import random
+import numpy as np
 
 
-class AlistFormat(str, Enum):
+class PchkMatrixFormat(str, Enum):
+    # Alist Binary format introduced by Mackay
     BINARY = "binary"
+    # Non binary format used by Davie
     NON_BINARY = "non-binary"
+    # Format used by Simcommsys; this can accomodate both binary and non-binary codes.
     SIMCOMMSYS = "simcommsys"
+    # A flat representation of the parity check matrix
+    FLAT = "flat"
 
 
 class ValuesMethod(str, Enum):
@@ -40,7 +46,7 @@ def chunks(xs, n: int):
 
 
 @dataclass
-class PchkMatrixAlist:
+class PchkMatrix:
     """
     Dataclass representing a parity check matrix
 
@@ -74,14 +80,14 @@ class PchkMatrixAlist:
     random_seed: int = 0
 
     @classmethod
-    def read(cls, input: str, format: AlistFormat) -> "PchkMatrixAlist":
+    def read(cls, input: str, format: PchkMatrixFormat) -> "PchkMatrix":
         lines = input.split("\n")
         lines = [x.strip() for x in lines]
         # remove comment lines
         lines = [x for x in lines if not x.startswith("#")]
 
         match format:
-            case AlistFormat.BINARY:
+            case PchkMatrixFormat.BINARY:
                 n, m = [int(x) for x in lines[0].split(" ", 2)]
                 max_col_weight, max_row_weight = [
                     int(x) for x in lines[1].split(" ", 2)
@@ -109,7 +115,7 @@ class PchkMatrixAlist:
                     values_method=ValuesMethod.ONES,
                 )
 
-            case AlistFormat.NON_BINARY:
+            case PchkMatrixFormat.NON_BINARY:
                 n, m = [int(x) for x in lines[0].split(" ", 2)]
                 max_col_weight, max_row_weight = [
                     int(x) for x in lines[1].split(" ", 2)
@@ -156,7 +162,7 @@ class PchkMatrixAlist:
                     values_method=ValuesMethod.PROVIDED,
                 )
 
-            case AlistFormat.SIMCOMMSYS:
+            case PchkMatrixFormat.SIMCOMMSYS:
                 n = int(lines[0])
                 m = int(lines[1])
                 max_col_weight = int(lines[2])
@@ -252,6 +258,47 @@ class PchkMatrixAlist:
                     random_seed=random_seed,
                 )
 
+            case PchkMatrixFormat.FLAT:
+                try:
+                    rows = np.array([[int(x) for x in l.split(" ")] for l in lines])
+                except ValueError:
+                    raise RuntimeError(
+                        "Non-integer entry found in parity check matrix input."
+                    )
+
+                n, m = rows.shape
+                row_weights = list(np.sum(rows != 0, axis=0, dtype=np.int32))
+                col_weights = list(np.sum(rows != 0, axis=1, dtype=np.int32))
+
+                max_row_weight = np.max(row_weights)
+                max_col_weight = np.max(col_weights)
+
+                row_non_zero_pos = [np.where(rows[r, :] != 0) for r in range(n)]
+                col_non_zero_pos = [np.where(rows[:, c] != 0) for c in range(m)]
+
+                row_non_zero_values = [
+                    list(rows[r, non_zero_pos])
+                    for r, non_zero_pos in enumerate(row_non_zero_pos)
+                ]
+                col_non_zero_values = [
+                    list(rows[non_zero_pos, c])
+                    for c, non_zero_pos in enumerate(col_non_zero_pos)
+                ]
+
+                return cls(
+                    n=n,
+                    m=m,
+                    max_col_weight=max_col_weight,
+                    max_row_weight=max_row_weight,
+                    col_weights=col_weights,
+                    row_weights=row_weights,
+                    # convert to list of lists instead of list of Numpy Arrays.
+                    col_non_zero_pos=list(map(list, col_non_zero_pos)),
+                    row_non_zero_pos=list(map(list, row_non_zero_pos)),
+                    col_non_zero_values=col_non_zero_values,
+                    row_non_zero_values=row_non_zero_values,
+                    values_method=ValuesMethod.PROVIDED,
+                )
             case _:
                 raise RuntimeError(f"Unrecognized alist format {format}")
 
@@ -285,9 +332,9 @@ class PchkMatrixAlist:
     def set_random_seed(self, random_seed: int):
         self.random_seed = random_seed
 
-    def write(self, format: AlistFormat) -> str:
+    def write(self, format: PchkMatrixFormat) -> str:
         match format:
-            case AlistFormat.BINARY:
+            case PchkMatrixFormat.BINARY:
                 col_non_zero_pos_str = "\n".join(
                     [" ".join(map(str, x)) for x in self.col_non_zero_pos]
                 )
@@ -303,7 +350,7 @@ class PchkMatrixAlist:
 {row_non_zero_pos_str}
 """
 
-            case AlistFormat.NON_BINARY:
+            case PchkMatrixFormat.NON_BINARY:
                 col_non_zero_pos_and_values_str = ""
                 for col in range(self.n):
                     col_non_zero_pos_and_values_str += " ".join(
@@ -336,7 +383,7 @@ class PchkMatrixAlist:
 {row_non_zero_pos_and_values_str}
 """
 
-            case AlistFormat.SIMCOMMSYS:
+            case PchkMatrixFormat.SIMCOMMSYS:
                 values_method_str = f"""# Non-zero values (ones|random|provided)
 {self.values_method}
 """
@@ -375,6 +422,19 @@ class PchkMatrixAlist:
 # Non zero positions per col
 {non_zero_pos_str}
 """
+
+            case PchkMatrixFormat.FLAT:
+                rows = np.zeros((self.n, self.m), dtype=np.int32)
+
+                for r, (non_zero_poss, non_zero_values) in enumerate(
+                    zip(self.row_non_zero_pos, self.row_non_zero_values)
+                ):
+                    for non_zero_pos, non_zero_val in zip(
+                        non_zero_poss, non_zero_values
+                    ):
+                        rows[r, non_zero_pos] = non_zero_val
+
+                return "\n".join([" ".join(map(str, r)) for r in rows])
 
             case _:
                 raise RuntimeError(f"Unrecognized alist format {format}")

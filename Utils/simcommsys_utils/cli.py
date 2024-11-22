@@ -39,7 +39,7 @@ from .executors import (
     LocalSimcommsysExecutor,
     MasterSlaveSimcommsysExecutor,
 )
-from .alist import PchkMatrixAlist, AlistFormat, ValuesMethod
+from .alist import PchkMatrix, PchkMatrixFormat, ValuesMethod
 
 app = typer.Typer()
 
@@ -626,11 +626,11 @@ def convert_alist(
         ),
     ] = None,
     from_format: Annotated[
-        AlistFormat,
+        PchkMatrixFormat,
         typer.Option(help="Format of the input alist file."),
     ],
     to_format: Annotated[
-        AlistFormat, typer.Option(help="Required format for the output.")
+        PchkMatrixFormat, typer.Option(help="Required format for the output.")
     ],
     values_method: Annotated[
         ValuesMethod,
@@ -682,7 +682,7 @@ def convert_alist(
     with open(input) as fl:
         alist = fl.read()
 
-    pchk = PchkMatrixAlist.read(alist, from_format)
+    pchk = PchkMatrix.read(alist, from_format)
     if values_method != pchk.values_method:
         pchk.set_values_method(values_method)
         if values_method == ValuesMethod.RANDOM:
