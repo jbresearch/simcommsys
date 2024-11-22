@@ -35,7 +35,6 @@
 #include <limits>
 #include <memory>
 #include <string>
-
 namespace libcomm
 {
 
@@ -352,7 +351,7 @@ perform_clipping(real& num, int& clipping_method, real& almostzero)
 }
 
 template <class GF_q, class real>
-__global__ void __maxnreg__(255)
+__global__ void __launch_bounds__(1024)
     clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
                                   int clipping_method,
                                   real almostzero)
