@@ -12,7 +12,7 @@ jobs:
     relative_error: 0.05
     floor_min: 1e-5
     # job params
-    simcommsys_tag: "development"
-    simcommsys_type: "release"
+    simcommsys_tag: development
+    simcommsys_type: release
     port: 3012
     workers: 6
