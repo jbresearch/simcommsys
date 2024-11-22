@@ -117,6 +117,15 @@ public:
      */
     virtual void softdecode_iter(C<array1d_t>& ri, C<array1d_t>& ro) = 0;
     // @}
+
+    // Serialization Support
+    // NOTE that this NEEDS to be here despite codec_softout being a subclass of
+    // codec which also has an invocation of this template. This is because
+    // there are places in the code where we serialize a
+    // std::shared_ptr<codec_softout>, and this cannot be done using the methods
+    // for serializing std::shared_ptr<codec> as C++ does not have covariant
+    // typing rules.
+    DECLARE_BASE_SERIALIZER(codec_softout)
 };
 
 } // namespace libcomm
