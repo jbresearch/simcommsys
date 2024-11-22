@@ -86,7 +86,11 @@ cudaGetMultiprocessorSize(int device)
         {0x62, 128}, // Pascal Generation (SM 6.2)
         {0x70, 64},  // Volta Generation (SM 7.0)
         {0x72, 64},  // Volta Generation (SM 7.2)
-        {0x75, 64},  // Volta Generation (SM 7.5)
+        {0x75, 32},  // Volta Generation (SM 7.5)
+        {0x80, 64},  // Ampere Generation (SM 8.0)
+        {0x86, 48},  // Ampere Generation (SM 8.6)
+        {0x87, 48},  // Ampere Generation (SM 8.7) Orin
+        {0x89, 48},  // Ada Generation (SM 8.9)
         {-1, -1}};   // Undefined
 
     // If no device is specified, pick the current one
