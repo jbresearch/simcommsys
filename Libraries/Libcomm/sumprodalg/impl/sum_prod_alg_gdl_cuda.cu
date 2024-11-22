@@ -352,10 +352,10 @@ perform_clipping(real& num, int& clipping_method, real& almostzero)
 }
 
 template <class GF_q, class real>
-__global__ void
-clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
-                              int clipping_method,
-                              real almostzero)
+__global__ void __maxnreg__(255)
+    clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
+                                  int clipping_method,
+                                  real almostzero)
 {
     int num_of_elements = GF_q::elements();
 
