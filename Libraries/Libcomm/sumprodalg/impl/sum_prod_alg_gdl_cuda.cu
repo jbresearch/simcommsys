@@ -351,81 +351,80 @@ perform_clipping(real& num, int& clipping_method, real& almostzero)
 }
 
 template <class GF_q, class real>
-__global__ void __launch_bounds__(1024)
-    clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
-                                  int clipping_method,
-                                  real almostzero)
+__global__ void
+clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
+                              int clipping_method,
+                              real almostzero)
 {
     int num_of_elements = GF_q::elements();
+    int num_of_elements_div_2 = num_of_elements / 2;
 
-    // ranges over probability distributions in prob.
-    int loop_n = int(blockIdx.x * blockDim.x + threadIdx.x) / num_of_elements;
-    // bounds checking
+    // each block processes 2 * blockDim.x elements, 2 per thread.
+    // If we lay out all elements accessed by (loop_n, loop_e) in row-major
+    // order, it is not difficult to see that i0, i1 are the indices handled by
+    // this thread:
+    int i0 = int(2 * blockIdx.x * blockDim.x + threadIdx.x);
+    int i1 = i0 + blockDim.x;
+
+    int loop_n0 = i0 / num_of_elements;
+    int loop_n1 = i1 / num_of_elements;
+
+    int loop_e0 = i0 % num_of_elements;
+    int loop_e1 = i1 % num_of_elements;
+
     int n = probs.get_rows();
 
-    if (loop_n < n) {
+    // load probabilities for this thread and clip them.
+    real prob0 = 0;
+    if (loop_n0 < n) {
+        prob0 = probs(loop_n0, loop_e0);
+        perform_clipping(prob0, clipping_method, almostzero);
+    }
 
-        int loop_e = int(threadIdx.x) % num_of_elements;
+    real prob1 = 0;
+    if (loop_n1 < n) {
+        prob1 = probs(loop_n1, loop_e1);
+        perform_clipping(prob1, clipping_method, almostzero);
+    }
 
-        // load probability for this thread and clip it.
-        real prob = probs(loop_n, loop_e);
-        perform_clipping(prob, clipping_method, almostzero);
+    // compute alpha
+    // Declaring a type-parametrized extern symbol in a template function
+    // will cause a name conflict if the template is instantiated multiple
+    // times. This is a problem since dynamically sized shared memory in
+    // CUDA is an extern symbol. So we declare a buffer of char aligned to
+    // the required type and then cast to a pointer of the type parameter.
+    // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
+    extern __shared__ __align__(sizeof(real)) char psums_buf[];
+    real* psums = reinterpret_cast<real*>(psums_buf);
+    psums[threadIdx.x] = prob0;
+    psums[threadIdx.x + blockDim.x] = prob1;
+    __syncthreads();
 
-        // compute alpha
-        // Declaring a type-parametrized extern symbol in a template function
-        // will cause a name conflict if the template is instantiated multiple
-        // times. This is a problem since dynamically sized shared memory in
-        // CUDA is an extern symbol. So we declare a buffer of char aligned to
-        // the required type and then cast to a pointer of the type parameter.
-        // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
-        extern __shared__ __align__(sizeof(real)) char psums_buf[];
-        real* psums = reinterpret_cast<real*>(psums_buf);
-        psums[threadIdx.x] = prob;
-        __syncthreads();
-
-#ifdef DEBUG
-        if (blockIdx.x + threadIdx.x == 0) {
-            printf("Initial: ");
-            for (int i = 0; i < num_of_elements; i++)
-                printf("%f, ", psums[i]);
-            printf("\n");
-        }
-        __syncthreads();
-#endif
-
-        // (almost) divergence free, parallel optimized summation.
-        // NOTE: GF_q::elements() is used instead of num_of_elements to
-        // encourage loop unrolling
-        for (int stride = 1; stride < GF_q::elements(); stride *= 2) {
-            if (threadIdx.x < int(blockDim.x) / (2 * stride)) {
-                psums[threadIdx.x * stride * 2] +=
-                    psums[threadIdx.x * stride * 2 + stride];
-            }
-
-            __syncthreads();
-
-#ifdef DEBUG
-            if (blockIdx.x + threadIdx.x == 0) {
-                printf("Stride=%d: ", stride);
-                for (int i = 0; i < num_of_elements; i++)
-                    printf("%f, ", psums[i]);
-                printf("\n");
-            }
-            __syncthreads();
-#endif
+    // (almost) divergence free, parallel optimized summation.
+    // NOTE: GF_q::elements() is used instead of num_of_elements to
+    // encourage loop unrolling
+    for (int stride = 1; stride < GF_q::elements(); stride *= 2) {
+        if (threadIdx.x < int(blockDim.x) / stride) {
+            psums[threadIdx.x * 2 * stride] +=
+                psums[threadIdx.x * 2 * stride + stride];
         }
 
-        real alpha = psums[(threadIdx.x >> GF_q::log2_elements())
-                           << GF_q::log2_elements()];
-        cuda_assertalways(alpha != real(0.0));
+        __syncthreads();
+    }
 
-#ifdef DEBUG
-        if (blockIdx.x + threadIdx.x == 0)
-            printf("Alpha=%f\n", alpha);
-#endif
+    real alpha0 =
+        psums[(threadIdx.x >> GF_q::log2_elements()) << GF_q::log2_elements()];
+    real alpha1 = psums[((threadIdx.x + blockDim.x) >> GF_q::log2_elements())
+                        << GF_q::log2_elements()];
 
-        // normalize probabilities (divide by alpha)
-        probs(loop_n, loop_e) = prob / alpha;
+    // normalize probabilities (divide by alpha)
+    if (loop_n0 < n) {
+        cuda_assertalways(alpha0 != real(0.0));
+        probs(loop_n0, loop_e0) = prob0 / alpha0;
+    }
+    if (loop_n1 < n) {
+        cuda_assertalways(alpha1 != real(0.0));
+        probs(loop_n1, loop_e1) = prob1 / alpha1;
     }
 }
 
@@ -445,15 +444,16 @@ clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
     // TODO: Optimize.
     int smem_per_block =
         ::cuda::cudaGetSharedMemPerBlock(::cuda::cudaGetCurrentDevice());
-    dim3 block_dim(
-        std::min(max_threads_per_block, smem_per_block / (int)sizeof(real)));
-    dim3 num_blocks(ROUND_UP_DIV(n * GF_q::elements(), (int)block_dim.x));
+    int block_dim =
+        std::min(max_threads_per_block, smem_per_block / int(2 * sizeof(real)));
 
-    // summation of probabilities over a field must always fit in a block.
-    assertalways(block_dim.x >= GF_q::elements());
+    int num_blocks = ROUND_UP_DIV(n * GF_q::elements(), int(2 * block_dim));
+
+    // summation of probabilities over a single row must always fit in a block.
+    assertalways(2 * block_dim >= GF_q::elements());
 
     clip_and_normalize_probs_kern<GF_q, real>
-        <<<num_blocks, block_dim, block_dim.x * sizeof(real)>>>(
+        <<<num_blocks, block_dim, 2 * block_dim * sizeof(real)>>>(
             probs, clipping_method, almostzero);
     cudaSafeCall(cudaGetLastError());
 
