@@ -574,7 +574,8 @@ def make_ldpc_systems(
                 for s in spa_type:
                     for g in gf:
                         commsys = (
-                            commsys_template.format(gf=g)
+                            commsys_template.format(gf=g).removesuffix("\n")
+                            + "\n"
                             + f"""## Codec
 ldpc<{g},{r.value}>
 # Version
