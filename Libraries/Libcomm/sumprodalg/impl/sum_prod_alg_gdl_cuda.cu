@@ -351,10 +351,10 @@ perform_clipping(real& num, int& clipping_method, real& almostzero)
 }
 
 template <class GF_q, class real>
-__global__ void
-clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
-                              int clipping_method,
-                              real almostzero)
+__global__ void __launch_bounds__(1024, 2)
+    clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
+                                  int clipping_method,
+                                  real almostzero)
 {
     int num_of_elements = GF_q::elements();
     int num_of_elements_div_2 = num_of_elements / 2;
