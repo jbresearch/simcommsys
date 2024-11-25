@@ -356,6 +356,16 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
                               int clipping_method,
                               real almostzero)
 {
+    // compute alpha
+    // Declaring a type-parametrized extern symbol in a template function
+    // will cause a name conflict if the template is instantiated multiple
+    // times. This is a problem since dynamically sized shared memory in
+    // CUDA is an extern symbol. So we declare a buffer of char aligned to
+    // the required type and then cast to a pointer of the type parameter.
+    // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
+    extern __shared__ __align__(sizeof(real)) char psums_buf[];
+    real* psums = reinterpret_cast<real*>(psums_buf);
+
     int num_of_elements = GF_q::elements();
     int num_of_elements_div_2 = num_of_elements / 2;
 
@@ -369,33 +379,25 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
     int loop_n0 = i0 / num_of_elements;
     int loop_n1 = i1 / num_of_elements;
 
-    int loop_e0 = i0 % num_of_elements;
-    int loop_e1 = i1 % num_of_elements;
-
     int n = probs.get_rows();
 
     // load probabilities for this thread and clip them.
     real prob0 = 0;
     if (loop_n0 < n) {
+        int loop_e0 = i0 % num_of_elements;
+
         prob0 = probs(loop_n0, loop_e0);
         perform_clipping(prob0, clipping_method, almostzero);
     }
 
     real prob1 = 0;
     if (loop_n1 < n) {
+        int loop_e1 = i1 % num_of_elements;
+
         prob1 = probs(loop_n1, loop_e1);
         perform_clipping(prob1, clipping_method, almostzero);
     }
 
-    // compute alpha
-    // Declaring a type-parametrized extern symbol in a template function
-    // will cause a name conflict if the template is instantiated multiple
-    // times. This is a problem since dynamically sized shared memory in
-    // CUDA is an extern symbol. So we declare a buffer of char aligned to
-    // the required type and then cast to a pointer of the type parameter.
-    // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
-    extern __shared__ __align__(sizeof(real)) char psums_buf[];
-    real* psums = reinterpret_cast<real*>(psums_buf);
     psums[threadIdx.x] = prob0;
     psums[threadIdx.x + blockDim.x] = prob1;
     __syncthreads();
@@ -419,10 +421,14 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
 
     // normalize probabilities (divide by alpha)
     if (loop_n0 < n) {
+        int loop_e0 = i0 % num_of_elements;
+
         cuda_assertalways(alpha0 != real(0.0));
         probs(loop_n0, loop_e0) = prob0 / alpha0;
     }
     if (loop_n1 < n) {
+        int loop_e1 = i1 % num_of_elements;
+
         cuda_assertalways(alpha1 != real(0.0));
         probs(loop_n1, loop_e1) = prob1 / alpha1;
     }
@@ -445,14 +451,6 @@ clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
         std::min(max_threads_per_block, smem_per_block / int(2 * sizeof(real)));
 
     int num_blocks = ROUND_UP_DIV(n * GF_q::elements(), int(2 * block_dim));
-
-    // TODO: Hack
-    // For GF(1024), the compiler generates a kernel which uses up 40
-    // regs/thread Since the kernel uses __syncthreads, this means that at some
-    // point 40*1024 regs will be required; this causes a too many resources
-    // required error So we limit block size to 512 instead of 1024
-    if (GF_q::elements() == 1024)
-        block_dim = std::min(512, block_dim);
 
     // summation of probabilities over a single row must always fit in a
     // block.
