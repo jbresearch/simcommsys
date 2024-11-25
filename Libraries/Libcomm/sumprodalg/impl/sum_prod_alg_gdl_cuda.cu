@@ -351,10 +351,10 @@ perform_clipping(real& num, int& clipping_method, real& almostzero)
 }
 
 template <class GF_q, class real>
-__global__ void __launch_bounds__(1024, 2)
-    clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
-                                  int clipping_method,
-                                  real almostzero)
+__global__ void
+clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
+                              int clipping_method,
+                              real almostzero)
 {
     int num_of_elements = GF_q::elements();
     int num_of_elements_div_2 = num_of_elements / 2;
@@ -438,10 +438,7 @@ clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
 
     int max_threads_per_block =
         ::cuda::cudaGetMaxThreadsPerBlock(::cuda::cudaGetCurrentDevice());
-    // NOTE: As a heuristic we assume that we have half the actual smem
-    // available per block; this allows for the compiler to use some of the smem
-    // for vars without the kernel launch crashing.
-    // TODO: Optimize.
+
     int smem_per_block =
         ::cuda::cudaGetSharedMemPerBlock(::cuda::cudaGetCurrentDevice());
     int block_dim =
@@ -449,7 +446,16 @@ clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
 
     int num_blocks = ROUND_UP_DIV(n * GF_q::elements(), int(2 * block_dim));
 
-    // summation of probabilities over a single row must always fit in a block.
+    // TODO: Hack
+    // For GF(1024), the compiler generates a kernel which uses up 40
+    // regs/thread Since the kernel uses __syncthreads, this means that at some
+    // point 40*1024 regs will be required; this causes a too many resources
+    // required error So we limit block size to 512 instead of 1024
+    if (GF_q::elements() == 1024)
+        block_dim = std::min(512, block_dim);
+
+    // summation of probabilities over a single row must always fit in a
+    // block.
     assertalways(2 * block_dim >= GF_q::elements());
 
     clip_and_normalize_probs_kern<GF_q, real>
