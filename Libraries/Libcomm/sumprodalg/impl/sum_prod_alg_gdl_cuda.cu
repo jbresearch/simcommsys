@@ -69,32 +69,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::seedfrom(libbase::random& r)
 
 template <class GF_q, class real>
 __global__ void
-hadamard_transform_pass_kern(::cuda::matrix_reference<real, false> src,
-                             ::cuda::matrix_reference<real, false> dst,
-                             int tanner_edges,
-                             int h)
-{
-    int num_of_elements = GF_q::elements();
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-    int loop_e = idx % num_of_elements;
-
-    // this is just a generic index that ranges over [0, tanner_edges)
-    int i = idx / num_of_elements;
-    i = min(i, tanner_edges - 1);
-
-    // If floor(loop_e / h) is odd, sign is -1.0
-    // If floor(loop_e / h) is even, sign is 1.0
-    int sign = ((real)((loop_e / h) % 2 == 0) - 0.5) * 2.0;
-
-    // From the butterfly property:
-    // If floor(loop_e / h) is odd, result of the pass is P[loop_e - h] - P[e]
-    // If floor(loop_e / h) is even, result of the pass is P[loop_e + h] + P[e]
-    dst(i, loop_e) = src(i, loop_e + sign * h) + sign * src(i, loop_e);
-}
-
-template <class GF_q, class real>
-__global__ void
 multiply_h_m_n_kern(
     ::cuda::matrix_reference<int, false> device_qmn_row_nxm_indices,
     ::cuda::matrix_reference<real, false> src,
@@ -166,34 +140,78 @@ divide_h_m_n_kern(
 }
 
 template <class GF_q, class real>
-inline void
-hadamard_transform(::cuda::matrix_reference<real, false>& src,
-                   ::cuda::matrix_reference<real, false>& dst)
+__global__ void
+hadamard_transform_pass_kern(::cuda::matrix_reference<real, false> hadamard_buf)
 {
-    // src and dst need to have the same dimensions
-    cuda_assert(src.get_cols() == dst.get_cols() &&
-                src.get_rows() == dst.get_rows());
+    // Declaring a type-parametrized extern symbol in a template function
+    // will cause a name conflict if the template is instantiated multiple
+    // times. This is a problem since dynamically sized shared memory in
+    // CUDA is an extern symbol. So we declare a buffer of char aligned to
+    // the required type and then cast to a pointer of the type parameter.
+    // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
+    extern __shared__ __align__(sizeof(real)) char buf_raw[];
+    real* buf = reinterpret_cast<real*>(buf_raw);
 
-    int num_of_elements = GF_q::elements();
-    int tanner_edges = src.get_rows();
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    dim3 block_dim(1024);
-    // use division which truncates upwards.
-    dim3 num_blocks(
-        ROUND_UP_DIV(num_of_elements * tanner_edges, (int)block_dim.x));
+    int loop_n = idx / GF_q::elements();
+    int n = hadamard_buf.get_rows();
 
-    int h;
-    for (h = 1; h < num_of_elements; h <<= 1) {
-        hadamard_transform_pass_kern<GF_q, real>
-            <<<num_blocks, block_dim>>>(src, dst, tanner_edges, h);
-        cudaSafeCall(cudaGetLastError());
+    if (loop_n < n) {
+        int loop_e = idx % GF_q::elements();
+        buf[threadIdx.x] = hadamard_buf(loop_n, loop_e);
+    }
+    __syncthreads();
+
+    for (int h = 1; h < GF_q::elements(); h <<= 1) {
+        int loop_e = idx % GF_q::elements();
+
+        // If floor(loop_e / h) is odd, sign is -1.0
+        // If floor(loop_e / h) is even, sign is 1.0
+        int sign = ((real)((loop_e / h) % 2 == 0) - 0.5) * 2.0;
+
+        // From the butterfly property:
+        // If floor(loop_e / h) is odd, result of the pass is P[loop_e - h] -
+        // P[e] If floor(loop_e / h) is even, result of the pass is P[loop_e +
+        // h] + P[e]
+        buf[threadIdx.x] =
+            buf[threadIdx.x + sign * h] + sign * buf[threadIdx.x];
+        __syncthreads();
+    }
+
+    if (loop_n < n) {
+        int loop_e = idx % GF_q::elements();
+        hadamard_buf(loop_n, loop_e) = buf[threadIdx.x];
+    }
+}
+
+template <class GF_q, class real>
+inline void
+hadamard_transform(::cuda::matrix_reference<real, false> hadamard_buf)
+{
+    int tanner_edges = hadamard_buf.get_rows();
+
+    int max_threads_per_block =
+        ::cuda::cudaGetMaxThreadsPerBlock(::cuda::cudaGetCurrentDevice());
+
+    int smem_per_block =
+        ::cuda::cudaGetSharedMemPerBlock(::cuda::cudaGetCurrentDevice());
+    int block_dim =
+        std::min(max_threads_per_block, smem_per_block / int(sizeof(real)));
+
+    // Hadamard transform over a single row must always fit in a block.
+    assertalways(block_dim >= GF_q::elements());
+
+    int num_blocks =
+        ROUND_UP_DIV(tanner_edges * GF_q::elements(), int(block_dim));
+
+    hadamard_transform_pass_kern<GF_q, real>
+        <<<num_blocks, block_dim, block_dim * sizeof(real)>>>(hadamard_buf);
+    cudaSafeCall(cudaGetLastError());
 
 #ifdef DEBUG
-        cudaDeviceSynchronize();
+    cudaDeviceSynchronize();
 #endif
-
-        std::swap(src, dst);
-    }
 }
 
 template <class GF_q, class real>
@@ -592,16 +610,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
     ::cuda::gputimer t_spa_init_hadamard("t__spa_init__hadamard");
 
     // apply the FFT again to get the proper values
-    // Here we use matrix references for cheap swapping. The result of the
-    // Hadamard transform will always be in src.
-    ::cuda::matrix_reference<real, false> src(device_qmn_conv);
-    ::cuda::matrix_reference<real, false> dst(device_swap_buf);
-    hadamard_transform<GF_q, real>(src, dst);
-
-    // Result of the Hadamard transform is always stored in first arg passed to
-    // hadamard_transform(), copy to device_qmn_conv in case src is the swap
-    // buffer.
-    device_qmn_conv = src;
+    hadamard_transform<GF_q, real>(device_qmn_conv);
 
     this->add_timer(t_spa_init_hadamard);
     ////// END HADAMARD TRANSFORM
@@ -704,10 +713,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
     ////// BEGIN INVERSE HADAMARD
     ::cuda::gputimer t_inv_hadamard("t_inv_hadamard");
     // apply the FFT again to get the proper values
-    // Here we use matrix references for cheap swapping.
-    ::cuda::matrix_reference<real, false> src(device_r_mxn);
-    ::cuda::matrix_reference<real, false> dst(device_swap_buf);
-    hadamard_transform<GF_q, real>(src, dst);
+    hadamard_transform<GF_q, real>(device_r_mxn);
 
     int n = device_pchk_col_non_zeros.size();
     block_dim = dim3(1024);
@@ -718,8 +724,8 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
     // into dst
     divide_h_m_n_kern<<<num_blocks, block_dim>>>(
         ::cuda::matrix_reference<int, false>(device_qmn_row_nxm_indices),
-        src,
-        dst,
+        ::cuda::matrix_reference<real, false>(device_r_mxn),
+        ::cuda::matrix_reference<real, false>(device_swap_buf),
         ::cuda::vector_reference<int>(device_pchk_col_non_zeros),
         ::cuda::matrix_reference<GF_q, false>(device_pchk_col_non_zeros_val));
     cudaSafeCall(cudaGetLastError());
@@ -728,10 +734,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
     cudaDeviceSynchronize();
 #endif
 
-    // dst could be device_r_mxn or device_swap_buf depending on whether no. of
-    // passes in Hadamard transform is even or odd. We copy back to device_r_mxn
-    // to make sure the result is in the right array.
-    device_r_mxn = dst;
+    device_r_mxn = device_swap_buf;
 
     this->add_timer(t_inv_hadamard);
     ////// END INVERSE HADAMARD
@@ -851,10 +854,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_q_mn()
     ////// BEGIN HADAMARD TRANSFORM
     ::cuda::gputimer t_hadamard("t_hadamard");
 
-    // Here we use matrix references for cheap swapping.
-    ::cuda::matrix_reference<real, false> src(device_qmn_conv);
-    ::cuda::matrix_reference<real, false> dst(device_swap_buf);
-
     block_dim = dim3(1024);
     // use division which truncates upwards.
     num_blocks = dim3(ROUND_UP_DIV(num_of_elements * n, (int)block_dim.x));
@@ -862,8 +861,8 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_q_mn()
     // Permute the distributions in src into dst
     multiply_h_m_n_kern<<<num_blocks, block_dim>>>(
         ::cuda::matrix_reference<int, false>(device_qmn_row_nxm_indices),
-        src,
-        dst,
+        ::cuda::matrix_reference<real, false>(device_qmn_conv),
+        ::cuda::matrix_reference<real, false>(device_swap_buf),
         ::cuda::vector_reference<int>(device_pchk_col_non_zeros),
         ::cuda::matrix_reference<GF_q, false>(device_pchk_col_non_zeros_val));
     cudaSafeCall(cudaGetLastError());
@@ -873,12 +872,9 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_q_mn()
 #endif
 
     // Compute Hadamard transform on the result.
-    hadamard_transform<GF_q, real>(dst, src);
+    hadamard_transform<GF_q, real>(device_swap_buf);
 
-    // Result of the Hadamard transform is always stored in first arg passed to
-    // hadamard_transform(), copy to device_qmn_conv in case dst is the swap
-    // buffer.
-    device_qmn_conv = dst;
+    device_qmn_conv = device_swap_buf;
 
     this->add_timer(t_hadamard);
     ////// END HADAMARD TRANSFORM
