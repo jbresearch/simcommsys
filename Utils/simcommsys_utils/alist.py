@@ -108,18 +108,22 @@ class PchkMatrix:
                     f"Non-numeric entry found in parity check matrix input: {e}."
                 )
 
-        m, n = rows.shape
+        n, m = rows.shape
         row_weights = np.sum(rows != 0, axis=1, dtype=np.int32)
         col_weights = np.sum(rows != 0, axis=0, dtype=np.int32)
 
         max_row_weight = np.max(row_weights)
         max_col_weight = np.max(col_weights)
 
-        row_non_zero_pos = [np.nonzero(rows[r, :])[0] for r in range(n)]
-        col_non_zero_pos = [np.nonzero(rows[:, c])[0] for c in range(m)]
+        row_non_zero_pos = [
+            np.argwhere(rows[r, :]).reshape((rw,)) for r, rw in enumerate(row_weights)
+        ]
+        col_non_zero_pos = [
+            np.argwhere(rows[:, c]).reshape((cw,)) for c, cw in enumerate(col_weights)
+        ]
 
-        row_non_zero_values = [rows[r, rows[r, :] == 0] for r in range(n)]
-        col_non_zero_values = [rows[rows[:, c] == 0, c] for c in range(m)]
+        row_non_zero_values = [rows[r, rows[r, :] != 0] for r in range(n)]
+        col_non_zero_values = [rows[rows[:, c] != 0, c] for c in range(m)]
 
         return cls(
             n=n,
@@ -465,7 +469,7 @@ class PchkMatrix:
 {self.random_seed}"""
 
                 non_zero_pos_str = ""
-                for col in range(self.n):
+                for col in range(self.m):
                     non_zero_pos_str += f"""{len(self.col_non_zero_pos[col])}
 {' '.join(map(str, self.col_non_zero_pos[col]))}"""
 
