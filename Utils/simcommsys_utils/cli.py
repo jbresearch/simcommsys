@@ -614,7 +614,7 @@ clip
 
 
 @app.command()
-def convert_alist(
+def convert_pchk(
     *,
     input: Annotated[
         str,
@@ -649,13 +649,16 @@ def convert_alist(
     ] = 0,
 ):
     """
-    This command can be used to convert one alist format to another.
+    This command can be used to convert one parity check matrix format to another.
 
     \b
     The currently supported formats are:
     - binary: This is the most commonly used format but can only accomodate binary LDPC codes. It was introduced and described by Mackay, e.g. in http://www.inference.org.uk/mackay/codes/alist.html
     - non-binary:
     - simcommsys: This is the format used internally by Simcommsys. It can accomodate binary/non-binary codes, and also specifies how non-binary values are generated if a binary code is to be used in a non-binary context.
+    - flat: Matrix is specified in full with whitespace seperating elements in each row
+    - csv: Matrix specified in full in Comma-seperated values (CSV) format
+    - tsv: Matrix specified in full in Tab-seperated values (TSV) format
 
     The command tries to accomodate the format conversions specified by the user as best as possible given the input file.
 
