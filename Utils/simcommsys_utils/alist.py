@@ -108,22 +108,18 @@ class PchkMatrix:
                     f"Non-numeric entry found in parity check matrix input: {e}."
                 )
 
-        n, m = rows.shape
-        row_weights = np.sum(rows != 0, axis=0, dtype=np.int32)
-        col_weights = np.sum(rows != 0, axis=1, dtype=np.int32)
+        m, n = rows.shape
+        row_weights = np.sum(rows != 0, axis=1, dtype=np.int32)
+        col_weights = np.sum(rows != 0, axis=0, dtype=np.int32)
 
         max_row_weight = np.max(row_weights)
         max_col_weight = np.max(col_weights)
 
         row_non_zero_pos = [np.nonzero(rows[r, :])[0] for r in range(n)]
-        col_non_zero_pos = [np.nonzero(rows[:, c])[1] for c in range(m)]
+        col_non_zero_pos = [np.nonzero(rows[:, c])[0] for c in range(m)]
 
         row_non_zero_values = [rows[r, rows[r, :] == 0] for r in range(n)]
         col_non_zero_values = [rows[rows[:, c] == 0, c] for c in range(m)]
-
-        # reshape to 1d array
-        row_non_zero_values = [x.reshape((x.shape[1],)) for x in row_non_zero_values]
-        col_non_zero_values = [x.reshape((x.shape[0],)) for x in col_non_zero_values]
 
         return cls(
             n=n,
