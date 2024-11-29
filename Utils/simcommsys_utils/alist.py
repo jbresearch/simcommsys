@@ -18,6 +18,9 @@
 from dataclasses import dataclass
 from enum import Enum
 import random
+from typing import Any
+import logging
+
 import numpy as np
 
 
@@ -30,6 +33,8 @@ class PchkMatrixFormat(str, Enum):
     SIMCOMMSYS = "simcommsys"
     # A flat representation of the parity check matrix
     FLAT = "flat"
+    CSV = "csv"
+    TSV = "tsv"
 
 
 class ValuesMethod(str, Enum):
@@ -62,25 +67,92 @@ class PchkMatrix:
     max_row_weight: (
         int  # maximum number of symbols that participate in a parity check m.
     )
-    col_weights: list[int]  # Number of parity checks each symbol participates in.
-    row_weights: list[int]  # Number of bits in each parity check.
+    col_weights: np.ndarray[
+        Any, np.dtype[np.int32]
+    ]  # Number of parity checks each symbol participates in.
+    row_weights: np.ndarray[
+        Any, np.dtype[np.int32]
+    ]  # Number of bits in each parity check.
     col_non_zero_pos: list[
-        list[int]
+        np.ndarray[Any, np.dtype[np.int32]]
     ]  # Non-zero positions for each column of the pchk matrix.
     row_non_zero_pos: list[
-        list[int]
+        np.ndarray[Any, np.dtype[np.int32]]
     ]  # Non-zero positions for each row of the pchk matrix.
     col_non_zero_values: list[
-        list[int]
+        np.ndarray[Any, np.dtype[np.int32]]
     ]  # Non-zero values for each column of the pchk matrix.
     row_non_zero_values: list[
-        list[int]
+        np.ndarray[Any, np.dtype[np.int32]]
     ]  # Non-zero values for each row of the pchk matrix.
     values_method: ValuesMethod
     random_seed: int = 0
 
     @classmethod
+    def __read_flat(cls, lines: list[str], sep: str):
+        try:
+            rows = np.array(
+                [[int(x) for x in l.split(sep)] for l in lines], dtype=np.int32
+            )
+        except ValueError:
+            try:
+                rows = np.array(
+                    [[int(float(x)) for x in l.split(sep)] for l in lines],
+                    dtype=np.int32,
+                )
+                logging.warning(
+                    "Parsed entries in input file as floats...rounding values."
+                )
+            except ValueError as e:
+                raise RuntimeError(
+                    f"Non-numeric entry found in parity check matrix input: {e}."
+                )
+
+        n, m = rows.shape
+        row_weights = np.sum(rows != 0, axis=0, dtype=np.int32)
+        col_weights = np.sum(rows != 0, axis=1, dtype=np.int32)
+
+        max_row_weight = np.max(row_weights)
+        max_col_weight = np.max(col_weights)
+
+        row_non_zero_pos = [np.nonzero(rows[r, :])[0] for r in range(n)]
+        col_non_zero_pos = [np.nonzero(rows[:, c])[1] for c in range(m)]
+
+        row_non_zero_values = [rows[r, rows[r, :] == 0] for r in range(n)]
+        col_non_zero_values = [rows[rows[:, c] == 0, c] for c in range(m)]
+
+        # reshape to 1d array
+        row_non_zero_values = [x.reshape((x.shape[1],)) for x in row_non_zero_values]
+        col_non_zero_values = [x.reshape((x.shape[0],)) for x in col_non_zero_values]
+
+        return cls(
+            n=n,
+            m=m,
+            max_col_weight=max_col_weight,
+            max_row_weight=max_row_weight,
+            col_weights=col_weights,
+            row_weights=row_weights,
+            # convert to list of lists instead of list of Numpy Arrays.
+            col_non_zero_pos=col_non_zero_pos,
+            row_non_zero_pos=row_non_zero_pos,
+            col_non_zero_values=col_non_zero_values,
+            row_non_zero_values=row_non_zero_values,
+            values_method=ValuesMethod.PROVIDED,
+        )
+
+    def __write_flat(self, sep: str) -> str:
+        rows = np.zeros((self.n, self.m), dtype=np.int32)
+
+        for r, (non_zero_pos, non_zero_values) in enumerate(
+            zip(self.row_non_zero_pos, self.row_non_zero_values)
+        ):
+            rows[r, non_zero_pos] = non_zero_values
+
+        return "\n".join([sep.join(map(str, r)) for r in rows])
+
+    @classmethod
     def read(cls, input: str, format: PchkMatrixFormat) -> "PchkMatrix":
+        input = input.strip()
         lines = input.split("\n")
         lines = [x.strip() for x in lines]
         # remove comment lines
@@ -93,8 +165,12 @@ class PchkMatrix:
                     int(x) for x in lines[1].split(" ", 2)
                 ]
 
-                col_weights = [int(x) for x in lines[2].split(" ")]
-                row_weights = [int(x) for x in lines[3].split(" ")]
+                col_weights = np.array(
+                    [int(x) for x in lines[2].split(" ")], dtype=np.int32
+                )
+                row_weights = np.array(
+                    [int(x) for x in lines[3].split(" ")], dtype=np.int32
+                )
 
                 return cls(
                     n=n,
@@ -104,14 +180,19 @@ class PchkMatrix:
                     col_weights=col_weights,
                     row_weights=row_weights,
                     col_non_zero_pos=[
-                        [int(x) for x in lines[i].split(" ")] for i in range(4, 4 + n)
+                        np.array([int(x) for x in lines[i].split(" ")], dtype=np.int32)
+                        for i in range(4, 4 + n)
                     ],
                     row_non_zero_pos=[
-                        [int(x) for x in lines[i].split(" ")]
+                        np.array([int(x) for x in lines[i].split(" ")], dtype=np.int32)
                         for i in range(4 + n, 4 + n + m)
                     ],
-                    col_non_zero_values=[[1 for _ in range(w)] for w in col_weights],
-                    row_non_zero_values=[[1 for _ in range(w)] for w in row_weights],
+                    col_non_zero_values=[
+                        np.ones((w,), dtype=np.int32) for w in col_weights
+                    ],
+                    row_non_zero_values=[
+                        np.ones((w,), dtype=np.int32) for w in row_weights
+                    ],
                     values_method=ValuesMethod.ONES,
                 )
 
@@ -121,8 +202,12 @@ class PchkMatrix:
                     int(x) for x in lines[1].split(" ", 2)
                 ]
 
-                col_weights = [int(x) for x in lines[2].split(" ")]
-                row_weights = [int(x) for x in lines[3].split(" ")]
+                col_weights = np.array(
+                    [int(x) for x in lines[2].split(" ")], dtype=np.int32
+                )
+                row_weights = np.array(
+                    [int(x) for x in lines[3].split(" ")], dtype=np.int32
+                )
 
                 col_non_zero_pos, col_non_zero_values = zip(
                     *[
@@ -155,10 +240,18 @@ class PchkMatrix:
                     max_row_weight=max_row_weight,
                     col_weights=col_weights,
                     row_weights=row_weights,
-                    col_non_zero_pos=col_non_zero_pos,
-                    row_non_zero_pos=row_non_zero_pos,
-                    col_non_zero_values=col_non_zero_values,
-                    row_non_zero_values=row_non_zero_values,
+                    col_non_zero_pos=[
+                        np.array(x, dtype=np.int32) for x in col_non_zero_pos
+                    ],
+                    row_non_zero_pos=[
+                        np.array(x, dtype=np.int32) for x in row_non_zero_pos
+                    ],
+                    col_non_zero_values=[
+                        np.array(x, dtype=np.int32) for x in col_non_zero_values
+                    ],
+                    row_non_zero_values=[
+                        np.array(x, dtype=np.int32) for x in row_non_zero_values
+                    ],
                     values_method=ValuesMethod.PROVIDED,
                 )
 
@@ -179,17 +272,23 @@ class PchkMatrix:
 
                 # skip size of col weights vector
                 lineno += 1
-                col_weights = [int(x) for x in lines[lineno].split(" ")]
+                col_weights = np.array(
+                    [int(x) for x in lines[lineno].split(" ")], dtype=np.int32
+                )
                 lineno += 1
 
                 # skip size of row weights vector
                 lineno += 1
-                row_weights = [int(x) for x in lines[lineno].split(" ")]
+                row_weights = np.array(
+                    [int(x) for x in lines[lineno].split(" ")], dtype=np.int32
+                )
                 lineno += 1
 
                 col_non_zero_pos = []
                 if values_method != ValuesMethod.PROVIDED:
-                    col_non_zero_values = [[1 for _ in range(w)] for w in col_weights]
+                    col_non_zero_values = [
+                        np.ones((cw,), dtype=np.int32) for cw in col_weights
+                    ]
                 else:
                     col_non_zero_values = []
 
@@ -198,33 +297,45 @@ class PchkMatrix:
                     lineno += 1
                     if values_method != ValuesMethod.PROVIDED:
                         col_non_zero_pos.append(
-                            [int(x) for x in lines[lineno].split(" ")]
+                            np.array(
+                                [int(x) for x in lines[lineno].split(" ")],
+                                dtype=np.int32,
+                            )
                         )
                     else:
                         col_non_zero_pos_and_values = [
                             int(x) for x in lines[lineno].split(" ")
                         ]
                         col_non_zero_pos.append(
-                            col_non_zero_pos_and_values[: col_weights[col]]
+                            np.array(
+                                col_non_zero_pos_and_values[: col_weights[col]],
+                                dtype=np.int32,
+                            )
                         )
                         col_non_zero_values.append(
-                            col_non_zero_pos_and_values[col_weights[col] :]
+                            np.array(
+                                col_non_zero_pos_and_values[col_weights[col] :],
+                                dtype=np.int32,
+                            )
                         )
                     lineno += 1
 
-                row_non_zero_pos = [[] for _ in range(m)]
-                if values_method != ValuesMethod.PROVIDED:
-                    row_non_zero_values = [[1 for _ in range(w)] for w in row_weights]
-                else:
-                    row_non_zero_values = [[] for _ in range(m)]
+                row_non_zero_pos = [
+                    np.zeros((rw,), dtype=np.int32) for rw in row_weights
+                ]
+                row_non_zero_values = [
+                    np.ones((rw,), dtype=np.int32) for rw in row_weights
+                ]
 
+                row_idxs = np.zeros((m,))
                 for col in range(n):
                     for row, val in zip(
                         col_non_zero_pos[col], col_non_zero_values[col]
                     ):
-                        row_non_zero_pos[row].append(col)
+                        row_non_zero_pos[row][row_idxs[row]] = col
                         if values_method == ValuesMethod.PROVIDED:
-                            row_non_zero_values[row].append(val)
+                            row_non_zero_values[row][row_idxs[row]] = val
+                        row_idxs[row] += 1
 
                 ### Validity checks
                 for col in range(n):
@@ -259,46 +370,12 @@ class PchkMatrix:
                 )
 
             case PchkMatrixFormat.FLAT:
-                try:
-                    rows = np.array([[int(x) for x in l.split(" ")] for l in lines])
-                except ValueError:
-                    raise RuntimeError(
-                        "Non-integer entry found in parity check matrix input."
-                    )
+                return cls.__read_flat(lines, " ")
+            case PchkMatrixFormat.CSV:
+                return cls.__read_flat(lines, ",")
+            case PchkMatrixFormat.TSV:
+                return cls.__read_flat(lines, "\t")
 
-                n, m = rows.shape
-                row_weights = list(np.sum(rows != 0, axis=0, dtype=np.int32))
-                col_weights = list(np.sum(rows != 0, axis=1, dtype=np.int32))
-
-                max_row_weight = np.max(row_weights)
-                max_col_weight = np.max(col_weights)
-
-                row_non_zero_pos = [np.where(rows[r, :] != 0) for r in range(n)]
-                col_non_zero_pos = [np.where(rows[:, c] != 0) for c in range(m)]
-
-                row_non_zero_values = [
-                    list(rows[r, non_zero_pos])
-                    for r, non_zero_pos in enumerate(row_non_zero_pos)
-                ]
-                col_non_zero_values = [
-                    list(rows[non_zero_pos, c])
-                    for c, non_zero_pos in enumerate(col_non_zero_pos)
-                ]
-
-                return cls(
-                    n=n,
-                    m=m,
-                    max_col_weight=max_col_weight,
-                    max_row_weight=max_row_weight,
-                    col_weights=col_weights,
-                    row_weights=row_weights,
-                    # convert to list of lists instead of list of Numpy Arrays.
-                    col_non_zero_pos=list(map(list, col_non_zero_pos)),
-                    row_non_zero_pos=list(map(list, row_non_zero_pos)),
-                    col_non_zero_values=col_non_zero_values,
-                    row_non_zero_values=row_non_zero_values,
-                    values_method=ValuesMethod.PROVIDED,
-                )
             case _:
                 raise RuntimeError(f"Unrecognized alist format {format}")
 
@@ -424,17 +501,11 @@ class PchkMatrix:
 """
 
             case PchkMatrixFormat.FLAT:
-                rows = np.zeros((self.n, self.m), dtype=np.int32)
-
-                for r, (non_zero_poss, non_zero_values) in enumerate(
-                    zip(self.row_non_zero_pos, self.row_non_zero_values)
-                ):
-                    for non_zero_pos, non_zero_val in zip(
-                        non_zero_poss, non_zero_values
-                    ):
-                        rows[r, non_zero_pos] = non_zero_val
-
-                return "\n".join([" ".join(map(str, r)) for r in rows])
+                return self.__write_flat(" ")
+            case PchkMatrixFormat.CSV:
+                return self.__write_flat(",")
+            case PchkMatrixFormat.TSV:
+                return self.__write_flat("\t")
 
             case _:
                 raise RuntimeError(f"Unrecognized alist format {format}")
