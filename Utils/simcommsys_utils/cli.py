@@ -150,10 +150,6 @@ def make_simulators(
             help="List of stream lengths to work with for termination. Only applicable to commsys_stream. Default is [1]."
         ),
     ] = None,
-    random_seed: Annotated[
-        int,
-        typer.Option(help="Random seed to be included in output if needed."),
-    ] = 0,
 ):
     """
     Create Simcommsys simulator files from a set of Simcommsys system files in --input-dir.

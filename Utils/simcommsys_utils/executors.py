@@ -120,8 +120,8 @@ class SlurmSimcommsysExecutor(SimcommsysExecutor):
                         --cpus-per-task=1 \
                         --mem-per-cpu={memlimit_gb}G \
                         --time={timeout_mins} \
-                        --output={job.name}.out \
-                        --error={job.name}.err \
+                        --output={os.path.dirname(job.outputfile)}/{job.name}.out \
+                        --error={os.path.dirname(job.outputfile)}/{job.name}.err \
                         --account={self.account} \
                         --mail-type=all"
             if needs_gpu:
