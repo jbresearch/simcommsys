@@ -108,7 +108,7 @@ class PchkMatrix:
                     f"Non-numeric entry found in parity check matrix input: {e}."
                 )
 
-        n, m = rows.shape
+        m, n = rows.shape
         row_weights = np.sum(rows != 0, axis=1, dtype=np.int32)
         col_weights = np.sum(rows != 0, axis=0, dtype=np.int32)
 
