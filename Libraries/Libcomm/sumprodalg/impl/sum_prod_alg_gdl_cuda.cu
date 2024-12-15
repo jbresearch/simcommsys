@@ -86,19 +86,20 @@ hadamard_transform_kern(
 
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    int pos_n = idx / GF_q::elements();
-    int n = hadamard_buf.get_rows();
+    // index over row in hadamard_buf
+    int pos_r = idx / GF_q::elements();
+    int r = hadamard_buf.get_rows();
 
-    if (pos_n < n) {
+    if (pos_r < r) {
         int loop_e = idx % GF_q::elements();
-        buf[threadIdx.x] = hadamard_buf(pos_n, loop_e);
+        buf[threadIdx.x] = hadamard_buf(pos_r, loop_e);
     }
     __syncthreads();
 
     if (permtype == MULTIPLY) {
-        if (pos_n < n) {
+        if (pos_r < r) {
             int loop_e = idx % GF_q::elements();
-            GF_q h_m_n = device_pchk_non_zeros_val(pos_n);
+            GF_q h_m_n = device_pchk_non_zeros_val(pos_r);
 
             int offset = threadIdx.x & ~(GF_q::elements() - 1);
             buf[offset + h_m_n * GF_q(loop_e)] = buf[threadIdx.x];
@@ -123,9 +124,9 @@ hadamard_transform_kern(
     }
 
     if (permtype == DIVIDE) {
-        if (pos_n < n) {
+        if (pos_r < r) {
             int loop_e = idx % GF_q::elements();
-            GF_q h_m_n = device_pchk_non_zeros_val(pos_n);
+            GF_q h_m_n = device_pchk_non_zeros_val(pos_r);
 
             int offset = threadIdx.x & ~(GF_q::elements() - 1);
             buf[threadIdx.x] = buf[offset + h_m_n * GF_q(loop_e)];
@@ -133,9 +134,9 @@ hadamard_transform_kern(
         __syncthreads();
     }
 
-    if (pos_n < n) {
+    if (pos_r < r) {
         int loop_e = idx % GF_q::elements();
-        hadamard_buf(pos_n, loop_e) = buf[threadIdx.x];
+        hadamard_buf(pos_r, loop_e) = buf[threadIdx.x];
     }
 }
 
