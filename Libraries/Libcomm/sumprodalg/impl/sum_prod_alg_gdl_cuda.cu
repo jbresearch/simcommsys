@@ -31,10 +31,10 @@
 #include "vector.h"
 #include <cassert>
 #include <cmath>
-#include <cstdio>
 #include <limits>
 #include <memory>
 #include <string>
+
 namespace libcomm
 {
 
@@ -67,81 +67,13 @@ sum_prod_alg_gdl_cuda<GF_q, real>::seedfrom(libbase::random& r)
  */
 #define ROUND_UP_DIV(X, Y) (((X) + (Y) - 1) / (Y))
 
-template <class GF_q, class real>
+enum PermutationType { MULTIPLY, DIVIDE };
+
+template <class GF_q, class real, PermutationType permtype>
 __global__ void
-multiply_h_m_n_kern(
-    ::cuda::matrix_reference<int, false> device_qmn_row_nxm_indices,
-    ::cuda::matrix_reference<real, false> src,
-    ::cuda::matrix_reference<real, false> dst,
-    ::cuda::vector_reference<int> device_pchk_col_non_zeros,
-    ::cuda::matrix_reference<GF_q, false> device_pchk_col_non_zeros_val)
-{
-    // src and dst need to have the same dimensions
-    cuda_assert(src.get_cols() == dst.get_cols() &&
-                src.get_rows() == dst.get_rows());
-
-    int num_of_elements = GF_q::elements();
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-    // find loop_e
-    int loop_e = idx % num_of_elements;
-
-    // find pos_n
-    int pos_n = idx / num_of_elements;
-    // bounds checking
-    int n = device_pchk_col_non_zeros.size();
-    pos_n = min(pos_n, n - 1);
-
-    int non_zeros = device_pchk_col_non_zeros(pos_n);
-    // hold value of pchk matrix at (m, n)
-    GF_q h_m_n;
-    for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
-        h_m_n = device_pchk_col_non_zeros_val(pos_n, loop_m);
-        // perform the permutation
-        dst(device_qmn_row_nxm_indices(pos_n, loop_m), h_m_n * GF_q(loop_e)) =
-            src(device_qmn_row_nxm_indices(pos_n, loop_m), loop_e);
-    }
-}
-
-template <class GF_q, class real>
-__global__ void
-divide_h_m_n_kern(
-    ::cuda::matrix_reference<int, false> device_qmn_row_nxm_indices,
-    ::cuda::matrix_reference<real, false> src,
-    ::cuda::matrix_reference<real, false> dst,
-    ::cuda::vector_reference<int> device_pchk_col_non_zeros,
-    ::cuda::matrix_reference<GF_q, false> device_pchk_col_non_zeros_val)
-{
-    // src and dst need to have the same dimensions
-    cuda_assert(src.get_cols() == dst.get_cols() &&
-                src.get_rows() == dst.get_rows());
-
-    int num_of_elements = GF_q::elements();
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-    // find loop_e
-    int loop_e = idx % num_of_elements;
-
-    // find pos_n
-    int pos_n = idx / num_of_elements;
-    // bounds checking
-    int n = device_pchk_col_non_zeros.size();
-    pos_n = min(pos_n, n - 1);
-
-    int non_zeros = device_pchk_col_non_zeros(pos_n);
-    // hold value of pchk matrix at (m, n)
-    GF_q h_m_n;
-    for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
-        h_m_n = device_pchk_col_non_zeros_val(pos_n, loop_m);
-        // perform the permutation
-        dst(device_qmn_row_nxm_indices(pos_n, loop_m), loop_e) = src(
-            device_qmn_row_nxm_indices(pos_n, loop_m), h_m_n * GF_q(loop_e));
-    }
-}
-
-template <class GF_q, class real>
-__global__ void
-hadamard_transform_pass_kern(::cuda::matrix_reference<real, false> hadamard_buf)
+hadamard_transform_kern(
+    ::cuda::matrix_reference<real, false> hadamard_buf,
+    ::cuda::vector_reference<GF_q> device_pchk_non_zeros_val)
 {
     // Declaring a type-parametrized extern symbol in a template function
     // will cause a name conflict if the template is instantiated multiple
@@ -149,19 +81,30 @@ hadamard_transform_pass_kern(::cuda::matrix_reference<real, false> hadamard_buf)
     // CUDA is an extern symbol. So we declare a buffer of char aligned to
     // the required type and then cast to a pointer of the type parameter.
     // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
-    extern __shared__ __align__(sizeof(real)) char buf_raw[];
-    real* buf = reinterpret_cast<real*>(buf_raw);
+    extern __shared__ __align__(sizeof(real)) char rawbuf[];
+    real* buf = reinterpret_cast<real*>(rawbuf);
 
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    int loop_n = idx / GF_q::elements();
+    int pos_n = idx / GF_q::elements();
     int n = hadamard_buf.get_rows();
 
-    if (loop_n < n) {
+    if (pos_n < n) {
         int loop_e = idx % GF_q::elements();
-        buf[threadIdx.x] = hadamard_buf(loop_n, loop_e);
+        buf[threadIdx.x] = hadamard_buf(pos_n, loop_e);
     }
     __syncthreads();
+
+    if (permtype == MULTIPLY) {
+        if (pos_n < n) {
+            int loop_e = idx % GF_q::elements();
+            GF_q h_m_n = device_pchk_non_zeros_val(pos_n);
+
+            int offset = threadIdx.x & ~(GF_q::elements() - 1);
+            buf[offset + h_m_n * GF_q(loop_e)] = buf[threadIdx.x];
+        }
+        __syncthreads();
+    }
 
     for (int h = 1; h < GF_q::elements(); h <<= 1) {
         int loop_e = idx % GF_q::elements();
@@ -175,19 +118,31 @@ hadamard_transform_pass_kern(::cuda::matrix_reference<real, false> hadamard_buf)
         // P[e] If floor(loop_e / h) is even, result of the pass is P[loop_e +
         // h] + P[e]
         buf[threadIdx.x] =
-            buf[threadIdx.x + sign * h] + sign * buf[threadIdx.x];
+            buf[int(threadIdx.x) + sign * h] + sign * buf[threadIdx.x];
         __syncthreads();
     }
 
-    if (loop_n < n) {
+    if (permtype == DIVIDE) {
+        if (pos_n < n) {
+            int loop_e = idx % GF_q::elements();
+            GF_q h_m_n = device_pchk_non_zeros_val(pos_n);
+
+            int offset = threadIdx.x & ~(GF_q::elements() - 1);
+            buf[threadIdx.x] = buf[offset + h_m_n * GF_q(loop_e)];
+        }
+        __syncthreads();
+    }
+
+    if (pos_n < n) {
         int loop_e = idx % GF_q::elements();
-        hadamard_buf(loop_n, loop_e) = buf[threadIdx.x];
+        hadamard_buf(pos_n, loop_e) = buf[threadIdx.x];
     }
 }
 
-template <class GF_q, class real>
+template <class GF_q, class real, PermutationType permtype>
 inline void
-hadamard_transform(::cuda::matrix_reference<real, false> hadamard_buf)
+hadamard_transform(::cuda::matrix_reference<real, false> hadamard_buf,
+                   ::cuda::vector_reference<GF_q> device_pchk_non_zeros_val)
 {
     int tanner_edges = hadamard_buf.get_rows();
 
@@ -205,8 +160,9 @@ hadamard_transform(::cuda::matrix_reference<real, false> hadamard_buf)
     int num_blocks =
         ROUND_UP_DIV(tanner_edges * GF_q::elements(), int(block_dim));
 
-    hadamard_transform_pass_kern<GF_q, real>
-        <<<num_blocks, block_dim, block_dim * sizeof(real)>>>(hadamard_buf);
+    hadamard_transform_kern<GF_q, real, permtype>
+        <<<num_blocks, block_dim, block_dim * sizeof(real)>>>(
+            hadamard_buf, device_pchk_non_zeros_val);
     cudaSafeCall(cudaGetLastError());
 
 #ifdef DEBUG
@@ -270,7 +226,8 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
         max_pchk_col_non_zeros = std::max(max_pchk_col_non_zeros, non_zeros);
     }
 
-    libbase::matrix<GF_q> pchk_col_non_zeros_val(n, max_pchk_col_non_zeros);
+    // overallocate, but that's fine, final segment is not used
+    libbase::vector<GF_q> pchk_non_zeros_val(n * max_pchk_col_non_zeros);
 
     // we first build qmn_row_nxm_indices, qmn_row_mxn_indices on the host,
     // then copy to device. Easier since this operation is inherently serial (we
@@ -298,7 +255,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
             pos_m = non_zero_col_pos(pos_n)(loop_m) - 1; // we count from zero;
 
             // populate other pchk matrix fields on the host.
-            pchk_col_non_zeros_val(pos_n, loop_m) = pchk_matrix(pos_m, pos_n);
+            pchk_non_zeros_val(tanner_edges) = pchk_matrix(pos_m, pos_n);
 
             // linear search for loop_n; should be fast as pchk matrix is
             // sparse.
@@ -319,20 +276,9 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
         }
     }
 
-    device_qmn_row_nxm_indices.init(n, max_pchk_col_non_zeros);
-    device_qmn_row_mxn_indices.init(m, max_pchk_row_non_zeros);
     // Copy qmn_row_nxm_indices, qmn_row_nxm_indices to device
     device_qmn_row_nxm_indices = qmn_row_nxm_indices;
     device_qmn_row_mxn_indices = qmn_row_mxn_indices;
-
-    // Allocate memory on the device for representation of the parity check
-    // matrix
-    device_pchk_row_non_zeros.init(m);
-    device_pchk_row_non_zeros_pos.init(m, max_pchk_row_non_zeros);
-    device_pchk_row_non_zeros_val.init(m, max_pchk_row_non_zeros);
-
-    device_pchk_col_non_zeros.init(n);
-    device_pchk_col_non_zeros_val.init(n, max_pchk_col_non_zeros);
 
     // Copy represenation of the parity check matrix to the device.
     device_pchk_row_non_zeros = pchk_row_non_zeros;
@@ -340,13 +286,11 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     device_pchk_row_non_zeros_val = pchk_row_non_zeros_val;
 
     device_pchk_col_non_zeros = pchk_col_non_zeros;
-    device_pchk_col_non_zeros_val = pchk_col_non_zeros_val;
+    device_pchk_non_zeros_val = pchk_non_zeros_val;
 
     // Allocate required memory for r_mxn, q_mxn and qmn_conv on device.
     device_r_mxn.init(tanner_edges, num_of_elements);
     device_qmn_conv.init(tanner_edges, num_of_elements);
-
-    device_swap_buf.init(tanner_edges, num_of_elements);
 
     device_out_probs.init(n, num_of_elements);
 
@@ -486,13 +430,11 @@ clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
 
 template <class GF_q, class real>
 __global__ void
-spa_init_kern(
-    ::cuda::matrix_reference<real, false> device_received_probs,
-    ::cuda::matrix_reference<int, false> device_qmn_row_nxm_indices,
-    ::cuda::matrix_reference<real, false> device_r_mxn,
-    ::cuda::matrix_reference<real, false> device_qmn_conv,
-    ::cuda::vector_reference<int> device_pchk_col_non_zeros,
-    ::cuda::matrix_reference<GF_q, false> device_pchk_col_non_zeros_val)
+spa_init_kern(::cuda::matrix_reference<real, false> device_received_probs,
+              ::cuda::matrix_reference<int, false> device_qmn_row_nxm_indices,
+              ::cuda::matrix_reference<real, false> device_r_mxn,
+              ::cuda::matrix_reference<real, false> device_qmn_conv,
+              ::cuda::vector_reference<int> device_pchk_col_non_zeros)
 {
     int num_of_elements = GF_q::elements();
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -509,30 +451,13 @@ spa_init_kern(
     int non_zeros = device_pchk_col_non_zeros(pos_n);
 
     int qmn_row_idx;
-    GF_q h_m_n;
     // NOTE: loop_m iterates over the number of checks that symbol pos_n
     // participates in.
     for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
-        // NOTE: Find corresponding value in the parity check matrix.
-        h_m_n = device_pchk_col_non_zeros_val(pos_n, loop_m);
-
         // get index into device_qmn_conv and device_r_mxn
         qmn_row_idx = device_qmn_row_nxm_indices(pos_n, loop_m);
 
-        // In fact the probability we are given are not for the x_i but
-        // for the value h_m_n*xi hence all we need to do is copy the
-        // values into the array with a slightly amended index:
-        // probs(h_m_n*x)=received_prob(x) for all x in GF_q and
-        // 0!=h_m_n in GF_q.
-        // Declerq&Fossorier: Decoding Algs for non-binary LDPC Codes
-        // over GF(q)
-        // perms(h_m_n)(loop)=GF_q(h_m_n)*GF_q(loop) - a look-up is
-        // quicker than a computation (I hope)
-
-        // NOTE: Here we are permuting the prior probability
-        // distribution by multiplying it with h_m_n before placing
-        // it in the qmn_conv array.
-        device_qmn_conv(qmn_row_idx, h_m_n * GF_q(loop_e)) =
+        device_qmn_conv(qmn_row_idx, loop_e) =
             device_received_probs(pos_n, loop_e);
     }
 }
@@ -566,17 +491,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
     this->add_timer(t_spa_init_norm_probs);
     ////// END NORMALIZE
 
-    // TODO: Fix this.
-#if DEBUG >= 2
-    libbase::trace << std::endl
-                   << "The first 5 normalised likelihoods are given by:"
-                   << std::endl;
-    libbase::trace << this->received_probs.extract(0, 5);
-#endif
-
-    // ----------------------------------
-    // Continue
-
     // this uses the description of the algorithm as given by
 
     // MacKay in Information Theory, Inference and Learning Algorithms(2003)
@@ -595,8 +509,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
                                     this->device_qmn_row_nxm_indices,
                                     this->device_r_mxn,
                                     this->device_qmn_conv,
-                                    this->device_pchk_col_non_zeros,
-                                    this->device_pchk_col_non_zeros_val);
+                                    this->device_pchk_col_non_zeros);
     cudaSafeCall(cudaGetLastError());
 
     this->add_timer(t_spa_init_kern);
@@ -610,23 +523,11 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
     ::cuda::gputimer t_spa_init_hadamard("t__spa_init__hadamard");
 
     // apply the FFT again to get the proper values
-    hadamard_transform<GF_q, real>(device_qmn_conv);
+    hadamard_transform<GF_q, real, MULTIPLY>(device_qmn_conv,
+                                             device_pchk_non_zeros_val);
 
     this->add_timer(t_spa_init_hadamard);
     ////// END HADAMARD TRANSFORM
-
-    // TODO: Fix this.
-#if DEBUG >= 2
-    libbase::trace << " Memory Usage:\n ";
-    libbase::trace << this->marginal_probs.size() *
-                          sizeof(sum_prod_alg_abstract<GF_q, real>::marginals) /
-                          double(1 << 20)
-                   << " MB" << std::endl;
-
-    libbase::trace << std::endl
-                   << "The marginal matrix is given by:" << std::endl;
-    this->print_marginal_probs(libbase::trace);
-#endif
 
     this->decode_success = false;
 }
@@ -713,28 +614,8 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
     ////// BEGIN INVERSE HADAMARD
     ::cuda::gputimer t_inv_hadamard("t_inv_hadamard");
     // apply the FFT again to get the proper values
-    hadamard_transform<GF_q, real>(device_r_mxn);
-
-    int n = device_pchk_col_non_zeros.size();
-    block_dim = dim3(1024);
-    // use division which truncates upwards.
-    num_blocks = dim3(ROUND_UP_DIV(num_of_elements * n, (int)block_dim.x));
-
-    // Permute the distributions in src (transformed by the Hadamard transform)
-    // into dst
-    divide_h_m_n_kern<<<num_blocks, block_dim>>>(
-        ::cuda::matrix_reference<int, false>(device_qmn_row_nxm_indices),
-        ::cuda::matrix_reference<real, false>(device_r_mxn),
-        ::cuda::matrix_reference<real, false>(device_swap_buf),
-        ::cuda::vector_reference<int>(device_pchk_col_non_zeros),
-        ::cuda::matrix_reference<GF_q, false>(device_pchk_col_non_zeros_val));
-    cudaSafeCall(cudaGetLastError());
-
-#ifdef DEBUG
-    cudaDeviceSynchronize();
-#endif
-
-    device_r_mxn = device_swap_buf;
+    hadamard_transform<GF_q, real, DIVIDE>(device_r_mxn,
+                                           device_pchk_non_zeros_val);
 
     this->add_timer(t_inv_hadamard);
     ////// END INVERSE HADAMARD
@@ -854,27 +735,9 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_q_mn()
     ////// BEGIN HADAMARD TRANSFORM
     ::cuda::gputimer t_hadamard("t_hadamard");
 
-    block_dim = dim3(1024);
-    // use division which truncates upwards.
-    num_blocks = dim3(ROUND_UP_DIV(num_of_elements * n, (int)block_dim.x));
-
-    // Permute the distributions in src into dst
-    multiply_h_m_n_kern<<<num_blocks, block_dim>>>(
-        ::cuda::matrix_reference<int, false>(device_qmn_row_nxm_indices),
-        ::cuda::matrix_reference<real, false>(device_qmn_conv),
-        ::cuda::matrix_reference<real, false>(device_swap_buf),
-        ::cuda::vector_reference<int>(device_pchk_col_non_zeros),
-        ::cuda::matrix_reference<GF_q, false>(device_pchk_col_non_zeros_val));
-    cudaSafeCall(cudaGetLastError());
-
-#ifdef DEBUG
-    cudaDeviceSynchronize();
-#endif
-
     // Compute Hadamard transform on the result.
-    hadamard_transform<GF_q, real>(device_swap_buf);
-
-    device_qmn_conv = device_swap_buf;
+    hadamard_transform<GF_q, real, MULTIPLY>(device_qmn_conv,
+                                             device_pchk_non_zeros_val);
 
     this->add_timer(t_hadamard);
     ////// END HADAMARD TRANSFORM

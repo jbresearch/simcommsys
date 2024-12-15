@@ -118,12 +118,6 @@ private:
      * device_qmn_row_indices
      */
     cuda_matrixd_t device_qmn_conv;
-    /*! This is a swap buffer used for computing the Hadamard
-     * transform/permutations on device_r_mxn or device_qmn_conv.
-     *
-     * It has the same dimensions as the latter fields.
-     */
-    cuda_matrixd_t device_swap_buf;
 
     /*! \name These fields are the representation of the parity check matrix in
      * device memory.
@@ -162,15 +156,13 @@ private:
      * parity matrix h_m_n
      */
     cuda_array1i_t device_pchk_col_non_zeros;
-    /*! Matrix where each row (representing a symbol n) contains the value (in
-     * GF_q) of non-zero elements in the parity check matrix H (at that column
-     * of H).
+    /*! Vector containing the non-zero values of H_mn, in the same order as
+     * the rows of device_q_mn_conv.
      *
-     * Extra space at the end of rows is padded with zeros/uninitalized.
-     *
-     * device_pchk_col_non_zero can be used to determine end of each row
+     * In more detail, if the kth row of device_q_mn_conv corresponds to edge
+     * v_j <-> c_i device_pchk_non_zeros_val[k] = H_ij
      */
-    ::cuda::matrix<GF_q, false> device_pchk_col_non_zeros_val;
+    ::cuda::vector<GF_q> device_pchk_non_zeros_val;
 
     /*! \brief Stores the received codeword according to decoder. */
     ::cuda::vector<GF_q> device_received_word;
