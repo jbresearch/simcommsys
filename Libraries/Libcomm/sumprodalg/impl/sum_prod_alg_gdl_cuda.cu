@@ -83,6 +83,7 @@ hadamard_transform_kern(
     // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
     extern __shared__ __align__(sizeof(real)) char rawbuf[];
     real* buf = reinterpret_cast<real*>(rawbuf);
+    real* swapbuf = reinterpret_cast<real*>(rawbuf) + blockDim.x;
 
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -102,7 +103,8 @@ hadamard_transform_kern(
             GF_q h_m_n = device_pchk_non_zeros_val(pos_r);
 
             int offset = threadIdx.x & ~(GF_q::elements() - 1);
-            buf[offset + h_m_n * GF_q(loop_e)] = buf[threadIdx.x];
+            swapbuf[offset + h_m_n * GF_q(loop_e)] = buf[threadIdx.x];
+            ::cuda::swap(swapbuf, buf);
         }
         __syncthreads();
     }
@@ -118,8 +120,9 @@ hadamard_transform_kern(
         // If floor(loop_e / h) is odd, result of the pass is P[loop_e - h] -
         // P[e] If floor(loop_e / h) is even, result of the pass is P[loop_e +
         // h] + P[e]
-        buf[threadIdx.x] =
+        swapbuf[threadIdx.x] =
             buf[int(threadIdx.x) + sign * h] + sign * buf[threadIdx.x];
+        ::cuda::swap(swapbuf, buf);
         __syncthreads();
     }
 
@@ -129,7 +132,8 @@ hadamard_transform_kern(
             GF_q h_m_n = device_pchk_non_zeros_val(pos_r);
 
             int offset = threadIdx.x & ~(GF_q::elements() - 1);
-            buf[threadIdx.x] = buf[offset + h_m_n * GF_q(loop_e)];
+            swapbuf[threadIdx.x] = buf[offset + h_m_n * GF_q(loop_e)];
+            ::cuda::swap(swapbuf, buf);
         }
         __syncthreads();
     }
@@ -153,7 +157,7 @@ hadamard_transform(::cuda::matrix_reference<real, false> hadamard_buf,
     int smem_per_block =
         ::cuda::cudaGetSharedMemPerBlock(::cuda::cudaGetCurrentDevice());
     int block_dim =
-        std::min(max_threads_per_block, smem_per_block / int(sizeof(real)));
+        std::min(max_threads_per_block, smem_per_block / int(2 * sizeof(real)));
 
     // Hadamard transform over a single row must always fit in a block.
     assertalways(block_dim >= GF_q::elements());
@@ -162,7 +166,7 @@ hadamard_transform(::cuda::matrix_reference<real, false> hadamard_buf,
         ROUND_UP_DIV(tanner_edges * GF_q::elements(), int(block_dim));
 
     hadamard_transform_kern<GF_q, real, permtype>
-        <<<num_blocks, block_dim, block_dim * sizeof(real)>>>(
+        <<<num_blocks, block_dim, 2 * block_dim * sizeof(real)>>>(
             hadamard_buf, device_pchk_non_zeros_val);
     cudaSafeCall(cudaGetLastError());
 
