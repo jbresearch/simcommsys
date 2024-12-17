@@ -323,7 +323,6 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
                               int clipping_method,
                               real almostzero)
 {
-    // compute alpha
     // Declaring a type-parametrized extern symbol in a template function
     // will cause a name conflict if the template is instantiated multiple
     // times. This is a problem since dynamically sized shared memory in
@@ -334,30 +333,26 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
     real* psums = reinterpret_cast<real*>(psums_buf);
 
     int num_of_elements = GF_q::elements();
-    int num_of_elements_div_2 = num_of_elements / 2;
 
     // each block processes 2 * blockDim.x elements, 2 per thread.
     // If we lay out all elements accessed by (loop_n, loop_e) in row-major
     // order, it is not difficult to see that i0, i1 are the indices handled by
     // this thread:
-    int i0 = int(2 * blockIdx.x * blockDim.x + threadIdx.x);
+    int i0 = 2 * (blockIdx.x * blockDim.x) + threadIdx.x;
     int i1 = i0 + blockDim.x;
 
     int loop_n0 = i0 / num_of_elements;
     int loop_n1 = i1 / num_of_elements;
-
     int n = probs.get_rows();
 
     // load probabilities for this thread and clip them.
-    real prob0 = 0;
+    real prob0 = 0, prob1 = 0;
     if (loop_n0 < n) {
         int loop_e0 = i0 % num_of_elements;
 
         prob0 = probs(loop_n0, loop_e0);
         perform_clipping(prob0, clipping_method, almostzero);
     }
-
-    real prob1 = 0;
     if (loop_n1 < n) {
         int loop_e1 = i1 % num_of_elements;
 
@@ -365,26 +360,54 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
         perform_clipping(prob1, clipping_method, almostzero);
     }
 
+    // Reduction algorithm is heavily inspired by
+    // https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf
     psums[threadIdx.x] = prob0;
     psums[threadIdx.x + blockDim.x] = prob1;
     __syncthreads();
 
-    // (almost) divergence free, parallel optimized summation.
-    // NOTE: GF_q::elements() is used instead of num_of_elements to
-    // encourage loop unrolling
-    for (int stride = 1; stride < GF_q::elements(); stride *= 2) {
-        if (threadIdx.x < int(blockDim.x) / stride) {
-            psums[threadIdx.x * 2 * stride] +=
-                psums[threadIdx.x * 2 * stride + stride];
+    for (int stride = GF_q::elements() / 2; stride > 0; stride >>= 1) {
+        if (threadIdx.x < blockDim.x - stride) {
+            psums[threadIdx.x] += psums[threadIdx.x + stride];
+            psums[threadIdx.x + blockDim.x] +=
+                psums[threadIdx.x + blockDim.x + stride];
         }
 
         __syncthreads();
     }
 
-    real alpha0 =
-        psums[(threadIdx.x >> GF_q::log2_elements()) << GF_q::log2_elements()];
-    real alpha1 = psums[((threadIdx.x + blockDim.x) >> GF_q::log2_elements())
-                        << GF_q::log2_elements()];
+    // unroll loop for the last warp
+    // Note that all these branches should be compiled away due to template
+    // specializations
+    /*
+    if (32 < GF_q::elements() / 2) {
+        if (threadIdx.x < 32)
+            psums[threadIdx.x] += psums[threadIdx.x + 32];
+    }
+    if (16 < GF_q::elements() / 2) {
+        if (threadIdx.x < 32)
+            psums[threadIdx.x] += psums[threadIdx.x + 16];
+    }
+    if (8 < GF_q::elements() / 2) {
+        if (threadIdx.x < 32)
+            psums[threadIdx.x] += psums[threadIdx.x + 8];
+    }
+    if (4 < GF_q::elements() / 2) {
+        if (threadIdx.x < 32)
+            psums[threadIdx.x] += psums[threadIdx.x + 4];
+    }
+    if (2 < GF_q::elements() / 2) {
+        if (threadIdx.x < 32)
+            psums[threadIdx.x] += psums[threadIdx.x + 2];
+    }
+    if (1 < GF_q::elements() / 2) {
+        if (threadIdx.x < 32)
+            psums[threadIdx.x] += psums[threadIdx.x + 1];
+    }
+    */
+
+    real alpha0 = psums[threadIdx.x & ~(GF_q::elements() - 1)];
+    real alpha1 = psums[(threadIdx.x + blockDim.x) & ~(GF_q::elements() - 1)];
 
     // normalize probabilities (divide by alpha)
     if (loop_n0 < n) {
@@ -421,7 +444,7 @@ clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
 
     // summation of probabilities over a single row must always fit in a
     // block.
-    assertalways(2 * block_dim >= GF_q::elements());
+    assertalways(block_dim >= GF_q::elements());
 
     clip_and_normalize_probs_kern<GF_q, real>
         <<<num_blocks, block_dim, 2 * block_dim * sizeof(real)>>>(
@@ -1012,8 +1035,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
  *      type = gf2 | gf4 ...
  *      real = double | float
  */
-#define INSTANTIATE(r, args) \
-      template class sum_prod_alg_gdl_cuda<BOOST_PP_SEQ_ENUM(args)>;
+#define INSTANTIATE(r, args)                                                   \
+    template class sum_prod_alg_gdl_cuda<BOOST_PP_SEQ_ENUM(args)>;
 // clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (GF_TYPE_SEQ)(REAL_TYPE_SEQ))
