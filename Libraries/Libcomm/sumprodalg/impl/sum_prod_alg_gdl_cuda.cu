@@ -338,89 +338,44 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
     // If we lay out all elements accessed by (loop_n, loop_e) in row-major
     // order, it is not difficult to see that i0, i1 are the indices handled by
     // this thread:
-    int i0 = 2 * (blockIdx.x * blockDim.x) + threadIdx.x;
-    int i1 = i0 + blockDim.x;
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
 
-    int loop_n0 = i0 / num_of_elements;
-    int loop_n1 = i1 / num_of_elements;
+    int loop_n = i / num_of_elements;
     int n = probs.get_rows();
 
     // load probabilities for this thread and clip them.
-    real prob0 = 0, prob1 = 0;
-    if (loop_n0 < n) {
-        int loop_e0 = i0 % num_of_elements;
+    real prob = 0;
+    if (loop_n < n) {
+        int loop_e = i % num_of_elements;
 
-        prob0 = probs(loop_n0, loop_e0);
-        perform_clipping(prob0, clipping_method, almostzero);
-    }
-    if (loop_n1 < n) {
-        int loop_e1 = i1 % num_of_elements;
-
-        prob1 = probs(loop_n1, loop_e1);
-        perform_clipping(prob1, clipping_method, almostzero);
+        prob = probs(loop_n, loop_e);
+        perform_clipping(prob, clipping_method, almostzero);
     }
 
     // Reduction algorithm is heavily inspired by
     // https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf
-    psums[threadIdx.x] = prob0;
-    psums[threadIdx.x + blockDim.x] = prob1;
+    psums[threadIdx.x] = prob;
     __syncthreads();
 
     for (int stride = GF_q::elements() / 2; stride > 0; stride >>= 1) {
         if (threadIdx.x < blockDim.x - stride) {
             psums[threadIdx.x] += psums[threadIdx.x + stride];
-            psums[threadIdx.x + blockDim.x] +=
-                psums[threadIdx.x + blockDim.x + stride];
         }
 
-        __syncthreads();
+        // if all summations were performed in a single warp, there is no need
+        // for __syncthreads()
+        if (blockDim.x - stride > 32)
+            __syncthreads();
     }
 
-    // unroll loop for the last warp
-    // Note that all these branches should be compiled away due to template
-    // specializations
-    /*
-    if (32 < GF_q::elements() / 2) {
-        if (threadIdx.x < 32)
-            psums[threadIdx.x] += psums[threadIdx.x + 32];
-    }
-    if (16 < GF_q::elements() / 2) {
-        if (threadIdx.x < 32)
-            psums[threadIdx.x] += psums[threadIdx.x + 16];
-    }
-    if (8 < GF_q::elements() / 2) {
-        if (threadIdx.x < 32)
-            psums[threadIdx.x] += psums[threadIdx.x + 8];
-    }
-    if (4 < GF_q::elements() / 2) {
-        if (threadIdx.x < 32)
-            psums[threadIdx.x] += psums[threadIdx.x + 4];
-    }
-    if (2 < GF_q::elements() / 2) {
-        if (threadIdx.x < 32)
-            psums[threadIdx.x] += psums[threadIdx.x + 2];
-    }
-    if (1 < GF_q::elements() / 2) {
-        if (threadIdx.x < 32)
-            psums[threadIdx.x] += psums[threadIdx.x + 1];
-    }
-    */
-
-    real alpha0 = psums[threadIdx.x & ~(GF_q::elements() - 1)];
-    real alpha1 = psums[(threadIdx.x + blockDim.x) & ~(GF_q::elements() - 1)];
+    real alpha = psums[threadIdx.x & ~(GF_q::elements() - 1)];
 
     // normalize probabilities (divide by alpha)
-    if (loop_n0 < n) {
-        int loop_e0 = i0 % num_of_elements;
+    if (loop_n < n) {
+        int loop_e = i % num_of_elements;
 
-        cuda_assertalways(alpha0 != real(0.0));
-        probs(loop_n0, loop_e0) = prob0 / alpha0;
-    }
-    if (loop_n1 < n) {
-        int loop_e1 = i1 % num_of_elements;
-
-        cuda_assertalways(alpha1 != real(0.0));
-        probs(loop_n1, loop_e1) = prob1 / alpha1;
+        cuda_assertalways(alpha != real(0.0));
+        probs(loop_n, loop_e) = prob / alpha;
     }
 }
 
@@ -438,16 +393,16 @@ clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
     int smem_per_block =
         ::cuda::cudaGetSharedMemPerBlock(::cuda::cudaGetCurrentDevice());
     int block_dim =
-        std::min(max_threads_per_block, smem_per_block / int(2 * sizeof(real)));
+        std::min(max_threads_per_block, smem_per_block / int(sizeof(real)));
 
-    int num_blocks = ROUND_UP_DIV(n * GF_q::elements(), int(2 * block_dim));
+    int num_blocks = ROUND_UP_DIV(n * GF_q::elements(), int(block_dim));
 
     // summation of probabilities over a single row must always fit in a
     // block.
     assertalways(block_dim >= GF_q::elements());
 
     clip_and_normalize_probs_kern<GF_q, real>
-        <<<num_blocks, block_dim, 2 * block_dim * sizeof(real)>>>(
+        <<<num_blocks, block_dim, block_dim * sizeof(real)>>>(
             probs, clipping_method, almostzero);
     cudaSafeCall(cudaGetLastError());
 
