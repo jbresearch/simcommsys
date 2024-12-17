@@ -308,7 +308,7 @@ class PchkMatrix:
                         ]
                         col_non_zero_pos.append(
                             np.array(
-                                col_non_zero_pos_and_values[: col_weights[col]],
+                                np.vectorize(lambda t: t - 1)(col_non_zero_pos_and_values[: col_weights[col]]),
                                 dtype=np.int32,
                             )
                         )
@@ -471,7 +471,7 @@ class PchkMatrix:
                 non_zero_pos_str = ""
                 for col in range(self.m):
                     non_zero_pos_str += f"""{len(self.col_non_zero_pos[col])}
-{' '.join(map(str, self.col_non_zero_pos[col]))}"""
+{' '.join(map(lambda x: str(x + 1), self.col_non_zero_pos[col]))}"""
 
                     # add values at the end of each row if these are required.
                     if self.values_method == ValuesMethod.PROVIDED:
