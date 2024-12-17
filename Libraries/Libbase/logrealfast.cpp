@@ -76,7 +76,7 @@ double
 logrealfast::convertfromdouble(const double m)
 {
     // trap infinity
-    const int inf = isinf(m);
+    const int inf = std::isinf(m);
 
     if (inf < 0) {
         failwith("Negative infinity cannot be represented");
@@ -86,7 +86,7 @@ logrealfast::convertfromdouble(const double m)
                   << std::endl;
 #endif
         return -std::numeric_limits<double>::infinity();
-    } else if (isnan(m)) { // trap NaN
+    } else if (std::isnan(m)) { // trap NaN
         failwith("NaN cannot be represented");
     } else if (m < 0) { // trap negative numbers
         failwith("Negative numbers cannot be represented");
@@ -108,7 +108,7 @@ std::ostream&
 operator<<(std::ostream& sout, const logrealfast& x)
 {
     // trap infinity
-    const int inf = isinf(x.logval);
+    const int inf = std::isinf(x.logval);
 
     if (inf < 0) {
         sout << "+Inf";

@@ -171,7 +171,7 @@ inline void
 logrealfast::ensurefinite(double& x)
 {
     // trap infinity
-    const int inf = isinf(x);
+    const int inf = std::isinf(x);
     if (inf < 0) {
 #if DEBUG >= 2
         std::cerr << "DEBUG (logrealfast): negative infinity." << std::endl;
@@ -182,7 +182,7 @@ logrealfast::ensurefinite(double& x)
 #endif
     }
     // trap NaN
-    else if (isnan(x)) {
+    else if (std::isnan(x)) {
         failwith("NaN cannot be represented");
     }
 }
