@@ -74,11 +74,11 @@ class PchkMatrix:
             cols=cols,
             rows=rows,
             row_non_zeros=np.sum(H != 0, axis=1, dtype=np.int32),
-            row_non_zeros_val=[H[r, H[r, :] != 0] for r in range(rows)],
+            row_non_zero_val=[H[r, H[r, :] != 0] for r in range(rows)],
             col_non_zeros=np.sum(H != 0, axis=0, dtype=np.int32),
-            col_non_zeros_val=[H[H[:, c] != 0, c] for c in range(cols)],
-            row_non_zeros_pos=[np.nonzero(H[r, :])[0] for r in range(rows)],
-            col_non_zeros_pos=[np.nonzero(H[:, c])[0] for c in range(cols)],
+            col_non_zero_val=[H[H[:, c] != 0, c] for c in range(cols)],
+            row_non_zero_pos=[np.nonzero(H[r, :])[0] for r in range(rows)],
+            col_non_zero_pos=[np.nonzero(H[:, c])[0] for c in range(cols)],
         )
 
     def __write_flat(self, delimiter: str, transpose: bool) -> str:
@@ -130,51 +130,51 @@ class PchkMatrix:
 
             line_cntr = 4
 
-            col_non_zeros_pos = []
-            col_non_zeros_val: list[np.ndarray[Any, np.int32]]
+            col_non_zero_pos = []
+            col_non_zero_val: list[np.ndarray[Any, np.int32]]
             has_values = len(lines[line_cntr].split(" ")) == 2 * cols
             if has_values:
-                col_non_zeros_val = []
+                col_non_zero_val = []
                 for _ in range(cols):
                     pos, val = zip(*chunks(lines[line_cntr].split(" "), 2))
                     # do -1 as we use 0-based indexing
-                    col_non_zeros_pos.append(
+                    col_non_zero_pos.append(
                         np.array(list(map(lambda x: int(x) - 1, pos)), dtype=np.int32)
                     )
-                    col_non_zeros_val.append(np.array(list(map(int, val)), dtype=np.int32))
+                    col_non_zero_val.append(np.array(list(map(int, val)), dtype=np.int32))
 
                     line_cntr += 1
             else:
-                col_non_zeros_val = [
+                col_non_zero_val = [
                     np.array([1] * cw, dtype=np.int32) for cw in col_non_zeros
                 ]
                 for _ in range(cols):
                     pos = lines[line_cntr].split(" ")
-                    col_non_zeros_pos.append(np.array(list(map(int, pos)), dtype=np.int32))
+                    col_non_zero_pos.append(np.array(list(map(int, pos)), dtype=np.int32))
 
                     line_cntr += 1
 
-            row_non_zeros_pos = []
-            row_non_zeros_val: list[np.ndarray[Any, np.int32]]
+            row_non_zero_pos = []
+            row_non_zero_val: list[np.ndarray[Any, np.int32]]
             has_values = len(lines[line_cntr].split(" ")) == 2 * rows
             if has_values:
-                row_non_zeros_val = []
+                row_non_zero_val = []
                 for _ in range(rows):
                     pos, val = zip(*chunks(lines[line_cntr].split(" "), 2))
                     # do -1 as we use 0-based indexing
-                    row_non_zeros_pos.append(
+                    row_non_zero_pos.append(
                         np.array(list(map(lambda x: int(x) - 1, pos)), dtype=np.int32)
                     )
-                    row_non_zeros_val.append(np.array(list(map(int, val)), dtype=np.int32))
+                    row_non_zero_val.append(np.array(list(map(int, val)), dtype=np.int32))
 
                     line_cntr += 1
             else:
-                row_non_zeros_val = [
+                row_non_zero_val = [
                     np.array([1] * rw, dtype=np.int32) for rw in row_non_zeros
                 ]
                 for _ in range(rows):
                     pos = lines[line_cntr].split(" ")
-                    row_non_zeros_pos.append(np.array(list(map(int, pos)), dtype=np.int32))
+                    row_non_zero_pos.append(np.array(list(map(int, pos)), dtype=np.int32))
 
                     line_cntr += 1
 
@@ -182,11 +182,11 @@ class PchkMatrix:
                 cols=cols,
                 rows=rows,
                 row_non_zeros=row_non_zeros,
-                row_non_zeros_val=row_non_zeros_val,
-                row_non_zeros_pos=row_non_zeros_pos,
+                row_non_zero_val=row_non_zero_val,
+                row_non_zero_pos=row_non_zero_pos,
                 col_non_zeros=col_non_zeros,
-                col_non_zeros_val=col_non_zeros_val,
-                col_non_zeros_pos=col_non_zeros_pos,
+                col_non_zero_val=col_non_zero_val,
+                col_non_zero_pos=col_non_zero_pos,
             )
 
         except (IndexError, ValueError):
@@ -198,32 +198,32 @@ class PchkMatrix:
         col_non_zeros_str = " ".join(map(str, self.col_non_zeros))
         row_non_zeros_str = " ".join(map(str, self.row_non_zeros))
 
-        col_non_zeros_pos_and_values_str: str
+        col_non_zero_pos_and_values_str: str
         if non_binary:
-            col_non_zeros_pos_and_values_str = "\n".join(
+            col_non_zero_pos_and_values_str = "\n".join(
                 [
                     " ".join([f"{p+1} {v}" for p, v in zip(pos, val)])
                     for pos, val in zip(self.col_non_zero_pos, self.col_non_zero_val)
                 ]
             )
         else:
-            col_non_zeros_pos_and_values_str = "\n".join(
+            col_non_zero_pos_and_values_str = "\n".join(
                 [
                     " ".join(map(lambda x: str(x + 1), pos))
                     for pos in self.col_non_zero_pos
                 ]
             )
 
-        row_non_zeros_pos_and_values_str: str
+        row_non_zero_pos_and_values_str: str
         if non_binary:
-            row_non_zeros_pos_and_values_str = "\n".join(
+            row_non_zero_pos_and_values_str = "\n".join(
                 [
                     " ".join([f"{p+1} {v}" for p, v in zip(pos, val)])
                     for pos, val in zip(self.row_non_zero_pos, self.row_non_zero_val)
                 ]
             )
         else:
-            row_non_zeros_pos_and_values_str = "\n".join(
+            row_non_zero_pos_and_values_str = "\n".join(
                 [
                     " ".join(map(lambda x: str(x + 1), pos))
                     for pos in self.row_non_zero_pos
@@ -234,8 +234,8 @@ class PchkMatrix:
 {np.max(self.col_non_zeros)} {np.max(self.row_non_zeros)}
 {col_non_zeros_str}
 {row_non_zeros_str}
-{col_non_zeros_pos_and_values_str}
-{row_non_zeros_pos_and_values_str}"""
+{col_non_zero_pos_and_values_str}
+{row_non_zero_pos_and_values_str}"""
 
     @staticmethod
     def __read_simcommsys_vector(lines: Iterable[str]) -> np.ndarray[Any, np.int32]:
@@ -269,51 +269,51 @@ class PchkMatrix:
         row_non_zeros = cls.__read_simcommsys_vector(lines[line_cntr:])
         line_cntr += 2
 
-        col_non_zeros_pos = []
-        col_non_zeros_val = []
+        col_non_zero_pos = []
+        col_non_zero_val = []
 
         for c in range(cols):
-            col_non_zeros_pos.append(cls.__read_simcommsys_vector(lines[line_cntr:]))
+            col_non_zero_pos.append(cls.__read_simcommsys_vector(lines[line_cntr:]))
             # we use 0-based indices not 1-based.
-            col_non_zeros_pos[-1] = np.array(
-                list(map(lambda x: x - 1, col_non_zeros_pos[-1]))
+            col_non_zero_pos[-1] = np.array(
+                list(map(lambda x: x - 1, col_non_zero_pos[-1]))
             )
             line_cntr += 2
             assert (
-                col_non_zeros_pos[-1].shape[0] == col_non_zeros[c]
-            ), f"Size of position vector for column {c}={col_non_zeros_pos[-1]}, expected {col_non_zeros[c]}"
+                col_non_zero_pos[-1].shape[0] == col_non_zeros[c]
+            ), f"Size of position vector for column {c}={col_non_zero_pos[-1]}, expected {col_non_zeros[c]}"
 
             if values_method == ValuesMethod.PROVIDED:
-                col_non_zeros_val.append(
+                col_non_zero_val.append(
                     cls.__read_simcommsys_vector(lines[line_cntr:])
                 )
                 line_cntr += 2
                 assert (
-                    col_non_zeros_val[-1].shape[0] == col_non_zeros_pos[-1].shape[0]
-                ), f"Sizes of position and value vectors for column {c} do not match {col_non_zeros_val[-1].shape[0]} != {col_non_zeros_pos[-1].shape[0]}"
+                    col_non_zero_val[-1].shape[0] == col_non_zero_pos[-1].shape[0]
+                ), f"Sizes of position and value vectors for column {c} do not match {col_non_zero_val[-1].shape[0]} != {col_non_zero_pos[-1].shape[0]}"
             else:
-                col_non_zeros_val.append(np.ones((col_non_zeros[c],)))
+                col_non_zero_val.append(np.ones((col_non_zeros[c],)))
 
-        row_non_zeros_pos = [[] for r in range(rows)]
-        row_non_zeros_val = [[] for r in range(rows)]
+        row_non_zero_pos = [[] for r in range(rows)]
+        row_non_zero_val = [[] for r in range(rows)]
 
         for c in range(cols):
-            for r, v in zip(col_non_zeros_pos[c], col_non_zeros_val[c]):
-                row_non_zeros_pos[r].append(c)
-                row_non_zeros_val[r].append(v)
+            for r, v in zip(col_non_zero_pos[c], col_non_zero_val[c]):
+                row_non_zero_pos[r].append(c)
+                row_non_zero_val[r].append(v)
 
-        row_non_zeros_pos = list(map(np.array, row_non_zeros_pos))
-        row_non_zeros_val = list(map(np.array, row_non_zeros_val))
+        row_non_zero_pos = list(map(np.array, row_non_zero_pos))
+        row_non_zero_val = list(map(np.array, row_non_zero_val))
 
         return cls(
             cols=cols,
             rows=rows,
             row_non_zeros=row_non_zeros,
-            row_non_zeros_val=row_non_zeros_val,
-            row_non_zeros_pos=row_non_zeros_pos,
+            row_non_zero_val=row_non_zero_val,
+            row_non_zero_pos=row_non_zero_pos,
             col_non_zeros=col_non_zeros,
-            col_non_zeros_val=col_non_zeros_val,
-            col_non_zeros_pos=col_non_zeros_pos,
+            col_non_zero_val=col_non_zero_val,
+            col_non_zero_pos=col_non_zero_pos,
             random_seed=random_seed,
         )
 
