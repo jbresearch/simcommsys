@@ -153,7 +153,7 @@ class PchkMatrix:
                 for _ in range(cols):
                     pos = lines[line_cntr].split(" ")
                     col_non_zero_pos.append(
-                        np.array(list(map(int, pos)), dtype=np.int32)
+                        np.array(list(map(lambda x: int(x) - 1, pos)), dtype=np.int32)
                     )
 
                     line_cntr += 1
@@ -181,7 +181,7 @@ class PchkMatrix:
                 for _ in range(rows):
                     pos = lines[line_cntr].split(" ")
                     row_non_zero_pos.append(
-                        np.array(list(map(int, pos)), dtype=np.int32)
+                        np.array(list(map(lambda x: int(x) - 1, pos)), dtype=np.int32)
                     )
 
                     line_cntr += 1
