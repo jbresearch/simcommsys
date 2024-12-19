@@ -24,57 +24,57 @@
 
 # Build Architecture (ie i686 x86_64).
 ifndef OSARCH
-   export OSARCH := $(shell uname -m)
+	export OSARCH := $(shell uname -m)
 endif
 # Kernel version
 ifndef KERNEL
-   export KERNEL := $(shell uname -r)
+	export KERNEL := $(shell uname -r)
 endif
 # Number of CPUs
 ifndef CPUS
-   export CPUS := $(shell grep processor /proc/cpuinfo |wc -l)
+	export CPUS := $(shell grep processor /proc/cpuinfo |wc -l)
 endif
 # OpenMP Library (0 if absent)
 ifndef USE_OMP
-   export USE_OMP := 1
+	export USE_OMP := 1
 endif
 # MPI Library (0 if absent)
 ifndef USE_MPI
-   export USE_MPI := $(shell mpic++ -showme 2>/dev/null |wc -l)
+	export USE_MPI := $(shell mpic++ -showme 2>/dev/null |wc -l)
 endif
 # GMP Library (0 if absent)
 ifndef USE_GMP
-   TEST_GMP:=$(shell echo '\#include <gmp.h>' | g++ -H -E -o /dev/null - 2>&1 | grep error )
-   export USE_GMP := $(if $(TEST_GMP),0,1)
+	TEST_GMP:=$(shell echo '\#include <gmp.h>' | g++ -H -E -o /dev/null - 2>&1 | grep error )
+	export USE_GMP := $(if $(TEST_GMP),0,1)
 endif
 # CUDA compiler (0 if absent, architecture if present)
 ifndef USE_CUDA
-   export USE_CUDA := $(shell nvcc -V 2>/dev/null |wc -l)
-   # Check for min supported architecture
-   ifneq ($(USE_CUDA),0)
-      # Compile tools if necessary
-      ifeq (,$(wildcard BuildUtils/bin/getdevicearch))
-         USE_CUDA := $(shell $(MAKE) -C "BuildUtils/" build)
-      endif
-      # Get the highest capability of installed cards
-      USE_CUDA := $(shell BuildUtils/bin/getdevicearch 2>/dev/null)
-      # If nothing was found
-      ifeq (,$(USE_CUDA))
-         USE_CUDA := 0
-      endif
-      # Ignore any pre-Fermi cards
-      ifneq (,$(filter 10 11 12 13,$(USE_CUDA)))
-         USE_CUDA := 0
-      endif
-   endif
+	export USE_CUDA := $(shell nvcc -V 2>/dev/null |wc -l)
+	# Check for min supported architecture
+	ifneq ($(USE_CUDA),0)
+		# Compile tools if necessary
+		ifeq (,$(wildcard BuildUtils/bin/getdevicearch))
+			USE_CUDA := $(shell $(MAKE) -C "BuildUtils/" build)
+		endif
+		# Get the highest capability of installed cards
+		USE_CUDA := $(shell BuildUtils/bin/getdevicearch 2>/dev/null)
+		# If nothing was found
+		ifeq (,$(USE_CUDA))
+			USE_CUDA := 0
+		endif
+		# Ignore any pre-Fermi cards
+		ifneq (,$(filter 10 11 12 13,$(USE_CUDA)))
+			USE_CUDA := 0
+		endif
+	endif
 endif
 # Set default release to build
 ifndef RELEASE
-   export RELEASE := release
+	export RELEASE := release
 endif
 # Validate release
 ifneq ($(RELEASE),$(filter $(RELEASE),release debug profile))
-   $(error Invalid release '$(RELEASE)')
+	$(error Invalid release '$(RELEASE)')
 endif
 
 
@@ -87,16 +87,16 @@ export SIMCOMMSYS_VERSION := $(shell git describe --always --dirty)
 # String to identify build
 export BUILDID := $(notdir $(shell git rev-parse --abbrev-ref HEAD))
 ifneq ($(USE_OMP),0)
-   BUILDID := $(BUILDID)-omp
+	BUILDID := $(BUILDID)-omp
 endif
 ifneq ($(USE_MPI),0)
-   BUILDID := $(BUILDID)-mpi
+	BUILDID := $(BUILDID)-mpi
 endif
 ifneq ($(USE_GMP),0)
-   BUILDID := $(BUILDID)-gmp
+	BUILDID := $(BUILDID)-gmp
 endif
 ifneq ($(USE_CUDA),0)
-   BUILDID := $(BUILDID)-cuda$(USE_CUDA)
+	BUILDID := $(BUILDID)-cuda$(USE_CUDA)
 endif
 
 ## Folders
@@ -107,33 +107,33 @@ export ROOTDIR := $(CURDIR)
 export BUILDDIR = $(RELEASE)/$(OSARCH)/$(BUILDID)
 # Folder for installed binaries
 ifndef BINDIR
-   ifeq ($(shell [ -d ~/bin.$(KERNEL) ] && echo 1),1)
-      export BINDIR = ~/bin.$(KERNEL)
-   else
-      export BINDIR = ~/bin.$(OSARCH)
-   endif
+	ifeq ($(shell [ -d ~/bin.$(KERNEL) ] && echo 1),1)
+		export BINDIR = ~/bin.$(KERNEL)
+	else
+		export BINDIR = ~/bin.$(OSARCH)
+	endif
 else
-   export BINDIR
+	export BINDIR
 endif
 
 ## User pacifier
 ifeq ($(MAKELEVEL),0)
-   ifeq ($(MAKECMDGOALS),)
-      ifneq ($(USE_OMP),0)
-         $(info Using OMP: yes)
-      endif
-      ifneq ($(USE_MPI),0)
-         $(info Using MPI: yes)
-      endif
-      ifneq ($(USE_GMP),0)
-         $(info Using GMP: yes)
-      endif
-      ifneq ($(USE_CUDA),0)
-         $(info Using CUDA: yes, compute model $(USE_CUDA))
-      endif
-      $(info Install folder: $(BINDIR))
-      $(info Build tag: $(BUILDID))
-   endif
+	ifeq ($(MAKECMDGOALS),)
+		ifneq ($(USE_OMP),0)
+			$(info Using OMP: yes)
+		endif
+		ifneq ($(USE_MPI),0)
+			$(info Using MPI: yes)
+		endif
+		ifneq ($(USE_GMP),0)
+			$(info Using GMP: yes)
+		endif
+		ifneq ($(USE_CUDA),0)
+			$(info Using CUDA: yes, compute model $(USE_CUDA))
+		endif
+		$(info Install folder: $(BINDIR))
+		$(info Build tag: $(BUILDID))
+	endif
 endif
 
 
@@ -145,7 +145,7 @@ LIBNAMES := base image comm
 ## Commands
 
 ifeq (,$(findstring no-print-directory,$(MAKEFLAGS)))
-   export MAKE := $(MAKE) --no-print-directory
+	export MAKE := $(MAKE) --no-print-directory
 endif
 export MKDIR := mkdir -p
 export RM := rm -rf
@@ -166,23 +166,23 @@ LDopts := $(LDopts) -Wl,--start-group $(LIBNAMES:%=-l%) -Wl,--end-group
 LDopts := $(LDopts) -lboost_program_options
 # OMP options
 ifneq ($(USE_OMP),0)
-   LDopts := $(LDopts) -fopenmp
+	LDopts := $(LDopts) -fopenmp
 endif
 # MPI options
 ifneq ($(USE_MPI),0)
-   LDopts := $(LDopts) $(shell mpic++ -showme:link)
+	LDopts := $(LDopts) $(shell mpic++ -showme:link)
 endif
 # GMP options
 ifneq ($(USE_GMP),0)
-   LDopts := $(LDopts) -lgmpxx -lgmp
+	LDopts := $(LDopts) -lgmpxx -lgmp
 endif
 # CUDA options
 ifneq ($(USE_CUDA),0)
-   ifeq ($(OSARCH),x86_64)
-      LDopts := $(LDopts) -L/usr/local/cuda/lib64 -lcudart
-   else
-      LDopts := $(LDopts) -L/usr/local/cuda/lib -lcudart
-   endif
+	ifeq ($(OSARCH),x86_64)
+		LDopts := $(LDopts) -L/usr/local/cuda/lib64 -lcudart
+	else
+		LDopts := $(LDopts) -L/usr/local/cuda/lib -lcudart
+	endif
 endif
 # Standard libraries
 LDopts := $(LDopts) -lm -lrt -lstdc++
@@ -210,34 +210,34 @@ CCopts := $(CCopts) -std=c++17
 
 # OMP options
 ifneq ($(USE_OMP),0)
-   CCopts := $(CCopts) -DUSE_OMP -fopenmp
+	CCopts := $(CCopts) -DUSE_OMP -fopenmp
 endif
 # MPI options
 ifneq ($(USE_MPI),0)
-   CCopts := $(CCopts) -DUSE_MPI $(shell mpic++ -showme:compile)
+	CCopts := $(CCopts) -DUSE_MPI $(shell mpic++ -showme:compile)
 endif
 # GMP options
 ifneq ($(USE_GMP),0)
-   CCopts := $(CCopts) -DUSE_GMP
+	CCopts := $(CCopts) -DUSE_GMP
 endif
 # CUDA options
 ifneq ($(USE_CUDA),0)
-   CCopts := $(CCopts) -DUSE_CUDA
+	CCopts := $(CCopts) -DUSE_CUDA
 endif
 # Architecture-specific options
 ifeq ($(OSARCH),i686)
-   CCopts := $(CCopts) -msse2
+	CCopts := $(CCopts) -msse2
 else
-   ifeq ($(OSARCH),x86_64)
-      CCopts := $(CCopts) -msse2 -m64
-   else
-      ifeq ($(OSARCH),ppc64)
-         #CCopts := $(CCopts) -maltivec -m64
-         CCopts := $(CCopts)
-      else
-         $(error Unknown architecture: $(OSARCH))
-      endif
-   endif
+	ifeq ($(OSARCH),x86_64)
+		CCopts := $(CCopts) -msse2 -m64
+	else
+		ifeq ($(OSARCH),ppc64)
+			#CCopts := $(CCopts) -maltivec -m64
+			CCopts := $(CCopts)
+		else
+			$(error Unknown architecture: $(OSARCH))
+		endif
+	endif
 endif
 # release-dependent compiler settings
 export CCflag_debug := -g -DDEBUG $(CCopts)
@@ -259,17 +259,17 @@ NVCCopts := $(NVCCopts) -DUSE_CUDA
 NVCCopts := $(NVCCopts) -D_FORCE_INLINES
 NVCCopts := $(NVCCopts) -arch=sm_$(USE_CUDA)
 ifeq ($(OSARCH),i686)
-   NVCCopts := $(NVCCopts) -m32
+	NVCCopts := $(NVCCopts) -m32
 else
-   ifeq ($(OSARCH),x86_64)
-      NVCCopts := $(NVCCopts) -m64
-   else
-      ifeq ($(OSARCH),ppc64)
-         NVCCopts := $(NVCCopts)
-      else
-         $(error Unknown architecture: $(OSARCH))
-      endif
-   endif
+	ifeq ($(OSARCH),x86_64)
+		NVCCopts := $(NVCCopts) -m64
+	else
+		ifeq ($(OSARCH),ppc64)
+			NVCCopts := $(NVCCopts)
+		else
+			$(error Unknown architecture: $(OSARCH))
+		endif
+	endif
 endif
 # release-dependent compiler settings
 NVCCflag_debug := -O0 -g -G -DDEBUG $(NVCCopts)
@@ -360,6 +360,13 @@ build-test-%:	build-libs-%
 	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_TEST)
 build-libs-%:	version-%
 	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_LIBS)
+	
+dry-run-build-main-%:	dry-run-build-libs-%
+	@$(MAKE) RELEASE=$* DOTARGET=build $(patsubst %,dry-run-%,$(TARGETS_MAIN))
+dry-run-build-test-%:	dry-run-build-libs-%
+	@$(MAKE) RELEASE=$* DOTARGET=build $(patsubst %,dry-run-%,$(TARGETS_TEST))
+dry-run-build-libs-%:	version-%
+	@$(MAKE) RELEASE=$* DOTARGET=build $(patsubst %,dry-run-%,$(TARGETS_LIBS))
 
 install:	install-main install-test
 install-main:	install-main-debug install-main-release
@@ -386,6 +393,9 @@ clean-test-%:
 clean-libs-%:
 	@$(MAKE) RELEASE=$* DOTARGET=clean $(TARGETS_LIBS)
 
+compile-commands-%:
+	./Scripts/Utils/mk-compile-commands.bash $*
+
 ## Setting targets
 
 FORCE:
@@ -407,6 +417,14 @@ $(TARGETS_MAIN) $(TARGETS_TEST):	$(TARGETS_LIBS) FORCE
 $(TARGETS_LIBS):	FORCE
 	@echo "----> Making library \"$(notdir $@)\" [$(BUILDID): $(RELEASE)]."
 	@$(MAKE) -C "$(ROOTDIR)/$@" $(DOTARGET)
+
+$(patsubst %,dry-run-%,$(TARGETS_MAIN)) $(patsubst %,dry-run-%,$(TARGETS_TEST)):	$(patsubst %,dry-run-%,$(TARGETS_LIBS)) FORCE
+	@echo "----> Dry run of making target \"$(notdir $(patsubst dry-run-%,%,$@))\" [$(BUILDID): $(RELEASE)]."
+	@$(MAKE) --dry-run --always-make -C "$(ROOTDIR)/$(patsubst dry-run-%,%,$@)" $(DOTARGET)
+
+$(patsubst %,dry-run-%,$(TARGETS_LIBS)):	FORCE
+	@echo "----> Dry run of making library \"$(notdir $(patsubst dry-run-%,%,$@))\" [$(BUILDID): $(RELEASE)]."
+	@$(MAKE) --dry-run --always-make -C "$(ROOTDIR)/$(patsubst dry-run-%,%,$@)" $(DOTARGET)
 
 # Format the entire source code using clang-format
 format:

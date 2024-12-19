@@ -67,23 +67,23 @@ $(LIBRARY):	$(OBJECTS)
 $(BUILDDIR)/%.o:	%.cu
 	@$(MKDIR) $(dir $@)
 	@echo "Compiling $< [$(BUILDID): $(RELEASE)]"
-	@$(NVCC) $(NVCCflags) -c $< -o $@
+	@$(NVCC) $(NVCCflags) -c $(abspath $<) -o $(abspath $@)
 
 $(BUILDDIR)/%.o:	%.cpp
 	@$(MKDIR) $(dir $@)
 	@echo "Compiling $< [$(BUILDID): $(RELEASE)]"
-	@$(CC) $(CCflags) -c $< -o $@
+	@$(CC) $(CCflags) -c $(abspath $<) -o $(abspath $@)
 
 $(BUILDDIR)/%.d:	%.cu
 	@$(MKDIR) $(dir $@)
 	@echo "Making dependancy list for $*.o [$(BUILDID): $(RELEASE)]"
-	@$(NVCC) $(NVCCflags) -M -odir $(dir $@) -o $@ $<
+	@$(NVCC) $(NVCCflags) -M -odir $(dir $@) -o $(abspath $@) $(abspath $<)
 	@sed -e 's,//,/,g' -e '\,/ , d' -e 's,$*\.o[ ]*:,$*.o $@ :,g' -i $@
 
 $(BUILDDIR)/%.d:	%.cpp
 	@$(MKDIR) $(dir $@)
 	@echo "Making dependancy list for $*.o [$(BUILDID): $(RELEASE)]"
-	@$(CC) $(CCflags) -M -MT$(BUILDDIR)/$*.o -MF$@ $<
+	@$(CC) $(CCflags) -M -MT$(BUILDDIR)/$*.o -MF$(abspath $@) $(abspath $<)
 	@sed 's,$*\.o[ ]*:,$*.o $@ :,g' -i $@
 
 # Dependency information
