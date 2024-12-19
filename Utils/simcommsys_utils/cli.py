@@ -19,7 +19,7 @@ import logging
 import os
 import subprocess
 from glob import glob
-from typing import Annotated, Any, Literal, cast, List, Union
+from typing import Annotated, Any, Literal, cast, List
 import re
 import sys
 from enum import Enum
@@ -636,7 +636,7 @@ def convert_pchk(
         ),
     ] = ValuesMethod.RANDOM,
     random_seed: Annotated[
-        Union[int, None],
+        int | None,
         typer.Option(
             help="Random seed to be included in output if needed. Ignored if the output format is not 'simcommsys'"
         ),
