@@ -114,7 +114,7 @@ class PchkMatrix:
 
             col_non_zeros = None
             try:
-                col_non_zeros = np.array(map(int, lines[2].split(" ")))
+                col_non_zeros = np.array(list(map(int, lines[2].split(" "))))
             except ValueError:
                 raise RuntimeError(
                     f"Non-integer value found in list of col non zeros: {lines[2]}"
@@ -122,7 +122,7 @@ class PchkMatrix:
 
             row_non_zeros = None
             try:
-                row_non_zeros = np.array(map(int, lines[3].split(" ")))
+                row_non_zeros = np.array(list(map(int, lines[3].split(" "))))
             except ValueError:
                 raise RuntimeError(
                     f"Non-integer value found in list of row non zeros: {lines[3]}"
@@ -139,9 +139,9 @@ class PchkMatrix:
                     pos, val = zip(*chunks(lines[line_cntr].split(" "), 2))
                     # do -1 as we use 0-based indexing
                     col_non_zeros_pos.append(
-                        np.array(map(lambda x: int(x) - 1, pos), dtype=np.int32)
+                        np.array(list(map(lambda x: int(x) - 1, pos)), dtype=np.int32)
                     )
-                    col_non_zeros_val.append(np.array(map(int, val), dtype=np.int32))
+                    col_non_zeros_val.append(np.array(list(map(int, val)), dtype=np.int32))
 
                     line_cntr += 1
             else:
@@ -150,7 +150,7 @@ class PchkMatrix:
                 ]
                 for _ in range(cols):
                     pos = lines[line_cntr].split(" ")
-                    col_non_zeros_pos.append(np.array(map(int, pos), dtype=np.int32))
+                    col_non_zeros_pos.append(np.array(list(map(int, pos)), dtype=np.int32))
 
                     line_cntr += 1
 
@@ -163,9 +163,9 @@ class PchkMatrix:
                     pos, val = zip(*chunks(lines[line_cntr].split(" "), 2))
                     # do -1 as we use 0-based indexing
                     row_non_zeros_pos.append(
-                        np.array(map(lambda x: int(x) - 1, pos), dtype=np.int32)
+                        np.array(list(map(lambda x: int(x) - 1, pos)), dtype=np.int32)
                     )
-                    row_non_zeros_val.append(np.array(map(int, val), dtype=np.int32))
+                    row_non_zeros_val.append(np.array(list(map(int, val)), dtype=np.int32))
 
                     line_cntr += 1
             else:
@@ -174,7 +174,7 @@ class PchkMatrix:
                 ]
                 for _ in range(rows):
                     pos = lines[line_cntr].split(" ")
-                    row_non_zeros_pos.append(np.array(map(int, pos), dtype=np.int32))
+                    row_non_zeros_pos.append(np.array(list(map(int, pos)), dtype=np.int32))
 
                     line_cntr += 1
 
@@ -240,7 +240,7 @@ class PchkMatrix:
     @staticmethod
     def __read_simcommsys_vector(lines: Iterable[str]) -> np.ndarray[Any, np.int32]:
         size = int(lines[0])
-        vals = np.array(map(int, lines[1].split(" ")), dtype=np.int32)
+        vals = np.array(list(map(int, lines[1].split(" "))), dtype=np.int32)
         assert (
             size == vals.shape[0]
         ), f"Length of parsed array {vals.shape[0]} does not match expected size {size}"
@@ -276,7 +276,7 @@ class PchkMatrix:
             col_non_zeros_pos.append(cls.__read_simcommsys_vector(lines[line_cntr:]))
             # we use 0-based indices not 1-based.
             col_non_zeros_pos[-1] = np.array(
-                map(lambda x: x - 1, col_non_zeros_pos[-1])
+                list(map(lambda x: x - 1, col_non_zeros_pos[-1]))
             )
             line_cntr += 2
             assert (
@@ -353,7 +353,7 @@ class PchkMatrix:
         if values_method == ValuesMethod.PROVIDED:
             pos_and_values_str = "\n".join(
                 [
-                    f"""{self.__write_simcommsys_vector(np.array(map(lambda x: x+1, pos)))}
+                    f"""{self.__write_simcommsys_vector(np.array(list(map(lambda x: x+1, pos))))}
 {self.__write_simcommsys_vector(val)}"""
                     for pos, val in zip(self.col_non_zero_pos, self.col_non_zero_val)
                 ]
@@ -362,7 +362,7 @@ class PchkMatrix:
             pos_and_values_str = "\n".join(
                 map(
                     lambda pos: self.__write_simcommsys_vector(
-                        np.array(map(lambda x: x + 1, pos))
+                        np.array(list(map(lambda x: x + 1, pos)))
                     ),
                     self.col_non_zero_pos,
                 )
