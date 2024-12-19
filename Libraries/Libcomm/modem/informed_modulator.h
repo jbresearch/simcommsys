@@ -53,10 +53,10 @@ public:
 protected:
     /*! \name Interface with derived classes */
     //! \copydoc demodulate()
-    virtual void dodemodulate(const channel<S, C>& chan,
-                              const C<S>& rx,
-                              const C<array1d_t>& app,
-                              C<array1d_t>& ptable) = 0;
+    virtual void dodemodulate_informed(const channel<S, C>& chan,
+                                       const C<S>& rx,
+                                       const C<array1d_t>& app,
+                                       C<array1d_t>& ptable) = 0;
     // @}
 
 public:
@@ -103,7 +103,7 @@ public:
                     C<array1d_t>& ptable)
     {
         this->advance_if_dirty();
-        dodemodulate(chan, rx, app, ptable);
+        dodemodulate_informed(chan, rx, app, ptable);
         this->mark_as_dirty();
     }
     // @}

@@ -124,20 +124,21 @@ protected:
     void dodemodulate(const channel<sig>& chan,
                       const array1s_t& rx,
                       array1vd_t& ptable);
-    void dodemodulate(const channel<sig>& chan,
-                      const array1s_t& rx,
-                      const array1vd_t& app,
-                      array1vd_t& ptable);
-    void dodemodulate(const channel<sig>& chan,
-                      const array1s_t& rx,
-                      const libbase::size_type<libbase::vector> lookahead,
-                      const array1d_t& sof_prior,
-                      const array1d_t& eof_prior,
-                      const array1vd_t& app,
-                      array1vd_t& ptable,
-                      array1d_t& sof_post,
-                      array1d_t& eof_post,
-                      const libbase::size_type<libbase::vector> offset);
+    void dodemodulate_informed(const channel<sig>& chan,
+                               const array1s_t& rx,
+                               const array1vd_t& app,
+                               array1vd_t& ptable) override;
+    void dodemodulate_stream(
+        const channel<sig>& chan,
+        const array1s_t& rx,
+        const libbase::size_type<libbase::vector> lookahead,
+        const array1d_t& sof_prior,
+        const array1d_t& eof_prior,
+        const array1vd_t& app,
+        array1vd_t& ptable,
+        array1d_t& sof_post,
+        array1d_t& eof_post,
+        const libbase::size_type<libbase::vector> offset) override;
     // Internal methods
     array1s_t select_marker(const int i) const;
     void fill_frame_marker_sequence(array1vs_t& frame_marker_sequence,

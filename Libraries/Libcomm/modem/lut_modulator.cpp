@@ -96,10 +96,10 @@ lut_modulator::dodemodulate(const channel<sigspace>& chan,
 }
 
 void
-lut_modulator::dodemodulate(const channel<sigspace>& chan,
-                            const libbase::vector<sigspace>& rx,
-                            const libbase::vector<array1d_t>& app,
-                            libbase::vector<array1d_t>& ptable)
+lut_modulator::dodemodulate_informed(const channel<sigspace>& chan,
+                                     const libbase::vector<sigspace>& rx,
+                                     const libbase::vector<array1d_t>& app,
+                                     libbase::vector<array1d_t>& ptable)
 {
     // Do the demodulation step
     dodemodulate(chan, rx, ptable);

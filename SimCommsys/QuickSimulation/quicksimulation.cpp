@@ -284,7 +284,7 @@ main(int argc, char* argv[])
 
                     cout << "\t\t\"Value\": " << setprecision(6) << estimate(j)
                          << "," << std::endl;
-                    if (isnan(errmargin))
+                    if (std::isnan(errmargin))
                         cout << "\t\t\"Tolerance\": \"NaN\"" << std::endl;
                     else
                         cout << "\t\t\"Tolerance\": " << setprecision(3)

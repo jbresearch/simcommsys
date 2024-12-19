@@ -51,10 +51,10 @@ protected:
     void dodemodulate(const channel<sigspace>& chan,
                       const libbase::vector<sigspace>& rx,
                       libbase::vector<array1d_t>& ptable);
-    void dodemodulate(const channel<sigspace>& chan,
-                      const libbase::vector<sigspace>& rx,
-                      const libbase::vector<array1d_t>& app,
-                      libbase::vector<array1d_t>& ptable);
+    void dodemodulate_informed(const channel<sigspace>& chan,
+                               const libbase::vector<sigspace>& rx,
+                               const libbase::vector<array1d_t>& app,
+                               libbase::vector<array1d_t>& ptable);
 
 public:
     /*! \name Constructors / Destructors */

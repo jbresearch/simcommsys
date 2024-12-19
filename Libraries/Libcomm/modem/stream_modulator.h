@@ -62,16 +62,16 @@ public:
 protected:
     /*! \name Interface with derived classes */
     //! \copydoc demodulate()
-    virtual void dodemodulate(const channel<S, C>& chan,
-                              const C<S>& rx,
-                              const libbase::size_type<C> lookahead,
-                              const C<double>& sof_prior,
-                              const C<double>& eof_prior,
-                              const C<array1d_t>& app,
-                              C<array1d_t>& ptable,
-                              C<double>& sof_post,
-                              C<double>& eof_post,
-                              const libbase::size_type<C> offset) = 0;
+    virtual void dodemodulate_stream(const channel<S, C>& chan,
+                                     const C<S>& rx,
+                                     const libbase::size_type<C> lookahead,
+                                     const C<double>& sof_prior,
+                                     const C<double>& eof_prior,
+                                     const C<array1d_t>& app,
+                                     C<array1d_t>& ptable,
+                                     C<double>& sof_post,
+                                     C<double>& eof_post,
+                                     const libbase::size_type<C> offset) = 0;
     // @}
 
 public:
@@ -130,16 +130,16 @@ public:
                     const libbase::size_type<C> offset)
     {
         this->advance_if_dirty();
-        dodemodulate(chan,
-                     rx,
-                     lookahead,
-                     sof_prior,
-                     eof_prior,
-                     app,
-                     ptable,
-                     sof_post,
-                     eof_post,
-                     offset);
+        dodemodulate_stream(chan,
+                            rx,
+                            lookahead,
+                            sof_prior,
+                            eof_prior,
+                            app,
+                            ptable,
+                            sof_post,
+                            eof_post,
+                            offset);
         this->mark_as_dirty();
     }
     /*!

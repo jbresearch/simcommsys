@@ -265,15 +265,15 @@ tvb<sig, real, real2>::dodemodulate(const channel<sig>& chan,
                                     array1vd_t& ptable)
 {
     const array1vd_t app; // empty APP table
-    dodemodulate(chan, rx, app, ptable);
+    dodemodulate_informed(chan, rx, app, ptable);
 }
 
 template <class sig, class real, class real2>
 void
-tvb<sig, real, real2>::dodemodulate(const channel<sig>& chan,
-                                    const array1s_t& rx,
-                                    const array1vd_t& app,
-                                    array1vd_t& ptable)
+tvb<sig, real, real2>::dodemodulate_informed(const channel<sig>& chan,
+                                             const array1s_t& rx,
+                                             const array1vd_t& app,
+                                             array1vd_t& ptable)
 {
     // Initialize for known-start
     init(chan);
@@ -313,7 +313,7 @@ tvb<sig, real, real2>::dodemodulate(const channel<sig>& chan,
 
 template <class sig, class real, class real2>
 void
-tvb<sig, real, real2>::dodemodulate(
+tvb<sig, real, real2>::dodemodulate_stream(
     const channel<sig>& chan,
     const array1s_t& rx,
     const libbase::size_type<libbase::vector> lookahead,

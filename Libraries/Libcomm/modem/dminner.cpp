@@ -491,10 +491,10 @@ dminner<real>::dodemodulate(const channel<bool>& chan,
 
 template <class real>
 void
-dminner<real>::dodemodulate(const channel<bool>& chan,
-                            const array1b_t& rx,
-                            const array1vd_t& app,
-                            array1vd_t& ptable)
+dminner<real>::dodemodulate_informed(const channel<bool>& chan,
+                                     const array1b_t& rx,
+                                     const array1vd_t& app,
+                                     array1vd_t& ptable)
 {
     array1vd_t p;
     // Apply standard demodulation
@@ -520,16 +520,17 @@ dminner<real>::dodemodulate(const channel<bool>& chan,
 
 template <class real>
 void
-dminner<real>::dodemodulate(const channel<bool>& chan,
-                            const array1b_t& rx,
-                            const libbase::size_type<libbase::vector> lookahead,
-                            const array1d_t& sof_prior,
-                            const array1d_t& eof_prior,
-                            const array1vd_t& app,
-                            array1vd_t& ptable,
-                            array1d_t& sof_post,
-                            array1d_t& eof_post,
-                            const libbase::size_type<libbase::vector> offset)
+dminner<real>::dodemodulate_stream(
+    const channel<bool>& chan,
+    const array1b_t& rx,
+    const libbase::size_type<libbase::vector> lookahead,
+    const array1d_t& sof_prior,
+    const array1d_t& eof_prior,
+    const array1vd_t& app,
+    array1vd_t& ptable,
+    array1d_t& sof_post,
+    array1d_t& eof_post,
+    const libbase::size_type<libbase::vector> offset)
 {
     failwith("Function not implemented.");
 }

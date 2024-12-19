@@ -538,10 +538,10 @@ vector<T>::copy(T* dst, const T* src, int n)
 
     // check for self-copy
     assert(dst != src);
-    // determine the required amount of data to copy
-    const int nbytes = n * sizeof(T);
 #ifndef NDEBUG
     // check for non-overlapping arrays
+    // determine the required amount of data to copy
+    const int nbytes = n * sizeof(T);
     const int8u* buf1 = std::min((int8u*)dst, (int8u*)src);
     const int8u* buf2 = std::max((int8u*)dst, (int8u*)src);
     assert(buf2 >= buf1 + nbytes);
@@ -550,7 +550,7 @@ vector<T>::copy(T* dst, const T* src, int n)
     // NOTE: we can only use memory-copy if T is a primitive type
     if (typeid(T) == typeid(bool) || typeid(T) == typeid(int) ||
         typeid(T) == typeid(double) || typeid(T) == typeid(float)) {
-        memcpy(static_cast<void*>(dst), src, nbytes);
+        std::copy(src, src + n, dst);
     } else {
         for (int i = 0; i < n; i++) {
             dst[i] = src[i];

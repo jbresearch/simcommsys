@@ -140,21 +140,22 @@ protected:
     void domodulate(const int N, const array1i_t& encoded, array1b_t& tx);
     void dodemodulate(const channel<bool>& chan,
                       const array1b_t& rx,
-                      array1vd_t& ptable);
-    void dodemodulate(const channel<bool>& chan,
-                      const array1b_t& rx,
-                      const array1vd_t& app,
-                      array1vd_t& ptable);
-    void dodemodulate(const channel<bool>& chan,
-                      const array1b_t& rx,
-                      const libbase::size_type<libbase::vector> lookahead,
-                      const array1d_t& sof_prior,
-                      const array1d_t& eof_prior,
-                      const array1vd_t& app,
-                      array1vd_t& ptable,
-                      array1d_t& sof_post,
-                      array1d_t& eof_post,
-                      const libbase::size_type<libbase::vector> offset);
+                      array1vd_t& ptable) override;
+    void dodemodulate_informed(const channel<bool>& chan,
+                               const array1b_t& rx,
+                               const array1vd_t& app,
+                               array1vd_t& ptable) override;
+    void dodemodulate_stream(
+        const channel<bool>& chan,
+        const array1b_t& rx,
+        const libbase::size_type<libbase::vector> lookahead,
+        const array1d_t& sof_prior,
+        const array1d_t& eof_prior,
+        const array1vd_t& app,
+        array1vd_t& ptable,
+        array1d_t& sof_post,
+        array1d_t& eof_post,
+        const libbase::size_type<libbase::vector> offset) override;
 
 private:
     /*! \name Internal functions */
