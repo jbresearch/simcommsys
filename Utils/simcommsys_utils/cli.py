@@ -19,7 +19,7 @@ import logging
 import os
 import subprocess
 from glob import glob
-from typing import Annotated, Any, Literal, cast, List
+from typing import Annotated, Any, Literal, cast, List, Union
 import re
 import sys
 from enum import Enum
@@ -614,63 +614,70 @@ def convert_pchk(
     *,
     input: Annotated[
         str,
-        typer.Argument(help="Input alist file."),
+        typer.Argument(help="Input file"),
     ],
     output: Annotated[
         str | None,
         typer.Argument(
-            help="Output alist file. If no file is specified, the output is printed to stdout."
+            help="Output file. If no file is specified, the output is printed to stdout."
         ),
     ] = None,
     from_format: Annotated[
         PchkMatrixFormat,
-        typer.Option(help="Format of the input alist file."),
+        typer.Option(help="Format of the input file."),
     ],
     to_format: Annotated[
         PchkMatrixFormat, typer.Option(help="Required format for the output.")
     ],
     values_method: Annotated[
         ValuesMethod,
-        typer.Option(help="Which values method should be used in the output?"),
-    ] = ValuesMethod.RANDOM,
-    gfsize: Annotated[
-        int,
         typer.Option(
-            help="Field size to use when generating values if needed. This is ignored if input file already provides values."
+            help="Which values method should be used in the output? Ignored if the output format is not 'simcommsys'"
         ),
-    ] = 2,
+    ] = ValuesMethod.RANDOM,
     random_seed: Annotated[
-        int,
-        typer.Option(help="Random seed to be included in output if needed."),
-    ] = 0,
+        Union[int, None],
+        typer.Option(
+            help="Random seed to be included in output if needed. Ignored if the output format is not 'simcommsys'"
+        ),
+    ] = None,
+    in_delimiter: Annotated[
+        str,
+        typer.Option(
+            help="Delimiter of input. This is ignored if the input format is not 'flat'"
+        ),
+    ] = ",",
+    in_transpose: Annotated[
+        bool,
+        typer.Option(
+            help="Is the input transposed? This is ignored if the input format is not 'flat'"
+        ),
+    ] = False,
+    out_delimiter: Annotated[
+        str,
+        typer.Option(
+            help="Delimiter of output. This is ignored if the output format is not 'flat'"
+        ),
+    ] = ",",
+    out_transpose: Annotated[
+        bool,
+        typer.Option(
+            help="Should the output be transposed? This is ignored if the output format is not 'flat'"
+        ),
+    ] = False,
 ):
     """
     This command can be used to convert one parity check matrix format to another.
 
     \b
     The currently supported formats are:
-    - binary: This is the most commonly used format but can only accomodate binary LDPC codes. It was introduced and described by Mackay, e.g. in http://www.inference.org.uk/mackay/codes/alist.html
-    - non-binary:
+    - alist: This is the format introduced by MacKay in http://www.inference.org.uk/mackay/codes/alist.html and subsequently extended for non-binary codes.
     - simcommsys: This is the format used internally by Simcommsys. It can accomodate binary/non-binary codes, and also specifies how non-binary values are generated if a binary code is to be used in a non-binary context.
-    - flat: Matrix is specified in full with whitespace seperating elements in each row
-    - csv: Matrix specified in full in Comma-seperated values (CSV) format
-    - tsv: Matrix specified in full in Tab-seperated values (TSV) format
+    - flat: Matrix is specified in full with some delimiter seperating values in each row
 
     The command tries to accomodate the format conversions specified by the user as best as possible given the input file.
 
-    \b
-    If the input format is "binary", it will be read into memory with values_method set to "ones". If the user specifies --values-method as "provided" in this case, the command will set values_method to "provided" and generate non-zero values in the field specified by --gfsize.
-    If the output format is then one which supports non-binary codes (such as "non-binary" or "simcommsys"), the generated values will show in this output; otherwise they are obviously discarded.
-    If --values-method is specified as "random", the command will set values_method to "random" and set the random seed to that specified by --random-seed. This will then show in the output if the output format is "simcommsys".
-    If --values-method is specified as "ones", nothing needs to be done, as the input already contains 1s as all non-zero values.
-
-    \b
-    If the input format is "non-binary", it will be read into memory with values_method set to "provided". If the user specifies --values-method as "provided" in this case, nothing will happen, as the input already provides non-zero values. The --gfsize argument will be ignored.
-    If the user specifies --values-method as "ones", all non-zero values will be set to 1 in the output.
-    If the user specifies --values-method as "random" the command will set values_method to "random" and set the random seed to that specified by --random-seed. This will then show in the output if the output format is "simcommsys".
-
-    \b
-    If the input format is "simcommsys" the behaviour is similar to the "binary" or "non-binary" case, depending on what the values_method specified in the input is.
+    The command will automatically determine whether the input specifies a binary or non-binary LDPC code.
     """
 
     assert os.path.isfile(input), f"Input file given {input} does not exist."
@@ -678,38 +685,24 @@ def convert_pchk(
         os.path.dirname(output)
     ), f"Directory for output file given {output} does not exist."
 
-    alist: str
+    raw_inp: str
     with open(input) as fl:
-        alist = fl.read()
+        raw_inp = fl.read()
 
-    pchk = PchkMatrix.read(alist, from_format)
-    if values_method != pchk.values_method:
-        pchk.set_values_method(values_method)
-        if values_method == ValuesMethod.RANDOM:
-            # note that at this point we know that pchk does not
-            # already have a random seed, as this would only be
-            # the case if pchk.values_method == RANDOM to start
-            # with.
-            pchk.set_random_seed(random_seed)
-
-        if values_method == ValuesMethod.PROVIDED:
-            # note that at this point we know that pchk does not
-            # already have non-zero values (other than 1), as this
-            # would only be the case if pchk.values_method ==
-            # PROVIDED to start with
-            pchk.populate_values(gfsize)
-
-        if values_method == ValuesMethod.ONES:
-            pchk.populate_values(2)
-
-    elif values_method == ValuesMethod.PROVIDED:
-        # Warn against a common pitfall in usage
-        logging.warning(
-            f"The input file already has provided values; ignoring request to populate output alist with values from GF({gfsize})"
-        )
+    pchk = PchkMatrix.read(
+        raw_inp, from_format, delimiter=in_delimiter, transpose=in_transpose
+    )
 
     with open(output, "w") if output else sys.stdout as fl:
-        fl.write(pchk.write(to_format))
+        fl.write(
+            pchk.write(
+                to_format,
+                delimiter=out_delimiter,
+                transpose=out_transpose,
+                values_method=values_method,
+                random_seed=random_seed,
+            )
+        )
 
 
 @app.command()
