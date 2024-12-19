@@ -345,7 +345,7 @@ class PchkMatrix:
             assert (
                 random_seed is not None
             ), "Random seed must be specified as none was given in the input or as a command line parameter."
-            values_method = f"""{values_method}
+            values_method = f"""{values_method.value}
 # Random seed
 {random_seed}"""
 
