@@ -112,7 +112,7 @@ class PchkMatrix:
                     f"Non-integer value given for maximum row or col weight: {lines[1]}"
                 )
 
-            col_non_zeros
+            col_non_zeros = None
             try:
                 col_non_zeros = np.array(map(int, lines[2].split(" ")))
             except ValueError:
@@ -120,7 +120,7 @@ class PchkMatrix:
                     f"Non-integer value found in list of col non zeros: {lines[2]}"
                 )
 
-            row_non_zeros
+            row_non_zeros = None
             try:
                 row_non_zeros = np.array(map(int, lines[3].split(" ")))
             except ValueError:
