@@ -338,14 +338,14 @@ class PchkMatrix:
             )
 
         values_method = f"""# Non-zero values (ones|random|provided)
-{str(values_method)}"""
+{values_method.value}"""
 
         if values_method == ValuesMethod.RANDOM:
             random_seed = random_seed or self.random_seed
             assert (
                 random_seed is not None
             ), "Random seed must be specified as none was given in the input or as a command line parameter."
-            values_method = f"""{values_method.value}
+            values_method = f"""{values_method}
 # Random seed
 {random_seed}"""
 
