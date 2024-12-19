@@ -91,6 +91,7 @@ class PchkMatrix:
         np.savetxt(io, H, delimiter=delimiter)
         return io.read()
 
+    @classmethod
     def __read_alist(cls, lines: Iterable[str]) -> "PchkMatrix":
         try:
             cols, rows = lines[0].split(" ", 1)
@@ -245,6 +246,7 @@ class PchkMatrix:
         ), f"Length of parsed array {vals.shape[0]} does not match expected size {size}"
         return vals
 
+    @classmethod
     def __read_simcommsys(cls, lines: Iterable[str]) -> "PchkMatrix":
         # remove comment lines
         lines = map(lambda line: re.sub(r"#.*$", "", line).trim(), lines)
