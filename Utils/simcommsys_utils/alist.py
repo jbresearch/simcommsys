@@ -337,15 +337,15 @@ class PchkMatrix:
                 "Values method specified was not provided but input provides values; these will be discarded."
             )
 
-        values_method = f"""# Non-zero values (ones|random|provided)
+        values_method_str = f"""# Non-zero values (ones|random|provided)
 {values_method.value}"""
 
-        if self.values_method == ValuesMethod.RANDOM:
+        if values_method == ValuesMethod.RANDOM:
             random_seed = random_seed or self.random_seed
             assert (
                 random_seed is not None
             ), "Random seed must be specified as none was given in the input or as a command line parameter."
-            values_method = f"""{values_method}
+            values_method_str = f"""{values_method_str}
 # Random seed
 {random_seed}"""
 
@@ -376,7 +376,7 @@ class PchkMatrix:
 {np.max(self.col_non_zeros)}
 # Maximum row weight
 {np.max(self.row_non_zeros)}
-{values_method}
+{values_method_str}
 # Column weights
 {self.__write_simcommsys_vector(self.col_non_zeros)}
 # Row weights
