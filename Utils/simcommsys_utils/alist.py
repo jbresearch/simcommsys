@@ -141,7 +141,9 @@ class PchkMatrix:
                     col_non_zero_pos.append(
                         np.array(list(map(lambda x: int(x) - 1, pos)), dtype=np.int32)
                     )
-                    col_non_zero_val.append(np.array(list(map(int, val)), dtype=np.int32))
+                    col_non_zero_val.append(
+                        np.array(list(map(int, val)), dtype=np.int32)
+                    )
 
                     line_cntr += 1
             else:
@@ -150,7 +152,9 @@ class PchkMatrix:
                 ]
                 for _ in range(cols):
                     pos = lines[line_cntr].split(" ")
-                    col_non_zero_pos.append(np.array(list(map(int, pos)), dtype=np.int32))
+                    col_non_zero_pos.append(
+                        np.array(list(map(int, pos)), dtype=np.int32)
+                    )
 
                     line_cntr += 1
 
@@ -165,7 +169,9 @@ class PchkMatrix:
                     row_non_zero_pos.append(
                         np.array(list(map(lambda x: int(x) - 1, pos)), dtype=np.int32)
                     )
-                    row_non_zero_val.append(np.array(list(map(int, val)), dtype=np.int32))
+                    row_non_zero_val.append(
+                        np.array(list(map(int, val)), dtype=np.int32)
+                    )
 
                     line_cntr += 1
             else:
@@ -174,7 +180,9 @@ class PchkMatrix:
                 ]
                 for _ in range(rows):
                     pos = lines[line_cntr].split(" ")
-                    row_non_zero_pos.append(np.array(list(map(int, pos)), dtype=np.int32))
+                    row_non_zero_pos.append(
+                        np.array(list(map(int, pos)), dtype=np.int32)
+                    )
 
                     line_cntr += 1
 
@@ -284,9 +292,7 @@ class PchkMatrix:
             ), f"Size of position vector for column {c}={col_non_zero_pos[-1]}, expected {col_non_zeros[c]}"
 
             if values_method == ValuesMethod.PROVIDED:
-                col_non_zero_val.append(
-                    cls.__read_simcommsys_vector(lines[line_cntr:])
-                )
+                col_non_zero_val.append(cls.__read_simcommsys_vector(lines[line_cntr:]))
                 line_cntr += 2
                 assert (
                     col_non_zero_val[-1].shape[0] == col_non_zero_pos[-1].shape[0]
@@ -323,9 +329,7 @@ class PchkMatrix:
         return f"""{x.shape[0]}
 {x_str}"""
 
-    def __write_simcommsys(
-        self, values_method: ValuesMethod, random_seed: int | None = None
-    ) -> str:
+    def __write_simcommsys(self, values_method: ValuesMethod, random_seed: int) -> str:
         non_binary = max(*[np.max(r) for r in self.row_non_zero_val]) > 1
         # prohibit weird options that are probably mistakes
         assert (
@@ -341,7 +345,7 @@ class PchkMatrix:
 {values_method.value}"""
 
         if values_method == ValuesMethod.RANDOM:
-            random_seed = random_seed or self.random_seed
+            random_seed = random_seed if random_seed is not None else self.random_seed
             assert (
                 random_seed is not None
             ), "Random seed must be specified as none was given in the input or as a command line parameter."
@@ -386,11 +390,7 @@ class PchkMatrix:
 
     @classmethod
     def read(
-        cls,
-        inp: str,
-        format: PchkMatrixFormat,
-        delimiter: str = ",",
-        transpose: bool = False,
+        cls, inp: str, format: PchkMatrixFormat, delimiter: str, transpose: bool
     ) -> "PchkMatrix":
         match format:
             case PchkMatrixFormat.FLAT:
@@ -405,10 +405,10 @@ class PchkMatrix:
     def write(
         self,
         format: PchkMatrixFormat,
-        delimiter: str = ",",
-        transpose: bool = False,
-        values_method: ValuesMethod = ValuesMethod.RANDOM,
-        random_seed: int | None = None,
+        delimiter: str,
+        transpose: bool,
+        values_method: ValuesMethod,
+        random_seed: int,
     ) -> str:
         match format:
             case PchkMatrixFormat.FLAT:
