@@ -340,7 +340,7 @@ class PchkMatrix:
         values_method = f"""# Non-zero values (ones|random|provided)
 {values_method.value}"""
 
-        if values_method == ValuesMethod.RANDOM:
+        if self.values_method == ValuesMethod.RANDOM:
             random_seed = random_seed or self.random_seed
             assert (
                 random_seed is not None
