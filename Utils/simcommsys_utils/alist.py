@@ -361,7 +361,7 @@ class PchkMatrix:
 {self.__write_simcommsys_vector(val)}"""
                     for pos, val in zip(self.col_non_zero_pos, self.col_non_zero_val)
                 ]
-            )
+            ) + "\n"
         else:
             pos_and_values_str = "\n".join(
                 map(
@@ -370,7 +370,7 @@ class PchkMatrix:
                     ),
                     self.col_non_zero_pos,
                 )
-            )
+            ) + "\n"
 
         return f"""# Length (n) 
 {self.cols}
