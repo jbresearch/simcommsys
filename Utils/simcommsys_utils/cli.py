@@ -39,7 +39,7 @@ from .executors import (
     LocalSimcommsysExecutor,
     MasterSlaveSimcommsysExecutor,
 )
-from .alist import PchkMatrix, PchkMatrixFormat, ValuesMethod
+from .pchk import PchkMatrix, PchkMatrixFormat, ValuesMethod
 
 app = typer.Typer()
 
