@@ -93,6 +93,8 @@ class PchkMatrix:
 
     @classmethod
     def __read_alist(cls, lines: Iterable[str]) -> "PchkMatrix":
+        lines = list(map(str.strip, lines))
+
         try:
             cols, rows = lines[0].split(" ", 1)
             try:
@@ -247,6 +249,8 @@ class PchkMatrix:
 
     @staticmethod
     def __read_simcommsys_vector(lines: Iterable[str]) -> np.ndarray[Any, np.int32]:
+        lines = list(map(str.strip, lines))
+
         size = int(lines[0])
         vals = np.array(list(map(int, lines[1].split(" "))), dtype=np.int32)
         assert (
