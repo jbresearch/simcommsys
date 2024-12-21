@@ -134,11 +134,16 @@ class PchkMatrix:
 
             col_non_zero_pos = []
             col_non_zero_val: list[np.ndarray[Any, np.int32]]
-            has_values = len(lines[line_cntr].split(" ")) == 2 * cols
+            has_values = len([l for l in lines[line_cntr].split(" ") if l != "0"]) == 2 * col_non_zeros[0]
             if has_values:
                 col_non_zero_val = []
                 for _ in range(cols):
-                    pos, val = zip(*chunks(lines[line_cntr].split(" "), 2))
+                    # deal with trailing 0s
+                    row = lines[line_cntr].split(" ")
+                    while row[-1] == "0":
+                        row.pop()
+
+                    pos, val = zip(*chunks(row, 2))
                     # do -1 as we use 0-based indexing
                     col_non_zero_pos.append(
                         np.array(list(map(lambda x: int(x) - 1, pos)), dtype=np.int32)
@@ -153,20 +158,29 @@ class PchkMatrix:
                     np.array([1] * cw, dtype=np.int32) for cw in col_non_zeros
                 ]
                 for _ in range(cols):
-                    pos = lines[line_cntr].split(" ")
+                    # deal with trailing 0s
+                    row = lines[line_cntr].split(" ")
+                    while row[-1] == "0":
+                        row.pop()
+                        
                     col_non_zero_pos.append(
-                        np.array(list(map(lambda x: int(x) - 1, pos)), dtype=np.int32)
+                        np.array(list(map(lambda x: int(x) - 1, row)), dtype=np.int32)
                     )
 
                     line_cntr += 1
 
             row_non_zero_pos = []
             row_non_zero_val: list[np.ndarray[Any, np.int32]]
-            has_values = len(lines[line_cntr].split(" ")) == 2 * rows
+            has_values = len([l for l in lines[line_cntr].split(" ") if l != "0"]) >= 2 * row_non_zeros[0]
             if has_values:
                 row_non_zero_val = []
                 for _ in range(rows):
-                    pos, val = zip(*chunks(lines[line_cntr].split(" "), 2))
+                    # deal with trailing 0s
+                    row = lines[line_cntr].split(" ")
+                    while row[-1] == "0":
+                        row.pop()
+
+                    pos, val = zip(*chunks(row, 2))
                     # do -1 as we use 0-based indexing
                     row_non_zero_pos.append(
                         np.array(list(map(lambda x: int(x) - 1, pos)), dtype=np.int32)
@@ -181,9 +195,13 @@ class PchkMatrix:
                     np.array([1] * rw, dtype=np.int32) for rw in row_non_zeros
                 ]
                 for _ in range(rows):
-                    pos = lines[line_cntr].split(" ")
+                    # deal with trailing 0s
+                    row = lines[line_cntr].split(" ")
+                    while row[-1] == "0":
+                        row.pop()
+                        
                     row_non_zero_pos.append(
-                        np.array(list(map(lambda x: int(x) - 1, pos)), dtype=np.int32)
+                        np.array(list(map(lambda x: int(x) - 1, row)), dtype=np.int32)
                     )
 
                     line_cntr += 1
