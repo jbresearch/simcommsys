@@ -96,7 +96,7 @@ class PchkMatrix:
         lines = list(map(str.strip, lines))
 
         try:
-            cols, rows = lines[0].split(" ", 1)
+            cols, rows = re.split(r"\s+", lines[0], 1)
             try:
                 cols, rows = int(cols), int(rows)
             except ValueError:
@@ -104,7 +104,7 @@ class PchkMatrix:
                     f"Non-integer value given for rows or cols: {lines[0]}"
                 )
 
-            max_col_non_zeros, max_row_non_zeros = lines[1].split(" ", 1)
+            max_col_non_zeros, max_row_non_zeros = re.split(r"\s+", lines[1], 1)
             try:
                 max_col_non_zeros, max_row_non_zeros = int(max_col_non_zeros), int(
                     max_row_non_zeros
@@ -116,7 +116,7 @@ class PchkMatrix:
 
             col_non_zeros = None
             try:
-                col_non_zeros = np.array(list(map(int, lines[2].split(" "))))
+                col_non_zeros = np.array(list(map(int, lines[2].split())))
             except ValueError:
                 raise RuntimeError(
                     f"Non-integer value found in list of col non zeros: {lines[2]}"
@@ -124,7 +124,7 @@ class PchkMatrix:
 
             row_non_zeros = None
             try:
-                row_non_zeros = np.array(list(map(int, lines[3].split(" "))))
+                row_non_zeros = np.array(list(map(int, lines[3].split())))
             except ValueError:
                 raise RuntimeError(
                     f"Non-integer value found in list of row non zeros: {lines[3]}"
@@ -134,12 +134,12 @@ class PchkMatrix:
 
             col_non_zero_pos = []
             col_non_zero_val: list[np.ndarray[Any, np.int32]]
-            has_values = len([l for l in lines[line_cntr].split(" ") if l != "0"]) == 2 * col_non_zeros[0]
+            has_values = len([l for l in lines[line_cntr].split() if l != "0"]) == 2 * col_non_zeros[0]
             if has_values:
                 col_non_zero_val = []
                 for _ in range(cols):
                     # deal with trailing 0s
-                    row = lines[line_cntr].split(" ")
+                    row = lines[line_cntr].split()
                     while row[-1] == "0":
                         row.pop()
 
@@ -159,7 +159,7 @@ class PchkMatrix:
                 ]
                 for _ in range(cols):
                     # deal with trailing 0s
-                    row = lines[line_cntr].split(" ")
+                    row = lines[line_cntr].split()
                     while row[-1] == "0":
                         row.pop()
                         
@@ -171,12 +171,12 @@ class PchkMatrix:
 
             row_non_zero_pos = []
             row_non_zero_val: list[np.ndarray[Any, np.int32]]
-            has_values = len([l for l in lines[line_cntr].split(" ") if l != "0"]) >= 2 * row_non_zeros[0]
+            has_values = len([l for l in lines[line_cntr].split() if l != "0"]) >= 2 * row_non_zeros[0]
             if has_values:
                 row_non_zero_val = []
                 for _ in range(rows):
                     # deal with trailing 0s
-                    row = lines[line_cntr].split(" ")
+                    row = lines[line_cntr].split()
                     while row[-1] == "0":
                         row.pop()
 
@@ -196,7 +196,7 @@ class PchkMatrix:
                 ]
                 for _ in range(rows):
                     # deal with trailing 0s
-                    row = lines[line_cntr].split(" ")
+                    row = lines[line_cntr].split()
                     while row[-1] == "0":
                         row.pop()
                         
@@ -217,8 +217,8 @@ class PchkMatrix:
                 col_non_zero_pos=col_non_zero_pos,
             )
 
-        except (IndexError, ValueError):
-            raise RuntimeError("Invalid alist format.")
+        except (IndexError, ValueError) as e:
+            raise RuntimeError(f"Invalid alist format: {e}")
 
     def __write_alist(self) -> str:
         non_binary = max(*[np.max(r) for r in self.row_non_zero_val]) > 1
@@ -270,7 +270,7 @@ class PchkMatrix:
         lines = list(map(str.strip, lines))
 
         size = int(lines[0])
-        vals = np.array(list(map(int, lines[1].split(" "))), dtype=np.int32)
+        vals = np.array(list(map(int, lines[1].split())), dtype=np.int32)
         assert (
             size == vals.shape[0]
         ), f"Length of parsed array {vals.shape[0]} does not match expected size {size}"
