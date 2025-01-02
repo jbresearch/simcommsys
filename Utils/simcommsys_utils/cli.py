@@ -789,7 +789,7 @@ def run_jobs(
         floor_min = jobsspec.pop("floor_min")
 
         # Input and output files are considered relative to the directory of the config file
-        config_dir = os.path.dirname(config_file)
+        config_dir = os.path.abspath(os.path.dirname(config_file))
         jobs_by_group[groupname] = [
             SimcommsysJob(
                 name=os.path.basename(jobfile.removesuffix(".txt")),
