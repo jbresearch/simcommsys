@@ -17,11 +17,13 @@
 
 from .cli import app
 import logging
+import sys
 
 logging.basicConfig(
     format="%(levelname)s %(asctime)s: %(message)s",
     encoding="utf-8",
     level=logging.DEBUG,
+    stream=sys.stderr,
 )
 
 app()
