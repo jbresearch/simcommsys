@@ -23,7 +23,10 @@
 #define __multi_array_h
 
 #include "config.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstringop-overflow"
 #include <boost/multi_array.hpp>
+#pragma GCC diagnostic pop
 
 namespace boost
 {
