@@ -91,6 +91,24 @@ public:
             m_counts.push_back(1);
         }
     }
+    //! Add a single, new timing, or if a timing with same name already exists,
+    //! accumulate
+    void add_or_accumulate_timer(double time, const std::string& name)
+    {
+        auto pos = std::find(m_names.begin(), m_names.end(), name);
+        if (pos != m_names.end()) {
+            *pos += time;
+            auto idx = std::distance(m_names.begin(), pos);
+            // increase count of the duplicated timing
+            auto cnt_pos = m_counts.begin();
+            std::advance(cnt_pos, idx);
+            ++*cnt_pos;
+        } else {
+            m_timings.push_back(time);
+            m_names.push_back(name);
+            m_counts.push_back(1);
+        }
+    }
     //! Batch add timers
     void add_timers(const instrumented& component)
     {
