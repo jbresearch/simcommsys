@@ -24,6 +24,7 @@
 
 #include "config.h"
 #include "timer.h"
+#include <algorithm>
 #include <list>
 #include <string>
 #include <vector>
@@ -46,6 +47,8 @@ namespace libcomm
 class instrumented
 {
 private:
+    std::list<size_t>
+        m_counts; //!< List of number of timings with particular time taken
     std::list<double> m_timings;    //!< List of timings taken
     std::list<std::string> m_names; //!< List of friendly names
 
@@ -57,6 +60,7 @@ public:
     {
         m_timings.push_back(time);
         m_names.push_back(name);
+        m_counts.push_back(1);
     }
     //! Add a single timer (from timer object, stopping timer if necessary)
     void add_timer(libbase::timer& timer)
@@ -67,6 +71,25 @@ public:
 
         m_timings.push_back(timer.elapsed());
         m_names.push_back(timer.get_name());
+        m_counts.push_back(1);
+    }
+    //! Add a single, new timer, or if a timer with same name already exists,
+    //! accumulate
+    void add_or_accumulate_timer(libbase::timer& timer)
+    {
+        auto pos = std::find(m_names.begin(), m_names.end(), timer.get_name());
+        if (pos != m_names.end()) {
+            *pos += timer.elapsed();
+            auto idx = std::distance(m_names.begin(), pos);
+            // increase count of the duplicated timing
+            auto cnt_pos = m_counts.begin();
+            std::advance(cnt_pos, idx);
+            ++*cnt_pos;
+        } else {
+            m_timings.push_back(timer.elapsed());
+            m_names.push_back(timer.get_name());
+            m_counts.push_back(1);
+        }
     }
     //! Batch add timers
     void add_timers(const instrumented& component)
@@ -76,6 +99,9 @@ public:
                          component.m_timings.end());
         m_names.insert(
             m_names.end(), component.m_names.begin(), component.m_names.end());
+        m_counts.insert(m_counts.end(),
+                        component.m_counts.begin(),
+                        component.m_counts.end());
     }
     // @}
 
@@ -90,12 +116,17 @@ public:
     {
         m_timings.clear();
         m_names.clear();
+        m_counts.clear();
     }
     //! Get the list of timings taken
     std::vector<double> get_timings() const
     {
         std::vector<double> result;
-        result.assign(m_timings.begin(), m_timings.end());
+        auto cnt = m_counts.begin();
+        for (auto res = m_timings.begin(); res != m_timings.end();
+             ++res, ++cnt) {
+            result.push_back(*res / *cnt);
+        }
         return result;
     }
     //! Get the list of friendly names for timings taken

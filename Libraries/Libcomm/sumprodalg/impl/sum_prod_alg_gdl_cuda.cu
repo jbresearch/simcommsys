@@ -463,7 +463,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
     for (int loop_n = 0; loop_n < dim_n; loop_n++)
         this->device_received_probs.extract_row(loop_n) = recvd_probs(loop_n);
 
-    this->add_timer(t_spa_init_copy_probs);
+    this->add_or_accumulate_timer(t_spa_init_copy_probs);
 
     ////// BEGIN NORMALIZE
     ::cuda::gputimer t_spa_init_norm_probs("t__spa_init__norm_probs");
@@ -471,7 +471,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
     clip_and_normalize_probs<GF_q, real>(
         this->device_received_probs, this->clipping_method, this->almostzero);
 
-    this->add_timer(t_spa_init_norm_probs);
+    this->add_or_accumulate_timer(t_spa_init_norm_probs);
     ////// END NORMALIZE
 
     // this uses the description of the algorithm as given by
@@ -495,7 +495,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
                                     this->device_pchk_col_non_zeros);
     cudaSafeCall(cudaGetLastError());
 
-    this->add_timer(t_spa_init_kern);
+    this->add_or_accumulate_timer(t_spa_init_kern);
 
 #ifdef DEBUG
     cudaDeviceSynchronize();
@@ -509,7 +509,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
     hadamard_transform<GF_q, real, MULTIPLY>(device_qmn_conv,
                                              device_pchk_non_zeros_val);
 
-    this->add_timer(t_spa_init_hadamard);
+    this->add_or_accumulate_timer(t_spa_init_hadamard);
     ////// END HADAMARD TRANSFORM
 
     this->decode_success = false;
@@ -587,7 +587,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
         ::cuda::vector_reference<int>(device_pchk_row_non_zeros));
     cudaSafeCall(cudaGetLastError());
 
-    this->add_timer(t_compute_r_mn);
+    this->add_or_accumulate_timer(t_compute_r_mn);
 
 #ifdef DEBUG
     cudaDeviceSynchronize();
@@ -600,7 +600,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
     hadamard_transform<GF_q, real, DIVIDE>(device_r_mxn,
                                            device_pchk_non_zeros_val);
 
-    this->add_timer(t_inv_hadamard);
+    this->add_or_accumulate_timer(t_inv_hadamard);
     ////// END INVERSE HADAMARD
 
     ////// BEGIN NORMALIZE
@@ -612,7 +612,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
         this->clipping_method,
         this->almostzero);
 
-    this->add_timer(t_norm_r_mn);
+    this->add_or_accumulate_timer(t_norm_r_mn);
     ////// END NORMALIZE
 }
 
@@ -700,7 +700,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_q_mn()
     cudaDeviceSynchronize();
 #endif
 
-    this->add_timer(t_compute_q_mn);
+    this->add_or_accumulate_timer(t_compute_q_mn);
     ////// END COMPUTE Q_MN
 
     ////// BEGIN NORMALIZE
@@ -712,7 +712,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_q_mn()
         this->clipping_method,
         this->almostzero);
 
-    this->add_timer(t_norm_q_mn);
+    this->add_or_accumulate_timer(t_norm_q_mn);
     ////// END NORMALIZE
 
     ////// BEGIN HADAMARD TRANSFORM
@@ -722,7 +722,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_q_mn()
     hadamard_transform<GF_q, real, MULTIPLY>(device_qmn_conv,
                                              device_pchk_non_zeros_val);
 
-    this->add_timer(t_hadamard);
+    this->add_or_accumulate_timer(t_hadamard);
     ////// END HADAMARD TRANSFORM
 }
 
@@ -783,7 +783,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_probs()
     cudaDeviceSynchronize();
 #endif
 
-    this->add_timer(t_compute_probs);
+    this->add_or_accumulate_timer(t_compute_probs);
     ////// END COMPUTE PROBS
 
     ////// BEGIN NORMALIZE PROBS
@@ -795,7 +795,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_probs()
         this->clipping_method,
         this->almostzero);
 
-    this->add_timer(t_norm_probs);
+    this->add_or_accumulate_timer(t_norm_probs);
     ////// END NORMALIZE PROBS
 }
 
@@ -893,7 +893,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration()
                                                   this->device_received_word,
                                                   this->hd_functor.get());
 
-    this->add_timer(t_hard_decision);
+    this->add_or_accumulate_timer(t_hard_decision);
 
     ::cuda::gputimer t_compute_syndrome("t_compute_syndrome");
 
@@ -904,14 +904,14 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration()
         this->device_received_word,
         this->device_syndrome);
 
-    this->add_timer(t_compute_syndrome);
+    this->add_or_accumulate_timer(t_compute_syndrome);
 
     ::cuda::gputimer t_check_syndrome("t_check_syndrome");
 
     check_syndrome_kern<GF_q, real>
         <<<1, 1>>>(this->device_syndrome, this->device_decode_success.get());
 
-    this->add_timer(t_check_syndrome);
+    this->add_or_accumulate_timer(t_check_syndrome);
     this->device_decode_success.to_host(&success);
 
     return success;
@@ -933,7 +933,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(
             ::cuda::gputimer t_copy_codeword("t_copy_codeword_d_to_h");
             received_word = this->received_word =
                 (libbase::vector<GF_q>)this->device_received_word;
-            this->add_timer(t_copy_codeword);
+            this->add_or_accumulate_timer(t_copy_codeword);
 
             this->decode_success = true;
         } else {
@@ -941,7 +941,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(
         }
     }
 
-    this->add_timer(t_spa_iteration);
+    this->add_or_accumulate_timer(t_spa_iteration);
 }
 
 template <class GF_q, class real>
@@ -953,7 +953,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::decode(libbase::vector<GF_q>& received_word,
     for (int curr_cdc_iter = 0; curr_cdc_iter < max_iters; curr_cdc_iter++) {
         ::cuda::gputimer t_spa_iteration("t_spa_iteration");
         codeword_found = this->spa_iteration();
-        this->add_timer(t_spa_iteration);
+        this->add_or_accumulate_timer(t_spa_iteration);
 
         if (codeword_found)
             break;
@@ -962,7 +962,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::decode(libbase::vector<GF_q>& received_word,
     // Copy the received codeword from the GPU.
     ::cuda::gputimer t_copy_codeword("t_copy_codeword_d_to_h");
     received_word = (libbase::vector<GF_q>)this->device_received_word;
-    this->add_timer(t_copy_codeword);
+    this->add_or_accumulate_timer(t_copy_codeword);
 }
 
 } // namespace libcomm
