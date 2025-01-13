@@ -19,11 +19,18 @@ all: simulators
 
 .PHONY: simulators clean
 
+run:
+	poetry run python -m simcommsys_utils run-jobs --config-file \
+   		Configurations/masterslave-jobs.yaml
+
+run-local:
+	poetry run python -m simcommsys_utils run-jobs --config-file \
+   		Configurations/local-jobs.yaml
+
 simulators:
-	cd ../../Utils; \
-	poetry run simcommsys-utils make-simulators \
+	poetry run python -m simcommsys_utils make-simulators \
 		--resultscollector errors_hamming --input-mode random \
-		../Examples/IntroductoryPaper/Systems ../Examples/IntroductoryPaper/Simulators
+		Systems Simulators
 
 clean:
 	rm -rf Simulators/*

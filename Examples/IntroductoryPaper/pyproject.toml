@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "introductory-paper-simulations"
+version = "0.1.0"
+description = "Simcommsys Introductory Paper Example"
+authors = ["Mark Mizzi <mark.mizzi.19@um.edu.mt>", "Johann A. Briffa <johann.briffa@um.edu.mt>"]
+license = "GPLv2"
+readme = "README"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.10"
+simcommsys-utils = { git = "ssh://git@dsrg-ict.research.um.edu.mt:2222/simcommsys/simcommsys-utils.git" }
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
