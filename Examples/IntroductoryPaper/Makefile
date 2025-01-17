@@ -27,6 +27,10 @@ run-local:
 	poetry run python -m simcommsys_utils run-jobs --config-file \
    		Configurations/local-jobs.yaml
 
+run-slurm:
+	poetry run python -m simcommsys_utils run-jobs --config-file \
+   		Configurations/slurm-jobs.yaml
+
 simulators:
 	poetry run python -m simcommsys_utils make-simulators \
 		--resultscollector errors_hamming --input-mode random \

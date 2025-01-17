@@ -15,4 +15,4 @@ jobs:
     simcommsys_tag: development
     simcommsys_type: release
     port: 3012
-    workers: 6
+    workers: 12
