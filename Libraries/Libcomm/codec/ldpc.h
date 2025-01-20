@@ -119,8 +119,6 @@ public:
 
     void decode_iter(libbase::vector<int>& decoded) override
     {
-        libbase::cputimer t("t_decode");
-
         libbase::vector<GF_q> received_word;
         this->spa_alg->spa_iteration(received_word);
 
@@ -129,7 +127,6 @@ public:
         for (int k = 0; k < this->info_symb_pos.size(); k++)
             decoded(k) = received_word(this->info_symb_pos(k));
 
-        this->add_timer(t);
         // add all granular timers from sum_prod_alg.
         this->add_timers(*this->spa_alg);
         this->spa_alg->reset_timers();

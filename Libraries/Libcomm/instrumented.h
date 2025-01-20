@@ -77,6 +77,10 @@ public:
     //! accumulate
     void add_or_accumulate_timer(libbase::timer& timer)
     {
+        if (timer.isrunning()) {
+            timer.stop();
+        }
+
         auto pos = std::find(m_names.begin(), m_names.end(), timer.get_name());
         if (pos != m_names.end()) {
             *pos += timer.elapsed();
@@ -88,6 +92,40 @@ public:
         } else {
             m_timings.push_back(timer.elapsed());
             m_names.push_back(timer.get_name());
+            m_counts.push_back(1);
+        }
+    }
+    //! Add a single, new timer, or if a timer with same name already exists,
+    //! accumulate
+    //! Also add square of timing so that variance in timing result can be
+    //! computed
+    void add_or_accumulate_timer_with_variance(libbase::timer& timer)
+    {
+        if (timer.isrunning()) {
+            timer.stop();
+        }
+
+        auto pos = std::find(m_names.begin(), m_names.end(), timer.get_name());
+        if (pos != m_names.end()) {
+            *pos += timer.elapsed();
+            auto idx = std::distance(m_names.begin(), pos);
+            // increase count of the duplicated timing
+            auto cnt_pos = m_counts.begin();
+            std::advance(cnt_pos, idx);
+            ++*cnt_pos;
+            // advance iterator positions to get squared metric
+            // if we always add timings metric from this method it will be after
+            ++pos;
+            ++cnt_pos;
+            *pos += timer.elapsed() * timer.elapsed();
+            ++*cnt_pos;
+        } else {
+            m_timings.push_back(timer.elapsed());
+            m_names.push_back(timer.get_name());
+            m_counts.push_back(1);
+
+            m_timings.push_back(timer.elapsed() * timer.elapsed());
+            m_names.push_back(timer.get_name() + "_sq");
             m_counts.push_back(1);
         }
     }

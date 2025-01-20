@@ -20,6 +20,7 @@
  */
 
 #include "sum_prod_alg_abstract.h"
+#include "cputimer.h"
 
 namespace libcomm
 {
@@ -36,6 +37,8 @@ void
 sum_prod_alg_abstract<GF_q, real>::spa_iteration(
     libbase::vector<GF_q>& received_word)
 {
+    libbase::cputimer t_decode_iter("t_decode_iter");
+
     array1vd_t ro;
 
     // carry out the horizontal step
@@ -109,6 +112,8 @@ sum_prod_alg_abstract<GF_q, real>::spa_iteration(
 #endif
 
     hd_functor(ro, received_word);
+
+    this->add_or_accumulate_timer_with_variance(t_decode_iter);
 }
 
 template <class GF_q, class real>
