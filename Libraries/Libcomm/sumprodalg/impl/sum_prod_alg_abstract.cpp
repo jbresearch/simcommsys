@@ -113,7 +113,7 @@ sum_prod_alg_abstract<GF_q, real>::spa_iteration(
 
     hd_functor(ro, received_word);
 
-    this->add_or_accumulate_timer_with_variance(t_decode_iter);
+    this->add_or_accumulate_timer(t_decode_iter);
 }
 
 template <class GF_q, class real>
