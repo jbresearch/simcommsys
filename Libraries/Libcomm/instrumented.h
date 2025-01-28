@@ -131,7 +131,8 @@ public:
     }
     //! Add a single, new timing, or if a timing with same name already exists,
     //! accumulate
-    void add_or_accumulate_timer(double time, const std::string& name)
+    void
+    add_or_accumulate_timer(double time, const std::string& name, int count = 1)
     {
         auto pos = std::find(m_names.begin(), m_names.end(), name);
         if (pos != m_names.end()) {
@@ -140,11 +141,11 @@ public:
             // increase count of the duplicated timing
             auto cnt_pos = m_counts.begin();
             std::advance(cnt_pos, idx);
-            ++*cnt_pos;
+            *cnt_pos += count;
         } else {
             m_timings.push_back(time);
             m_names.push_back(name);
-            m_counts.push_back(1);
+            m_counts.push_back(count);
         }
     }
     //! Batch add timers
@@ -158,6 +159,18 @@ public:
         m_counts.insert(m_counts.end(),
                         component.m_counts.begin(),
                         component.m_counts.end());
+    }
+    //! Batch add or accumulate timers
+    void add_or_accumulate_timers(const instrumented& component)
+    {
+        auto m_timings_it = component.m_timings.begin();
+        auto m_names_it = component.m_names.begin();
+        auto m_counts_it = component.m_counts.begin();
+        for (; m_timings_it != component.m_timings.end();
+             ++m_timings_it, ++m_names_it, ++m_counts_it) {
+            this->add_or_accumulate_timer(
+                *m_timings_it, *m_names_it, *m_counts_it);
+        }
     }
     // @}
 

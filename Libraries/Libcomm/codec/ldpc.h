@@ -128,7 +128,7 @@ public:
             decoded(k) = received_word(this->info_symb_pos(k));
 
         // add all granular timers from sum_prod_alg.
-        this->add_timers(*this->spa_alg);
+        this->add_or_accumulate_timers(*this->spa_alg);
         this->spa_alg->reset_timers();
     }
 
