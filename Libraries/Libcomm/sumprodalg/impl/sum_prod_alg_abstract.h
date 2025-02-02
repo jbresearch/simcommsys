@@ -68,6 +68,8 @@ public:
                           const libbase::matrix<GF_q>& pchk_matrix)
         : length_n(n), dim_m(m), M_n(non_zero_col_pos), N_m(non_zero_row_pos)
     {
+        this->add_dummy_timer("t_decode_iter");
+
         this->marginal_probs.init(m, n);
 
         int non_zeros = 0;

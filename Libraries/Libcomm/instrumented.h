@@ -55,6 +55,15 @@ private:
     // TODO: change back to protected!
 public:
     /*! \name Interface for derived classes */
+    //! Add a dummy timer
+    //! This allows us to "standardize" the set of timings collected in
+    //! experiments
+    void add_dummy_timer(std::string&& name)
+    {
+        m_timings.push_back(0);
+        m_names.push_back(name);
+        m_counts.push_back(0);
+    }
     //! Add a single timer (from components)
     void add_timer(double time, const std::string& name)
     {
@@ -194,7 +203,7 @@ public:
         auto cnt = m_counts.begin();
         for (auto res = m_timings.begin(); res != m_timings.end();
              ++res, ++cnt) {
-            result.push_back(*res / *cnt);
+            result.push_back(*cnt == 0 ? 0 : *res / *cnt);
         }
         return result;
     }
