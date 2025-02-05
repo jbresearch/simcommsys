@@ -107,7 +107,8 @@ resultsfile_json::lookforstate(std::fstream& sin)
         if (state_json.contains("Samples"))
             samplecount = state_json["Samples"];
         if (state_json.contains("State"))
-            state = state_json["State"];
+            state = (libbase::vector<double>)state_json["State"]
+                        .get<std::vector<double>>();
     }
 
     // check that results correspond to system under simulation
