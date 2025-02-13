@@ -60,6 +60,9 @@ public:
         // Collect timings
         timings = simulator.get_timings();
         names = simulator.get_names();
+        for (auto name : this->names)
+            std::cout << name << ",";
+        std::cout << std::endl << std::flush;
         // Copy over timings as results
         result = libbase::vector<double>(timings);
     }

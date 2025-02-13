@@ -100,15 +100,11 @@ resultsfile_json::lookforstate(std::fstream& sin)
 
     if (data.contains("state")) {
         json& state_json = data["state"];
-        if (state_json.contains("System"))
-            digest = state_json["System"];
-        if (state_json.contains("Parameter"))
-            parameter = state_json["Parameter"];
-        if (state_json.contains("Samples"))
-            samplecount = state_json["Samples"];
-        if (state_json.contains("State"))
-            state = (libbase::vector<double>)state_json["State"]
-                        .get<std::vector<double>>();
+        digest = state_json["System"];
+        parameter = state_json["Parameter"];
+        samplecount = state_json["Samples"];
+        state = (libbase::vector<double>)state_json["State"]
+                    .get<std::vector<double>>();
     }
 
     // check that results correspond to system under simulation

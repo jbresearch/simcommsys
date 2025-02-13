@@ -183,26 +183,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     const array1vi_t& non_zero_row_pos,
     const libbase::matrix<GF_q>& pchk_matrix)
 {
-    this->add_dummy_timer("t__spa_init__copy_probs_h_to_d");
-    this->add_dummy_timer("t__spa_init__norm_probs");
-    this->add_dummy_timer("t__spa_init__spa_init_kern");
-    this->add_dummy_timer("t__spa_init__hadamard");
-    this->add_dummy_timer("t_compute_r_mn");
-    this->add_dummy_timer("t_inv_hadamard");
-    this->add_dummy_timer("t_norm_r_mn");
-    this->add_dummy_timer("t_compute_q_mn");
-    this->add_dummy_timer("t_norm_q_mn");
-    this->add_dummy_timer("t_hadamard");
-    this->add_dummy_timer("t_compute_probs");
-    this->add_dummy_timer("t_norm_probs");
-    this->add_dummy_timer("t_hard_decision");
-    this->add_dummy_timer("t_compute_syndrome");
-    this->add_dummy_timer("t_check_syndrome");
-    this->add_dummy_timer("t_compute_syndrome");
-    this->add_dummy_timer("t_decode_iter");
-    this->add_dummy_timer("t_copy_codeword_d_to_h");
-    this->add_dummy_timer("t_spa_iteration");
-
     int num_of_elements = GF_q::elements();
 
     // We also build the various parity check matrix fields on the host,
