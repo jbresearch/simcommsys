@@ -65,7 +65,7 @@ template <class S, class R>
 std::ostream&
 commsys_threshold<S, R>::serialize(std::ostream& sout) const
 {
-    sout << Base::get_parameter() << std::endl;
+    sout << Base::get_parameters() << std::endl;
     Base::serialize(sout);
     return sout;
 }
@@ -74,10 +74,10 @@ template <class S, class R>
 std::istream&
 commsys_threshold<S, R>::serialize(std::istream& sin)
 {
-    double x;
-    sin >> libbase::eatcomments >> x >> libbase::verify;
+    libbase::vector<double> params;
+    sin >> libbase::eatcomments >> params >> libbase::verify;
     Base::serialize(sin);
-    Base::set_parameter(x);
+    Base::set_parameters(params);
     return sin;
 }
 
