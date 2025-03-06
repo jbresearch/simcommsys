@@ -23,15 +23,16 @@
 #define __parametric_h
 
 #include "config.h"
+#include "vector.h"
 
 namespace libcomm
 {
 
 /*!
  * \brief   Parametric Class Interface.
- * \author  Johann Briffa
+ * \author  Mark Mizzi
  *
- * Defines a class that takes a scalar parameter.
+ * Defines a class that takes multiple parameters.
  */
 
 class parametric
@@ -40,6 +41,41 @@ public:
     /*! \name Constructors / Destructors */
     virtual ~parametric() {}
     // @}
+
+    /*! \name Parameter handling */
+    //! Set the characteristic parameters
+    virtual void set_parameters(const libbase::vector<double>& x) = 0;
+    //! Get the characteristic parameters
+    virtual libbase::vector<double> get_parameters() const = 0;
+    // @}
+};
+
+/*!
+ * \brief   Mono parametric Class Interface.
+ * \author  Johann Briffa
+ *
+ * Defines a class that takes a single scalar parameter.
+ */
+
+class mono_parametric : public parametric
+{
+public:
+    /*! \name Constructors / Destructors */
+    virtual ~mono_parametric() {}
+    // @}
+
+    void set_parameters(const libbase::vector<double>& x) override
+    {
+        assertalways(x.size() == 1);
+        this->set_parameter(x(0));
+    }
+    libbase::vector<double> get_parameters() const override
+    {
+        libbase::vector<double> params;
+        params.init(1);
+        params(0) = this->get_parameter();
+        return params;
+    }
 
     /*! \name Parameter handling */
     //! Set the characteristic parameter

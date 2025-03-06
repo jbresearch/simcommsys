@@ -57,7 +57,7 @@ namespace libcomm
  */
 
 template <class S, template <class> class C>
-class basic_channel_interface : public instrumented, public parametric
+class basic_channel_interface : public instrumented, public mono_parametric
 {
 public:
     /*! \name Type definitions */

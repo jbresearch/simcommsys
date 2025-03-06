@@ -180,7 +180,7 @@ public:
         // Clear internal state
         reset();
     }
-    void set_parameter(const double x)
+    void set_parameter(const double x) override
     {
         Base::set_parameter(x);
         // we should already have a copy at this point

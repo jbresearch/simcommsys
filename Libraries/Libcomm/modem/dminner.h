@@ -59,7 +59,7 @@ namespace libcomm
 
 template <class real>
 class dminner : public stream_modulator<bool>,
-                public parametric,
+                public mono_parametric,
                 private fba<bool, real>
 {
 private:

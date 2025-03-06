@@ -44,7 +44,9 @@ namespace libcomm
  */
 
 template <class S, class R>
-class commsys_simulator : public experiment_binomial, public R
+class commsys_simulator : public experiment_binomial,
+                          public R,
+                          public mono_parametric
 {
 public:
     /*! \name Type definitions */
@@ -96,12 +98,12 @@ public:
         src->seedfrom(r);
         sys->seedfrom(r);
     }
-    void set_parameter(const double x)
+    void set_parameter(const double x) override
     {
         sys->gettxchan()->set_parameter(x);
         sys->getrxchan()->set_parameter(x);
     }
-    double get_parameter() const
+    double get_parameter() const override
     {
         const double p = sys->gettxchan()->get_parameter();
         assert(p == sys->getrxchan()->get_parameter());

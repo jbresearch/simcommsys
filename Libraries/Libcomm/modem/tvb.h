@@ -57,7 +57,7 @@ namespace libcomm
  */
 
 template <class sig, class real, class real2>
-class tvb : public stream_modulator<sig>, public parametric
+class tvb : public stream_modulator<sig>, public mono_parametric
 {
 public:
     /*! \name Type definitions */
@@ -269,7 +269,7 @@ public:
      *       won't need to clone the RX commsys object in stream simulations.
      */
     tvb(const tvb& x)
-        : stream_modulator<sig>(x), parametric(x), q(x.q),
+        : stream_modulator<sig>(x), mono_parametric(x), q(x.q),
           marker_type(x.marker_type), codebook_type(x.codebook_type),
           codebook_name(x.codebook_name), codebook_tables(x.codebook_tables),
           th_inner(x.th_inner), th_outer(x.th_outer), tp_states(x.tp_states),

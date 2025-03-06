@@ -54,7 +54,7 @@ namespace libcomm
  */
 
 template <class S>
-class exit_computer : public experiment_normal
+class exit_computer : public experiment_normal, public mono_parametric
 {
 public:
     /*! \name Type definitions */
@@ -121,12 +121,12 @@ public:
         src.seedfrom(r);
         sys->seedfrom(r);
     }
-    void set_parameter(const double x)
+    void set_parameter(const double x) override
     {
         assertalways(x >= 0);
         sigma = x;
     }
-    double get_parameter() const { return sigma; }
+    double get_parameter() override const { return sigma; }
 
     // Experiment handling
     void sample(array1d_t& result);
