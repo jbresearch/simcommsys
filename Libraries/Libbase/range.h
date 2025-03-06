@@ -40,7 +40,7 @@ enum range_step_method {
  * \brief   Range class.
  * \author  Mark Mizzi
  *
- * Represents a range of floats that are specified using start, stop, step
+ * Represents a range of doubles that are specified using start, stop, step
  * There are multiple stepping methods, including arithmetic, geometric, and so
  * on.
  */
@@ -50,13 +50,13 @@ class range
     friend class iterator;
 
 private:
-    float start, stop, step;
+    double start, stop, step;
     range_step_method step_method;
 
 public:
-    range(float start,
-          float stop,
-          float step,
+    range(double start,
+          double stop,
+          double step,
           range_step_method step_method = range_step_method::ARITHMETIC)
         : start(start), stop(stop), step(step), step_method(step_method)
     {
@@ -80,21 +80,21 @@ public:
     {
         using iterator_category = std::bidirectional_iterator_tag;
         using difference_type = int;
-        using value_type = float;
-        using pointer = const float*;
-        using reference = const float&;
+        using value_type = double;
+        using pointer = const double*;
+        using reference = const double&;
 
     private:
         range* it_range;
         /// @brief Current value held by iterator.
-        float curr_value;
+        double curr_value;
 
     public:
         iterator(range& it_range)
             : it_range(&it_range), curr_value(it_range.start)
         {
         }
-        iterator(range& it_range, float value)
+        iterator(range& it_range, double value)
             : it_range(&it_range), curr_value(value)
         {
         }
@@ -192,7 +192,7 @@ public:
     {
         /// read r from stream
         // parse start, step, stop
-        float range_spec[3];
+        double range_spec[3];
         for (int i = 0; i < 3; i++) {
             is >> range_spec[i];
             char c = is.get();
@@ -250,7 +250,7 @@ private:
 public:
     using iterator_category = std::forward_iterator_tag;
     using difference_type = int;
-    using value_type = libbase::vector<float>;
+    using value_type = libbase::vector<double>;
 
 private:
     /*! \brief Private constructor which does not initialize iterator list
