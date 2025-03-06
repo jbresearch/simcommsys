@@ -136,6 +136,7 @@ public:
     void receive(int& x) { receive(&x, sizeof(x)); }
     void receive(int64u& x) { receive(&x, sizeof(x)); }
     void receive(double& x) { receive(&x, sizeof(x)); }
+    void receive(vector<double>& x);
     void receive(std::string& x);
 
     // items for use by master
@@ -174,6 +175,12 @@ public:
     void send(std::shared_ptr<socket> s, const double x)
     {
         send(s, &x, sizeof(x));
+    }
+    void send(std::shared_ptr<socket> s, const vector<double>& x)
+    {
+        const int count = x.size();
+        send(s, count);
+        send(s, &x(0), sizeof(double) * count);
     }
     void send(std::shared_ptr<socket> s, const std::string& x)
     {

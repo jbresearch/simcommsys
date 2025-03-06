@@ -54,17 +54,19 @@ montecarlo::slave_getcode(void)
 }
 
 void
-montecarlo::slave_getparameter(void)
+montecarlo::slave_getparameters(void)
 {
     std::cerr << "Date: " << libbase::timer::date() << std::endl;
 
     seed_experiment();
-    double x;
-    cluster.receive(x);
-    system->set_parameter(x);
+    libbase::vector<double> params;
+    cluster.receive(params);
+    system->set_parameters(params);
 
-    std::cerr << "Simulating system at parameter = " << system->get_parameter()
-              << std::endl;
+    std::cerr << "Simulating system at parameters = ";
+    for (int i = 0; i < params.size(); i++)
+        std::cerr << params(i) << ", ";
+    std::cerr << std::endl;
 }
 
 void
@@ -83,7 +85,7 @@ montecarlo::slave_work(void)
 
     // Send system digest and current parameter back to master
     cluster.send(sysdigest);
-    cluster.send(system->get_parameter());
+    cluster.send(system->get_parameters());
 
     // Send accumulated results back to master
     libbase::vector<double> state;
@@ -142,8 +144,11 @@ montecarlo::display(const libbase::vector<double>& result,
         }
         std::clog << cluster.getcputime() / t.elapsed() << "× usage, ";
         std::clog << "pass " << system->get_samplecount() << "." << std::endl;
-        std::clog << "System parameter: " << system->get_parameter()
-                  << std::endl;
+        std::clog << "System parameters: ";
+        libbase::vector<double> params = system->get_parameters();
+        for (int i = 0; i < params.size(); i++)
+            std::clog << params(i) << ", ";
+        std::clog << std::endl;
         std::clog << "Results:" << std::endl;
         system->prettyprint_results(std::clog, result, errormargin);
         std::clog << "Press 'q' to interrupt." << std::endl;
@@ -187,8 +192,8 @@ montecarlo::initslave(std::shared_ptr<libbase::socket> s,
     try {
         cluster.call(s, "slave_getcode");
         cluster.send(s, systemstring);
-        cluster.call(s, "slave_getparameter");
-        cluster.send(s, system->get_parameter());
+        cluster.call(s, "slave_getparameters");
+        cluster.send(s, system->get_parameters());
         libbase::trace << "DEBUG (estimate): Slave (" << s
                        << ") initialized ok." << std::endl;
     } catch (std::runtime_error& e) {
@@ -264,9 +269,9 @@ montecarlo::readpendingslaves()
                            << s << "), trying to read." << std::endl;
             // get digest and parameter for simulated system
             std::string simdigest;
-            double simparameter;
+            libbase::vector<double> simparameters;
             cluster.receive(s, simdigest);
-            cluster.receive(s, simparameter);
+            cluster.receive(s, simparameters);
             // set up space for results that need to be returned
             libbase::int64u estsamplecount = 0;
             vector<double> eststate;
@@ -275,7 +280,7 @@ montecarlo::readpendingslaves()
             cluster.receive(s, eststate);
             // check that results correspond to system under simulation
             if (std::string(sysdigest) != simdigest ||
-                simparameter != system->get_parameter()) {
+                simparameters.isnotequalto(system->get_parameters())) {
                 libbase::trace
                     << "DEBUG (estimate): Slave returned invalid results (" << s
                     << "), re-initializing." << std::endl;

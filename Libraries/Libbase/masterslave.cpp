@@ -308,6 +308,15 @@ masterslave::receive(void* buf, const size_t len)
 }
 
 void
+masterslave::receive(vector<double>& x)
+{
+    int count;
+    receive(count);
+    x.init(count);
+    receive(&x(0), sizeof(double) * count);
+}
+
+void
 masterslave::receive(std::string& x)
 {
     int len;
