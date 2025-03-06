@@ -24,6 +24,7 @@
 #include "masterslave.h"
 #include "montecarlo.h"
 #include "randgen.h"
+#include "range.h"
 #include "serializer_libcomm.h"
 
 #include <boost/program_options.hpp>
@@ -106,45 +107,6 @@ createsystem(const std::string& fname)
     return system;
 }
 
-libbase::vector<double>
-getlinrange(double beg, double end, double step)
-{
-    // validate range
-    int steps = int(floor((end - beg) / step) + 1);
-    assertalways(steps >= 1 && steps <= 65535);
-
-    // create required range
-    libbase::vector<double> pset(steps);
-    pset(0) = beg;
-    for (int i = 1; i < steps; i++) {
-        pset(i) = pset(i - 1) + step;
-    }
-
-    return pset;
-}
-
-libbase::vector<double>
-getlogrange(double beg, double end, double mul)
-{
-    // validate range
-    int steps = 0;
-    if (end == 0 && beg == 0) {
-        steps = 1;
-    } else {
-        steps = int(floor((log(end) - log(beg)) / log(mul)) + 1);
-    }
-    assertalways(steps >= 1 && steps <= 65535);
-
-    // create required range
-    libbase::vector<double> pset(steps);
-    pset(0) = beg;
-    for (int i = 1; i < steps; i++) {
-        pset(i) = pset(i - 1) * mul;
-    }
-
-    return pset;
-}
-
 /*!
  * \brief   Simulation of Communication Systems
  * \author  Johann Briffa
@@ -173,14 +135,9 @@ main(int argc, char* argv[])
     desc.add_options()("results-file,o",
                        po::value<std::string>(),
                        "output file to hold results");
-    desc.add_options()("start", po::value<double>(), "first parameter value");
-    desc.add_options()("stop", po::value<double>(), "last parameter value");
-    desc.add_options()("step",
-                       po::value<double>(),
-                       "parameter increment (for a linear range)");
-    desc.add_options()("mul",
-                       po::value<double>(),
-                       "parameter multiplier (for a logarithmic range)");
+    desc.add_options()("param-range,r",
+                       po::value<std::vector<libbase::range>>()->multitoken(),
+                       "parameter ranges for simulation");
     desc.add_options()("floor-min",
                        po::value<double>(),
                        "stop simulation when at least one result converges "
@@ -238,9 +195,7 @@ main(int argc, char* argv[])
     case libbase::masterslave::mode_master:
         // If this is a server instance, check the remaining parameters
         if (vm.count("system-file") == 0 || vm.count("results-file") == 0 ||
-            vm.count("start") == 0 || vm.count("stop") == 0 ||
-            (vm.count("step") == 0 && vm.count("mul") == 0) ||
-            (vm.count("step") && vm.count("mul"))) {
+            vm.count("param-range") == 0) {
             cout << desc << std::endl;
             return 0;
         }
@@ -253,16 +208,9 @@ main(int argc, char* argv[])
             std::shared_ptr<libcomm::experiment> system =
                 createsystem(vm["system-file"].as<std::string>());
             estimator.bind(system);
-            libbase::vector<double> pset;
-            if (vm.count("step")) {
-                pset = getlinrange(vm["start"].as<double>(),
-                                   vm["stop"].as<double>(),
-                                   vm["step"].as<double>());
-            } else {
-                pset = getlogrange(vm["start"].as<double>(),
-                                   vm["stop"].as<double>(),
-                                   vm["mul"].as<double>());
-            }
+            libbase::vector<libbase::range> param_ranges =
+                (libbase::vector<libbase::range>)vm["param-range"]
+                    .as<std::vector<libbase::range>>();
 
             estimator.set_confidence(vm["confidence"].as<double>());
 
@@ -282,12 +230,19 @@ main(int argc, char* argv[])
                 estimator.set_seed(vm["seed"].as<libbase::int32u>());
             }
 
-            // Work out the following for every SNR value required
-            for (int i = 0; i < pset.size(); i++) {
-                system->set_parameter(pset(i));
+            // Work out the following for every combination of parameters
+            // required
+            for (auto params_it =
+                     libbase::multi_range_iterator::begin(param_ranges);
+                 params_it < libbase::multi_range_iterator::end(param_ranges);
+                 ++params_it) {
+                libbase::vector<double> params = *params_it;
+                system->set_parameters(params);
 
-                cerr << "Simulating system at parameter = " << pset(i)
-                     << std::endl;
+                cerr << "Simulating system at parameters = ";
+                for (size_t i = 0; i < params.size(); i++)
+                    cerr << params(i) << ", ";
+                cerr << std::endl;
                 libbase::vector<double> estimate, errormargin;
                 estimator.estimate(estimate, errormargin);
 
