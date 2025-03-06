@@ -22,6 +22,7 @@
 #ifndef __commsys_simulator_h
 #define __commsys_simulator_h
 
+#include "assertalways.h"
 #include "commsys.h"
 #include "config.h"
 #include "experiment/experiment_binomial.h"
@@ -29,6 +30,7 @@
 #include "result_collector/commsys/fidelity_pos.h"
 #include "serializer.h"
 #include "source.h"
+#include "vector.h"
 #include <sstream>
 
 namespace libcomm
@@ -44,9 +46,7 @@ namespace libcomm
  */
 
 template <class S, class R>
-class commsys_simulator : public experiment_binomial,
-                          public R,
-                          public mono_parametric
+class commsys_simulator : public experiment_binomial, public R
 {
 public:
     /*! \name Type definitions */
@@ -98,16 +98,21 @@ public:
         src->seedfrom(r);
         sys->seedfrom(r);
     }
-    void set_parameter(const double x) override
+    void set_parameters(const libbase::vector<double>& params) override
     {
-        sys->gettxchan()->set_parameter(x);
-        sys->getrxchan()->set_parameter(x);
+        assertalways(params.size() == 1);
+        sys->gettxchan()->set_parameter(params(0));
+        sys->getrxchan()->set_parameter(params(0));
     }
-    double get_parameter() const override
+    libbase::vector<double> get_parameters() const override
     {
         const double p = sys->gettxchan()->get_parameter();
         assert(p == sys->getrxchan()->get_parameter());
-        return p;
+
+        libbase::vector<double> params;
+        params.init(1);
+        params(0) = p;
+        return params;
     }
 
     // Experiment handling

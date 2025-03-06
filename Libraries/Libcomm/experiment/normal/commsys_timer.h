@@ -26,7 +26,7 @@
 #include "experiment/binomial/commsys_simulator.h"
 #include "experiment/binomial/result_collector/commsys/errors_hamming.h"
 #include "experiment/experiment_normal.h"
-#include "parametric.h"
+#include "vector.h"
 
 namespace libcomm
 {
@@ -39,7 +39,7 @@ namespace libcomm
  * timings as main result.
  */
 template <class S>
-class commsys_timer : public experiment_normal, public mono_parametric
+class commsys_timer : public experiment_normal
 {
 private:
     commsys_simulator<S, errors_hamming> simulator; //!< Base simulator object
@@ -49,8 +49,14 @@ private:
 public:
     // Experiment parameter handling
     void seedfrom(libbase::random& r) { simulator.seedfrom(r); }
-    void set_parameter(const double x) override { simulator.set_parameter(x); }
-    double get_parameter() override const { return simulator.get_parameter(); }
+    void set_parameters(const libbase::vector<double>& params) override
+    {
+        simulator.set_parameters(params);
+    }
+    libbase::vector<double> get_parameters() const override
+    {
+        return simulator.get_parameters();
+    }
 
     // Experiment handling
     void sample(libbase::vector<double>& result)

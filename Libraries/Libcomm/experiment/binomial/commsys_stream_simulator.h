@@ -22,11 +22,13 @@
 #ifndef __commsys_stream_simulator_h
 #define __commsys_stream_simulator_h
 
+#include "assertalways.h"
 #include "commsys_simulator.h"
 #include "commsys_stream.h"
 #include "config.h"
 #include "hard_decision.h"
 #include "result_collector/commsys/fidelity_pos.h"
+#include "vector.h"
 #include <list>
 
 namespace libcomm
@@ -180,13 +182,15 @@ public:
         // Clear internal state
         reset();
     }
-    void set_parameter(const double x) override
+    void set_parameters(const libbase::vector<double>& params) override
     {
-        Base::set_parameter(x);
+        Base::set_parameters(params);
         // we should already have a copy at this point
         assert(sys_enc);
+
+        assertalways(params.size() == 1);
         // set the TX channel parameter only (we should not need to use the RX)
-        sys_enc->gettxchan()->set_parameter(x);
+        sys_enc->gettxchan()->set_parameter(params(0));
     }
     // @}
 

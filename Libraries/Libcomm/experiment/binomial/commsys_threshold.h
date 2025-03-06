@@ -24,6 +24,7 @@
 
 #include "commsys_simulator.h"
 #include "config.h"
+#include "vector.h"
 
 namespace libcomm
 {
@@ -47,8 +48,8 @@ private:
 
 public:
     // Experiment parameter handling
-    void set_parameter(const double x);
-    double get_parameter() const;
+    void set_parameters(const libbase::vector<double>& params) override;
+    libbase::vector<double> get_parameters() const override;
 
     // Description
     std::string description() const;

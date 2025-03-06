@@ -30,19 +30,23 @@ namespace libcomm
 
 template <class S, class R>
 void
-commsys_threshold<S, R>::set_parameter(const double x)
+commsys_threshold<S, R>::set_parameters(const libbase::vector<double>& params)
 {
-    parametric& m = dynamic_cast<parametric&>(*this->sys->getmodem());
-    m.set_parameter(x);
+    assertalways(params.size() == 1);
+    mono_parametric& m = dynamic_cast<mono_parametric&>(*this->sys->getmodem());
+    m.set_parameter(params(0));
 }
 
 template <class S, class R>
-double
-commsys_threshold<S, R>::get_parameter() const
+libbase::vector<double>
+commsys_threshold<S, R>::get_parameters() const
 {
-    const parametric& m =
-        dynamic_cast<const parametric&>(*this->sys->getmodem());
-    return m.get_parameter();
+    const mono_parametric& m =
+        dynamic_cast<const mono_parametric&>(*this->sys->getmodem());
+    libbase::vector<double> params;
+    params.init(1);
+    params(0) = m.get_parameter();
+    return params;
 }
 
 // Description & Serialization
@@ -59,8 +63,7 @@ commsys_threshold<S, R>::description() const
 
 template <class S, class R>
 std::ostream&
-commsys_threshold<S, R>::serialize(
-    std::ostream& sout) const
+commsys_threshold<S, R>::serialize(std::ostream& sout) const
 {
     sout << Base::get_parameter() << std::endl;
     Base::serialize(sout);

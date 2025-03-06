@@ -22,6 +22,7 @@
 #ifndef __exit_computer_h
 #define __exit_computer_h
 
+#include "assertalways.h"
 #include "commsys.h"
 #include "config.h"
 #include "experiment/experiment_normal.h"
@@ -54,7 +55,7 @@ namespace libcomm
  */
 
 template <class S>
-class exit_computer : public experiment_normal, public mono_parametric
+class exit_computer : public experiment_normal
 {
 public:
     /*! \name Type definitions */
@@ -121,12 +122,20 @@ public:
         src.seedfrom(r);
         sys->seedfrom(r);
     }
-    void set_parameter(const double x) override
+
+public:
+    void set_parameters(const libbase::vector<double>& params) override
     {
-        assertalways(x >= 0);
-        sigma = x;
+        assertalways(params.size() == 1);
+        sigma = params(0);
     }
-    double get_parameter() override const { return sigma; }
+    libbase::vector<double> get_parameters() const override
+    {
+        libbase::vector<double> params;
+        params.init(1);
+        params(0) = sigma;
+        return params;
+    }
 
     // Experiment handling
     void sample(array1d_t& result);
