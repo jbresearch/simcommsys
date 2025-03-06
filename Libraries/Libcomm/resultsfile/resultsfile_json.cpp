@@ -89,7 +89,7 @@ resultsfile_json::lookforstate(std::fstream& sin)
 
     // state variables to read
     std::string digest;
-    double parameter = 0;
+    libbase::vector<double> parameters;
     libbase::int64u samplecount = 0;
     libbase::vector<double> state;
     // read through entire file
@@ -101,7 +101,8 @@ resultsfile_json::lookforstate(std::fstream& sin)
     if (data.contains("state")) {
         json& state_json = data["state"];
         digest = state_json["System"];
-        parameter = state_json["Parameter"];
+        parameters = (libbase::vector<double>)state_json["Parameters"]
+                         .get<std::vector<double>>();
         samplecount = state_json["Samples"];
         state = (libbase::vector<double>)state_json["State"]
                     .get<std::vector<double>>();
@@ -109,7 +110,7 @@ resultsfile_json::lookforstate(std::fstream& sin)
 
     // check that results correspond to system under simulation
     if (digest == std::string(simulator->get_sysdigest()) &&
-        parameter == system->get_parameter()) {
+        parameters.isequalto(system->get_parameters())) {
         std::cerr << "NOTICE: Reloading state with " << samplecount
                   << " samples." << std::endl;
         system->accumulate_state(samplecount, state);
@@ -139,7 +140,7 @@ resultsfile_json::writeresults(std::fstream& sout,
     // results data is stored in the format
     /* {
      *      "results": {
-     *          "param1": {
+     *          "param1 param2 ... paramN": {
      *              "resname1": {
      *                  "value": ...,
      *                  "errormargin": ...
@@ -153,16 +154,27 @@ resultsfile_json::writeresults(std::fstream& sout,
      *      ...
      * }
      */
-    // initialize data["results"]["paramN"] to {} and store a handy reference to
-    // it.
-    json& param_results =
-        data["results"][std::to_string(system->get_parameter())] = json();
+    // Construct string with parameter values. E.g. if params are
+    // {1.0, 2.0, 2.5}, string will be "1.0 2.0 2.5". This is used as a key in
+    // the results data dictionary
+    libbase::vector<double> params = system->get_parameters();
+    std::stringstream params_ss;
+    for (int i = 0; i < params.size(); i++) {
+        params_ss << params(i);
+        if (i != params.size() - 1) {
+            params_ss << " ";
+        }
+    }
+    std::string params_str = params_ss.str();
+    // initialize data["results"]["param1 param2 ... paramN"] to {} and store a
+    // handy reference to it.
+    json& params_results = data["results"][params_str] = json();
     for (int i = 0; i < system->count(); i++) {
-        param_results[system->result_description(i)] = {
+        params_results[system->result_description(i)] = {
             {"value", result(i)}, {"errormargin", errormargin(i)}};
     }
-    param_results["Samples"] = simulator->get_samplecount();
-    param_results["CPUtime"] = simulator->get_cluster().getcputime();
+    params_results["Samples"] = simulator->get_samplecount();
+    params_results["CPUtime"] = simulator->get_cluster().getcputime();
 
     this->writejson(sout, data);
 }
@@ -182,10 +194,11 @@ resultsfile_json::writestate(std::fstream& sout) const
 
     json data = this->readjson(sout);
 
-    data["state"] = {{"System", simulator->get_sysdigest()},
-                     {"Parameter", system->get_parameter()},
-                     {"Samples", simulator->get_samplecount()},
-                     {"State", (std::vector<double>)state}};
+    data["state"] = {
+        {"System", simulator->get_sysdigest()},
+        {"Parameters", (std::vector<double>)system->get_parameters()},
+        {"Samples", simulator->get_samplecount()},
+        {"State", (std::vector<double>)state}};
 
     this->writejson(sout, data);
 }

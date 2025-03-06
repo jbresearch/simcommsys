@@ -49,8 +49,20 @@ resultsfile_text::writeheader(std::ostream& sout) const
     sout << "#% Version: " << SIMCOMMSYS_VERSION << std::endl;
     sout << "#" << std::endl;
 
-    // Print results header
-    sout << "# Par";
+    /// Print results header
+    // We must account for multiple params
+    int n_params = system->get_parameters().size();
+    assertalways(n_params > 0);
+    // if there is only one param, print old header with Par
+    if (n_params == 1) {
+        sout << "# Par";
+    } else {
+        sout << "# Par1";
+    }
+    // print rest of params after first one
+    for (int i = 1; i < n_params; i++) {
+        sout << "\t" << "Par" << i;
+    }
     for (int i = 0; i < system->count(); i++) {
         sout << "\t" << system->result_description(i) << "\tTol";
     }
@@ -94,8 +106,15 @@ resultsfile_text::writeresults(std::ostream& sout,
     // Write current estimates to file
     libbase::trace << "DEBUG (resultsfile_text): position before = "
                    << sout.tellp() << std::endl;
-    sout << system->get_parameter();
+    // print all the param values
+    libbase::vector<double> params = system->get_parameters();
+    assertalways(params.size() > 0);
+    sout << params(0);
+    for (int i = 1; i < params.size(); i++) {
+        sout << '\t' << params(i);
+    }
 
+    // print results and their tolerances
     for (int i = 0; i < system->count(); i++) {
         sout << '\t' << result(i) << '\t' << errormargin(i);
     }
@@ -121,7 +140,15 @@ resultsfile_text::writestate(std::ostream& sout) const
     libbase::vector<double> state;
     system->get_state(state);
     sout << "## System: " << simulator->get_sysdigest() << std::endl;
-    sout << "## Parameter: " << system->get_parameter() << std::endl;
+    sout << "## Parameters: ";
+    // serialize parameters vector differently than usual, so that it takes one
+    // line
+    libbase::vector<double> params = system->get_parameters();
+    sout << params.size();
+    for (int i = 0; i < params.size(); i++) {
+        sout << " " << params(i);
+    }
+    sout << std::endl;
     sout << "## Samples: " << simulator->get_samplecount() << std::endl;
     sout << "## State: " << state.size() << '\t';
     state.serialize(sout, '\t');
@@ -136,7 +163,7 @@ resultsfile_text::lookforstate(std::fstream& sin)
     assert(sin.good());
     // state variables to read
     std::string digest;
-    double parameter = 0;
+    libbase::vector<double> parameters;
     libbase::int64u samplecount = 0;
     libbase::vector<double> state;
     // read through entire file
@@ -149,8 +176,14 @@ resultsfile_text::lookforstate(std::fstream& sin)
 
         if (s.substr(0, 10) == "## System:") {
             digest = s.substr(10);
-        } else if (s.substr(0, 13) == "## Parameter:") {
-            std::istringstream(s.substr(13)) >> parameter;
+        } else if (s.substr(0, 14) == "## Parameters:") {
+            std::istringstream ss = std::istringstream(s.substr(13));
+            int n_params;
+            ss >> n_params;
+            parameters.init(n_params);
+            for (int i = 0; i < n_params; i++) {
+                ss >> parameters(i);
+            }
         } else if (s.substr(0, 11) == "## Samples:") {
             std::istringstream(s.substr(11)) >> samplecount;
         } else if (s.substr(0, 9) == "## State:") {
@@ -162,7 +195,7 @@ resultsfile_text::lookforstate(std::fstream& sin)
     sin.clear();
     // check that results correspond to system under simulation
     if (digest == std::string(simulator->get_sysdigest()) &&
-        parameter == system->get_parameter()) {
+        parameters.isequalto(system->get_parameters())) {
         std::cerr << "NOTICE: Reloading state with " << samplecount
                   << " samples." << std::endl;
         system->accumulate_state(samplecount, state);
