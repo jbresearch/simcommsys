@@ -207,7 +207,8 @@ public:
         std::string step_method_str;
         while (!std::isspace(is.peek()))
             step_method_str.push_back(is.get());
-        range_step_method step_method;
+        range_step_method step_method =
+            range_step_method::ARITHMETIC; // set a default to please compiler.
         if (step_method_str == "arithmetic") {
             step_method = range_step_method::ARITHMETIC;
         } else if (step_method_str == "geometric") {
@@ -265,7 +266,7 @@ public:
     static multi_range_iterator begin(libbase::vector<range>& ranges)
     {
         multi_range_iterator it(ranges);
-        for (size_t i = 0; i < ranges.size(); i++) {
+        for (int i = 0; i < ranges.size(); i++) {
             it.iterators.push_back(ranges(i).begin());
         }
         return it;
@@ -278,7 +279,7 @@ public:
     static multi_range_iterator end(libbase::vector<range>& ranges)
     {
         multi_range_iterator it(ranges);
-        for (size_t i = 0; i < ranges.size(); i++) {
+        for (int i = 0; i < ranges.size(); i++) {
             it.iterators.push_back(ranges(i).end());
         }
         return it;
@@ -288,7 +289,7 @@ public:
     {
         value_type vals;
         vals.init(ranges.size());
-        size_t i = 0;
+        int i = 0;
         for (auto it = iterators.begin(); i < ranges.size(); i++, ++it)
             vals(i) = **it;
         return vals;
@@ -297,7 +298,7 @@ public:
     // Pre-fix increment
     multi_range_iterator& operator++()
     {
-        size_t i = ranges.size() - 1;
+        int i = ranges.size() - 1;
         for (auto it = iterators.rbegin(); it != iterators.rend(); ++it, --i) {
             ++*it;
             if (*it >= ranges(i).end()) {
