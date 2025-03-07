@@ -114,7 +114,7 @@ main(int argc, char* argv[])
         "specified.");
     desc.add_options()("parameter,r",
                        po::value<std::vector<double>>()->multitoken(),
-                       "channel parameters (e.g. SNR)");
+                       "simulation parameters (e.g. SNR)");
     desc.add_options()("system-file,i",
                        po::value<std::string>(),
                        "file containing system description");

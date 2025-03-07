@@ -25,10 +25,12 @@
 #include "randgen.h"
 #include "serializer_libcomm.h"
 #include "truerand.h"
+#include "vector.h"
 
 #include <boost/program_options.hpp>
 
 #include <iostream>
+#include <vector>
 
 // Determine debug level:
 // 1 - Normal debug output only
@@ -109,8 +111,9 @@ main(int argc, char* argv[])
     desc.add_options()("system-file,i",
                        po::value<std::string>(),
                        "input file containing system description");
-    desc.add_options()(
-        "parameter,r", po::value<double>(), "simulation parameter");
+    desc.add_options()("parameter,r",
+                       po::value<std::vector<double>>()->multitoken(),
+                       "simulation parameters (e.g. SNR)");
     desc.add_options()("seed,s",
                        po::value<libbase::int32u>(),
                        "system initialization seed (random if not stated)");
@@ -135,7 +138,8 @@ main(int argc, char* argv[])
     // Simulation system & parameters
     std::shared_ptr<libcomm::experiment> system =
         createsystem(vm["system-file"].as<std::string>());
-    system->set_parameter(vm["parameter"].as<double>());
+    system->set_parameters(
+        (libbase::vector<double>)vm["parameter"].as<std::vector<double>>());
 
     // Initialise running values
     system->reset();
@@ -144,8 +148,11 @@ main(int argc, char* argv[])
     } else {
         seed_experiment(system);
     }
-    cerr << "Simulating system at parameter = " << system->get_parameter()
-         << std::endl;
+    cout << "Simulating system at parameters = ";
+    libbase::vector<double> params = system->get_parameters();
+    for (int i = 0; i < params.size(); i++)
+        cout << params(i) << ", ";
+    cout << std::endl;
 
     // Simulate, waiting for an error event
     libbase::vector<double> result;
