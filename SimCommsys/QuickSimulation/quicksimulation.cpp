@@ -23,9 +23,11 @@
 #include "montecarlo.h"
 #include "serializer_libcomm.h"
 #include "timer.h"
+#include "vector.h"
 #include "version.h"
 
 #include <boost/program_options.hpp>
+#include <nlohmann/json.hpp>
 
 #include <cmath>
 #include <cstring>
@@ -35,6 +37,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <vector>
 
 namespace po = boost::program_options;
 
@@ -109,8 +112,9 @@ main(int argc, char* argv[])
         "maximum number of samples taken in the simulation. Ignored if value "
         "given is 0 or no value is given. Overrides timeout if a +ve value is "
         "specified.");
-    desc.add_options()(
-        "parameter,r", po::value<double>(), "channel parameter (e.g. SNR)");
+    desc.add_options()("parameter,r",
+                       po::value<std::vector<double>>()->multitoken(),
+                       "channel parameters (e.g. SNR)");
     desc.add_options()("system-file,i",
                        po::value<std::string>(),
                        "file containing system description");
@@ -200,7 +204,8 @@ main(int argc, char* argv[])
         }
 
         // Work out at the SNR value required
-        system->set_parameter(vm["parameter"].as<double>());
+        system->set_parameters(
+            (libbase::vector<double>)vm["parameter"].as<std::vector<double>>());
 
         // Print some debug information
         libbase::trace << system->description() << std::endl;
@@ -224,9 +229,12 @@ main(int argc, char* argv[])
                 cout << "Convergence Mode: "
                      << estimator->get_convergence_mode() << std::endl;
                 cout << "Date: " << libbase::timer::date() << std::endl;
-                // TODO: add method to system to get parameter name
-                cout << "Simulating at system parameter = "
-                     << system->get_parameter() << std::endl;
+
+                cout << "Simulating system at parameters = ";
+                libbase::vector<double> params = system->get_parameters();
+                for (int i = 0; i < params.size(); i++)
+                    cout << params(i) << ", ";
+                cout << std::endl;
 
                 // Print results (for confirming accuracy)
                 cout << std::endl;
@@ -253,20 +261,19 @@ main(int argc, char* argv[])
                      << " samples/sec" << std::endl;
 
             } else if (output_format == "json") {
-                cout << "{" << std::endl;
-                // Write some information on the code
-                cout << "\t\"System\": \"" << system->description() << "\","
-                     << std::endl;
-                // cout << "Rate: " << system-> << std::endl;
-                cout << "\t\"Confidence Level\": \""
-                     << estimator->get_confidence_level() << "\"," << std::endl;
-                cout << "\t\"Convergence Mode\": \""
-                     << estimator->get_convergence_mode() << "\"," << std::endl;
-                cout << "\t\"Date\": \"" << libbase::timer::date() << "\","
-                     << std::endl;
-                // TODO: add method to system to get parameter name
-                cout << "\t\"System Parameter\": " << system->get_parameter()
-                     << "," << std::endl;
+                nlohmann::basic_json output_json = {
+                    {"System", system->description()},
+                    {"Confidence Level", estimator->get_confidence_level()},
+                    {"Convergence Mode", estimator->get_convergence_mode()},
+                    {"Date", libbase::timer::date()},
+                    {"System Parameters",
+                     (std::vector<double>)system->get_parameters()},
+                    {"Build", SIMCOMMSYS_BUILD},
+                    {"Version", SIMCOMMSYS_VERSION},
+                    {"Samples", samples},
+                    {"Time", estimator->get_timer().elapsed()},
+                    {"Simulation Speed",
+                     samples / estimator->get_timer().elapsed()}};
 
                 // keep track of duplicate labels for JSON output.
                 std::map<std::string, int> result_labels;
@@ -277,34 +284,19 @@ main(int argc, char* argv[])
                     // increment number of occurrences of this result name
                     result_labels[system->result_description(j)]++;
 
-                    cout << "\t\"" << system->result_description(j);
+                    std::string result_label = system->result_description(j);
                     if (result_labels[system->result_description(j)] > 1)
-                        cout << result_labels[system->result_description(j)];
-                    cout << "\": {" << std::endl;
+                        result_label += std::to_string(
+                            result_labels[system->result_description(j)]);
 
-                    cout << "\t\t\"Value\": " << setprecision(6) << estimate(j)
-                         << "," << std::endl;
+                    output_json[result_label] = {{"Value", estimate(j)}};
                     if (std::isnan(errmargin))
-                        cout << "\t\t\"Tolerance\": \"NaN\"" << std::endl;
+                        output_json[result_label]["Tolerance"] = "NaN";
                     else
-                        cout << "\t\t\"Tolerance\": " << setprecision(3)
-                             << errmargin << std::endl;
-                    cout << "\t}," << std::endl;
+                        output_json[result_label]["Tolerance"] = errmargin;
                 }
 
-                // Output timing statistics
-                cout << "\t\"Build\": \"" << SIMCOMMSYS_BUILD << "\","
-                     << std::endl;
-                cout << "\t\"Version\": \"" << SIMCOMMSYS_VERSION << "\","
-                     << std::endl;
-                cout << "\t\"Samples\": " << samples << "," << std::endl;
-                cout << "\t\"Time\": \"" << estimator->get_timer() << "\","
-                     << std::endl;
-                cout << "\t\"Simulation Speed\": \"" << setprecision(4)
-                     << samples / estimator->get_timer().elapsed()
-                     << " samples/sec\"" << std::endl;
-                cout << "}" << std::endl;
-
+                cout << output_json.dump(3) << std::endl;
             } else {
                 std::string error_msg(
                     "Invalid output format " + output_format +
