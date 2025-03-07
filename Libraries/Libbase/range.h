@@ -205,7 +205,7 @@ public:
         }
         // parse step method
         std::string step_method_str;
-        while (!std::isspace(is.peek()))
+        while (std::isalpha(is.peek()))
             step_method_str.push_back(is.get());
         range_step_method step_method =
             range_step_method::ARITHMETIC; // set a default to please compiler.
