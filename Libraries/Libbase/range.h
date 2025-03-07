@@ -307,6 +307,7 @@ public:
                 break;
             }
         }
+        return *this;
     }
 
     // Postfix increment
