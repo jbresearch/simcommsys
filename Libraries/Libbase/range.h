@@ -31,7 +31,7 @@
 namespace libbase
 {
 
-enum range_step_method {
+enum RangeStepMethod {
     ARITHMETIC,
     GEOMETRIC,
 };
@@ -51,20 +51,20 @@ class range
 
 private:
     double start, stop, step;
-    range_step_method step_method;
+    RangeStepMethod step_method;
 
 public:
     range(double start,
           double stop,
           double step,
-          range_step_method step_method = range_step_method::ARITHMETIC)
+          RangeStepMethod step_method = RangeStepMethod::ARITHMETIC)
         : start(start), stop(stop), step(step), step_method(step_method)
     {
     }
 
     range()
         : start(0.0), stop(0.0), step(0.0),
-          step_method(range_step_method::ARITHMETIC)
+          step_method(RangeStepMethod::ARITHMETIC)
     {
     }
 
@@ -110,10 +110,10 @@ public:
         iterator& operator++()
         {
             switch (it_range->step_method) {
-            case range_step_method::ARITHMETIC:
+            case RangeStepMethod::ARITHMETIC:
                 curr_value += it_range->step;
                 break;
-            case range_step_method::GEOMETRIC:
+            case RangeStepMethod::GEOMETRIC:
                 curr_value *= it_range->step;
                 break;
             }
@@ -132,10 +132,10 @@ public:
         iterator& operator--()
         {
             switch (it_range->step_method) {
-            case range_step_method::ARITHMETIC:
+            case RangeStepMethod::ARITHMETIC:
                 curr_value -= it_range->step;
                 break;
-            case range_step_method::GEOMETRIC:
+            case RangeStepMethod::GEOMETRIC:
                 curr_value /= it_range->step;
                 break;
             }
@@ -192,37 +192,28 @@ public:
     {
         /// read r from stream
         // parse start, step, stop
-        double range_spec[3];
-        for (int i = 0; i < 3; i++) {
-            is >> range_spec[i];
-            char c = is.get();
-            if (c != ':') {
-                is.setstate(std::ios::failbit);
-                failwith(std::string(
-                             "Invalid range specified, expected : and got ") +
-                         std::to_string(c));
+        is >> r.start;
+        assertalways(is.get() == ':');
+        is >> r.step;
+        assertalways(is.get() == ':');
+        is >> r.stop;
+        if (is.peek() != ':') {
+            r.step_method = RangeStepMethod::ARITHMETIC;
+        } else {
+            is.get(); // consume :
+                      // parse step method
+            std::string step_method_str;
+            while (std::isalpha(is.peek()))
+                step_method_str.push_back(is.get());
+            if (step_method_str == "arithmetic") {
+                r.step_method = RangeStepMethod::ARITHMETIC;
+            } else if (step_method_str == "geometric") {
+                r.step_method = RangeStepMethod::GEOMETRIC;
+            } else {
+                failwith(std::string("Did not get valid step method, got ") +
+                         step_method_str);
             }
         }
-        // parse step method
-        std::string step_method_str;
-        while (std::isalpha(is.peek()))
-            step_method_str.push_back(is.get());
-        range_step_method step_method =
-            range_step_method::ARITHMETIC; // set a default to please compiler.
-        if (step_method_str == "arithmetic") {
-            step_method = range_step_method::ARITHMETIC;
-        } else if (step_method_str == "geometric") {
-            step_method = range_step_method::GEOMETRIC;
-        } else {
-            is.setstate(std::ios::failbit);
-            failwith(std::string("Did not get valid step method, got ") +
-                     step_method_str);
-        }
-
-        r.start = range_spec[0];
-        r.step = range_spec[1];
-        r.stop = range_spec[2];
-        r.step_method = step_method;
 
         return is;
     }
