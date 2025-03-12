@@ -154,25 +154,25 @@ public:
         friend bool operator<(const iterator& a, const iterator& b)
         {
             // cannot compare iterators from different range objects
-            assertalways(&a.it_range == &b.it_range);
+            assertalways(a.it_range == b.it_range);
             return a.curr_value < b.curr_value;
         };
         friend bool operator<=(const iterator& a, const iterator& b)
         {
             // cannot compare iterators from different range objects
-            assertalways(&a.it_range == &b.it_range);
+            assertalways(a.it_range == b.it_range);
             return a.curr_value <= b.curr_value;
         };
         friend bool operator>=(const iterator& a, const iterator& b)
         {
             // cannot compare iterators from different range objects
-            assertalways(&a.it_range == &b.it_range);
+            assertalways(a.it_range == b.it_range);
             return a.curr_value >= b.curr_value;
         };
         friend bool operator>(const iterator& a, const iterator& b)
         {
             // cannot compare iterators from different range objects
-            assertalways(&a.it_range == &b.it_range);
+            assertalways(a.it_range == b.it_range);
             return a.curr_value > b.curr_value;
         };
     };
@@ -217,6 +217,15 @@ public:
 
         return is;
     }
+
+    bool operator==(const range& other) const
+    {
+        return this->start == other.start && this->step == other.step &&
+               this->stop == other.stop &&
+               this->step_method == other.step_method;
+    }
+
+    bool operator!=(const range& other) const { return !(*this == other); }
 };
 
 /*!
