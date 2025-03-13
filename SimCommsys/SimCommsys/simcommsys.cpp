@@ -234,7 +234,7 @@ main(int argc, char* argv[])
             // required
             for (auto params_it =
                      libbase::multi_range_iterator::begin(param_ranges);
-                 params_it < libbase::multi_range_iterator::end(param_ranges);
+                 params_it <= libbase::multi_range_iterator::end(param_ranges);
                  ++params_it) {
                 libbase::vector<double> params = *params_it;
                 system->set_parameters(params);

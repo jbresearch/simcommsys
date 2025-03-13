@@ -85,17 +85,17 @@ public:
         using reference = const double&;
 
     private:
-        range* it_range;
+        range* range_p;
         /// @brief Current value held by iterator.
         double curr_value;
 
     public:
-        iterator(range& it_range)
-            : it_range(&it_range), curr_value(it_range.start)
+        iterator(range& range_obj)
+            : range_p(&range_obj), curr_value(range_obj.start)
         {
         }
-        iterator(range& it_range, double value)
-            : it_range(&it_range), curr_value(value)
+        iterator(range& range_obj, double value)
+            : range_p(&range_obj), curr_value(value)
         {
         }
 
@@ -109,12 +109,12 @@ public:
         // Prefix increment
         iterator& operator++()
         {
-            switch (it_range->step_method) {
+            switch (range_p->step_method) {
             case RangeStepMethod::ARITHMETIC:
-                curr_value += it_range->step;
+                curr_value += range_p->step;
                 break;
             case RangeStepMethod::GEOMETRIC:
-                curr_value *= it_range->step;
+                curr_value *= range_p->step;
                 break;
             }
             return *this;
@@ -131,12 +131,12 @@ public:
         // Prefix decrement
         iterator& operator--()
         {
-            switch (it_range->step_method) {
+            switch (range_p->step_method) {
             case RangeStepMethod::ARITHMETIC:
-                curr_value -= it_range->step;
+                curr_value -= range_p->step;
                 break;
             case RangeStepMethod::GEOMETRIC:
-                curr_value /= it_range->step;
+                curr_value /= range_p->step;
                 break;
             }
             return *this;
@@ -151,29 +151,45 @@ public:
         }
 
         //! \section Comparision operators
-        friend bool operator<(const iterator& a, const iterator& b)
+        bool operator<(const iterator& other) const
         {
             // cannot compare iterators from different range objects
-            assertalways(a.it_range == b.it_range);
-            return a.curr_value < b.curr_value;
+            assertalways(this->range_p == other.range_p);
+            if (this->range_p->start < other.range_p->stop) {
+                return this->curr_value < other.curr_value;
+            } else {
+                return this->curr_value > other.curr_value;
+            }
         };
-        friend bool operator<=(const iterator& a, const iterator& b)
+        bool operator<=(const iterator& other) const
         {
             // cannot compare iterators from different range objects
-            assertalways(a.it_range == b.it_range);
-            return a.curr_value <= b.curr_value;
+            assertalways(this->range_p == other.range_p);
+            if (this->range_p->start < other.range_p->stop) {
+                return this->curr_value <= other.curr_value;
+            } else {
+                return this->curr_value >= other.curr_value;
+            }
         };
-        friend bool operator>=(const iterator& a, const iterator& b)
+        bool operator>=(const iterator& other) const
         {
             // cannot compare iterators from different range objects
-            assertalways(a.it_range == b.it_range);
-            return a.curr_value >= b.curr_value;
+            assertalways(this->range_p == other.range_p);
+            if (this->range_p->start < other.range_p->stop) {
+                return this->curr_value >= other.curr_value;
+            } else {
+                return this->curr_value <= other.curr_value;
+            }
         };
-        friend bool operator>(const iterator& a, const iterator& b)
+        bool operator>(const iterator& other) const
         {
             // cannot compare iterators from different range objects
-            assertalways(a.it_range == b.it_range);
-            return a.curr_value > b.curr_value;
+            assertalways(this->range_p == other.range_p);
+            if (this->range_p->start < other.range_p->stop) {
+                return this->curr_value > other.curr_value;
+            } else {
+                return this->curr_value < other.curr_value;
+            }
         };
     };
 
