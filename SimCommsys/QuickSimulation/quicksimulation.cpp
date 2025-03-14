@@ -26,10 +26,12 @@
 #include "vector.h"
 #include "version.h"
 
+#include <boost/lexical_cast.hpp>
 #include <boost/program_options.hpp>
 #include <nlohmann/json.hpp>
 
 #include <cmath>
+#include <cstdio>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
@@ -216,6 +218,19 @@ main(int argc, char* argv[])
         const libbase::int64u samples = estimator->get_samplecount();
 
         if (!vm["quiet"].as<bool>()) {
+            // Create a count of each result produced by the system.
+            // For example if the system produces 4 results with the description
+            // "t_decode_iter", we set result_descr_count["t_decode_iter"] = 4
+            // Used when labelling results in the final output
+            std::map<std::string, int> result_descr_count;
+            for (int j = 0; j < system->count(); j++) {
+                if (result_descr_count.count(system->result_description(j))) {
+                    ++result_descr_count[system->result_description(j)];
+                } else {
+                    result_descr_count[system->result_description(j)] = 0;
+                }
+            }
+
             std::string output_format = vm["output-format"].as<std::string>();
             if (output_format == "text") {
                 // Write some information on the code
@@ -240,8 +255,20 @@ main(int argc, char* argv[])
                 cout << std::endl;
                 cout << "Results:" << std::endl;
                 cout << "~~~~~~~~" << std::endl;
+
+                // keep track of how many results with a particular name we have
+                // seen so far
+                std::map<std::string, int> result_descr_curr_count;
                 for (int j = 0; j < system->count(); j++) {
-                    cout << system->result_description(j) << '\t';
+                    // update result count
+                    ++result_descr_curr_count[system->result_description(j)];
+
+                    cout << system->result_description(j);
+                    if (result_descr_count[system->result_description(j)] > 1) {
+                        cout << result_descr_curr_count
+                                [system->result_description(j)];
+                    }
+                    cout << '\t';
                     cout << setprecision(6) << estimate(j);
                     cout << "\t[±" << setprecision(3)
                          << fabs(100 * errormargin(j) / estimate(j)) << "%]";
@@ -275,20 +302,22 @@ main(int argc, char* argv[])
                     {"Simulation Speed",
                      samples / estimator->get_timer().elapsed()}};
 
-                // keep track of duplicate labels for JSON output.
-                std::map<std::string, int> result_labels;
-
+                // keep track of how many results with a particular name we have
+                // seen so far
+                std::map<std::string, int> result_descr_curr_count;
                 for (int j = 0; j < system->count(); j++) {
+                    // update result count
+                    ++result_descr_curr_count[system->result_description(j)];
+
                     double errmargin = fabs(100 * errormargin(j) / estimate(j));
 
-                    // increment number of occurrences of this result name
-                    result_labels[system->result_description(j)]++;
-
                     std::string result_label = system->result_description(j);
-                    if (result_labels[system->result_description(j)] > 1)
+                    if (result_descr_curr_count[system->result_description(j)] >
+                        1) {
                         result_label += std::to_string(
-                            result_labels[system->result_description(j)]);
-
+                            result_descr_curr_count[system->result_description(
+                                j)]);
+                    }
                     output_json[result_label] = {{"Value", estimate(j)}};
                     if (std::isnan(errmargin))
                         output_json[result_label]["Tolerance"] = "NaN";
