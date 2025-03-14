@@ -80,15 +80,20 @@ public:
             timer.stop();
         }
 
-        auto pos = std::find(m_names.begin(), m_names.end(), timer.get_name());
-        if (pos != m_names.end()) {
-            *pos += timer.elapsed();
-            auto idx = std::distance(m_names.begin(), pos);
-            // increase count of the duplicated timing
-            auto cnt_pos = m_counts.begin();
-            std::advance(cnt_pos, idx);
-            ++*cnt_pos;
-        } else {
+        auto m_names_it = m_names.begin();
+        auto m_counts_it = m_counts.begin();
+        auto m_timings_it = m_timings.begin();
+        bool found = false; // was a timing with the same name found?
+        for (; m_names_it != m_names.end();
+             ++m_names_it, ++m_counts_it, ++m_timings_it) {
+            if (*m_names_it == timer.get_name()) {
+                ++*m_counts_it;
+                *m_timings_it += timer.elapsed();
+                found = true;
+                break;
+            }
+        }
+        if (!found) { // this is a new timer
             m_timings.push_back(timer.elapsed());
             m_names.push_back(timer.get_name());
             m_counts.push_back(1);
@@ -100,51 +105,32 @@ public:
     //! computed
     void add_or_accumulate_timer_with_variance(libbase::timer& timer)
     {
-        if (timer.isrunning()) {
-            timer.stop();
-        }
-
-        auto pos = std::find(m_names.begin(), m_names.end(), timer.get_name());
-        if (pos != m_names.end()) {
-            *pos += timer.elapsed();
-            auto idx = std::distance(m_names.begin(), pos);
-            // increase count of the duplicated timing
-            auto cnt_pos = m_counts.begin();
-            std::advance(cnt_pos, idx);
-            ++*cnt_pos;
-            // advance iterator positions to get squared metric
-            // if we always add timings metric from this method it will be after
-            ++pos;
-            ++cnt_pos;
-            *pos += timer.elapsed() * timer.elapsed();
-            ++*cnt_pos;
-        } else {
-            m_timings.push_back(timer.elapsed());
-            m_names.push_back(timer.get_name());
-            m_counts.push_back(1);
-
-            m_timings.push_back(timer.elapsed() * timer.elapsed());
-            m_names.push_back(timer.get_name() + "_sq");
-            m_counts.push_back(1);
-        }
+        add_or_accumulate_timer(timer);
+        add_or_accumulate_timer(timer.elapsed() * timer.elapsed(),
+                                timer.get_name() + "_sq");
     }
     //! Add a single, new timing, or if a timing with same name already exists,
     //! accumulate
     void
     add_or_accumulate_timer(double time, const std::string& name, int count = 1)
     {
-        auto pos = std::find(m_names.begin(), m_names.end(), name);
-        if (pos != m_names.end()) {
-            *pos += time;
-            auto idx = std::distance(m_names.begin(), pos);
-            // increase count of the duplicated timing
-            auto cnt_pos = m_counts.begin();
-            std::advance(cnt_pos, idx);
-            *cnt_pos += count;
-        } else {
+        auto m_names_it = m_names.begin();
+        auto m_counts_it = m_counts.begin();
+        auto m_timings_it = m_timings.begin();
+        bool found = false; // was a timing with the same name found?
+        for (; m_names_it != m_names.end();
+             ++m_names_it, ++m_counts_it, ++m_timings_it) {
+            if (*m_names_it == name) {
+                ++*m_counts_it;
+                *m_timings_it += time;
+                found = true;
+                break;
+            }
+        }
+        if (!found) { // this is a new timer
             m_timings.push_back(time);
             m_names.push_back(name);
-            m_counts.push_back(count);
+            m_counts.push_back(1);
         }
     }
     //! Batch add timers
