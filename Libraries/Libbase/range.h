@@ -77,6 +77,15 @@ public:
     {
     }
 
+    /*! \brief Return number of elements in the range object. */
+    int count()
+    {
+        int cnt = 0;
+        for (auto it = begin(); it <= end(); ++it)
+            ++cnt;
+        return cnt;
+    }
+
     /*!
      * \brief   Range iterator.
      * \author  Mark Mizzi
@@ -430,6 +439,17 @@ public:
         }
         return false; // case where a == b
     };
+
+    /*! \brief Return number of combinations represented by the \name
+     * multi_range_iterator object.
+     */
+    int count()
+    {
+        int cnt = 1;
+        for (int i = 0; i < this->ranges.size(); i++)
+            cnt *= this->ranges(i).count();
+        return cnt;
+    }
 };
 
 } // end namespace libbase
