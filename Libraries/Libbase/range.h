@@ -219,28 +219,25 @@ auto
     {
         /// read r from stream
         // parse start, step, stop
+        std::string step_method_str;
+        int c;
+        while ((c = is.get()) != ':')
+            step_method_str.push_back(c);
+
+        if (step_method_str == "arithmetic") {
+            r.step_method = RangeStepMethod::ARITHMETIC;
+        } else if (step_method_str == "geometric") {
+            r.step_method = RangeStepMethod::GEOMETRIC;
+        } else {
+            failwith(std::string("Did not get valid step method, got ") +
+                     step_method_str);
+        }
+
         is >> r.start;
         assertalways(is.get() == ':');
         is >> r.step;
         assertalways(is.get() == ':');
         is >> r.stop;
-        if (is.peek() != ':') {
-            r.step_method = RangeStepMethod::ARITHMETIC;
-        } else {
-            is.get(); // consume :
-                      // parse step method
-            std::string step_method_str;
-            while (std::isalpha(is.peek()))
-                step_method_str.push_back(is.get());
-            if (step_method_str == "arithmetic") {
-                r.step_method = RangeStepMethod::ARITHMETIC;
-            } else if (step_method_str == "geometric") {
-                r.step_method = RangeStepMethod::GEOMETRIC;
-            } else {
-                failwith(std::string("Did not get valid step method, got ") +
-                         step_method_str);
-            }
-        }
 
         return is;
     }
