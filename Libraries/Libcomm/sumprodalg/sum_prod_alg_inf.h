@@ -65,6 +65,11 @@ public:
      *
      */
     virtual std::string spa_type() = 0;
+    /*! \brief return the number of iterations used to decode the codeword
+     *
+     * The internal count should be reset in \ref spa_init()
+     */
+    virtual int get_iters() = 0;
 
     /*! \brief set the way the algorithm should deal with
      * clipping, ie replacing probabilities below a certain value

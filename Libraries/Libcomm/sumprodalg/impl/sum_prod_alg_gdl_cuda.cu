@@ -449,6 +449,8 @@ template <class GF_q, class real>
 void
 sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
 {
+    this->num_iters = 0;
+
     dim3 block_dim;
     dim3 num_blocks;
 
@@ -925,22 +927,24 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(
 
     if (this->decode_success) { // codeword was found in previous iteration
         received_word = this->received_word;
-    } else {
-        ::cuda::gputimer t_decode_iter("t_decode_iter");
-        if (spa_iteration()) { // this was the last iteration; we found a
-                               // codeword
-            // Copy the received codeword from the GPU.
-            ::cuda::gputimer t_copy_codeword("t_copy_codeword_d_to_h");
-            received_word = this->received_word =
-                (libbase::vector<GF_q>)this->device_received_word;
-            this->add_or_accumulate_timer_with_variance(t_copy_codeword);
-
-            this->decode_success = true;
-        } else {
-            received_word = (libbase::vector<GF_q>)this->device_received_word;
-        }
-        this->add_or_accumulate_timer_with_variance(t_decode_iter);
+        return;
     }
+
+    ::cuda::gputimer t_decode_iter("t_decode_iter");
+    if (spa_iteration()) { // this was the last iteration; we found a
+                           // codeword
+        // Copy the received codeword from the GPU.
+        ::cuda::gputimer t_copy_codeword("t_copy_codeword_d_to_h");
+        received_word = this->received_word =
+            (libbase::vector<GF_q>)this->device_received_word;
+        this->add_or_accumulate_timer_with_variance(t_copy_codeword);
+
+        this->decode_success = true;
+    } else {
+        received_word = (libbase::vector<GF_q>)this->device_received_word;
+    }
+    this->add_or_accumulate_timer_with_variance(t_decode_iter);
+    this->num_iters++;
 }
 
 template <class GF_q, class real>
@@ -949,7 +953,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::decode(libbase::vector<GF_q>& received_word,
                                           int max_iters)
 {
     bool codeword_found;
-    for (int curr_cdc_iter = 0; curr_cdc_iter < max_iters; curr_cdc_iter++) {
+    for (; this->num_iters < max_iters; this->num_iters++) {
         ::cuda::gputimer t_spa_iteration("t_spa_iteration");
         codeword_found = this->spa_iteration();
         this->add_or_accumulate_timer_with_variance(t_spa_iteration);

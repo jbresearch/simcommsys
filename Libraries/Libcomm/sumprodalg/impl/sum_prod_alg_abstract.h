@@ -100,6 +100,7 @@ public:
      *
      */
     virtual std::string spa_type() = 0;
+    int get_iters() override { return this->num_iters; }
 
     /*! \brief carry out one iteration of the SPA
      * This method will carry out the horizontal and vertical step
@@ -111,8 +112,7 @@ public:
      */
     void decode(libbase::vector<GF_q>& received_word, int max_iters) override
     {
-        for (int curr_cdc_iter = 0; curr_cdc_iter < max_iters;
-             curr_cdc_iter++) {
+        for (; this->num_iters < max_iters; this->num_iters++) {
             this->spa_iteration(received_word);
 
             if (is_codeword(received_word))
@@ -227,6 +227,19 @@ protected:
 
     //! Hard-decision box
     hard_decision<libbase::vector, real, GF_q> hd_functor;
+
+    //! Number of iterations used to decode last codeword
+    int num_iters = 0;
+
+    /*! \name Variables used only when decoding is done through calls to
+     * spa_iteration().
+     */
+    /*! \brief Stores received codeword when one is found using spa_iteration().
+     */
+    libbase::vector<GF_q> received_word;
+    /*! \brief Indicates whether a previous call to spa_iteration() has already
+     * successfully found a codeword. */
+    bool decode_success;
 };
 
 } // namespace libcomm

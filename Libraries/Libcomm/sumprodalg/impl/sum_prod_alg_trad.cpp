@@ -35,6 +35,7 @@ template <class GF_q, class real>
 void
 sum_prod_alg_trad<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
 {
+    this->num_iters = 0;
 
     // initialise the marginal prob values
     int num_of_elements = GF_q::elements();

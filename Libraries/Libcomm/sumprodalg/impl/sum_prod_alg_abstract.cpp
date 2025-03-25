@@ -37,6 +37,11 @@ void
 sum_prod_alg_abstract<GF_q, real>::spa_iteration(
     libbase::vector<GF_q>& received_word)
 {
+    if (this->decode_success) {
+        received_word = this->received_word;
+        return;
+    }
+
     libbase::cputimer t_decode_iter("t_decode_iter");
 
     array1vd_t ro;
@@ -114,6 +119,12 @@ sum_prod_alg_abstract<GF_q, real>::spa_iteration(
     hd_functor(ro, received_word);
 
     this->add_or_accumulate_timer_with_variance(t_decode_iter);
+
+    this->num_iters++;
+    if (is_codeword(received_word)) {
+        this->decode_success = true;
+        this->received_word = received_word;
+    }
 }
 
 template <class GF_q, class real>

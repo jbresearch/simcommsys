@@ -76,6 +76,7 @@ public:
     // Overriden methods from sum_prod_alg_inf.
     void spa_init(const array1vd_t& ptable) override;
     std::string spa_type() override { return "gdl_cuda"; }
+    int get_iters() override { return this->num_iters; }
 
     void spa_iteration(libbase::vector<GF_q>& received_word) override;
     void decode(libbase::vector<GF_q>& received_word, int max_iters) override;
@@ -178,6 +179,9 @@ private:
     ::cuda::device_ptr<
         basic_hard_decision<real, GF_q, ::cuda::vector_reference<real>>>
         hd_functor;
+
+    //! Number of iterations used to decode last codeword
+    int num_iters = 0;
 
     /*! \name Variables used only when decoding is done through calls to
      * spa_iteration().
