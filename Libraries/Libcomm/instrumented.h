@@ -72,6 +72,17 @@ public:
         m_names.push_back(timer.get_name());
         m_counts.push_back(1);
     }
+    //! Add a single timer (from components) with variance
+    void add_timer_with_variance(double time, const std::string& name)
+    {
+        m_timings.push_back(time);
+        m_names.push_back(name);
+        m_counts.push_back(1);
+        // add variance
+        m_timings.push_back(time * time);
+        m_names.push_back(name + "_sq");
+        m_counts.push_back(1);
+    }
     //! Add a single, new timer, or if a timer with same name already exists,
     //! accumulate
     void add_or_accumulate_timer(libbase::timer& timer)
