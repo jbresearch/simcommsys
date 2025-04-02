@@ -168,6 +168,21 @@ public:
                 *m_timings_it, *m_names_it, *m_counts_it);
         }
     }
+    //! Initialize a timing with a certain name. Both the count and total time
+    //! will be set to 0.
+    void init_timer(std::string name)
+    {
+        m_timings.push_back(0);
+        m_names.push_back(name);
+        m_counts.push_back(0);
+    }
+    //! Initialize a timing with a certain name, and its squared version. Both
+    //! the count and total time will be set to 0.
+    void init_timer_with_variance(std::string name)
+    {
+        init_timer(name);
+        init_timer(name + "_sq");
+    }
     // @}
 
 public:
