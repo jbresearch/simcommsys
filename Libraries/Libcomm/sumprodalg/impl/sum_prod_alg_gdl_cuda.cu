@@ -449,6 +449,24 @@ template <class GF_q, class real>
 void
 sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
 {
+    this->init_timer_with_variance("t__spa_init__copy_probs_h_to_d");
+    this->init_timer_with_variance("t__spa_init__norm_probs");
+    this->init_timer_with_variance("t__spa_init__spa_init_kern");
+    this->init_timer_with_variance("t__spa_init__hadamard");
+    this->init_timer_with_variance("t_compute_r_mn");
+    this->init_timer_with_variance("t_inv_hadamard");
+    this->init_timer_with_variance("t_norm_r_mn");
+    this->init_timer_with_variance("t_compute_q_mn");
+    this->init_timer_with_variance("t_norm_q_mn");
+    this->init_timer_with_variance("t_hadamard");
+    this->init_timer_with_variance("t_compute_probs");
+    this->init_timer_with_variance("t_norm_probs");
+    this->init_timer_with_variance("t_hard_decision");
+    this->init_timer_with_variance("t_compute_syndrome");
+    this->init_timer_with_variance("t_check_syndrome");
+    this->init_timer_with_variance("t_copy_codeword_d_to_h");
+    this->init_timer_with_variance("t_spa_iteration");
+
     this->num_iters = 0;
 
     dim3 block_dim;
@@ -930,9 +948,11 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(
         return;
     }
 
-    ::cuda::gputimer t_decode_iter("t_decode_iter");
-    if (spa_iteration()) { // this was the last iteration; we found a
-                           // codeword
+    ::cuda::gputimer t_spa_iteration("t_spa_iteration");
+    bool codeword_found = spa_iteration();
+    this->add_or_accumulate_timer_with_variance(t_spa_iteration);
+    if (codeword_found) { // this was the last iteration; we found a
+                          // codeword
         // Copy the received codeword from the GPU.
         ::cuda::gputimer t_copy_codeword("t_copy_codeword_d_to_h");
         received_word = this->received_word =
@@ -941,9 +961,9 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(
 
         this->decode_success = true;
     } else {
+        // output (definitely incorrect) codeword for this iteration
         received_word = (libbase::vector<GF_q>)this->device_received_word;
     }
-    this->add_or_accumulate_timer_with_variance(t_decode_iter);
     this->num_iters++;
 }
 
