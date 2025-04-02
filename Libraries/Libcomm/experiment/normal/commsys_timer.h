@@ -28,6 +28,8 @@
 #include "experiment/experiment_normal.h"
 #include "vector.h"
 
+#include <string>
+
 namespace libcomm
 {
 
@@ -67,6 +69,9 @@ public:
         // Collect timings
         timings = simulator.get_timings();
         names = simulator.get_names();
+#ifdef DEBUG
+        std::clog << "Timings: " << libbase::vector<std::string>(names);
+#endif
         // Copy over timings as results
         result = libbase::vector<double>(timings);
     }
