@@ -214,7 +214,7 @@ commsys_simulator<S, R>::serialize(std::ostream& sout) const
 {
     // format version
     sout << "# Version" << std::endl;
-    sout << 3 << std::endl;
+    sout << 4 << std::endl;
     sout << "# Analyze all decode iterations" << std::endl;
     sout << analyze_decode_iters << std::endl;
     sout << "# Source generator" << std::endl;
@@ -234,6 +234,8 @@ commsys_simulator<S, R>::serialize(std::ostream& sout) const
  * \version 2 Added support for user-supplied sequence of input symbols
  *
  * \version 3 Using source-generator object
+ *
+ * \version 4 Adding option to analyze all decode iterations.
  */
 
 template <class S, class R>
@@ -249,9 +251,15 @@ commsys_simulator<S, R>::serialize(std::istream& sin)
         version = 0;
         sin.clear();
     }
-    // get analyze_decode_iters
-    sin >> libbase::eatcomments >> this->analyze_decode_iters >>
-        libbase::verify;
+    // get analyze_decode_iters if version is right
+    if (version >= 4) {
+        sin >> libbase::eatcomments >> this->analyze_decode_iters >>
+            libbase::verify;
+    } else {
+        // default is to analyze decode iters, to preserve backwards
+        // compatibility.
+        this->analyze_decode_iters = true;
+    }
     // source-generator section depending on version
     if (version >= 3) {
         // source generator
