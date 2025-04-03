@@ -32,11 +32,7 @@
 namespace libcomm
 {
 
-template <typename S,
-          typename T = typename S::measurement_type,
-          std::enable_if_t<std::is_floating_point<
-                               std::is_base_of<quantum_state<T>, S>>::value,
-                           bool> = true>
+template <typename S>
 class quantum_source
 {
 public:

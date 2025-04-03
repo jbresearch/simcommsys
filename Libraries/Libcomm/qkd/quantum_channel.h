@@ -22,41 +22,54 @@
 #ifndef __quantum_channel_h
 #define __quantum_channel_h
 
+#include "assertalways.h"
 #include "parametric.h"
-#include "qkd/quantum_state.h"
-
-#include <type_traits>
 
 namespace libcomm
 {
+
+class position_observable;
+class momentum_observable;
+
+class spin_computational;
+class spin_hadamard;
 
 /*!
  * \brief   Common Base for Quantum channel.
  * \author  Mark Mizzi
  *
- * The class is parametrized by \name S_I, \name S_O, which represent input and
- * output quantum states respectively. The reason why we allow for different
- * types for input and output here is to allow the possibility of representing
- * an entangled input state, that is then separated in the output.
+ * We use the Heisenberg picture, so that quantum channels act on observables.
+ * We use the visitor pattern to model these actions, so the base interface
+ * contains methods (called \ref transmit()) for "visiting" each concrete
+ * observable type. By default these methods fail, but a concrete quantum
+ * channel subclass is meant to override the methods for observables that they
+ * support.
  */
-template <
-    typename S_I,
-    typename S_O,
-    typename T_I = typename S_I::measurement_type,
-    typename T_O = typename S_O::measurement_type,
-    std::enable_if_t<
-        std::is_floating_point<std::is_base_of<quantum_state<T_I>, S_I>>::value,
-        bool> = true,
-    std::enable_if_t<
-        std::is_floating_point<std::is_base_of<quantum_state<T_O>, S_O>>::value,
-        bool> = true>
 class quantum_channel : public parametric
 {
 public:
-    virtual void set_input(S_I input) = 0;
-    virtual S_O get_alice() = 0;
-    virtual S_O get_bob() = 0;
+    //! \name Visitor interface methods for observables
+    virtual void transmit(position_observable&) const
+    {
+        failwith("Not implemented.");
+    }
+    virtual void transmit(momentum_observable&) const
+    {
+        failwith("Not implemented.");
+    }
+    virtual void transmit(spin_computational&) const
+    {
+        failwith("Not implemented.");
+    }
+    virtual void transmit(spin_hadamard&) const
+    {
+        failwith("Not implemented.");
+    }
+    //! @}
+
+    virtual ~quantum_channel() {}
 };
 
 } // end namespace libcomm
+
 #endif // __quantum_channel_h

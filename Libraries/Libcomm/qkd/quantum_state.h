@@ -23,138 +23,147 @@
 #define __quantum_state_h
 
 #include "assertalways.h"
+#include "qkd/observable.h"
 #include "randgen.h"
 #include "random.h"
 
 #include <cmath>
+#include <complex>
 #include <memory>
+#include <random>
 #include <string>
 
 namespace libcomm
 {
 
+//! \brief Reduced Planck constant
 static constexpr double hbar = 1.054571817e-34;
 
 /*!
- * \brief   Common Base for Quantum state.
+ * \brief   Common Base for (non-entangled) quantum states.
  * \author  Mark Mizzi
  *
- * The class is parametrized by \name T which represents the type for a
- * measurement outcome (e.g. \name bool for a qubit). We represent measurement
- * of a state by a virtual method, but not transformations, as the latter are
- * too difficult to represent generally. Transformations should be represented
- * at the concrete subclass level.
+ * The template parameter \name S should be initialized to the concrete subclass
+ * of this interface. It is used to cast *this to the right type when calling an
+ * observable's measure() method.
  */
-template <typename T>
-class quantum_state
+template <typename S>
+class quantum_state_inf
 {
 public:
-    using measurement_type = T;
-
-    /*! \brief Represents measurement of a named observable.
-     *
-     * For the purposes of QKD simulation, we can always use a single type to
-     * represent all measurement outcomes, since e.g. measurement of either
-     * quadrature in CV-QKD yields a double.
-     */
-    virtual T measure(std::string observable) = 0;
-    virtual ~quantum_state() {}
+    //! \brief Used at a level that handles abstract quantum states to determine
+    //! if state is entangled or not.
+    static constexpr bool is_entangled = false;
+    //! \brief Implements the other side of the visitor pattern, which calls the
+    //! right measure() method of observable.
+    template <typename T>
+    T measure(observable<T>& o)
+    {
+        return o.measure(static_cast<S&>(*this));
+    }
+    virtual ~quantum_state_inf() {}
 };
 
-class qubit : public quantum_state<bool>
+/*!
+ * \brief   Common Base for entangled quantum states.
+ * \author  Mark Mizzi
+ *
+ * The template parameter \name S should be initialized to the concrete subclass
+ * of this interface. It is used to cast *this to the right type when calling an
+ * observable's measure() method.
+ */
+template <typename S>
+class entangled_quantum_state_inf
+{
+public:
+    //! \brief Used at a level that handles abstract quantum states to determine
+    //! if state is entangled or not.
+    static constexpr bool is_entangled = true;
+    //! \brief Implements the other side of the visitor pattern, which calls the
+    //! right measure() method of observable.
+    template <typename T>
+    T measure(observable<T>& o, int idx)
+    {
+        return o.measure(static_cast<S&>(*this), idx);
+    }
+    virtual ~entangled_quantum_state_inf() {}
+};
+
+class qubit : quantum_state_inf<qubit>
 {
 private:
-    std::unique_ptr<libbase::random> randgen;
-    // Bloch sphere parameters for the state in the computational basis
-    double bloch_sphere_theta_computational, bloch_sphere_phi_computational;
+    std::complex<double> comp_basis_0, comp_basis_1;
 
 public:
-    qubit(double bloch_sphere_theta_computational,
-          double bloch_sphere_phi_computational,
-          double seed,
-          std::unique_ptr<libbase::random>&& randgen =
-              std::make_unique<libbase::randgen>())
-        : bloch_sphere_theta_computational(bloch_sphere_theta_computational),
-          bloch_sphere_phi_computational(bloch_sphere_phi_computational),
-          randgen(std::move(randgen))
+    qubit(std::complex<double> comp_basis_0, std::complex<double> comp_basis_1)
     {
-        // ensure that angles are valid for Bloch sphere
-        assertalways(bloch_sphere_theta_computational <= M_PI);
-        assertalways(bloch_sphere_phi_computational < 2 * M_PI);
-        this->randgen->seed(seed);
+        init(comp_basis_0, comp_basis_1);
     }
 
-    bool measure(std::string observable) override
+    void init(std::complex<double> comp_basis_0,
+              std::complex<double> comp_basis_1)
     {
-        if (observable == "computational") {
-            const double val = randgen->fval_halfopen();
-            return val < pow(sin(bloch_sphere_theta_computational / 2), 2);
-        } else if (observable == "hadamard") {
-            const double val = randgen->fval_halfopen();
-            return val < (0.5 + cos(bloch_sphere_phi_computational) *
-                                    cos(bloch_sphere_theta_computational / 2) *
-                                    sin(bloch_sphere_theta_computational / 2));
-        } else {
-            failwith(
-                std::string("Attempted measure of unsupported observable ") +
-                observable);
-        }
+        // always ensure coefficients are normalized.
+        assertalways(comp_basis_0 * std::conj(comp_basis_0) +
+                         comp_basis_1 * std::conj(comp_basis_1) ==
+                     std::complex<double>(1));
+        this->comp_basis_0 = comp_basis_0;
+        this->comp_basis_1 = comp_basis_1;
     }
+
+    std::complex<double> get_comp_basis_0() const { return comp_basis_0; }
+    std::complex<double> get_comp_basis_1() const { return comp_basis_1; }
 };
 
-template <typename T>
-class quantum_gaussian_state : public quantum_state<T>
+class gaussian_state : quantum_state_inf<gaussian_state>
 {
+private:
+    std::random_device rd{};
+    std::mt19937 gen{rd()};
 
-protected:
-    // Gaussian parameters
     double q_mean, q_stddev, p_mean, p_stddev;
 
 public:
-    quantum_gaussian_state(double q_mean,
-                           double q_stddev,
-                           double p_mean,
-                           double p_stddev)
-        : q_mean(q_mean), q_stddev(q_stddev), p_mean(p_mean), p_stddev(p_stddev)
+    gaussian_state(double q_mean,
+                   double q_stddev,
+                   double p_mean,
+                   double p_stddev)
     {
-        // ensure that state obeys Heisenberg uncertainty principle
-        assertalways(p_stddev * q_stddev >= hbar / 2);
+        init(q_mean, q_stddev, p_mean, p_stddev);
+    }
+
+    void init(double q_mean, double q_stddev, double p_mean, double p_stddev)
+    {
+        assert(q_mean >= 0);
+        assert(q_stddev >= 0);
+        assert(p_mean >= 0);
+        assert(p_stddev >= 0);
+        assertalways(q_stddev * p_stddev >= hbar / 2);
+
+        this->q_mean == q_mean;
+        this->q_stddev == q_stddev;
+        this->p_mean == p_mean;
+        this->p_stddev == p_stddev;
+    }
+
+    double get_p()
+    {
+        std::normal_distribution normdist{p_mean, p_stddev};
+        return normdist(gen);
+    }
+    double get_q()
+    {
+        std::normal_distribution normdist{q_mean, q_stddev};
+        return normdist(gen);
     }
 };
 
-class quantum_gaussian_state_homodyne : public quantum_gaussian_state<double>
+class entangled_qubit_pair : entangled_quantum_state_inf<entangled_qubit_pair>
 {
-private:
-    std::unique_ptr<libbase::random> randgen;
+};
 
-public:
-    quantum_gaussian_state_homodyne(double q_mean,
-                                    double q_stddev,
-                                    double p_mean,
-                                    double p_stddev,
-                                    double seed,
-                                    std::unique_ptr<libbase::random>&& randgen =
-                                        std::make_unique<libbase::randgen>())
-        : quantum_gaussian_state(q_mean, q_stddev, p_mean, p_stddev),
-          randgen(std::move(randgen))
-    {
-        this->randgen->seed(seed);
-    }
-
-    double measure(std::string observable) override
-    {
-        if (observable == "p") {
-            return randgen->gval(quantum_gaussian_state::p_stddev) +
-                   quantum_gaussian_state::p_mean;
-        } else if (observable == "q") {
-            return randgen->gval(quantum_gaussian_state::q_stddev) +
-                   quantum_gaussian_state::q_mean;
-        } else {
-            failwith(
-                std::string("Attempted measure of unsupported observable ") +
-                observable);
-        }
-    }
+class epr_beam : entangled_quantum_state_inf<epr_beam>
+{
 };
 
 } // end namespace libcomm

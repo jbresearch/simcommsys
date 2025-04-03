@@ -22,7 +22,8 @@
 #ifndef __qkd_postprocessor_h
 #define __qkd_postprocessor_h
 
-#include "qkd/quantum_state.h"
+#include "instrumented.h"
+#include "qkd/observable.h"
 #include "vector.h"
 
 #include <type_traits>
@@ -34,17 +35,28 @@ namespace libcomm
  * \brief   Common Base for QKD postprocessing.
  * \author  Mark Mizzi
  */
-template <typename S,
-          typename T = typename S::measurement_type,
-          std::enable_if_t<std::is_floating_point<
-                               std::is_base_of<quantum_state<T>, S>>::value,
-                           bool> = true>
-class qkd_postprocessor
+template <typename T>
+class qkd_postprocessor : public instrumented
 {
 public:
-    virtual void set_alice(libbase::vector<S> chan_output) = 0;
-    virtual void set_bob(libbase::vector<S> chan_output) = 0;
-    virtual libbase::vector<bool> get_secret_key() = 0;
+    /*! Get observables used to measure quantum states on Alice's end, e.g. spin
+     * in two different bases for E91
+     * Integer param determines number of observables returned.
+     */
+    virtual libbase::vector <
+        std::unique_ptr<observable<T>> get_alice_observables(int) = 0;
+    /*! Get observables used to measure quantum states on Bob's end, e.g. spin
+     * in two different bases for E91
+     * Integer param determines number of observables returned.
+     */
+    virtual libbase::vector <
+        std::unique_ptr<observable<T>> get_bob_observables(int) = 0;
+
+    virtual libbase::vector<bool>
+    postprocess(const libbase::vector<T>&& bob_measurements,
+                const libbase::vector<T>&& alice_measurements) = 0;
+
+    virtual ~qkd_postprocessor() {}
 };
 
 } // end namespace libcomm
