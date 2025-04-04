@@ -70,6 +70,24 @@ public:
     virtual ~quantum_channel() {}
 };
 
+/*!
+ * \brief   Identity Quantum channel.
+ * \author  Mark Mizzi
+ *
+ * Supports every observable.
+ * Does not affect any observable, but leaves them as they are.
+ */
+class identity_quantum_channel : public quantum_channel
+{
+public:
+    //! \name Visitor interface methods for observables
+    virtual void transmit(position_observable&) const {}
+    virtual void transmit(momentum_observable&) const {}
+    virtual void transmit(spin_computational&) const {}
+    virtual void transmit(spin_hadamard&) const {}
+    //! @}
+};
+
 } // end namespace libcomm
 
 #endif // __quantum_channel_h
