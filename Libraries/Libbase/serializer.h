@@ -79,14 +79,14 @@ class serializable;
 class serializer
 {
 public:
-    typedef std::shared_ptr<serializable> (*fptr)();
+    typedef std::unique_ptr<serializable> (*fptr)();
 
 private:
     static std::shared_ptr<std::map<std::string, fptr>> cmap;
     std::string classname;
 
 public:
-    static std::shared_ptr<serializable> call(const std::string& base,
+    static std::unique_ptr<serializable> call(const std::string& base,
                                               const std::string& derived);
     //! Returns a list of base classes
     static std::list<std::string> get_base_classes();
@@ -141,8 +141,34 @@ public:                                                                        \
         std::string name;                                                      \
         std::streampos start = sin.tellg();                                    \
         sin >> name;                                                           \
-        x = std::dynamic_pointer_cast<class_name>(                             \
-            libbase::serializer::call(#class_name, name));                     \
+        x = std::shared_ptr<class_name>(static_cast<class_name*>(              \
+            libbase::serializer::call(#class_name, name).release()));          \
+        if (!x) {                                                              \
+            sin.seekg(start);                                                  \
+            sin.clear(std::ios::failbit);                                      \
+        } else {                                                               \
+            x->serialize(sin);                                                 \
+            libbase::verify(sin);                                              \
+        }                                                                      \
+        return sin;                                                            \
+    }                                                                          \
+    /*! \brief Stream output */                                                \
+    friend std::ostream& operator<<(std::ostream& sout,                        \
+                                    const std::unique_ptr<class_name>& x)      \
+    {                                                                          \
+        sout << x->name() << std::endl;                                        \
+        x->serialize(sout);                                                    \
+        return sout;                                                           \
+    }                                                                          \
+    /*! \brief Stream input */                                                 \
+    friend std::istream& operator>>(std::istream& sin,                         \
+                                    std::unique_ptr<class_name>& x)            \
+    {                                                                          \
+        std::string name;                                                      \
+        std::streampos start = sin.tellg();                                    \
+        sin >> name;                                                           \
+        x.reset(static_cast<class_name*>(                                      \
+            libbase::serializer::call(#class_name, name).release()));          \
         if (!x) {                                                              \
             sin.seekg(start);                                                  \
             sin.clear(std::ios::failbit);                                      \
@@ -161,10 +187,9 @@ private:                                                                       \
     /*! \brief Serialization helper object */                                  \
     static const libbase::serializer shelper;                                  \
     /*! \brief Heap creation function */                                       \
-    static std::shared_ptr<libbase::serializable> create()                     \
+    static std::unique_ptr<libbase::serializable> create()                     \
     {                                                                          \
-        return std::static_pointer_cast<libbase::serializable>(                \
-            std::shared_ptr<class_name>(new class_name));                      \
+        return std::unique_ptr<class_name>(new class_name);                    \
     }                                                                          \
     /* @} */                                                                   \
 public:                                                                        \

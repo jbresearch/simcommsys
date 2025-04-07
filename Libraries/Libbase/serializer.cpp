@@ -42,7 +42,7 @@ std::shared_ptr<std::map<std::string, serializer::fptr>> serializer::cmap;
 
 // static functions
 
-std::shared_ptr<serializable>
+std::unique_ptr<serializable>
 serializer::call(const std::string& base, const std::string& derived)
 {
     fptr func = (*cmap)[base + ":" + derived];
@@ -53,7 +53,7 @@ serializer::call(const std::string& base, const std::string& derived)
 #endif
 
     if (func == NULL) {
-        return std::shared_ptr<serializable>();
+        return std::unique_ptr<serializable>();
     }
 
     return (*func)();
