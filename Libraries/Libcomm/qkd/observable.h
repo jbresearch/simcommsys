@@ -55,16 +55,16 @@ class observable
 {
 public:
     //! \name Visitor interface methods for regular (non-entangled) states
-    virtual T measure(qubit&) const { failwith("Not implemented.") }
-    virtual T measure(gaussian_state&) const { failwith("Not implemented.") }
+    virtual T measure(qubit&) const { failwith("Not implemented."); }
+    virtual T measure(gaussian_state&) const { failwith("Not implemented."); }
     //! @}
 
     //! \name Visitor interface methods for entangled states
     virtual T measure(entangled_qubit_pair&, int) const
     {
-        failwith("Not implemented.")
+        failwith("Not implemented.");
     }
-    virtual T measure(epr_beam&, int) const { failwith("Not implemented.") }
+    virtual T measure(epr_beam&, int) const { failwith("Not implemented."); }
     //! @}
 
     /** \brief Implements the other side of the visitor pattern, which calls the
@@ -73,7 +73,7 @@ public:
      * Implementation in subclasses should always be to call the \name
      * quantum_channel's transmit() method with *this.
      */
-    virtual transmit(const quantum_channel&) = 0;
+    virtual void transmit(const quantum_channel&) = 0;
 
     virtual ~observable() {}
 };

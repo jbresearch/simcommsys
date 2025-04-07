@@ -19,11 +19,13 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __qkd_postprocessor_h
-#define __qkd_postprocessor_h
+#ifndef __qkd_protocol_h
+#define __qkd_protocol_h
 
 #include "instrumented.h"
 #include "qkd/observable.h"
+#include "random.h"
+#include "serializer.h"
 #include "vector.h"
 
 #include <type_traits>
@@ -32,33 +34,35 @@ namespace libcomm
 {
 
 /*!
- * \brief   Common Base for QKD postprocessing.
+ * \brief   Common Base for QKD postprocessing protocol.
  * \author  Mark Mizzi
  */
-template <typename T>
-class qkd_postprocessor : public instrumented
+template <typename T, template <class> class C = libbase::vector>
+class qkd_protocol : public instrumented, public libbase::serializable
 {
 public:
     /*! Get observables used to measure quantum states on Alice's end, e.g. spin
      * in two different bases for E91
      * Integer param determines number of observables returned.
      */
-    virtual libbase::vector <
-        std::unique_ptr<observable<T>> get_alice_observables(int) = 0;
+    virtual libbase::vector<std::unique_ptr<observable<T>>>
+    get_alice_observables(int) = 0;
     /*! Get observables used to measure quantum states on Bob's end, e.g. spin
      * in two different bases for E91
      * Integer param determines number of observables returned.
      */
-    virtual libbase::vector <
-        std::unique_ptr<observable<T>> get_bob_observables(int) = 0;
+    virtual libbase::vector<std::unique_ptr<observable<T>>>
+    get_bob_observables(int) = 0;
 
-    virtual libbase::vector<bool>
-    postprocess(const libbase::vector<T>&& bob_measurements,
-                const libbase::vector<T>&& alice_measurements) = 0;
+    virtual C<bool> postprocess(libbase::vector<T>&& alice_measurements,
+                                libbase::vector<T>&& bob_measurements) = 0;
 
-    virtual ~qkd_postprocessor() {}
+    virtual void seedfrom(libbase::random& r) = 0;
+    virtual ~qkd_protocol() {}
+
+    DECLARE_BASE_SERIALIZER(qkd_protocol)
 };
 
 } // end namespace libcomm
 
-#endif // __qkd_postprocessor_h
+#endif // __qkd_protocol_h

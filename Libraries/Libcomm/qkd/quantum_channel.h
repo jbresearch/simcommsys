@@ -24,6 +24,8 @@
 
 #include "assertalways.h"
 #include "parametric.h"
+#include "random.h"
+#include "serializer.h"
 
 namespace libcomm
 {
@@ -45,7 +47,7 @@ class spin_hadamard;
  * channel subclass is meant to override the methods for observables that they
  * support.
  */
-class quantum_channel : public parametric
+class quantum_channel : public parametric, public libbase::serializable
 {
 public:
     //! \name Visitor interface methods for observables
@@ -67,6 +69,13 @@ public:
     }
     //! @}
 
+    //! \brief Description of serializable object
+    virtual std::string description() const = 0;
+
+    // Serialization Support
+    DECLARE_BASE_SERIALIZER(quantum_channel)
+
+    virtual void seedfrom(libbase::random& r) = 0;
     virtual ~quantum_channel() {}
 };
 
@@ -86,6 +95,26 @@ public:
     virtual void transmit(spin_computational&) const {}
     virtual void transmit(spin_hadamard&) const {}
     //! @}
+
+    void seedfrom(libbase::random& r) override {}
+
+    /*! \name Parameter handling */
+    //! Set the characteristic parameters
+    void set_parameters(const libbase::vector<double>& x) override {}
+    //! Get the characteristic parameters
+    libbase::vector<double> get_parameters() const
+    {
+        libbase::vector<double> params;
+        params.init(0);
+        return params;
+    }
+    // @}
+
+    // Description
+    std::string description() const override;
+
+    // Serialization Support
+    DECLARE_SERIALIZER(identity_quantum_channel)
 };
 
 } // end namespace libcomm

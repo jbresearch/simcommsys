@@ -24,15 +24,11 @@
 
 #include "commsys.h"
 
-#include "fsm.h"
-#include "itfunc.h"
-#include "mapper/map_straight.h"
 #include "qkd/observable.h"
-#include "qkd/qkd_postprocessor.h"
+#include "qkd/qkd_protocol.h"
 #include "qkd/quantum_channel.h"
 #include "qkd/quantum_state.h"
-#include "secant.h"
-#include "timer.h"
+#include "serializer.h"
 #include "vector.h"
 
 #include <iostream>
@@ -47,8 +43,8 @@ namespace libcomm
  * \author  Mark Mizzi
  */
 
-template <class S, class T>
-class basic_qkd_commsys : public instrumented
+template <class S, class T, template <class> class C = libbase::vector>
+class qkd_commsys : public instrumented, public libbase::serializable
 {
 public:
     /*! \name Type definitions */
@@ -59,75 +55,60 @@ protected:
     /*! \name Bound objects */
     std::unique_ptr<quantum_channel> bob_channel;
     std::unique_ptr<quantum_channel> alice_channel;
-    std::unique_ptr<qkd_postprocessor> protocol;
-    // @}
-#ifndef NDEBUG
-    bool lastframecorrect;
-    C<int> lastsource;
-#endif
-protected:
-    /*! \name Setup functions */
-    void init();
-    void free();
+    std::unique_ptr<qkd_protocol<T, C>> protocol;
     // @}
 public:
-    basic_commsys() {}
-    virtual ~basic_qkd_commsys() { free(); }
+    qkd_commsys() {}
     // @}
 
     /*! \name Communication System Setup */
-    virtual void seedfrom(libbase::random& r);
-    //! Get error-control codec
-    std::shared_ptr<codec<C>> getcodec() const { return cdc; }
-    //! Get symbol mapper
-    std::shared_ptr<mapper<C>> getmapper() const { return map; }
-    //! Get modulation scheme
-    std::shared_ptr<blockmodem<S, C>> getmodem() const { return mdm; }
-    //! Get channel model - transmitter side
-    std::shared_ptr<channel<S, C>> gettxchan() const { return txchan; }
-    //! Get channel model - receiver side
-    std::shared_ptr<channel<S, C>> getrxchan() const { return rxchan; }
+    void seedfrom(libbase::random& r)
+    {
+        this->alice_channel->seedfrom(r);
+        this->bob_channel->seedfrom(r);
+        this->protocol->seedfrom(r);
+    }
     // @}
 
     /*! \name Communication System Interface */
-    //! Perform complete encode path
-    virtual C<S> encode_path(const C<int>& source);
-    //! Perform channel transmission
-    virtual C<S> transmit(const C<S>& transmitted);
-    //! Perform complete receive path, except for final decoding
-    virtual void receive_path(const C<S>& received);
-    //! Perform after-demodulation receive path, except for final decoding
-    virtual void softreceive_path(const C<array1d_t>& ptable_mapped);
-    //! Perform all decoding iterations, with hard decision
-    virtual void decode(C<int>& decoded);
-    //! Perform all decoding iterations, with hard decision; also returning the
-    //! codeword at each iteration in the process.
-    virtual void decode(libbase::vector<C<int>>& decoded);
-    // @}
+    //! Perform complete transmission of one frame
+    C<bool> fullcycle(const C<S>& source)
+    {
+        libbase::vector<std::unique_ptr<observable<T>>> alice_observables =
+            protocol->get_alice_observables(source.size());
+        libbase::vector<std::unique_ptr<observable<T>>> bob_observables =
+            protocol->get_bob_observables(source.size());
 
-    /*! \name Informative functions */
-    //! Number of iterations to perform
-    virtual int num_iter() const { return cdc->num_iter(); }
-    //! Overall mapper rate
-    double rate() const { return cdc->rate() * map->rate(); }
-    //! Input alphabet size (number of valid symbols)
-    int num_inputs() const { return cdc->num_inputs(); }
-    //! Output alphabet size (number of valid symbols)
-    int num_outputs() const { return mdm->num_symbols(); }
-    //! Input (ie. source/decoded) block size in symbols
-    libbase::size_type<C> input_block_size() const
-    {
-        return cdc->input_block_size();
-    }
-    //! Output (ie. transmitted/received) block size in symbols
-    libbase::size_type<C> output_block_size() const
-    {
-        return mdm->output_block_size();
+        // create and allocate vectors for measurements on Bob and Alice's end
+        libbase::vector<T> alice_measurements;
+        libbase::vector<T> bob_measurements;
+
+        alice_measurements.init(source.size());
+        bob_measurements.init(source.size());
+
+        for (int i = 0; i < source.size(); i++) {
+            // Quantum channel transmission
+            alice_observables(i)->transmit(*this->alice_channel);
+            bob_observables(i)->transmit(*this->bob_channel);
+
+            // Measurement of quantum states
+            if (S::is_entangled) {
+                alice_measurements(i) =
+                    source(i).measure(*alice_observables(i), 0);
+                bob_measurements(i) = source(i).measure(*bob_observables(i), 1);
+            } else {
+                alice_measurements(i) =
+                    source(i).measure(*alice_observables(i));
+                bob_measurements(i) = source(i).measure(*bob_observables(i));
+            }
+        }
+
+        protocol->postprocess(alice_measurements, bob_measurements);
     }
     // @}
 
     //! Clear list of timers
-    void reset_timers()
+    void reset_timers() override
     {
         // clear list of timers we're keeping
         instrumented::reset_timers();
@@ -136,9 +117,11 @@ public:
     }
 
     // Description
-    virtual std::string description() const;
-    std::ostream& serialize(std::ostream& sout) const;
-    std::istream& serialize(std::istream& sin);
+    std::string description() const;
+
+    // Serialization Support
+    DECLARE_BASE_SERIALIZER(qkd_commsys)
+    DECLARE_SERIALIZER(qkd_commsys)
 };
 
 } // namespace libcomm
