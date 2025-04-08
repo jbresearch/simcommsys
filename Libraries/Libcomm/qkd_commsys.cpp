@@ -57,6 +57,8 @@ qkd_commsys<S, T, C>::serialize(std::ostream& sout) const
     // format version
     sout << "# Version" << std::endl;
     sout << 1 << std::endl;
+    sout << "# Frame size (# of quantum states in a frame)" << std::endl;
+    sout << framesize << std::endl;
     sout << "## Alice's channel" << std::endl;
     sout << alice_channel << std::endl;
     sout << "## Bob's channel" << std::endl;
@@ -89,6 +91,7 @@ qkd_commsys<S, T, C>::serialize(std::istream& sin)
         sin.clear();
     }
 
+    sin >> libbase::eatcomments >> framesize >> libbase::verify;
     sin >> libbase::eatcomments >> alice_channel >> libbase::verify;
     sin >> libbase::eatcomments >> bob_channel >> libbase::verify;
     sin >> libbase::eatcomments >> protocol >> libbase::verify;

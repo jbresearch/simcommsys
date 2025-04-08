@@ -44,7 +44,9 @@ namespace libcomm
  */
 
 template <class S, class T, template <class> class C = libbase::vector>
-class qkd_commsys : public instrumented, public libbase::serializable
+class qkd_commsys : public instrumented,
+                    public parametric,
+                    public libbase::serializable
 {
 public:
     /*! \name Type definitions */
@@ -56,6 +58,9 @@ protected:
     std::unique_ptr<quantum_channel> bob_channel;
     std::unique_ptr<quantum_channel> alice_channel;
     std::unique_ptr<qkd_protocol<T, C>> protocol;
+
+    //! \brief How many quantum states in one frame
+    int framesize;
     // @}
 public:
     qkd_commsys() {}
@@ -70,23 +75,74 @@ public:
     }
     // @}
 
+    /*! \name Parametric interface */
+    void set_parameters(const libbase::vector<double>& x) override
+    {
+        assertalways(x.size() == this->get_num_params());
+
+        libbase::vector<double> alice_channel_params;
+        alice_channel_params.init(this->alice_channel->get_num_params());
+        int i = 0;
+        for (; i < this->alice_channel->get_num_params(); i++) {
+            alice_channel_params(i) = x(i);
+        }
+
+        libbase::vector<double> bob_channel_params;
+        bob_channel_params.init(this->bob_channel->get_num_params());
+        int j = 0;
+        for (; j < this->bob_channel->get_num_params(); i++, j++) {
+            bob_channel_params(j) = x(i);
+        }
+
+        this->alice_channel->set_parameters(alice_channel_params);
+        this->bob_channel->set_parameters(bob_channel_params);
+    }
+    libbase::vector<double> get_parameters() const override
+    {
+        libbase::vector<double> params;
+        params.init(get_num_params());
+
+        libbase::vector<double> alice_channel_params =
+            this->alice_channel->get_parameters();
+        int i = 0;
+        for (; i < this->alice_channel->get_num_params(); i++) {
+            params(i) = alice_channel_params(i);
+        }
+
+        libbase::vector<double> bob_channel_params =
+            this->bob_channel->get_parameters();
+        for (int j = 0; i < this->get_num_params(); i++, j++) {
+            params(i) = alice_channel_params(j);
+        }
+
+        return params;
+    }
+    int get_num_params() const override
+    {
+        return this->alice_channel->get_num_params() +
+               this->bob_channel->get_num_params();
+    }
+    // @}
+
     /*! \name Communication System Interface */
     //! Perform complete transmission of one frame
     C<bool> fullcycle(const C<S>& source)
     {
+        assertalways(source.size() == framesize);
+
         libbase::vector<std::unique_ptr<observable<T>>> alice_observables =
-            protocol->get_alice_observables(source.size());
+            protocol->get_alice_observables(framesize);
         libbase::vector<std::unique_ptr<observable<T>>> bob_observables =
-            protocol->get_bob_observables(source.size());
+            protocol->get_bob_observables(framesize);
 
         // create and allocate vectors for measurements on Bob and Alice's end
         libbase::vector<T> alice_measurements;
         libbase::vector<T> bob_measurements;
 
-        alice_measurements.init(source.size());
-        bob_measurements.init(source.size());
+        alice_measurements.init(framesize);
+        bob_measurements.init(framesize);
 
-        for (int i = 0; i < source.size(); i++) {
+        for (int i = 0; i < framesize; i++) {
             // Quantum channel transmission
             alice_observables(i)->transmit(*this->alice_channel);
             bob_observables(i)->transmit(*this->bob_channel);
@@ -115,6 +171,9 @@ public:
         // clear list of timers for all components
         protocol->reset_timers();
     }
+
+    //! Get number of input quantum states in a frame
+    int input_block_size() const { return framesize; }
 
     // Description
     std::string description() const;
