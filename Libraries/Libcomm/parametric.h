@@ -47,6 +47,7 @@ public:
     virtual void set_parameters(const libbase::vector<double>& x) = 0;
     //! Get the characteristic parameters
     virtual libbase::vector<double> get_parameters() const = 0;
+    virtual int get_num_params() const = 0;
     // @}
 };
 
@@ -76,6 +77,7 @@ public:
         params(0) = this->get_parameter();
         return params;
     }
+    int get_num_params() const override { return 1; }
 
     /*! \name Parameter handling */
     //! Set the characteristic parameter
