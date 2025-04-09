@@ -147,6 +147,10 @@ public:
         params(0) = p;
         return params;
     }
+    int get_num_params() const override
+    {
+        return sys->gettxchan()->get_num_params();
+    }
 
     // Experiment handling
     void sample(libbase::vector<double>& sample_result,

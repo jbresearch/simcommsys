@@ -149,6 +149,7 @@ public:
         params(0) = sigma;
         return params;
     }
+    int get_num_params() const override { return 1; }
 
     // Experiment handling
     void sample(libbase::vector<double>& sample_result,

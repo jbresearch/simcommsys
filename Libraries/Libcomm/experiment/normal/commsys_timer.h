@@ -70,6 +70,7 @@ public:
     {
         return simulator.get_parameters();
     }
+    int get_num_params() const override { return simulator.get_num_params(); }
 
     // Experiment handling
     void sample(libbase::vector<double>& sample_result,
