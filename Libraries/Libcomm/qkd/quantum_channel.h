@@ -102,12 +102,13 @@ public:
     //! Set the characteristic parameters
     void set_parameters(const libbase::vector<double>& x) override {}
     //! Get the characteristic parameters
-    libbase::vector<double> get_parameters() const
+    libbase::vector<double> get_parameters() const override
     {
         libbase::vector<double> params;
         params.init(0);
         return params;
     }
+    int get_num_params() const override { return 0; }
     // @}
 
     // Description
