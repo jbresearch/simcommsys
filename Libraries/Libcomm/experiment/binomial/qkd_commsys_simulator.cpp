@@ -56,4 +56,60 @@ qkd_commsys_simulator<S, T, R>::description() const
     return sout.str();
 }
 
+// object serialization - saving
+
+template <class S, class T, class R>
+std::ostream&
+qkd_commsys_simulator<S, T, R>::serialize(std::ostream& sout) const
+{
+    // format version
+    sout << "# Version" << std::endl;
+    sout << 1 << std::endl;
+    sout << "# Source generator" << std::endl;
+    sout << src;
+    sout << "# Communication system" << std::endl;
+    sout << sys;
+    return sout;
+}
+
+// object serialization - loading
+
+/*!
+ * \version 0 Initial version (un-numbered)
+ *
+ * \version 1 Added version numbering; added split channel model
+ */
+template <class S, class T, class R>
+std::istream&
+qkd_commsys_simulator<S, T, R>::serialize(std::istream& sin)
+{
+    assertalways(sin.good());
+
+    // get format version
+    int version;
+    sin >> libbase::eatcomments >> version;
+
+    // handle old-format files
+    if (sin.fail()) {
+        version = 0;
+        sin.clear();
+    }
+
+    sin >> libbase::eatcomments >> src >> libbase::verify;
+    sin >> libbase::eatcomments >> sys >> libbase::verify;
+
+    assertalways(sin.good());
+    return sin;
+}
+
+} // namespace libcomm
+
+namespace libcomm
+{
+
+// Explicit Realizations
+// TODO
+// E.g.
+// template qkd_commsys_simulator<qubit, bool>;
+
 } // namespace libcomm
