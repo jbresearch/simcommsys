@@ -159,7 +159,7 @@ public:
             }
         }
 
-        protocol->postprocess(alice_measurements, bob_measurements);
+        return protocol->postprocess(alice_measurements, bob_measurements);
     }
     // @}
 

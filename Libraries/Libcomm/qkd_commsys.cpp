@@ -41,7 +41,7 @@ std::string
 qkd_commsys<S, T, C>::description() const
 {
     std::ostringstream sout;
-    sout << "QKD ommunication System: ";
+    sout << "QKD communication System: ";
     sout << alice_channel->description() << ", ";
     sout << bob_channel->description() << ", ";
     sout << protocol->description();
@@ -106,5 +106,7 @@ namespace libcomm
 
 // Explicit Realizations
 // TODO
+// E.g.
+// template qkd_commsys<qubit, bool>;
 
 } // namespace libcomm
