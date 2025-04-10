@@ -74,6 +74,8 @@ public:
      * quantum_channel's transmit() method with *this.
      */
     virtual void transmit(const quantum_channel&) = 0;
+    // default implementation for subclasses should be
+    // void transmit(const quantum_channel& c) { return c.transmit(*this); }
 
     virtual ~observable() {}
 };
