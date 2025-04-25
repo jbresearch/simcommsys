@@ -118,44 +118,21 @@ public:
 class gaussian_state : quantum_state_inf<gaussian_state>
 {
 private:
-    std::random_device rd{};
-    std::mt19937 gen{rd()};
-
-    double q_mean, q_stddev, p_mean, p_stddev;
+    // Quadrature components of the Gaussian coherent state
+    double q;
+    double p;
 
 public:
-    gaussian_state(double q_mean,
-                   double q_stddev,
-                   double p_mean,
-                   double p_stddev)
-    {
-        init(q_mean, q_stddev, p_mean, p_stddev);
+    // Default constructor
+    gaussian_state() : q(0.0), p(0.0) {}
+
+    gaussian_state(double q, double p) {
+        this->q = q;
+        this->p = p;
     }
 
-    void init(double q_mean, double q_stddev, double p_mean, double p_stddev)
-    {
-        assert(q_mean >= 0);
-        assert(q_stddev >= 0);
-        assert(p_mean >= 0);
-        assert(p_stddev >= 0);
-        assertalways(q_stddev * p_stddev >= hbar / 2);
-
-        this->q_mean = q_mean;
-        this->q_stddev = q_stddev;
-        this->p_mean = p_mean;
-        this->p_stddev = p_stddev;
-    }
-
-    double get_p()
-    {
-        std::normal_distribution normdist{p_mean, p_stddev};
-        return normdist(gen);
-    }
-    double get_q()
-    {
-        std::normal_distribution normdist{q_mean, q_stddev};
-        return normdist(gen);
-    }
+    double get_q() { return q; }
+    double get_p() { return p; }
 };
 
 class entangled_qubit_pair : entangled_quantum_state_inf<entangled_qubit_pair>
