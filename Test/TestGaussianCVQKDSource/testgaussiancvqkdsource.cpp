@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
     cout << "\nTest 3 - Generate Sequence of Gaussian Coherent States\n";
     for (int i = 0; i < gaussian_seq.size(); ++i) {
         gaussian_state& s = gaussian_seq(i);
-        cout << "State " << i << ": q_mean = " << s.get_q_mean() << ", p = " << s.get_p_mean() << "\n";
+        cout << "State " << i << ": q_mean = " << s.get_q_mean() << ", p_mean = " << s.get_p_mean() << "\n";
     }
 
     // // -------- Extra Test  --------
