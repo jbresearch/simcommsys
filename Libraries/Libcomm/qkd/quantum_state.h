@@ -118,19 +118,26 @@ public:
 class gaussian_state : quantum_state_inf<gaussian_state>
 {
 private:
-    std::random_device rd{};
-    std::mt19937 gen{rd()};
+    // std::random_device rd{};
+    // std::mt19937 gen{rd()};
+    std::mt19937 gen;
 
     double q_mean, q_stddev, p_mean, p_stddev;
 
 public:
+
+    gaussian_state()
+    : gen(std::random_device{}()), q_mean(0.0), q_stddev(1.0), p_mean(0.0), p_stddev(1.0) {}
+
     gaussian_state(double q_mean,
                    double q_stddev,
                    double p_mean,
                    double p_stddev)
+                   : gen(std::random_device{}()) //  initializes the Mersenne Twister random number generator with a random seed
     {
         init(q_mean, q_stddev, p_mean, p_stddev);
     }
+
 
     void init(double q_mean, double q_stddev, double p_mean, double p_stddev)
     {
@@ -145,7 +152,22 @@ public:
         this->p_mean = p_mean;
         this->p_stddev = p_stddev;
     }
-    // The two get functions are to be used for Measurement i.e. to implement the measurement in "observable.h" which is then used in "qkd_commsys.h", In both get_p and get_q, p_stddev = 1 and q_stddev = 1 respectively to get the measured values.
+
+    // Sets seed for random generator
+    void set_seed(unsigned int seed) {
+        gen.seed(seed);
+    }
+
+    // Added functions to get q_mean and p_mean
+    double get_q_mean() const {
+        return q_mean;
+    }
+
+    double get_p_mean() const {
+        return p_mean;
+    }
+
+    // The two get functions are to be used for Measurement i.e. to implement the measurement in "observable.h" which is then used in "qkd_commsys.h". In both get_p and get_q, p_stddev = 1 and q_stddev = 1 respectively to get the measured values.
     double get_p()
     {
         std::normal_distribution normdist{p_mean, p_stddev};
