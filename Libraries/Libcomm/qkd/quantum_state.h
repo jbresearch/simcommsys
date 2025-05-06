@@ -140,10 +140,10 @@ public:
         assert(p_stddev >= 0);
         assertalways(q_stddev * p_stddev >= hbar / 2);
 
-        this->q_mean == q_mean;
-        this->q_stddev == q_stddev;
-        this->p_mean == p_mean;
-        this->p_stddev == p_stddev;
+        this->q_mean = q_mean;
+        this->q_stddev = q_stddev;
+        this->p_mean = p_mean;
+        this->p_stddev = p_stddev;
     }
     // The two get functions are to be used to implement the measurement in "observable.h" which is then used in "qkd_commsys.h"
     double get_p()
