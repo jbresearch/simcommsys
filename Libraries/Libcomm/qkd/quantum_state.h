@@ -145,7 +145,7 @@ public:
         this->p_mean = p_mean;
         this->p_stddev = p_stddev;
     }
-    // The two get functions are to be used to implement the measurement in "observable.h" which is then used in "qkd_commsys.h"
+    // The two get functions are to be used for Measurement i.e. to implement the measurement in "observable.h" which is then used in "qkd_commsys.h", In both get_p and get_q, p_stddev = 1 and q_stddev = 1 respectively to get the measured values.
     double get_p()
     {
         std::normal_distribution normdist{p_mean, p_stddev};
