@@ -836,15 +836,19 @@ release/x86_64/add-qkd-support/testgaussiancvqkdsource.o release/x86_64/add-qkd-
  /home/aaron7/gitprojects/simcommsys/Libraries/Libbase/size.h \
  /home/aaron7/gitprojects/simcommsys/Libraries/Libbase/random.h \
  /home/aaron7/gitprojects/simcommsys/Libraries/Libbase/serializer.h \
- /home/aaron7/gitprojects/simcommsys/Libraries/Libbase/randgen.h \
- /home/aaron7/gitprojects/simcommsys/Libraries/Libbase/random.h \
- /usr/include/c++/11/complex /usr/include/c++/11/random \
- /usr/include/c++/11/bits/random.h \
+ /home/aaron7/gitprojects/simcommsys/Libraries/Libcomm/qkd/position_observable.h \
+ /home/aaron7/gitprojects/simcommsys/Libraries/Libcomm/qkd/momentum_observable.h \
+ /usr/include/c++/11/random /usr/include/c++/11/bits/random.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/opt_random.h \
  /usr/include/c++/11/bits/random.tcc \
+ /home/aaron7/gitprojects/simcommsys/Libraries/Libbase/randgen.h \
+ /home/aaron7/gitprojects/simcommsys/Libraries/Libbase/random.h \
+ /usr/include/c++/11/complex \
  /home/aaron7/gitprojects/simcommsys/Libraries/Libcomm/source/quantum_gaussian.h \
  /home/aaron7/gitprojects/simcommsys/Libraries/Libcomm/source.h \
  /home/aaron7/gitprojects/simcommsys/Libraries/Libcomm/instrumented.h \
  /home/aaron7/gitprojects/simcommsys/Libraries/Libbase/timer.h \
  /home/aaron7/gitprojects/simcommsys/Libraries/Libbase/matrix.h \
- /home/aaron7/gitprojects/simcommsys/Libraries/Libbase/vector.h
+ /home/aaron7/gitprojects/simcommsys/Libraries/Libbase/vector.h \
+ /home/aaron7/gitprojects/simcommsys/Libraries/Libcomm/qkd/position_observable.h \
+ /home/aaron7/gitprojects/simcommsys/Libraries/Libcomm/qkd/momentum_observable.h
