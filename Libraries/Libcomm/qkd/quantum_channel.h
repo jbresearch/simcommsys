@@ -165,7 +165,6 @@ public:
 
     // position observable - p; Does not override the base class and does use const
     void transmit(position_observable& obs) const override{
-        // update_channel_properties();
         std::normal_distribution<double> dist(0.0, std::sqrt(V_N));
         obs.value += dist(gen);  // Adds X_N
         obs.value *= std::sqrt(transmittance * det_eff); //  Scales with sqrt(ηT)
@@ -173,7 +172,6 @@ public:
 
     // momentum observable - p; Does not override the base class
     void transmit(momentum_observable& obs) const override {
-        // update_channel_properties();
         std::normal_distribution<double> dist(0.0, std::sqrt(V_N));
         obs.value += dist(gen); // Adds X_N
         obs.value *= std::sqrt(transmittance * det_eff); // Scales with sqrt(ηT)
