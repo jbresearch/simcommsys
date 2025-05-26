@@ -170,11 +170,9 @@ BOOST_AUTO_TEST_CASE(test_gaussian_source_serialisation)
 
 
     //  -------- 2. Generate a sequence of N Gaussian states
-    std::cout << "\n[BOOST TEST] Alice's Gaussian Source Parameters:\n"
-          << "  mean_q_mean  = 0.0\n"
-          << "  stddev_q_mean = 4.2\n"
-          << "  mean_p_mean  = 0.0\n"
-          << "  stddev_p_mean = 4.2\n";
+    std::cout << "\n[BOOST TEST] Alice's Gaussian Source Parameters:\n";
+    std::cout << source->description();
+    std::cout << endl << endl;
 
     const int num_states = 10;
     libbase::size_type<libbase::vector> blocksize(num_states);
