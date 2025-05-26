@@ -93,14 +93,21 @@ std::ostream& gaussian_quantum_channel::serialize(std::ostream& sout) const
 
  std::istream& gaussian_quantum_channel::serialize(std::istream& sin)
  {
-     assertalways(sin.good());
-     sin >> libbase::eatcomments >> N_0;
-     sin >> libbase::eatcomments >> alpha;
-     sin >> libbase::eatcomments >> det_eff;
-     sin >> libbase::eatcomments >> distance_km;
-     sin >> libbase::eatcomments >> excess_noise;
-     sin >> libbase::eatcomments >> electric_noise;
-     return sin;
+    assertalways(sin.good());
+
+    libbase::vector<double> params;
+    params.init(6);
+
+    sin >> libbase::eatcomments >> params(0); // N_0
+    sin >> libbase::eatcomments >> params(1); // alpha
+    sin >> libbase::eatcomments >> params(2); // det_eff
+    sin >> libbase::eatcomments >> params(3); // distance_km
+    sin >> libbase::eatcomments >> params(4); // excess_noise
+    sin >> libbase::eatcomments >> params(5); // electric_noise
+
+    set_parameters(params);
+
+    return sin;
  }
 
 // Register with serializer system

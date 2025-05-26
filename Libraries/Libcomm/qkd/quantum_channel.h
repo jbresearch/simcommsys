@@ -133,7 +133,7 @@ public:
  * Noise is modelled as a Normal Distribution with Mean zero and Variance V_N:
  *     V_N = N_0 + ηTξ + v_el -> Taken from "Quasi-cyclic multi-edge LDPC codes for long-distance quantum cryptography." by Mario Milicevic et al., 2018, npj Quantum Information"
  * Bob's measured value:
- *     X_B = sqrt(ηT) * (X_A + X_N) -> Taken from e1. (7.33) from the book "Quantum Key Distribution" by Ramona Wolf, Springer
+ *     X_B = sqrt(ηT) * (X_A + X_N) -> Taken from eq. (7.33) from the book "Quantum Key Distribution" by Ramona Wolf, Springer
  */
 class gaussian_quantum_channel : public quantum_channel
 {
@@ -165,7 +165,7 @@ public:
 
     // position observable - p; Does not override the base class and does use const
     void transmit(position_observable& obs) const override{
-        update_channel_properties();
+        // update_channel_properties();
         std::normal_distribution<double> dist(0.0, std::sqrt(V_N));
         obs.value += dist(gen);  // Adds X_N
         obs.value *= std::sqrt(transmittance * det_eff); //  Scales with sqrt(ηT)
@@ -173,7 +173,7 @@ public:
 
     // momentum observable - p; Does not override the base class
     void transmit(momentum_observable& obs) const override {
-        update_channel_properties();
+        // update_channel_properties();
         std::normal_distribution<double> dist(0.0, std::sqrt(V_N));
         obs.value += dist(gen); // Adds X_N
         obs.value *= std::sqrt(transmittance * det_eff); // Scales with sqrt(ηT)
@@ -192,6 +192,7 @@ public:
         distance_km = x(3);
         excess_noise = x(4);
         electric_noise = x(5);
+        update_channel_properties();
     }
 
 
