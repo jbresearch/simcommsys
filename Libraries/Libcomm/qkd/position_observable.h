@@ -1,4 +1,11 @@
-// file: observable/position_observable.h
+/*!
+ * \brief Position Observable
+ * \author  Aaron Abela
+ *
+ * Allows creation of a position observable with a specific value q.
+ */
+
+
 #ifndef POSITION_OBSERVABLE_H
 #define POSITION_OBSERVABLE_H
 
