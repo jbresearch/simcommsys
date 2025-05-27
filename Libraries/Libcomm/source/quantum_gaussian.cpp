@@ -30,13 +30,18 @@
  std::ostream& quantum_gaussian::serialize(std::ostream& sout) const
  {
      sout << "# Mean of Q_Mean" << std::endl;
-     sout << mean_q_mean << std::endl;
+     sout << q_mean_mean  << std::endl;
      sout << "# Stddev of Q_Mean" << std::endl;
-     sout << stddev_q_mean << std::endl;
+     sout << q_mean_stddev << std::endl;
      sout << "# Mean of P_Mean" << std::endl;
-     sout << mean_p_mean << std::endl;
+     sout << p_mean_mean  << std::endl;
      sout << "# Stddev of P_Mean" << std::endl;
-     sout << stddev_p_mean << std::endl;
+     sout << p_mean_stddev << std::endl;
+     sout << "# Stddev of Q" << std::endl;
+     sout << q_stddev << std::endl;
+     sout << "# Stddev of P" << std::endl;
+     sout << p_stddev << std::endl;
+
      return sout;
  }
 
@@ -44,10 +49,12 @@
  std::istream& quantum_gaussian::serialize(std::istream& sin)
  {
      assertalways(sin.good());
-     sin >> libbase::eatcomments >> mean_q_mean;
-     sin >> libbase::eatcomments >> stddev_q_mean;
-     sin >> libbase::eatcomments >> mean_p_mean;
-     sin >> libbase::eatcomments >> stddev_p_mean;
+     sin >> libbase::eatcomments >> q_mean_mean ;
+     sin >> libbase::eatcomments >> q_mean_stddev;
+     sin >> libbase::eatcomments >> p_mean_mean ;
+     sin >> libbase::eatcomments >> p_mean_stddev;
+     sin >> libbase::eatcomments >> q_stddev;
+     sin >> libbase::eatcomments >> p_stddev;
 
      return sin;
  }
