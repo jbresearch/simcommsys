@@ -30,34 +30,6 @@ using libbase::serializer;
 
 namespace libcomm
 {
-
-// Description
-
-std::string
-identity_quantum_channel::description() const
-{
-    return "Identity quantum channel";
-}
-
-// Serialization Support
-
-std::ostream&
-identity_quantum_channel::serialize(std::ostream& sout) const
-{
-    return sout;
-}
-
-std::istream&
-identity_quantum_channel::serialize(std::istream& sin)
-{
-    return sin;
-}
-
-// Added missing shelper for Identity Quantum Channel
-const serializer identity_quantum_channel::shelper(
-    "quantum_channel", "identity_quantum_channel", identity_quantum_channel::create);
-
-
 /*!
  * \brief   Gaussian Quantum channel serialization support
  * \author  Aaron Abela

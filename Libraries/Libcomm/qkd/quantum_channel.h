@@ -86,46 +86,6 @@ public:
 };
 
 /*!
- * \brief   Identity Quantum channel.
- * \author  Mark Mizzi
- *
- * Supports every observable.
- * Does not affect any observable, but leaves them as they are.
- */
-class identity_quantum_channel : public quantum_channel
-{
-public:
-    //! \name Visitor interface methods for observables
-    virtual void transmit(position_observable&) const {}
-    virtual void transmit(momentum_observable&) const {}
-    virtual void transmit(spin_computational&) const {}
-    virtual void transmit(spin_hadamard&) const {}
-    //! @}
-
-    void seedfrom(libbase::random& r) override {}
-
-    /*! \name Parameter handling */
-    //! Set the characteristic parameters
-    void set_parameters(const libbase::vector<double>& x) override {}
-    //! Get the characteristic parameters
-    libbase::vector<double> get_parameters() const override
-    {
-        libbase::vector<double> params;
-        params.init(0);
-        return params;
-    }
-    int get_num_params() const override { return 0; }
-    // @}
-
-    // Description
-    std::string description() const override;
-
-    // Serialization Support
-    DECLARE_SERIALIZER(identity_quantum_channel)
-};
-
-
-/*!
  * \brief   Gaussian Quantum channel.
  * \author  Aaron Abela
  *
@@ -133,7 +93,7 @@ public:
  * Noise is modelled as a Normal Distribution with Mean zero and Variance V_N:
  *     V_N = N_0 + ηTξ + v_el -> Taken from "Quasi-cyclic multi-edge LDPC codes for long-distance quantum cryptography." by Mario Milicevic et al., 2018, npj Quantum Information"
  * Bob's measured value:
- *     X_B = sqrt(ηT) * (X_A + X_N) -> Taken from eq. (7.33) from the book "Quantum Key Distribution" by Ramona Wolf, Springer
+ *     X_B = sqrt(ηT) * (X_A + X_N) -> Taken from eq. (7.33)  -204 -  from the book "Quantum Key Distribution" by Ramona Wolf, Springer
  */
 class gaussian_quantum_channel : public quantum_channel
 {
@@ -179,7 +139,7 @@ public:
 
     void seedfrom(libbase::random& r) override {
     // Non-deterministic seed using system entropy/entropy based seed.
-    gen.seed(std::random_device{}());
+    gen.seed(std::random_device{}()); // to change this like I did in quantum_gaussian.h
     }
 
     void set_parameters(const libbase::vector<double>& x) override {
