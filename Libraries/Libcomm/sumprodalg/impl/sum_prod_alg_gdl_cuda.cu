@@ -183,6 +183,24 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     const array1vi_t& non_zero_row_pos,
     const libbase::matrix<GF_q>& pchk_matrix)
 {
+    this->init_timer_with_variance("t__spa_init__copy_probs_h_to_d");
+    this->init_timer_with_variance("t__spa_init__norm_probs");
+    this->init_timer_with_variance("t__spa_init__spa_init_kern");
+    this->init_timer_with_variance("t__spa_init__hadamard");
+    this->init_timer_with_variance("t_compute_r_mn");
+    this->init_timer_with_variance("t_inv_hadamard");
+    this->init_timer_with_variance("t_norm_r_mn");
+    this->init_timer_with_variance("t_compute_q_mn");
+    this->init_timer_with_variance("t_norm_q_mn");
+    this->init_timer_with_variance("t_hadamard");
+    this->init_timer_with_variance("t_compute_probs");
+    this->init_timer_with_variance("t_norm_probs");
+    this->init_timer_with_variance("t_hard_decision");
+    this->init_timer_with_variance("t_compute_syndrome");
+    this->init_timer_with_variance("t_check_syndrome");
+    this->init_timer_with_variance("t_copy_codeword_d_to_h");
+    this->init_timer_with_variance("t_spa_iteration");
+
     int num_of_elements = GF_q::elements();
 
     // We also build the various parity check matrix fields on the host,
@@ -449,24 +467,6 @@ template <class GF_q, class real>
 void
 sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
 {
-    this->init_timer_with_variance("t__spa_init__copy_probs_h_to_d");
-    this->init_timer_with_variance("t__spa_init__norm_probs");
-    this->init_timer_with_variance("t__spa_init__spa_init_kern");
-    this->init_timer_with_variance("t__spa_init__hadamard");
-    this->init_timer_with_variance("t_compute_r_mn");
-    this->init_timer_with_variance("t_inv_hadamard");
-    this->init_timer_with_variance("t_norm_r_mn");
-    this->init_timer_with_variance("t_compute_q_mn");
-    this->init_timer_with_variance("t_norm_q_mn");
-    this->init_timer_with_variance("t_hadamard");
-    this->init_timer_with_variance("t_compute_probs");
-    this->init_timer_with_variance("t_norm_probs");
-    this->init_timer_with_variance("t_hard_decision");
-    this->init_timer_with_variance("t_compute_syndrome");
-    this->init_timer_with_variance("t_check_syndrome");
-    this->init_timer_with_variance("t_copy_codeword_d_to_h");
-    this->init_timer_with_variance("t_spa_iteration");
-
     this->num_iters = 0;
 
     dim3 block_dim;
