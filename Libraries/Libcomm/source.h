@@ -74,15 +74,17 @@ public:
     // Default Implementation of parametric methods
     void set_parameters(const libbase::vector<double>& x) override
     {
-       failwith("Not implemented");
+        failwith("Not implemented");
     }
-    libbase::vector<double> get_parameters() override
-    {
-       failwith("Not implemented");
+    libbase::vector<double> get_parameters() const override {
+        failwith("Not implemented");
+        return libbase::vector<double>();
     }
+
     int get_num_params() const override
     {
-       failwith("Not implemented");
+        failwith("Not implemented");
+        return 0;
     }
 };
 
