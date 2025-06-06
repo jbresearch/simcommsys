@@ -27,6 +27,7 @@
 #include "matrix.h"
 #include "serializer.h"
 #include "vector.h"
+#include "parametric.h"
 
 #include "randgen.h"
 
@@ -45,7 +46,7 @@ namespace libcomm
  */
 
 template <class S, template <class> class C>
-class basic_source_interface : public instrumented
+class basic_source_interface : public instrumented, public parametric
 {
 public:
     /*! \name Constructors / Destructors */
@@ -69,6 +70,20 @@ public:
     //! Description output
     virtual std::string description() const = 0;
     // @}
+
+    // Default Implementation of parametric methods
+    void set_parameters(const libbase::vector<double>& x) override
+    {
+       failwith("Not implemented");
+    }
+    libbase::vector<double> get_parameters() override
+    {
+       failwith("Not implemented");
+    }
+    int get_num_params() const override
+    {
+       failwith("Not implemented");
+    }
 };
 
 /*!
