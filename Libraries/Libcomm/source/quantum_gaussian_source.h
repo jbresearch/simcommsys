@@ -104,7 +104,6 @@ public:
         return params;
     }
 
-    // STILL TO ADD: get num_params
     int get_num_params() const override {return 6; }
 
     // Description
