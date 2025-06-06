@@ -81,13 +81,6 @@ public:
        gen.seed(r.ival());
     }
 
-    // Required for TestGaussianCVQKDsource with Boost usage
-    static std::unique_ptr<libbase::serializable> create(std::istream& sin) {
-        auto obj = std::make_unique<quantum_gaussian_source>();
-        obj->serialize(sin);
-        return obj;
-    }
-
     // Add set_parameters, get_parameters and get_num_parameters instead of using the serializer
     void set_parameters(const libbase::vector<double>& x) override {
         assertalways(x.size() == 6);
