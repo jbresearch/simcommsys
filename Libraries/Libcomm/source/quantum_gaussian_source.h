@@ -41,14 +41,14 @@ namespace libcomm {
  *
  * Implements a source for CV-QKD using the GG02 protocol that returns a Gaussian coherent state with q_mean and p_mean, where p_mean and q_mean follow a normal distribution with p_mean_mean, p_mean_stddev, q_mean_mean and q_mean_stddev respectively. Note: Variance = (Stddev)^2 and Q and P are the quadrature components of the coherent state.
 
- Inputs: q_mean_mean, q_mean_stddev, p_mean_mean, p_mean_stddev
- Return: Coherent state with q_mean and p_mean
+ Inputs: q_mean_mean, q_mean_stddev, p_mean_mean, p_mean_stddev, q_stddev, p_stddev
+ Return: Coherent state with q_mean, p_mean, q_stddev and p_stddev
  *
  *
  */
 
 
-class quantum_gaussian: public source<gaussian_state, libbase::vector> {
+class quantum_gaussian_source: public source<gaussian_state, libbase::vector> {
 
 private:
     double q_mean_mean; // Chosen mean to generate q_mean
@@ -58,20 +58,21 @@ private:
     double q_stddev; // Stddev of q
     double p_stddev; // Stddev of p
     std::mt19937 gen;
+    // libbase::randgen gen;
 
 public:
     // Default constructor
-    quantum_gaussian(double q_mean_mean = 0.0, double q_mean_stddev = 1.0, double p_mean_mean = 0.0, double p_mean_stddev = 1.0)
-        : q_mean_mean(q_mean_mean), q_mean_stddev(q_mean_stddev), p_mean_mean(p_mean_mean), p_mean_stddev(p_mean_stddev), gen() {}
+    quantum_gaussian_source(double q_mean_mean = 0.0, double q_mean_stddev = 1.0, double p_mean_mean = 0.0, double p_mean_stddev = 1.0, double q_stddev = 1.0, double p_stddev = 1.0)
+        : q_mean_mean(q_mean_mean), q_mean_stddev(q_mean_stddev), p_mean_mean(p_mean_mean), p_mean_stddev(p_mean_stddev), q_stddev(q_stddev), p_stddev(p_stddev), gen() {}
 
     //! Generate a single Gaussian state with q_mean and p_mean.
     gaussian_state generate_single() override {
         std::normal_distribution<double> q_dist(q_mean_mean, q_mean_stddev);
         std::normal_distribution<double> p_dist(p_mean_mean, p_mean_stddev);
         double q_mean = q_dist(gen); // Value will have added noise to it to be used for measurement.
-        double p_mean = p_dist(gen); // Value will have added noise to it to be used for measurement.
+        double p_mean = p_dist(gen); // Value will have added noise to it to be used fWor measurement.
         // std::cout << "Printing q_mean = " << q_mean << std::endl;
-        // std::cout << "Printing p_mean = " << p_mean << std::endl;
+        std::cout << "Printing p_mean = " << p_mean << std::endl;
         return gaussian_state(q_mean, q_stddev,  p_mean, p_stddev);
     }
 
@@ -82,22 +83,42 @@ public:
 
     // Required for TestGaussianCVQKDsource with Boost usage
     static std::unique_ptr<libbase::serializable> create(std::istream& sin) {
-        auto obj = std::make_unique<quantum_gaussian>();
+        auto obj = std::make_unique<quantum_gaussian_source>();
         obj->serialize(sin);
         return obj;
     }
 
-    //! Description
-    std::string description() const override {
-        std::ostringstream sout;
-        sout << "Quantum Gaussian random source ("
-        << "q_mean ~ N(" << q_mean_mean << ", " << q_mean_stddev << "), "
-        << "p_mean ~ N(" << p_mean_mean << ", " << p_mean_stddev << "))";
-        return sout.str();
+    // Add set_parameters, get_parameters and get_num_parameters instead of using the serializer
+    void set_parameters(const libbase::vector<double>& x) override {
+        assertalways(x.size() == 6);
+        q_mean_mean  = x(0); // Mean of Q_Mean
+        q_mean_stddev = x(1); // Stddev of Q_Mean
+        p_mean_mean = x(2); // Mean of P_Mean
+        p_mean_stddev = x(3); // Stddev of P_Mean
+        q_stddev = x(4); // Stddev of Q
+        p_stddev = x(5); // Stddev of P
     }
 
+    libbase::vector<double> get_parameters() const override {
+        libbase::vector<double> params;
+        params.init(6);
+        params(0) = q_mean_mean;
+        params(1) = q_mean_stddev;
+        params(2) = p_mean_mean;
+        params(3) = p_mean_stddev;
+        params(4) = q_stddev;
+        params(5) = p_stddev;
+        return params;
+    }
+
+    // STILL TO ADD: get num_params
+    int get_num_params() const override {return 6; }
+
+    // Description
+    std::string description() const;
+
     // Serialization Support
-    DECLARE_SERIALIZER(quantum_gaussian)
+    DECLARE_SERIALIZER(quantum_gaussian_source)
 };
 
 } // namespace libcomm
