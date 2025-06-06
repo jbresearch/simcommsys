@@ -20,18 +20,13 @@
  */
 
 #define BOOST_TEST_MODULE GaussianSourceTest
-#define BOOST_TEST_NO_MAIN
 #include <boost/test/included/unit_test.hpp>
 
 #include "qkd/quantum_state.h"
-#include "source/quantum_gaussian.h"
+#include "source/quantum_gaussian_source.h"
 #include "source.h"
 #include "serializer.h"
 #include "truerand.h"
-
-#include "qkd/quantum_channel.h"
-#include "qkd/position_observable.h"
-#include "qkd/momentum_observable.h"
 
 #include <iostream>
 #include <sstream>
@@ -44,78 +39,54 @@ using namespace libcomm;
 using namespace libbase;
 using namespace std;
 
+BOOST_AUTO_TEST_CASE(print_single_gaussian_state) {
+    libbase::vector<double> params;
+    params.init(6);
+    params(0) = 0.0;   // q_mean_mean
+    params(1) = 10.0;  // q_mean_stddev
+    params(2) = 0.0;   // p_mean_mean
+    params(3) = 10.0;  // p_mean_stddev
+    params(4) = 1.0;   // q_stddev
+    params(5) = 1.0;   // p_stddev
 
-int run_boost_tests(int argc, char* argv[]);  // Forward declaration
+    quantum_gaussian_source source;
+    source.set_parameters(params);
 
-int main(int argc, char* argv[]) {
+    randgen r;
+    r.seed(0);
+    source.seedfrom(r);
 
-    // // -------- Boost Test Case --------
-    cout << "\nBoost Test Case: \n";
-    cout << "\nRunning Boost test case...\n";
-    return run_boost_tests(argc, argv);
+    std::cout << "\n[Generated a Single Gaussian State]" << std::endl;
+    gaussian_state state = source.generate_single();
+    // In case you want to print the q_mean and p_mean of each state make sure to uncomment lines 76-76 in the generate_single method found in quantum_gaussian_source.cpp.
 }
 
-// ------------------------------------
-// BOOST TEST CASE
-// ------------------------------------
-BOOST_AUTO_TEST_CASE(test_gaussian_source_serialisation)
-{
-    // Setup quantum_gaussian source
-    std::stringstream ss;
-    ss << "# Mean of Q_Mean\n"
-    << "0\n"
-    << "# Stddev of Q_Mean\n"
-    << "10\n"
-    << "# Mean of P_Mean\n"
-    << "0\n"
-    << "# Stddev of P_Mean\n"
-    << "10\n"
-    << "# Stddev of P\n"
-    << "1\n"
-    << "# Stddev of Q\n"
-    << "1\n";
+BOOST_AUTO_TEST_CASE(print_gaussian_sequence) {
+    libbase::vector<double> params;
+    params.init(6);
+    params(0) = 0.0;
+    params(1) = 10.0;  // q_mean_stddev
+    params(2) = 0.0;
+    params(3) = 10.0;  // p_mean_stddev
+    params(4) = 1.0;   // q_stddev
+    params(5) = 1.0;   // p_stddev
 
-    std::unique_ptr<serializable> ptr = quantum_gaussian::create(ss);
-    auto* gaussian_source = dynamic_cast<quantum_gaussian*>(ptr.get());
-    BOOST_REQUIRE_MESSAGE(gaussian_source != nullptr, "Failed to deserialize quantum_gaussian");
+    quantum_gaussian_source source;
+    source.set_parameters(params);
 
-    // Seed setup
-    libbase::truerand trng; // Idea taken from constructor of montecarlo.h
-    libbase::int32u seed = trng.ival();
-    // libbase::int32u seed = 2871727006;
-    libbase::randgen prng; // Idea taken from seed_experiment() from Montecarlo.cpp
-    prng.seed(seed);
-    std::cerr << "[TEST] Random seed used for PRNG: " << seed << std::endl;
-
-    // Seed source and generate state
-    gaussian_source->seedfrom(prng);
-    std::cout << "[TEST] Source Description: " << gaussian_source->description() << std::endl;
-
-    // gaussian_state coherent_state = gaussian_source->generate_single();
-    // coherent_state.seedfrom(prng);
+    randgen r;
+    r.seed(7896);
+    source.seedfrom(r);
 
     const int num_states = 10;
     libbase::size_type<libbase::vector> blocksize(num_states);
-    libbase::vector<gaussian_state> coherent_state_seq = gaussian_source->generate_sequence(blocksize);
+    libbase::vector<gaussian_state> sequence = source.generate_sequence(blocksize);
 
-    for (int i = 0; i < coherent_state_seq.size(); ++i) {
-        // gaussian_state& state = coherent_state_seq(i);
-
-        // Performing measurement without passing it through the quantum channel
-        double q_val = coherent_state_seq(i).get_q();
-        double p_val = coherent_state_seq(i).get_p();
-        std::cout<< "State Number:" << i << std::endl;
-        std::cout << "[TEST] Measured q = " << q_val << ", p = " << p_val << std::endl;
+    std::cout << "\n[Generated Sequence of Gaussian States]" << std::endl;
+    for (int i = 0; i < sequence.size(); ++i) {
+        gaussian_state& state = sequence(i);
+        cout << "State: " << i << endl;
+        cout << "p = " << state.get_p() << endl;
+        cout << "q = " << state.get_q() << endl;
     }
-}
-
-// ------------------------------------
-// Required by BOOST_TEST_NO_MAIN
-// ------------------------------------
-boost::unit_test::test_suite* init_unit_test(int, char*[]) {
-    return nullptr;  // Use default auto-registered test suite
-}
-
-int run_boost_tests(int argc, char* argv[]) {
-    return boost::unit_test::unit_test_main(&init_unit_test, argc, argv);
 }
