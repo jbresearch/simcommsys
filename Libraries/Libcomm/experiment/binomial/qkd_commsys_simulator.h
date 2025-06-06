@@ -64,8 +64,8 @@ public:
      * Initializes system with bound objects cloned from supplied system.
      */
     qkd_commsys_simulator(const qkd_commsys_simulator<S, T, R>& c)
-        : src(std::dynamic_pointer_cast<source<int>>(c.src->clone())),
-          sys(std::dynamic_pointer_cast<commsys<S>>(c.sys->clone()))
+         : src(std::dynamic_pointer_cast<source<S>>(c.src->clone())),
+           sys(std::dynamic_pointer_cast<qkd_commsys<S, T>>(c.sys->clone()))
     {
     }
     qkd_commsys_simulator() {}
@@ -88,6 +88,7 @@ public:
     {
         return sys->get_parameters();
     }
+
     int get_num_params() const override { return sys->get_num_params(); }
     // @}
 
