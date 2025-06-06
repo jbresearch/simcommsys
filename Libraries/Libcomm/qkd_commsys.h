@@ -109,10 +109,10 @@ public:
             params(i) = alice_channel_params(i);
         }
 
-        libbase::vector<double> bob_channel_params =
-            this->bob_channel->get_parameters();
-        for (int j = 0; i < this->get_num_params(); i++, j++) {
-            params(i) = alice_channel_params(j);
+        libbase::vector<double> bob_channel_params = this->bob_channel->get_parameters();
+        int k = i; // continue from where alice_channel_params left off
+        for (int j = 0; j < this->bob_channel->get_num_params(); j++, k++) {
+            params(k) = bob_channel_params(j);
         }
 
         return params;
