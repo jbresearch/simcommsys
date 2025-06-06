@@ -72,7 +72,7 @@ public:
         double q_mean = q_dist(gen); // Value will have added noise to it to be used for measurement.
         double p_mean = p_dist(gen); // Value will have added noise to it to be used fWor measurement.
         // std::cout << "Printing q_mean = " << q_mean << std::endl;
-        std::cout << "Printing p_mean = " << p_mean << std::endl;
+        // std::cout << "Printing p_mean = " << p_mean << std::endl;
         return gaussian_state(q_mean, q_stddev,  p_mean, p_stddev);
     }
 
@@ -81,9 +81,14 @@ public:
        gen.seed(r.ival());
     }
 
-    // Add set_parameters, get_parameters and get_num_parameters instead of using the serializer
     void set_parameters(const libbase::vector<double>& x) override {
         assertalways(x.size() == 6);
+
+        // Enforce Gaussian modulated coherent state constraints
+        assertalways(x(0) == x(2)); // q_mean_mean == p_mean_mean
+        assertalways(x(1) == x(3)); // q_mean_stddev == p_mean_stddev
+        assertalways(x(4) == x(5)); // q_stddev == p_stddev
+
         q_mean_mean  = x(0); // Mean of Q_Mean
         q_mean_stddev = x(1); // Stddev of Q_Mean
         p_mean_mean = x(2); // Mean of P_Mean
