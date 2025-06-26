@@ -45,13 +45,34 @@
  // Save mean and variance to stream
  std::ostream& quantum_gaussian_source::serialize(std::ostream& sout) const
  {
-    return sout;
+      sout << "# Mean of Q_Mean" << std::endl;
+      sout << q_mean_mean  << std::endl;
+      sout << "# Stddev of Q_Mean" << std::endl;
+      sout << q_mean_stddev << std::endl;
+      sout << "# Mean of P_Mean" << std::endl;
+      sout << p_mean_mean  << std::endl;
+      sout << "# Stddev of P_Mean" << std::endl;
+      sout << p_mean_stddev << std::endl;
+      sout << "# Stddev of Q" << std::endl;
+      sout << q_stddev << std::endl;
+      sout << "# Stddev of P" << std::endl;
+      sout << p_stddev << std::endl;
+
+      return sout;
  }
 
  // Load mean and variance from stream
  std::istream& quantum_gaussian_source::serialize(std::istream& sin)
  {
-    return sin;
+     assertalways(sin.good());
+     sin >> libbase::eatcomments >> q_mean_mean ;
+     sin >> libbase::eatcomments >> q_mean_stddev;
+     sin >> libbase::eatcomments >> p_mean_mean ;
+     sin >> libbase::eatcomments >> p_mean_stddev;
+     sin >> libbase::eatcomments >> q_stddev;
+     sin >> libbase::eatcomments >> p_stddev;
+
+     return sin;
  }
 
  } // namespace libcomm

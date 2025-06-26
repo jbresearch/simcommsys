@@ -47,7 +47,6 @@ namespace libcomm {
  *
  */
 
-
 class quantum_gaussian_source: public source<gaussian_state, libbase::vector> {
 
 private:
@@ -81,38 +80,15 @@ public:
        gen.seed(r.ival());
     }
 
-    void set_parameters(const libbase::vector<double>& x) override {
-        assertalways(x.size() == 6);
-
-        // Enforce Gaussian modulated coherent state constraints
-        assertalways(x(0) == x(2)); // q_mean_mean == p_mean_mean
-        assertalways(x(1) == x(3)); // q_mean_stddev == p_mean_stddev
-        assertalways(x(4) == x(5)); // q_stddev == p_stddev
-
-        q_mean_mean  = x(0); // Mean of Q_Mean
-        q_mean_stddev = x(1); // Stddev of Q_Mean
-        p_mean_mean = x(2); // Mean of P_Mean
-        p_mean_stddev = x(3); // Stddev of P_Mean
-        q_stddev = x(4); // Stddev of Q
-        p_stddev = x(5); // Stddev of P
-    }
-
-    libbase::vector<double> get_parameters() const override {
-        libbase::vector<double> params;
-        params.init(6);
-        params(0) = q_mean_mean;
-        params(1) = q_mean_stddev;
-        params(2) = p_mean_mean;
-        params(3) = p_mean_stddev;
-        params(4) = q_stddev;
-        params(5) = p_stddev;
-        return params;
-    }
-
-    int get_num_params() const override {return 6; }
-
     // Description
     std::string description() const;
+
+    // Helper function - Required only for TestGaussianCVQKDsource with Boost usage
+    static std::unique_ptr<libbase::serializable> create(std::istream& sin) {
+        auto obj = std::make_unique<quantum_gaussian_source>();
+        obj->serialize(sin);
+        return obj;
+    }
 
     // Serialization Support
     DECLARE_SERIALIZER(quantum_gaussian_source)
