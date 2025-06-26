@@ -37,7 +37,7 @@ namespace libcomm
  */
 
 template <class S, class T, class R>
-class qkd_commsys_simulator : public experiment_binomial, public R, public parametric
+class qkd_commsys_simulator : public experiment_binomial, public R
 {
 public:
     /*! \name Type definitions */
@@ -80,54 +80,17 @@ public:
     }
 
     /*! \name Parametric interface */
-    // Split for set_parameters and get_parameters was done simialrly to respective methods in qkd_commsys for the channels
-    void set_parameters(const libbase::vector<double>& x) override
+    void set_parameters(const libbase::vector<double>& params) override
     {
-        assert(this->src);
-        assert(this->sys);
-        assertalways(x.size() == this->get_num_params());
-
-        libbase::vector<double> src_params;
-        src_params.init(this->src->get_num_params());
-        int i = 0;
-        for (; i < this->src->get_num_params(); i++) {
-            src_params(i) = x(i);
-        }
-
-        libbase::vector<double> sys_params;
-        sys_params.init(this->sys->get_num_params());
-        int j = 0;
-        for (; j < this->sys->get_num_params(); i++, j++) {
-            sys_params(j) = x(i);
-        }
-
-        this->src->set_parameters(src_params);
-        this->sys->set_parameters(sys_params);
+        sys->set_parameters(params);
     }
+
     libbase::vector<double> get_parameters() const override
     {
-        assert(this->src);
-        assert(this->sys);
-
-        libbase::vector<double> params;
-        params.init(get_num_params());
-
-        libbase::vector<double> src_params = this->src->get_parameters();
-        int i = 0;
-        for (; i < this->src->get_num_params(); i++) {
-            params(i) = src_params(i);
-        }
-
-        libbase::vector<double> sys_params = this->sys->get_parameters();
-        int k = i; // Continue from where src_params left off
-        for (int j = 0; j < this->sys->get_num_params(); j++, k++) {
-            params(k) = sys_params(j);
-        }
-
-        return params;
+        return sys->get_parameters();
     }
 
-    int get_num_params() const override { return this->src->get_num_params() + this->sys->get_num_params(); }
+    int get_num_params() const override { return sys->get_num_params(); }
     // @}
 
     // Experiment handling

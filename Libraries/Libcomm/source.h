@@ -27,8 +27,6 @@
 #include "matrix.h"
 #include "serializer.h"
 #include "vector.h"
-#include "parametric.h"
-
 #include "randgen.h"
 
 #include <iostream>
@@ -46,7 +44,7 @@ namespace libcomm
  */
 
 template <class S, template <class> class C>
-class basic_source_interface : public instrumented, public parametric
+class basic_source_interface : public instrumented
 {
 public:
     /*! \name Constructors / Destructors */
