@@ -26,9 +26,6 @@
 #include "parametric.h"
 #include "random.h"
 #include "serializer.h"
-
-#include "position_observable.h"
-#include "momentum_observable.h"
 #include <random>
 #include <cmath>
 
@@ -123,18 +120,21 @@ public:
         return N_0 + det_eff * transmittance * excess_noise + electric_noise;
     }
 
-    // position observable - p; Does not override the base class and does use const
-    void transmit(position_observable& obs) const override{
-        std::normal_distribution<double> dist(0.0, std::sqrt(V_N));
-        obs.value += dist(gen);  // Adds X_N
-        obs.value *= std::sqrt(transmittance * det_eff); //  Scales with sqrt(ηT)
+    // position observable - p; STILL TO REDO AND recheck
+    void transmit(position_observable& obs) const override {
+        // std::normal_distribution<double> dist(0.0, std::sqrt(V_N));
+        // double noise = dist(gen) * std::sqrt(transmittance * det_eff);
+        // obs.set_noise(noise);  // ✅ the new design uses this method
+         failwith("Not implemented.");
     }
+
 
     // momentum observable - p; Does not override the base class
     void transmit(momentum_observable& obs) const override {
-        std::normal_distribution<double> dist(0.0, std::sqrt(V_N));
-        obs.value += dist(gen); // Adds X_N
-        obs.value *= std::sqrt(transmittance * det_eff); // Scales with sqrt(ηT)
+        // std::normal_distribution<double> dist(0.0, std::sqrt(V_N));
+        // obs.value += dist(gen); // Adds X_N
+        // obs.value *= std::sqrt(transmittance * det_eff); // Scales with sqrt(ηT)
+         failwith("Not implemented.");
     }
 
     void seedfrom(libbase::random& r) override {

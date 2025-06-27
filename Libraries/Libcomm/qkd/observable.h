@@ -23,11 +23,12 @@
 #define __qkd_observable_h
 
 #include "assertalways.h"
-#include "qkd/quantum_channel.h"
+// #include "qkd/quantum_channel.h"
 
 namespace libcomm
 {
 
+class quantum_channel;
 class qubit;
 class gaussian_state;
 
@@ -55,16 +56,17 @@ class observable
 {
 public:
     //! \name Visitor interface methods for regular (non-entangled) states
-    virtual T measure(qubit&) const { failwith("Not implemented."); }
-    virtual T measure(gaussian_state&) const { failwith("Not implemented."); }
+    virtual T measure(qubit&) const { failwith("Not implemented."); return T(); }
+    virtual T measure(gaussian_state&) const { failwith("Not implemented."); return T(); }
     //! @}
 
     //! \name Visitor interface methods for entangled states
     virtual T measure(entangled_qubit_pair&, int) const
     {
         failwith("Not implemented.");
+        return T();
     }
-    virtual T measure(epr_beam&, int) const { failwith("Not implemented."); }
+    virtual T measure(epr_beam&, int) const { failwith("Not implemented."); return T();}
     //! @}
 
     /** \brief Implements the other side of the visitor pattern, which calls the
