@@ -45,13 +45,17 @@ public:
      * in two different bases for E91
      * Integer param determines number of observables returned.
      */
-    virtual libbase::vector<std::unique_ptr<observable<T>>>
+
+    // Note: Changed only the observables to work with a std::vector rather than a libbase::vector
+    virtual std::vector<std::unique_ptr<observable<T>>>
     get_alice_observables(int) = 0;
+
     /*! Get observables used to measure quantum states on Bob's end, e.g. spin
      * in two different bases for E91
      * Integer param determines number of observables returned.
      */
-    virtual libbase::vector<std::unique_ptr<observable<T>>>
+
+    virtual std::vector<std::unique_ptr<observable<T>>>
     get_bob_observables(int) = 0;
 
     virtual C<bool> postprocess(libbase::vector<T>&& alice_measurements,

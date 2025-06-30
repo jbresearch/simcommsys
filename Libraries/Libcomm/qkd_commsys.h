@@ -130,9 +130,10 @@ public:
     {
         assertalways(source.size() == framesize);
 
-        libbase::vector<std::unique_ptr<observable<T>>> alice_observables =
+        // Note: Here I Changed the libbase::vector to an std::vector only for the observables stage
+        std::vector<std::unique_ptr<observable<T>>> alice_observables =
             protocol->get_alice_observables(framesize);
-        libbase::vector<std::unique_ptr<observable<T>>> bob_observables =
+        std::vector<std::unique_ptr<observable<T>>> bob_observables =
             protocol->get_bob_observables(framesize);
 
         // create and allocate vectors for measurements on Bob and Alice's end
