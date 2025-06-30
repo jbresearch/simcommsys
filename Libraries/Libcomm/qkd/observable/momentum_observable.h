@@ -40,7 +40,7 @@ public:
     }
 
     void transmit(const quantum_channel& c) override {
-        c.transmit(*this);  // Double dispatch: calls quantum_channel::transmit(position_observable&)
+        c.transmit(*this);  // Double dispatch: calls quantum_channel::transmit(momentum_observable&)
     }
 
     // Helper functions
