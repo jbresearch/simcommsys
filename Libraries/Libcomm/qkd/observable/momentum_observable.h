@@ -39,7 +39,8 @@ public:
         return state.get_p() + noise;
     }
 
-    void transmit(const quantum_channel& c) override {
+    // Same as the position observable to double check with Johann if it should be a const or not.
+    void transmit(quantum_channel& c) override {
         c.transmit(*this);  // Double dispatch: calls quantum_channel::transmit(momentum_observable&)
     }
 

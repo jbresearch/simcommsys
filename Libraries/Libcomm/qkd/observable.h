@@ -75,7 +75,9 @@ public:
      * Implementation in subclasses should always be to call the \name
      * quantum_channel's transmit() method with *this.
      */
-    virtual void transmit(const quantum_channel&) = 0;
+
+    // To double check whether the quantum channel should be a const or not
+    virtual void transmit(quantum_channel&) = 0;
     // default implementation for subclasses should be
     // void transmit(const quantum_channel& c) { return c.transmit(*this); }
 

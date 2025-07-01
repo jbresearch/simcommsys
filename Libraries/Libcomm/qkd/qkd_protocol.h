@@ -61,8 +61,6 @@ public:
     virtual C<bool> postprocess(libbase::vector<T>&& alice_measurements,
                                 libbase::vector<T>&& bob_measurements) = 0;
 
-
-
     virtual void seedfrom(libbase::random& r) = 0;
     virtual ~qkd_protocol() {}
 

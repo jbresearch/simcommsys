@@ -40,9 +40,12 @@ public:
         return state.get_q() + noise;
     }
 
-    void transmit(const quantum_channel& c) override {
+    // To double check with johann whether quantum_channel should be a const or not
+    void transmit(quantum_channel& c) override {
         c.transmit(*this);  // Double dispatch: calls quantum_channel::transmit(position_observable&)
     }
+
+    // void transmit(const quantum_channel& c) { return c.transmit(*this); }
 
     // Helper functions
     double measure(qubit&) const override {
