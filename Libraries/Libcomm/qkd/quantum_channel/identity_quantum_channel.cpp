@@ -7,7 +7,7 @@
  * Released under the GNU General Public License v3 or later.
  */
 
-#include "qkd/quantum_channel/identity_quantum_channel.h"
+#include "identity_quantum_channel.h"
 #include "serializer.h"
 
 using libbase::serializer;
@@ -16,7 +16,7 @@ namespace libcomm {
 
 //! Return a string describing the channel
 std::string identity_quantum_channel::description() const {
-    return "Identity quantum channel";
+    return "identity_quantum_channel";
 }
 
 //! Serialize channel to output stream

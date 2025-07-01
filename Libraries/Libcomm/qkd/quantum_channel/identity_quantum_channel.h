@@ -2,6 +2,7 @@
 #define __identity_quantum_channel_h
 
 #include "qkd/quantum_channel.h"
+#include "assertalways.h"
 
 namespace libcomm {
 
@@ -16,10 +17,10 @@ class identity_quantum_channel : public quantum_channel
 {
 public:
     //! \name Visitor interface methods for observables
-    virtual void transmit(position_observable&) const {}
-    virtual void transmit(momentum_observable&) const {}
-    virtual void transmit(spin_computational&) const {}
-    virtual void transmit(spin_hadamard&) const {}
+    void transmit(position_observable&) override {}
+    void transmit(momentum_observable&) override {}
+    void transmit(spin_computational&) override {}
+    void transmit(spin_hadamard&) override {}
     //! @}
 
     void seedfrom(libbase::random& r) override {}
