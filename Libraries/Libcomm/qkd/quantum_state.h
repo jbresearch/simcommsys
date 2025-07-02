@@ -89,7 +89,7 @@ public:
     virtual ~entangled_quantum_state_inf() {}
 };
 
-class qubit : quantum_state_inf<qubit>
+class qubit : public quantum_state_inf<qubit>
 {
 private:
     std::complex<double> comp_basis_0, comp_basis_1;
@@ -176,11 +176,11 @@ public:
     }
 };
 
-class entangled_qubit_pair : entangled_quantum_state_inf<entangled_qubit_pair>
+class entangled_qubit_pair : public entangled_quantum_state_inf<entangled_qubit_pair>
 {
 };
 
-class epr_beam : entangled_quantum_state_inf<epr_beam>
+class epr_beam : public entangled_quantum_state_inf<epr_beam>
 {
 };
 
