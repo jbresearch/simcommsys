@@ -115,10 +115,12 @@ public:
     std::complex<double> get_comp_basis_1() const { return comp_basis_1; }
 };
 
-class gaussian_state : quantum_state_inf<gaussian_state>
+// To confirm with Mark that the addition for public is okay.
+class gaussian_state : public quantum_state_inf<gaussian_state>
 {
 private:
     std::mt19937 gen; //  Mersenne Twister random number generator
+    bool was_measured = false; // Enforces measurement to be done only once for each created coherent state
 
     double q_mean, q_stddev, p_mean, p_stddev;
 
@@ -160,11 +162,15 @@ public:
     // The two get functions are to be used for Measurement i.e. to implement the measurement in "observable.h" which is then used in "qkd_commsys.h". In both get_p and get_q, p_stddev = 1 and q_stddev = 1 respectively to get the measured values.
     double get_p()
     {
+        assertalways(!was_measured && "Gaussian state can only be measured once.");
+        was_measured = true;
         std::normal_distribution normdist{p_mean, p_stddev};
         return normdist(gen);
     }
     double get_q()
     {
+        assertalways(!was_measured && "Gaussian state can only be measured once.");
+        was_measured = true;
         std::normal_distribution normdist{q_mean, q_stddev};
         return normdist(gen);
     }
