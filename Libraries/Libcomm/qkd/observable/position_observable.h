@@ -12,6 +12,7 @@
 #include "qkd/observable.h"
 #include "qkd/quantum_channel.h"
 #include "qkd/quantum_state.h"
+#include <cmath>
 
 namespace libcomm {
 
@@ -23,10 +24,15 @@ class epr_beam;
 class position_observable : public observable<double> {
 private:
     double noise;
+    double transmittance; // Transmittance T
+    double detector_eff; // Homodyne detector efficiency, eta
 
 public:
-    position_observable() : noise(0.0) {}
-    explicit position_observable(double noise_val) : noise(noise_val) {}
+    position_observable() : noise(0.0), transmittance(0.0), detector_eff(0.0) {}
+    explicit position_observable(double noise_val)
+    : noise(noise_val), transmittance(0), detector_eff(0.0) {}
+
+    // The noise, transmittance and detector efficiency are all parameters coming from the gaussian quantum channel. The noise is a CLI parameter of the gaussian quantum channel whereas the transmittance and detector efficiency are serialized parameters.
 
     void set_noise(double noise_val) {
         noise = noise_val;
@@ -36,18 +42,33 @@ public:
         return noise;
     }
 
+    void set_transmittance(double transmittance_val) {
+        transmittance = transmittance_val;
+    }
+
+    double get_transmittance() const {
+        return transmittance;
+    }
+
+    void set_detector_eff(double detector_eff_val) {
+        detector_eff = detector_eff_val;
+    }
+
+    double get_detector_eff() const {
+        return detector_eff;
+    }
+
+    // Method that does the measurement on a gaussian coherent state
     double measure(gaussian_state& state) const override {
-        return state.get_q() + noise;
+        return std::sqrt(transmittance*detector_eff)*(state.get_q() + noise);
     }
 
     // To double check with johann whether quantum_channel should be a const or not
     void transmit(quantum_channel& c) override {
         c.transmit(*this);  // Double dispatch: calls quantum_channel::transmit(position_observable&)
     }
-
     // void transmit(const quantum_channel& c) { return c.transmit(*this); }
 
-    // Helper functions
     double measure(qubit&) const override {
         failwith("position_observable does not support qubit measurement.");
         return 0;

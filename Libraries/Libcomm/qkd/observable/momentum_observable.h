@@ -22,10 +22,12 @@ class epr_beam;
 class momentum_observable : public observable<double> {
 private:
     double noise;
+    double transmittance;
+    double detector_eff;
 
 public:
-    momentum_observable() : noise(0.0) {}
-    explicit momentum_observable(double noise_val) : noise(noise_val) {}
+    momentum_observable() : noise(0.0), transmittance(0.0), detector_eff(0.0) {}
+    explicit momentum_observable(double noise_val) : noise(noise_val), transmittance(0.0), detector_eff(0.0) {}
 
     void set_noise(double noise_val) {
         noise = noise_val;
@@ -35,8 +37,24 @@ public:
         return noise;
     }
 
+    void set_transmittance(double transmittance_val) {
+        transmittance = transmittance_val;
+    }
+
+    double get_transmittance() const {
+        return transmittance;
+    }
+
+    void set_detector_eff(double detector_eff_val) {
+        detector_eff = detector_eff_val;
+    }
+
+    double get_detector_eff() const {
+        return detector_eff;
+    }
+
     double measure(gaussian_state& state) const override {
-        return state.get_p() + noise;
+        return std::sqrt(transmittance*detector_eff)*(state.get_p() + noise);
     }
 
     // Same as the position observable to double check with Johann if it should be a const or not.
