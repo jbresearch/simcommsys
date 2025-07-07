@@ -318,7 +318,17 @@ public:
         for (auto it = iterators.rbegin(); it != iterators.rend(); ++it, --i) {
             ++*it;
             if (*it >= ranges(i).end()) {
-                *it = ranges(i).begin();
+                if (i == 0) {
+                    // we have reached the end of the multi_range_iterator, we
+                    // should set everything to the end and thhen stop.
+                    int j;
+                    auto it2 = iterators.rbegin();
+                    for (j = 0; j < ranges.size(); ++it2, j++)
+                        *it2 = ranges(j).end();
+                    break;
+                } else {
+                    *it = ranges(i).begin();
+                }
             } else {
                 break;
             }
