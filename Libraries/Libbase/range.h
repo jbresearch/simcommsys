@@ -165,49 +165,41 @@ public:
         {
             // cannot compare iterators from different range objects
             assertalways(this->range_p == other.range_p);
-            double stop_dist = fabs(this->curr_value - this->range_p->stop);
-            double other_stop_dist =
-                fabs(other.curr_value - other.range_p->stop);
-            // for both step methods, the lesser of the two iterators is the one
-            // that is farthest from the range's stop value.
-            // this may change if for e.g. we remove monotonicity constraints.
-            return stop_dist > other_stop_dist;
+            if (this->range_p->start <= this->range_p->stop) {
+                return this->curr_value < other.curr_value;
+            } else {
+                return this->curr_value > other.curr_value;
+            }
         }
         bool operator<=(const iterator& other) const
         {
             // cannot compare iterators from different range objects
             assertalways(this->range_p == other.range_p);
-            double stop_dist = fabs(this->curr_value - this->range_p->stop);
-            double other_stop_dist =
-                fabs(other.curr_value - other.range_p->stop);
-            // for both step methods, the lesser of the two iterators is the one
-            // that is farthest from the range's stop value.
-            // this may change if for e.g. we remove monotonicity constraints.
-            return stop_dist >= other_stop_dist;
+            if (this->range_p->start <= this->range_p->stop) {
+                return this->curr_value <= other.curr_value;
+            } else {
+                return this->curr_value >= other.curr_value;
+            }
         }
         bool operator>=(const iterator& other) const
         {
             // cannot compare iterators from different range objects
             assertalways(this->range_p == other.range_p);
-            double stop_dist = fabs(this->curr_value - this->range_p->stop);
-            double other_stop_dist =
-                fabs(other.curr_value - other.range_p->stop);
-            // for both step methods, the lesser of the two iterators is the one
-            // that is farthest from the range's stop value.
-            // this may change if for e.g. we remove monotonicity constraints.
-            return stop_dist <= other_stop_dist;
+            if (this->range_p->start <= this->range_p->stop) {
+                return this->curr_value >= other.curr_value;
+            } else {
+                return this->curr_value <= other.curr_value;
+            }
         }
         bool operator>(const iterator& other) const
         {
             // cannot compare iterators from different range objects
             assertalways(this->range_p == other.range_p);
-            double stop_dist = fabs(this->curr_value - this->range_p->stop);
-            double other_stop_dist =
-                fabs(other.curr_value - other.range_p->stop);
-            // for both step methods, the lesser of the two iterators is the one
-            // that is farthest from the range's stop value.
-            // this may change if for e.g. we remove monotonicity constraints.
-            return stop_dist < other_stop_dist;
+            if (this->range_p->start <= this->range_p->stop) {
+                return this->curr_value > other.curr_value;
+            } else {
+                return this->curr_value < other.curr_value;
+            }
         }
     };
 
