@@ -171,7 +171,7 @@ public:
             // for both step methods, the lesser of the two iterators is the one
             // that is farthest from the range's stop value.
             // this may change if for e.g. we remove monotonicity constraints.
-            return stop_dist < other_stop_dist;
+            return stop_dist > other_stop_dist;
         }
         bool operator<=(const iterator& other) const
         {
@@ -183,7 +183,7 @@ public:
             // for both step methods, the lesser of the two iterators is the one
             // that is farthest from the range's stop value.
             // this may change if for e.g. we remove monotonicity constraints.
-            return stop_dist <= other_stop_dist;
+            return stop_dist >= other_stop_dist;
         }
         bool operator>=(const iterator& other) const
         {
@@ -195,7 +195,7 @@ public:
             // for both step methods, the lesser of the two iterators is the one
             // that is farthest from the range's stop value.
             // this may change if for e.g. we remove monotonicity constraints.
-            return stop_dist >= other_stop_dist;
+            return stop_dist <= other_stop_dist;
         }
         bool operator>(const iterator& other) const
         {
@@ -207,7 +207,7 @@ public:
             // for both step methods, the lesser of the two iterators is the one
             // that is farthest from the range's stop value.
             // this may change if for e.g. we remove monotonicity constraints.
-            return stop_dist > other_stop_dist;
+            return stop_dist < other_stop_dist;
         }
     };
 
