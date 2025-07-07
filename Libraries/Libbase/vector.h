@@ -399,6 +399,85 @@ public:
     //! Computes the standard deviation of vector elements
     T sigma() const { return sqrt(var()); }
     // @}
+
+public:
+    /*!
+     * \brief   Vector iterator.
+     * \author  Mark Mizzi
+     *
+     * This is an iterator object that allows us to iterate over a
+     * \c libbase::vector in C++11 idiomatic style.
+     */
+    class iterator
+    {
+    public:
+        using iterator_category = std::bidirectional_iterator_tag;
+        using difference_type = int;
+        using value_type = T;
+        using pointer = T*;
+        using reference = T&;
+
+    private:
+        vector* v;
+        int i = 0;
+
+    public:
+        iterator(vector& v) : v(&v) {}
+        iterator(vector& v, int i) : v(&v), i(i) {}
+
+        // ensure that default copy and assign by copy operators are created.
+        iterator(const iterator&) = default;
+        iterator& operator=(const iterator&) = default;
+
+        reference operator*() const { return (*v)(i); }
+        pointer operator->() const { return &(*v)(i); }
+
+        // Prefix increment
+        iterator& operator++()
+        {
+            i++;
+            return *this;
+        }
+
+        // Postfix increment
+        iterator operator++(int)
+        {
+            iterator tmp = *this;
+            ++(*this);
+            return tmp;
+        }
+
+        // Prefix decrement
+        iterator& operator--()
+        {
+            i--;
+            return *this;
+        }
+
+        // Postfix decrement
+        iterator operator--(int)
+        {
+            iterator tmp = *this;
+            --(*this);
+            return tmp;
+        }
+
+        bool operator==(const iterator& other)
+        {
+            // compare addresses not vectors themselves; we care about whether
+            // iterators point to the same vector object
+            return v == other.v && i == other.i;
+        }
+        bool operator!=(const iterator& other)
+        {
+            // compare addresses not vectors themselves; we care about whether
+            // iterators point to the same vector object
+            return v != other.v || i != other.i;
+        }
+    };
+
+    iterator begin() { return iterator(*this); }
+    iterator end() { return iterator(*this, this->size()); }
 };
 
 // internal functions
@@ -462,7 +541,8 @@ vector<T>::validate_allocation() const
 {
 #if DEBUG >= 2
     if (m_data != NULL) {
-        // confirm a record exists of existing allocation with the correct value
+        // confirm a record exists of existing allocation with the correct
+        // value
         assert(_vector_heap.count(m_data) > 0);
         assert(_vector_heap[m_data] == m_size.length() * int(sizeof(T)));
     }
