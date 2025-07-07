@@ -78,6 +78,7 @@ public:
      */
     class iterator
     {
+    public:
         using iterator_category = std::bidirectional_iterator_tag;
         using difference_type = int;
         using value_type = double;
@@ -202,7 +203,8 @@ public:
      */
     iterator end() { return iterator(*this, this->stop); }
 
-    /*! \brief Parse range from input stream.
+    /*! \brief Parse range from input stream.auto
+auto
      */
     friend std::istream& operator>>(std::istream& is, range& r)
     {
@@ -314,25 +316,33 @@ public:
     // Pre-fix increment
     multi_range_iterator& operator++()
     {
-        int i = ranges.size() - 1;
-        for (auto it = iterators.rbegin(); it != iterators.rend(); ++it, --i) {
-            ++*it;
-            if (*it >= ranges(i).end()) {
-                if (i == 0) {
-                    // we have reached the end of the multi_range_iterator, we
-                    // should set everything to the end and thhen stop.
-                    int j;
-                    auto it2 = iterators.rbegin();
-                    for (j = 0; j < ranges.size(); ++it2, j++)
-                        *it2 = ranges(j).end();
-                    break;
-                } else {
-                    *it = ranges(i).begin();
-                }
+        auto itit = iterators.rbegin();
+        auto rgit = --ranges.end();
+        for (; itit != iterators.rend(); --rgit, ++itit) {
+            ++*itit;
+
+            if (*itit >= rgit->end()) {
+                // we reached the end of iterators(i), we need to set this to
+                // begin() and go up to iterators(i-1) in order to increment
+                // this.
+                *itit = rgit->begin();
             } else {
-                break;
+                return *this; // we're done, as incrementing iterators(i) did
+                              // not cause us to reach ranges(i).end().
             }
         }
+
+        // if we reached this point, it means that we have reached the end of
+        // ranges(0), and hence we have tried every combo. At this point
+        // iterators(i) = ranges(i).begin() for every i We need to set
+        // iterators(i) = ranges(i).end() for every i to signal an end to the
+        // iterations.
+        itit = iterators.rbegin();
+        rgit = --ranges.end();
+        for (; itit != iterators.rend(); --rgit, ++itit) {
+            *itit = rgit->end();
+        }
+
         return *this;
     }
 
