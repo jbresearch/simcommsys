@@ -60,6 +60,15 @@ public:
           RangeStepMethod step_method = RangeStepMethod::ARITHMETIC)
         : start(start), stop(stop), step(step), step_method(step_method)
     {
+        // boundary checks to make sure that the range will (probably) not
+        // iterate forever.
+        if (step_method == RangeStepMethod::ARITHMETIC) {
+            assertalways(step > 0 || stop <= start);
+        } else if (step_method == RangeStepMethod::GEOMETRIC) {
+            // we probably want to avoid non-monotonic sequences.
+            assertalways(step >= 0);
+            assertalways(step >= 1 || stop <= start);
+        }
     }
 
     range()
@@ -156,42 +165,50 @@ public:
         {
             // cannot compare iterators from different range objects
             assertalways(this->range_p == other.range_p);
-            if (this->range_p->start < other.range_p->stop) {
-                return this->curr_value < other.curr_value;
-            } else {
-                return this->curr_value > other.curr_value;
-            }
-        };
+            double stop_dist = fabs(this->curr_value - this->range_p->stop);
+            double other_stop_dist =
+                fabs(other.curr_value - other.range_p->stop);
+            // for both step methods, the lesser of the two iterators is the one
+            // that is farthest from the range's stop value.
+            // this may change if for e.g. we remove monotonicity constraints.
+            return stop_dist < other_stop_dist;
+        }
         bool operator<=(const iterator& other) const
         {
             // cannot compare iterators from different range objects
             assertalways(this->range_p == other.range_p);
-            if (this->range_p->start < other.range_p->stop) {
-                return this->curr_value <= other.curr_value;
-            } else {
-                return this->curr_value >= other.curr_value;
-            }
-        };
+            double stop_dist = fabs(this->curr_value - this->range_p->stop);
+            double other_stop_dist =
+                fabs(other.curr_value - other.range_p->stop);
+            // for both step methods, the lesser of the two iterators is the one
+            // that is farthest from the range's stop value.
+            // this may change if for e.g. we remove monotonicity constraints.
+            return stop_dist <= other_stop_dist;
+        }
         bool operator>=(const iterator& other) const
         {
             // cannot compare iterators from different range objects
             assertalways(this->range_p == other.range_p);
-            if (this->range_p->start < other.range_p->stop) {
-                return this->curr_value >= other.curr_value;
-            } else {
-                return this->curr_value <= other.curr_value;
-            }
-        };
+            double stop_dist = fabs(this->curr_value - this->range_p->stop);
+            double other_stop_dist =
+                fabs(other.curr_value - other.range_p->stop);
+            // for both step methods, the lesser of the two iterators is the one
+            // that is farthest from the range's stop value.
+            // this may change if for e.g. we remove monotonicity constraints.
+            return stop_dist >= other_stop_dist;
+        }
         bool operator>(const iterator& other) const
         {
             // cannot compare iterators from different range objects
             assertalways(this->range_p == other.range_p);
-            if (this->range_p->start < other.range_p->stop) {
-                return this->curr_value > other.curr_value;
-            } else {
-                return this->curr_value < other.curr_value;
-            }
-        };
+            double stop_dist = fabs(this->curr_value - this->range_p->stop);
+            double other_stop_dist =
+                fabs(other.curr_value - other.range_p->stop);
+            // for both step methods, the lesser of the two iterators is the one
+            // that is farthest from the range's stop value.
+            // this may change if for e.g. we remove monotonicity constraints.
+            return stop_dist > other_stop_dist;
+        }
     };
 
     /*! \brief Returns iterator whose current value is the beginning of the
