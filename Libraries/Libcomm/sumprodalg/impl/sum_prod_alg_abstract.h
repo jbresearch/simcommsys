@@ -240,8 +240,12 @@ protected:
      */
     libbase::vector<GF_q> received_word;
     /*! \brief Indicates whether a previous call to spa_iteration() has already
-     * successfully found a codeword. */
-    bool decode_success;
+     * successfully found a codeword.
+     *
+     * \todo At the moment subclasses have to set this to \c false in their
+     * implementation of \c spa_init(). Not the most maintanable setup.
+     */
+    bool decode_success = false;
 };
 
 } // namespace libcomm
