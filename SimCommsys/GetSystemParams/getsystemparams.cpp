@@ -27,39 +27,23 @@
 #include "sigspace.h"
 #include "vector.h"
 
+#include <cstdlib>
+#include <fstream>
+#include <iostream>
+#include <memory>
+#include <vector>
+
 #include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/stringize.hpp>
 #include <boost/program_options.hpp>
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
-#include <memory>
 #include <nlohmann/json.hpp>
-#include <set>
-
-/**
- * Code does not compile without this "mock" implementation of \c operator>> for
- * \c std::set<std::string>.
- *
- * The error occurs deep within Boost and the error messages are cryptic.
- * \todo Figure out how to remove this.
- */
-namespace std
-{
-std::istream&
-operator>>(std::istream& sin, const std::set<std::string>&)
-{
-    failwith("Not implemented.");
-    return sin;
-}
-} // namespace std
 
 template <class S, template <class> class C>
 void
 process(const std::string& fname,
-        std::set<std::string>& required_params,
+        std::vector<std::string>& required_params,
         std::ostream& sout)
 {
     // Communication system
@@ -98,7 +82,7 @@ main(int argc, char* argv[])
                        po::value<std::string>()->required(),
                        "input file containing system description");
     desc.add_options()("param,p",
-                       po::value<std::set<std::string>>()->multitoken(),
+                       po::value<std::vector<std::string>>()->multitoken(),
                        "system parameter(s) to extract from system file");
     desc.add_options()("output-file,o",
                        po::value<std::string>(),
@@ -139,8 +123,8 @@ main(int argc, char* argv[])
         out = &outfile;
     }
 
-    std::set<std::string> required_params =
-        vm["param"].as<std::set<std::string>>();
+    std::vector<std::string> required_params =
+        vm["param"].as<std::vector<std::string>>();
 
     // Shorthand access for parameters
     const std::string container = vm["container"].as<std::string>();
