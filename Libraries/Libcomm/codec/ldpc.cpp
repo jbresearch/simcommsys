@@ -869,8 +869,13 @@ using libbase::serializer;
 
 BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
+#ifndef USE_CUDA
+#define REAL_TYPE_SEQ \
+   (double)(float)(mpreal)(logrealfast)
+#else
 #define REAL_TYPE_SEQ \
    (double)(float)
+#endif
 
 /* Serialization string: ldpc<type,real>
  * where:

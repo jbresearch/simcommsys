@@ -300,7 +300,7 @@ using libbase::mpreal;
 BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 
 #define REAL_TYPE_SEQ \
-   (double)(float)
+   (double)(float)(mpreal)(logrealfast)
 
 /* Serialization string: ldpc<type,real>
  * where:

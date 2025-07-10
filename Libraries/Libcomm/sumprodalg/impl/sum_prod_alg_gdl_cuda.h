@@ -75,7 +75,7 @@ public:
 
     // Overriden methods from sum_prod_alg_inf.
     void spa_init(const array1vd_t& ptable) override;
-    std::string spa_type() override { return "gdl_cuda"; }
+    std::string spa_type() override { return "gdl"; }
     int get_iters() override { return this->num_iters; }
 
     void spa_iteration(libbase::vector<GF_q>& received_word) override;
