@@ -1,0 +1,8 @@
+/[Dd]ebug
+/[Rr]elease
+/[Pp]rofile
+/*.s
+/*.ii
+/Win32
+/x64
+/*.vcxproj.user
