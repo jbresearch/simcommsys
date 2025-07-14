@@ -174,6 +174,16 @@ public:
         std::normal_distribution normdist{q_mean, q_stddev};
         return normdist(gen);
     }
+
+    double get_p_mean() // Only to be used by Alice.
+    {
+        return p_mean;
+    }
+
+    double get_q_mean() // Only to be used by Alice.
+    {
+        return q_mean;
+    }
 };
 
 class entangled_qubit_pair : public entangled_quantum_state_inf<entangled_qubit_pair>

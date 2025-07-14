@@ -35,6 +35,8 @@ namespace libcomm
 
 class position_observable;
 class momentum_observable;
+class fake_position_observable;
+class fake_momentum_observable;
 
 class spin_computational;
 class spin_hadamard;
@@ -62,6 +64,17 @@ public:
     {
         failwith("Not implemented.");
     }
+
+    virtual void transmit(fake_position_observable&)
+    {  // Only to be used for the observables of Alice.
+        failwith("Not implemented.");
+    }
+    virtual void transmit(fake_momentum_observable&)
+    {  // Only to be used for the observables of Alice.
+        failwith("Not implemented.");
+    }
+
+
     virtual void transmit(spin_computational&)
     {
         failwith("Not implemented.");

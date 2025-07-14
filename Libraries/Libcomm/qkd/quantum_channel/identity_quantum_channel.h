@@ -19,6 +19,8 @@ public:
     //! \name Visitor interface methods for observables
     void transmit(position_observable&) override {}
     void transmit(momentum_observable&) override {}
+    void transmit(fake_position_observable&) override {}
+    void transmit(fake_momentum_observable&) override {}
     void transmit(spin_computational&) override {}
     void transmit(spin_hadamard&) override {}
     //! @}

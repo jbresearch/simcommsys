@@ -356,7 +356,12 @@ BOOST_AUTO_TEST_CASE(bobs_measurement_test_fullcycle_style) {
     std::unique_ptr<cvqkd_protocol> protocol = std::make_unique<cvqkd_protocol>();
     protocol->seedfrom(rng);
 
-    // std::vector<std::unique_ptr<observable<double>>> alice_observables = protocol->get_alice_observables(framesize);
+    std::vector<std::unique_ptr<observable<double>>> alice_observables = protocol->get_alice_observables(framesize);
+
+    // To delete this. Just for dummy purposes.
+    const libbase::vector<int>& alice_decision_vector = protocol->get_alice_decision_vector();
+
+
     std::vector<std::unique_ptr<observable<double>>> bob_observables = protocol->get_bob_observables(framesize);
     const libbase::vector<int>& decision_vector = protocol->get_decision_vector();
 
@@ -365,7 +370,15 @@ BOOST_AUTO_TEST_CASE(bobs_measurement_test_fullcycle_style) {
     // alice_measurements.init(framesize);
     bob_measurements.init(framesize);
 
-    // 4. Transmit Bob's observables through the channel and perform measurement
+    // 4. Print Alice's Observables
+    std::cout<<"Dummy Test: Printing Alice's generated fake observables"<< std::endl;
+    for (int i = 0; i < framesize; ++i) {
+        std::string type = (alice_decision_vector(i) == 0) ? "Position" : "Momentum";
+        std::cout << "Observable " << i << " (" << type << "): ";
+
+    }
+
+    // 5. Transmit Bob's observables through the channel and perform measurement
     for (int i = 0; i < framesize; ++i) {
         std::string type = (decision_vector(i) == 0) ? "Position" : "Momentum";
         std::cout << "Observable " << i << " (" << type << "): ";

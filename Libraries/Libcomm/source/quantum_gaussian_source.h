@@ -70,8 +70,9 @@ public:
         std::normal_distribution<double> p_dist(p_mean_mean, p_mean_stddev);
         double q_mean = q_dist(gen); // Value will have added noise to it to be used for measurement.
         double p_mean = p_dist(gen); // Value will have added noise to it to be used fWor measurement.
-        // std::cout << "Printing q_mean = " << q_mean << std::endl;
-        // std::cout << "Printing p_mean = " << p_mean << std::endl;
+        std::cout<<"Printing is done within the source generation \n";
+        std::cout << "Printing q_mean = " << q_mean << std::endl;
+        std::cout << "Printing p_mean = " << p_mean << std::endl;
         return gaussian_state(q_mean, q_stddev,  p_mean, p_stddev);
     }
 
