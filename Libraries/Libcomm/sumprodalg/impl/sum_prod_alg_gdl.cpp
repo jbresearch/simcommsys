@@ -35,7 +35,7 @@ namespace libcomm
 
 template <class GF_q, class real>
 void
-sum_prod_alg_gdl<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
+sum_prod_alg_gdl<GF_q, real>::spa_init(const matrixd_t& recvd_probs)
 {
     this->num_iters = 0;
     // reset flag that informs us whether decoding has suceeded.
@@ -48,13 +48,13 @@ sum_prod_alg_gdl<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
     // initialise the marginal prob values
     // ensure we don't have zero probabilities
     // and normalise the probs at the same time
-    this->received_probs.init(recvd_probs.size());
+    this->received_probs.init(recvd_probs.size().rows());
     for (int loop_n = 0; loop_n < this->length_n; loop_n++) {
         this->received_probs(loop_n).init(num_of_elements);
         alpha = real(0.0);
         for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
             // Clipping HACK
-            tmp_prob = recvd_probs(loop_n)(loop_e);
+            tmp_prob = recvd_probs(loop_n, loop_e);
             this->perform_clipping(tmp_prob);
             this->received_probs(loop_n)(loop_e) = tmp_prob;
             alpha += tmp_prob;

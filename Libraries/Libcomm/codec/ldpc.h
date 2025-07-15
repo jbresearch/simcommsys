@@ -67,6 +67,8 @@ public:
 
     typedef libbase::vector<real> array1d_t;
     typedef libbase::vector<array1d_t> array1vd_t;
+
+    typedef libbase::matrix<real> matrixd_t;
     // @}
 
 protected:
@@ -266,7 +268,7 @@ private:
     array1i_t info_symb_pos;
 
     //! the normalised received probabilities per symbol of the received word
-    array1vd_t received_probs;
+    matrixd_t received_probs;
 
     //! flag indicating whether the generator matrix should be reduced to
     // REF form in the hope of getting a proper systematic code.

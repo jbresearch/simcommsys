@@ -193,14 +193,13 @@ ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable)
                    << "The first 5 received likelihoods are:" << std::endl;
     libbase::trace << ptable.extract(0, 5);
 #endif
-    this->received_probs.init(this->length_n);
+    int numOfElements = GF_q::elements();
+    this->received_probs.init(this->length_n, numOfElements);
 
     // cast the values from double to real
-    int numOfElements = GF_q::elements();
     for (int loop_n = 0; loop_n < this->length_n; loop_n++) {
-        this->received_probs(loop_n).init(numOfElements);
         for (int loop_e = 0; loop_e < numOfElements; loop_e++) {
-            this->received_probs(loop_n)(loop_e) = real(ptable(loop_n)(loop_e));
+            this->received_probs(loop_n, loop_e) = real(ptable(loop_n)(loop_e));
         }
     }
 
@@ -210,31 +209,6 @@ ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable)
                    << std::endl;
     this->received_word_hd.serialize(libbase::trace, ' ');
 #endif
-    // do not check whether we have a solution already. This will force
-    // the algorithm to do at least 1 iteration. That should be enough
-    // for the computation of the extrinsic information to work properly.
-    // If we stop here then we return the same information back which
-    // will result in the extrinsic info to equal 1.
-
-    /*
-     //this->isCodeword();
-     if (this->decodingSuccess)
-     {
-     //copy the values over
-     //this->computed_solution = this->received_probs;
-
-     this->computed_solution.init(this->length_n);
-     for (int loop_n = 0; loop_n < this->length_n; loop_n++)
-     {
-     this->computed_solution(loop_n).init(numOfElements);
-     for (int loop_e = 0; loop_e < numOfElements; loop_e++)
-     {
-     this->computed_solution(loop_n)(loop_e)
-     = static_cast<double> (this->received_probs(loop_n)(loop_e));
-     }
-     }
-     }
-     */
 
     // only do the rest if we don't have a codeword already
     // else

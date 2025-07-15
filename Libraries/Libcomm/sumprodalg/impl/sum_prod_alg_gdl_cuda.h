@@ -46,6 +46,7 @@ public:
     typedef libbase::vector<array1i_t> array1vi_t;
     typedef libbase::vector<array1d_t> array1vd_t;
     typedef libbase::matrix<int> matrixi_t;
+    typedef libbase::matrix<real> matrixd_t;
 
     typedef ::cuda::vector<int> cuda_array1i_t;
     typedef ::cuda::matrix<int, false> cuda_matrixi_t;
@@ -74,7 +75,7 @@ public:
     }
 
     // Overriden methods from sum_prod_alg_inf.
-    void spa_init(const array1vd_t& ptable) override;
+    void spa_init(const matrixd_t& ptable) override;
     std::string spa_type() override { return "gdl"; }
     int get_iters() override { return this->num_iters; }
 

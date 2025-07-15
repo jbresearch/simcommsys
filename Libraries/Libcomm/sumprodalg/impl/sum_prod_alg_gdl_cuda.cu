@@ -465,7 +465,7 @@ spa_init_kern(::cuda::matrix_reference<real, false> device_received_probs,
 
 template <class GF_q, class real>
 void
-sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
+sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const matrixd_t& recvd_probs)
 {
     this->num_iters = 0;
 
@@ -480,8 +480,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
 
     ::cuda::gputimer t_spa_init_copy_probs("t__spa_init__copy_probs_h_to_d");
 
-    for (int loop_n = 0; loop_n < dim_n; loop_n++)
-        this->device_received_probs.extract_row(loop_n) = recvd_probs(loop_n);
+    this->device_received_probs = recvd_probs;
 
     this->add_or_accumulate_timer_with_variance(t_spa_init_copy_probs);
 
