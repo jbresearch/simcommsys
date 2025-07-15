@@ -14,6 +14,7 @@
 #include "qkd/observable/momentum_observable.h"
 #include "qkd/qkd_protocol/cvqkd_protocol.h"
 #include "qkd/quantum_channel/gaussian_quantum_channel.h"
+#include "qkd/quantum_channel/identity_quantum_channel.h"
 #include "random.h"
 #include "truerand.h"
 
@@ -325,18 +326,19 @@ BOOST_AUTO_TEST_CASE(bobs_measurement_test_fullcycle_style) {
     r.seed(7896);
     source.seedfrom(r);
 
-    const int framesize = 10;
+    const int framesize = 4;
     vector<gaussian_state> source_sequence = source.generate_sequence(size_type<vector>(framesize));
     BOOST_CHECK_EQUAL(source_sequence.size(), framesize);
     std::cout << "Number of Generated GM Coherent States: " << framesize << std::endl;
 
     // 2. Create Bob's Gaussian quantum channel
     // (Alice side commented for now)
-    // std::unique_ptr<quantum_channel> alice_channel = std::make_unique<gaussian_quantum_channel>();
+    std::unique_ptr<quantum_channel> alice_channel = std::make_unique<identity_quantum_channel>();
     std::unique_ptr<quantum_channel> bob_channel = std::make_unique<gaussian_quantum_channel>();
 
     randgen rng;
-    rng.seed(12);
+    // rng.seed(12);
+    rng.seed(17);
     // alice_channel->seedfrom(rng);
     bob_channel->seedfrom(rng);
 
@@ -356,37 +358,37 @@ BOOST_AUTO_TEST_CASE(bobs_measurement_test_fullcycle_style) {
     std::unique_ptr<cvqkd_protocol> protocol = std::make_unique<cvqkd_protocol>();
     protocol->seedfrom(rng);
 
-    std::vector<std::unique_ptr<observable<double>>> alice_observables = protocol->get_alice_observables(framesize);
-
-    // To delete this. Just for dummy purposes.
-    const libbase::vector<int>& alice_decision_vector = protocol->get_alice_decision_vector();
-
-
     std::vector<std::unique_ptr<observable<double>>> bob_observables = protocol->get_bob_observables(framesize);
     const libbase::vector<int>& decision_vector = protocol->get_decision_vector();
 
-    // libbase::vector<double> alice_measurements;
-    libbase::vector<double> bob_measurements;
-    // alice_measurements.init(framesize);
-    bob_measurements.init(framesize);
 
-    // 4. Print Alice's Observables
-    std::cout<<"Dummy Test: Printing Alice's generated fake observables"<< std::endl;
-    for (int i = 0; i < framesize; ++i) {
-        std::string type = (alice_decision_vector(i) == 0) ? "Position" : "Momentum";
-        std::cout << "Observable " << i << " (" << type << "): ";
-
-    }
-
-    // 5. Transmit Bob's observables through the channel and perform measurement
+    // 4. Print Bob's Observables
+    std::cout<<"Dummy Test: Printing Bob's generated observables in test cpp file"<< std::endl;
     for (int i = 0; i < framesize; ++i) {
         std::string type = (decision_vector(i) == 0) ? "Position" : "Momentum";
         std::cout << "Observable " << i << " (" << type << "): ";
+    }
 
-        // alice_observables[i]->transmit(*alice_channel);  // commented
+    std::vector<std::unique_ptr<observable<double>>> alice_observables = protocol->get_alice_observables(framesize, decision_vector); // Changed this method to accept two parameters: framesize and bob's decision vector
+
+    // To delete this. Just for dummy purposes.
+    // const libbase::vector<int>& alice_decision_vector = protocol->get_alice_decision_vector();
+
+    libbase::vector<double> alice_measurements;
+    libbase::vector<double> bob_measurements;
+    alice_measurements.init(framesize);
+    bob_measurements.init(framesize);
+
+    // 5. Transmit Bob's observables through the channel and perform measurement
+    for (int i = 0; i < framesize; ++i) {
+        // std::string type = (decision_vector(i) == 0) ? "Position" : "Momentum";
+        // std::cout << "Observable " << i << " (" << type << "): " << std::endl;
+
+        alice_observables[i]->transmit(*alice_channel);
         bob_observables[i]->transmit(*bob_channel);
 
-        // alice_measurements(i) = source_sequence(i).measure(*alice_observables[i]);  // commented
+        alice_measurements(i) = source_sequence(i).measure(*alice_observables[i]);
+
         bob_measurements(i) = source_sequence(i).measure(*bob_observables[i]);
 
         // Debug print for noise
@@ -403,5 +405,7 @@ BOOST_AUTO_TEST_CASE(bobs_measurement_test_fullcycle_style) {
 
         std::cout << "Noise = " << noise_val << ", T = " << T_val << ", η = " << eta_val << std::endl;
         std::cout << "Bob's measured value = " << bob_measurements(i) << std::endl;
+
+        std::cout << "Alice's measured value = " << alice_measurements(i) << std::endl;
     }
 }

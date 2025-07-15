@@ -81,6 +81,26 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
             return observables;
         }
 
+        // Also returns the observables of Alice, but this method also accepts Bob's decision vector
+        std::vector<std::unique_ptr<observable<double>>> get_alice_observables(int framesize, const libbase::vector<int>& bobs_decision_vector)
+        {
+            std::vector<std::unique_ptr<observable<double>>> observables;
+            observables.reserve(framesize);
+
+            for (int i = 0; i < framesize; ++i) {
+                if (bobs_decision_vector(i)==0){
+                    std::cout << "Printing inside cvqkdprotocol Bob's decision vector element: " << bobs_decision_vector(i) << std::endl;
+                    observables.push_back(std::make_unique<fake_position_observable>());
+                }
+                else{
+                    std::cout << "Printing inside cvqkdprotocol Bob's decision vector element: " << bobs_decision_vector(i) << std::endl;
+                    observables.push_back(std::make_unique<fake_momentum_observable>());
+                }
+            }
+
+            return observables;
+        }
+
         // Getter to access the decision vector to send to Alice
         const libbase::vector<int>& get_alice_decision_vector() const {return alice_decision_vector;}
 

@@ -74,7 +74,6 @@ public:
         failwith("Not implemented.");
     }
 
-
     virtual void transmit(spin_computational&)
     {
         failwith("Not implemented.");
