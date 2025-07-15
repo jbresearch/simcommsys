@@ -35,7 +35,7 @@ template <class GF_q, class real>
 void
 sum_prod_alg_trad<GF_q, real>::spa_init(const array1vd_t& recvd_probs)
 {
-    this->init_timer_with_variance("t_decode_iter");
+    this->init_timer_with_variance("t_spa_iteration");
 
     // reset flag that informs us whether decoding has suceeded.
     this->decode_success = false;

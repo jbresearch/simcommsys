@@ -42,7 +42,7 @@ sum_prod_alg_abstract<GF_q, real>::spa_iteration(
         return;
     }
 
-    libbase::cputimer t_decode_iter("t_decode_iter");
+    libbase::cputimer t_decode_iter("t_spa_iteration");
 
     array1vd_t ro;
 

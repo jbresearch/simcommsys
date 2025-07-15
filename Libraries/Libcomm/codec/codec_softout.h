@@ -72,7 +72,7 @@ public:
     }
     void decode_iter(C<int>& decoded)
     {
-        libbase::cputimer t("t_decode");
+        libbase::cputimer t("t_decode_iter");
         C<array1d_t> ri;
         this->softdecode_iter(ri);
         hd_functor(ri, decoded);
