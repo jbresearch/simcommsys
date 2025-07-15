@@ -141,12 +141,15 @@ public:
         libbase::vector<GF_q> received_word;
         this->spa_alg->decode(received_word, this->num_iter());
 
+        this->add_timer(t);
+
+        libbase::cputimer t_extract_info("t__ldpc__extract_info");
         // extract information symbols from the received codeword
         decoded.init(this->info_symb_pos.size());
         for (int k = 0; k < this->info_symb_pos.size(); k++)
             decoded(k) = received_word(this->info_symb_pos(k));
+        this->add_timer(t_extract_info);
 
-        this->add_timer(t);
         this->add_timer_with_variance(this->spa_alg->get_iters(), "num_iters");
         // add all granular timers from sum_prod_alg.
         this->add_timers(*this->spa_alg);
