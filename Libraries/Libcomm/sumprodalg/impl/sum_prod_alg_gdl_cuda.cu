@@ -426,11 +426,6 @@ clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
     int block_dim = std::min(ideal_blocksize, max_block_dim);
     int num_blocks = ROUND_UP_DIV(n * num_elements, block_dim);
 
-    std::cout << "items=" << n * num_elements << ", blockdim=" << block_dim
-              << ", nblocks=" << num_blocks
-              << ", sms=" << ::cuda::cudaGetMultiprocessorCount(device)
-              << std::endl;
-
     clip_and_normalize_probs_kern<GF_q, real>
         <<<num_blocks, block_dim, block_dim * sizeof(real)>>>(
             probs, clipping_method, almostzero);
