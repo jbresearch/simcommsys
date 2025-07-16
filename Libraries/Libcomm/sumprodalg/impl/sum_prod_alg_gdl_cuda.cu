@@ -407,23 +407,18 @@ clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
     int num_elements = GF_q::elements();
     int device = ::cuda::cudaGetCurrentDevice();
 
-    int ideal_blocksize =
-        std::max(WARPSIZE,
-                 ROUND_UP_DIV(n * num_elements,
-                              ::cuda::cudaGetMultiprocessorCount(device)));
-
+#ifdef DEBUG
     int max_threads_per_block = ::cuda::cudaGetMaxThreadsPerBlock(device);
-    int smem_per_block =
-        ::cuda::cudaGetSharedMemPerBlock(::cuda::cudaGetCurrentDevice());
+    int smem_per_block = ::cuda::cudaGetSharedMemPerBlock(device);
     int max_block_dim =
         std::min(max_threads_per_block, smem_per_block / int(sizeof(real)));
 
     // summation of probabilities over a single row must always fit in a
     // block.
-    assertalways(max_block_dim >= num_elements);
+    assert(max_block_dim >= num_elements);
+#endif
 
-    // make block dimension as close to ideal_blocksize as possible.
-    int block_dim = std::min(ideal_blocksize, max_block_dim);
+    int block_dim = std::max(WARPSIZE, num_elements);
     int num_blocks = ROUND_UP_DIV(n * num_elements, block_dim);
 
     clip_and_normalize_probs_kern<GF_q, real>
