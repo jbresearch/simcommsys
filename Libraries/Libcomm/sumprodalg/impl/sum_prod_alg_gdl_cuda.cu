@@ -221,7 +221,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     this->init_timer_with_variance("t__spa_init__spa_init_kern");
     this->init_timer_with_variance("t__spa_init__hadamard");
     this->init_timer_with_variance("t_compute_r_mn");
-    this->init_timer_with_variance("t_inv_hadamard");
     this->init_timer_with_variance("t_norm_r_mn");
     this->init_timer_with_variance("t_compute_q_mn");
     this->init_timer_with_variance("t_norm_q_mn");
@@ -437,9 +436,10 @@ clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
 {
     int n = probs.get_rows();
     int num_elements = GF_q::elements();
-    int device = ::cuda::cudaGetCurrentDevice();
 
 #ifdef DEBUG
+    int device = ::cuda::cudaGetCurrentDevice();
+
     int max_threads_per_block = ::cuda::cudaGetMaxThreadsPerBlock(device);
     int smem_per_block = ::cuda::cudaGetSharedMemPerBlock(device);
     int max_block_dim =
@@ -574,8 +574,19 @@ compute_r_mn_kern(
     ::cuda::matrix_reference<int, false> device_qmn_row_mxn_indices,
     ::cuda::matrix_reference<real, false> device_r_mxn,
     ::cuda::matrix_reference<real, false> device_qmn_conv,
-    ::cuda::vector_reference<int> device_pchk_row_non_zeros)
+    ::cuda::vector_reference<int> device_pchk_row_non_zeros,
+    ::cuda::vector_reference<GF_q> device_pchk_non_zeros_val)
 {
+    // Declaring a type-parametrized extern symbol in a template function
+    // will cause a name conflict if the template is instantiated multiple
+    // times. This is a problem since dynamically sized shared memory in
+    // CUDA is an extern symbol. So we declare a buffer of char aligned to
+    // the required type and then cast to a pointer of the type parameter.
+    // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
+    extern __shared__ __align__(sizeof(real)) char rawbuf[];
+    real* buf = reinterpret_cast<real*>(rawbuf);
+    real* swapbuf = reinterpret_cast<real*>(rawbuf) + blockDim.x;
+
     int num_of_elements = GF_q::elements();
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -610,12 +621,18 @@ compute_r_mn_kern(
         // Loop above has potential divergence as different m have different
         // degrees in general. We want to convergence again here so most iters
         // are in sync.
-        // TODO: Test impact of this.
+
+        buf[threadIdx.x] = q_nm_conv_prod;
         __syncthreads();
-        // coalesced memory access due to syncthreads above
-        // We store in r_mxn but this is not the final result.
-        device_r_mxn(device_qmn_row_mxn_indices(pos_m, loop_n), loop_e) =
-            q_nm_conv_prod;
+
+        int q_mn_idx = device_qmn_row_mxn_indices(pos_m, loop_n);
+
+        GF_q h_m_n = device_pchk_non_zeros_val(q_mn_idx);
+        hadamard_transform_dev<GF_q, real>(buf, swapbuf);
+        permute_divide<GF_q, real>(buf, swapbuf, h_m_n);
+        __syncthreads();
+
+        device_r_mxn(q_mn_idx, loop_e) = buf[threadIdx.x];
     }
 }
 
@@ -623,21 +640,35 @@ template <class GF_q, class real>
 void
 sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
 {
-    dim3 block_dim, num_blocks;
-
     ////// BEGIN COMPUTE R_MN
     ::cuda::gputimer t_compute_r_mn("t_compute_r_mn");
 
     int m = device_pchk_row_non_zeros.size();
     int num_of_elements = GF_q::elements();
-    block_dim = dim3(1024);
-    // use division which truncates upwards.
-    num_blocks = dim3(ROUND_UP_DIV(num_of_elements * m, (int)block_dim.x));
-    compute_r_mn_kern<GF_q, real><<<num_blocks, block_dim>>>(
-        ::cuda::matrix_reference<int, false>(device_qmn_row_mxn_indices),
-        ::cuda::matrix_reference<real, false>(device_r_mxn),
-        ::cuda::matrix_reference<real, false>(device_qmn_conv),
-        ::cuda::vector_reference<int>(device_pchk_row_non_zeros));
+
+#ifdef DEBUG
+    int device = ::cuda::cudaGetCurrentDevice();
+
+    int max_threads_per_block = ::cuda::cudaGetMaxThreadsPerBlock(device);
+    int smem_per_block = ::cuda::cudaGetSharedMemPerBlock(device);
+    int max_block_dim =
+        std::min(max_threads_per_block, smem_per_block / int(sizeof(real)));
+
+    // summation of probabilities over a single row must always fit in a
+    // block.
+    assert(max_block_dim >= num_of_elements);
+#endif
+
+    int block_dim = std::max(WARPSIZE, num_of_elements);
+    int num_blocks = ROUND_UP_DIV(m * num_of_elements, block_dim);
+
+    compute_r_mn_kern<GF_q, real>
+        <<<num_blocks, block_dim, 2 * block_dim * sizeof(real)>>>(
+            ::cuda::matrix_reference<int, false>(device_qmn_row_mxn_indices),
+            ::cuda::matrix_reference<real, false>(device_r_mxn),
+            ::cuda::matrix_reference<real, false>(device_qmn_conv),
+            ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
+            ::cuda::vector_reference<GF_q>(device_pchk_non_zeros_val));
     cudaSafeCall(cudaGetLastError());
 
     this->add_or_accumulate_timer_with_variance(t_compute_r_mn);
@@ -646,15 +677,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
     cudaDeviceSynchronize();
 #endif
     ////// END COMPUTE R_MN
-
-    ////// BEGIN INVERSE HADAMARD
-    ::cuda::gputimer t_inv_hadamard("t_inv_hadamard");
-    // apply the FFT again to get the proper values
-    hadamard_transform<GF_q, real, DIVIDE>(device_r_mxn,
-                                           device_pchk_non_zeros_val);
-
-    this->add_or_accumulate_timer_with_variance(t_inv_hadamard);
-    ////// END INVERSE HADAMARD
 
     ////// BEGIN NORMALIZE
     ::cuda::gputimer t_norm_r_mn("t_norm_r_mn");
