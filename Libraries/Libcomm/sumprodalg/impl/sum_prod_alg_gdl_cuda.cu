@@ -710,7 +710,8 @@ compute_q_mn_kern(
     ::cuda::matrix_reference<int, false> device_qmn_row_nxm_indices,
     ::cuda::matrix_reference<real, false> device_r_mxn,
     ::cuda::matrix_reference<real, false> device_qmn_conv,
-    ::cuda::vector_reference<int> device_pchk_col_non_zeros)
+    ::cuda::vector_reference<int> device_pchk_col_non_zeros,
+    ::cuda::vector_reference<GF_q> device_pchk_non_zeros_val)
 {
     // Declaring a type-parametrized extern symbol in a template function
     // will cause a name conflict if the template is instantiated multiple
@@ -767,6 +768,12 @@ compute_q_mn_kern(
         buf[threadIdx.x] /= sum_probs_dev<GF_q, real>(swapbuf);
 
         int q_mn_idx = device_qmn_row_nxm_indices(pos_n, loop_m);
+        GF_q h_m_n = device_pchk_non_zeros_val(q_mn_idx);
+
+        // Hadamard transform
+        permute_mult<GF_q, real>(buf, swapbuf, h_m_n);
+        __syncthreads();
+        hadamard_transform_dev<GF_q, real>(buf, swapbuf);
 
         // Uncoalesced memory access.
         device_qmn_conv(q_mn_idx, loop_e) = buf[threadIdx.x];
@@ -779,24 +786,36 @@ template <class GF_q, class real>
 void
 sum_prod_alg_gdl_cuda<GF_q, real>::compute_q_mn()
 {
-
-    dim3 block_dim, num_blocks;
-
     ////// BEGIN COMPUTE Q_MN
     ::cuda::gputimer t_compute_q_mn("t_compute_q_mn");
 
     int n = device_pchk_col_non_zeros.size();
     int num_of_elements = GF_q::elements();
-    block_dim = dim3(1024);
-    // use division which truncates upwards.
-    num_blocks = dim3(ROUND_UP_DIV(num_of_elements * n, (int)block_dim.x));
+
+#ifdef DEBUG
+    int device = ::cuda::cudaGetCurrentDevice();
+
+    int max_threads_per_block = ::cuda::cudaGetMaxThreadsPerBlock(device);
+    int smem_per_block = ::cuda::cudaGetSharedMemPerBlock(device);
+    int max_block_dim =
+        std::min(max_threads_per_block, smem_per_block / int(sizeof(real)));
+
+    // summation of probabilities over a single row must always fit in a
+    // block.
+    assert(max_block_dim >= num_of_elements);
+#endif
+
+    int block_dim = std::max(WARPSIZE, num_of_elements);
+    int num_blocks = ROUND_UP_DIV(n * num_of_elements, block_dim);
+
     compute_q_mn_kern<GF_q, real>
-        <<<num_blocks, block_dim, 2 * block_dim.x * sizeof(real)>>>(
+        <<<num_blocks, block_dim, 2 * block_dim * sizeof(real)>>>(
             ::cuda::matrix_reference<real, false>(device_received_probs),
             ::cuda::matrix_reference<int, false>(device_qmn_row_nxm_indices),
             ::cuda::matrix_reference<real, false>(device_r_mxn),
             ::cuda::matrix_reference<real, false>(device_qmn_conv),
-            ::cuda::vector_reference<int>(device_pchk_col_non_zeros));
+            ::cuda::vector_reference<int>(device_pchk_col_non_zeros),
+            ::cuda::vector_reference<GF_q>(device_pchk_non_zeros_val));
     cudaSafeCall(cudaGetLastError());
 
 #ifdef DEBUG
@@ -805,14 +824,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_q_mn()
 
     this->add_or_accumulate_timer_with_variance(t_compute_q_mn);
     ////// END COMPUTE Q_MN
-
-    ////// BEGIN HADAMARD TRANSFORM
-
-    // Compute Hadamard transform on the result.
-    hadamard_transform<GF_q, real, MULTIPLY>(device_qmn_conv,
-                                             device_pchk_non_zeros_val);
-
-    ////// END HADAMARD TRANSFORM
 }
 
 template <class GF_q, class real>
