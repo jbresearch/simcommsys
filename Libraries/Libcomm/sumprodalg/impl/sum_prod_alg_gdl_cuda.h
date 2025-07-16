@@ -194,6 +194,10 @@ private:
      * successfully found a codeword. */
     bool decode_success;
 
+    /*! \brief Number of tanner edges in the pchk matrix
+     */
+    size_t tanner_edges;
+
 private:
     /*! \name Internal methods for a single SPA iteration */
     /*! \brief carry out one iteration of the SPA but do not copy results from

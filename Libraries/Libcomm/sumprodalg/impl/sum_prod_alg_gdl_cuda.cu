@@ -24,6 +24,7 @@
 #include "cuda/gputimer.h"
 #include "cuda/matrix.h"
 #include "cuda/stream.h"
+#include "cuda/util.h"
 #include "cuda/vector.h"
 #include "gf.h"
 #include "hard_decision.h"
@@ -263,7 +264,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     // counts the number of edges in the Tanner graph of the code.
     // Tells us what the size of device_rmxn and device_qmn_conv should
     // be.
-    int tanner_edges = 0;
+    tanner_edges = 0;
 
     // Populate qmn_row_nxm_indices, qmn_row_mxn_indices
     // Also populate the rest of the parity check matrix repr. on the host.
@@ -274,7 +275,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
         // non-zeros for this col of the parity check matrix
         non_zeros = pchk_col_non_zeros(pos_n);
 
-        for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
+        for (int loop_m = 0; loop_m < non_zeros; loop_m++, tanner_edges++) {
             pos_m = non_zero_col_pos(pos_n)(loop_m) - 1; // we count from zero;
 
             // populate other pchk matrix fields on the host.
@@ -295,7 +296,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
             // to a non-zero (m, n) element.
             qmn_row_nxm_indices(pos_n, loop_m) = tanner_edges;
             qmn_row_mxn_indices(pos_m, loop_n) = tanner_edges;
-            tanner_edges++;
         }
     }
 
@@ -382,7 +382,7 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
 
         // if all summations were performed in a single warp, there is no need
         // for __syncthreads()
-        if (blockDim.x - stride > 32)
+        if (blockDim.x - stride > WARPSIZE)
             __syncthreads();
     }
 
@@ -404,20 +404,32 @@ clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
                          real almostzero)
 {
     int n = probs.get_rows();
+    int num_elements = GF_q::elements();
+    int device = ::cuda::cudaGetCurrentDevice();
 
-    int max_threads_per_block =
-        ::cuda::cudaGetMaxThreadsPerBlock(::cuda::cudaGetCurrentDevice());
+    int ideal_blocksize =
+        std::max(WARPSIZE,
+                 ROUND_UP_DIV(n * num_elements,
+                              ::cuda::cudaGetMultiprocessorCount(device)));
 
+    int max_threads_per_block = ::cuda::cudaGetMaxThreadsPerBlock(device);
     int smem_per_block =
         ::cuda::cudaGetSharedMemPerBlock(::cuda::cudaGetCurrentDevice());
-    int block_dim =
+    int max_block_dim =
         std::min(max_threads_per_block, smem_per_block / int(sizeof(real)));
-
-    int num_blocks = ROUND_UP_DIV(n * GF_q::elements(), int(block_dim));
 
     // summation of probabilities over a single row must always fit in a
     // block.
-    assertalways(block_dim >= GF_q::elements());
+    assertalways(max_block_dim >= num_elements);
+
+    // make block dimension as close to ideal_blocksize as possible.
+    int block_dim = std::min(ideal_blocksize, max_block_dim);
+    int num_blocks = ROUND_UP_DIV(n * num_elements, block_dim);
+
+    std::cout << "items=" << n * num_elements << ", blockdim=" << block_dim
+              << ", nblocks=" << num_blocks
+              << ", sms=" << ::cuda::cudaGetMultiprocessorCount(device)
+              << std::endl;
 
     clip_and_normalize_probs_kern<GF_q, real>
         <<<num_blocks, block_dim, block_dim * sizeof(real)>>>(
@@ -877,7 +889,7 @@ bool
 sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration()
 {
     // block size for any kernels called within this function
-    int blockdim = 32;
+    int blockdim = WARPSIZE;
     int n = this->device_received_word.size();
     int m = this->device_syndrome.size();
 
