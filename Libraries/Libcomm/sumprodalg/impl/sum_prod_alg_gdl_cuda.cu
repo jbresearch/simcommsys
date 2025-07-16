@@ -70,6 +70,59 @@ sum_prod_alg_gdl_cuda<GF_q, real>::seedfrom(libbase::random& r)
 
 enum PermutationType { MULTIPLY, DIVIDE };
 
+template <class GF_q, class real>
+__device__
+void
+hadamard_transform_dev(real*& buf, real*& swapbuf)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    for (int h = 1; h < GF_q::elements(); h <<= 1) {
+        int loop_e = idx % GF_q::elements();
+
+        // If floor(loop_e / h) is odd, sign is -1.0
+        // If floor(loop_e / h) is even, sign is 1.0
+        int sign = ((real)((loop_e / h) % 2 == 0) - 0.5) * 2.0;
+
+        // From the butterfly property:
+        // If floor(loop_e / h) is odd, result of the pass is P[loop_e - h] -
+        // P[e] If floor(loop_e / h) is even, result of the pass is P[loop_e +
+        // h] + P[e]
+        swapbuf[threadIdx.x] =
+            buf[int(threadIdx.x) + sign * h] + sign * buf[threadIdx.x];
+        ::cuda::swap(swapbuf, buf);
+        __syncthreads();
+    }
+}
+
+template <class GF_q, class real>
+__device__
+void
+permute_divide(real*& buf, real*& swapbuf, GF_q h_m_n)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    int loop_e = idx % GF_q::elements();
+
+    int offset = threadIdx.x & ~(GF_q::elements() - 1);
+    swapbuf[threadIdx.x] = buf[offset + h_m_n * GF_q(loop_e)];
+    ::cuda::swap(swapbuf, buf);
+}
+
+template <class GF_q, class real>
+__device__
+void
+permute_mult(real*& buf, real*& swapbuf, GF_q h_m_n)
+{
+    int idx = blockIdx.x * blockDim.x + threadIdx.x;
+
+    int loop_e = idx % GF_q::elements();
+
+    int offset = threadIdx.x & ~(GF_q::elements() - 1);
+    swapbuf[offset + h_m_n * GF_q(loop_e)] = buf[threadIdx.x];
+    ::cuda::swap(swapbuf, buf);
+}
+
 template <class GF_q, class real, PermutationType permtype>
 __global__ void
 hadamard_transform_kern(
@@ -98,43 +151,22 @@ hadamard_transform_kern(
     }
     __syncthreads();
 
+    // find the element of the pchk matrix we are using to shuffle elements in
+    // this row.
+    GF_q h_m_n = device_pchk_non_zeros_val(pos_r);
+
     if (permtype == MULTIPLY) {
         if (pos_r < r) {
-            int loop_e = idx % GF_q::elements();
-            GF_q h_m_n = device_pchk_non_zeros_val(pos_r);
-
-            int offset = threadIdx.x & ~(GF_q::elements() - 1);
-            swapbuf[offset + h_m_n * GF_q(loop_e)] = buf[threadIdx.x];
-            ::cuda::swap(swapbuf, buf);
+            permute_mult<GF_q, real>(buf, swapbuf, h_m_n);
         }
         __syncthreads();
     }
 
-    for (int h = 1; h < GF_q::elements(); h <<= 1) {
-        int loop_e = idx % GF_q::elements();
-
-        // If floor(loop_e / h) is odd, sign is -1.0
-        // If floor(loop_e / h) is even, sign is 1.0
-        int sign = ((real)((loop_e / h) % 2 == 0) - 0.5) * 2.0;
-
-        // From the butterfly property:
-        // If floor(loop_e / h) is odd, result of the pass is P[loop_e - h] -
-        // P[e] If floor(loop_e / h) is even, result of the pass is P[loop_e +
-        // h] + P[e]
-        swapbuf[threadIdx.x] =
-            buf[int(threadIdx.x) + sign * h] + sign * buf[threadIdx.x];
-        ::cuda::swap(swapbuf, buf);
-        __syncthreads();
-    }
+    hadamard_transform_dev<GF_q, real>(buf, swapbuf);
 
     if (permtype == DIVIDE) {
         if (pos_r < r) {
-            int loop_e = idx % GF_q::elements();
-            GF_q h_m_n = device_pchk_non_zeros_val(pos_r);
-
-            int offset = threadIdx.x & ~(GF_q::elements() - 1);
-            swapbuf[threadIdx.x] = buf[offset + h_m_n * GF_q(loop_e)];
-            ::cuda::swap(swapbuf, buf);
+            permute_divide<GF_q, real>(buf, swapbuf, h_m_n);
         }
         __syncthreads();
     }
