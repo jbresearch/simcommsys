@@ -223,8 +223,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     this->init_timer_with_variance("t_compute_r_mn");
     this->init_timer_with_variance("t_norm_r_mn");
     this->init_timer_with_variance("t_compute_q_mn");
-    this->init_timer_with_variance("t_norm_q_mn");
-    this->init_timer_with_variance("t_hadamard");
     this->init_timer_with_variance("t_compute_probs");
     this->init_timer_with_variance("t_norm_probs");
     this->init_timer_with_variance("t_hard_decision");
@@ -367,6 +365,33 @@ perform_clipping(real& num, int& clipping_method, real& almostzero)
 }
 
 template <class GF_q, class real>
+__device__
+real
+sum_probs_dev(real* psums)
+{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int num_of_elements = GF_q::elements();
+
+    int loop_n = i / num_of_elements;
+
+    for (int stride = num_of_elements / 2; stride > 0; stride >>= 1) {
+        if (threadIdx.x < blockDim.x - stride) {
+            psums[threadIdx.x] += psums[threadIdx.x + stride];
+        }
+
+        // if all summations were performed in a single warp, there is no need
+        // for __syncthreads()
+        if (blockDim.x - stride > WARPSIZE)
+            __syncthreads();
+    }
+
+    real alpha = psums[threadIdx.x & ~(GF_q::elements() - 1)];
+
+    cuda_assert(alpha != real(0.0));
+    return alpha;
+}
+
+template <class GF_q, class real>
 __global__ void
 clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
                               int clipping_method,
@@ -406,24 +431,11 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
     psums[threadIdx.x] = prob;
     __syncthreads();
 
-    for (int stride = GF_q::elements() / 2; stride > 0; stride >>= 1) {
-        if (threadIdx.x < blockDim.x - stride) {
-            psums[threadIdx.x] += psums[threadIdx.x + stride];
-        }
-
-        // if all summations were performed in a single warp, there is no need
-        // for __syncthreads()
-        if (blockDim.x - stride > WARPSIZE)
-            __syncthreads();
-    }
-
-    real alpha = psums[threadIdx.x & ~(GF_q::elements() - 1)];
+    real alpha = sum_probs_dev<GF_q, real>(psums);
 
     // normalize probabilities (divide by alpha)
     if (loop_n < n) {
         int loop_e = i % num_of_elements;
-
-        cuda_assertalways(alpha != real(0.0));
         probs(loop_n, loop_e) = prob / alpha;
     }
 }
@@ -700,6 +712,16 @@ compute_q_mn_kern(
     ::cuda::matrix_reference<real, false> device_qmn_conv,
     ::cuda::vector_reference<int> device_pchk_col_non_zeros)
 {
+    // Declaring a type-parametrized extern symbol in a template function
+    // will cause a name conflict if the template is instantiated multiple
+    // times. This is a problem since dynamically sized shared memory in
+    // CUDA is an extern symbol. So we declare a buffer of char aligned to
+    // the required type and then cast to a pointer of the type parameter.
+    // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
+    extern __shared__ __align__(sizeof(real)) char rawbuf[];
+    real* buf = reinterpret_cast<real*>(rawbuf);
+    real* swapbuf = reinterpret_cast<real*>(rawbuf) + blockDim.x;
+
     int num_of_elements = GF_q::elements();
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -738,11 +760,16 @@ compute_q_mn_kern(
         // degrees in general. We want to convergence again here so most iters
         // are in sync.
         // TODO: Test impact of this.
+        buf[threadIdx.x] = swapbuf[threadIdx.x] = q_nm;
         __syncthreads();
 
+        // normalize the q_nm
+        buf[threadIdx.x] /= sum_probs_dev<GF_q, real>(swapbuf);
+
+        int q_mn_idx = device_qmn_row_nxm_indices(pos_n, loop_m);
+
         // Uncoalesced memory access.
-        device_qmn_conv(device_qmn_row_nxm_indices(pos_n, loop_m), loop_e) =
-            q_nm;
+        device_qmn_conv(q_mn_idx, loop_e) = buf[threadIdx.x];
         // resynchronize after uncoalesced memory access
         __syncthreads();
     }
@@ -763,12 +790,13 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_q_mn()
     block_dim = dim3(1024);
     // use division which truncates upwards.
     num_blocks = dim3(ROUND_UP_DIV(num_of_elements * n, (int)block_dim.x));
-    compute_q_mn_kern<GF_q, real><<<num_blocks, block_dim>>>(
-        ::cuda::matrix_reference<real, false>(device_received_probs),
-        ::cuda::matrix_reference<int, false>(device_qmn_row_nxm_indices),
-        ::cuda::matrix_reference<real, false>(device_r_mxn),
-        ::cuda::matrix_reference<real, false>(device_qmn_conv),
-        ::cuda::vector_reference<int>(device_pchk_col_non_zeros));
+    compute_q_mn_kern<GF_q, real>
+        <<<num_blocks, block_dim, 2 * block_dim.x * sizeof(real)>>>(
+            ::cuda::matrix_reference<real, false>(device_received_probs),
+            ::cuda::matrix_reference<int, false>(device_qmn_row_nxm_indices),
+            ::cuda::matrix_reference<real, false>(device_r_mxn),
+            ::cuda::matrix_reference<real, false>(device_qmn_conv),
+            ::cuda::vector_reference<int>(device_pchk_col_non_zeros));
     cudaSafeCall(cudaGetLastError());
 
 #ifdef DEBUG
@@ -778,26 +806,12 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_q_mn()
     this->add_or_accumulate_timer_with_variance(t_compute_q_mn);
     ////// END COMPUTE Q_MN
 
-    ////// BEGIN NORMALIZE
-    ::cuda::gputimer t_norm_q_mn("t_norm_q_mn");
-
-    // Apply clipping + normalization to the computed q_mn values.
-    clip_and_normalize_probs<GF_q, real>(
-        ::cuda::matrix_reference<real, false>(device_qmn_conv),
-        this->clipping_method,
-        this->almostzero);
-
-    this->add_or_accumulate_timer_with_variance(t_norm_q_mn);
-    ////// END NORMALIZE
-
     ////// BEGIN HADAMARD TRANSFORM
-    ::cuda::gputimer t_hadamard("t_hadamard");
 
     // Compute Hadamard transform on the result.
     hadamard_transform<GF_q, real, MULTIPLY>(device_qmn_conv,
                                              device_pchk_non_zeros_val);
 
-    this->add_or_accumulate_timer_with_variance(t_hadamard);
     ////// END HADAMARD TRANSFORM
 }
 
