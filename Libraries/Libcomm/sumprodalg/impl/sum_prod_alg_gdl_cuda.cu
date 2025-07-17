@@ -135,7 +135,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     this->init_timer_with_variance("t__spa_init__norm_probs");
     this->init_timer_with_variance("t__spa_init__spa_init_kern");
     this->init_timer_with_variance("t_compute_r_mn");
-    this->init_timer_with_variance("t_norm_r_mn");
     this->init_timer_with_variance("t_compute_q_mn");
     this->init_timer_with_variance("t_compute_probs");
     this->init_timer_with_variance("t_norm_probs");
@@ -503,7 +502,9 @@ compute_r_mn_kern(
     ::cuda::matrix_reference<real, false> device_r_mxn,
     ::cuda::matrix_reference<real, false> device_qmn_conv,
     ::cuda::vector_reference<int> device_pchk_row_non_zeros,
-    ::cuda::vector_reference<GF_q> device_pchk_non_zeros_val)
+    ::cuda::vector_reference<GF_q> device_pchk_non_zeros_val,
+    int clipping_method,
+    real almostzero)
 {
     // Declaring a type-parametrized extern symbol in a template function
     // will cause a name conflict if the template is instantiated multiple
@@ -550,7 +551,7 @@ compute_r_mn_kern(
         // degrees in general. We want to convergence again here so most iters
         // are in sync.
 
-        buf[threadIdx.x] = q_nm_conv_prod;
+        swapbuf[threadIdx.x] = buf[threadIdx.x] = q_nm_conv_prod;
         __syncthreads();
 
         int q_mn_idx = device_qmn_row_mxn_indices(pos_m, loop_n);
@@ -559,6 +560,10 @@ compute_r_mn_kern(
         hadamard_transform_dev<GF_q, real>(buf, swapbuf);
         permute_divide<GF_q, real>(buf, swapbuf, h_m_n);
         __syncthreads();
+
+        // normalize and clip the r_nm
+        perform_clipping(buf[threadIdx.x], clipping_method, almostzero);
+        buf[threadIdx.x] /= sum_probs_dev<GF_q, real>(swapbuf);
 
         device_r_mxn(q_mn_idx, loop_e) = buf[threadIdx.x];
     }
@@ -596,7 +601,9 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
             ::cuda::matrix_reference<real, false>(device_r_mxn),
             ::cuda::matrix_reference<real, false>(device_qmn_conv),
             ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
-            ::cuda::vector_reference<GF_q>(device_pchk_non_zeros_val));
+            ::cuda::vector_reference<GF_q>(device_pchk_non_zeros_val),
+            this->clipping_method,
+            this->almostzero);
     cudaSafeCall(cudaGetLastError());
 
     this->add_or_accumulate_timer_with_variance(t_compute_r_mn);
@@ -605,18 +612,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
     cudaDeviceSynchronize();
 #endif
     ////// END COMPUTE R_MN
-
-    ////// BEGIN NORMALIZE
-    ::cuda::gputimer t_norm_r_mn("t_norm_r_mn");
-
-    // Apply clipping + normalization to the computed r_mn values.
-    clip_and_normalize_probs<GF_q, real>(
-        ::cuda::matrix_reference<real, false>(device_r_mxn),
-        this->clipping_method,
-        this->almostzero);
-
-    this->add_or_accumulate_timer_with_variance(t_norm_r_mn);
-    ////// END NORMALIZE
 }
 
 template <class GF_q, class real>
