@@ -198,6 +198,14 @@ private:
      */
     size_t tanner_edges;
 
+    /*! \brief Device ID for the CUDA-enabled device used.
+     */
+    int device;
+
+    /*! \brief Warp size for the CUDA-enabled device used.
+     */
+    int warpSize;
+
 private:
     /*! \name Internal methods for a single SPA iteration */
     /*! \brief carry out one iteration of the SPA but do not copy results from

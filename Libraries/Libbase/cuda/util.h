@@ -388,8 +388,6 @@ count(const dim3& size)
     return size.x * size.y * size.z;
 }
 
-#    define WARPSIZE 32
-
 #endif // __CUDACC__
 
 // Reset debug level, to avoid affecting other files

@@ -96,7 +96,7 @@ hadamard_transform(real*& buf, real*& swapbuf)
 
         // if the field size is less than the warp size there is no need to
         // synchronize
-        if (num_of_elements > WARPSIZE)
+        if (num_of_elements > warpSize)
             __syncthreads();
     }
 }
@@ -137,6 +137,9 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     const array1vi_t& non_zero_row_pos,
     const libbase::matrix<GF_q>& pchk_matrix)
 {
+    device = ::cuda::cudaGetCurrentDevice();
+    warpSize = ::cuda::cudaGetWarpSize(device);
+
     this->init_timer_with_variance("t__spa_init__copy_probs_h_to_d");
     this->init_timer_with_variance("t__spa_init__norm_probs");
     this->init_timer_with_variance("t__spa_init__spa_init_kern");
@@ -300,7 +303,7 @@ sum(real* psums)
 
         // if all summations were performed in a single warp, there is no need
         // for __syncthreads()
-        if (blockDim.x - stride > WARPSIZE)
+        if (blockDim.x - stride > warpSize)
             __syncthreads();
     }
 
@@ -363,7 +366,8 @@ template <class GF_q, class real>
 inline void
 clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
                          int clipping_method,
-                         real almostzero)
+                         real almostzero,
+                         int warpSize)
 {
     int n = probs.get_rows();
     int num_elements = GF_q::elements();
@@ -381,7 +385,7 @@ clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
     assert(max_block_dim >= num_elements);
 #endif
 
-    int block_dim = std::max(WARPSIZE, num_elements);
+    int block_dim = std::max(warpSize, num_elements);
     int num_blocks = ROUND_UP_DIV(n * num_elements, block_dim);
 
     clip_and_normalize_probs_kern<GF_q, real>
@@ -463,8 +467,10 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array2d_t& recvd_probs)
     ////// BEGIN NORMALIZE
     ::cuda::gputimer t_spa_init_norm_probs("t__spa_init__norm_probs");
 
-    clip_and_normalize_probs<GF_q, real>(
-        this->device_received_probs, this->clipping_method, this->almostzero);
+    clip_and_normalize_probs<GF_q, real>(this->device_received_probs,
+                                         this->clipping_method,
+                                         this->almostzero,
+                                         this->warpSize);
 
     this->add_or_accumulate_timer_with_variance(t_spa_init_norm_probs);
     ////// END NORMALIZE
@@ -598,7 +604,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
     assert(max_block_dim >= num_of_elements);
 #endif
 
-    int block_dim = std::max(WARPSIZE, num_of_elements);
+    int block_dim = std::max(warpSize, num_of_elements);
     int num_blocks = ROUND_UP_DIV(m * num_of_elements, block_dim);
 
     compute_r_mn_kern<GF_q, real>
@@ -722,7 +728,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_q_mn()
     assert(max_block_dim >= num_of_elements);
 #endif
 
-    int block_dim = std::max(WARPSIZE, num_of_elements);
+    int block_dim = std::max(warpSize, num_of_elements);
     int num_blocks = ROUND_UP_DIV(n * num_of_elements, block_dim);
 
     compute_q_mn_kern<GF_q, real>
@@ -810,7 +816,8 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_probs()
     clip_and_normalize_probs<GF_q, real>(
         ::cuda::matrix_reference<real, false>(device_out_probs),
         this->clipping_method,
-        this->almostzero);
+        this->almostzero,
+        this->warpSize);
 
     this->add_or_accumulate_timer_with_variance(t_norm_probs);
     ////// END NORMALIZE PROBS
@@ -875,7 +882,7 @@ bool
 sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration()
 {
     // block size for any kernels called within this function
-    int blockdim = WARPSIZE;
+    int blockdim = warpSize;
     int n = this->device_received_word.size();
     int m = this->device_syndrome.size();
 
