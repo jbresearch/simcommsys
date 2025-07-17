@@ -73,25 +73,31 @@ enum PermutationType { MULTIPLY, DIVIDE };
 template <class GF_q, class real>
 __device__
 void
-hadamard_transform_dev(real*& buf, real*& swapbuf)
+hadamard_transform(real*& buf, real*& swapbuf)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    int num_of_elements = GF_q::elements();
 
-    for (int h = 1; h < GF_q::elements(); h <<= 1) {
-        int loop_e = idx % GF_q::elements();
+    for (int h = 1; h < num_of_elements; h <<= 1) {
+        int loop_e = idx % num_of_elements;
 
         // If floor(loop_e / h) is odd, sign is -1.0
         // If floor(loop_e / h) is even, sign is 1.0
         int sign = ((real)((loop_e / h) % 2 == 0) - 0.5) * 2.0;
 
         // From the butterfly property:
-        // If floor(loop_e / h) is odd, result of the pass is P[loop_e - h] -
-        // P[e] If floor(loop_e / h) is even, result of the pass is P[loop_e +
+        // - If floor(loop_e / h) is odd, result of the pass is P[loop_e - h] -
+        // P[e]
+        // - If floor(loop_e / h) is even, result of the pass is P[loop_e +
         // h] + P[e]
         swapbuf[threadIdx.x] =
             buf[int(threadIdx.x) + sign * h] + sign * buf[threadIdx.x];
         ::cuda::swap(swapbuf, buf);
-        __syncthreads();
+
+        // if the field size is less than the warp size there is no need to
+        // synchronize
+        if (num_of_elements > WARPSIZE)
+            __syncthreads();
     }
 }
 
@@ -280,7 +286,7 @@ perform_clipping(real& num, int& clipping_method, real& almostzero)
 template <class GF_q, class real>
 __device__
 real
-sum_probs_dev(real* psums)
+sum(real* psums)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
     int num_of_elements = GF_q::elements();
@@ -344,7 +350,7 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
     psums[threadIdx.x] = prob;
     __syncthreads();
 
-    real alpha = sum_probs_dev<GF_q, real>(psums);
+    real alpha = sum<GF_q, real>(psums);
 
     // normalize probabilities (divide by alpha)
     if (loop_n < n) {
@@ -423,7 +429,7 @@ spa_init_kern(::cuda::matrix_reference<real, false> device_received_probs,
     buf[threadIdx.x] = device_received_probs(pos_n, loop_e);
     __syncthreads();
 
-    hadamard_transform_dev<GF_q, real>(buf, swapbuf);
+    hadamard_transform<GF_q, real>(buf, swapbuf);
 
     int qmn_row_idx;
     // NOTE: loop_m iterates over the number of checks that symbol pos_n
@@ -557,13 +563,13 @@ compute_r_mn_kern(
         int q_mn_idx = device_qmn_row_mxn_indices(pos_m, loop_n);
 
         GF_q h_m_n = device_pchk_non_zeros_val(q_mn_idx);
-        hadamard_transform_dev<GF_q, real>(buf, swapbuf);
+        hadamard_transform<GF_q, real>(buf, swapbuf);
         permute_divide<GF_q, real>(buf, swapbuf, h_m_n);
         __syncthreads();
 
         // normalize and clip the r_nm
         perform_clipping(buf[threadIdx.x], clipping_method, almostzero);
-        buf[threadIdx.x] /= sum_probs_dev<GF_q, real>(swapbuf);
+        buf[threadIdx.x] /= sum<GF_q, real>(swapbuf);
 
         device_r_mxn(q_mn_idx, loop_e) = buf[threadIdx.x];
     }
@@ -676,7 +682,7 @@ compute_q_mn_kern(
         __syncthreads();
 
         // normalize the q_nm
-        buf[threadIdx.x] /= sum_probs_dev<GF_q, real>(swapbuf);
+        buf[threadIdx.x] /= sum<GF_q, real>(swapbuf);
 
         int q_mn_idx = device_qmn_row_nxm_indices(pos_n, loop_m);
         GF_q h_m_n = device_pchk_non_zeros_val(q_mn_idx);
@@ -684,7 +690,7 @@ compute_q_mn_kern(
         // Hadamard transform
         permute_mult<GF_q, real>(buf, swapbuf, h_m_n);
         __syncthreads();
-        hadamard_transform_dev<GF_q, real>(buf, swapbuf);
+        hadamard_transform<GF_q, real>(buf, swapbuf);
 
         // Uncoalesced memory access.
         device_qmn_conv(q_mn_idx, loop_e) = buf[threadIdx.x];
