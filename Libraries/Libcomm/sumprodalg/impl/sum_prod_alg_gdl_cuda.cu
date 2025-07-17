@@ -123,91 +123,6 @@ permute_mult(real*& buf, real*& swapbuf, GF_q h_m_n)
     ::cuda::swap(swapbuf, buf);
 }
 
-template <class GF_q, class real, PermutationType permtype>
-__global__ void
-hadamard_transform_kern(
-    ::cuda::matrix_reference<real, false> hadamard_buf,
-    ::cuda::vector_reference<GF_q> device_pchk_non_zeros_val)
-{
-    // Declaring a type-parametrized extern symbol in a template function
-    // will cause a name conflict if the template is instantiated multiple
-    // times. This is a problem since dynamically sized shared memory in
-    // CUDA is an extern symbol. So we declare a buffer of char aligned to
-    // the required type and then cast to a pointer of the type parameter.
-    // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
-    extern __shared__ __align__(sizeof(real)) char rawbuf[];
-    real* buf = reinterpret_cast<real*>(rawbuf);
-    real* swapbuf = reinterpret_cast<real*>(rawbuf) + blockDim.x;
-
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-
-    // index over row in hadamard_buf
-    int pos_r = idx / GF_q::elements();
-    int r = hadamard_buf.get_rows();
-
-    if (pos_r < r) {
-        int loop_e = idx % GF_q::elements();
-        buf[threadIdx.x] = hadamard_buf(pos_r, loop_e);
-    }
-    __syncthreads();
-
-    // find the element of the pchk matrix we are using to shuffle elements in
-    // this row.
-    GF_q h_m_n = device_pchk_non_zeros_val(pos_r);
-
-    if (permtype == MULTIPLY) {
-        if (pos_r < r) {
-            permute_mult<GF_q, real>(buf, swapbuf, h_m_n);
-        }
-        __syncthreads();
-    }
-
-    hadamard_transform_dev<GF_q, real>(buf, swapbuf);
-
-    if (permtype == DIVIDE) {
-        if (pos_r < r) {
-            permute_divide<GF_q, real>(buf, swapbuf, h_m_n);
-        }
-        __syncthreads();
-    }
-
-    if (pos_r < r) {
-        int loop_e = idx % GF_q::elements();
-        hadamard_buf(pos_r, loop_e) = buf[threadIdx.x];
-    }
-}
-
-template <class GF_q, class real, PermutationType permtype>
-inline void
-hadamard_transform(::cuda::matrix_reference<real, false> hadamard_buf,
-                   ::cuda::vector_reference<GF_q> device_pchk_non_zeros_val)
-{
-    int tanner_edges = hadamard_buf.get_rows();
-
-    int max_threads_per_block =
-        ::cuda::cudaGetMaxThreadsPerBlock(::cuda::cudaGetCurrentDevice());
-
-    int smem_per_block =
-        ::cuda::cudaGetSharedMemPerBlock(::cuda::cudaGetCurrentDevice());
-    int block_dim =
-        std::min(max_threads_per_block, smem_per_block / int(2 * sizeof(real)));
-
-    // Hadamard transform over a single row must always fit in a block.
-    assertalways(block_dim >= GF_q::elements());
-
-    int num_blocks =
-        ROUND_UP_DIV(tanner_edges * GF_q::elements(), int(block_dim));
-
-    hadamard_transform_kern<GF_q, real, permtype>
-        <<<num_blocks, block_dim, 2 * block_dim * sizeof(real)>>>(
-            hadamard_buf, device_pchk_non_zeros_val);
-    cudaSafeCall(cudaGetLastError());
-
-#ifdef DEBUG
-    cudaDeviceSynchronize();
-#endif
-}
-
 template <class GF_q, class real>
 sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     int n,
@@ -219,7 +134,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     this->init_timer_with_variance("t__spa_init__copy_probs_h_to_d");
     this->init_timer_with_variance("t__spa_init__norm_probs");
     this->init_timer_with_variance("t__spa_init__spa_init_kern");
-    this->init_timer_with_variance("t__spa_init__hadamard");
     this->init_timer_with_variance("t_compute_r_mn");
     this->init_timer_with_variance("t_norm_r_mn");
     this->init_timer_with_variance("t_compute_q_mn");
@@ -483,6 +397,16 @@ spa_init_kern(::cuda::matrix_reference<real, false> device_received_probs,
               ::cuda::matrix_reference<real, false> device_qmn_conv,
               ::cuda::vector_reference<int> device_pchk_col_non_zeros)
 {
+    // Declaring a type-parametrized extern symbol in a template function
+    // will cause a name conflict if the template is instantiated multiple
+    // times. This is a problem since dynamically sized shared memory in
+    // CUDA is an extern symbol. So we declare a buffer of char aligned to
+    // the required type and then cast to a pointer of the type parameter.
+    // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
+    extern __shared__ __align__(sizeof(real)) char rawbuf[];
+    real* buf = reinterpret_cast<real*>(rawbuf);
+    real* swapbuf = reinterpret_cast<real*>(rawbuf) + blockDim.x;
+
     int num_of_elements = GF_q::elements();
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -497,6 +421,11 @@ spa_init_kern(::cuda::matrix_reference<real, false> device_received_probs,
 
     int non_zeros = device_pchk_col_non_zeros(pos_n);
 
+    buf[threadIdx.x] = device_received_probs(pos_n, loop_e);
+    __syncthreads();
+
+    hadamard_transform_dev<GF_q, real>(buf, swapbuf);
+
     int qmn_row_idx;
     // NOTE: loop_m iterates over the number of checks that symbol pos_n
     // participates in.
@@ -504,8 +433,7 @@ spa_init_kern(::cuda::matrix_reference<real, false> device_received_probs,
         // get index into device_qmn_conv and device_r_mxn
         qmn_row_idx = device_qmn_row_nxm_indices(pos_n, loop_m);
 
-        device_qmn_conv(qmn_row_idx, loop_e) =
-            device_received_probs(pos_n, loop_e);
+        device_qmn_conv(qmn_row_idx, loop_e) = buf[threadIdx.x];
     }
 }
 
@@ -514,9 +442,6 @@ void
 sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array2d_t& recvd_probs)
 {
     this->num_iters = 0;
-
-    dim3 block_dim;
-    dim3 num_blocks;
 
     int num_of_elements = GF_q::elements();
     int dim_n = recvd_probs.size();
@@ -549,15 +474,16 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array2d_t& recvd_probs)
     ////// BEGIN SPA INIT KERN
     ::cuda::gputimer t_spa_init_kern("t__spa_init__spa_init_kern");
 
-    block_dim = dim3(1024);
+    int block_dim = 1024;
     // use division which truncates upwards.
-    num_blocks = dim3(ROUND_UP_DIV(num_of_elements * dim_n, (int)block_dim.x));
+    int num_blocks = ROUND_UP_DIV(num_of_elements * dim_n, block_dim);
     spa_init_kern<GF_q, real>
-        <<<num_blocks, block_dim>>>(this->device_received_probs,
-                                    this->device_qmn_row_nxm_indices,
-                                    this->device_r_mxn,
-                                    this->device_qmn_conv,
-                                    this->device_pchk_col_non_zeros);
+        <<<num_blocks, block_dim, 2 * block_dim * sizeof(real)>>>(
+            this->device_received_probs,
+            this->device_qmn_row_nxm_indices,
+            this->device_r_mxn,
+            this->device_qmn_conv,
+            this->device_pchk_col_non_zeros);
     cudaSafeCall(cudaGetLastError());
 
     this->add_or_accumulate_timer_with_variance(t_spa_init_kern);
@@ -566,16 +492,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array2d_t& recvd_probs)
     cudaDeviceSynchronize();
 #endif
     ////// END SPA INIT KERN
-
-    ////// BEGIN HADAMARD TRANSFORM
-    ::cuda::gputimer t_spa_init_hadamard("t__spa_init__hadamard");
-
-    // apply the FFT again to get the proper values
-    hadamard_transform<GF_q, real, MULTIPLY>(device_qmn_conv,
-                                             device_pchk_non_zeros_val);
-
-    this->add_or_accumulate_timer_with_variance(t_spa_init_hadamard);
-    ////// END HADAMARD TRANSFORM
 
     this->decode_success = false;
 }
