@@ -6,7 +6,7 @@ jobs:
     base_dir: ..
     glob: Simulators/*.txt
     output_dir: Results
-    param-range: 
+    param_ranges:
       - 1.5:0.1:11.1:arithmetic
     confidence: 0.95
     relative_error: 0.05
