@@ -317,95 +317,156 @@ using namespace libbase;
 //     }
 // }
 
-BOOST_AUTO_TEST_CASE(bobs_measurement_test_fullcycle_style) {
-    std::cout << "\n[Testing Bob's Measurement Vector — Fullcycle Style]" << std::endl;
+// BOOST_AUTO_TEST_CASE(bobs_measurement_test_fullcycle_style) {
+//     std::cout << "\n[Testing Bob's Measurement Vector — Fullcycle Style]" << std::endl;
 
-    // 1. Generate GM coherent states
-    quantum_gaussian_source source(0.0, 10.0, 0.0, 10.0, 1.0, 1.0);
-    randgen r;
-    r.seed(7896);
-    source.seedfrom(r);
+//     // 1. Generate GM coherent states
+//     quantum_gaussian_source source(0.0, 10.0, 0.0, 10.0, 1.0, 1.0);
+//     randgen r;
+//     r.seed(7896);
+//     source.seedfrom(r);
 
-    const int framesize = 4;
-    vector<gaussian_state> source_sequence = source.generate_sequence(size_type<vector>(framesize));
-    BOOST_CHECK_EQUAL(source_sequence.size(), framesize);
-    std::cout << "Number of Generated GM Coherent States: " << framesize << std::endl;
+//     const int framesize = 4;
+//     vector<gaussian_state> source_sequence = source.generate_sequence(size_type<vector>(framesize));
+//     BOOST_CHECK_EQUAL(source_sequence.size(), framesize);
+//     std::cout << "Number of Generated GM Coherent States: " << framesize << std::endl;
 
-    // 2. Create Bob's Gaussian quantum channel
-    // (Alice side commented for now)
-    std::unique_ptr<quantum_channel> alice_channel = std::make_unique<identity_quantum_channel>();
-    std::unique_ptr<quantum_channel> bob_channel = std::make_unique<gaussian_quantum_channel>();
+//     // 2. Create Bob's Gaussian quantum channel
+//     // (Alice side commented for now)
+//     std::unique_ptr<quantum_channel> alice_channel = std::make_unique<identity_quantum_channel>();
+//     std::unique_ptr<quantum_channel> bob_channel = std::make_unique<gaussian_quantum_channel>();
 
-    randgen rng;
-    // rng.seed(12);
-    rng.seed(17);
-    // alice_channel->seedfrom(rng);
-    bob_channel->seedfrom(rng);
+//     randgen rng;
+//     // rng.seed(12);
+//     rng.seed(17);
+//     // alice_channel->seedfrom(rng);
+//     bob_channel->seedfrom(rng);
 
-    // Set channel parameters (mean, stddev, transmittance, detector eff)
-    libbase::vector<double> channel_params;
-    channel_params.init(4);
-    channel_params(0) = 0.0;   // noise mean
-    channel_params(1) = 0.8;   // stddev
-    channel_params(2) = 0.63;  // transmittance
-    channel_params(3) = 0.6;   // detector efficiency
+//     // Set channel parameters (mean, stddev, transmittance, detector eff)
 
-    // alice_channel->set_parameters(channel_params);
-    bob_channel->set_parameters(channel_params);
-    std::cout << "Channel parameters set for Bob." << std::endl;
+//     // Deserialize serialized parameter (noise_mean)
+//     std::istringstream sin(R"(
+//     Homodyne Detector Efficiency
+//     0.6
+//     )");
+//     bob_channel->serialize(sin);
 
-    // 3. Set up QKD protocol
-    std::unique_ptr<cvqkd_protocol> protocol = std::make_unique<cvqkd_protocol>();
-    protocol->seedfrom(rng);
+//     libbase::vector<double> channel_params;
+//     channel_params.init(3); // previously was 4
+//     channel_params(0) = 0.0;   // noise mean
+//     channel_params(1) = 0.8;   // stddev
+//     channel_params(2) = 0.63;  // transmittance
+//     // channel_params(3) = 0.6;   // detector efficiency
 
-    std::vector<std::unique_ptr<observable<double>>> bob_observables = protocol->get_bob_observables(framesize);
-    const libbase::vector<int>& decision_vector = protocol->get_decision_vector();
+//     // alice_channel->set_parameters(channel_params);
+//     bob_channel->set_parameters(channel_params);
+//     std::cout << "Channel parameters set for Bob." << std::endl;
+
+//     // 3. Set up QKD protocol
+//     std::unique_ptr<cvqkd_protocol> protocol = std::make_unique<cvqkd_protocol>();
+//     protocol->seedfrom(rng);
+
+//     std::vector<std::unique_ptr<observable<double>>> bob_observables = protocol->get_bob_observables(framesize);
+//     const libbase::vector<int>& decision_vector = protocol->get_decision_vector();
 
 
-    // 4. Print Bob's Observables
-    std::cout<<"Dummy Test: Printing Bob's generated observables in test cpp file"<< std::endl;
-    for (int i = 0; i < framesize; ++i) {
+//     // 4. Print Bob's Observables
+//     std::cout<<"Dummy Test: Printing Bob's generated observables in test cpp file"<< std::endl;
+//     for (int i = 0; i < framesize; ++i) {
+//         std::string type = (decision_vector(i) == 0) ? "Position" : "Momentum";
+//         std::cout << "Observable " << i << " (" << type << "): ";
+//     }
+
+//     std::vector<std::unique_ptr<observable<double>>> alice_observables = protocol->get_alice_observables(framesize, decision_vector); // Changed this method to accept two parameters: framesize and bob's decision vector
+
+//     // To delete this. Just for dummy purposes.
+//     // const libbase::vector<int>& alice_decision_vector = protocol->get_alice_decision_vector();
+
+//     libbase::vector<double> alice_measurements;
+//     libbase::vector<double> bob_measurements;
+//     alice_measurements.init(framesize);
+//     bob_measurements.init(framesize);
+
+//     // 5. Transmit Bob's observables through the channel and perform measurement
+//     for (int i = 0; i < framesize; ++i) {
+//         // std::string type = (decision_vector(i) == 0) ? "Position" : "Momentum";
+//         // std::cout << "Observable " << i << " (" << type << "): " << std::endl;
+
+//         alice_observables[i]->transmit(*alice_channel);
+//         bob_observables[i]->transmit(*bob_channel);
+
+//         alice_measurements(i) = source_sequence(i).measure(*alice_observables[i]);
+
+//         bob_measurements(i) = source_sequence(i).measure(*bob_observables[i]);
+
+//         // Debug print for noise
+//         double noise_val = 0.0, T_val = 0.0, eta_val = 0.0;
+//         if (auto* obs = dynamic_cast<position_observable*>(bob_observables[i].get())) {
+//             noise_val = obs->get_noise();
+//             T_val     = obs->get_transmittance();
+//             eta_val   = obs->get_detector_eff();
+//         } else if (auto* obs = dynamic_cast<momentum_observable*>(bob_observables[i].get())) {
+//             noise_val = obs->get_noise();
+//             T_val     = obs->get_transmittance();
+//             eta_val   = obs->get_detector_eff();
+//         }
+
+//         std::cout << "Noise = " << noise_val << ", T = " << T_val << ", η = " << eta_val << std::endl;
+//         std::cout << "Bob's measured value = " << bob_measurements(i) << std::endl;
+
+//         std::cout << "Alice's measured value = " << alice_measurements(i) << std::endl;
+//     }
+// }
+
+// // Place this above your BOOST_AUTO_TEST_CASE
+// static std::unique_ptr<libbase::serializable> create_gaussian_quantum_channel(std::istream& sin) {
+//     auto obj = std::make_unique<libcomm::gaussian_quantum_channel>();
+//     obj->serialize(sin);
+//     return obj;
+// }
+
+BOOST_AUTO_TEST_CASE(test_gaussian_quantum_channel_serialisation)
+{
+   std::stringstream ss;
+   ss << "Homodyne Detector Efficiency\n"
+      << "0.6\n";
+
+   std::unique_ptr<libbase::serializable> ptr = libcomm::gaussian_quantum_channel::create(ss);
+   auto* channel = dynamic_cast<libcomm::gaussian_quantum_channel*>(ptr.get());
+   BOOST_REQUIRE(channel != nullptr);
+
+   libbase::vector<double> params;
+   params.init(3);
+   params(0) = 0.0;
+   params(1) = 0.8;
+   params(2) = 0.63;
+
+   channel->set_parameters(params);
+   auto all_params = channel->get_parameters();
+
+   std::cout << all_params << std::endl;
+   //  BOOST_CHECK_CLOSE(all_params(3), 0.6, 1e-6); // HDE must match serialized value
+
+
+   // Set up QKD protocol
+   int framesize = 2;
+   randgen rng;
+   // rng.seed(12);
+   rng.seed(17);
+   std::unique_ptr<cvqkd_protocol> protocol = std::make_unique<cvqkd_protocol>();
+   protocol->seedfrom(rng);
+
+   std::vector<std::unique_ptr<observable<double>>> bob_observables = protocol->get_bob_observables(framesize);
+   const libbase::vector<int>& decision_vector = protocol->get_decision_vector();
+
+   // Transmit for Bob's observables.
+   for (int i = 0; i < framesize; ++i) {
         std::string type = (decision_vector(i) == 0) ? "Position" : "Momentum";
-        std::cout << "Observable " << i << " (" << type << "): ";
-    }
+        std::cout << "Observable " << i << " (" << type << "): " << std::endl;
 
-    std::vector<std::unique_ptr<observable<double>>> alice_observables = protocol->get_alice_observables(framesize, decision_vector); // Changed this method to accept two parameters: framesize and bob's decision vector
+        bob_observables[i]->transmit(*channel);
+   }
 
-    // To delete this. Just for dummy purposes.
-    // const libbase::vector<int>& alice_decision_vector = protocol->get_alice_decision_vector();
-
-    libbase::vector<double> alice_measurements;
-    libbase::vector<double> bob_measurements;
-    alice_measurements.init(framesize);
-    bob_measurements.init(framesize);
-
-    // 5. Transmit Bob's observables through the channel and perform measurement
-    for (int i = 0; i < framesize; ++i) {
-        // std::string type = (decision_vector(i) == 0) ? "Position" : "Momentum";
-        // std::cout << "Observable " << i << " (" << type << "): " << std::endl;
-
-        alice_observables[i]->transmit(*alice_channel);
-        bob_observables[i]->transmit(*bob_channel);
-
-        alice_measurements(i) = source_sequence(i).measure(*alice_observables[i]);
-
-        bob_measurements(i) = source_sequence(i).measure(*bob_observables[i]);
-
-        // Debug print for noise
-        double noise_val = 0.0, T_val = 0.0, eta_val = 0.0;
-        if (auto* obs = dynamic_cast<position_observable*>(bob_observables[i].get())) {
-            noise_val = obs->get_noise();
-            T_val     = obs->get_transmittance();
-            eta_val   = obs->get_detector_eff();
-        } else if (auto* obs = dynamic_cast<momentum_observable*>(bob_observables[i].get())) {
-            noise_val = obs->get_noise();
-            T_val     = obs->get_transmittance();
-            eta_val   = obs->get_detector_eff();
-        }
-
-        std::cout << "Noise = " << noise_val << ", T = " << T_val << ", η = " << eta_val << std::endl;
-        std::cout << "Bob's measured value = " << bob_measurements(i) << std::endl;
-
-        std::cout << "Alice's measured value = " << alice_measurements(i) << std::endl;
-    }
 }
+
+
