@@ -17,7 +17,7 @@ std::ostream& gaussian_quantum_channel::serialize(std::ostream& sout) const {
     // sout << noise_mean << std::endl;
     // sout << "Transmittance of the Gaussian Quantum Channel" << std::endl;
     // sout << noise_transmittance << std::endl;
-    sout << "Homodyne Detector Efficiency" << std::endl;
+    sout << "# Homodyne Detector Efficiency" << std::endl;
     sout << noise_detector_eff << std::endl;
     // Update set_parameters or transmit fns? To confirm with Mark or Johann.
     return sout;
@@ -29,7 +29,7 @@ std::istream& gaussian_quantum_channel::serialize(std::istream& sin) {
     // assertalways(sin.good());
     // sin >> libbase::eatcomments >> noise_mean;
     // sin >> libbase::eatcomments >> noise_transmittance;
-    sin >> libbase::eatcomments >> noise_detector_eff;
+    sin >> libbase::eatcomments >> noise_detector_eff >> libbase::verify;
     return sin;
 }
 

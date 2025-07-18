@@ -428,7 +428,7 @@ using namespace libbase;
 BOOST_AUTO_TEST_CASE(test_gaussian_quantum_channel_serialisation)
 {
    std::stringstream ss;
-   ss << "Homodyne Detector Efficiency\n"
+   ss << "# Homodyne Detector Efficiency\n"
       << "0.6\n";
 
    std::unique_ptr<libbase::serializable> ptr = libcomm::gaussian_quantum_channel::create(ss);
