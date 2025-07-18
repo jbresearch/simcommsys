@@ -140,17 +140,17 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     device = ::cuda::cudaGetCurrentDevice();
     warpSize = ::cuda::cudaGetWarpSize(device);
 
-    this->init_timer_with_variance("t__spa_init__copy_probs_h_to_d");
-    this->init_timer_with_variance("t__spa_init__norm_probs");
-    this->init_timer_with_variance("t__spa_init__spa_init_kern");
-    this->init_timer_with_variance("t_compute_r_mn");
-    this->init_timer_with_variance("t_compute_q_mn");
-    this->init_timer_with_variance("t_compute_probs");
-    this->init_timer_with_variance("t_hard_decision");
-    this->init_timer_with_variance("t_compute_syndrome");
-    this->init_timer_with_variance("t_check_syndrome");
-    this->init_timer_with_variance("t_copy_codeword_d_to_h");
-    this->init_timer_with_variance("t_spa_iteration");
+    this->init_timer("t__spa_init__copy_probs_h_to_d");
+    this->init_timer("t__spa_init__norm_probs");
+    this->init_timer("t__spa_init__spa_init_kern");
+    this->init_timer("t_compute_r_mn");
+    this->init_timer("t_compute_q_mn");
+    this->init_timer("t_compute_probs");
+    this->init_timer("t_hard_decision");
+    this->init_timer("t_compute_syndrome");
+    this->init_timer("t_check_syndrome");
+    this->init_timer("t_copy_codeword_d_to_h");
+    this->init_timer("t_spa_iteration");
 
     int num_of_elements = GF_q::elements();
 
@@ -461,7 +461,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array2d_t& recvd_probs)
 
     this->device_received_probs = recvd_probs;
 
-    this->add_or_accumulate_timer_with_variance(t_spa_init_copy_probs);
+    this->add_or_accumulate_timer(t_spa_init_copy_probs);
 
     ////// BEGIN NORMALIZE
     ::cuda::gputimer t_spa_init_norm_probs("t__spa_init__norm_probs");
@@ -471,7 +471,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array2d_t& recvd_probs)
                                          this->almostzero,
                                          this->warpSize);
 
-    this->add_or_accumulate_timer_with_variance(t_spa_init_norm_probs);
+    this->add_or_accumulate_timer(t_spa_init_norm_probs);
     ////// END NORMALIZE
 
     // this uses the description of the algorithm as given by
@@ -496,7 +496,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array2d_t& recvd_probs)
             this->device_pchk_col_non_zeros);
     cudaSafeCall(cudaGetLastError());
 
-    this->add_or_accumulate_timer_with_variance(t_spa_init_kern);
+    this->add_or_accumulate_timer(t_spa_init_kern);
 
 #ifdef DEBUG
     cudaDeviceSynchronize();
@@ -617,7 +617,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
             this->almostzero);
     cudaSafeCall(cudaGetLastError());
 
-    this->add_or_accumulate_timer_with_variance(t_compute_r_mn);
+    this->add_or_accumulate_timer(t_compute_r_mn);
 
 #ifdef DEBUG
     cudaDeviceSynchronize();
@@ -744,7 +744,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_q_mn()
     cudaDeviceSynchronize();
 #endif
 
-    this->add_or_accumulate_timer_with_variance(t_compute_q_mn);
+    this->add_or_accumulate_timer(t_compute_q_mn);
     ////// END COMPUTE Q_MN
 }
 
@@ -821,7 +821,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_probs()
     cudaDeviceSynchronize();
 #endif
 
-    this->add_or_accumulate_timer_with_variance(t_compute_probs);
+    this->add_or_accumulate_timer(t_compute_probs);
     ////// END COMPUTE PROBS
 }
 
@@ -919,7 +919,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration()
                                                   this->device_received_word,
                                                   this->hd_functor.get());
 
-    this->add_or_accumulate_timer_with_variance(t_hard_decision);
+    this->add_or_accumulate_timer(t_hard_decision);
 
     ::cuda::gputimer t_compute_syndrome("t_compute_syndrome");
 
@@ -930,14 +930,14 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration()
         this->device_received_word,
         this->device_syndrome);
 
-    this->add_or_accumulate_timer_with_variance(t_compute_syndrome);
+    this->add_or_accumulate_timer(t_compute_syndrome);
 
     ::cuda::gputimer t_check_syndrome("t_check_syndrome");
 
     check_syndrome_kern<GF_q, real>
         <<<1, 1>>>(this->device_syndrome, this->device_decode_success.get());
 
-    this->add_or_accumulate_timer_with_variance(t_check_syndrome);
+    this->add_or_accumulate_timer(t_check_syndrome);
     this->device_decode_success.to_host(&success);
 
     return success;
@@ -956,14 +956,14 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(
 
     ::cuda::gputimer t_spa_iteration("t_spa_iteration");
     bool codeword_found = spa_iteration();
-    this->add_or_accumulate_timer_with_variance(t_spa_iteration);
+    this->add_or_accumulate_timer(t_spa_iteration);
     if (codeword_found) { // this was the last iteration; we found a
                           // codeword
         // Copy the received codeword from the GPU.
         ::cuda::gputimer t_copy_codeword("t_copy_codeword_d_to_h");
         received_word = this->received_word =
             (libbase::vector<GF_q>)this->device_received_word;
-        this->add_or_accumulate_timer_with_variance(t_copy_codeword);
+        this->add_or_accumulate_timer(t_copy_codeword);
 
         this->decode_success = true;
     } else {
@@ -982,7 +982,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::decode(libbase::vector<GF_q>& received_word,
     for (; this->num_iters < max_iters; this->num_iters++) {
         ::cuda::gputimer t_spa_iteration("t_spa_iteration");
         codeword_found = this->spa_iteration();
-        this->add_or_accumulate_timer_with_variance(t_spa_iteration);
+        this->add_or_accumulate_timer(t_spa_iteration);
 
         if (codeword_found)
             break;
@@ -991,7 +991,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::decode(libbase::vector<GF_q>& received_word,
     // Copy the received codeword from the GPU.
     ::cuda::gputimer t_copy_codeword("t_copy_codeword_d_to_h");
     received_word = (libbase::vector<GF_q>)this->device_received_word;
-    this->add_or_accumulate_timer_with_variance(t_copy_codeword);
+    this->add_or_accumulate_timer(t_copy_codeword);
 }
 
 } // namespace libcomm
