@@ -1,8 +1,6 @@
 executor:
-  type: slurm_masterslave
+  type: slurm
   email: mark.mizzi.19+slurm@um.edu.mt
-  gpu_partition: research_gpu
-  cpu_partition: research_cpu
   account: qkd
 jobs:
   # Timing measurements
@@ -18,8 +16,8 @@ jobs:
     # job params
     simcommsys_tag: development
     simcommsys_type: release
+    partition: research_cpu
     memlimit_gb: 50
     timeout_mins: 8640 # 10 days
     nodelist: nyquist
-    workers: 7
-    port: 3008
+    cpus_per_task: 1

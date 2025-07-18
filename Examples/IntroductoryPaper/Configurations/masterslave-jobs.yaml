@@ -3,16 +3,16 @@ executor:
 
 jobs:
   mygroup:
-    glob: ../Simulators/*.txt
-    output_dir: ../Results
-    start: 1.5
-    stop: 11
-    step: 0.1
+    base_dir: ..
+    glob: Simulators/*.txt
+    output_dir: Results
+    param-range: 
+      - 1.5:0.1:11.1:arithmetic
     confidence: 0.95
     relative_error: 0.05
     floor_min: 1e-5
     # job params
     simcommsys_tag: development
     simcommsys_type: release
-    port: 3012
-    workers: 12
+    port: 3002
+    workers: 8
