@@ -65,12 +65,12 @@
  std::istream& quantum_gaussian_source::serialize(std::istream& sin)
  {
      assertalways(sin.good());
-     sin >> libbase::eatcomments >> q_mean_mean ;
-     sin >> libbase::eatcomments >> q_mean_stddev;
-     sin >> libbase::eatcomments >> p_mean_mean ;
-     sin >> libbase::eatcomments >> p_mean_stddev;
-     sin >> libbase::eatcomments >> q_stddev;
-     sin >> libbase::eatcomments >> p_stddev;
+     sin >> libbase::eatcomments >> q_mean_mean >> libbase::verify;
+     sin >> libbase::eatcomments >> q_mean_stddev >> libbase::verify;
+     sin >> libbase::eatcomments >> p_mean_mean >> libbase::verify;
+     sin >> libbase::eatcomments >> p_mean_stddev >> libbase::verify;
+     sin >> libbase::eatcomments >> q_stddev >> libbase::verify;
+     sin >> libbase::eatcomments >> p_stddev >> libbase::verify;
 
      return sin;
  }
