@@ -15,6 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
 
+ifndef $(TAG)
+	export TAG := master
+endif
+
 all: timers simulators
 
 .PHONY: help
@@ -29,19 +33,15 @@ help:
 
 .PHONY: simulators timers
 
-# Create Simcommsys simulator files from System files.
-# NOTE: Remove --simcommsys-tag flag to reproduce results from paper.
 simulators:
 	poetry run simcommsys-utils make-simulators \
 		--resultscollector errors_hamming --input-mode random --no-analyze-decode-iters \
-		--simcommsys-tag development \
+		--simcommsys-tag $(TAG) \
 		Systems Simulators
 
-# Create Simcommsys timer files from System files.
-# NOTE: Remove --simcommsys-tag flag to reproduce results from paper.
 timers:
 	poetry run simcommsys-utils make-timers \
-		--simcommsys-tag development \
+		--simcommsys-tag $(TAG) \
 		Systems Timers
 
 ### Cleaning
