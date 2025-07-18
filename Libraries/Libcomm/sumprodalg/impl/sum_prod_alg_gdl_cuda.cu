@@ -146,7 +146,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     this->init_timer_with_variance("t_compute_r_mn");
     this->init_timer_with_variance("t_compute_q_mn");
     this->init_timer_with_variance("t_compute_probs");
-    this->init_timer_with_variance("t_norm_probs");
     this->init_timer_with_variance("t_hard_decision");
     this->init_timer_with_variance("t_compute_syndrome");
     this->init_timer_with_variance("t_check_syndrome");
@@ -756,8 +755,19 @@ compute_probs_kern(
     ::cuda::matrix_reference<real, false> device_out_probs,
     ::cuda::matrix_reference<int, false> device_qmn_row_nxm_indices,
     ::cuda::matrix_reference<real, false> device_r_mxn,
-    ::cuda::vector_reference<int> device_pchk_col_non_zeros)
+    ::cuda::vector_reference<int> device_pchk_col_non_zeros,
+    int clipping_method,
+    real almostzero)
 {
+    // Declaring a type-parametrized extern symbol in a template function
+    // will cause a name conflict if the template is instantiated multiple
+    // times. This is a problem since dynamically sized shared memory in
+    // CUDA is an extern symbol. So we declare a buffer of char aligned to
+    // the required type and then cast to a pointer of the type parameter.
+    // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
+    extern __shared__ __align__(sizeof(real)) char rawbuf[];
+    real* buf = reinterpret_cast<real*>(rawbuf);
+
     int num_of_elements = GF_q::elements();
     // find loop_e
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -777,29 +787,34 @@ compute_probs_kern(
         prob *= device_r_mxn(device_qmn_row_nxm_indices(pos_n, loop_m), loop_e);
     }
 
-    device_out_probs(pos_n, loop_e) = prob;
+    perform_clipping(prob, clipping_method, almostzero);
+
+    buf[threadIdx.x] = prob;
+    __syncthreads();
+    device_out_probs(pos_n, loop_e) = prob / sum<GF_q, real>(buf);
 }
 
 template <class GF_q, class real>
 void
 sum_prod_alg_gdl_cuda<GF_q, real>::compute_probs()
 {
-    dim3 block_dim, num_blocks;
-
     ////// BEGIN COMPUTE PROBS
     ::cuda::gputimer t_compute_probs("t_compute_probs");
 
     int n = device_pchk_col_non_zeros.size();
     int num_of_elements = GF_q::elements();
-    block_dim = dim3(1024);
+    int block_dim = std::max(warpSize, num_of_elements);
     // use division which truncates upwards.
-    num_blocks = dim3(ROUND_UP_DIV(num_of_elements * n, (int)block_dim.x));
-    compute_probs_kern<GF_q, real><<<num_blocks, block_dim>>>(
-        ::cuda::matrix_reference<real, false>(device_received_probs),
-        ::cuda::matrix_reference<real, false>(device_out_probs),
-        ::cuda::matrix_reference<int, false>(device_qmn_row_nxm_indices),
-        ::cuda::matrix_reference<real, false>(device_r_mxn),
-        ::cuda::vector_reference<int>(device_pchk_col_non_zeros));
+    int num_blocks = ROUND_UP_DIV(num_of_elements * n, (int)block_dim);
+    compute_probs_kern<GF_q, real>
+        <<<num_blocks, block_dim, block_dim * sizeof(real)>>>(
+            ::cuda::matrix_reference<real, false>(device_received_probs),
+            ::cuda::matrix_reference<real, false>(device_out_probs),
+            ::cuda::matrix_reference<int, false>(device_qmn_row_nxm_indices),
+            ::cuda::matrix_reference<real, false>(device_r_mxn),
+            ::cuda::vector_reference<int>(device_pchk_col_non_zeros),
+            this->clipping_method,
+            this->almostzero);
     cudaSafeCall(cudaGetLastError());
 
 #ifdef DEBUG
@@ -808,19 +823,6 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_probs()
 
     this->add_or_accumulate_timer_with_variance(t_compute_probs);
     ////// END COMPUTE PROBS
-
-    ////// BEGIN NORMALIZE PROBS
-    ::cuda::gputimer t_norm_probs("t_norm_probs");
-
-    // Normalize the computed probabilities.
-    clip_and_normalize_probs<GF_q, real>(
-        ::cuda::matrix_reference<real, false>(device_out_probs),
-        this->clipping_method,
-        this->almostzero,
-        this->warpSize);
-
-    this->add_or_accumulate_timer_with_variance(t_norm_probs);
-    ////// END NORMALIZE PROBS
 }
 
 template <class GF_q, class real>
