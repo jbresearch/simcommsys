@@ -9,7 +9,7 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.10"
-simcommsys-utils = { git = "ssh://git@dsrg-ict.research.um.edu.mt:2222/simcommsys/simcommsys-utils.git", rev = "10981d982613bea17451131c59d02cf3740ce129" }
+simcommsys-utils = { git = "ssh://git@dsrg-ict.research.um.edu.mt:2222/simcommsys/simcommsys-utils.git", rev = "3d8a79603228caca7b934fc4a1b53dc65babb88f" }
 
 [build-system]
 requires = ["poetry-core"]
