@@ -32,6 +32,9 @@
 #include <iostream>
 #include <string>
 
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
 #include <boost/program_options.hpp>
 
 #include <fstream>
@@ -373,7 +376,7 @@ test_cc_code()
 
 template <class GF>
 void
-process(bool serialized)
+process(bool serialized, bool gen_matrix)
 {
     // read the alist LDPC code
     ldpc<GF, double> codec;
@@ -402,6 +405,9 @@ main(int argc, char* argv[])
                        "convert alist to serialized format");
     desc.add_options()(
         "alist,a", po::bool_switch(), "convert alist to alist format");
+    desc.add_options()("gen,g",
+                       po::bool_switch(),
+                       "Output generator matrix rather than pchk matrix");
     desc.add_options()("type,t",
                        po::value<std::string>()->default_value("gf2"),
                        "LDPC alphabet");
@@ -412,6 +418,7 @@ main(int argc, char* argv[])
     // read switch parameters
     const bool s = vm["serialized"].as<bool>();
     const bool a = vm["alist"].as<bool>();
+    const bool g = vm["gen"].as<bool>();
 
     // Validate user parameters
     if (vm.count("help") || (!s && !a) || (s && a)) {
@@ -422,31 +429,17 @@ main(int argc, char* argv[])
     // Shorthand access for parameters
     const std::string type = vm["type"].as<std::string>();
 
-    using libbase::gf;
-    if (type == "gf2") {
-        process<gf<1, 0x3>>(s);
-    } else if (type == "gf4") {
-        process<gf<2, 0x7>>(s);
-    } else if (type == "gf8") {
-        process<gf<3, 0xB>>(s);
-    } else if (type == "gf16") {
-        process<gf<4, 0x13>>(s);
-    } else if (type == "gf32") {
-        process<gf<5, 0x25>>(s);
-    } else if (type == "gf64") {
-        process<gf<6, 0x43>>(s);
-    } else if (type == "gf128") {
-        process<gf<7, 0x89>>(s);
-    } else if (type == "gf256") {
-        process<gf<8, 0x11D>>(s);
-    } else if (type == "gf512") {
-        process<gf<9, 0x211>>(s);
-    } else if (type == "gf1024") {
-        process<gf<10, 0x409>>(s);
-    } else {
-        std::cerr << "Unrecognized symbol type: " << type << std::endl;
-        return 1;
+#define USING_GF(r, x, type) using libbase::type;
+    BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
+
+#define PROCESS(r, x, gftype)                                                  \
+    if (type == BOOST_PP_STRINGIZE(gftype)) {                                  \
+        process<gftype>(s, g);                                                 \
+        return 0;                                                              \
     }
 
-    return 0;
+    BOOST_PP_SEQ_FOR_EACH(PROCESS, x, GF_TYPE_SEQ)
+
+    std::cerr << "Unrecognized symbol type: " << type << std::endl;
+    return 1;
 }
