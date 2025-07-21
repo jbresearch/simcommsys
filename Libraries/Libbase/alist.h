@@ -134,7 +134,7 @@ public:
     int max_col_weight() const
     {
         int max_num = 0;
-        for (const auto& x : row_idxs) {
+        for (const auto& x : col_idxs) {
             if (max_num < x.size().length()) {
                 max_num = x.size().length();
             }
@@ -144,7 +144,7 @@ public:
     int max_row_weight() const
     {
         int max_num = 0;
-        for (const auto& x : col_idxs) {
+        for (const auto& x : row_idxs) {
             if (max_num < x.size().length()) {
                 max_num = x.size().length();
             }
@@ -419,7 +419,9 @@ alist<GF_q>::operator=(const matrix<GF_q>& x)
         // compute weight for this row
         int row_weight = 0;
         for (int col = 0; col < cols; col++) {
-            row_weight += x(row, col) != GF_q(0) ? 1 : 0;
+            if (x(row, col) != GF_q(0)) {
+                row_weight++;
+            }
         }
         // initialize vectors with correct size
         row_idxs[row].init(row_weight);
@@ -441,7 +443,9 @@ alist<GF_q>::operator=(const matrix<GF_q>& x)
         // compute weight for this col
         int col_weight = 0;
         for (int row = 0; row < rows; row++) {
-            col_weight += x(row, col) != GF_q(0) ? 1 : 0;
+            if (x(row, col) != GF_q(0)) {
+                col_weight++;
+            }
         }
         // initialize vectors with correct size
         col_idxs[col].init(col_weight);
