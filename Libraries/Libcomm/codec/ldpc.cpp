@@ -363,10 +363,11 @@ ldpc<GF_q, real>::serialize(std::ostream& sout) const
         sout << non_zero_vals_in_col;
     }
 
-    sout << "# Positions of information symbols in a codeword";
+    sout << "# Positions of information symbols in a codeword" << std::endl;
     sout << info_symb_pos;
 
-    sout << "# Permutation required to make pchk matrix systematic";
+    sout << "# Permutation required to make pchk matrix systematic"
+         << std::endl;
     sout << perm_to_systematic;
 
     return sout;
