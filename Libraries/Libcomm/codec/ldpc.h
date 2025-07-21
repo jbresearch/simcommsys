@@ -256,7 +256,7 @@ private:
     libbase::alist<GF_q> pchk_matrix;
 
     //! The generator matrix of the code in REF
-    libbase::alist<GF_q> gen_matrix;
+    libbase::matrix<GF_q> gen_matrix;
 
     //! the permutation that swaps the columns so that
     // the parity check matrix is in standard form, eg (I|P)

@@ -87,11 +87,10 @@ ldpc<GF_q, real>::init()
     // only place where we expand into a dense repr. for now
     libbase::matrix<GF_q> pchk_dense = this->pchk_matrix;
 
-    libbase::matrix<GF_q> genmatrix_dense;
     libbase::linear_code_utils<GF_q>::compute_dual_code(
-        pchk_dense, genmatrix_dense, this->perm_to_systematic);
+        pchk_dense, this->gen_matrix, this->perm_to_systematic);
 
-    this->dim_k = genmatrix_dense.size().rows();
+    this->dim_k = this->gen_matrix.size().rows();
     this->info_symb_pos.init(this->dim_k);
 
     if (this->reduce_to_ref == false) {
@@ -110,19 +109,16 @@ ldpc<GF_q, real>::init()
         // we reduce the generator matrix to REF format in the hope that the
         // info symbols will be in the first k positions and that we'll
         // therefore have a systematic code
-        genmatrix_dense.reduce_to_ref();
+        this->gen_matrix.reduce_to_ref();
         // we now need to find the pivots
         int posy = 0;
         for (int loop = 0; loop < this->dim_k; loop++) {
-            while (genmatrix_dense(loop, posy) == GF_q(0)) {
+            while (this->gen_matrix(loop, posy) == GF_q(0)) {
                 posy++;
             }
             this->info_symb_pos(loop) = posy;
         }
     }
-    // convert back to sparse repr.
-    this->gen_matrix = genmatrix_dense;
-    this->gen_matrix.transpose();
 }
 
 template <class GF_q, class real>
@@ -162,14 +158,8 @@ void
 ldpc<GF_q, real>::do_encode(const libbase::vector<int>& source,
                             libbase::vector<int>& encoded)
 {
-    libbase::vector<GF_q> source_gf;
-    source_gf.init(source.size().length());
-
-    for (int loop1 = 0; loop1 < source.size().length(); loop1++) {
-        source_gf(loop1) = GF_q(source(loop1));
-    }
-
-    encoded = this->gen_matrix * source_gf;
+    libbase::linear_code_utils<GF_q>::encode_cw(
+        this->gen_matrix, source, encoded);
 
 #if DEBUG >= 2
     this->received_word_hd = encoded;
@@ -288,6 +278,8 @@ ldpc<GF_q, real>::serialize(std::ostream& sout) const
     assertalways(sout.good());
     sout << "# Version" << std::endl;
     sout << 6 << std::endl;
+    sout << "# Generator matrix included? (0=false, 1=true)" << std::endl;
+    sout << 1 << std::endl;
     sout << "# SPA type (trad|gdl)" << std::endl;
     sout << this->spa_alg->spa_type() << std::endl;
     sout << "# Number of iterations" << std::endl;
@@ -302,8 +294,6 @@ ldpc<GF_q, real>::serialize(std::ostream& sout) const
     sout << this->length_n << std::endl;
     sout << "# Dimension (m)" << std::endl;
     sout << this->dim_pchk << std::endl;
-    sout << "# Information symbols (k)" << std::endl;
-    sout << this->dim_k << std::endl;
     sout << "# Pchk matrix max column weight" << std::endl;
     sout << this->max_col_weight << std::endl;
     sout << "# Pchk matrix max row weight" << std::endl;
@@ -334,34 +324,8 @@ ldpc<GF_q, real>::serialize(std::ostream& sout) const
         sout << non_zero_vals_in_col;
     }
 
-    sout << "# Generator matrix max column weight" << std::endl;
-    sout << this->gen_matrix.max_col_weight() << std::endl;
-    sout << "# Generator matrix max row weight" << std::endl;
-    sout << this->gen_matrix.max_row_weight() << std::endl;
-
-    sout << "# Generator matrix column weight vector" << std::endl;
-    sout << this->gen_matrix.col_weights();
-    sout << "# Generator matrix row weight vector" << std::endl;
-    sout << this->gen_matrix.row_weights();
-
-    sout << "# Generator matrix non zero positions per col" << std::endl;
-    for (int loop1 = 0; loop1 < this->dim_k; loop1++) {
-        sout << this->gen_matrix.get_col_idxs(loop1) +
-                    1; // we start counting from zero
-    }
-
-    // (always) output generator matrix non-zero entries
-    sout << "# Generator matrix non zero values per col" << std::endl;
-    for (int loop1 = 0; loop1 < this->dim_k; loop1++) {
-        int num_of_non_zeros = this->gen_matrix.get_col_idxs(loop1).size();
-        non_zero_vals_in_col.init(num_of_non_zeros);
-        for (int loop2 = 0; loop2 < num_of_non_zeros; loop2++) {
-            int gf_val_int = this->gen_matrix.get_col_vals(loop1)(loop2);
-            assert(gf_val_int != GF_q(0));
-            non_zero_vals_in_col(loop2) = gf_val_int;
-        }
-        sout << non_zero_vals_in_col;
-    }
+    sout << "# Generator matrix" << std::endl;
+    sout << this->gen_matrix;
 
     sout << "# Positions of information symbols in a codeword" << std::endl;
     sout << info_symb_pos;
@@ -387,6 +351,12 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
     sin >> libbase::eatcomments >> version >> libbase::verify;
     assertalways(version >= 2);
 
+    bool gen_matrix_included = false;
+    if (version >= 6) {
+        // is the generator matrix included in the file?
+        sin >> libbase::eatcomments >> gen_matrix_included >> libbase::verify;
+    }
+
     std::string spa_type;
     sin >> libbase::eatcomments >> spa_type >> libbase::verify;
     sin >> libbase::eatcomments >> this->max_iter >> libbase::verify;
@@ -405,9 +375,10 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
         sin >> libbase::eatcomments >> tmp_az >> libbase::verify;
         almost_zero = real(tmp_az);
     }
-    // Default flag for files with versions less than 4 and greater than 5
+    // Default flag for files with versions less than 4 and greater than 5 (for
+    // latter only when generator matrix is included in the file.)
     this->reduce_to_ref = false;
-    if (version == 5) {
+    if (version == 5 || (version > 5 && !gen_matrix_included)) {
         sin >> libbase::eatcomments >> this->reduce_to_ref >> libbase::verify;
     } else if (version == 4) {
         std::string tmp_flag;
@@ -419,9 +390,6 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
     }
     sin >> libbase::eatcomments >> this->length_n >> libbase::verify;
     sin >> libbase::eatcomments >> this->dim_pchk >> libbase::verify;
-    if (version >= 6) {
-        sin >> libbase::eatcomments >> this->dim_k >> libbase::verify;
-    }
 
     sin >> libbase::eatcomments >> this->max_col_weight >> libbase::verify;
     sin >> libbase::eatcomments >> this->max_row_weight >> libbase::verify;
@@ -429,8 +397,9 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
     libbase::randgen rng;
     // default for files with version >= 6
     this->rand_prov_values = "provided";
-    if (version < 6) {
-        // for versions < 6, user can specify how nz values are obtained.
+    if (version < 6 || !gen_matrix_included) {
+        // for versions < 6 or when the generator matrix is not included in the
+        // file, user can specify how nz values are obtained.
 
         // are the non-zero values provided or do we randomly generate them?
         sin >> libbase::eatcomments >> this->rand_prov_values >>
@@ -494,65 +463,15 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
                                              this->dim_pchk,
                                              this->row_weight);
 
-    if (version < 6) {
-        // for versions < 6, we have to call init() to populate the generator
-        // matrix, perm_to_systematic and info_symb_pos fields.
+    if (version < 6 || !gen_matrix_included) {
+        // for versions < 6, or when the generator matrix is not included in the
+        // file, we have to call init() to populate the generator matrix,
+        // perm_to_systematic and info_symb_pos fields.
         this->init();
     } else {
-        // if version >= 6, we read generator matrix, perm_to_systematic and
-        // info_symb_pos from file.
-        int gen_matrix_max_col_weight, gen_matrix_max_row_weight;
-
-        sin >> libbase::eatcomments >> gen_matrix_max_col_weight >>
-            libbase::verify;
-        sin >> libbase::eatcomments >> gen_matrix_max_row_weight >>
-            libbase::verify;
-
-        // read the col weights for gen_matrix and ensure they are sensible
-        libbase::vector<int> gen_matrix_col_weights;
-        gen_matrix_col_weights.init(this->dim_k);
-        sin >> libbase::eatcomments >> gen_matrix_col_weights >>
-            libbase::verify;
-        assertalways(
-            (1 <= gen_matrix_col_weights.min()) &&
-            (gen_matrix_col_weights.max() <= gen_matrix_max_col_weight));
-
-        // read the row weights and ensure they are sensible
-        libbase::vector<int> gen_matrix_row_weights;
-        gen_matrix_row_weights.init(this->length_n);
-        sin >> libbase::eatcomments >> gen_matrix_row_weights >>
-            libbase::verify;
-        assertalways(
-            (0 < gen_matrix_row_weights.min()) &&
-            (gen_matrix_row_weights.max() <= gen_matrix_max_row_weight));
-
-        std::vector<libbase::vector<int>> gen_matrix_col_idxs(this->dim_k);
-        // read the non-zero entries pos per col
-        for (int loop1 = 0; loop1 < this->dim_k; loop1++) {
-            gen_matrix_col_idxs[loop1].init(gen_matrix_col_weights(loop1));
-            sin >> libbase::eatcomments >> gen_matrix_col_idxs[loop1] >>
-                libbase::verify;
-            gen_matrix_col_idxs[loop1] -= 1; // we start counting from zero.
-            // ensure that the number of non-zero pos matches the previously
-            // read value
-            assertalways(gen_matrix_col_idxs[loop1].size().length() ==
-                         gen_matrix_col_weights(loop1));
-        }
-
-        std::vector<libbase::vector<GF_q>> gen_matrix_col_vals(this->dim_k);
-        // read in the non-zero entries per column
-        for (int loop1 = 0; loop1 < this->dim_k; loop1++) {
-            gen_matrix_col_vals[loop1].init(gen_matrix_col_weights(loop1));
-            sin >> libbase::eatcomments >> gen_matrix_col_vals[loop1] >>
-                libbase::verify;
-            assertalways(gen_matrix_col_vals[loop1].min() != GF_q(0));
-        }
-
-        // initialize generator matrix from data obtained from file.
-        this->gen_matrix = libbase::alist<GF_q>(std::move(gen_matrix_col_idxs),
-                                                std::move(gen_matrix_col_vals),
-                                                this->length_n,
-                                                gen_matrix_row_weights);
+        // initialize parity check matrix
+        sin >> libbase::eatcomments >> this->gen_matrix >> libbase::verify;
+        this->dim_k = this->gen_matrix.size().rows();
 
         // initialize info_symb_pos
         sin >> libbase::eatcomments >> this->info_symb_pos >> libbase::verify;
