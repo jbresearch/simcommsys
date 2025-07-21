@@ -165,6 +165,7 @@ public:
         int i = 0;
         for (const auto& x : col_idxs) {
             weights(i) = x.size().length();
+            i++;
         }
 
         return weights;
@@ -177,6 +178,7 @@ public:
         int i = 0;
         for (const auto& x : row_idxs) {
             weights(i) = x.size().length();
+            i++;
         }
 
         return weights;
