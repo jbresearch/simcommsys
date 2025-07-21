@@ -191,7 +191,8 @@ void
 sum_prod_alg_gdl<GF_q, real>::compute_r_mn(int pos_m, int loop_n)
 {
     const array1i_t& N_m = this->pchk_matrix.get_row_idxs(pos_m);
-    const array1i_t& N_m_vals = this->pchk_matrix.get_row_idxs(pos_m);
+    const libbase::vector<GF_q>& N_m_vals =
+        this->pchk_matrix.get_row_vals(pos_m);
 
     // the number of participating symbols
     int num_of_var_syms = N_m.size();
