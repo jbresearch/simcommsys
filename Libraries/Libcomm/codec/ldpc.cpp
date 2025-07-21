@@ -86,6 +86,7 @@ ldpc<GF_q, real>::init()
 
     // only place where we expand into a dense repr. for now
     libbase::matrix<GF_q> pchk_dense = this->pchk_matrix;
+
     libbase::matrix<GF_q> genmatrix_dense;
     libbase::linear_code_utils<GF_q>::compute_dual_code(
         pchk_dense, genmatrix_dense, this->perm_to_systematic);
@@ -97,10 +98,10 @@ ldpc<GF_q, real>::init()
         // as we define the LDPC code by its parity check matrix,H , the
         // generator matrix will be of the form (P|I) provided H was in
         // systematic form when reduced to REF if H wasn't then
-        // perm_to_systematic contains the permutation that transformed H into
-        // systematic form which gives us the information we need to extract the
-        // positions of the info symbols in G. In fact the last k values of
-        // perm_to_systematic are those positions.
+        // perm_to_systematic contains the permutation that transformed H
+        // into systematic form which gives us the information we need to
+        // extract the positions of the info symbols in G. In fact the last
+        // k values of perm_to_systematic are those positions.
         for (int loop = 0; loop < this->dim_k; loop++) {
             this->info_symb_pos(loop) =
                 this->perm_to_systematic((this->length_n - this->dim_k) + loop);
@@ -286,7 +287,7 @@ ldpc<GF_q, real>::serialize(std::ostream& sout) const
 {
     assertalways(sout.good());
     sout << "# Version" << std::endl;
-    sout << 5 << std::endl;
+    sout << 6 << std::endl;
     sout << "# SPA type (trad|gdl)" << std::endl;
     sout << this->spa_alg->spa_type() << std::endl;
     sout << "# Number of iterations" << std::endl;
@@ -297,49 +298,77 @@ ldpc<GF_q, real>::serialize(std::ostream& sout) const
     sout << this->spa_alg->get_clipping_type() << std::endl;
     sout << "# Value of almostzero" << std::endl;
     sout << this->spa_alg->get_almostzero() << std::endl;
-    sout << "# Reduce generator matrix to REF? (true|false)" << std::endl;
-    sout << this->reduce_to_ref << std::endl;
     sout << "# Length (n)" << std::endl;
     sout << this->length_n << std::endl;
     sout << "# Dimension (m)" << std::endl;
     sout << this->dim_pchk << std::endl;
-    sout << "# Max column weight" << std::endl;
+    sout << "# Information symbols (k)" << std::endl;
+    sout << this->dim_k << std::endl;
+    sout << "# Pchk matrix max column weight" << std::endl;
     sout << this->max_col_weight << std::endl;
-    sout << "# Max row weight" << std::endl;
+    sout << "# Pchk matrix max row weight" << std::endl;
     sout << this->max_row_weight << std::endl;
-    sout << "# Non-zero values (ones|random|provided)" << std::endl;
-    sout << this->rand_prov_values << std::endl;
-    if ("random" == this->rand_prov_values) {
-        sout << "# Seed for random generator" << std::endl;
-        sout << this->seed << std::endl;
-    }
 
-    sout << "# Column weight vector" << std::endl;
+    sout << "# Pchk matrix column weight vector" << std::endl;
     sout << this->col_weight;
-    sout << "# Row weight vector" << std::endl;
+    sout << "# Pchk matrix row weight vector" << std::endl;
     sout << this->row_weight;
 
-    sout << "# Non zero positions per col" << std::endl;
+    sout << "# Pchk matrix non zero positions per col" << std::endl;
     for (int loop1 = 0; loop1 < this->length_n; loop1++) {
         sout << this->pchk_matrix.get_col_idxs(loop1) +
                     1; // we start counting from zero
     }
 
-    // only output non-zero entries if needed
-    if ("provided" == this->rand_prov_values) {
-        libbase::vector<int> non_zero_vals_in_col;
-        sout << "# Non zero values per col" << std::endl;
-        for (int loop1 = 0; loop1 < this->length_n; loop1++) {
-            int num_of_non_zeros = this->pchk_matrix.get_col_idxs(loop1).size();
-            non_zero_vals_in_col.init(num_of_non_zeros);
-            for (int loop2 = 0; loop2 < num_of_non_zeros; loop2++) {
-                int gf_val_int = this->pchk_matrix.get_col_vals(loop1)(loop2);
-                assert(gf_val_int != GF_q(0));
-                non_zero_vals_in_col(loop2) = gf_val_int;
-            }
-            sout << non_zero_vals_in_col;
+    // (always) output pchk matrix non-zero entries
+    libbase::vector<int> non_zero_vals_in_col;
+    sout << "# Pchk matrix non zero values per col" << std::endl;
+    for (int loop1 = 0; loop1 < this->length_n; loop1++) {
+        int num_of_non_zeros = this->pchk_matrix.get_col_idxs(loop1).size();
+        non_zero_vals_in_col.init(num_of_non_zeros);
+        for (int loop2 = 0; loop2 < num_of_non_zeros; loop2++) {
+            int gf_val_int = this->pchk_matrix.get_col_vals(loop1)(loop2);
+            assert(gf_val_int != GF_q(0));
+            non_zero_vals_in_col(loop2) = gf_val_int;
         }
+        sout << non_zero_vals_in_col;
     }
+
+    sout << "# Generator matrix max column weight" << std::endl;
+    sout << this->gen_matrix.max_col_weight() << std::endl;
+    sout << "# Generator matrix max row weight" << std::endl;
+    sout << this->gen_matrix.max_row_weight() << std::endl;
+
+    sout << "# Generator matrix column weight vector" << std::endl;
+    sout << this->gen_matrix.col_weights();
+    sout << "# Generator matrix row weight vector" << std::endl;
+    sout << this->gen_matrix.row_weights();
+
+    sout << "# Generator matrix non zero positions per col" << std::endl;
+    for (int loop1 = 0; loop1 < this->dim_k; loop1++) {
+        sout << this->gen_matrix.get_col_idxs(loop1) +
+                    1; // we start counting from zero
+    }
+
+    // (always) output generator matrix non-zero entries
+    sout << "# Generator matrix non zero values per col" << std::endl;
+    for (int loop1 = 0; loop1 < this->dim_k; loop1++) {
+        int num_of_non_zeros = this->gen_matrix.get_col_idxs(loop1).size();
+        non_zero_vals_in_col.init(num_of_non_zeros);
+        for (int loop2 = 0; loop2 < num_of_non_zeros; loop2++) {
+            int gf_val_int = this->gen_matrix.get_col_vals(loop1)(loop2);
+            assert(gf_val_int != GF_q(0));
+            non_zero_vals_in_col(loop2) = gf_val_int;
+        }
+        sout << non_zero_vals_in_col;
+    }
+
+    sout << "# Positions of information symbols in a codeword";
+    sout << info_symb_pos;
+
+    sout << "# Permutation required to make pchk matrix systematic";
+    sout << perm_to_systematic;
+
     return sout;
 }
 
@@ -356,6 +385,7 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
     int version;
     sin >> libbase::eatcomments >> version >> libbase::verify;
     assertalways(version >= 2);
+
     std::string spa_type;
     sin >> libbase::eatcomments >> spa_type >> libbase::verify;
     sin >> libbase::eatcomments >> this->max_iter >> libbase::verify;
@@ -374,11 +404,11 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
         sin >> libbase::eatcomments >> tmp_az >> libbase::verify;
         almost_zero = real(tmp_az);
     }
-    // Default flag for files with versions less than 4
+    // Default flag for files with versions less than 4 and greater than 5
     this->reduce_to_ref = false;
-    if (version >= 5) {
+    if (version == 5) {
         sin >> libbase::eatcomments >> this->reduce_to_ref >> libbase::verify;
-    } else if (version >= 4) {
+    } else if (version == 4) {
         std::string tmp_flag;
         sin >> libbase::eatcomments >> tmp_flag >> libbase::verify;
         assertalways(("true" == tmp_flag) || ("false" == tmp_flag));
@@ -388,21 +418,31 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
     }
     sin >> libbase::eatcomments >> this->length_n >> libbase::verify;
     sin >> libbase::eatcomments >> this->dim_pchk >> libbase::verify;
+    if (version >= 6) {
+        sin >> libbase::eatcomments >> this->dim_k >> libbase::verify;
+    }
 
     sin >> libbase::eatcomments >> this->max_col_weight >> libbase::verify;
     sin >> libbase::eatcomments >> this->max_row_weight >> libbase::verify;
 
     libbase::randgen rng;
-    // are the non-zero values provided or do we randomly generate them?
-    sin >> libbase::eatcomments >> this->rand_prov_values >> libbase::verify;
-    assertalways(("ones" == this->rand_prov_values) ||
-                 ("random" == this->rand_prov_values) ||
-                 ("provided" == this->rand_prov_values));
-    if ("random" == this->rand_prov_values) {
-        // read the seed value;
-        sin >> libbase::eatcomments >> this->seed >> libbase::verify;
-        assertalways(this->seed >= 0);
-        rng.seed(this->seed);
+    // default for files with version >= 6
+    this->rand_prov_values = "provided";
+    if (version < 6) {
+        // for versions < 6, user can specify how nz values are obtained.
+
+        // are the non-zero values provided or do we randomly generate them?
+        sin >> libbase::eatcomments >> this->rand_prov_values >>
+            libbase::verify;
+        assertalways(("ones" == this->rand_prov_values) ||
+                     ("random" == this->rand_prov_values) ||
+                     ("provided" == this->rand_prov_values));
+        if ("random" == this->rand_prov_values) {
+            // read the seed value;
+            sin >> libbase::eatcomments >> this->seed >> libbase::verify;
+            assertalways(this->seed >= 0);
+            rng.seed(this->seed);
+        }
     }
     // read the col weights and ensure they are sensible
     this->col_weight.init(this->length_n);
@@ -453,7 +493,73 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
                                              this->dim_pchk,
                                              this->row_weight);
 
-    this->init();
+    if (version < 6) {
+        // for versions < 6, we have to call init() to populate the generator
+        // matrix, perm_to_systematic and info_symb_pos fields.
+        this->init();
+    } else {
+        // if version >= 6, we read generator matrix, perm_to_systematic and
+        // info_symb_pos from file.
+        int gen_matrix_max_col_weight, gen_matrix_max_row_weight;
+
+        sin >> libbase::eatcomments >> gen_matrix_max_col_weight >>
+            libbase::verify;
+        sin >> libbase::eatcomments >> gen_matrix_max_row_weight >>
+            libbase::verify;
+
+        // read the col weights for gen_matrix and ensure they are sensible
+        libbase::vector<int> gen_matrix_col_weights;
+        gen_matrix_col_weights.init(this->dim_k);
+        sin >> libbase::eatcomments >> gen_matrix_col_weights >>
+            libbase::verify;
+        assertalways(
+            (1 <= gen_matrix_col_weights.min()) &&
+            (gen_matrix_col_weights.max() <= gen_matrix_max_col_weight));
+
+        // read the row weights and ensure they are sensible
+        libbase::vector<int> gen_matrix_row_weights;
+        gen_matrix_row_weights.init(this->length_n);
+        sin >> libbase::eatcomments >> gen_matrix_row_weights >>
+            libbase::verify;
+        assertalways(
+            (0 < gen_matrix_row_weights.min()) &&
+            (gen_matrix_row_weights.max() <= gen_matrix_max_row_weight));
+
+        std::vector<libbase::vector<int>> gen_matrix_col_idxs(this->dim_k);
+        // read the non-zero entries pos per col
+        for (int loop1 = 0; loop1 < this->dim_k; loop1++) {
+            gen_matrix_col_idxs[loop1].init(gen_matrix_col_weights(loop1));
+            sin >> libbase::eatcomments >> gen_matrix_col_idxs[loop1] >>
+                libbase::verify;
+            gen_matrix_col_idxs[loop1] -= 1; // we start counting from zero.
+            // ensure that the number of non-zero pos matches the previously
+            // read value
+            assertalways(gen_matrix_col_idxs[loop1].size().length() ==
+                         gen_matrix_col_weights(loop1));
+        }
+
+        std::vector<libbase::vector<GF_q>> gen_matrix_col_vals(this->dim_k);
+        // read in the non-zero entries per column
+        for (int loop1 = 0; loop1 < this->dim_k; loop1++) {
+            gen_matrix_col_vals[loop1].init(gen_matrix_col_weights(loop1));
+            sin >> libbase::eatcomments >> gen_matrix_col_vals[loop1] >>
+                libbase::verify;
+            assertalways(gen_matrix_col_vals[loop1].min() != GF_q(0));
+        }
+
+        // initialize generator matrix from data obtained from file.
+        this->gen_matrix = libbase::alist<GF_q>(std::move(gen_matrix_col_idxs),
+                                                std::move(gen_matrix_col_vals),
+                                                this->length_n,
+                                                gen_matrix_row_weights);
+
+        // initialize info_symb_pos
+        sin >> libbase::eatcomments >> this->info_symb_pos >> libbase::verify;
+
+        // initialize perm_to_systematic
+        sin >> libbase::eatcomments >> this->perm_to_systematic >>
+            libbase::verify;
+    }
     this->spa_alg =
         libcomm::spa_factory<GF_q, real>::get_spa(spa_type, this->pchk_matrix);
     this->spa_alg->set_clipping(clipping_type, almost_zero);
