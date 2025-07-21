@@ -27,6 +27,7 @@
  */
 
 #include "ldpc.h"
+#include "alist.h"
 #include "linear_code_utils.h"
 #include "randgen.h"
 #include "sumprodalg/spa_factory.h"
@@ -46,7 +47,7 @@ namespace libcomm
 #endif
 
 template <class GF_q, class real>
-ldpc<GF_q, real>::ldpc(libbase::matrix<GF_q> paritycheck_mat,
+ldpc<GF_q, real>::ldpc(libbase::alist<GF_q> paritycheck_mat,
                        const int num_of_iters)
 {
     // initialise the provided values;
@@ -54,71 +55,13 @@ ldpc<GF_q, real>::ldpc(libbase::matrix<GF_q> paritycheck_mat,
     this->max_iter = num_of_iters;
 
     // compute some values from the parity check matrix
-    this->length_n = paritycheck_mat.size().cols();
-    this->dim_pchk = paritycheck_mat.size().rows();
+    this->length_n = paritycheck_mat.cols();
+    this->dim_pchk = paritycheck_mat.rows();
 
-    // work out the col and row weights (including their maximums)
-    // also determine M_n(positions of non-zero entries per column)
-    // and N_m (positions of non-zero entries per row)
-    this->max_col_weight = 0;
-    this->max_row_weight = 0;
-
-    this->col_weight.init(this->length_n);
-    this->row_weight.init(this->dim_pchk);
-
-    array1i_t tmp_non_zero_pos;
-    tmp_non_zero_pos.init(this->dim_pchk);
-
-    int tmp_weight;
-    // do cols first
-    this->M_n.init(this->length_n);
-
-    for (int col_indx = 0; col_indx < this->length_n; col_indx++) {
-        // reset tmp vars
-        tmp_weight = 0;
-        tmp_non_zero_pos *= 0;
-
-        for (int row_indx = 0; row_indx < this->dim_pchk; row_indx++) {
-            if (paritycheck_mat(row_indx, col_indx) != GF_q(0)) {
-                tmp_non_zero_pos(tmp_weight) = row_indx + 1; // we count from 1
-                tmp_weight++;
-            }
-        }
-        this->col_weight(col_indx) = tmp_weight;
-        if (tmp_weight > this->max_col_weight) {
-            this->max_col_weight = tmp_weight;
-        }
-        // now store the non-zero positions in M_n
-        this->M_n(col_indx).init(tmp_weight);
-        for (int i = 0; i < tmp_weight; i++) {
-            this->M_n(col_indx)(i) = tmp_non_zero_pos(i);
-        }
-    }
-
-    // do rows next
-    tmp_non_zero_pos.init(this->length_n);
-    this->N_m.init(this->dim_pchk);
-
-    for (int row_indx = 0; row_indx < this->dim_pchk; row_indx++) {
-        // reset tmp vars
-        tmp_weight = 0;
-        tmp_non_zero_pos *= 0;
-        for (int col_indx = 0; col_indx < this->length_n; col_indx++) {
-            if (paritycheck_mat(row_indx, col_indx) != GF_q(0)) {
-                tmp_non_zero_pos(tmp_weight) = col_indx + 1; // we count from 1
-                tmp_weight++;
-            }
-        }
-        this->row_weight(row_indx) = tmp_weight;
-        if (tmp_weight > this->max_row_weight) {
-            this->max_row_weight = tmp_weight;
-        }
-        // now store the non-zero positions in N_m
-        this->N_m(row_indx).init(tmp_weight);
-        for (int i = 0; i < tmp_weight; i++) {
-            this->N_m(row_indx)(i) = tmp_non_zero_pos(i);
-        }
-    }
+    this->row_weight = paritycheck_mat.row_weights();
+    this->col_weight = paritycheck_mat.col_weights();
+    this->max_row_weight = paritycheck_mat.max_row_weight();
+    this->max_col_weight = paritycheck_mat.max_col_weight();
 
     this->reduce_to_ref = false;
     this->rand_prov_values = "provided";
@@ -128,12 +71,7 @@ ldpc<GF_q, real>::ldpc(libbase::matrix<GF_q> paritycheck_mat,
     // use sensible default values for the rest
     std::string spa_type = "gdl";
     this->spa_alg =
-        libcomm::spa_factory<GF_q, real>::get_spa(spa_type,
-                                                  this->length_n,
-                                                  this->dim_pchk,
-                                                  this->M_n,
-                                                  this->N_m,
-                                                  this->pchk_matrix);
+        libcomm::spa_factory<GF_q, real>::get_spa(spa_type, this->pchk_matrix);
 
     std::string clipping_type = "zero";
     real almost_zero = real(1E-100);
@@ -144,13 +82,15 @@ template <class GF_q, class real>
 void
 ldpc<GF_q, real>::init()
 {
-
     // compute the generator matrix for the code
 
+    // only place where we expand into a dense repr. for now
+    libbase::matrix<GF_q> pchk_dense = this->pchk_matrix;
+    libbase::matrix<GF_q> genmatrix_dense;
     libbase::linear_code_utils<GF_q>::compute_dual_code(
-        this->pchk_matrix, this->gen_matrix, this->perm_to_systematic);
+        pchk_dense, genmatrix_dense, this->perm_to_systematic);
 
-    this->dim_k = this->gen_matrix.size().rows();
+    this->dim_k = genmatrix_dense.size().rows();
     this->info_symb_pos.init(this->dim_k);
 
     if (this->reduce_to_ref == false) {
@@ -169,16 +109,19 @@ ldpc<GF_q, real>::init()
         // we reduce the generator matrix to REF format in the hope that the
         // info symbols will be in the first k positions and that we'll
         // therefore have a systematic code
-        this->gen_matrix = this->gen_matrix.reduce_to_ref();
+        genmatrix_dense.reduce_to_ref();
         // we now need to find the pivots
         int posy = 0;
         for (int loop = 0; loop < this->dim_k; loop++) {
-            while (this->gen_matrix(loop, posy) == GF_q(0)) {
+            while (genmatrix_dense(loop, posy) == GF_q(0)) {
                 posy++;
             }
             this->info_symb_pos(loop) = posy;
         }
     }
+    // convert back to sparse repr.
+    this->gen_matrix = genmatrix_dense;
+    this->gen_matrix.transpose();
 }
 
 template <class GF_q, class real>
@@ -193,12 +136,12 @@ ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable)
                    << "The first 5 received likelihoods are:" << std::endl;
     libbase::trace << ptable.extract(0, 5);
 #endif
-    const int numOfElements = GF_q::elements();
-    this->received_probs.init(this->length_n, numOfElements);
+    int num_of_elements = GF_q::elements();
+    this->received_probs.init(this->length_n, num_of_elements);
 
     // cast the values from double to real
     for (int loop_n = 0; loop_n < this->length_n; loop_n++) {
-        for (int loop_e = 0; loop_e < numOfElements; loop_e++) {
+        for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
             this->received_probs(loop_n, loop_e) = real(ptable(loop_n)(loop_e));
         }
     }
@@ -210,11 +153,7 @@ ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable)
     this->received_word_hd.serialize(libbase::trace, " ");
 #endif
 
-    // only do the rest if we don't have a codeword already
-    // else
-    //   {
     this->spa_alg->spa_init(this->received_probs);
-    //   }
 }
 
 template <class GF_q, class real>
@@ -222,13 +161,19 @@ void
 ldpc<GF_q, real>::do_encode(const libbase::vector<int>& source,
                             libbase::vector<int>& encoded)
 {
-    libbase::linear_code_utils<GF_q>::encode_cw(
-        this->gen_matrix, source, encoded);
+    libbase::vector<GF_q> source_gf;
+    source_gf.init(source.size().length());
+
+    for (int loop1 = 0; loop1 < source.size().length(); loop1++) {
+        source_gf(loop1) = GF_q(source(loop1));
+    }
+
+    encoded = this->gen_matrix * source_gf;
 
 #if DEBUG >= 2
     this->received_word_hd = encoded;
-    // extract the info symbols from the codeword word and compare them to the
-    // original
+    //  extract the info symbols from the codeword word and compare them to the
+    //  original
     for (int loop_i = 0; loop_i < this->dim_k; loop_i++) {
         assertalways(source(loop_i) == encoded(this->info_symb_pos(loop_i)));
     }
@@ -264,10 +209,10 @@ ldpc<GF_q, real>::description() const
 
 #if DEBUG >= 2
     libbase::trace << "Its parity check matrix is given by:" << std::endl;
-    this->pchk_matrix.serialize(libbase::trace, "\n");
+    libbase::trace << this->pchk_matrix << std::endl;
 
     libbase::trace << "Its generator matrix is given by:" << std::endl;
-    this->gen_matrix.serialize(libbase::trace, "\n");
+    libbase::trace << this->gen_matrix << std::endl;
     libbase::trace << "The information symbols are located in columns:"
                    << std::endl;
     for (int loop = 0; loop < this->dim_k; loop++) {
@@ -376,19 +321,19 @@ ldpc<GF_q, real>::serialize(std::ostream& sout) const
 
     sout << "# Non zero positions per col" << std::endl;
     for (int loop1 = 0; loop1 < this->length_n; loop1++) {
-        sout << this->M_n(loop1);
+        sout << this->pchk_matrix.get_col_idxs(loop1) +
+                    1; // we start counting from zero
     }
 
     // only output non-zero entries if needed
     if ("provided" == this->rand_prov_values) {
-        libbase::vector<GF_q> non_zero_vals_in_col;
+        libbase::vector<int> non_zero_vals_in_col;
         sout << "# Non zero values per col" << std::endl;
         for (int loop1 = 0; loop1 < this->length_n; loop1++) {
-            int num_of_non_zeros = this->M_n(loop1).size();
+            int num_of_non_zeros = this->pchk_matrix.get_col_idxs(loop1).size();
             non_zero_vals_in_col.init(num_of_non_zeros);
             for (int loop2 = 0; loop2 < num_of_non_zeros; loop2++) {
-                int tmp_pos = this->M_n(loop1)(loop2) - 1;
-                int gf_val_int = this->pchk_matrix(tmp_pos, loop1);
+                int gf_val_int = this->pchk_matrix.get_col_vals(loop1)(loop2);
                 assert(gf_val_int != GF_q(0));
                 non_zero_vals_in_col(loop2) = gf_val_int;
             }
@@ -471,68 +416,46 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
     assertalways((0 < this->row_weight.min()) &&
                  (this->row_weight.max() <= this->max_row_weight));
 
-    this->M_n.init(this->length_n);
-
+    std::vector<libbase::vector<int>> col_idxs(this->length_n);
     // read the non-zero entries pos per col
     for (int loop1 = 0; loop1 < this->length_n; loop1++) {
-        this->M_n(loop1).init(this->col_weight(loop1));
-        sin >> libbase::eatcomments >> this->M_n(loop1) >> libbase::verify;
+        col_idxs[loop1].init(this->col_weight(loop1));
+        sin >> libbase::eatcomments >> col_idxs[loop1] >> libbase::verify;
+        col_idxs[loop1] -= 1; // we start counting from zero.
         // ensure that the number of non-zero pos matches the previously read
         // value
-        assertalways(this->M_n(loop1).size() == this->col_weight(loop1));
+        assertalways(col_idxs[loop1].size().length() ==
+                     this->col_weight(loop1));
     }
 
-    // init the parity check matrix and read in the non-zero entries
-    this->pchk_matrix.init(this->dim_pchk, this->length_n);
-    this->pchk_matrix = GF_q(0);
-    libbase::vector<GF_q> non_zero_vals;
+    std::vector<libbase::vector<GF_q>> col_vals(this->length_n);
+    // read in the non-zero entries per column
     const int num_of_non_zero_elements = GF_q::elements() - 1;
     for (int loop1 = 0; loop1 < this->length_n; loop1++) {
-        const int tmp_entries = this->M_n(loop1).size();
-        non_zero_vals.init(tmp_entries);
+        const int tmp_entries = this->col_weight(loop1);
+        col_vals[loop1].init(tmp_entries);
         if ("ones" == this->rand_prov_values) {
             // in the binary case the non-zero values are 1
-            non_zero_vals = GF_q(1);
+            col_vals[loop1] = GF_q(1);
         } else if ("random" == this->rand_prov_values) {
-            for (int loop_e = 0; loop_e < tmp_entries; loop_e++) {
-                non_zero_vals(loop_e) =
+            for (int loop2 = 0; loop2 < tmp_entries; loop2++) {
+                col_vals[loop1](loop2) =
                     GF_q(1 + int(rng.ival(num_of_non_zero_elements)));
             }
-            assertalways(non_zero_vals.min() != GF_q(0));
-        } else { // has to be "provided"
-            sin >> libbase::eatcomments >> non_zero_vals >> libbase::verify;
-            assertalways(non_zero_vals.min() != GF_q(0));
-        }
-        for (int loop2 = 0; loop2 < tmp_entries; loop2++) {
-            const int tmp_pos = this->M_n(loop1)(loop2) - 1; // we count from 0
-            this->pchk_matrix(tmp_pos, loop1) = non_zero_vals(loop2);
+            assertalways(col_vals[loop1].min() != GF_q(0));
+        } else {
+            sin >> libbase::eatcomments >> col_vals[loop1] >> libbase::verify;
+            assertalways(col_vals[loop1].min() != GF_q(0));
         }
     }
+    this->pchk_matrix = libbase::alist<GF_q>(std::move(col_idxs),
+                                             std::move(col_vals),
+                                             this->dim_pchk,
+                                             this->row_weight);
 
-    // derive the non-zero position per row from the parity check matrix
-    this->N_m.init(this->dim_pchk);
-    for (int loop1 = 0; loop1 < this->dim_pchk; loop1++) {
-        const int tmp_entries = this->row_weight(loop1);
-        this->N_m(loop1).init(tmp_entries);
-        int tmp_pos = 0;
-        for (int loop2 = 0; loop2 < this->length_n; loop2++) {
-            if (GF_q(0) != this->pchk_matrix(loop1, loop2)) {
-                assertalways(tmp_pos < tmp_entries);
-                this->N_m(loop1)(tmp_pos) = loop2 + 1; // we count from 0;
-                tmp_pos++;
-            }
-        }
-        // tmp_pos should now correspond to the given row weight
-        assertalways(tmp_pos == this->row_weight(loop1));
-    }
     this->init();
     this->spa_alg =
-        libcomm::spa_factory<GF_q, real>::get_spa(spa_type,
-                                                  this->length_n,
-                                                  this->dim_pchk,
-                                                  this->M_n,
-                                                  this->N_m,
-                                                  this->pchk_matrix);
+        libcomm::spa_factory<GF_q, real>::get_spa(spa_type, this->pchk_matrix);
     this->spa_alg->set_clipping(clipping_type, almost_zero);
     return sin;
 }
@@ -585,69 +508,7 @@ std::ostream&
 ldpc<GF_q, real>::write_alist(std::ostream& sout) const
 {
     assertalways(sout.good());
-    int numOfElements = GF_q::elements();
-    bool nonbinary = (numOfElements > 2);
-
-    // alist format version
-    sout << this->length_n << " " << this->dim_pchk;
-    if (nonbinary) {
-        sout << " " << numOfElements;
-    }
-    sout << std::endl;
-    sout << this->max_col_weight << " " << this->max_row_weight << std::endl;
-    this->col_weight.serialize(sout, " ");
-    this->row_weight.serialize(sout, " ");
-    int num_of_non_zeros;
-    int gf_val_int;
-    int tmp_pos;
-
-    // positions per column (and the non-zero values associated with them in the
-    // non-binary case)
-    for (int loop1 = 0; loop1 < this->length_n; loop1++) {
-        num_of_non_zeros = this->M_n(loop1).size().length();
-        for (int loop2 = 0; loop2 < num_of_non_zeros; loop2++) {
-            sout << this->M_n(loop1)(loop2) << " ";
-            tmp_pos = this->M_n(loop1)(loop2) - 1;
-            if (nonbinary) {
-                gf_val_int = this->pchk_matrix(tmp_pos, loop1);
-                sout << gf_val_int << " ";
-            }
-        }
-        // add 0 zeros if necessary
-        for (int loop2 = 0; loop2 < (this->max_col_weight - num_of_non_zeros);
-             loop2++) {
-            sout << "0 ";
-            if (nonbinary) {
-                sout << "0 ";
-            }
-        }
-        sout << std::endl;
-    }
-
-    // positions per row (and the non-zero values associated with them in the
-    // non-binary case)
-    for (int loop1 = 0; loop1 < this->dim_pchk; loop1++) {
-        num_of_non_zeros = this->N_m(loop1).size().length();
-        for (int loop2 = 0; loop2 < num_of_non_zeros; loop2++) {
-            sout << this->N_m(loop1)(loop2) << " ";
-            tmp_pos = this->N_m(loop1)(loop2) - 1;
-            if (nonbinary) {
-                gf_val_int = this->pchk_matrix(loop1, tmp_pos);
-                sout << gf_val_int << " ";
-            }
-        }
-        // add 0 zeros if necessary
-        for (int loop2 = 0; loop2 < (this->max_row_weight - num_of_non_zeros);
-             loop2++) {
-            sout << "0 ";
-            if (nonbinary) {
-                sout << "0 ";
-            }
-        }
-        sout << std::endl;
-    }
-
-    return sout;
+    return sout << this->pchk_matrix;
 }
 
 /* loading of the  alist format of an LDPC code
@@ -696,106 +557,17 @@ std::istream&
 ldpc<GF_q, real>::read_alist(std::istream& sin)
 {
     assertalways(sin.good());
-    const int numOfElements = GF_q::elements();
-    const bool nonbinary = (numOfElements > 2);
 
-    sin >> libbase::eatcomments >> this->length_n >> libbase::verify;
-    sin >> libbase::eatcomments >> this->dim_pchk >> libbase::verify;
-    if (nonbinary) {
-        int q;
-        sin >> libbase::eatcomments >> q >> libbase::verify;
-        assertalways(numOfElements == q);
-    }
+    sin >> this->pchk_matrix;
 
-    sin >> libbase::eatcomments >> this->max_col_weight >> libbase::verify;
-    sin >> libbase::eatcomments >> this->max_row_weight >> libbase::verify;
+    // compute some values from the parity check matrix
+    this->length_n = this->pchk_matrix.cols();
+    this->dim_pchk = this->pchk_matrix.rows();
+    this->row_weight = this->pchk_matrix.row_weights();
+    this->col_weight = this->pchk_matrix.col_weights();
+    this->max_row_weight = this->pchk_matrix.max_row_weight();
+    this->max_col_weight = this->pchk_matrix.max_col_weight();
 
-    // read the col weights and ensure they are sensible
-    int tmp_col_weight;
-    this->col_weight.init(this->length_n);
-    for (int loop1 = 0; loop1 < this->length_n; loop1++) {
-        sin >> libbase::eatcomments >> tmp_col_weight >> libbase::verify;
-        // is it between 1 and max_col_weight?
-        assertalways((1 <= tmp_col_weight) &&
-                     (tmp_col_weight <= this->max_col_weight));
-        this->col_weight(loop1) = tmp_col_weight;
-    }
-
-    // read the row weights and ensure they are sensible
-    int tmp_row_weight;
-    this->row_weight.init(this->dim_pchk);
-    for (int loop1 = 0; loop1 < this->dim_pchk; loop1++) {
-        sin >> libbase::eatcomments >> tmp_row_weight >> libbase::verify;
-        // is it between 1 and max_row_weight?
-        assertalways((1 <= tmp_row_weight) &&
-                     (tmp_row_weight <= this->max_row_weight));
-        this->row_weight(loop1) = tmp_row_weight;
-    }
-
-    this->pchk_matrix.init(this->dim_pchk, this->length_n);
-    this->M_n.init(this->length_n);
-
-    // read the non-zero entries of the parity check matrix col by col
-    // and ensure they make sense
-    int tmp_entries;
-    int tmp_pos;
-    int tmp_val = 1; // this is the default value for the binary case
-    for (int loop1 = 0; loop1 < this->length_n; loop1++) {
-        // read in the non-zero row entries
-        tmp_entries = this->col_weight(loop1);
-        this->M_n(loop1).init(tmp_entries);
-        for (int loop2 = 0; loop2 < tmp_entries; loop2++) {
-            sin >> libbase::eatcomments >> tmp_pos >> libbase::verify;
-            this->M_n(loop1)(loop2) = tmp_pos;
-            tmp_pos--; // we start counting at 0 internally
-            assertalways((0 <= tmp_pos) && (tmp_pos < this->dim_pchk));
-            // read the non-zero element in the non-binary case
-            if (nonbinary) {
-                sin >> libbase::eatcomments >> tmp_val >> libbase::verify;
-                assertalways((0 <= tmp_val) && (tmp_val < numOfElements));
-            }
-            this->pchk_matrix(tmp_pos, loop1) = GF_q(tmp_val);
-        }
-        // discard any padded 0 zeros if necessary
-        for (int loop2 = 0; loop2 < (this->max_col_weight - tmp_entries);
-             loop2++) {
-            sin >> libbase::eatcomments >> tmp_pos >> libbase::verify;
-            assertalways(0 == tmp_pos);
-            if (nonbinary) {
-                sin >> libbase::eatcomments >> tmp_val >> libbase::verify;
-                assertalways((0 == tmp_val));
-            }
-        }
-    }
-
-    // read the non-zero entries of the parity check matrix row by row
-    this->N_m.init(this->dim_pchk);
-    for (int loop1 = 0; loop1 < this->dim_pchk; loop1++) {
-        tmp_entries = this->row_weight(loop1);
-        this->N_m(loop1).init(tmp_entries);
-        for (int loop2 = 0; loop2 < tmp_entries; loop2++) {
-            sin >> libbase::eatcomments >> tmp_pos >> libbase::verify;
-            this->N_m(loop1)(loop2) = tmp_pos;
-            tmp_pos--; // we start counting at 0 internally
-            assertalways((0 <= tmp_pos) && (tmp_pos < this->length_n));
-            // read the non-zero element in the non-binary case
-            if (nonbinary) {
-                sin >> libbase::eatcomments >> tmp_val >> libbase::verify;
-                assertalways((0 <= tmp_val) && (tmp_val < numOfElements));
-            }
-            assertalways(GF_q(tmp_val) == this->pchk_matrix(loop1, tmp_pos));
-        }
-        // discard any padded 0 zeros if necessary
-        for (int loop2 = 0; loop2 < (this->max_row_weight - tmp_entries);
-             loop2++) {
-            sin >> libbase::eatcomments >> tmp_pos >> libbase::verify;
-            assertalways(0 == tmp_pos);
-            if (nonbinary) {
-                sin >> libbase::eatcomments >> tmp_val >> libbase::verify;
-                assertalways((0 == tmp_val));
-            }
-        }
-    }
     // set some default values
     this->max_iter = 100;
     this->reduce_to_ref = false;
@@ -806,12 +578,7 @@ ldpc<GF_q, real>::read_alist(std::istream& sin)
     }
     this->init();
     this->spa_alg =
-        libcomm::spa_factory<GF_q, real>::get_spa("gdl",
-                                                  this->length_n,
-                                                  this->dim_pchk,
-                                                  this->M_n,
-                                                  this->N_m,
-                                                  this->pchk_matrix);
+        libcomm::spa_factory<GF_q, real>::get_spa("gdl", this->pchk_matrix);
     this->spa_alg->set_clipping("zero", real(1e-100));
     return sin;
 }

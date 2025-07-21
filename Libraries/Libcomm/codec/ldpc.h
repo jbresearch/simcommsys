@@ -29,6 +29,7 @@
 #ifndef LDPC_H_
 #define LDPC_H_
 
+#include "alist.h"
 #include "codec.h"
 #include "config.h"
 #include "matrix.h"
@@ -107,7 +108,7 @@ public:
      * sensible defaults
      *
      */
-    ldpc(libbase::matrix<GF_q> paritycheck_mat, const int num_of_iters);
+    ldpc(libbase::alist<GF_q> paritycheck_mat, const int num_of_iters);
 
     /*! \name Codec operations */
     //! Seeds any random generators from a pseudo-random sequence
@@ -251,17 +252,11 @@ private:
     //! the seed for the random number generator
     unsigned int seed;
 
-    // the positions of the non-zero entries per row
-    array1vi_t N_m;
-
-    // the positions of the non-zero entries per col
-    array1vi_t M_n;
-
     // The parity check matrix of the code
-    libbase::matrix<GF_q> pchk_matrix;
+    libbase::alist<GF_q> pchk_matrix;
 
     //! The generator matrix of the code in REF
-    libbase::matrix<GF_q> gen_matrix;
+    libbase::alist<GF_q> gen_matrix;
 
     //! the permutation that swaps the columns so that
     // the parity check matrix is in standard form, eg (I|P)

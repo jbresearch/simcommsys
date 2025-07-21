@@ -66,11 +66,11 @@ sum_prod_alg_abstract<GF_q, real>::spa_iteration(
     // loop over all check nodes - the horizontal step
     for (int loop_m = 0; loop_m < this->dim_m; loop_m++) {
         // get the bits that participate in this check
-        size_N_m = this->N_m(loop_m).size();
+        size_N_m = this->pchk_matrix.get_row_idxs(loop_m).size().length();
         for (int loop_n = 0; loop_n < size_N_m; loop_n++) {
             // this will compute the relevant r_nms fixing the x_n given by
             // loop_n
-            this->compute_r_mn(loop_m, loop_n, this->N_m(loop_m));
+            this->compute_r_mn(loop_m, loop_n);
         }
     }
 
@@ -82,18 +82,15 @@ sum_prod_alg_abstract<GF_q, real>::spa_iteration(
     this->print_marginal_probs(3, libbase::trace);
 #endif
 
-    // this array holds the checks that use symbol n
-    array1i_t M_n;
-    // the number of checks in that array
+    // the number of checks in each column
     int size_M_n;
 
     // loop over all the bit nodes - the vertical step
 
     for (int loop_n = 0; loop_n < this->length_n; loop_n++) {
-        M_n = this->M_n(loop_n);
-        size_M_n = M_n.size().length();
+        size_M_n = this->pchk_matrix.get_col_idxs(loop_n).size().length();
         for (int loop_m = 0; loop_m < size_M_n; loop_m++) {
-            this->compute_q_mn(loop_m, loop_n, M_n);
+            this->compute_q_mn(loop_m, loop_n);
         }
     }
 #if DEBUG >= 2
@@ -141,10 +138,11 @@ sum_prod_alg_abstract<GF_q, real>::compute_probs(array1vd_t& ro)
     int pos_m;
     for (int loop_n = 0; loop_n < this->length_n; loop_n++) {
         ro(loop_n) = this->received_probs(loop_n);
-        size_of_M_n = this->M_n(loop_n).size();
+        const array1i_t& M_n = this->pchk_matrix.get_col_idxs(loop_n);
+        size_of_M_n = M_n.size().length();
         for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
             for (int loop_m = 0; loop_m < size_of_M_n; loop_m++) {
-                pos_m = this->M_n(loop_n)(loop_m) - 1; // we count from 0
+                pos_m = M_n(loop_m);
                 ro(loop_n)(loop_e) *=
                     this->marginal_probs(pos_m, loop_n).r_mxn(loop_e);
             }
@@ -205,12 +203,6 @@ sum_prod_alg_abstract<GF_q, real>::print_marginal_probs(std::ostream& sout)
             } else {
                 sout << "n/a ";
             }
-            sout << "), val=(";
-            if (used) {
-                sout << this->marginal_probs(loop_m, loop_n).val;
-            } else {
-                sout << " n/a ";
-            }
             sout << ")>";
         }
         sout << "]" << std::endl;
@@ -226,15 +218,16 @@ sum_prod_alg_abstract<GF_q, real>::print_marginal_probs(int col,
     int tmp_col;
     sout << "only printing the necessary values for col=" << col;
     col--; // we count from 0
-    array1i_t tmp_N_m;
-    int num_of_elements_in_col = this->M_n(col).size();
+
+    const array1i_t& M_n = this->pchk_matrix.get_col_idxs(col);
+    int num_of_elements_in_col = M_n.size();
     int num_of_elements_in_row = 0;
 
     for (int loop_m = 0; loop_m < num_of_elements_in_col; loop_m++) {
-        tmp_row = this->M_n(col)(loop_m) - 1;
+        tmp_row = M_n(loop_m);
         sout << std::endl << "row=" << tmp_row + 1;
         sout << std::endl << "[";
-        tmp_N_m = this->N_m(tmp_row);
+        const array1i_t& tmp_N_m = this->pchk_matrix.get_row_idxs(tmp_row);
         num_of_elements_in_row = tmp_N_m.size();
         for (int loop_n = 0; loop_n < num_of_elements_in_row; loop_n++) {
             tmp_col = tmp_N_m(loop_n) - 1;
@@ -265,10 +258,6 @@ sum_prod_alg_abstract<GF_q, real>::print_marginal_probs(int col,
             }
             sout << this->marginal_probs(tmp_row, tmp_col)
                         .r_mxn(num_of_elements - 1);
-
-            sout << "), val=(";
-
-            sout << this->marginal_probs(tmp_row, tmp_col).val;
 
             sout << ")>";
         }

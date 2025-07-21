@@ -84,10 +84,13 @@ sum_prod_alg_gdl<GF_q, real>::spa_init(const array2d_t& recvd_probs)
 
     // simply set q_mxn(0)=P_n(0)=P(x_n=0) and q_mxn(1)=P_n(1)=P(x_n=1)
     for (int loop_m = 0; loop_m < this->dim_m; loop_m++) {
-        non_zeros = this->N_m(loop_m).size();
+        const array1i_t& N_m = this->pchk_matrix.get_row_idxs(loop_m);
+        const libbase::vector<GF_q>& N_m_vals =
+            this->pchk_matrix.get_row_vals(loop_m);
+        non_zeros = N_m.size();
         for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-            pos = this->N_m(loop_m)(loop_n) - 1; // we count from zero;
-            h_m_n = this->marginal_probs(loop_m, pos).val;
+            pos = N_m(loop_n);
+            h_m_n = N_m_vals(loop_n);
             this->marginal_probs(loop_m, pos).q_mxn = this->received_probs(pos);
 
             // If h_m_n is not 1 we need to permute the probs.
@@ -162,41 +165,41 @@ sum_prod_alg_gdl<GF_q, real>::compute_convs(array1d_t& conv_out,
 // specialisation for GF(2)
 template <>
 void
-sum_prod_alg_gdl<libbase::gf2, double>::compute_r_mn(int m,
-                                                     int n,
-                                                     const array1i_t& tmpN_m)
+sum_prod_alg_gdl<libbase::gf2, double>::compute_r_mn(int pos_m, int loop_n)
 {
+    const array1i_t& N_m = this->pchk_matrix.get_row_idxs(pos_m);
     // the number of participating symbols
-    int num_of_var_syms = tmpN_m.size();
+    int num_of_var_syms = N_m.size();
 
-    int pos_n = tmpN_m(n) - 1; // we count from 1;
-
+    int pos_n = N_m(loop_n);
     int pos_n_dash;
 
     double q_nm_conv_prod = 1.0;
     for (int loop2 = 0; loop2 < num_of_var_syms; loop2++) {
-        if (loop2 != n) {
-            pos_n_dash = tmpN_m(loop2) - 1; // we count from zero
-            q_nm_conv_prod *= this->marginal_probs(m, pos_n_dash).qmn_conv(1);
+        if (loop2 != loop_n) {
+            pos_n_dash = N_m(loop2);
+            q_nm_conv_prod *=
+                this->marginal_probs(pos_m, pos_n_dash).qmn_conv(1);
         }
     }
-    this->marginal_probs(m, pos_n).r_mxn(0) = 0.5 * (1.0 + q_nm_conv_prod);
-    this->marginal_probs(m, pos_n).r_mxn(1) = 0.5 * (1.0 - q_nm_conv_prod);
+    this->marginal_probs(pos_m, pos_n).r_mxn(0) = 0.5 * (1.0 + q_nm_conv_prod);
+    this->marginal_probs(pos_m, pos_n).r_mxn(1) = 0.5 * (1.0 - q_nm_conv_prod);
 }
 
 template <class GF_q, class real>
 void
-sum_prod_alg_gdl<GF_q, real>::compute_r_mn(int m,
-                                           int n,
-                                           const array1i_t& tmpN_m)
+sum_prod_alg_gdl<GF_q, real>::compute_r_mn(int pos_m, int loop_n)
 {
+    const array1i_t& N_m = this->pchk_matrix.get_row_idxs(pos_m);
+    const array1i_t& N_m_vals = this->pchk_matrix.get_row_idxs(pos_m);
+
     // the number of participating symbols
-    int num_of_var_syms = tmpN_m.size();
+    int num_of_var_syms = N_m.size();
     int num_of_elements = GF_q::elements();
 
-    int pos_n = tmpN_m(n) - 1; // we count from 1;
+    int pos_n = N_m(loop_n);
     // note the following should never be a division by zero!
-    int h_m_n = this->marginal_probs(m, pos_n).val;
+    int h_m_n = N_m_vals(loop_n);
 
     int pos_n_dash;
 
@@ -205,12 +208,12 @@ sum_prod_alg_gdl<GF_q, real>::compute_r_mn(int m,
     q_nm_conv_prod = 1.0;
     for (int loop2 = 1; loop2 < num_of_elements; loop2++) {
         for (int loop1 = 0; loop1 < num_of_var_syms; loop1++) {
-            if (loop1 != n) {
-                pos_n_dash = tmpN_m(loop1) - 1; // we count from zero
+            if (loop1 != loop_n) {
+                pos_n_dash = N_m(loop1);
 
                 // this uses the FFT of the q_mxn to work out the r_mn
                 q_nm_conv_prod(loop2) *=
-                    this->marginal_probs(m, pos_n_dash).qmn_conv(loop2);
+                    this->marginal_probs(pos_m, pos_n_dash).qmn_conv(loop2);
             }
         }
     }
@@ -239,33 +242,38 @@ sum_prod_alg_gdl<GF_q, real>::compute_r_mn(int m,
     for (int loop1 = 0; loop1 < num_of_elements; loop1++) {
         // perms(h_m_n)(loop)=GF_q(h_m_n)*GF_q(loop) - a look-up is quicker than
         // a computation (I hope)
-        this->marginal_probs(m, pos_n).r_mxn(loop1) =
+        this->marginal_probs(pos_m, pos_n).r_mxn(loop1) =
             q_nm_conv_prod(this->perms(h_m_n)(loop1));
     }
 }
 
 template <class GF_q, class real>
 void
-sum_prod_alg_gdl<GF_q, real>::compute_q_mn(int m, int n, const array1i_t& M_n)
+sum_prod_alg_gdl<GF_q, real>::compute_q_mn(int loop_m, int pos_n)
 {
+    const array1i_t& M_n = this->pchk_matrix.get_col_idxs(pos_n);
+    const libbase::vector<GF_q>& M_n_vals =
+        this->pchk_matrix.get_col_vals(pos_n);
+
     // initialise some helper variables
     int num_of_elements = GF_q::elements();
-    array1d_t q_mn(this->received_probs(n));
+    array1d_t q_mn(this->received_probs(pos_n));
     real a_nxm = q_mn.sum(); // sum up the values in q_mn
     assertalways(a_nxm != real(0));
     int m_dash = 0;
-    int pos_m = M_n(m) - 1; // we count from 1;
+    int pos_m = M_n(loop_m);
 
     // compute q_mn(sym) = a_mxn * P_n(sym) * \prod_{m'\in M(n)\m} r_m'xn(0) for
     // all sym in GF_q
     int size_of_M_n = M_n.size().length();
 
     for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
-        for (int loop_m = 0; loop_m < size_of_M_n; loop_m++) {
-            if (m != loop_m) {
-                m_dash = M_n(loop_m) - 1; // we start counting from zero
+        for (int loop_m_dash = 0; loop_m_dash < size_of_M_n; loop_m_dash++) {
+            if (loop_m_dash != loop_m) {
+                m_dash = M_n(loop_m_dash);
 
-                q_mn(loop_e) *= this->marginal_probs(m_dash, n).r_mxn(loop_e);
+                q_mn(loop_e) *=
+                    this->marginal_probs(m_dash, pos_n).r_mxn(loop_e);
             }
         }
         // Clipping HACK
@@ -277,18 +285,19 @@ sum_prod_alg_gdl<GF_q, real>::compute_q_mn(int m, int n, const array1i_t& M_n)
 
     if (a_nxm == real(0)) {
         // show me the error
-        q_mn = this->received_probs(n);
+        q_mn = this->received_probs(pos_n);
         std::cerr << "received probs:" << q_mn;
         for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
-            for (int loop_m = 0; loop_m < size_of_M_n; loop_m++) {
-                if (m != loop_m) {
-                    m_dash = M_n(loop_m) - 1; // we start counting from zero
-                    std::cerr << "q_mn(" << loop_e << ")=" << q_mn(loop_e)
-                              << " x "
-                              << this->marginal_probs(m_dash, n).r_mxn(loop_e)
-                              << std::endl;
+            for (int loop_m_dash = 0; loop_m_dash < size_of_M_n;
+                 loop_m_dash++) {
+                if (loop_m_dash != loop_m) {
+                    m_dash = M_n(loop_m_dash);
+                    std::cerr
+                        << "q_mn(" << loop_e << ")=" << q_mn(loop_e) << " x "
+                        << this->marginal_probs(m_dash, pos_n).r_mxn(loop_e)
+                        << std::endl;
                     q_mn(loop_e) *=
-                        this->marginal_probs(m_dash, n).r_mxn(loop_e);
+                        this->marginal_probs(m_dash, pos_n).r_mxn(loop_e);
                 }
             }
             // Clipping HACK - just for error display purposes
@@ -313,17 +322,17 @@ sum_prod_alg_gdl<GF_q, real>::compute_q_mn(int m, int n, const array1i_t& M_n)
     assertalways(a_nxm != real(0));
     q_mn /= a_nxm; // normalise
     // store the values
-    this->marginal_probs(pos_m, n).q_mxn = q_mn;
+    this->marginal_probs(pos_m, pos_n).q_mxn = q_mn;
     // compute the FFT and store it for the next iteration
-    int h_m_n = this->marginal_probs(pos_m, n).val;
+    int h_m_n = M_n_vals(loop_m);
     for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
         // perms(h_m_n)(loop)=GF_q(h_m_n)*GF_q(loop) - a look-up is quicker than
         // a computation (I hope)
-        this->marginal_probs(pos_m, n).qmn_conv(this->perms(h_m_n)(loop_e)) =
-            q_mn(loop_e);
+        this->marginal_probs(pos_m, pos_n)
+            .qmn_conv(this->perms(h_m_n)(loop_e)) = q_mn(loop_e);
     }
     this->compute_convs(
-        this->marginal_probs(pos_m, n).qmn_conv, 0, num_of_elements - 1);
+        this->marginal_probs(pos_m, pos_n).qmn_conv, 0, num_of_elements - 1);
 }
 
 } // namespace libcomm

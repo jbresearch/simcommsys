@@ -21,8 +21,8 @@
 
 #ifndef SPA_FACTORY_H_
 #define SPA_FACTORY_H_
+#include "alist.h"
 #include "gf.h"
-#include "matrix.h"
 #include "sum_prod_alg_inf.h"
 #include "sumprodalg/impl/sum_prod_alg_gdl.h"
 #include "sumprodalg/impl/sum_prod_alg_gdl_cuda.h"
@@ -56,23 +56,16 @@ public:
      *
      */
     static std::shared_ptr<sum_prod_alg_inf<GF_q, real>>
-    get_spa(const std::string type,
-            int n,
-            int m,
-            const array1vi_t& non_zero_col_pos,
-            const array1vi_t& non_zero_row_pos,
-            const libbase::matrix<GF_q> pchk_matrix)
+    get_spa(const std::string type, const libbase::alist<GF_q> pchk_matrix)
     {
         if ("trad" == type) {
-            return std::make_shared<sum_prod_alg_trad<GF_q, real>>(
-                n, m, non_zero_col_pos, non_zero_row_pos, pchk_matrix);
+            return std::make_shared<sum_prod_alg_trad<GF_q, real>>(pchk_matrix);
         } else if ("gdl" == type) {
 #ifndef USE_CUDA
-            return std::make_shared<sum_prod_alg_gdl<GF_q, real>>(
-                n, m, non_zero_col_pos, non_zero_row_pos, pchk_matrix);
+            return std::make_shared<sum_prod_alg_gdl<GF_q, real>>(pchk_matrix);
 #else
             return std::make_shared<sum_prod_alg_gdl_cuda<GF_q, real>>(
-                n, m, non_zero_col_pos, non_zero_row_pos, pchk_matrix);
+                pchk_matrix);
 #endif
         } else {
             std::string error_msg(type + " is not a valid SPA type");

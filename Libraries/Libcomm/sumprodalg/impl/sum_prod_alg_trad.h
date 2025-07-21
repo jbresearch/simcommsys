@@ -22,6 +22,7 @@
 #ifndef SUM_PROD_ALG_TRAD_H_
 #define SUM_PROD_ALG_TRAD_H_
 
+#include "alist.h"
 #include "matrix.h"
 #include "sum_prod_alg_abstract.h"
 #include "vector.h"
@@ -40,22 +41,17 @@ public:
     typedef libbase::matrix<real> array2d_t;
     // @}
 
-    sum_prod_alg_trad(int n,
-                      int m,
-                      const array1vi_t& non_zero_col_pos,
-                      const array1vi_t& non_zero_row_pos,
-                      const libbase::matrix<GF_q>& pchk_matrix)
-        : sum_prod_alg_abstract<GF_q, real>::sum_prod_alg_abstract(
-              n, m, non_zero_col_pos, non_zero_row_pos, pchk_matrix)
+    sum_prod_alg_trad(const libbase::alist<GF_q>& pchk_matrix)
+        : sum_prod_alg_abstract<GF_q, real>::sum_prod_alg_abstract(pchk_matrix)
     {
     }
     virtual ~sum_prod_alg_trad()
     {
         // nothing to do
     }
-    void spa_init(const array2d_t& ptable);
-    void compute_r_mn(int m, int n, const array1i_t& tmpN_m);
-    void compute_q_mn(int m, int n, const array1i_t& M_n);
+    void spa_init(const matrixd_t& ptable);
+    void compute_r_mn(int pos_m, int loop_n) override;
+    void compute_q_mn(int loop_m, int pos_n) override;
 
     std::string spa_type() { return "trad"; }
 };

@@ -22,6 +22,7 @@
 #ifndef SUM_PROD_ALG_GDL_H_
 #define SUM_PROD_ALG_GDL_H_
 
+#include "alist.h"
 #include "matrix.h"
 #include "sum_prod_alg_abstract.h"
 #include "vector.h"
@@ -50,21 +51,17 @@ public:
      * to the finite field implementation
      *
      */
-    sum_prod_alg_gdl(int n,
-                     int m,
-                     const array1vi_t& non_zero_col_pos,
-                     const array1vi_t& non_zero_row_pos,
-                     const libbase::matrix<GF_q>& pchk_matrix)
-        : sum_prod_alg_abstract<GF_q, real>::sum_prod_alg_abstract(
-              n, m, non_zero_col_pos, non_zero_row_pos, pchk_matrix)
+    sum_prod_alg_gdl(const libbase::alist<GF_q>& pchk_matrix)
+        : sum_prod_alg_abstract<GF_q, real>::sum_prod_alg_abstract(pchk_matrix)
     {
         int num_of_elements = GF_q::elements();
         int non_zeros = 0;
         int pos = 0;
         for (int loop_m = 0; loop_m < this->dim_m; loop_m++) {
-            non_zeros = this->N_m(loop_m).size();
+            const array1i_t& N_m = pchk_matrix.get_row_idxs(loop_m);
+            non_zeros = N_m.size().length();
             for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-                pos = this->N_m(loop_m)(loop_n) - 1; // we count from zero;
+                pos = N_m(loop_n);
                 this->marginal_probs(loop_m, pos)
                     .qmn_conv.init(num_of_elements);
                 this->marginal_probs(loop_m, pos).r_mxn.init(num_of_elements);
@@ -88,9 +85,9 @@ public:
     {
         // nothing to do
     }
-    void spa_init(const array2d_t& ptable) override;
-    void compute_r_mn(int m, int n, const array1i_t& tmpN_m);
-    void compute_q_mn(int m, int n, const array1i_t& M_n);
+    void spa_init(const matrixd_t& ptable) override;
+    void compute_r_mn(int pos_m, int loop_n) override;
+    void compute_q_mn(int m, int n) override;
     std::string spa_type() { return "gdl"; }
 
 private:

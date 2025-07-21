@@ -19,6 +19,7 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "alist.h"
 #include "cuda/cuda_assert.h"
 #include "cuda/device_ptr.h"
 #include "cuda/gputimer.h"
@@ -131,11 +132,7 @@ permute_mult(real*& buf, real*& swapbuf, GF_q h_m_n)
 
 template <class GF_q, class real>
 sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
-    int n,
-    int m,
-    const array1vi_t& non_zero_col_pos,
-    const array1vi_t& non_zero_row_pos,
-    const libbase::matrix<GF_q>& pchk_matrix)
+    const libbase::alist<GF_q>& pchk_matrix)
 {
     device = ::cuda::cudaGetCurrentDevice();
     warpSize = ::cuda::cudaGetWarpSize(device);
@@ -153,6 +150,8 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     this->init_timer("t_spa_iteration");
 
     int num_of_elements = GF_q::elements();
+    int m = pchk_matrix.rows();
+    int n = pchk_matrix.cols();
 
     // We also build the various parity check matrix fields on the host,
     // then copy to the device.
@@ -165,7 +164,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     int non_zeros = 0;
     max_pchk_row_non_zeros = std::numeric_limits<int>::min();
     for (int loop_m = 0; loop_m < m; loop_m++) {
-        non_zeros = non_zero_row_pos(loop_m).size();
+        non_zeros = pchk_matrix.get_row_idxs(loop_m).size().length();
 
         pchk_row_non_zeros(loop_m) = non_zeros;
         max_pchk_row_non_zeros = std::max(max_pchk_row_non_zeros, non_zeros);
@@ -176,16 +175,18 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
 
     // Populate per-row representation of the parity check matrix.
     int pos_n;
+    GF_q val;
     for (int pos_m = 0; pos_m < m; pos_m++) {
         // non-zeros for this row of the parity check matrix
         non_zeros = pchk_row_non_zeros(pos_m);
 
         for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-            pos_n = non_zero_row_pos(pos_m)(loop_n) - 1; // we count from zero;
+            pos_n = pchk_matrix.get_row_idxs(pos_m)(loop_n);
+            val = pchk_matrix.get_row_vals(pos_m)(loop_n);
 
             // populate other pchk matrix fields on the host.
             pchk_row_non_zeros_pos(pos_m, loop_n) = pos_n;
-            pchk_row_non_zeros_val(pos_m, loop_n) = pchk_matrix(pos_m, pos_n);
+            pchk_row_non_zeros_val(pos_m, loop_n) = val;
         }
     }
 
@@ -194,7 +195,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     // Also populate pchk_col_non_zeros.
     max_pchk_col_non_zeros = std::numeric_limits<int>::min();
     for (int loop_n = 0; loop_n < n; loop_n++) {
-        non_zeros = non_zero_col_pos(loop_n).size();
+        non_zeros = pchk_matrix.get_col_idxs(loop_n).size().length();
 
         pchk_col_non_zeros(loop_n) = non_zeros;
         max_pchk_col_non_zeros = std::max(max_pchk_col_non_zeros, non_zeros);
@@ -226,17 +227,18 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
         non_zeros = pchk_col_non_zeros(pos_n);
 
         for (int loop_m = 0; loop_m < non_zeros; loop_m++, tanner_edges++) {
-            pos_m = non_zero_col_pos(pos_n)(loop_m) - 1; // we count from zero;
+            pos_m = pchk_matrix.get_col_idxs(pos_n)(loop_m);
+            val = pchk_matrix.get_col_vals(pos_n)(loop_m);
 
             // populate other pchk matrix fields on the host.
-            pchk_non_zeros_val(tanner_edges) = pchk_matrix(pos_m, pos_n);
+            pchk_non_zeros_val(tanner_edges) = val;
 
             // linear search for loop_n; should be fast as pchk matrix is
             // sparse.
             int loop_n = -1;
             for (int loop_n_dash = 0; loop_n_dash < pchk_row_non_zeros(pos_m);
                  loop_n_dash++)
-                if (non_zero_row_pos(pos_m)(loop_n_dash) - 1 == pos_n) {
+                if (pchk_matrix.get_row_idxs(pos_m)(loop_n_dash) == pos_n) {
                     loop_n = loop_n_dash;
                     break;
                 }

@@ -22,6 +22,7 @@
 #ifndef SUM_PROD_ALG_ABSTRACT_H_
 #define SUM_PROD_ALG_ABSTRACT_H_
 
+#include "alist.h"
 #include "config.h"
 #include "hard_decision.h"
 #include "matrix.h"
@@ -62,29 +63,12 @@ public:
     /*! \brief constructor
      * initialise the main variables
      */
-    sum_prod_alg_abstract(int n,
-                          int m,
-                          const array1vi_t& non_zero_col_pos,
-                          const array1vi_t& non_zero_row_pos,
-                          const libbase::matrix<GF_q>& pchk_matrix)
-        : length_n(n), dim_m(m), M_n(non_zero_col_pos), N_m(non_zero_row_pos)
+    sum_prod_alg_abstract(const libbase::alist<GF_q>& pchk_matrix)
+        : length_n(pchk_matrix.cols()), dim_m(pchk_matrix.rows()),
+          pchk_matrix(pchk_matrix)
     {
         this->init_timer_with_variance("t_spa_iteration");
-
-        this->marginal_probs.init(m, n);
-
-        int non_zeros = 0;
-        int pos = 0;
-
-        for (int loop_m = 0; loop_m < this->dim_m; loop_m++) {
-            non_zeros = this->N_m(loop_m).size();
-            for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-                pos = this->N_m(loop_m)(loop_n) - 1; // we count from zero;
-
-                this->marginal_probs(loop_m, pos).val =
-                    pchk_matrix(loop_m, pos);
-            }
-        }
+        this->marginal_probs.init(dim_m, length_n);
     }
     /*! \brief default destructor
      *
@@ -153,11 +137,11 @@ protected:
     /*! \brief carries out the horizontal step of SPA
      * The r_mxn probabilities are computed
      */
-    virtual void compute_r_mn(int m, int n, const array1i_t& tmpN_m) = 0;
+    virtual void compute_r_mn(int pos_m, int loop_n) = 0;
     /*! \brief carried out the horizontal step of the SPA
      * the q_mxn probabilities are computed
      */
-    virtual void compute_q_mn(int m, int n, const array1i_t& M_n) = 0;
+    virtual void compute_q_mn(int m, int n) = 0;
 
 private:
     void print_marginal_probs(std::ostream& sout);
@@ -168,7 +152,7 @@ protected:
     /*! \brief Computes syndrome of received_word, returns true if this is 0. */
     bool is_codeword(libbase::vector<GF_q>& received_word)
     {
-        int dim_pchk = N_m.size();
+        int dim_pchk = this->pchk_matrix.rows();
         bool dec_success = true;
         int num_of_entries = 0;
         int pos_n = 0;
@@ -176,11 +160,13 @@ protected:
         GF_q tmp_val = GF_q(0);
         for (int pos_m = 0; pos_m < dim_pchk && dec_success; pos_m++) {
             tmp_val = GF_q(0);
-            num_of_entries = this->N_m(pos_m).size();
+            const array1i_t& N_m = this->pchk_matrix.get_row_idxs(pos_m);
+            const libbase::vector<GF_q>& N_m_vals =
+                this->pchk_matrix.get_row_vals(pos_m);
+            num_of_entries = N_m.size();
             for (int loop_n = 0; loop_n < num_of_entries; loop_n++) {
-                pos_n = this->N_m(pos_m)(loop_n) - 1; // we count from zero
-                tmp_val += this->marginal_probs(pos_m, pos_n).val *
-                           received_word(pos_n);
+                pos_n = N_m(loop_n);
+                tmp_val += N_m_vals(loop_n) * received_word(pos_n);
             }
             if (tmp_val != GF_q(0)) {
                 // the syndrome is non-zero
@@ -208,7 +194,6 @@ protected:
         array1d_t q_mxn;
         array1d_t qmn_conv; //! this holds the fast FFT transforms of the q_mxns
         array1d_t r_mxn;
-        GF_q val; // this holds the non_zero entry at position (m,n)
     };
     // @}
 
@@ -219,11 +204,8 @@ protected:
 
     array1vd_t received_probs;
 
-    // the positions of the non-zero entries per col
-    array1vi_t M_n;
-
-    // the positions of the non-zero entries per row
-    array1vi_t N_m;
+    //! \brief the pchk matrix which we use throughout decoding.
+    libbase::alist<GF_q> pchk_matrix;
 
     //! this matrix holds the r_mxn probabilities
     libbase::matrix<marginals> marginal_probs;

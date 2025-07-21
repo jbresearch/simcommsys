@@ -69,17 +69,19 @@ sum_prod_alg_trad<GF_q, real>::spa_init(const array2d_t& recvd_probs)
     // on page 560 - chapter 47.3
 
     // some helper variables
-    int pos = 0;
     int non_zeros = 0;
+    int pos_n;
 
     // simply set q_mxn(0)=P_n(0)=P(x_n=0) and q_mxn(1)=P_n(1)=P(x_n=1)
     for (int loop_m = 0; loop_m < this->dim_m; loop_m++) {
-        non_zeros = this->N_m(loop_m).size();
+        const array1i_t& N_m = this->pchk_matrix.get_row_idxs(loop_m);
+        non_zeros = N_m.size().length();
         for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-            pos = this->N_m(loop_m)(loop_n) - 1; // we count from zero;
-            this->marginal_probs(loop_m, pos).q_mxn = this->received_probs(pos);
-            this->marginal_probs(loop_m, pos).r_mxn.init(num_of_elements);
-            this->marginal_probs(loop_m, pos).r_mxn = 0.0;
+            pos_n = N_m(loop_n);
+            this->marginal_probs(loop_m, pos_n).q_mxn =
+                this->received_probs(pos_n);
+            this->marginal_probs(loop_m, pos_n).r_mxn.init(num_of_elements);
+            this->marginal_probs(loop_m, pos_n).r_mxn = 0.0;
         }
     }
 
@@ -98,17 +100,19 @@ sum_prod_alg_trad<GF_q, real>::spa_init(const array2d_t& recvd_probs)
 
 template <class GF_q, class real>
 void
-sum_prod_alg_trad<GF_q, real>::compute_r_mn(int m,
-                                            int n,
-                                            const array1i_t& tmpN_m)
+sum_prod_alg_trad<GF_q, real>::compute_r_mn(int pos_m, int loop_n)
 {
+    const array1i_t& N_m = this->pchk_matrix.get_row_idxs(pos_m);
+    const libbase::vector<GF_q>& N_m_vals =
+        this->pchk_matrix.get_row_vals(pos_m);
+
     // the number of remaining symbols that can vary
-    int num_of_var_syms = tmpN_m.size() - 1;
+    int num_of_var_syms = N_m.size().length() - 1;
     int num_of_elements = GF_q::elements();
     // for each check node we need to consider
     // num_of_elements^num_of_var_symbols cases
     int num_of_cases = int(pow(num_of_elements, num_of_var_syms));
-    int pos_n = tmpN_m(n) - 1; // we count from 1;
+    int pos_n = N_m(loop_n);
     int bitmask = num_of_elements - 1;
 
     // only use the entries that are variable
@@ -116,10 +120,10 @@ sum_prod_alg_trad<GF_q, real>::compute_r_mn(int m,
     rel_N_m.init(num_of_var_syms);
     int indx = 0;
     for (int loop = 0; loop < num_of_var_syms; loop++) {
-        if (indx == n) {
+        if (indx == loop_n) {
             indx++;
         }
-        rel_N_m(loop) = tmpN_m(indx);
+        rel_N_m(loop) = N_m(indx);
         indx++;
     }
     // go through all cases - this will use bitwise manipulation
@@ -133,8 +137,8 @@ sum_prod_alg_trad<GF_q, real>::compute_r_mn(int m,
     int pos_n_dash;
     real q_nm_prod = real(1.0);
 
-    this->marginal_probs(m, pos_n).r_mxn = 0.0;
-    GF_q check_value = this->marginal_probs(m, pos_n).val;
+    this->marginal_probs(pos_m, pos_n).r_mxn = 0.0;
+    GF_q check_value = N_m_vals(loop_n);
 
     for (int loop1 = 0; loop1 < num_of_cases; loop1++) {
         bits = loop1;
@@ -142,7 +146,7 @@ sum_prod_alg_trad<GF_q, real>::compute_r_mn(int m,
         q_nm_prod = 1.0;
         for (int loop2 = 0; loop2 < num_of_var_syms; loop2++) {
 
-            pos_n_dash = rel_N_m(loop2) - 1; // we count from zero
+            pos_n_dash = rel_N_m(loop2);
 
             // extract int value of the first symbol
             int_sym_val = bits & bitmask;
@@ -150,41 +154,44 @@ sum_prod_alg_trad<GF_q, real>::compute_r_mn(int m,
             bits = bits >> GF_q::dimension();
 
             // the parity check symbol at this position
-            h_m_n_dash = this->marginal_probs(m, pos_n_dash).val;
+            h_m_n_dash = N_m_vals(loop2);
             // compute the value that at this check
             tmp_chk_val = h_m_n_dash * GF_q(int_sym_val);
 
             // add it to the syndrome
             syndrome_sym = syndrome_sym + tmp_chk_val;
             // look up the prob that the chk_val was actually sent
-            q_nm_prod *= this->marginal_probs(m, pos_n_dash).q_mxn(int_sym_val);
+            q_nm_prod *=
+                this->marginal_probs(pos_m, pos_n_dash).q_mxn(int_sym_val);
         }
         // adjust the appropriate rmn value
         int_sym_val = syndrome_sym / check_value;
-        this->marginal_probs(m, pos_n).r_mxn(int_sym_val) += q_nm_prod;
+        this->marginal_probs(pos_m, pos_n).r_mxn(int_sym_val) += q_nm_prod;
     }
 }
 
 template <class GF_q, class real>
 void
-sum_prod_alg_trad<GF_q, real>::compute_q_mn(int m, int n, const array1i_t& M_n)
+sum_prod_alg_trad<GF_q, real>::compute_q_mn(int loop_m, int pos_n)
 {
+    const array1i_t& M_n = this->pchk_matrix.get_col_idxs(pos_n);
 
     // initialise some helper variables
     int num_of_elements = GF_q::elements();
-    array1d_t q_mn(this->received_probs(n));
+    array1d_t q_mn(this->received_probs(pos_n));
 
     int m_dash = 0;
-    int pos_m = M_n(m) - 1; // we count from 1;
+    int pos_m = M_n(loop_m);
 
     // compute q_mn(sym) = a_mxn * P_n(sym) * \prod_{m'\in M(n)\m} r_m'xn(0) for
     // all sym in GF_q
     int size_of_M_n = M_n.size().length();
-    for (int loop_m = 0; loop_m < size_of_M_n; loop_m++) {
-        if (m != loop_m) {
-            m_dash = M_n(loop_m) - 1; // we start counting from zero
+    for (int loop_m_dash = 0; loop_m_dash < size_of_M_n; loop_m_dash++) {
+        if (loop_m_dash != loop_m) {
+            m_dash = M_n(loop_m_dash);
             for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
-                q_mn(loop_e) *= this->marginal_probs(m_dash, n).r_mxn(loop_e);
+                q_mn(loop_e) *=
+                    this->marginal_probs(m_dash, pos_n).r_mxn(loop_e);
             }
         }
     }
@@ -195,7 +202,7 @@ sum_prod_alg_trad<GF_q, real>::compute_q_mn(int m, int n, const array1i_t& M_n)
     q_mn /= a_nxm; // normalise
 
     // store the values
-    this->marginal_probs(pos_m, n).q_mxn = q_mn;
+    this->marginal_probs(pos_m, pos_n).q_mxn = q_mn;
 }
 
 } // namespace libcomm

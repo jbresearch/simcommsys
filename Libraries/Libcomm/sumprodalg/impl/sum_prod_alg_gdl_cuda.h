@@ -23,6 +23,7 @@
 #define SUM_PROD_ALG_GDL_CUDA_H_
 
 #include "../sum_prod_alg_inf.h"
+#include "alist.h"
 #include "cuda/device_ptr.h"
 #include "cuda/matrix.h"
 #include "cuda/stream.h"
@@ -63,11 +64,7 @@ public:
      * to the finite field implementation
      *
      */
-    sum_prod_alg_gdl_cuda(int n,
-                          int m,
-                          const array1vi_t& non_zero_col_pos,
-                          const array1vi_t& non_zero_row_pos,
-                          const libbase::matrix<GF_q>& pchk_matrix);
+    sum_prod_alg_gdl_cuda(const libbase::alist<GF_q>& pchk_matrix);
 
     virtual ~sum_prod_alg_gdl_cuda()
     {
