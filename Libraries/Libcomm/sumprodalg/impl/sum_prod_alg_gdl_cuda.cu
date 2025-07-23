@@ -326,7 +326,8 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
     // CUDA is an extern symbol. So we declare a buffer of char aligned to
     // the required type and then cast to a pointer of the type parameter.
     // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
-    extern __shared__ __align__(sizeof(real)) char psums_buf[];
+    static_assert(sizeof(real) <= sizeof(double));
+    extern __shared__ __align__(sizeof(double)) char psums_buf[];
     real* psums = reinterpret_cast<real*>(psums_buf);
 
     int num_of_elements = GF_q::elements();
@@ -413,7 +414,8 @@ spa_init_kern(::cuda::matrix_reference<real, false> device_received_probs,
     // CUDA is an extern symbol. So we declare a buffer of char aligned to
     // the required type and then cast to a pointer of the type parameter.
     // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
-    extern __shared__ __align__(sizeof(real)) char rawbuf[];
+    static_assert(sizeof(real) <= sizeof(double));
+    extern __shared__ __align__(sizeof(double)) char rawbuf[];
     real* buf = reinterpret_cast<real*>(rawbuf);
     real* swapbuf = reinterpret_cast<real*>(rawbuf) + blockDim.x;
 
@@ -525,7 +527,8 @@ compute_r_mn_kern(
     // CUDA is an extern symbol. So we declare a buffer of char aligned to
     // the required type and then cast to a pointer of the type parameter.
     // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
-    extern __shared__ __align__(sizeof(real)) char rawbuf[];
+    static_assert(sizeof(real) <= sizeof(double));
+    extern __shared__ __align__(sizeof(double)) char rawbuf[];
     real* buf = reinterpret_cast<real*>(rawbuf);
     real* swapbuf = reinterpret_cast<real*>(rawbuf) + blockDim.x;
 
@@ -643,7 +646,8 @@ compute_q_mn_kern(
     // CUDA is an extern symbol. So we declare a buffer of char aligned to
     // the required type and then cast to a pointer of the type parameter.
     // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
-    extern __shared__ __align__(sizeof(real)) char rawbuf[];
+    static_assert(sizeof(real) <= sizeof(double));
+    extern __shared__ __align__(sizeof(double)) char rawbuf[];
     real* buf = reinterpret_cast<real*>(rawbuf);
     real* swapbuf = reinterpret_cast<real*>(rawbuf) + blockDim.x;
 
@@ -767,7 +771,8 @@ compute_probs_kern(
     // CUDA is an extern symbol. So we declare a buffer of char aligned to
     // the required type and then cast to a pointer of the type parameter.
     // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
-    extern __shared__ __align__(sizeof(real)) char rawbuf[];
+    static_assert(sizeof(real) <= sizeof(double));
+    extern __shared__ __align__(sizeof(double)) char rawbuf[];
     real* buf = reinterpret_cast<real*>(rawbuf);
 
     int num_of_elements = GF_q::elements();
