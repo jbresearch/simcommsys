@@ -63,6 +63,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::seedfrom(libbase::random& r)
     // Call base method first
     Base::seedfrom(r);
     seed_hd_functor<<<1, 1>>>(this->hd_functor.get(), r.ival());
+    cudaSafeCall(cudaGetLastError());
 }
 
 /*! \brief Compute ceil(X / Y)
@@ -925,6 +926,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration()
         <<<blockdim, ROUND_UP_DIV(n, blockdim)>>>(this->device_out_probs,
                                                   this->device_received_word,
                                                   this->hd_functor.get());
+    cudaSafeCall(cudaGetLastError());
 
     this->add_or_accumulate_timer(t_hard_decision);
 
@@ -936,6 +938,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration()
         this->device_pchk_row_non_zeros_val,
         this->device_received_word,
         this->device_syndrome);
+    cudaSafeCall(cudaGetLastError());
 
     this->add_or_accumulate_timer(t_compute_syndrome);
 
@@ -943,6 +946,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration()
 
     check_syndrome_kern<GF_q, real>
         <<<1, 1>>>(this->device_syndrome, this->device_decode_success.get());
+    cudaSafeCall(cudaGetLastError());
 
     this->add_or_accumulate_timer(t_check_syndrome);
     this->device_decode_success.to_host(&success);
