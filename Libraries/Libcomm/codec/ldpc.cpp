@@ -162,6 +162,10 @@ void
 ldpc<GF_q, real>::do_encode(const libbase::vector<int>& source,
                             libbase::vector<int>& encoded)
 {
+    if (!this->initialized) {
+        this->init();
+        this->initialized = true;
+    }
     libbase::linear_code_utils<GF_q>::encode_cw(
         this->gen_matrix, source, encoded);
 
@@ -328,6 +332,11 @@ ldpc<GF_q, real>::serialize(std::ostream& sout) const
         sout << non_zero_vals_in_col;
     }
 
+    if (!this->initialized) {
+        this->init();
+        this->initialized = true;
+    }
+
     sout << "# Generator matrix" << std::endl;
     sout << this->gen_matrix;
 
@@ -467,12 +476,7 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
                                              this->dim_pchk,
                                              this->row_weight);
 
-    if (version < 6 || !gen_matrix_included) {
-        // for versions < 6, or when the generator matrix is not included in the
-        // file, we have to call init() to populate the generator matrix,
-        // perm_to_systematic and info_symb_pos fields.
-        this->init();
-    } else {
+    if (version >= 6 && gen_matrix_included) {
         // initialize parity check matrix
         sin >> libbase::eatcomments >> this->gen_matrix >> libbase::verify;
         this->dim_k = this->gen_matrix.size().rows();
@@ -483,6 +487,10 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
         // initialize perm_to_systematic
         sin >> libbase::eatcomments >> this->perm_to_systematic >>
             libbase::verify;
+
+        this->initialized = true;
+    } else {
+        this->initialized = false;
     }
     this->spa_alg =
         libcomm::spa_factory<GF_q, real>::get_spa(spa_type, this->pchk_matrix);
@@ -606,7 +614,7 @@ ldpc<GF_q, real>::read_alist(std::istream& sin)
     } else {
         this->rand_prov_values = "provided";
     }
-    this->init();
+    this->initialized = false;
     this->spa_alg =
         libcomm::spa_factory<GF_q, real>::get_spa("gdl", this->pchk_matrix);
     this->spa_alg->set_clipping("zero", real(1e-100));
