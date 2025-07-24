@@ -47,25 +47,6 @@ namespace libcomm
 #    define DEBUG 1
 #endif
 
-template <class GF_q, class real>
-__global__ void
-seed_hd_functor(
-    basic_hard_decision<real, GF_q, ::cuda::vector_reference<real>>* hd_functor,
-    uint32_t rval)
-{
-    hd_functor->seed(rval);
-}
-
-template <class GF_q, class real>
-void
-sum_prod_alg_gdl_cuda<GF_q, real>::seedfrom(libbase::random& r)
-{
-    // Call base method first
-    Base::seedfrom(r);
-    seed_hd_functor<<<1, 1>>>(this->hd_functor.get(), r.ival());
-    cudaSafeCall(cudaGetLastError());
-}
-
 /*! \brief Compute ceil(X / Y)
  */
 #define ROUND_UP_DIV(X, Y) (((X) + (Y) - 1) / (Y))
@@ -310,9 +291,40 @@ sum(real* psums)
     }
 
     real alpha = psums[threadIdx.x & ~(GF_q::elements() - 1)];
-
-    cuda_assert(alpha != real(0.0));
     return alpha;
+}
+
+template <class GF_q, class real>
+__device__
+int
+argmax(real* psums, int* scratch)
+{
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int num_of_elements = GF_q::elements();
+
+    int loop_n = i / num_of_elements;
+    int loop_e = i % num_of_elements;
+
+    // store index in the scratch space
+    scratch[threadIdx.x] = loop_e;
+    __syncthreads();
+
+    for (int stride = num_of_elements / 2; stride > 0; stride >>= 1) {
+        if (threadIdx.x < blockDim.x - stride) {
+            real a = psums[threadIdx.x];
+            real b = psums[threadIdx.x + stride];
+            scratch[threadIdx.x] =
+                (a > b) ? scratch[threadIdx.x] : scratch[threadIdx.x + stride];
+            psums[threadIdx.x] = (a > b) ? a : b;
+        }
+
+        // if all summations were performed in a single warp, there is no need
+        // for __syncthreads()
+        if (blockDim.x - stride > warpSize)
+            __syncthreads();
+    }
+
+    return scratch[threadIdx.x & ~(GF_q::elements() - 1)];
 }
 
 template <class GF_q, class real>
@@ -328,7 +340,7 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
     // the required type and then cast to a pointer of the type parameter.
     // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
     static_assert(sizeof(real) <= sizeof(double));
-    extern __shared__ __align__(sizeof(double)) char psums_buf[];
+    extern __shared__ __align__(sizeof(real)) char psums_buf[];
     real* psums = reinterpret_cast<real*>(psums_buf);
 
     int num_of_elements = GF_q::elements();
@@ -416,7 +428,7 @@ spa_init_kern(::cuda::matrix_reference<real, false> device_received_probs,
     // the required type and then cast to a pointer of the type parameter.
     // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
     static_assert(sizeof(real) <= sizeof(double));
-    extern __shared__ __align__(sizeof(double)) char rawbuf[];
+    extern __shared__ __align__(sizeof(real)) char rawbuf[];
     real* buf = reinterpret_cast<real*>(rawbuf);
     real* swapbuf = reinterpret_cast<real*>(rawbuf) + blockDim.x;
 
@@ -529,7 +541,7 @@ compute_r_mn_kern(
     // the required type and then cast to a pointer of the type parameter.
     // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
     static_assert(sizeof(real) <= sizeof(double));
-    extern __shared__ __align__(sizeof(double)) char rawbuf[];
+    extern __shared__ __align__(sizeof(real)) char rawbuf[];
     real* buf = reinterpret_cast<real*>(rawbuf);
     real* swapbuf = reinterpret_cast<real*>(rawbuf) + blockDim.x;
 
@@ -648,7 +660,7 @@ compute_q_mn_kern(
     // the required type and then cast to a pointer of the type parameter.
     // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
     static_assert(sizeof(real) <= sizeof(double));
-    extern __shared__ __align__(sizeof(double)) char rawbuf[];
+    extern __shared__ __align__(sizeof(real)) char rawbuf[];
     real* buf = reinterpret_cast<real*>(rawbuf);
     real* swapbuf = reinterpret_cast<real*>(rawbuf) + blockDim.x;
 
@@ -773,7 +785,7 @@ compute_probs_kern(
     // the required type and then cast to a pointer of the type parameter.
     // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
     static_assert(sizeof(real) <= sizeof(double));
-    extern __shared__ __align__(sizeof(double)) char rawbuf[];
+    extern __shared__ __align__(sizeof(real)) char rawbuf[];
     real* buf = reinterpret_cast<real*>(rawbuf);
 
     int num_of_elements = GF_q::elements();
@@ -835,18 +847,40 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_probs()
 
 template <class GF_q, class real>
 __global__ void
-hard_decision_kern(
-    ::cuda::matrix_reference<real, false> device_out_probs,
-    ::cuda::vector_reference<GF_q> received_word,
-    basic_hard_decision<real, GF_q, ::cuda::vector_reference<real>>* hd_functor)
+hard_decision_kern(::cuda::matrix_reference<real, false> device_out_probs,
+                   ::cuda::vector_reference<GF_q> received_word,
+                   int n)
 {
-    int n = received_word.size();
-    int pos_n = blockIdx.x * blockDim.x + threadIdx.x;
+    // Declaring a type-parametrized extern symbol in a template function
+    // will cause a name conflict if the template is instantiated multiple
+    // times. This is a problem since dynamically sized shared memory in
+    // CUDA is an extern symbol. So we declare a buffer of char aligned to
+    // the required type and then cast to a pointer of the type parameter.
+    // https://stackoverflow.com/questions/27570552/templated-cuda-kernel-with-dynamic-shared-memory
+    static_assert(sizeof(real) <= sizeof(double));
+    extern __shared__ __align__(sizeof(real)) char rawbuf[];
+    real* pmax = reinterpret_cast<real*>(rawbuf);
+    int* scratch =
+        reinterpret_cast<int*>(reinterpret_cast<real*>(rawbuf) + blockDim.x);
 
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int num_of_elements = GF_q::elements();
+
+    int pos_n = i / num_of_elements;
+
+    real prob = 0;
     if (pos_n < n) {
-        received_word(pos_n) =
-            (*hd_functor)(device_out_probs.extract_row(pos_n));
+        int loop_e = i % num_of_elements;
+        prob = device_out_probs(pos_n, loop_e);
     }
+
+    // Reduction algorithm is heavily inspired by
+    // https://developer.download.nvidia.com/assets/cuda/files/reduction.pdf
+    pmax[threadIdx.x] = prob;
+    scratch[threadIdx.x] = 0;
+    __syncthreads();
+
+    received_word(pos_n) = argmax<GF_q, real>(pmax, scratch);
 }
 
 template <class GF_q, class real>
@@ -895,6 +929,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration()
     int blockdim = warpSize;
     int n = this->device_received_word.size();
     int m = this->device_syndrome.size();
+    int num_of_elements = GF_q::elements();
 
     bool success;
 
@@ -923,16 +958,17 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration()
     ::cuda::gputimer t_hard_decision("t_hard_decision");
 
     hard_decision_kern<GF_q, real>
-        <<<blockdim, ROUND_UP_DIV(n, blockdim)>>>(this->device_out_probs,
-                                                  this->device_received_word,
-                                                  this->hd_functor.get());
+        <<<ROUND_UP_DIV(n * num_of_elements, blockdim),
+           blockdim,
+           (sizeof(real) + sizeof(int)) * blockdim>>>(
+            this->device_out_probs, this->device_received_word, n);
     cudaSafeCall(cudaGetLastError());
 
     this->add_or_accumulate_timer(t_hard_decision);
 
     ::cuda::gputimer t_compute_syndrome("t_compute_syndrome");
 
-    compute_syndrome_kern<GF_q, real><<<blockdim, ROUND_UP_DIV(m, blockdim)>>>(
+    compute_syndrome_kern<GF_q, real><<<ROUND_UP_DIV(m, blockdim), blockdim>>>(
         this->device_pchk_row_non_zeros,
         this->device_pchk_row_non_zeros_pos,
         this->device_pchk_row_non_zeros_val,

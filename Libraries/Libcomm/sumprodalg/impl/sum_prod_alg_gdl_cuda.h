@@ -79,8 +79,6 @@ public:
     void spa_iteration(libbase::vector<GF_q>& received_word) override;
     void decode(libbase::vector<GF_q>& received_word, int max_iters) override;
 
-    void seedfrom(libbase::random& r) override;
-
 private:
     /*! \name State variables */
     /*! \brief this is an n x |GF_q| size matrix that holds prior probability
@@ -172,11 +170,6 @@ private:
     /*! \brief Set to true when iteration yields a valid codeword, false
      * otherwise. */
     ::cuda::device_ptr<bool> device_decode_success;
-    /*! \brief Hard-decision box used when determining codeword from
-     * probabilities. */
-    ::cuda::device_ptr<
-        basic_hard_decision<real, GF_q, ::cuda::vector_reference<real>>>
-        hd_functor;
 
     //! Number of iterations used to decode last codeword
     int num_iters = 0;
@@ -201,7 +194,7 @@ private:
 
     /*! \brief Warp size for the CUDA-enabled device used.
      */
-    int warpSize;
+    int warpSize = 32;
 
 private:
     /*! \name Internal methods for a single SPA iteration */
