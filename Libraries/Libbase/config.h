@@ -28,7 +28,6 @@
  * \author  Johann Briffa
  */
 
-
 // system include files - all architectures
 
 #include <iostream>
@@ -103,11 +102,6 @@ typedef int8_t int8s;
 typedef int16_t int16s;
 typedef int32_t int32s;
 typedef int64_t int64s;
-
-#if defined(USE_128BIT_INT)
-typedef uint128_t int128u;
-typedef int128_t int128s;
-#endif
 
 // Names for floating-point types
 

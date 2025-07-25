@@ -96,17 +96,11 @@ print_new_sizes()
     cout << "int16u     \t" << sizeof(libbase::int16u) * 8 << std::endl;
     cout << "int32u     \t" << sizeof(libbase::int32u) * 8 << std::endl;
     cout << "int64u     \t" << sizeof(libbase::int64u) * 8 << std::endl;
-#if defined(USE_128BIT_INT)
-    cout << "int128u    \t" << sizeof(libbase::int128u) * 8 << std::endl;
-#endif
 
     cout << "int8s      \t" << sizeof(libbase::int8s) * 8 << std::endl;
     cout << "int16s     \t" << sizeof(libbase::int16s) * 8 << std::endl;
     cout << "int32s     \t" << sizeof(libbase::int32s) * 8 << std::endl;
     cout << "int64s     \t" << sizeof(libbase::int64s) * 8 << std::endl;
-#if defined(USE_128BIT_INT)
-    cout << "int128s    \t" << sizeof(libbase::int128s) * 8 << std::endl;
-#endif
 }
 
 void
@@ -406,27 +400,6 @@ testbool_ops()
     }
 }
 
-void
-test128bit()
-{
-#if defined(USE_128BIT_INT)
-    std::cout << std::endl << "128-bit Integer Test:" << std::endl << std::endl;
-    libbase::int128u x = 0;
-    for (int i = 0; i < 128 / 4; i++) {
-        x <<= 4;
-        x |= (i % 16);
-        // show integer value in hex
-        const std::ios::fmtflags flags = std::cout.flags();
-        std::cout << "0x" << std::hex << std::setfill('0');
-        std::cout << std::setw(16)
-                  << libbase::int64u((x >> 64) & 0xffffffffffffffffL);
-        std::cout << std::setw(16) << libbase::int64u(x & 0xffffffffffffffffL);
-        std::cout << std::dec << std::endl;
-        std::cout.flags(flags);
-    }
-#endif
-}
-
 /*!
  * \brief   Test program for various base functions and facilities
  * \author  Johann Briffa
@@ -449,6 +422,5 @@ main(int argc, char* argv[])
     testboost_array();
     testboost_iterators();
     testbool_ops();
-    test128bit();
     return 0;
 }
