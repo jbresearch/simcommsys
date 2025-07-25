@@ -855,8 +855,8 @@ typer = "^0.12.5"
 
 [package.source]
 type = "git"
-url = "ssh://git@dsrg-ict.research.um.edu.mt:2222/simcommsys/simcommsys-utils.git"
-reference = "8ff49b512819d433ea6dcd6fa687c2501d579c7d"
+url = "git@github.com:jbresearch/simcommsys-utils.git"
+reference = "HEAD"
 resolved_reference = "8ff49b512819d433ea6dcd6fa687c2501d579c7d"
 
 [[package]]
@@ -915,4 +915,4 @@ typing-extensions = ">=4.12.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "f11164844a8fcb3d234a4c5e31cecc00fd374350788092b73b24c3d815eef4a3"
+content-hash = "3da87ee2237e55b77eccf64e74d0f476f45c8707e3cd068e83d8d8331f697ff2"
