@@ -293,7 +293,7 @@ export LIBRARIES = $(foreach name,$(LIBNAMES),$(ROOTDIR)/Libraries/Lib$(name)/$(
 
 ### Local variables:
 
-### Build Targets (libs is selective to avoid Libwin)
+### Build Targets
 
 TARGETS_MAIN = $(wildcard SimCommsys/*)
 TARGETS_TEST = $(wildcard Test/*)

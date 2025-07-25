@@ -31,53 +31,7 @@
 // Global compilation settings / options (pre-deployment only)
 
 // Uncoment to include definitions and testing of 128-bit integer types
-//#define USE_128BIT_INT
-
-// Enable secure function overload for CRT in Win32
-
-#ifdef _WIN32
-#    if defined(_CRT_SECURE_CPP_OVERLOAD_SECURE_NAMES)
-#        undef _CRT_SECURE_CPP_OVERLOAD_SECURE_NAMES
-#        undef _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES
-#        undef _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT
-#        undef _CRT_SECURE_NO_DEPRECATE
-#    endif
-#    define _CRT_SECURE_CPP_OVERLOAD_SECURE_NAMES 1
-#    define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES 1
-#    define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES_COUNT 1
-#    define _CRT_SECURE_NO_DEPRECATE 1
-#endif
-
-// Disable checked-iterator warning
-
-#ifdef _WIN32
-#    define _SCL_SECURE_NO_WARNINGS
-#endif
-
-// Disable min/max macros
-
-#ifdef _WIN32
-#    define NOMINMAX
-#endif
-
-// Disable specific warnings
-
-#ifdef _WIN32
-// TODO: consider each of these and decide whether to remove the pragma and fix
-// the code
-//#  pragma warning( disable : 4250 ) // dominance warning
-#    pragma warning(disable : 4800) // forcing int to bool
-#    pragma warning(                                                           \
-        disable : 4804) // '>=': unsafe use of type 'bool' in operation
-#    pragma warning(                                                           \
-        disable : 4244) // 'initializing' : conversion from 'std::streamsize' to
-                        // 'const int', possible loss of data
-#    pragma warning(disable : 4267) // 'initializing' : conversion from 'size_t'
-                                    // to 'const int', possible loss of data
-#    pragma warning(                                                           \
-        disable : 4090) // 'initializing' : different '__unaligned' qualifiers
-
-#endif
+// #define USE_128BIT_INT
 
 // system include files - all architectures
 
@@ -93,10 +47,6 @@
 
 // system include files - specific architectures
 
-#ifdef _WIN32
-#    include <basetsd.h>
-#endif
-
 // module include files
 
 #include "assertalways.h"
@@ -105,18 +55,6 @@
 
 // Implemented log2, round, and sgn if these are not already available
 
-#ifdef _WIN32
-inline double
-log2(double x)
-{
-    return log(x) / log(double(2));
-}
-inline double
-round(double x)
-{
-    return (floor(x + 0.5));
-}
-#endif
 inline double
 round(double x, double r)
 {
@@ -128,22 +66,6 @@ sign(double x)
     return (x > 0) ? +1 : ((x < 0) ? -1 : 0);
 }
 
-// Automatic upgrading of various math functions with int parameter
-
-#ifdef _WIN32
-inline double
-log(int x)
-{
-    return log(double(x));
-}
-
-inline double
-pow(int x, int y)
-{
-    return pow(double(x), y);
-}
-#endif
-
 // Define a function that returns the square of the input
 
 template <class T>
@@ -153,35 +75,7 @@ square(const T x)
     return x * x;
 }
 
-// Define signed size type
-
-#ifdef _WIN32
-typedef SSIZE_T ssize_t;
-#endif
-
-// C99 Names for integer types - only on Windows prior to MSVC++ 10.0 (VS 2010)
-#if defined(_WIN32) && (_MSC_VER < 1600)
-typedef __int8 int8_t;
-typedef __int16 int16_t;
-typedef __int32 int32_t;
-typedef __int64 int64_t;
-typedef unsigned __int8 uint8_t;
-typedef unsigned __int16 uint16_t;
-typedef unsigned __int32 uint32_t;
-typedef unsigned __int64 uint64_t;
-#endif
-
 // Non-standard 128-bit integer types
-
-#if defined(USE_128BIT_INT)
-#    if defined(_WIN32)
-typedef __int128 int128_t;
-typedef unsigned __int128 uint128_t;
-#    else
-typedef __int128_t int128_t;
-typedef __uint128_t uint128_t;
-#    endif
-#endif
 
 // *** Within standard library namespace ***
 
@@ -189,22 +83,6 @@ namespace std
 {
 
 // Define math functions to identify NaN and Inf values
-
-#ifdef _WIN32
-inline bool
-isfinite(double value)
-{
-    switch (_fpclass(value)) {
-    case _FPCLASS_SNAN:
-    case _FPCLASS_QNAN:
-    case _FPCLASS_NINF:
-    case _FPCLASS_PINF:
-        return false;
-    default:
-        return true;
-    }
-}
-#endif // ifdef _WIN32
 
 //! Operator to concatenate STL vectors
 template <class T>

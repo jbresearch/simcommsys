@@ -100,6 +100,9 @@ namespace libbase
  * \version 2.41 (28 Sep 2007)
  * modified so that compilation as a Dummy MPI module occurs when USEMPI is not
  * defined.
+ *
+ * \version 2.42 (25 Jul 2025)
+ * removed support for Windows
  */
 
 class cmpi

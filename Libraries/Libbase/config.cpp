@@ -21,32 +21,14 @@
 
 #include "config.h"
 
-/* Define the version of Windows required (assume that this will work with
- * the last version)
- * NOTE: Moving the definition to config.h is breaking other files (since this
- *    is included in quite a number of places if not from everywhere). While
- *    this is not the cleanest solution, it is not doing any harm. Please
- *    investigate further before moving.
- */
-#ifdef _WIN32
-#    ifndef _WIN32_WINNT
-#        define _WIN32_WINNT _WIN32_WINNT_MAXVER
-#    endif
-#endif
-
-#ifdef _WIN32
-#    include <afx.h>
-#    include <conio.h>
-#else
-#    include <cerrno>
-#    include <cstring>
-#    include <sys/ioctl.h>
-#    include <termios.h>
-#    include <unistd.h>
-#endif
+#include <cerrno>
 #include <csignal>
 #include <cstdio>
+#include <cstring>
 #include <sstream>
+#include <sys/ioctl.h>
+#include <termios.h>
+#include <unistd.h>
 
 namespace libbase
 {
@@ -71,23 +53,10 @@ tracestreambuf::overflow(int c)
 #ifndef NDEBUG
     if (c == '\r' || c == '\n') {
         if (!buffer.empty()) {
-#    ifdef _WIN32
-            TRACE("%s\n", buffer.c_str());
-#    else
             std::clog << buffer.c_str() << std::endl;
-#    endif
             buffer = "";
         }
-    }
-#    ifdef _WIN32
-    // handle TRACE limit in Windows (512 chars including NULL)
-
-    else if (buffer.length() == 511) {
-        TRACE("%s", buffer.c_str());
-        buffer = c;
-    }
-#    endif
-    else {
+    } else {
         buffer += c;
     }
 #endif
@@ -101,11 +70,7 @@ std::ostream trace(&g_tracebuf);
 
 const double PI = 3.14159265358979323846;
 
-#ifdef _WIN32
-const char DIR_SEPARATOR = '\\';
-#else
 const char DIR_SEPARATOR = '/';
-#endif
 
 const int ALIGNMENT = 128;
 
@@ -115,9 +80,6 @@ const int ALIGNMENT = 128;
 int
 keypressed(void)
 {
-#ifdef _WIN32
-    return _kbhit();
-#else
     int count = 0;
     int error;
     struct timespec tv;
@@ -137,7 +99,6 @@ keypressed(void)
     }
 
     return error == 0 ? count : -1;
-#endif
 }
 
 /*! \brief Waits for the user to hit a key and returns its value.
@@ -146,9 +107,6 @@ keypressed(void)
 int
 readkey(void)
 {
-#ifdef _WIN32
-    return _getch();
-#else
     unsigned char ch;
     int error;
     struct termios otty, ntty;
@@ -166,10 +124,10 @@ readkey(void)
     ntty.c_cc[VTIME] = 0; /* timer is ignored */
 
     // flush the input buffer before blocking for new input
-    //#define FLAG TCSAFLUSH
+    // #define FLAG TCSAFLUSH
     // return a char from the current input buffer, or block if no input is
     // waiting.
-#    define FLAG TCSANOW
+#define FLAG TCSANOW
 
     if (0 == (error = tcsetattr(STDIN_FILENO, FLAG, &ntty))) {
         /* get a single character from stdin */
@@ -179,7 +137,6 @@ readkey(void)
     }
 
     return (error == 1 ? (int)ch : -1);
-#endif
 }
 
 static bool interrupt_caught = false;
@@ -222,14 +179,7 @@ std::string
 getlasterror()
 {
     std::ostringstream sout;
-#ifdef _WIN32
-    TCHAR buf[80];
-    DWORD code = GetLastError();
-    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, NULL, buf, 80, NULL);
-    sout << buf << " (" << std::hex << code << std::dec << ")";
-#else
     sout << strerror(errno) << " (" << std::hex << errno << std::dec << ")";
-#endif
     return sout.str();
 }
 

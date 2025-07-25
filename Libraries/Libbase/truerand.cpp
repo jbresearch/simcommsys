@@ -22,15 +22,10 @@
 #include "truerand.h"
 #include "stdlib.h"
 
-#ifdef _WIN32
-#    include <wincrypt.h>
-#    include <windows.h>
-#else
-#    include <fcntl.h>
-#    include <iostream>
-#    include <sys/stat.h>
-#    include <sys/types.h>
-#endif
+#include <fcntl.h>
+#include <iostream>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 namespace libbase
 {
@@ -39,49 +34,24 @@ namespace libbase
 
 truerand::truerand()
 {
-#ifdef _WIN32
-    if (!CryptAcquireContext(
-            &hCryptProv, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT)) {
-        std::cerr << "ERROR (truerand): cannot acquire CryptoAPI context - "
-                  << getlasterror() << "." << std::endl;
-        exit(1);
-    }
-#else
     fd = open("/dev/urandom", O_RDONLY);
     if (fd < 0) {
         std::cerr << "ERROR (truerand): cannot open /dev/urandom." << std::endl;
         exit(1);
     }
-#endif
     // call seed to disable check for explicit seeding, since this generator
     // may be used without any seeding at all.
     seed(0);
 }
 
-truerand::~truerand()
-{
-#ifdef _WIN32
-    assert(hCryptProv);
-    if (!CryptReleaseContext(hCryptProv, 0)) {
-        std::cerr << "ERROR (truerand): cannot release CryptoAPI context - "
-                  << getlasterror() << "." << std::endl;
-        exit(1);
-    }
-#else
-    close(fd);
-#endif
-}
+truerand::~truerand() { close(fd); }
 
 // Interface with random
 
 inline void
 truerand::advance()
 {
-#ifdef _WIN32
-    assertalways(CryptGenRandom(hCryptProv, sizeof(x), (BYTE*)&x));
-#else
     assertalways(read(fd, &x, sizeof(x)) == sizeof(x));
-#endif
 }
 
 } // namespace libbase

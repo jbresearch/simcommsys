@@ -23,15 +23,9 @@
 
 #include <fstream>
 
-#ifdef _WIN32
-#    include <fcntl.h>
-#    include <io.h>
-#    include <sys/stat.h>
-#else
-#    include <sys/types.h>
-#    include <unistd.h>
-#endif
 #include <cerrno>
+#include <sys/types.h>
+#include <unistd.h>
 
 namespace libcomm
 {
@@ -54,15 +48,8 @@ void
 resultsfile::truncate(std::streampos length) const
 {
     assert(!fname.empty());
-#ifdef _WIN32
-    int fd;
-    _sopen_s(&fd, fname.c_str(), _O_RDWR, _SH_DENYNO, _S_IREAD | _S_IWRITE);
-    _chsize_s(fd, length);
-    _close(fd);
-#else
     if (::truncate(fname.c_str(), length) != 0)
         failwith(strerror(errno));
-#endif
 }
 
 bool

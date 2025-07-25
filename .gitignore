@@ -4,7 +4,6 @@
 /[Dd]ebug
 /[Rr]elease
 /[Pp]rofile
-/Win32
 /x64
 /ipch
 /*.suo

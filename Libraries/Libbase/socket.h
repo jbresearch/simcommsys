@@ -75,10 +75,7 @@ class socket
     // constant values - client
     static const int connect_tries;
     static const int connect_delay;
-#ifdef _WIN32
-    // static values - object count
-    static int objectcount;
-#endif
+
     // internal variables
     int sd;
     std::string ip;

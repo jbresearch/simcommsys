@@ -28,14 +28,10 @@
 #include <sstream>
 #include <vector>
 
-#ifdef _WIN32
-#    include <winsock2.h>
-#else
-#    include <signal.h>
-#    include <sys/resource.h>
-#    include <sys/time.h>
-#    include <unistd.h>
-#endif
+#include <signal.h>
+#include <sys/resource.h>
+#include <sys/time.h>
+#include <unistd.h>
 
 #ifndef HOST_NAME_MAX
 #    define HOST_NAME_MAX 255
@@ -91,9 +87,7 @@ masterslave::enable(const std::string& endpoint, bool quiet, int priority)
 {
     assert(!initialized);
 
-#ifndef _WIN32
     signal(SIGPIPE, SIG_IGN);
-#endif
 
     // hostname is the part before the ':', or the whole string if there is no
     // ':'
@@ -151,11 +145,8 @@ masterslave::close()
 void
 masterslave::setpriority(const int priority)
 {
-#ifdef _WIN32
-#else
     const int PRIO_CURRENT = 0;
     ::setpriority(PRIO_PROCESS, PRIO_CURRENT, priority);
-#endif
 }
 
 void

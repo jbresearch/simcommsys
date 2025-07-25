@@ -665,19 +665,11 @@ inline vector<T>::vector(const vector<A>& x) : m_size(0), m_data(NULL)
 {
     test_invariant();
     alloc(x.size().length());
-    // avoid down-cast warnings in Win32
-#ifdef _WIN32
-#    pragma warning(push)
-#    pragma warning(disable : 4244 4800)
-#endif
     // Do not convert type of element from A to T, so that if either is a
     // vector, the process can continue through the assignment operator
     for (int i = 0; i < m_size.length(); i++) {
         m_data[i] = x(i);
     }
-#ifdef _WIN32
-#    pragma warning(pop)
-#endif
     test_invariant();
 }
 
@@ -687,19 +679,11 @@ inline vector<T>::vector(const std::vector<A>& x) : m_size(0), m_data(NULL)
 {
     test_invariant();
     alloc(x.size());
-    // avoid down-cast warnings in Win32
-#ifdef _WIN32
-#    pragma warning(push)
-#    pragma warning(disable : 4244 4800)
-#endif
     // Do not convert type of element from A to T, so that if either is a
     // vector, the process can continue through the assignment operator
     for (int i = 0; i < m_size.length(); i++) {
         m_data[i] = x[i];
     }
-#ifdef _WIN32
-#    pragma warning(pop)
-#endif
     test_invariant();
 }
 
@@ -752,20 +736,12 @@ vector<T>::operator=(const vector<A>& x)
     // this should never correspond to self-assignment
     assert((void*)this != (void*)&x);
     init(x.size());
-    // avoid down-cast warnings in Win32
-#ifdef _WIN32
-#    pragma warning(push)
-#    pragma warning(disable : 4244)
-#endif
     // Do not convert type of element from A to T, so that if either is a
     // vector, the process can continue recursively
     for (int i = 0; i < m_size.length(); i++) {
         m_data[i] = x(i);
     }
 
-#ifdef _WIN32
-#    pragma warning(pop)
-#endif
     test_invariant();
     return *this;
 }
@@ -776,18 +752,10 @@ inline vector<T>&
 vector<T>::operator=(const A x)
 {
     test_invariant();
-    // avoid down-cast warnings in Win32
-#ifdef _WIN32
-#    pragma warning(push)
-#    pragma warning(disable : 4244)
-#    pragma warning(disable : 4800)
-#endif
+
     for (int i = 0; i < m_size.length(); i++) {
         m_data[i] = x;
     }
-#ifdef _WIN32
-#    pragma warning(pop)
-#endif
     test_invariant();
     return *this;
 }
@@ -1068,19 +1036,10 @@ vector<T>::operator+=(const vector<T>& x)
 {
     test_invariant();
     assert(x.m_size.length() == m_size.length());
-    // avoid bool-related warnings in Win32
-#ifdef _WIN32
-#    pragma warning(push)
-#    pragma warning(disable : 4804 4800)
-#endif
 
     for (int i = 0; i < m_size.length(); i++) {
         m_data[i] += x.m_data[i];
     }
-
-#ifdef _WIN32
-#    pragma warning(pop)
-#endif
 
     test_invariant();
     return *this;

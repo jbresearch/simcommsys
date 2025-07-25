@@ -25,12 +25,7 @@
 #include "config.h"
 #include "random.h"
 
-#ifdef _WIN32
-#    include <wincrypt.h>
-#    include <windows.h>
-#else
-#    include <unistd.h>
-#endif
+#include <unistd.h>
 
 namespace libbase
 {
@@ -44,7 +39,6 @@ namespace libbase
  * The random source used is a non-blocking cryptographically secure PRNG,
  * regularly re-seeded from entropy sources available to the kernel.
  * Specifically:
- * - Win32 support provided through CryptoAPI
  * - UNIX support provided through /dev/urandom
  *
  * \note Idea suggested by Vangelis Koukis <vkoukis@cslab.ece.ntua.gr>
@@ -54,11 +48,7 @@ class truerand : public random
 {
 private:
     /*! \name Object representation */
-#ifdef _WIN32
-    HCRYPTPROV hCryptProv;
-#else
     int fd;
-#endif
     //! Last generated random value
     int32u x;
     // @}

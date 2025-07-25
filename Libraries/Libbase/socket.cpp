@@ -21,26 +21,18 @@
 
 #include "socket.h"
 
-#ifdef _WIN32
-#    include <winsock2.h>
-#else
-#    include <cstdlib>
-#    include <cstring>
-#    include <netdb.h>
-#    include <unistd.h>
+#include <cstdlib>
+#include <cstring>
+#include <netdb.h>
+#include <unistd.h>
 
-#    include <sys/select.h>
-#    include <sys/socket.h>
-#    include <sys/time.h>
-#    include <sys/types.h>
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <sys/types.h>
 
-#    include <arpa/inet.h>
-#    include <netinet/ip.h>
-#endif
-
-#ifdef _WIN32
-typedef int socklen_t;
-#endif
+#include <arpa/inet.h>
+#include <netinet/ip.h>
 
 namespace libbase
 {
@@ -51,10 +43,6 @@ const int socket::connect_tries = 4;
 const int socket::connect_delay = 10;
 
 // static values
-
-#ifdef _WIN32
-int socket::objectcount = 0;
-#endif
 
 // helper functions
 
@@ -72,22 +60,14 @@ template <>
 ssize_t
 socket::io(const void* buf, size_t len)
 {
-#ifdef _WIN32
-    return send(sd, (const char*)buf, int(len), 0);
-#else
     return ::write(sd, buf, len);
-#endif
 }
 
 template <>
 ssize_t
 socket::io(void* buf, size_t len)
 {
-#ifdef _WIN32
-    return recv(sd, (char*)buf, int(len), 0);
-#else
     return ::read(sd, buf, len);
-#endif
 }
 
 template <class T>
@@ -121,46 +101,14 @@ socket::socket()
 {
     sd = -1;
     listener = true;
-#ifdef _WIN32
-    if (objectcount == 0) {
-        WORD wVersionRequested = MAKEWORD(2, 0);
-        WSADATA wsaData;
-        if (WSAStartup(wVersionRequested, &wsaData)) {
-            std::cerr << "ERROR (socket): Failed to startup WinSock DLL."
-                      << std::endl;
-            exit(1);
-        }
-        if (LOBYTE(wsaData.wVersion) != 2 || HIBYTE(wsaData.wVersion) != 0) {
-            std::cerr << "ERROR (socket): Cannot find a usable WinSock DLL."
-                      << std::endl;
-            WSACleanup();
-            exit(1);
-        }
-    }
-    objectcount++;
-#endif
 }
 
 socket::~socket()
 {
     if (sd >= 0) {
         trace << "DEBUG (~socket): closing socket " << sd << std::endl;
-#ifdef _WIN32
-        closesocket(sd);
-#else
         close(sd);
-#endif
     }
-#ifdef _WIN32
-    objectcount--;
-    if (objectcount == 0) {
-        if (WSACleanup()) {
-            std::cerr << "ERROR (socket): Failed to cleanup WinSock DLL."
-                      << std::endl;
-            exit(1);
-        }
-    }
-#endif
 }
 
 // wait for client connects
@@ -180,13 +128,7 @@ socket::bind(int16u port)
     sin.sin_port = htons(port);
 
     int opt = 1;
-#ifdef _WIN32
-    if (setsockopt(
-            sd, SOL_SOCKET, SO_REUSEADDR, (const char*)&opt, sizeof(opt)))
-#else
-    if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)))
-#endif
-    {
+    if (setsockopt(sd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
         std::cerr << "ERROR (bind): Failed to set socket options" << std::endl;
         return false;
     }
@@ -305,11 +247,7 @@ socket::connect(std::string hostname, int16u port)
                       << std::endl;
             return false;
         } else {
-#ifdef _WIN32
-            Sleep(connect_delay * 1000);
-#else
             sleep(connect_delay);
-#endif
         }
     }
 
