@@ -333,8 +333,11 @@ ldpc<GF_q, real>::serialize(std::ostream& sout) const
     }
 
     if (!this->initialized) {
-        this->init();
-        this->initialized = true;
+        // UNSAFE? This is a HACK where we cast away constness and we should fix
+        // it later.
+        ldpc<GF_q, real>* ldpcp = const_cast<ldpc<GF_q, real>*>(this);
+        ldpcp->init();
+        ldpcp->initialized = true;
     }
 
     sout << "# Generator matrix" << std::endl;
