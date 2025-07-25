@@ -1,6 +1,29 @@
-Please see the HowTos in the SimCommSys documentation for details on how to
-use this template folder.
+# Introductory Paper
 
-The relevant HowTos are:
-1. How to set up and run a simulation
-2. How to plot the results of a simulation.
+This directory contains the system file examples illustrated in the [original paper on Simcommsys](https://jabriffa.wordpress.com/2014/06/30/journal-iet-journal-of-engineering-2/).
+
+## Building simulator and timer files
+
+The first step in running any Simcommsys simulation is to build simulator/timer files from the base "system files" which describe a communication system. The system files are kept in `Systems/`, while the simulator/timer files are kept under `Simulators/`, `Timers/` respectively.
+
+In order to build these files, run:
+
+```
+make TAG=<build-tag>
+```
+
+where tag is the binary tag for your Simcommsys build. If you are building Simcommsys from source you can find this by running:
+
+```
+make showbuildid
+```
+
+from the top-level directory of the Simcommsys repo.
+
+## Running simulations
+
+In order to run simulations locally, you can use:
+
+```
+make run-jobfile-local
+```
