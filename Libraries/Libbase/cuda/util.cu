@@ -350,13 +350,16 @@ cudaInitialize(std::ostream& sout)
          << " @ " << cudaGetClockRate() << " GHz"
          << ", capability " << cudaPrettyVersion(cudaGetComputeCapability())
          << ")" << std::endl;
+    // driver and runtime version comparison
+    // TODO: test this part and verify it's what we want to check
+    int driver_version = cudaGetDriverVersion();
+    int runtime_version = cudaGetRuntimeVersion();
     sout << "CUDA initialized: compute model "
          << cudaPrettyVersion(cudaGetComputeModel()) << ", cuda runtime "
-         << cudaPrettyVersion(cudaGetRuntimeVersion()) << std::endl;
-    int driver_version = cudaGetDriverVersion();
-    if (cudaGetRuntimeVersion() > driver_version)
+         << cudaPrettyVersion(runtime_version) << std::endl;
+    if (runtime_version > driver_version)
         sout << "CUDA warning: this code was compiled with cuda runtime "
-             << cudaPrettyVersion(driver_version)
+             << cudaPrettyVersion(runtime_version)
              << " but driver only supports up to "
              << cudaPrettyVersion(driver_version) << std::endl;
 }

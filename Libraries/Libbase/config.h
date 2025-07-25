@@ -28,10 +28,6 @@
  * \author  Johann Briffa
  */
 
-// Global compilation settings / options (pre-deployment only)
-
-// Uncoment to include definitions and testing of 128-bit integer types
-// #define USE_128BIT_INT
 
 // system include files - all architectures
 
@@ -45,15 +41,13 @@
 #include <cstdlib>
 #include <stdint.h>
 
-// system include files - specific architectures
-
 // module include files
 
 #include "assertalways.h"
 
 // *** Global namespace ***
 
-// Implemented log2, round, and sgn if these are not already available
+// Implemented round, and sgn if these are not already available
 
 inline double
 round(double x, double r)
@@ -75,14 +69,10 @@ square(const T x)
     return x * x;
 }
 
-// Non-standard 128-bit integer types
-
 // *** Within standard library namespace ***
 
 namespace std
 {
-
-// Define math functions to identify NaN and Inf values
 
 //! Operator to concatenate STL vectors
 template <class T>

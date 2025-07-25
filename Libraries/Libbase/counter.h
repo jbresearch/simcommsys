@@ -80,6 +80,8 @@ public:
  *
  * A class for counters which can be used to count the number of matching
  * cases in a series of events.
+ * 
+ * \note This class needs to work in CUDA kernels, so we have to use old-style strings
  */
 
 class matching_counter
