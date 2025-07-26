@@ -913,12 +913,14 @@ __global__ void
 check_syndrome_kern(::cuda::vector_reference<GF_q> device_syndrome,
                     bool* decode_success)
 {
-    bool success = true;
-
-    for (int pos_m = 0; pos_m < device_syndrome.size(); pos_m++)
-        success &= !(bool)device_syndrome(pos_m);
-
-    *decode_success = success;
+    int m = device_syndrome.size();
+    int pos_m = blockIdx.x * blockDim.x + threadIdx.x;
+    if (pos_m < m) {
+        bool success = !(bool)device_syndrome(pos_m);
+        if (!success) {
+            *decode_success = false;
+        }
+    }
 }
 
 template <class GF_q, class real>
@@ -980,8 +982,10 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration()
 
     ::cuda::gputimer t_check_syndrome("t_check_syndrome");
 
-    check_syndrome_kern<GF_q, real>
-        <<<1, 1>>>(this->device_syndrome, this->device_decode_success.get());
+    ::cuda::cudaSafeMemset(
+        this->device_decode_success.get(), true, sizeof(bool));
+    check_syndrome_kern<GF_q, real><<<ROUND_UP_DIV(m, blockdim), blockdim>>>(
+        this->device_syndrome, this->device_decode_success.get());
     cudaSafeCall(cudaGetLastError());
 
     this->add_or_accumulate_timer(t_check_syndrome);
