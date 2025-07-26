@@ -151,7 +151,7 @@ public:
             decoded(k) = received_word(this->info_symb_pos(k));
         this->add_timer(t_extract_info);
 
-        this->add_timer_with_variance(this->spa_alg->get_iters(), "num_iters");
+        this->add_timer(this->spa_alg->get_iters(), "num_iters");
         // add all granular timers from sum_prod_alg.
         this->add_timers(*this->spa_alg);
         this->spa_alg->reset_timers();
