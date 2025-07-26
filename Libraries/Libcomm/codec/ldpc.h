@@ -258,9 +258,6 @@ private:
     //! The generator matrix of the code in REF
     libbase::matrix<GF_q> gen_matrix;
 
-    //! Has the generator matrix been initialized?
-    bool initialized = false;
-
     //! the permutation that swaps the columns so that
     // the parity check matrix is in standard form, eg (I|P)
     array1i_t perm_to_systematic;

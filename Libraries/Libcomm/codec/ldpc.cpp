@@ -162,10 +162,6 @@ void
 ldpc<GF_q, real>::do_encode(const libbase::vector<int>& source,
                             libbase::vector<int>& encoded)
 {
-    if (!this->initialized) {
-        this->init();
-        this->initialized = true;
-    }
     libbase::linear_code_utils<GF_q>::encode_cw(
         this->gen_matrix, source, encoded);
 
@@ -332,14 +328,6 @@ ldpc<GF_q, real>::serialize(std::ostream& sout) const
         sout << non_zero_vals_in_col;
     }
 
-    if (!this->initialized) {
-        // UNSAFE? This is a HACK where we cast away constness and we should fix
-        // it later.
-        ldpc<GF_q, real>* ldpcp = const_cast<ldpc<GF_q, real>*>(this);
-        ldpcp->init();
-        ldpcp->initialized = true;
-    }
-
     sout << "# Generator matrix" << std::endl;
     sout << this->gen_matrix;
 
@@ -490,10 +478,8 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
         // initialize perm_to_systematic
         sin >> libbase::eatcomments >> this->perm_to_systematic >>
             libbase::verify;
-
-        this->initialized = true;
     } else {
-        this->initialized = false;
+        this->init();
     }
     this->spa_alg =
         libcomm::spa_factory<GF_q, real>::get_spa(spa_type, this->pchk_matrix);
@@ -617,7 +603,7 @@ ldpc<GF_q, real>::read_alist(std::istream& sin)
     } else {
         this->rand_prov_values = "provided";
     }
-    this->initialized = false;
+    this->init();
     this->spa_alg =
         libcomm::spa_factory<GF_q, real>::get_spa("gdl", this->pchk_matrix);
     this->spa_alg->set_clipping("zero", real(1e-100));
