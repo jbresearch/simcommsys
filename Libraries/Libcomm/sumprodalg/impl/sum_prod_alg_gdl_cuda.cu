@@ -455,7 +455,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array2d_t& recvd_probs)
     this->num_iters = 0;
 
     int num_of_elements = GF_q::elements();
-    int dim_n = recvd_probs.size();
+    int dim_n = recvd_probs.size().rows();
 
     // Allocate memory for recieved probabilities.
     this->device_received_probs.init(dim_n, num_of_elements);
