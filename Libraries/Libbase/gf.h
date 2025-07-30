@@ -257,6 +257,9 @@ public:
         return result;
     }
     // @}
+
+    //! \brief Get a brief human-readable description of the GF type.
+    std::string description() const;
 };
 
 /*! \name Arithmetic operations */

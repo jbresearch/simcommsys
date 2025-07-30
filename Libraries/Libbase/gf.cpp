@@ -95,5 +95,23 @@ template class gf<8, 0x11B>; // 1 { 0001 1011 }
 
    BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, GF_TYPE_SEQ)
  */
+} // namespace libbase
+
+#include <boost/preprocessor/seq/for_each.hpp>
+
+namespace libbase
+{
+
+// We need to use this instead of #x directly in DECLARE_DESCRIPTION, not sure
+// why but latter does not work as expected in BOOST_PP_SEQ_FOR_EACH
+#define str(x) #x
+#define DECLARE_DESCRIPTION(r, x, type)                                        \
+    template <>                                                                \
+    std::string type::description() const                                      \
+    {                                                                          \
+        return str(type);                                                      \
+    }
+
+BOOST_PP_SEQ_FOR_EACH(DECLARE_DESCRIPTION, x, GF_TYPE_SEQ)
 
 } // namespace libbase
