@@ -64,8 +64,7 @@ montecarlo::slave_getparameters(void)
     system->set_parameters(params);
 
     std::cerr << "Simulating system at parameters = ";
-    for (int i = 0; i < params.size(); i++)
-        std::cerr << params(i) << ", ";
+    params.serialize(std::cerr, ", ");
     std::cerr << std::endl;
 }
 
@@ -146,8 +145,7 @@ montecarlo::display(const libbase::vector<double>& result,
         std::clog << "pass " << system->get_samplecount() << "." << std::endl;
         std::clog << "System parameters: ";
         libbase::vector<double> params = system->get_parameters();
-        for (int i = 0; i < params.size(); i++)
-            std::clog << params(i) << ", ";
+        params.serialize(std::clog, ", ");
         std::clog << std::endl;
         std::clog << "Results:" << std::endl;
         system->prettyprint_results(std::clog, result, errormargin);

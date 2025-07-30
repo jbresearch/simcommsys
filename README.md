@@ -12,13 +12,13 @@ Finally, a number of shell and python scripts are provided to encapsulate
 routine use cases.
 
 Documentation is available as follows:
-- User documentation can be found in the Wiki ([public](https://github.com/jbresearch/simcommsys/wiki) | [development](https://dsrg-ict.research.um.edu.mt/jabriffa/simcommsys/-/wikis)).
+- User documentation can be found in the Wiki ([public](https://github.com/jbresearch/simcommsys/wiki) | [development](https://dsrg-ict.research.um.edu.mt/simcommsys/simcommsys/-/wikis)).
    This includes instructions for:
    - Building and installing the executables
    - Setting up and running simulations
    - Collecting and plotting results
 - Technical documentation is divided as follows:
-   - High level technical documentation can be found in the Wiki ([public](https://github.com/jbresearch/simcommsys/wiki) | [development](https://dsrg-ict.research.um.edu.mt/jabriffa/simcommsys/-/wikis)).
+   - High level technical documentation can be found in the Wiki ([public](https://github.com/jbresearch/simcommsys/wiki) | [development](https://dsrg-ict.research.um.edu.mt/simcommsys/simcommsys/-/wikis)).
       This includes:
       - An overview of the SimCommSys framework
       - An example extension of the framework (adding a new codec)
@@ -29,7 +29,7 @@ Documentation is available as follows:
       2. Start with the main page: `doc/html/index.html`
 
 To contact us:
-- For bug reports, use the issue tracker ([public](https://github.com/jbresearch/simcommsys/issues) | [development](https://dsrg-ict.research.um.edu.mt/jabriffa/simcommsys/-/issues)).
+- For bug reports, use the issue tracker ([public](https://github.com/jbresearch/simcommsys/issues) | [development](https://dsrg-ict.research.um.edu.mt/simcommsys/simcommsys/-/issues)).
 - [User and developer project forums](https://groups.google.com/d/forum/simcommsys)
    - Discussions about the use of simcommsys should be tagged with the 'User' category.
    - Longer discussions about simcommsys development should be tagged with the 'Developer' category.
@@ -37,7 +37,7 @@ To contact us:
 
 # Copyright and license
 
-Copyright (c) 2010-2024 Johann A. Briffa
+Copyright (c) 2010-2025 Johann A. Briffa
 
 This file is part of SimCommSys.
 

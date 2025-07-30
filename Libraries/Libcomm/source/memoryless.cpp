@@ -69,7 +69,7 @@ memoryless<S, C>::serialize(std::ostream& sout) const
     sout << cpt.size() << std::endl;
     sout << "#: symbol probabilities" << std::endl;
     libbase::vector<float> symbol_probabilities = to_probabilities(cpt);
-    symbol_probabilities.serialize(sout, '\n');
+    symbol_probabilities.serialize(sout, "\n");
     return sout;
 }
 

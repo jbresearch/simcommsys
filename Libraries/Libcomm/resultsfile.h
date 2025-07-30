@@ -92,6 +92,7 @@ protected:
     bool wasmodified(std::fstream& file);
     virtual void lookforstate(std::fstream& sin) = 0;
     /*! \brief Write results and possibly state to output file.
+     *
      * \note Implementing classes should always set \ref std::fstream to point
      * to the end of the data they are writing, as anything after will be
      * truncated.
@@ -114,10 +115,12 @@ public:
 
     /*! \name File handling interface */
     /*! \brief Provide filename
+     *
      * After this, the results handling interface methods can be used.
      */
     void init(const std::string& fname);
     /*! \brief Check whether the handler has been initialized
+     *
      * Indicates whether the results handling interface methods can be used.
      */
     bool isinitialized() const { return !fname.empty(); }
@@ -127,6 +130,7 @@ public:
     virtual void setupfile();
 
     /*! \brief Write current results and state
+     *
      * This method can be called as many times as required; usually this is
      * called after every update. It may be wise for implementing subclasses to
      * limit file writes to occur no more often than a certain frequency.
@@ -135,9 +139,9 @@ public:
                              libbase::vector<double>& errormargin);
 
     /*! \brief Write final results and state
+     *
      * This method is called when the final result is reached. A file write is
-     * guaranteed to occur. If requested, the final state is also
-     * written.
+     * guaranteed to occur. If requested, the final state is also written.
      */
     void writefinalresults(libbase::vector<double>& result,
                            libbase::vector<double>& errormargin,

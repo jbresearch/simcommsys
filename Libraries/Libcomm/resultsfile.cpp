@@ -82,6 +82,7 @@ resultsfile::init(const std::string& fname)
 // Results handling interface
 
 /*! \brief Set up the results file and look for a state
+ *
  * If the file does not exist, a new one is created. Otherwise, a digest of the
  * current file contents is kept. A search for a saved state is also initiated
  * by this method.

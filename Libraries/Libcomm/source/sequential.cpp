@@ -36,7 +36,7 @@ sequential<S, C>::serialize(std::ostream& sout) const
     sout << "#: input symbols - count" << std::endl;
     sout << input_vectors.size() << std::endl;
     sout << "#: input symbols - values" << std::endl;
-    input_vectors.serialize(sout, '\n');
+    input_vectors.serialize(sout, "\n");
     return sout;
 }
 

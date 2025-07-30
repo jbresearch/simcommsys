@@ -109,10 +109,7 @@ resultsfile_text::writeresults(std::ostream& sout,
     // print all the param values
     libbase::vector<double> params = system->get_parameters();
     assertalways(params.size() > 0);
-    sout << params(0);
-    for (int i = 1; i < params.size(); i++) {
-        sout << '\t' << params(i);
-    }
+    params.serialize(sout, "\t");
 
     // print results and their tolerances
     for (int i = 0; i < system->count(); i++) {
@@ -144,14 +141,11 @@ resultsfile_text::writestate(std::ostream& sout) const
     // serialize parameters vector differently than usual, so that it takes one
     // line
     libbase::vector<double> params = system->get_parameters();
-    sout << params.size();
-    for (int i = 0; i < params.size(); i++) {
-        sout << " " << params(i);
-    }
+    params.serialize(sout, " ");
     sout << std::endl;
     sout << "## Samples: " << simulator->get_samplecount() << std::endl;
     sout << "## State: " << state.size() << '\t';
-    state.serialize(sout, '\t');
+    state.serialize(sout, "\t");
     sout << std::flush;
     libbase::trace << "DEBUG (resultsfile_text): position after = "
                    << sout.tellp() << std::endl;
@@ -177,18 +171,11 @@ resultsfile_text::lookforstate(std::fstream& sin)
         if (s.substr(0, 10) == "## System:") {
             digest = s.substr(10);
         } else if (s.substr(0, 14) == "## Parameters:") {
-            std::istringstream ss = std::istringstream(s.substr(13));
-            int n_params;
-            ss >> n_params;
-            parameters.init(n_params);
-            for (int i = 0; i < n_params; i++) {
-                ss >> parameters(i);
-            }
+            std::istringstream(s.substr(13)) >> parameters;
         } else if (s.substr(0, 11) == "## Samples:") {
             std::istringstream(s.substr(11)) >> samplecount;
         } else if (s.substr(0, 9) == "## State:") {
-            std::istringstream is(s.substr(9));
-            is >> state;
+            std::istringstream(s.substr(9)) >> state;
         }
     }
     // reset file
@@ -224,6 +211,7 @@ resultsfile_text::checkformodifications(std::fstream& file)
 }
 
 /*! \brief Write current results and perhaps the state
+ *
  * \note If the result being written is final rather than interim, the write
  * position is updated so that it is not overwritten. Otherwise it is not
  * updated.
@@ -250,6 +238,7 @@ resultsfile_text::writeresultsandstate(std::fstream& file,
 }
 
 /*! \brief Set up the results file and look for a state
+ *
  * If the file does not exist, a new one is created. Otherwise, the write
  * point is set to the end of file and a digest of the current file contents
  * is kept. A search for a saved state is also initiated by this method.

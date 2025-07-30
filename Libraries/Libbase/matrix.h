@@ -28,6 +28,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <iostream>
+#include <string>
 
 namespace libbase
 {
@@ -250,7 +251,7 @@ public:
 
     /*! \name Serialization */
     void serialize(std::ostream& sout) const;
-    void serialize(std::ostream& sout, char spacer) const
+    void serialize(std::ostream& sout, std::string spacer) const
     {
         serialize(sout);
         sout << spacer;

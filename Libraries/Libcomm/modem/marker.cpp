@@ -522,7 +522,7 @@ marker<sig, real, real2>::serialize(std::ostream& sout) const
         sout << "#: marker vectors" << std::endl;
         sout << marker_vectors.size() << std::endl;
         for (int i = 0; i < marker_vectors.size(); i++) {
-            marker_vectors(i).serialize(sout, ' ');
+            marker_vectors(i).serialize(sout, " ");
             // sout << std::endl;
         }
         break;

@@ -164,7 +164,7 @@ using libbase::serializer;
       const serializer uncoded<type>::shelper( \
             "codec", \
             "uncoded<" BOOST_PP_STRINGIZE(type) ">", \
-            uncoded<type>::create); \
+            uncoded<type>::create);
 // clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)

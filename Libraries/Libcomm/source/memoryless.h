@@ -83,7 +83,7 @@ public:
         std::ostringstream sout;
         sout << "Memoryless source [p=";
         libbase::vector<float> symbol_probabilities = to_probabilities(cpt);
-        symbol_probabilities.serialize(sout, ',');
+        symbol_probabilities.serialize(sout, ",");
         sout << "]";
         return sout.str();
     }

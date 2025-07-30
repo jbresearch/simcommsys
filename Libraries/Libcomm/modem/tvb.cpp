@@ -591,7 +591,7 @@ tvb<sig, real, real2>::showcodebook(std::ostream& sout,
     assert(codebook.size() == q);
     for (int d = 0; d < q; d++) {
         sout << d << "\t";
-        codebook(d).serialize(sout, ' ');
+        codebook(d).serialize(sout, " ");
     }
 }
 
@@ -938,7 +938,7 @@ tvb<sig, real, real2>::serialize(std::ostream& sout) const
             sout << codebook_tables(i, 0).size() << std::endl;
             sout << "#: codebook entries (table " << i << ")" << std::endl;
             for (int d = 0; d < q; d++) {
-                codebook_tables(i, d).serialize(sout, ' ');
+                codebook_tables(i, d).serialize(sout, " ");
                 // sout << std::endl;
             }
         }

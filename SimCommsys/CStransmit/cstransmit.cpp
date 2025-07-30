@@ -48,7 +48,7 @@ process(const std::string& fname,
         C<S> transmitted(system->output_block_size());
         transmitted.serialize(sin);
         C<S> received = system->transmit(transmitted);
-        received.serialize(sout, '\n');
+        received.serialize(sout, "\n");
         libbase::eatwhite(sin);
     }
 }

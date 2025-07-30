@@ -266,7 +266,7 @@ decode(std::ostream& sout, std::shared_ptr<libcomm::commsys<S, C>> system)
     for (int i = 0; i < system->num_iter(); i++) {
         system->decode(decoded);
     }
-    decoded.serialize(sout, '\n');
+    decoded.serialize(sout, "\n");
 }
 
 /*!

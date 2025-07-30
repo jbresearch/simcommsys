@@ -54,7 +54,7 @@ process(const std::string& fname,
         }
         // encode block and push to output stream
         C<S> transmitted = system->encode_path(source);
-        transmitted.serialize(sout, '\n');
+        transmitted.serialize(sout, "\n");
         // skip any trailing whitespace (before check for EOF)
         libbase::eatwhite(sin);
     }

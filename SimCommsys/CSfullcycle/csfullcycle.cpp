@@ -73,7 +73,7 @@ process(const std::string& fname,
                 system->decode(decoded);
             }
             std::cerr << ".";
-            decoded.serialize(sout, '\n');
+            decoded.serialize(sout, "\n");
         }
         libbase::eatwhite(sin);
         std::cerr << "done." << std::endl;

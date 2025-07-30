@@ -108,6 +108,9 @@ commsys_fulliter<S, C>::decode(C<int>& decoded)
                    << this->cdc->num_iter() " << codec iterations."
                    << std::endl;
 #endif
+    // storage for soft-output
+    C<array1d_t> ri_codec;
+    C<array1d_t> ro_codec;
     for (int curr_mdm_iter = 0; curr_mdm_iter < this->iter; curr_mdm_iter++) {
         // we need to do the receive-path first
         // ** Inner code (modem class) **
@@ -117,18 +120,16 @@ commsys_fulliter<S, C>::decode(C<int>& decoded)
         // Translate
         this->cdc->init_decoder(ptable_ext_codec);
 
-        codec_softout<C>& c = dynamic_cast<codec_softout<C>&>(*this->cdc);
-        C<array1d_t> ri_codec;
-        C<array1d_t> ro_codec;
         for (int curr_cdc_iter = 0; this->cdc->num_iter(); curr_cdc_iter++) {
             // Perform soft-output decoding
+            codec_softout<C>& c = dynamic_cast<codec_softout<C>&>(*this->cdc);
             c.softdecode_iter(ri_codec, ro_codec);
-            // Compute hard-decision for results gatherer
-            hd_functor(ri_codec, decoded);
         }
 
         this->after_decode(ro_codec);
     }
+    // Compute hard-decision for results gatherer
+    hd_functor(ri_codec, decoded);
 }
 
 template <class S, template <class> class C>

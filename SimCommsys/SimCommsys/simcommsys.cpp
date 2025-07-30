@@ -240,8 +240,7 @@ main(int argc, char* argv[])
                 system->set_parameters(params);
 
                 cerr << "Simulating system at parameters = ";
-                for (int i = 0; i < params.size(); i++)
-                    cerr << params(i) << ", ";
+                params.serialize(cerr, ", ");
                 cerr << std::endl;
                 libbase::vector<double> estimate, errormargin;
                 estimator.estimate(estimate, errormargin);

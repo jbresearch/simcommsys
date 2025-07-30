@@ -639,7 +639,7 @@ using libbase::serializer;
             "codec", \
             "turbo<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
-            turbo<BOOST_PP_SEQ_ENUM(args)>::create); \
+            turbo<BOOST_PP_SEQ_ENUM(args)>::create);
 // clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (REAL1_TYPE_SEQ)(REAL2_TYPE_SEQ))

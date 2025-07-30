@@ -201,8 +201,8 @@ using libbase::serializer;
       const serializer codec_multiblock<libbase::vector, type>::shelper( \
             "codec", \
             "codec_multiblock<" BOOST_PP_STRINGIZE(type) ">", \
-            codec_multiblock<libbase::vector, type>::create);                                                            \
-    // clang-format on
+            codec_multiblock<libbase::vector, type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, (double))
 // BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)

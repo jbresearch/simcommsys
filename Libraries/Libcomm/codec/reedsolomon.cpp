@@ -336,14 +336,14 @@ reedsolomon<GF_q>::description() const
 
     libbase::trace << "Its parity check matrix is:" << std::endl;
 
-    this->pchk_matrix.serialize(libbase::trace, ' ');
+    this->pchk_matrix.serialize(libbase::trace, " ");
 #if DEBUG >= 1
     libbase::trace << "Its parity check matrix in REF is:" << std::endl;
-    this->pchk_ref_matrix.serialize(libbase::trace, ' ');
+    this->pchk_ref_matrix.serialize(libbase::trace, " ");
 #endif
 
     libbase::trace << "Its generator matrix in REF format is:" << std::endl;
-    this->gen_ref_matrix.serialize(libbase::trace, ' ');
+    this->gen_ref_matrix.serialize(libbase::trace, " ");
     return sout.str();
 }
 

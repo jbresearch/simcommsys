@@ -28,6 +28,7 @@
 #include <map>
 #include <typeinfo>
 #include <vector>
+#include <string>
 
 #include "aligned_allocator.h"
 #include "config.h"
@@ -311,7 +312,7 @@ public:
     size_type<libbase::vector> size() const { return m_size; }
 
     /*! \name Serialization */
-    void serialize(std::ostream& sout, char spacer = '\t') const;
+    void serialize(std::ostream& sout, std::string spacer = "\t") const;
     void serialize(std::istream& sin);
     // @}
 
@@ -791,7 +792,7 @@ vector<T>::init(const int n)
 
 template <class T>
 inline void
-vector<T>::serialize(std::ostream& sout, char spacer) const
+vector<T>::serialize(std::ostream& sout, std::string spacer) const
 {
     test_invariant();
     if (m_size.length() > 0) {

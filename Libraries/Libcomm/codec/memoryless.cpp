@@ -265,8 +265,8 @@ using libbase::serializer;
       const serializer memoryless<type>::shelper( \
             "codec", \
             "memoryless<" BOOST_PP_STRINGIZE(type) ">", \
-            memoryless<type>::create);                                                            \
-    // clang-format on
+            memoryless<type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 

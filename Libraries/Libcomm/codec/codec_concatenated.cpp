@@ -293,8 +293,8 @@ using libbase::serializer;
       const serializer codec_concatenated<libbase::vector, type>::shelper( \
             "codec", \
             "codec_concatenated<" BOOST_PP_STRINGIZE(type) ">", \
-            codec_concatenated<libbase::vector, type>::create);                                                            \
-    // clang-format on
+            codec_concatenated<libbase::vector, type>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, (double))
 // BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)

@@ -247,8 +247,7 @@ main(int argc, char* argv[])
 
                 cout << "Simulating system at parameters = ";
                 libbase::vector<double> params = system->get_parameters();
-                for (int i = 0; i < params.size(); i++)
-                    cout << params(i) << ", ";
+                params.serialize(cout, ", ");
                 cout << std::endl;
 
                 // Print results (for confirming accuracy)

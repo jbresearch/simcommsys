@@ -523,7 +523,7 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
     template <>                                                                \
     const serializer commsys<BOOST_PP_SEQ_ENUM(args)>::shelper(                \
         "commsys",                                                             \
-        "commsys<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(                       \
+        "commsys<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(                         \
             0, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) ">",    \
                                             commsys<BOOST_PP_SEQ_ENUM(         \
                                                 args)>::create);

@@ -139,7 +139,7 @@ public:
         std::shared_ptr<libbase::functor> fgetcode(
             new libbase::specificfunctor<montecarlo>(
                 this, &libcomm::montecarlo::slave_getcode));
-        std::shared_ptr<libbase::functor> fgetparameter(
+        std::shared_ptr<libbase::functor> fgetparameters(
             new libbase::specificfunctor<montecarlo>(
                 this, &libcomm::montecarlo::slave_getparameters));
         std::shared_ptr<libbase::functor> fwork(
@@ -147,7 +147,7 @@ public:
                 this, &libcomm::montecarlo::slave_work));
         // register functions
         cluster.fregister("slave_getcode", fgetcode);
-        cluster.fregister("slave_getparameters", fgetparameter);
+        cluster.fregister("slave_getparameters", fgetparameters);
         cluster.fregister("slave_work", fwork);
         // Use a true RNG to determine the initial seed value
         libbase::truerand trng;

@@ -109,7 +109,7 @@ process(const std::string& systemfile,
         } else {
             C<int> decoded;
             hd_functor(ptable, decoded);
-            decoded.serialize(sout, '\n');
+            decoded.serialize(sout, "\n");
         }
     }
     // Verify that there is no pending data

@@ -133,8 +133,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             "experiment", \
             "commsys_threshold<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
-            commsys_threshold<BOOST_PP_SEQ_ENUM(args)>::create);                                                            \
-    // clang-format on
+            commsys_threshold<BOOST_PP_SEQ_ENUM(args)>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
                               (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ))

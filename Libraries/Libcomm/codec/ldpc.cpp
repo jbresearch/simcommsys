@@ -597,8 +597,8 @@ ldpc<GF_q, real>::write_alist(std::ostream& sout) const
     }
     sout << std::endl;
     sout << this->max_col_weight << " " << this->max_row_weight << std::endl;
-    this->col_weight.serialize(sout, ' ');
-    this->row_weight.serialize(sout, ' ');
+    this->col_weight.serialize(sout, " ");
+    this->row_weight.serialize(sout, " ");
     int num_of_non_zeros;
     int gf_val_int;
     int tmp_pos;

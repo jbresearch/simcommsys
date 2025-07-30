@@ -512,8 +512,8 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             "commsys_stream_simulator<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2,args)) ">", \
-            commsys_stream_simulator<BOOST_PP_SEQ_ENUM(args)>::create);                                                            \
-    // clang-format on
+            commsys_stream_simulator<BOOST_PP_SEQ_ENUM(args)>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(
     INSTANTIATE, (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ)(REAL_TYPE_SEQ))
