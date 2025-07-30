@@ -69,19 +69,13 @@ public:
     static constexpr int elements() { return 1 << m; }
 
     /*! \name Class parameters */
-    //! Log base 2 of the number of elements in the field
-#ifdef __CUDACC__
-    __device__
-    __host__
-#endif
-    static constexpr int log2_elements() { return m; }
 
     //! dimension of the field over GF(2)
 #ifdef __CUDACC__
     __device__
     __host__
 #endif
-    static int dimension() { return m; }
+    static constexpr int dimension() { return m; }
     // @}
 
 private:
