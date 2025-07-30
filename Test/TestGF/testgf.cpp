@@ -23,6 +23,8 @@
 #include "cputimer.h"
 #include "gf.h"
 #include "matrix.h"
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <cstdint>
 #include <iostream>
 
 using libbase::bitfield;
@@ -34,6 +36,42 @@ using std::cerr;
 using std::cout;
 using std::dec;
 using std::hex;
+
+//! \brief Basic impl. of + to ensure correctness of more sophisticated impl.
+template <int m, int poly>
+uint32_t
+gf_test_add(uint32_t x, uint32_t y)
+{
+    return x ^ y;
+}
+
+//! \brief Basic impl. of * to ensure correctness of more sophisticated impl.
+template <int m, int poly>
+uint32_t
+gf_test_mul(uint32_t x, uint32_t y)
+{
+    // Initialize result
+    uint32_t res = 0;
+    // Loop over all bits in multiplicand
+    for (int i = 0; i < m && y != 0; i++) {
+        // If the corresponding bit in the multiplicand is set,
+        // add (XOR) the shifted multiplier
+        if (y & 1) {
+            res ^= x;
+        }
+
+        // Shift the multiplicand
+        y >>= 1;
+        // Shift the multiplier, subtracting the polynomial on overflow
+        x <<= 1;
+
+        if (x & (1 << m)) {
+            x ^= poly;
+        }
+    }
+
+    return res;
+}
 
 /*!
  * \brief Exponential table entries for base {03}
@@ -63,23 +101,37 @@ const int aestable[] = {
     0x39, 0x4b, 0xdd, 0x7c, 0x84, 0x97, 0xa2, 0xfd, 0x1c, 0x24, 0x6c, 0xb4,
     0xc7, 0x52, 0xf6, 0x01};
 
+template <typename GF_q>
 void
-TestBinaryField()
+TestField()
 {
-    // Create values in the Binary field GF(2): m(x) = 1 { 1 }
-    typedef gf<1, 0x3> Binary;
-    // Compute and display addition & multiplication tables
-    cout << std::endl << "Binary Addition table:" << std::endl;
-    for (int x = 0; x < 2; x++) {
-        for (int y = 0; y < 2; y++) {
-            cout << Binary(x) + Binary(y) << (y == 1 ? '\n' : '\t');
+    constexpr int m = GF_q::dimension();
+    constexpr int poly = GF_q::polynomial();
+    // we can't use templated functions in assert() as it complains
+    auto gf_test_add_ = [](auto x, auto y) {
+        return gf_test_add<m, poly>(x, y);
+    };
+    auto gf_test_mul_ = [](auto x, auto y) {
+        return gf_test_mul<m, poly>(x, y);
+    };
+
+    // Test addition and mul. against basic impl.
+#ifdef DEBUG
+    std::cout << "Testing addition for " << GF_q(0).description() << std::endl;
+#endif
+    for (int x = 0; x < GF_q::elements(); x++) {
+        for (int y = 0; y < GF_q::elements(); y++) {
+            assert(gf_test_add_(x, y) == uint32_t(GF_q(x) + GF_q(y)));
         }
     }
 
-    cout << std::endl << "Binary Multiplication table:" << std::endl;
-    for (int x = 0; x < 2; x++) {
-        for (int y = 0; y < 2; y++) {
-            cout << Binary(x) * Binary(y) << (y == 1 ? '\n' : '\t');
+#ifdef DEBUG
+    std::cout << "Testing multiplication for " << GF_q(0).description()
+              << std::endl;
+#endif
+    for (int x = 0; x < GF_q::elements(); x++) {
+        for (int y = 0; y < GF_q::elements(); y++) {
+            assert(gf_test_mul_(x, y) == uint32_t(GF_q(x) * GF_q(y)));
         }
     }
 }
@@ -184,7 +236,10 @@ TestGenPowerGF8()
 int
 main(int argc, char* argv[])
 {
-    TestBinaryField();
+    // test each of the fields in GF_TYPE_SEQ
+#define TESTFIELD(r, x, type) TestField<libbase::type>();
+    BOOST_PP_SEQ_FOR_EACH(TESTFIELD, x, GF_TYPE_SEQ)
+
     TestRijndaelField();
     ListField<2, 0x7>();
     ListField<3, 0xB>();
