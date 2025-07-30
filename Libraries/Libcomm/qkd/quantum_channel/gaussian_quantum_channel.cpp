@@ -13,13 +13,13 @@ std::string gaussian_quantum_channel::description() const {
 
 //! Serialize channel to output stream
 std::ostream& gaussian_quantum_channel::serialize(std::ostream& sout) const {
-    // sout << "Mean of the Gaussian Quantum Channel" << std::endl;
-    // sout << noise_mean << std::endl;
-    // sout << "Transmittance of the Gaussian Quantum Channel" << std::endl;
-    // sout << noise_transmittance << std::endl;
     sout << "# Homodyne Detector Efficiency" << std::endl;
     sout << noise_detector_eff << std::endl;
-    // Update set_parameters or transmit fns? To confirm with Mark or Johann.
+    sout << "# Mean of the Gaussian Quantum Channel" << std::endl;
+    sout << noise_mean << std::endl;
+    sout << "# Transmittance T of the Gaussian Quantum Channel" << std::endl;
+    sout << noise_transmittance << std::endl;
+
     return sout;
 }
 
@@ -27,9 +27,10 @@ std::ostream& gaussian_quantum_channel::serialize(std::ostream& sout) const {
 std::istream& gaussian_quantum_channel::serialize(std::istream& sin) {
 
     // assertalways(sin.good());
-    // sin >> libbase::eatcomments >> noise_mean;
-    // sin >> libbase::eatcomments >> noise_transmittance;
-    sin >> libbase::eatcomments >> noise_detector_eff >> libbase::verify;
+    sin >> libbase::eatcomments >> noise_detector_eff >> libbase::verify;  // Detector Efficiency of the homodyne detector
+    sin >> libbase::eatcomments >> noise_mean >> libbase::verify; // Mean of Noise
+    sin >> libbase::eatcomments >> noise_transmittance >> libbase::verify; // Transmittance T
+
     return sin;
 }
 

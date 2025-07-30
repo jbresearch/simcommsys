@@ -60,10 +60,10 @@ public:
     /*! \name Parameter handling */
     //! Set the characteristic parameters
     void set_parameters(const libbase::vector<double>& x) override {
-        assertalways(x.size() == 3);  // Ensures all required parameters are passed
-        noise_mean = x(0); // Mean of Noise
-        noise_stddev = x(1); // Variance V_N
-        noise_transmittance = x(2); // Transmittance T
+        assertalways(x.size() == 1);  // Ensures all required parameters are passed
+        // noise_mean = x(0); // Mean of Noise
+        noise_stddev = x(0); // Variance V_N
+        // noise_transmittance = x(2); // Transmittance T
         // noise_detector_eff = x(3); // Homodyne Detector Efficiency
     }
 
@@ -71,15 +71,12 @@ public:
     libbase::vector<double> get_parameters() const override
     {
         libbase::vector<double> params;
-        params.init(4); // Order: stddev
-        params(0) = noise_mean; // Mean of Noise
-        params(1) = noise_stddev; // Variance V_N (should be the only CLI parameter)
-        params(2) = noise_transmittance; // Transmittance of Quantum channel based on optic fibre and its distance
-        params(3) = noise_detector_eff; // Detector efficiency
+        params.init(1); // Order: stddev
+        params(0) = noise_stddev; // Variance V_N (should be the only CLI parameter)
         return params;
     }
 
-    int get_num_params() const override { return 4; }
+    int get_num_params() const override { return 1; } // returns the number of CLI parameters
     // @}
 
     // Description - Returns a short string describing the channel
