@@ -68,14 +68,19 @@ public:
 #endif
     static constexpr int elements() { return 1 << m; }
 
-    /*! \name Class parameters */
-
     //! dimension of the field over GF(2)
 #ifdef __CUDACC__
     __device__
     __host__
 #endif
     static constexpr int dimension() { return m; }
+
+    //! primitive polynomial
+#ifdef __CUDACC__
+    __device__
+    __host__
+#endif
+    static constexpr int polynomial() { return poly; }
     // @}
 
 private:
