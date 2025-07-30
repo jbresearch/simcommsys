@@ -122,8 +122,19 @@ public:
     alist& operator=(alist&&) = default;
 
     /*! \name Conversion to/from equivalent dense reprs. */
+private:
+    //! \brief Common logic for constructor and \c operator= from \c
+    //! libbase::matrix
+    void from_matrix(const libbase::matrix<GF_q>&);
+
+public:
     //! \brief copy from libbase::matrix
-    alist& operator=(const matrix<GF_q>& x);
+    alist(const matrix<GF_q>& x) { from_matrix(x); }
+    alist& operator=(const matrix<GF_q>& x)
+    {
+        from_matrix(x);
+        return *this;
+    }
     //! \brief copy to standard matrix
     operator matrix<GF_q>() const;
     //! @}
@@ -405,8 +416,8 @@ operator<<(std::ostream& sout, const alist<GF_q>& a)
 }
 
 template <typename GF_q>
-alist<GF_q>&
-alist<GF_q>::operator=(const matrix<GF_q>& x)
+void
+alist<GF_q>::from_matrix(const matrix<GF_q>& x)
 {
     int rows = x.size().rows(), cols = x.size().cols();
     row_idxs.resize(rows);
@@ -461,8 +472,6 @@ alist<GF_q>::operator=(const matrix<GF_q>& x)
             }
         }
     }
-
-    return *this;
 }
 
 template <typename GF_q>
