@@ -19,6 +19,7 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "alist.h"
 #include "bitfield.h"
 #include "codec/ldpc.h"
 #include "codec/turbo.h"
@@ -360,11 +361,12 @@ test_cc_code()
     }
     // test
     pc_matrix_inter_ref = pc_matrix_inter.reduce_to_ref();
+    libbase::alist<libbase::gf8> pc_matrix_inter_ref_alist(pc_matrix_inter_ref);
 
     // use the parity check matrix to generate an LDPC code which we will
     // serialise out
 
-    ldpc<gf_t, double> ldpc_turbo(pc_matrix_inter_ref, 100);
+    ldpc<gf_t, double> ldpc_turbo(pc_matrix_inter_ref_alist, 100);
     // ldpc<gf_t, double> ldpc_turbo(pc_matrix_inter, 100);
     std::ostringstream oss;
     oss << tmp_dir << "ldpc_turbo_" << n << "x" << k << "_ser.txt";
