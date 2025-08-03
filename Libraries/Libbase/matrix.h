@@ -198,6 +198,8 @@ public:
     void extractcol(vector<T>& v, const int j) const;
     vector<T> extractrow(const int i) const;
     vector<T> extractcol(const int j) const;
+    //! \brief Drop the specified number of rows from the end of the matrix
+    void droprows(int j);
     // @}
 
     /*! \name Bind a mask to a matrix */
@@ -326,6 +328,8 @@ public:
     /*! \name Matrix-arithmetic operations */
     matrix<T> inverse() const;
     matrix<T> reduce_to_ref() const;
+    /*! \brief inplace version of reduce_to_ref() */
+    void reduce_to_ref_inplace();
     matrix<T> transpose() const;
     int rank() const;
     // @}
@@ -654,6 +658,20 @@ matrix<T>::extractcol(const int j) const
     vector<T> v;
     extractcol(v, j);
     return v;
+}
+
+/*! \brief Drop the specified number of rows from the end of the matrix.
+ */
+template <class T>
+void
+matrix<T>::droprows(int j)
+{
+    for (int i = size().rows() - j; i < size().rows(); j++) {
+        delete[] m_data[i];
+    }
+    m_size = size_type<matrix>(size().rows() - j, size().cols());
+    m_data = static_cast<T**>(
+        realloc(static_cast<void*>(m_data), sizeof(T*) * size().rows()));
 }
 
 /*! \brief Writes matrix data to output stream.
@@ -1433,6 +1451,55 @@ matrix<T>::inverse() const
     return r;
 }
 
+template <class T>
+void
+matrix<T>::reduce_to_ref_inplace()
+{
+    // shorthand
+    const int dim = m_size.rows();
+    const int len = m_size.cols();
+    // loop through the columns until we have pivoted each row
+    for (int cur_col = 0, cur_row = 0; (cur_col < len) && (cur_row < dim);
+         cur_col++) {
+        for (int pivot_row = cur_row; pivot_row < dim; pivot_row++) {
+            // did we find a pivot for this column?
+            if ((*this)(pivot_row, cur_col) != 0) {
+                // is the pivot in the right place?
+                // if we found a pivot which is not in the current row
+                // swap the findpivot row with the current row
+                if (pivot_row != cur_row) {
+                    std::swap(m_data[pivot_row], m_data[cur_row]);
+                }
+
+                // get the pivot value
+                const T pivot_value = (*this)(cur_row, cur_col);
+                // divide the row by the pivot (only needed if the pivot value
+                // is not 1)
+
+                if (pivot_value != 1) {
+                    for (int j = 0; j < len; j++) {
+                        (*this)(cur_row, j) /= pivot_value;
+                    }
+                }
+
+                // subtract appropriate multiples of this row from rows above
+                // and below
+                for (int i = 0; i < dim; i++) {
+                    // only need to subtract if the entry at this position
+                    // is non-zero
+                    if (i != cur_row) {
+                        const T multiple = (*this)(i, cur_col);
+                        this->row(i) -= this->row(cur_row) * multiple;
+                    }
+                }
+
+                cur_row++;
+                break;
+            }
+        }
+    }
+}
+
 /*!
  * \brief Row Echelon Form of a matrix with k rows and n columns
  *
@@ -1453,55 +1520,8 @@ template <class T>
 inline matrix<T>
 matrix<T>::reduce_to_ref() const
 {
-    // shorthand
-    const int dim = m_size.rows();
-    const int len = m_size.cols();
-    // create copy of this matrix, to compute result in-place
     matrix<T> ref = *this;
-    // loop through the columns until we have pivoted each row
-    for (int cur_col = 0, cur_row = 0; (cur_col < len) && (cur_row < dim);
-         cur_col++) {
-        for (int pivot_row = cur_row; pivot_row < dim; pivot_row++) {
-            // did we find a pivot for this column?
-            if (ref(pivot_row, cur_col) != 0) {
-                // is the pivot in the right place?
-                // if we found a pivot which is not in the current row
-                // swap the findpivot row with the current row
-                if (pivot_row != cur_row) {
-                    std::swap(ref.m_data[pivot_row], ref.m_data[cur_row]);
-                }
-
-                // get the pivot value
-                const T pivot_value = ref(cur_row, cur_col);
-                // divide the row by the pivot (only needed if the pivot value
-                // is not 1)
-
-                if (pivot_value != 1) {
-                    for (int j = 0; j < len; j++) {
-                        ref(cur_row, j) /= pivot_value;
-                    }
-                }
-
-                // subtract appropriate multiples of this row from rows above
-                // and below
-                for (int i = 0; i < dim; i++) {
-                    if (i != cur_row) {
-                        // only need to subtract if the entry at this position
-                        // is non-zero
-                        const T multiple = ref(i, cur_col);
-                        if (multiple != 0) {
-                            for (int j = 0; j < len; j++) {
-                                ref(i, j) -= ref(cur_row, j) * multiple;
-                            }
-                        }
-                    }
-                }
-
-                cur_row++;
-                break;
-            }
-        }
-    }
+    ref.reduce_to_ref_inplace();
     return ref;
 }
 
