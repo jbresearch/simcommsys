@@ -207,7 +207,7 @@ ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable)
     libbase::trace << std::endl
                    << "Currently, the most likely received word is:"
                    << std::endl;
-    this->received_word_hd.serialize(libbase::trace, ' ');
+    this->received_word_hd.serialize(libbase::trace, " ");
 #endif
 
     // only do the rest if we don't have a codeword already
@@ -237,7 +237,7 @@ ldpc<GF_q, real>::do_encode(const libbase::vector<int>& source,
 #endif
 #if DEBUG >= 2
     libbase::trace << "The encoded word is:" << std::endl;
-    encoded.serialize(libbase::trace, ' ');
+    encoded.serialize(libbase::trace, " ");
     libbase::trace << std::endl;
 #endif
 }
@@ -266,10 +266,10 @@ ldpc<GF_q, real>::description() const
 
 #if DEBUG >= 2
     libbase::trace << "Its parity check matrix is given by:" << std::endl;
-    this->pchk_matrix.serialize(libbase::trace, '\n');
+    this->pchk_matrix.serialize(libbase::trace, "\n");
 
     libbase::trace << "Its generator matrix is given by:" << std::endl;
-    this->gen_matrix.serialize(libbase::trace, '\n');
+    this->gen_matrix.serialize(libbase::trace, "\n");
     libbase::trace << "The information symbols are located in columns:"
                    << std::endl;
     for (int loop = 0; loop < this->dim_k; loop++) {

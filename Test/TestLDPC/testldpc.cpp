@@ -98,7 +98,7 @@ compute_dual()
 
     cout << "the parity check matrix for the (31,26) Hamming code looks like:"
          << std::endl;
-    test.serialize(cout, ' ');
+    test.serialize(cout, " ");
     cout << std::endl;
     // compute the minimum weight codewords
     array1i_t info_sym;
@@ -108,7 +108,7 @@ compute_dual()
         linear_code_utils<gf<1, 0x3>, double>::encode_cw(
             test, info_sym, code_word);
         cout << "codeword " << i + 1 << ": ";
-        code_word.serialize(cout, ' ');
+        code_word.serialize(cout, " ");
         cout << " weight= " << code_word.sum() << std::endl;
     }
 
@@ -117,7 +117,7 @@ compute_dual()
      array1i_t systematic_perm;
      linear_code_utils<gf<1, 0x3> , double>::compute_dual_code(test, dual,
      systematic_perm); cout << "the dual matrix is given by:" << std::endl;
-     dual.serialize(cout, ' ');
+     dual.serialize(cout, " ");
      */
 }
 
@@ -192,7 +192,7 @@ test_ra_code()
     linear_code_utils<gf_t, double>::compute_dual_code(
         gen_matrix, pc_matrix, systematic_perm);
     cout << "the dual matrix is given by:" << std::endl;
-    pc_matrix.serialize(cout, ' ');
+    pc_matrix.serialize(cout, " ");
     cout << "the permutation is given by: " << std::endl;
     cout << systematic_perm << std::endl;
 
@@ -212,7 +212,7 @@ test_ra_code()
     linear_code_utils<gf_t, double>::compute_dual_code(
         pc_matrix_inter, gen_matrix_inter, systematic_perm);
     cout << "the interleaved gen matrix is given by:" << std::endl;
-    gen_matrix_inter.serialize(cout, ' ');
+    gen_matrix_inter.serialize(cout, " ");
     cout << "the permutation is given by: " << std::endl;
     cout << systematic_perm << std::endl;
 
@@ -317,7 +317,7 @@ test_cc_code()
     linear_code_utils<gf_t, double>::compute_dual_code(
         gen_matrix, pc_matrix, systematic_perm);
     cout << "the dual matrix is given by:" << std::endl;
-    pc_matrix.serialize(cout, ' ');
+    pc_matrix.serialize(cout, " ");
     cout << "the permutation is given by: " << std::endl;
     cout << systematic_perm << std::endl;
 
@@ -337,7 +337,7 @@ test_cc_code()
     linear_code_utils<gf_t, double>::compute_dual_code(
         pc_matrix_inter, gen_matrix_inter, systematic_perm);
     cout << "the interleaved gen matrix is given by:" << std::endl;
-    gen_matrix_inter.serialize(cout, ' ');
+    gen_matrix_inter.serialize(cout, " ");
     cout << "the permutation is given by: " << std::endl;
     cout << systematic_perm << std::endl;
 

@@ -92,7 +92,7 @@ reedsolomon<GF_q>::softdecode_iter(array1vd_t& ri, array1vd_t& ro)
     // determine the most likely symbol
     hd_functor(this->received_likelihoods, this->received_word_hd);
 #if DEBUG >= 2
-    this->received_word_hd.serialize(std::cout, ',');
+    this->received_word_hd.serialize(std::cout, ",");
     std::cout << std::endl;
 #endif
 
@@ -122,9 +122,9 @@ reedsolomon<GF_q>::softdecode_iter(array1vd_t& ri, array1vd_t& ro)
 
 #if DEBUG >= 2
     std::cout << std::endl << "The received word is given by:" << std::endl;
-    this->received_word_hd.serialize(std::cout, ',');
+    this->received_word_hd.serialize(std::cout, ",");
     std::cout << std::endl << "Its syndrome is given by:" << std::endl;
-    syndrome_vec.serialize(std::cout, ',');
+    syndrome_vec.serialize(std::cout, ",");
 #endif
     if (dec_success) {
         // HD word must be correct, so set posteriors from this
@@ -178,10 +178,10 @@ reedsolomon<GF_q>::softdecode_iter(array1vd_t& ri, array1vd_t& ro)
 #if DEBUG >= 2
             std::cout << std::endl
                       << "The syndrome matrix is given by:" << std::endl;
-            syndrome_matrix.serialize(std::cout, '\n');
+            syndrome_matrix.serialize(std::cout, "\n");
             std::cout << std::endl
                       << "The syndrome matrix in REF is given by:" << std::endl;
-            syndrome_ref_matrix.serialize(std::cout, '\n');
+            syndrome_ref_matrix.serialize(std::cout, "\n");
 #endif
 
             det = GF_q(1);
@@ -215,7 +215,7 @@ reedsolomon<GF_q>::softdecode_iter(array1vd_t& ri, array1vd_t& ro)
                 << std::endl
                 << "The coeffs of the error locator polynomial are given by:"
                 << std::endl;
-            error_loc_poly.serialize(std::cout, ',');
+            error_loc_poly.serialize(std::cout, ",");
 #endif
 
             // Use brute force and horner's scheme to determine the roots.
@@ -280,11 +280,11 @@ reedsolomon<GF_q>::softdecode_iter(array1vd_t& ri, array1vd_t& ro)
 #if DEBUG >= 2
                 std::cout << std::endl
                           << "The error matrix is given by:" << std::endl;
-                error_mat.serialize(std::cout, '\n');
+                error_mat.serialize(std::cout, "\n");
                 std::cout << std::endl
                           << "The error matrix in REF is given by:"
                           << std::endl;
-                error_ref_mat.serialize(std::cout, '\n');
+                error_ref_mat.serialize(std::cout, "\n");
 #endif
 
                 // we only have a consistent solution if the following value is
@@ -303,7 +303,7 @@ reedsolomon<GF_q>::softdecode_iter(array1vd_t& ri, array1vd_t& ro)
 #if DEBUG >= 2
                     std::cout << "This is the word we should have received:"
                               << std::endl;
-                    tmp_received_hd.serialize(std::cout, ',');
+                    tmp_received_hd.serialize(std::cout, ",");
                     std::cout << std::endl;
 #endif
                     // decoded HD word is consistent, so set posteriors from
@@ -321,7 +321,7 @@ reedsolomon<GF_q>::softdecode_iter(array1vd_t& ri, array1vd_t& ro)
 
 #if DEBUG >= 2
     std::cout << std::endl << "The decoded word is given by:" << std::endl;
-    decoded.serialize(std::cout, ',');
+    decoded.serialize(std::cout, ",");
     std::cout << std::endl;
 #endif
 }

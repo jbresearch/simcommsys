@@ -48,7 +48,7 @@ linear_code_utils<GF_q, real>::compute_dual_code(
     matrix<GF_q> refOrgMat;
 #if DEBUG >= 2
     std::cout << "The original matrix is given by:" << std::endl;
-    orgMat.serialize(std::cout, '\n');
+    orgMat.serialize(std::cout, "\n");
 #endif
     linear_code_utils::compute_row_dim(orgMat, refOrgMat);
 
@@ -81,7 +81,7 @@ linear_code_utils<GF_q, real>::compute_dual_code(
         }
 #if DEBUG >= 2
         std::cout << std::endl << "The permutation is given by:" << std::endl;
-        systematic_perm.serialize(std::cout, ' ');
+        systematic_perm.serialize(std::cout, " ");
 #endif
         if (needsPermutation) {
             // rejig the matrix
@@ -99,7 +99,7 @@ linear_code_utils<GF_q, real>::compute_dual_code(
 #if DEBUG >= 2
     std::cout << "After permuting any columns, the matrix is now given by:"
               << std::endl;
-    refOrgMat.serialize(std::cout, '\n');
+    refOrgMat.serialize(std::cout, "\n");
 #endif
 
     // extract the P part of G'=(I_k|P)
@@ -136,7 +136,7 @@ linear_code_utils<GF_q, real>::compute_dual_code(
 #if DEBUG >= 2
     std::cout << "The generator matrix of the permuted dual code is given by:"
               << std::endl;
-    dualCodeGenMatrix.serialize(std::cout, '\n');
+    dualCodeGenMatrix.serialize(std::cout, "\n");
 #endif
 
     // undo any permutation that we did
@@ -158,7 +158,7 @@ linear_code_utils<GF_q, real>::compute_dual_code(
     std::cout << "After undoing the permutation, the generator matrix of the "
                  "dual code is given by:"
               << std::endl;
-    dualCodeGenMatrix.serialize(std::cout, '\n');
+    dualCodeGenMatrix.serialize(std::cout, "\n");
 #endif
 
 #if DEBUG >= 2
@@ -166,13 +166,13 @@ linear_code_utils<GF_q, real>::compute_dual_code(
                  "original matrix, ie:"
               << std::endl;
     std::cout << "the transpose of:" << std::endl;
-    orgMat.serialize(std::cout, '\n');
+    orgMat.serialize(std::cout, "\n");
     std::cout << "is:" << std::endl;
     matrix<GF_q> trans(orgMat.transpose());
-    trans.serialize(std::cout, '\n');
+    trans.serialize(std::cout, "\n");
     matrix<GF_q> zeroTest(dualCodeGenMatrix * trans);
     std::cout << "the result is:" << std::endl;
-    zeroTest.serialize(std::cout, '\n');
+    zeroTest.serialize(std::cout, "\n");
     assertalways(GF_q(0) == zeroTest.max());
 #endif
 }
@@ -190,7 +190,7 @@ linear_code_utils<GF_q, real>::compute_row_dim(const matrix<GF_q>& orgMat,
 
 #if DEBUG >= 2
     std::cout << "The REF is given by:" << std::endl;
-    refOrgMat.serialize(std::cout, '\n');
+    refOrgMat.serialize(std::cout, "\n");
 #endif
 
     // quick check that we at least have the right dimension
@@ -228,7 +228,7 @@ linear_code_utils<GF_q, real>::compute_row_dim(const matrix<GF_q>& orgMat,
 #if DEBUG >= 2
         std::cout << "After dropping zero rows, the REF is given by:"
                   << std::endl;
-        maxRowSpaceMat.serialize(std::cout, '\n');
+        maxRowSpaceMat.serialize(std::cout, "\n");
 #endif
     } else {
         // the original matrix is ok already
@@ -359,7 +359,7 @@ linear_code_utils<GF_q, real>::create_hadamard(matrix<int>& hadMat, int m)
         }
         std::swap(hadMat, B); // B contains the Hadamard matrix
 #if DEBUB >= 2
-        hadMat.serialize(std::cerr, ' ');
+        hadMat.serialize(std::cerr, " ");
 #endif
     }
 }

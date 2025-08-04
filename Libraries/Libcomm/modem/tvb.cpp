@@ -179,7 +179,7 @@ tvb<sig, real, real2>::fill_encoding_table(array2vs_t& encoding_table,
         showcodebook(std::cerr, codebook_tables.row(cb_index));
         std::cerr << "Marker for i = " << i << std::endl;
         std::cerr << "\t";
-        marker_vector.serialize(std::cerr, ' ');
+        marker_vector.serialize(std::cerr, " ");
 #endif
         // Encode each possible input symbol
         for (int d = 0; d < q; d++) {

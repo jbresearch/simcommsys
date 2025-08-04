@@ -113,7 +113,7 @@ sum_prod_alg_abstract<GF_q, real>::spa_iteration(
     libbase::trace
         << "The newly computed normalised probabilities are given by:"
         << std::endl;
-    ro.serialize(libbase::trace, ' ');
+    ro.serialize(libbase::trace, " ");
 #endif
 
     hd_functor(ro, received_word);

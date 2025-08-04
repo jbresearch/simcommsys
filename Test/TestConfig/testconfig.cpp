@@ -164,7 +164,7 @@ makerangevector()
         x(i) = i;
     }
     cout << "Contents: {";
-    x.serialize(cout, ',');
+    x.serialize(cout, ",");
     cout << "}" << std::endl;
     // return result
     return x;
@@ -177,7 +177,7 @@ accessvectorbyvalue(vector<int> x)
     cout << "Address: " << &x << std::endl;
     cout << "Size: " << x.size() << std::endl;
     cout << "Contents: {";
-    x.serialize(cout, ',');
+    x.serialize(cout, ",");
     cout << "}" << std::endl;
 }
 
@@ -190,7 +190,7 @@ accessvectorbyreference(vector<int>& x)
     cout << "Address: " << &x << std::endl;
     cout << "Size: " << x.size() << std::endl;
     cout << "Contents: {";
-    x.serialize(cout, ',');
+    x.serialize(cout, ",");
     cout << "}" << std::endl;
 }
 
@@ -221,14 +221,14 @@ testvector()
     cout << "Address: " << &r << std::endl;
     cout << "Size: " << r.size() << std::endl;
     cout << "Contents: {";
-    r.serialize(cout, ',');
+    r.serialize(cout, ",");
     cout << "}" << std::endl;
     // test vector passing
     cout << std::endl << "Test vector access on:" << std::endl << std::endl;
     cout << "Address: " << &r << std::endl;
     cout << "Size: " << r.size() << std::endl;
     cout << "Contents: {";
-    r.serialize(cout, ',');
+    r.serialize(cout, ",");
     cout << "}" << std::endl;
     accessvectorbyreference(r);
     accessvectorbyvalue(r);

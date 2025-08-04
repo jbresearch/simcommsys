@@ -116,7 +116,7 @@ marker<sig, real, real2>::fill_frame_marker_sequence(
         std::cerr << "Marker for i = " << i << " + " << offset << ":"
                   << std::endl;
         std::cerr << "\t";
-        marker.serialize(std::cerr, ' ');
+        marker.serialize(std::cerr, " ");
 #endif
         // Copy to result
         frame_marker_sequence(offset + i) = marker;

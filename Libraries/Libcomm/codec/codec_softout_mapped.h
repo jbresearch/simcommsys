@@ -136,11 +136,11 @@ codec_softout_mapped<base_codec_softout, dbl>::do_encode(
     map.transform(encwide, encoded);
 #if DEBUG >= 4
     std::cerr << "Source:" << std::endl;
-    source.serialize(std::cerr, '\n');
+    source.serialize(std::cerr, "\n");
     std::cerr << "Encoded (wide):" << std::endl;
-    encwide.serialize(std::cerr, '\n');
+    encwide.serialize(std::cerr, "\n");
     std::cerr << "Encoded (flat):" << std::endl;
-    encoded.serialize(std::cerr, '\n');
+    encoded.serialize(std::cerr, "\n");
 #endif
 }
 
@@ -185,7 +185,7 @@ codec_softout_mapped<base_codec_softout, dbl>::softdecode_iter(array1vd_t& ri,
     hard_decision<libbase::vector, dbl, int> functor;
     functor(ro_wide, dec);
     libbase::trace << "DEBUG (csf): ro_wide = ";
-    dec.serialize(libbase::trace, ' ');
+    dec.serialize(libbase::trace, " ");
 #endif
     // Allocate space for results
     libbase::allocate(ro, This::output_block_size(), This::num_outputs());
@@ -205,7 +205,7 @@ codec_softout_mapped<base_codec_softout, dbl>::softdecode_iter(array1vd_t& ri,
 #if DEBUG >= 3
     functor(ro, dec);
     libbase::trace << "DEBUG (csf): ro = ";
-    dec.serialize(libbase::trace, ' ');
+    dec.serialize(libbase::trace, " ");
 #endif
 }
 

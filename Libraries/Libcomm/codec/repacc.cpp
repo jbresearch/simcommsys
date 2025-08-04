@@ -189,7 +189,7 @@ repacc<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
     const int p = n - k;
 #if DEBUG >= 2
     std::cerr << "Source:" << std::endl;
-    source.serialize(std::cerr, '\n');
+    source.serialize(std::cerr, "\n");
 #endif
 
     // Compute repeater output
@@ -206,9 +206,9 @@ repacc<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
     inter->transform(rep1, rep2);
 #if DEBUG >= 2
     std::cerr << "Repeater:" << std::endl;
-    rep1.serialize(std::cerr, '\n');
+    rep1.serialize(std::cerr, "\n");
     std::cerr << "Permuter:" << std::endl;
-    rep2.serialize(std::cerr, '\n');
+    rep2.serialize(std::cerr, "\n");
 #endif
 
     // Initialise result vector
@@ -226,7 +226,7 @@ repacc<real, dbl>::do_encode(const array1i_t& source, array1i_t& encoded)
     }
 #if DEBUG >= 2
     std::cerr << "Accumulator:" << std::endl;
-    encoded.serialize(std::cerr, '\n');
+    encoded.serialize(std::cerr, "\n");
 #endif
 }
 
@@ -277,7 +277,7 @@ repacc<real, dbl>::softdecode_iter(array1vd_t& ri)
     hard_decision<libbase::vector, dbl, int> functor;
     functor(ravd, dec);
     libbase::trace << "DEBUG (repacc): ravd = ";
-    dec.serialize(libbase::trace, ' ');
+    dec.serialize(libbase::trace, " ");
 #endif
 
     // decode repetition code (based on extrinsic information only)
@@ -288,10 +288,10 @@ repacc<real, dbl>::softdecode_iter(array1vd_t& ri)
 #if DEBUG >= 2
     functor(ro, dec);
     libbase::trace << "DEBUG (repacc): ro = ";
-    dec.serialize(libbase::trace, ' ');
+    dec.serialize(libbase::trace, " ");
     functor(ri, dec);
     libbase::trace << "DEBUG (repacc): ri = ";
-    dec.serialize(libbase::trace, ' ');
+    dec.serialize(libbase::trace, " ");
 #endif
 
     // compute extrinsic information
