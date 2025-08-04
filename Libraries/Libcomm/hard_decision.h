@@ -49,11 +49,6 @@ namespace libcomm
 template <class dbl, class S, class array1d_t = libbase::vector<dbl>>
 class basic_hard_decision
 {
-public:
-    /*! \name Type definitions */
-    typedef array1d_t prob_dist_container;
-    // @}
-
 private:
     /*! \name Internal object representation */
     libbase::randgen r; //!< Random source for resolving tie-breaks
@@ -102,7 +97,7 @@ public:
     __device__
     __host__
 #endif
-    S operator()(const prob_dist_container& ri)
+    S operator()(const array1d_t& ri)
     {
 #if DEBUG >= 2
         ties.increment_events();
@@ -156,7 +151,7 @@ public:
     __device__
     __host__
 #endif
-    void operator()(const C<class Base::prob_dist_container>& ri,
+    void operator()(const C<class Base::array1d_t>& ri,
                     C<S>& decoded);
 };
 
@@ -178,7 +173,7 @@ public:
      *
      * Decide which input sequence was most probable.
      */
-    void operator()(const libbase::vector<class Base::prob_dist_container>& ri,
+    void operator()(const libbase::vector<class Base::array1d_t>& ri,
                     libbase::vector<S>& decoded)
     {
         // Determine sizes from input matrix
@@ -215,7 +210,7 @@ public:
      *
      * Decide which input sequence was most probable.
      */
-    void operator()(const libbase::matrix<class Base::prob_dist_container>& ri,
+    void operator()(const libbase::matrix<class Base::array1d_t>& ri,
                     libbase::matrix<S>& decoded)
     {
         // Determine sizes from input matrix
