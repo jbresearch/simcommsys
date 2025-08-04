@@ -46,7 +46,7 @@ namespace libcomm
 #    define DEBUG 2
 #endif
 
-template <class dbl, class S, class array1d_t = libbase::vector<dbl>>
+template <class dbl, class S, class array1d_t>
 class basic_hard_decision
 {
 private:
@@ -122,7 +122,7 @@ public:
                 // we found another match
                 ++matches;
                 // flip a biased coin to see whether we should switch index
-                if (r.fval_halfopen() < 1.0/(matches+1)) {
+                if (r.fval_halfopen() < 1.0 / (matches + 1)) {
                     index = i;
                 }
             }
@@ -138,12 +138,15 @@ public:
     }
 };
 
-template <template <class> class C, class dbl, class S>
-class hard_decision : public basic_hard_decision<dbl, S>
+template <template <class> class C,
+          class dbl,
+          class S,
+          class array1d_t = libbase::vector<dbl>>
+class hard_decision : public basic_hard_decision<dbl, S, array1d_t>
 {
 public:
     /*! \name Type definitions */
-    typedef basic_hard_decision<dbl, S> Base;
+    typedef basic_hard_decision<dbl, S, array1d_t> Base;
     // @}
 
 public:
@@ -151,17 +154,16 @@ public:
     __device__
     __host__
 #endif
-    void operator()(const C<class Base::array1d_t>& ri,
-                    C<S>& decoded);
+    void operator()(const C<array1d_t>& ri, C<S>& decoded);
 };
 
-template <class dbl, class S>
-class hard_decision<libbase::vector, dbl, S>
-    : public basic_hard_decision<dbl, S>
+template <class dbl, class S, class array1d_t>
+class hard_decision<libbase::vector, dbl, S, array1d_t>
+    : public basic_hard_decision<dbl, S, array1d_t>
 {
 public:
     /*! \name Type definitions */
-    typedef basic_hard_decision<dbl, S> Base;
+    typedef basic_hard_decision<dbl, S, array1d_t> Base;
     // @}
 
 public:
@@ -173,7 +175,7 @@ public:
      *
      * Decide which input sequence was most probable.
      */
-    void operator()(const libbase::vector<class Base::array1d_t>& ri,
+    void operator()(const libbase::vector<array1d_t>& ri,
                     libbase::vector<S>& decoded)
     {
         // Determine sizes from input matrix
@@ -187,18 +189,18 @@ public:
         // Determine most likely symbol at every timestep
         for (int t = 0; t < tau; t++) {
             assert(ri(t).size() == K);
-            decoded(t) = basic_hard_decision<dbl, S>::operator()(ri(t));
+            decoded(t) = basic_hard_decision<dbl, S, array1d_t>::operator()(ri(t));
         }
     }
 };
 
-template <class dbl, class S>
-class hard_decision<libbase::matrix, dbl, S>
-    : public basic_hard_decision<dbl, S>
+template <class dbl, class S, class array1d_t>
+class hard_decision<libbase::matrix, dbl, S, array1d_t>
+    : public basic_hard_decision<dbl, S, array1d_t>
 {
 public:
     /*! \name Type definitions */
-    typedef basic_hard_decision<dbl, S> Base;
+    typedef basic_hard_decision<dbl, S, array1d_t> Base;
     // @}
 
 public:
@@ -210,7 +212,7 @@ public:
      *
      * Decide which input sequence was most probable.
      */
-    void operator()(const libbase::matrix<class Base::array1d_t>& ri,
+    void operator()(const libbase::matrix<array1d_t>& ri,
                     libbase::matrix<S>& decoded)
     {
         // Determine sizes from input matrix
@@ -227,7 +229,7 @@ public:
             for (int j = 0; j < cols; j++) {
                 assert(ri(i, j).size() == K);
                 decoded(i, j) =
-                    basic_hard_decision<dbl, S>::operator()(ri(i, j));
+                    basic_hard_decision<dbl, S, array1d_t>::operator()(ri(i, j));
             }
         }
     }
