@@ -77,7 +77,14 @@ public:
     __host__
 #endif
     void seedfrom(libbase::random& r) { this->r.seed(r.ival()); }
-//! Seeds random generator from a defined seed
+/*!
+ * \brief Seeds random generator from a defined seed
+ *
+ * \note This interface is necessary here because the class is also used within
+ * GPU kernels, and one cannot pass a parameter by reference in a kernel call.
+ * Pay attention when using this interface to update the state of wherever
+ * you're getting the random value from.
+ */
 #ifdef __CUDACC__
     __device__
     __host__
