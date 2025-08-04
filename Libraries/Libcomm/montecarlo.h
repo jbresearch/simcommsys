@@ -165,6 +165,9 @@ public:
     void bind(std::shared_ptr<experiment> system)
     {
         this->system = system;
+        // set up backpointer in results file object (if used)
+        // Note: this class is used in cases (e.g. quicksimulation) where we do
+        // not have a results file, so the factory is never called.
         if (this->results_file != nullptr)
             this->results_file->set_system(*system);
     }
