@@ -74,16 +74,20 @@ process(const std::string& fname,
 int
 main(int argc, char* argv[])
 {
+    std::vector<std::string> default_params_list;
+
     // Set up user parameters
     namespace po = boost::program_options;
     po::options_description desc("Allowed options");
-    desc.add_options()("help", "print this help message");
+    desc.add_options()("help,h", "print this help message");
     desc.add_options()("system-file,i",
-                       po::value<std::string>()->required(),
+                       po::value<std::string>(),
                        "input file containing system description");
-    desc.add_options()("param,p",
-                       po::value<std::vector<std::string>>()->multitoken(),
-                       "system parameter(s) to extract from system file");
+    desc.add_options()(
+        "param,p",
+        po::value<std::vector<std::string>>()->multitoken()->default_value(
+            default_params_list),
+        "system parameter(s) to extract from system file");
     desc.add_options()("output-file,o",
                        po::value<std::string>(),
                        "output file to hold system parameters. If not given "
