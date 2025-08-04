@@ -73,6 +73,24 @@ gf_test_mul(uint32_t x, uint32_t y)
     return res;
 }
 
+//! \brief Basic impl. of inverse() to ensure correctness of more sophisticated
+//! impl.
+template <int m, int poly>
+uint32_t
+gf_test_inverse(uint32_t x)
+{
+    using libbase::gf;
+
+    gf<m, poly> result(1);
+    for (int i = 1; i < gf<m, poly>::elements(); i++) {
+        if (result * gf<m, poly>(x) == gf<m, poly>(1)) {
+            break;
+        }
+        result *= gf<m, poly>(2);
+    }
+    return uint32_t(result);
+}
+
 /*!
  * \brief Exponential table entries for base {03}
  * cf. Gladman, "A Specification for Rijndael, the AES Algorithm", 2003, p.5
@@ -107,6 +125,7 @@ TestField()
 {
     constexpr int m = GF_q::dimension();
     constexpr int poly = GF_q::polynomial();
+
     // we can't use templated functions in assert() as it complains
     auto gf_test_add_ = [](auto x, auto y) {
         return gf_test_add<m, poly>(x, y);
@@ -114,25 +133,27 @@ TestField()
     auto gf_test_mul_ = [](auto x, auto y) {
         return gf_test_mul<m, poly>(x, y);
     };
+    auto gf_test_inv_ = [](auto x) { return gf_test_inverse<m, poly>(x); };
 
     // Test addition and mul. against basic impl.
-#ifdef DEBUG
     std::cout << "Testing addition for " << GF_q(0).description() << std::endl;
-#endif
     for (int x = 0; x < GF_q::elements(); x++) {
         for (int y = 0; y < GF_q::elements(); y++) {
-            assert(gf_test_add_(x, y) == uint32_t(GF_q(x) + GF_q(y)));
+            assertalways(gf_test_add_(x, y) == uint32_t(GF_q(x) + GF_q(y)));
         }
     }
 
-#ifdef DEBUG
     std::cout << "Testing multiplication for " << GF_q(0).description()
               << std::endl;
-#endif
     for (int x = 0; x < GF_q::elements(); x++) {
         for (int y = 0; y < GF_q::elements(); y++) {
-            assert(gf_test_mul_(x, y) == uint32_t(GF_q(x) * GF_q(y)));
+            assertalways(gf_test_mul_(x, y) == uint32_t(GF_q(x) * GF_q(y)));
         }
+    }
+
+    std::cout << "Testing inverse for " << GF_q(0).description() << std::endl;
+    for (int x = 0; x < GF_q::elements(); x++) {
+        assertalways(gf_test_inv_(x) == uint32_t(GF_q(x).inverse()));
     }
 }
 
