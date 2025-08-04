@@ -68,21 +68,6 @@ square(const T x)
     return x * x;
 }
 
-// *** Within standard library namespace ***
-
-namespace std
-{
-
-//! Operator to concatenate STL vectors
-template <class T>
-void
-operator+=(std::vector<T>& a, const std::vector<T>& b)
-{
-    a.insert(a.end(), b.begin(), b.end());
-}
-
-} // namespace std
-
 // *** Within library namespace ***
 
 namespace libbase
@@ -157,5 +142,61 @@ isaligned(const void* buf, int bytes)
 }
 
 } // namespace libbase
+
+// *** Within standard library namespace ***
+
+namespace std
+{
+
+//! Operator to concatenate STL vectors
+template <class T>
+void
+operator+=(std::vector<T>& a, const std::vector<T>& b)
+{
+    a.insert(a.end(), b.begin(), b.end());
+}
+
+/*! \brief Serialize STL vectors
+ *
+ * \note This was needed for use of \c multitoken args in boost \c
+ * program_options , but it may be useful elsewhere
+ */
+template <class T>
+ostream&
+operator<<(ostream& os, const std::vector<T>& xs)
+{
+    os << xs.size();
+    if (xs.size() > 0) {
+        os << '\n';
+        for (auto it = xs.begin(); it != --xs.end(); ++it) {
+            os << *it << '\t';
+        }
+        os << *--xs.end() << '\n';
+    }
+    return os << std::flush;
+}
+
+/*! \brief De-serialize STL vectors
+ *
+ * \note This was needed for use of \c multitoken args in boost \c
+ * program_options , but it may be useful elsewhere
+ */
+template <class T>
+istream&
+operator>>(istream& is, std::vector<T>& xs)
+{
+    xs.clear();
+    size_t len;
+    is >> libbase::eatcomments >> len >> libbase::verify;
+    for (size_t i = 0; i < len; i++) {
+        T x;
+        is >> libbase::eatcomments >> x >> libbase::verify;
+        // make sure we move for T that are expensive to copy.
+        xs.push_back(std::move(x));
+    }
+    return is;
+}
+
+} // namespace std
 
 #endif
