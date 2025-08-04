@@ -14,5 +14,3 @@
 
 # JetBrains IDE project files
 .idea/
-
-compile_commands.json
