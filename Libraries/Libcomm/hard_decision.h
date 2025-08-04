@@ -108,27 +108,21 @@ public:
         dbl maxval = 0;
         // Keep track of index we will return
         int index = 0;
-#if DEBUG >= 2
-        // keep track of whether there are matches or not.
-        bool matches;
-#endif
+        // Keep track of how many matches with the maximum we had so far
+        int matches = 0;
 
         for (int i = 0; i < K; i++) {
             if (ri(i) > maxval) {
                 maxval = ri(i);
                 index = i;
-#if DEBUG >= 2
-                matches = false;
-#endif
+                matches = 0;
             } else if (ri(i) == maxval) {
-                // flip a coin to see whether we should switch index
-                bool flip = r.ival(1);
-                if (flip) {
+                // we found another match
+                ++matches;
+                // flip a biased coin to see whether we should switch index
+                if (r.fval_halfopen() < 1.0/(matches+1)) {
                     index = i;
                 }
-#if DEBUG >= 2
-                matches = true;
-#endif
             }
         }
 
