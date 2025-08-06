@@ -321,7 +321,7 @@ ldpc<GF_q, real>::serialize(std::ostream& sout) const
         int num_of_non_zeros = this->pchk_matrix.get_col_idxs(loop1).size();
         non_zero_vals_in_col.init(num_of_non_zeros);
         for (int loop2 = 0; loop2 < num_of_non_zeros; loop2++) {
-            int gf_val_int = this->pchk_matrix.get_col_vals(loop1)(loop2);
+            uint32_t gf_val_int = this->pchk_matrix.get_col_vals(loop1)(loop2);
             assert(gf_val_int != GF_q(0));
             non_zero_vals_in_col(loop2) = gf_val_int;
         }

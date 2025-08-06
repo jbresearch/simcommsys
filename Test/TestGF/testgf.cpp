@@ -26,6 +26,7 @@
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <cstdint>
 #include <iostream>
+#include <sstream>
 
 using libbase::bitfield;
 using libbase::cputimer;
@@ -38,7 +39,7 @@ using std::dec;
 using std::hex;
 
 //! \brief Basic impl. of + to ensure correctness of more sophisticated impl.
-template <int m, int poly>
+template <uint32_t m, uint32_t poly>
 uint32_t
 gf_test_add(uint32_t x, uint32_t y)
 {
@@ -46,14 +47,14 @@ gf_test_add(uint32_t x, uint32_t y)
 }
 
 //! \brief Basic impl. of * to ensure correctness of more sophisticated impl.
-template <int m, int poly>
+template <uint32_t m, uint32_t poly>
 uint32_t
 gf_test_mul(uint32_t x, uint32_t y)
 {
     // Initialize result
     uint32_t res = 0;
     // Loop over all bits in multiplicand
-    for (int i = 0; i < m && y != 0; i++) {
+    for (uint32_t i = 0; i < m && y != 0; i++) {
         // If the corresponding bit in the multiplicand is set,
         // add (XOR) the shifted multiplier
         if (y & 1) {
@@ -75,14 +76,14 @@ gf_test_mul(uint32_t x, uint32_t y)
 
 //! \brief Basic impl. of inverse() to ensure correctness of more sophisticated
 //! impl.
-template <int m, int poly>
+template <uint32_t m, uint32_t poly>
 uint32_t
 gf_test_inverse(uint32_t x)
 {
     using libbase::gf;
 
     gf<m, poly> result(1);
-    for (int i = 1; i < gf<m, poly>::elements(); i++) {
+    for (uint32_t i = 1; i < gf<m, poly>::elements(); i++) {
         if (result * gf<m, poly>(x) == gf<m, poly>(1)) {
             break;
         }
@@ -95,7 +96,7 @@ gf_test_inverse(uint32_t x)
  * \brief Exponential table entries for base {03}
  * cf. Gladman, "A Specification for Rijndael, the AES Algorithm", 2003, p.5
  */
-const int aestable[] = {
+const uint32_t aestable[] = {
     0x01, 0x03, 0x05, 0x0f, 0x11, 0x33, 0x55, 0xff, 0x1a, 0x2e, 0x72, 0x96,
     0xa1, 0xf8, 0x13, 0x35, 0x5f, 0xe1, 0x38, 0x48, 0xd8, 0x73, 0x95, 0xa4,
     0xf7, 0x02, 0x06, 0x0a, 0x1e, 0x22, 0x66, 0xaa, 0xe5, 0x34, 0x5c, 0xe4,
@@ -123,36 +124,44 @@ template <typename GF_q>
 void
 TestField()
 {
-    constexpr int m = GF_q::dimension();
-    constexpr int poly = GF_q::polynomial();
+    constexpr uint32_t m = GF_q::dimension();
+    constexpr uint32_t poly = GF_q::polynomial();
 
     // we can't use templated functions in assert() as it complains
-    auto gf_test_add_ = [](auto x, auto y) {
-        return gf_test_add<m, poly>(x, y);
-    };
-    auto gf_test_mul_ = [](auto x, auto y) {
-        return gf_test_mul<m, poly>(x, y);
-    };
     auto gf_test_inv_ = [](auto x) { return gf_test_inverse<m, poly>(x); };
 
     // Test addition and mul. against basic impl.
     std::cout << "Testing addition for " << GF_q(0).description() << std::endl;
-    for (int x = 0; x < GF_q::elements(); x++) {
-        for (int y = 0; y < GF_q::elements(); y++) {
-            assertalways(gf_test_add_(x, y) == uint32_t(GF_q(x) + GF_q(y)));
+    for (uint32_t x = 0; x < GF_q::elements(); x++) {
+        for (uint32_t y = 0; y < GF_q::elements(); y++) {
+            uint32_t expected = gf_test_add<m, poly>(x, y);
+            uint32_t got = GF_q(x) + GF_q(y);
+            if (expected != got) {
+                std::stringstream ss;
+                ss << "Expected " << x << "+" << y << "=" << expected
+                   << ", got=" << got << std::endl;
+                failwith(ss.str());
+            }
         }
     }
 
     std::cout << "Testing multiplication for " << GF_q(0).description()
               << std::endl;
-    for (int x = 0; x < GF_q::elements(); x++) {
-        for (int y = 0; y < GF_q::elements(); y++) {
-            assertalways(gf_test_mul_(x, y) == uint32_t(GF_q(x) * GF_q(y)));
+    for (uint32_t x = 0; x < GF_q::elements(); x++) {
+        for (uint32_t y = 0; y < GF_q::elements(); y++) {
+            uint32_t expected = gf_test_mul<m, poly>(x, y);
+            uint32_t got = GF_q(x) * GF_q(y);
+            if (expected != got) {
+                std::stringstream ss;
+                ss << "Expected " << x << "*" << y << "=" << expected
+                   << ", got=" << got << std::endl;
+                failwith(ss.str());
+            }
         }
     }
 
     std::cout << "Testing inverse for " << GF_q(0).description() << std::endl;
-    for (int x = 0; x < GF_q::elements(); x++) {
+    for (uint32_t x = 0; x < GF_q::elements(); x++) {
         assertalways(gf_test_inv_(x) == uint32_t(GF_q(x).inverse()));
     }
 }
@@ -166,17 +175,17 @@ TestRijndaelField()
     // using the tabular format in Gladman.
     cout << std::endl << "Rijndael GF(2^8) exponentiation table:" << std::endl;
     cout << hex;
-    for (int x = 0; x < 16; x++) {
-        for (int y = 0; y < 16; y++) {
+    for (uint32_t x = 0; x < 16; x++) {
+        for (uint32_t y = 0; y < 16; y++) {
             assert(E == aestable[(x << 4) + y]);
-            cout << int(E) << (y == 15 ? '\n' : '\t');
+            cout << uint32_t(E) << (y == 15 ? '\n' : '\t');
             E *= 3;
         }
     }
     cout << dec;
 }
 
-template <int m, int poly>
+template <uint32_t m, uint32_t poly>
 void
 ListField()
 {
@@ -186,13 +195,13 @@ ListField()
          << ") table:" << std::endl;
     cout << 0 << '\t' << 0 << '\t' << bitfield(0, m) << std::endl;
     gf<m, poly> E = 1;
-    for (int x = 1; x < gf<m, poly>::elements(); x++) {
+    for (uint32_t x = 1; x < gf<m, poly>::elements(); x++) {
         cout << x << "\ta" << x - 1 << '\t' << bitfield(E, m) << std::endl;
         E *= 2;
     }
 }
 
-template <int m, int poly>
+template <uint32_t m, uint32_t poly>
 void
 TestMulDiv()
 {
@@ -202,7 +211,7 @@ TestMulDiv()
          << ") multiplication/division:" << std::endl;
     cout << "power\tvalue\tinverse\tmul" << std::endl;
     gf<m, poly> E = 1;
-    for (int x = 1; x < gf<m, poly>::elements(); x++) {
+    for (uint32_t x = 1; x < gf<m, poly>::elements(); x++) {
         cout << "a" << x - 1 << '\t' << bitfield(E, m) << '\t'
              << bitfield(E.inverse(), m) << '\t' << bitfield(E.inverse() * E, m)
              << std::endl;
@@ -224,7 +233,7 @@ TestGenPowerGF2()
     G(0, 1) = 1;
     G(1, 2) = 1;
     // Compute and display first 8 powers of G
-    for (int i = 0; i < 8; i++) {
+    for (uint32_t i = 0; i < 8; i++) {
         cout << "G^" << i << " = " << std::endl;
         pow(G, i).serialize(cout);
     }
@@ -243,7 +252,7 @@ TestGenPowerGF8()
     G(0, 1) = 1;
     G(1, 1) = 0;
     // Compute and display first 16 powers of G
-    for (int i = 0; i < 16; i++) {
+    for (uint32_t i = 0; i < 16; i++) {
         cout << "G^" << i << " = " << std::endl;
         pow(G, i).serialize(cout);
     }

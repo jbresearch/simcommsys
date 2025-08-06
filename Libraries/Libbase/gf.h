@@ -23,6 +23,9 @@
 #define __gf_h
 
 #include "config.h"
+#ifdef __x86_64__
+#    include <immintrin.h>
+#endif
 #include <iostream>
 #include <string>
 #include <cstdint>
@@ -44,8 +47,10 @@ namespace libbase
  * be \f$ GF(2^m) \f$.
  * \param   poly  Primitive polynomial used to define the field elements
  *
- * In integer representations of polynomials (e.g \c poly), higher-order bits in
- * the integer represent higher-order powers of the polynomial representation.
+ * In integer representations of polynomials ( e.g \c poly ), higher-order bits
+ * in the integer represent higher-order powers of the polynomial
+ * representation.
+ *
  * For example:
  * \f[ x^6 + x^4 + x^2 + x^1 + 1 = \{ 01010111 \}_2 = \{ 57 \}_16 = \{ 87 \}_10
  * \f]
@@ -56,37 +61,57 @@ namespace libbase
  * \note This class has CUDA device support.
  */
 
-template <int m, int poly>
+template <uint32_t m, uint32_t poly>
 class gf
 {
+private:
+#if defined(__SSE2__) && defined(__PCLMUL__)
+    // stores q^{+}(x) constants used to speed up GF multiplication on x86
+    struct q_p;
+#endif
 public:
+    /*! \brief Alias for storage type of GF elements.
+     *
+     * \todo Port all code to use this not just new code, there also needs to be
+     * a template param.
+     */
+    using storage_element_type = uint32_t;
+
     /*! \name Class parameters */
     //! Number of elements in the field
 #ifdef __CUDACC__
     __device__
     __host__
 #endif
-    static constexpr int elements() { return 1 << m; }
+    static constexpr uint32_t elements() { return 1 << m; }
 
-    //! dimension of the field over GF(2)
+    /** \brief dimension of the field over GF(2)
+     *
+     * Confusingly this isn't the largest degree of a polynomial in the field
+     * ( that would be \c m-1 ). This is because the last bit in the binary
+     * representation is used for the constant coefficient.
+     */
 #ifdef __CUDACC__
     __device__
     __host__
 #endif
-    static constexpr int dimension() { return m; }
+    static constexpr uint32_t dimension() { return m; }
 
-    //! primitive polynomial
+    /** \brief primitive polynomial
+     *
+     * Assumed to be a polynomial of degree \c m (not technically in the field.)
+     */
 #ifdef __CUDACC__
     __device__
     __host__
 #endif
-    static constexpr int polynomial() { return poly; }
+    static constexpr uint32_t polynomial() { return poly; }
     // @}
 
 private:
     /*! \name Object representation */
     //! Representation of this element by its polynomial coefficients
-    int value;
+    uint32_t value;
     // @}
 
     /*! \name Internal functions */
@@ -101,9 +126,9 @@ private:
     __device__
     __host__
 #endif
-    void init(int value)
+    void init(uint32_t value)
     {
-        assert(m < 32);
+        static_assert(m < 32);
         assert(value >= 0 && value < (1 << m));
         gf::value = value;
     }
@@ -117,13 +142,13 @@ public:
     __device__
     __host__
 #endif
-    gf() : value(0) { assert(m < 32); }
-    //! Converting from int constructor
+    gf() : value(0) { static_assert(m < 32); }
+    //! Converting from uint32_t constructor
 #ifdef __CUDACC__
     __device__
     __host__
 #endif
-    gf(const int x) { init(x); }
+    gf(const uint32_t x) { init(x); }
     //! Converting from string constructor
     explicit gf(const std::string s) { init(s); }
     // @}
@@ -133,7 +158,7 @@ public:
     __device__
     __host__
 #endif
-    operator int() const { return value; }
+    operator uint32_t() const { return value; }
     operator std::string() const;
     // @}
 
@@ -201,7 +226,7 @@ public:
         // Initialize result
         value = 0;
         // Loop over all bits in multiplicand
-        for (int i = 0; i < m && B != 0; i++) {
+        for (uint32_t i = 0; i < m && B != 0; i++) {
             // If the corresponding bit in the multiplicand is set,
             // add (XOR) the shifted multiplier
             if (B & 1) {
@@ -252,7 +277,7 @@ public:
         const gf<m, poly> one(1);
         const gf<m, poly> two(2);
         gf<m, poly> result(1);
-        for (int i = 1; i < elements(); i++) {
+        for (uint32_t i = 1; i < elements(); i++) {
             if (result * *this == one) {
                 break;
             }
@@ -269,7 +294,7 @@ public:
 
 /*! \name Arithmetic operations */
 
-template <int m, int poly>
+template <uint32_t m, uint32_t poly>
 #ifdef __CUDACC__
 __device__
 __host__
@@ -281,7 +306,7 @@ operator+(const gf<m, poly>& a, const gf<m, poly>& b)
     return c += b;
 }
 
-template <int m, int poly>
+template <uint32_t m, uint32_t poly>
 #ifdef __CUDACC__
 __device__
 __host__
@@ -293,7 +318,7 @@ operator-(const gf<m, poly>& a, const gf<m, poly>& b)
     return c -= b;
 }
 
-template <int m, int poly>
+template <uint32_t m, uint32_t poly>
 #ifdef __CUDACC__
 __device__
 __host__
@@ -305,7 +330,7 @@ operator*(const gf<m, poly>& a, const gf<m, poly>& b)
     return c *= b;
 }
 
-template <int m, int poly>
+template <uint32_t m, uint32_t poly>
 #ifdef __CUDACC__
 __device__
 __host__
@@ -321,7 +346,7 @@ operator/(const gf<m, poly>& a, const gf<m, poly>& b)
 
 /*! \name Stream Input/Output */
 
-template <int m, int poly>
+template <uint32_t m, uint32_t poly>
 std::ostream&
 operator<<(std::ostream& os, const gf<m, poly>& b)
 {
@@ -329,7 +354,7 @@ operator<<(std::ostream& os, const gf<m, poly>& b)
     return os;
 }
 
-template <int m, int poly>
+template <uint32_t m, uint32_t poly>
 std::istream&
 operator>>(std::istream& is, gf<m, poly>& b)
 {
@@ -338,7 +363,7 @@ operator>>(std::istream& is, gf<m, poly>& b)
     is >> libbase::eatwhite;
     // read up to 'm' digits from stream
     char c;
-    for (int i = 0; i < m && is.get(c); i++) {
+    for (uint32_t i = 0; i < m && is.get(c); i++) {
         if (isspace(c)) {
             is.putback(c);
             break;
@@ -356,21 +381,21 @@ operator>>(std::istream& is, gf<m, poly>& b)
 // Typedefs for explicit instantiations
 
 // Degenerate case GF(2):
-typedef gf<1, 0x3> gf2; // 1 { 1 }
+using gf2 = gf<1, 0x3>; // 1 { 1 }
 
 // Lin & Costello, 2004, App. A:
-typedef gf<2, 0x7> gf4;       // 1 { 11 }
-typedef gf<3, 0xB> gf8;       // 1 { 011 }
-typedef gf<4, 0x13> gf16;     // 1 { 0011 }
-typedef gf<5, 0x25> gf32;     // 1 { 0 0101 }
-typedef gf<6, 0x43> gf64;     // 1 { 00 0011 }
-typedef gf<7, 0x89> gf128;    // 1 { 000 1001 }
-typedef gf<8, 0x11D> gf256;   // 1 { 0001 1101 }
-typedef gf<9, 0x211> gf512;   // 1 { 0 0001 0001 }
-typedef gf<10, 0x409> gf1024; // 1 { 00 0000 1001 }
+using gf4 = gf<2, 0x7>;       // 1 { 11 }
+using gf8 = gf<3, 0xB>;       // 1 { 011 }
+using gf16 = gf<4, 0x13>;     // 1 { 0011 }
+using gf32 = gf<5, 0x25>;     // 1 { 0 0101 }
+using gf64 = gf<6, 0x43>;     // 1 { 00 0011 }
+using gf128 = gf<7, 0x89>;    // 1 { 000 1001 }
+using gf256 = gf<8, 0x11D>;   // 1 { 0001 1101 }
+using gf512 = gf<9, 0x211>;   // 1 { 0 0001 0001 }
+using gf1024 = gf<10, 0x409>; // 1 { 00 0000 1001 }
 
 // Rijndael field cf. Gladman, 2003, p.5:
-typedef gf<8, 0x11B> gf256aes; // 1 { 0001 1011 }
+using gf256aes = gf<8, 0x11B>; // 1 { 0001 1011 }
 
 } // namespace libbase
 
@@ -391,4 +416,4 @@ typedef gf<8, 0x11B> gf256aes; // 1 { 0001 1011 }
       (gf256aes)
 // clang-format on
 
-#endif
+#endif // __gf_h

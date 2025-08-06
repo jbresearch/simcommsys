@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(test_reception)
 {
     auto possible_tx_symbols = libbase::vector<symbol>(symbol::elements());
 
-    for (auto i = 0; i < symbol::elements(); ++i) {
+    for (uint32_t i = 0; i < symbol::elements(); ++i) {
         possible_tx_symbols(i) = symbol(i);
     }
 

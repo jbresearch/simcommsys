@@ -36,7 +36,7 @@ namespace libbase
  * This function converts the string to an integer and calls init().
  * The string must only contain 1's and 0's.
  */
-template <int m, int poly>
+template <uint32_t m, uint32_t poly>
 void
 gf<m, poly>::init(const std::string s)
 {
@@ -54,11 +54,11 @@ gf<m, poly>::init(const std::string s)
 
 // Conversion operations
 
-template <int m, int poly>
+template <uint32_t m, uint32_t poly>
 gf<m, poly>::operator std::string() const
 {
     std::string sTemp;
-    for (int i = m - 1; i >= 0; i--) {
+    for (uint32_t i = m - 1; i >= 0; i--) {
         sTemp += '0' + ((value >> i) & 1);
     }
     return sTemp;

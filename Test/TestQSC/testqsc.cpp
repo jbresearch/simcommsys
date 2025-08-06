@@ -44,12 +44,12 @@ validate_pdf_sums_to_one(const TestQsc<gf>& channel)
 {
     namespace tt = boost::test_tools;
 
-    for (auto tx_symbol_index = 0; tx_symbol_index < gf::elements();
+    for (uint32_t tx_symbol_index = 0; tx_symbol_index < gf::elements();
          ++tx_symbol_index) {
         gf transmit_symbol = tx_symbol_index;
 
         double sum_pdf = 0.0;
-        for (auto rx_symbol_index = 0; rx_symbol_index < gf::elements();
+        for (uint32_t rx_symbol_index = 0; rx_symbol_index < gf::elements();
              ++rx_symbol_index) {
             gf receive_symbol = rx_symbol_index;
             sum_pdf += channel.pdf(transmit_symbol, receive_symbol);
