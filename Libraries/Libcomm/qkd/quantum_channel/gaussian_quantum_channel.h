@@ -43,7 +43,6 @@ public:
         double noise = q_dist(gen);
         observable.set_noise(noise);
         observable.set_transmittance(noise_transmittance);
-        std::cout<<"Printing detector efficiency in transmit fn: " << noise_detector_eff << std::endl;
         observable.set_detector_eff(noise_detector_eff);
     }
 
@@ -53,7 +52,6 @@ public:
         double noise = p_dist(gen);
         observable.set_noise(noise);
         observable.set_transmittance(noise_transmittance);
-        std::cout<<"Printing detector efficiency in transmit fn: " << noise_detector_eff << std::endl;
         observable.set_detector_eff(noise_detector_eff);
     }
 
@@ -61,10 +59,7 @@ public:
     //! Set the characteristic parameters
     void set_parameters(const libbase::vector<double>& x) override {
         assertalways(x.size() == 1);  // Ensures all required parameters are passed
-        // noise_mean = x(0); // Mean of Noise
         noise_stddev = x(0); // Variance V_N
-        // noise_transmittance = x(2); // Transmittance T
-        // noise_detector_eff = x(3); // Homodyne Detector Efficiency
     }
 
     //! Get the characteristic parameters
@@ -72,7 +67,7 @@ public:
     {
         libbase::vector<double> params;
         params.init(1); // Order: stddev
-        params(0) = noise_stddev; // Variance V_N (should be the only CLI parameter)
+        params(0) = noise_stddev; // Variance V_N
         return params;
     }
 

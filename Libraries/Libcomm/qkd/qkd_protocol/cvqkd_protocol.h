@@ -89,11 +89,9 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
 
             for (int i = 0; i < framesize; ++i) {
                 if (bobs_decision_vector(i)==0){
-                    std::cout << "Printing inside cvqkdprotocol Bob's decision vector element: " << bobs_decision_vector(i) << std::endl;
                     observables.push_back(std::make_unique<fake_position_observable>());
                 }
                 else{
-                    std::cout << "Printing inside cvqkdprotocol Bob's decision vector element: " << bobs_decision_vector(i) << std::endl;
                     observables.push_back(std::make_unique<fake_momentum_observable>());
                 }
             }

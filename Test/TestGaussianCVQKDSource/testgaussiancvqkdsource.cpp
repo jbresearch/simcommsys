@@ -425,48 +425,209 @@ using namespace libbase;
 //     return obj;
 // }
 
-BOOST_AUTO_TEST_CASE(test_gaussian_quantum_channel_serialisation)
+// BOOST_AUTO_TEST_CASE(test_gaussian_quantum_channel_serialisation)
+// {
+//    std::stringstream ss;
+//    ss << "# Homodyne Detector Efficiency\n"
+//       << "0.6\n";
+
+//    std::unique_ptr<libbase::serializable> ptr = libcomm::gaussian_quantum_channel::create(ss);
+//    auto* channel = dynamic_cast<libcomm::gaussian_quantum_channel*>(ptr.get());
+//    BOOST_REQUIRE(channel != nullptr);
+
+//    libbase::vector<double> params;
+//    params.init(3);
+//    params(0) = 0.0; // mean
+//    params(1) = 0.8; // variance V_N - inputted it as the noise standard deviation
+//    params(2) = 0.63; // Transmittance T
+
+//    channel->set_parameters(params);
+//    auto all_params = channel->get_parameters();
+
+//    std::cout << all_params << std::endl;
+//    //  BOOST_CHECK_CLOSE(all_params(3), 0.6, 1e-6); // HDE must match serialized value
+
+
+//    // Set up QKD protocol
+//    int framesize = 2;
+//    randgen rng;
+//    // rng.seed(12);
+//    rng.seed(17);
+//    std::unique_ptr<cvqkd_protocol> protocol = std::make_unique<cvqkd_protocol>();
+//    protocol->seedfrom(rng);
+
+//    std::vector<std::unique_ptr<observable<double>>> bob_observables = protocol->get_bob_observables(framesize);
+//    const libbase::vector<int>& decision_vector = protocol->get_decision_vector();
+
+//    // Transmit for Bob's observables.
+//    for (int i = 0; i < framesize; ++i) {
+//         std::string type = (decision_vector(i) == 0) ? "Position" : "Momentum";
+//         std::cout << "Observable " << i << " (" << type << "): " << std::endl;
+
+//         bob_observables[i]->transmit(*channel);
+//    }
+
+// }
+
+// BOOST_AUTO_TEST_CASE(test_gaussian_quantum_channel_serialisation)
+// {
+//    std::stringstream ss;
+//    ss << "# Homodyne Detector Efficiency\n"
+//       << "0.6\n"
+//       << "# Mean of the Gaussian Quantum Channel\n"
+//       << "0.0\n"
+//       << "# Transmittance T of the Gaussian Quantum Channel\n"
+//       << "0.302\n";
+
+//    std::unique_ptr<libbase::serializable> ptr = libcomm::gaussian_quantum_channel::create(ss);
+//    auto* channel = dynamic_cast<libcomm::gaussian_quantum_channel*>(ptr.get());
+//    BOOST_REQUIRE(channel != nullptr);
+
+//    libbase::vector<double> params;
+//    params.init(1);
+//    params(0) = 0.1; // Standard deviation for the noise of the channel.
+//    // params(1) = 0.302; // testing noise transmittance.
+
+//    channel->set_parameters(params);
+//    auto all_params = channel->get_parameters();
+
+//    std::cout << all_params << std::endl;
+//    //  BOOST_CHECK_CLOSE(all_params(3), 0.6, 1e-6); // HDE must match serialized value
+
+//    // Set up QKD protocol
+//    int framesize = 2;
+//    randgen rng;
+//    // rng.seed(12);
+//    rng.seed(17);
+//    std::unique_ptr<cvqkd_protocol> protocol = std::make_unique<cvqkd_protocol>();
+//    protocol->seedfrom(rng);
+
+//    std::vector<std::unique_ptr<observable<double>>> bob_observables = protocol->get_bob_observables(framesize);
+//    const libbase::vector<int>& decision_vector = protocol->get_decision_vector();
+
+//    // Transmit for Bob's observables.
+//    for (int i = 0; i < framesize; ++i) {
+//         std::string type = (decision_vector(i) == 0) ? "Position" : "Momentum";
+//         std::cout << "Observable " << i << " (" << type << "): " << std::endl;
+
+//         bob_observables[i]->transmit(*channel);
+//    }
+// }
+
+BOOST_AUTO_TEST_CASE(create_measurement_vectors)
 {
-   std::stringstream ss;
+   // 1. Generate GM coherent states
+   double variance_VA = 18.5; // modulation variance of Alice
+   double std_dev_VA = std::sqrt(variance_VA);
+   double q_stddev = 1.0;
+   double p_stddev = 1.0;
+
+   quantum_gaussian_source source(0.0, std_dev_VA, 0.0, std_dev_VA, q_stddev, p_stddev);
+   randgen r;
+   r.seed(7896);
+   source.seedfrom(r);
+
+   const int framesize = 500; // Number of generated coherent states in a single frame.
+   vector<gaussian_state> source_sequence = source.generate_sequence(size_type<vector>(framesize));
+   std::cout << "Number of Generated Coherent States: " << framesize << std::endl;
+
+   // 2. Set Gaussian Quantum Channel and Identity Quantum Channel
+   std::stringstream ss; // Serialized parameters of the quantum channel
+   // ss << "# Homodyne Detector Efficiency\n"
+   // << "0.606\n"
+   // << "# Mean of the Gaussian Quantum Channel\n"
+   // << "0.0\n"
+   // << "# Transmittance T of the Gaussian Quantum Channel\n"
+   // << "0.302\n";
+
+   // Ideal case where they are both set to 1 - No noise - Ideal case
    ss << "# Homodyne Detector Efficiency\n"
-      << "0.6\n";
+   << "1.0\n"
+   << "# Mean of the Gaussian Quantum Channel\n"
+   << "0.0\n"
+   << "# Transmittance T of the Gaussian Quantum Channel\n"
+   << "1.0\n";
+
+
+   // Setting Alice's identity quantum channel
+   std::unique_ptr<quantum_channel> alice_channel = std::make_unique<identity_quantum_channel>();
+   //     std::unique_ptr<quantum_channel> bob_channel = std::make_unique<gaussian_quantum_channel>();
 
    std::unique_ptr<libbase::serializable> ptr = libcomm::gaussian_quantum_channel::create(ss);
-   auto* channel = dynamic_cast<libcomm::gaussian_quantum_channel*>(ptr.get());
-   BOOST_REQUIRE(channel != nullptr);
+   auto* bob_channel = dynamic_cast<libcomm::gaussian_quantum_channel*>(ptr.get());
+   BOOST_REQUIRE(bob_channel != nullptr);
 
    libbase::vector<double> params;
-   params.init(3);
-   params(0) = 0.0;
-   params(1) = 0.8;
-   params(2) = 0.63;
+   params.init(1); // Only CLI parameter of the Quantum channel
+   // double variance_VN =  1.04191506; // Variance V_N of the quantum channel - with noise
+   double variance_VN = 0; // No noise case for now - Ideal case
+   params(0) = std::sqrt(variance_VN); // Standard deviation of V_N
+   bob_channel->set_parameters(params);
+   auto all_params = bob_channel->get_parameters();
 
-   channel->set_parameters(params);
-   auto all_params = channel->get_parameters();
-
+   // Print channel CLI parameter
    std::cout << all_params << std::endl;
-   //  BOOST_CHECK_CLOSE(all_params(3), 0.6, 1e-6); // HDE must match serialized value
 
-
-   // Set up QKD protocol
-   int framesize = 2;
+   // 3. Set up QKD protocol
    randgen rng;
-   // rng.seed(12);
    rng.seed(17);
    std::unique_ptr<cvqkd_protocol> protocol = std::make_unique<cvqkd_protocol>();
    protocol->seedfrom(rng);
 
+   // 4. Create observables for Bob
    std::vector<std::unique_ptr<observable<double>>> bob_observables = protocol->get_bob_observables(framesize);
+
+   // Get Bob#s decision vector of his observables
    const libbase::vector<int>& decision_vector = protocol->get_decision_vector();
 
-   // Transmit for Bob's observables.
+   std::cout<<"Printing Bob's generated observables"<< std::endl;
    for (int i = 0; i < framesize; ++i) {
-        std::string type = (decision_vector(i) == 0) ? "Position" : "Momentum";
-        std::cout << "Observable " << i << " (" << type << "): " << std::endl;
-
-        bob_observables[i]->transmit(*channel);
+      std::string type = (decision_vector(i) == 0) ? "Position" : "Momentum";
+      std::cout << "Observable " << i << " (" << type << "): ";
    }
 
+   // 5. Create observables for Alice
+   std::vector<std::unique_ptr<observable<double>>> alice_observables = protocol->get_alice_observables(framesize, decision_vector); // Changed this method to accept two parameters: framesize and bob's decision vector
+
+   std::vector<std::unique_ptr<observable<double>>> alice_observables2 = protocol->get_alice_observables(framesize); // created this just to test the  observables for Alice. Eventually I will delete it.
+
+   const libbase::vector<int>& alice_decision_vector = protocol->get_alice_decision_vector(); // This was just to be able to print the the type of observables that were generated.
+
+   std::cout<<"\nPrinting Alice's generated observables"<< std::endl;
+   for (int i = 0; i < framesize; ++i) {
+      std::string type = (alice_decision_vector(i) == 0) ? "Position" : "Momentum";
+      std::cout << "Observable " << i << " (" << type << "): ";
+   }
+   std::cout << std::endl;
+
+   // 6. Initialising the measurement vectors for Alice and Bob
+   libbase::vector<double> alice_measurements;
+   libbase::vector<double> bob_measurements;
+   alice_measurements.init(framesize);
+   bob_measurements.init(framesize);
+
+   // 7. Transmit Bob's observables through the channel and perform measurement
+   for (int i = 0; i < framesize; ++i) {
+      alice_observables[i]->transmit(*alice_channel);
+      bob_observables[i]->transmit(*bob_channel);
+
+      alice_measurements(i) = source_sequence(i).measure(*alice_observables[i]);
+      bob_measurements(i) = source_sequence(i).measure(*bob_observables[i]);
+   }
+
+   // Print both measurement vectors.
+   std::cout << "\nBob's measurements: [";
+   for (int i = 0; i < framesize; ++i) {
+      std::cout << bob_measurements(i);
+      if (i < framesize - 1) std::cout << ", ";
+   }
+   std::cout << "]" << std::endl;
+
+   std::cout << "Alice's measurements: [";
+   for (int i = 0; i < framesize; ++i) {
+      std::cout << alice_measurements(i);
+      if (i < framesize - 1) std::cout << ", ";
+   }
+   std::cout << "]" << std::endl;
+
 }
-
-

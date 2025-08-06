@@ -19,7 +19,6 @@ std::ostream& gaussian_quantum_channel::serialize(std::ostream& sout) const {
     sout << noise_mean << std::endl;
     sout << "# Transmittance T of the Gaussian Quantum Channel" << std::endl;
     sout << noise_transmittance << std::endl;
-
     return sout;
 }
 
@@ -30,7 +29,6 @@ std::istream& gaussian_quantum_channel::serialize(std::istream& sin) {
     sin >> libbase::eatcomments >> noise_detector_eff >> libbase::verify;  // Detector Efficiency of the homodyne detector
     sin >> libbase::eatcomments >> noise_mean >> libbase::verify; // Mean of Noise
     sin >> libbase::eatcomments >> noise_transmittance >> libbase::verify; // Transmittance T
-
     return sin;
 }
 
