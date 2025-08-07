@@ -85,7 +85,7 @@ export SIMCOMMSYS_VERSION := $(shell git describe --always --dirty)
 ## Build and installations details
 
 # String to identify build
-export BUILDID := $(SIMCOMMSYS_VERSION)
+export BUILDID := plain
 ifneq ($(USE_OMP),0)
 	BUILDID := $(BUILDID)-omp
 endif
@@ -98,6 +98,7 @@ endif
 ifneq ($(USE_CUDA),0)
 	BUILDID := $(BUILDID)-cuda$(USE_CUDA)
 endif
+BUILDID := $(subst plain-,,$(BUILDID))
 
 ## Folders
 

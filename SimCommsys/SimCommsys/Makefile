@@ -32,7 +32,7 @@ endif
 DEPEND := $(OBJECTS:%.o=%.d)
 # Automatically determine the final target name
 TARGET := $(SOURCES:%.cpp=$(BUILDDIR)/%)
-FINAL := $(SOURCES:%.cpp=$(BINDIR)/%.$(BUILDID).$(RELEASE))
+FINAL := $(SOURCES:%.cpp=$(BINDIR)/%.$(SIMCOMMSYS_VERSION).$(BUILDID).$(RELEASE))
 
 # Master targets
 
@@ -65,7 +65,7 @@ $(TARGET):	$(OBJECTS) $(LIBRARIES)
 
 # Pattern-matched targets
 
-$(BINDIR)/%.$(BUILDID).$(RELEASE):	$(BUILDDIR)/%
+$(BINDIR)/%.$(SIMCOMMSYS_VERSION).$(BUILDID).$(RELEASE):	$(BUILDDIR)/%
 	@$(MKDIR) $(dir $@)
 	@echo "Installing $* [$(BUILDID): $(RELEASE)]"
 	@$(CP) $< $@
