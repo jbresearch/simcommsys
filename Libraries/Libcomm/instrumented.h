@@ -68,20 +68,14 @@ public:
             timer.stop();
         }
 
-        m_timings.push_back(timer.elapsed());
-        m_names.push_back(timer.get_name());
-        m_counts.push_back(1);
+        add_timer(timer.elapsed(), timer.get_name());
     }
     //! Add a single timer (from components) with variance
     void add_timer_with_variance(double time, const std::string& name)
     {
-        m_timings.push_back(time);
-        m_names.push_back(name);
-        m_counts.push_back(1);
+        add_timer(time, name);
         // add variance
-        m_timings.push_back(time * time);
-        m_names.push_back(name + "_sq");
-        m_counts.push_back(1);
+        add_timer(time * time, name + "_sq");
     }
     //! Add a single, new timer, or if a timer with same name already exists,
     //! accumulate
@@ -91,29 +85,11 @@ public:
             timer.stop();
         }
 
-        auto m_names_it = m_names.begin();
-        auto m_counts_it = m_counts.begin();
-        auto m_timings_it = m_timings.begin();
-        bool found = false; // was a timing with the same name found?
-        for (; m_names_it != m_names.end();
-             ++m_names_it, ++m_counts_it, ++m_timings_it) {
-            if (*m_names_it == timer.get_name()) {
-                ++*m_counts_it;
-                *m_timings_it += timer.elapsed();
-                found = true;
-                break;
-            }
-        }
-        if (!found) { // this is a new timer
-            m_timings.push_back(timer.elapsed());
-            m_names.push_back(timer.get_name());
-            m_counts.push_back(1);
-        }
+        add_or_accumulate_timer(timer.elapsed(), timer.get_name());
     }
     //! Add a single, new timer, or if a timer with same name already exists,
-    //! accumulate
-    //! Also add square of timing so that variance in timing result can be
-    //! computed
+    //! accumulate. Also add square of timing so that variance in timing result
+    //! can be computed.
     void add_or_accumulate_timer_with_variance(libbase::timer& timer)
     {
         add_or_accumulate_timer(timer);
@@ -139,9 +115,7 @@ public:
             }
         }
         if (!found) { // this is a new timer
-            m_timings.push_back(time);
-            m_names.push_back(name);
-            m_counts.push_back(1);
+            add_timer(time, name);
         }
     }
     //! Batch add timers
