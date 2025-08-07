@@ -249,19 +249,6 @@ NVCCopts := $(NVCCopts) -w
 NVCCopts := $(NVCCopts) -DUSE_CUDA
 NVCCopts := $(NVCCopts) -D_FORCE_INLINES
 NVCCopts := $(NVCCopts) -arch=sm_$(USE_CUDA)
-ifeq ($(OSARCH),i686)
-    NVCCopts := $(NVCCopts) -m32
-else
-    ifeq ($(OSARCH),x86_64)
-        NVCCopts := $(NVCCopts) -m64
-    else
-        ifeq ($(OSARCH),ppc64)
-            NVCCopts := $(NVCCopts)
-        else
-            $(error Unknown architecture: $(OSARCH))
-        endif
-    endif
-endif
 # release-dependent compiler settings
 NVCCflag_debug := -O0 -g -G -DDEBUG $(NVCCopts)
 NVCCflag_release := -O3 -DNDEBUG $(NVCCopts)
