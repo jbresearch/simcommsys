@@ -99,7 +99,7 @@ public:
     //! Add a single, new timing, or if a timing with same name already exists,
     //! accumulate
     void
-    add_or_accumulate_timer(double time, const std::string& name)
+    add_or_accumulate_timer(double time, const std::string& name, int count = 1)
     {
         auto m_names_it = m_names.begin();
         auto m_counts_it = m_counts.begin();
