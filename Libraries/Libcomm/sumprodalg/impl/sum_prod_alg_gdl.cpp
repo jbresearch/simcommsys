@@ -38,7 +38,7 @@ void
 sum_prod_alg_gdl<GF_q, real>::spa_init(const array2d_t& recvd_probs)
 {
     this->num_iters = 0;
-    // reset flag that informs us whether decoding has suceeded.
+    // reset flag that informs us whether decoding has succeeded.
     this->decode_success = false;
 
     int num_of_elements = GF_q::elements();
