@@ -120,8 +120,8 @@ public:
      *
      * \note Observe that this output necessarily constitutes a hard decision.
      *
-     * \note Each call to decode_all_iters performs full decoding, rather than
-     * just a single iteration.
+     * \note Each call to decode performs full decoding, rather than just a
+     * single iteration.
      */
     virtual void decode(C<int>& decoded)
     {
@@ -136,8 +136,8 @@ public:
      *
      * \note Observe that this output necessarily constitutes a hard decision.
      *
-     * \note Each call to decode_all_iters performs full decoding, rather than
-     * just a single iteration.
+     * \note Each call to decode performs full decoding, rather than just a
+     * single iteration.
      */
     void decode(libbase::vector<C<int>>& decoded)
     {
