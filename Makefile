@@ -133,7 +133,8 @@ ifeq ($(MAKELEVEL),0)
             $(info Using CUDA: yes, compute model $(USE_CUDA))
         endif
         $(info Install folder: $(BINDIR))
-        $(info Build tag: $(BUILDID))
+        $(info Build ID: $(BUILDID))
+        $(info Version: $(SIMCOMMSYS_VERSION))
     endif
 endif
 
