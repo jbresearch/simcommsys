@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "introductory-paper-simulations"
+name = "template-simulations"
 version = "0.1.0"
 description = "Simcommsys Template Folder for simulation projects"
 authors = ["Mark Mizzi <mark.mizzi.19@um.edu.mt>", "Johann A. Briffa <johann.briffa@um.edu.mt>"]
