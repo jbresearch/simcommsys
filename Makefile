@@ -85,7 +85,7 @@ export SIMCOMMSYS_VERSION := $(shell git describe --always --dirty)
 ## Build and installations details
 
 # String to identify build
-export BUILDID := $(notdir $(shell git rev-parse --abbrev-ref HEAD))
+export BUILDID := $(SIMCOMMSYS_VERSION)
 ifneq ($(USE_OMP),0)
 	BUILDID := $(BUILDID)-omp
 endif
@@ -362,7 +362,7 @@ build-test-%:	build-libs-%
 	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_TEST)
 build-libs-%:	version-%
 	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_LIBS)
-	
+
 dry-run-build-main-%:	dry-run-build-libs-%
 	@$(MAKE) RELEASE=$* DOTARGET=build $(patsubst %,dry-run-%,$(TARGETS_MAIN))
 dry-run-build-test-%:	dry-run-build-libs-%
