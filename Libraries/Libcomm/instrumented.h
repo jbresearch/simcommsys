@@ -108,7 +108,7 @@ public:
         for (; m_names_it != m_names.end();
              ++m_names_it, ++m_counts_it, ++m_timings_it) {
             if (*m_names_it == name) {
-                ++*m_counts_it;
+                *m_counts_it += count;
                 *m_timings_it += time;
                 found = true;
                 break;
