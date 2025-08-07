@@ -227,10 +227,8 @@ ldpc<GF_q, real>::do_encode(const libbase::vector<int>& source,
 
 #if DEBUG >= 2
     this->received_word_hd = encoded;
-    // this->isCodeword();
-    // assertalways(this->decodingSuccess);
-    //  extract the info symbols from the codeword word and compare them to the
-    //  original
+    // extract the info symbols from the codeword word and compare them to the
+    // original
     for (int loop_i = 0; loop_i < this->dim_k; loop_i++) {
         assertalways(source(loop_i) == encoded(this->info_symb_pos(loop_i)));
     }
