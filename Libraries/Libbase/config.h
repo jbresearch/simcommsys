@@ -167,11 +167,11 @@ operator<<(ostream& os, const std::vector<T>& xs)
 {
     os << xs.size();
     if (xs.size() > 0) {
-        os << '\n';
+        os << std::endl;
         for (auto it = xs.begin(); it != --xs.end(); ++it) {
             os << *it << '\t';
         }
-        os << *--xs.end() << '\n';
+        os << *--xs.end() << std::endl;
     }
     return os << std::flush;
 }
