@@ -209,6 +209,8 @@ CCopts := $(CCopts) -Wall -Werror
 # TODO: remove when no longer needed
 CCopts := $(CCopts) -Wno-array-bounds
 CCopts := $(CCopts) -std=c++17
+# Architecture-specific options (auto-detected from build computer)
+CCopts := $(CCopts) -march=native
 # -fPIE is required for libraries to be usable from Rust
 CCopts := $(CCopts) -fPIE
 
@@ -227,21 +229,6 @@ endif
 # CUDA options
 ifneq ($(USE_CUDA),0)
     CCopts := $(CCopts) -DUSE_CUDA
-endif
-# Architecture-specific options
-ifeq ($(OSARCH),i686)
-    CCopts := $(CCopts) -msse2
-else
-    ifeq ($(OSARCH),x86_64)
-        CCopts := $(CCopts) -msse2 -m64
-    else
-        ifeq ($(OSARCH),ppc64)
-            #CCopts := $(CCopts) -maltivec -m64
-            CCopts := $(CCopts)
-        else
-            $(error Unknown architecture: $(OSARCH))
-        endif
-    endif
 endif
 # release-dependent compiler settings
 export CCflag_debug := -g -DDEBUG $(CCopts)
