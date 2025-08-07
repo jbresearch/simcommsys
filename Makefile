@@ -327,7 +327,9 @@ doc:	FORCE
 
 clean-all:
 	@echo "----> Cleaning all binaries."
-	@find . -depth \( -name doc -or -name bin -or -iname debug -or -iname release -or -iname profile -or -name '*.s' -or -name '*.ii' -or -name '*.suo' -or -name '*.ncb' -or -name '*cache.dat' \) -print0 | xargs -0 rm -rf
+	@find . -depth \( -name doc -or -name bin -or \
+		-iname debug -or -iname release -or -iname profile \
+		\) -print0 | xargs -0 rm -rf
 
 clean-dep:
 	@echo "----> Cleaning all dependency files."

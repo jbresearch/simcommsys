@@ -1,7 +1,3 @@
 /[Dd]ebug
 /[Rr]elease
 /[Pp]rofile
-/*.s
-/*.ii
-/x64
-/*.vcxproj.user
