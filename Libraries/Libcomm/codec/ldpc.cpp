@@ -193,7 +193,7 @@ ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable)
                    << "The first 5 received likelihoods are:" << std::endl;
     libbase::trace << ptable.extract(0, 5);
 #endif
-    int numOfElements = GF_q::elements();
+    const int numOfElements = GF_q::elements();
     this->received_probs.init(this->length_n, numOfElements);
 
     // cast the values from double to real
