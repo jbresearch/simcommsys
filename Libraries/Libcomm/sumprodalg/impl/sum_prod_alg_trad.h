@@ -37,7 +37,7 @@ public:
     typedef libbase::vector<int> array1i_t;
     typedef libbase::vector<array1i_t> array1vi_t;
     typedef libbase::vector<array1d_t> array1vd_t;
-    typedef libbase::matrix<real> matrixd_t;
+    typedef libbase::matrix<real> array2d_t;
     // @}
 
     sum_prod_alg_trad(int n,
@@ -53,7 +53,7 @@ public:
     {
         // nothing to do
     }
-    void spa_init(const matrixd_t& ptable);
+    void spa_init(const array2d_t& ptable);
     void compute_r_mn(int m, int n, const array1i_t& tmpN_m);
     void compute_q_mn(int m, int n, const array1i_t& M_n);
 

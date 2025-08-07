@@ -44,14 +44,14 @@ public:
     /*! \name Type definitions */
     typedef libbase::vector<real> array1d_t;
     typedef libbase::vector<array1d_t> array1vd_t;
-    typedef libbase::matrix<real> matrixd_t;
+    typedef libbase::matrix<real> array2d_t;
 
     virtual ~sum_prod_alg_inf() {}
 
     /*! \brief initialise the SPA with the relevant probabilities
      *
      */
-    virtual void spa_init(const matrixd_t& ptable) = 0;
+    virtual void spa_init(const array2d_t& ptable) = 0;
 
     /*! \brief carry out one iteration of the SPA
      * This method will carry out the horizontal and vertical step

@@ -33,7 +33,7 @@ namespace libcomm
 
 template <class GF_q, class real>
 void
-sum_prod_alg_trad<GF_q, real>::spa_init(const matrixd_t& recvd_probs)
+sum_prod_alg_trad<GF_q, real>::spa_init(const array2d_t& recvd_probs)
 {
     this->init_timer_with_variance("t_spa_iteration");
 

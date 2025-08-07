@@ -54,7 +54,7 @@ public:
     typedef libbase::vector<int> array1i_t;
     typedef libbase::vector<array1i_t> array1vi_t;
     typedef libbase::vector<array1d_t> array1vd_t;
-    typedef libbase::matrix<real> matrixd_t;
+    typedef libbase::matrix<real> array2d_t;
 
     typedef sum_prod_alg_inf<GF_q, real> Base;
     // @}
@@ -98,7 +98,7 @@ public:
      * probabilities
      *
      */
-    virtual void spa_init(const matrixd_t& ptable) = 0;
+    virtual void spa_init(const array2d_t& ptable) = 0;
     /*! \brief this returns the type of the Sum Product algorithm
      *
      */

@@ -465,7 +465,7 @@ spa_init_kern(::cuda::matrix_reference<real, false> device_received_probs,
 
 template <class GF_q, class real>
 void
-sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const matrixd_t& recvd_probs)
+sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array2d_t& recvd_probs)
 {
     this->num_iters = 0;
 
