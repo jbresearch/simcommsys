@@ -38,7 +38,7 @@
 #include <cfloat>
 #include <cmath>
 #include <cstdlib>
-#include <stdint.h>
+#include <cstdint>
 
 // module include files
 
