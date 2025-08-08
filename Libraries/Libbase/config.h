@@ -97,7 +97,7 @@ namespace std
 //! Operator to concatenate STL vectors
 template <class T>
 void
-operator+=(std::vector<T>& a, const std::vector<T>& b)
+operator+=(vector<T>& a, const vector<T>& b)
 {
     a.insert(a.end(), b.begin(), b.end());
 }
@@ -109,7 +109,7 @@ operator+=(std::vector<T>& a, const std::vector<T>& b)
  */
 template <class T>
 ostream&
-operator<<(ostream& os, const std::vector<T>& xs)
+operator<<(ostream& os, const vector<T>& xs)
 {
     os << xs.size();
     if (xs.size() > 0) {
@@ -129,7 +129,7 @@ operator<<(ostream& os, const std::vector<T>& xs)
  */
 template <class T>
 istream&
-operator>>(istream& is, std::vector<T>& xs)
+operator>>(istream& is, vector<T>& xs)
 {
     xs.clear();
     size_t len;
