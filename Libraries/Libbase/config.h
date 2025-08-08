@@ -88,16 +88,6 @@ typedef int16_t int16s;
 typedef int32_t int32s;
 typedef int64_t int64s;
 
-// Names for floating-point types
-
-typedef float float32;
-typedef double float64;
-typedef long double float80;
-
-// Friendly names for high-precision floating-point types
-
-typedef float80 extended;
-
 // Constants
 
 extern const double PI;
