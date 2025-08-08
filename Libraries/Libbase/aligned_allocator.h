@@ -50,6 +50,12 @@ public:
 
     pointer allocate(size_type n, std::allocator<void>::const_pointer hint = 0)
     {
+        // Check for alignment
+        inline bool isaligned(const void* buf, int bytes)
+        {
+            return ((long)buf & (bytes - 1)) == 0;
+        }
+
         void* p;
         if (posix_memalign(&p, alignment, n * sizeof(T)) == 0) {
             assert(isaligned(p, alignment));

@@ -87,13 +87,6 @@ void check_incompleteload(std::istream& is);
 std::istream& verify(std::istream& is);
 std::istream& verifycomplete(std::istream& is);
 
-// Check for alignment
-inline bool
-isaligned(const void* buf, int bytes)
-{
-    return ((long)buf & (bytes - 1)) == 0;
-}
-
 } // namespace libbase
 
 // *** Within standard library namespace ***
