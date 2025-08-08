@@ -72,8 +72,6 @@ const double PI = 3.14159265358979323846;
 
 const char DIR_SEPARATOR = '/';
 
-const int ALIGNMENT = 128;
-
 /*! \brief Checks if a key has been pressed
  * \return true if this has happened
  */

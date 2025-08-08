@@ -81,7 +81,6 @@ extern std::ostream trace;
 
 extern const double PI;
 extern const char DIR_SEPARATOR;
-extern const int ALIGNMENT;
 
 // Interactive keyboard handling
 int keypressed(void);
