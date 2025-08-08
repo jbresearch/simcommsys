@@ -23,9 +23,8 @@
 #define __gf_h
 
 #include "config.h"
-#ifdef __x86_64__
-#    include <immintrin.h>
-#endif
+#include <cassert>
+#include <cstdint>
 #include <iostream>
 #include <string>
 #include <cstdint>
@@ -64,11 +63,6 @@ namespace libbase
 template <uint32_t m, uint32_t poly>
 class gf
 {
-private:
-#if defined(__SSE2__) && defined(__PCLMUL__)
-    // stores q^{+}(x) constants used to speed up GF multiplication on x86
-    struct q_p;
-#endif
 public:
     /*! \brief Alias for storage type of GF elements.
      *
