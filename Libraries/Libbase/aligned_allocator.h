@@ -39,6 +39,12 @@ class aligned_allocator : public std::allocator<T>
 private:
     typedef std::allocator<T> Base;
 
+    // Check for alignment
+    static inline bool isaligned(const void* buf, int bytes)
+    {
+        return ((long)buf & (bytes - 1)) == 0;
+    }
+
 public:
     typedef typename Base::pointer pointer;
     typedef typename Base::size_type size_type;
@@ -50,12 +56,6 @@ public:
 
     pointer allocate(size_type n, std::allocator<void>::const_pointer hint = 0)
     {
-        // Check for alignment
-        inline bool isaligned(const void* buf, int bytes)
-        {
-            return ((long)buf & (bytes - 1)) == 0;
-        }
-
         void* p;
         if (posix_memalign(&p, alignment, n * sizeof(T)) == 0) {
             assert(isaligned(p, alignment));
