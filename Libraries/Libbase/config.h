@@ -46,19 +46,6 @@
 
 // *** Global namespace ***
 
-// Implemented round, and sgn if these are not already available
-
-inline double
-round(double x, double r)
-{
-    return round(x / r) * r;
-}
-inline double
-sign(double x)
-{
-    return (x > 0) ? +1 : ((x < 0) ? -1 : 0);
-}
-
 // Define a function that returns the square of the input
 
 template <class T>
