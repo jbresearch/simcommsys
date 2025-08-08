@@ -34,6 +34,15 @@ using std::cerr;
 using std::cout;
 namespace po = boost::program_options;
 
+// return the square of the input
+
+template <class T>
+inline T
+square(const T x)
+{
+    return x * x;
+}
+
 // coordinate object
 
 template <class T>

@@ -44,17 +44,6 @@
 
 #include "assertalways.h"
 
-// *** Global namespace ***
-
-// Define a function that returns the square of the input
-
-template <class T>
-inline T
-square(const T x)
-{
-    return x * x;
-}
-
 // *** Within library namespace ***
 
 namespace libbase

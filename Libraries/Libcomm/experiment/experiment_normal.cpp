@@ -25,6 +25,14 @@
 namespace libcomm
 {
 
+// return the square of the input
+template <class T>
+inline T
+square(const T x)
+{
+    return x * x;
+}
+
 // Normally-distributed sample experiment
 
 void
