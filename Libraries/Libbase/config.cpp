@@ -70,8 +70,6 @@ std::ostream trace(&g_tracebuf);
 
 const double PI = 3.14159265358979323846;
 
-const char DIR_SEPARATOR = '/';
-
 /*! \brief Checks if a key has been pressed
  * \return true if this has happened
  */

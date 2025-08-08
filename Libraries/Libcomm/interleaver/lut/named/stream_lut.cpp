@@ -21,6 +21,7 @@
 
 #include "stream_lut.h"
 #include <cstring>
+#include <filesystem>
 
 namespace libcomm
 {
@@ -35,7 +36,7 @@ stream_lut<real>::stream_lut(const char* filename,
 {
     stream_lut::m = m;
 
-    const char* s = strrchr(filename, libbase::DIR_SEPARATOR);
+    const char* s = strrchr(filename, std::filesystem::path::preferred_separator);
     const char* p = (s == NULL) ? filename : s + 1;
     this->lutname = p;
 

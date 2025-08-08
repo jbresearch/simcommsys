@@ -22,6 +22,7 @@
 #include "file_lut.h"
 #include <cstdio>
 #include <cstring>
+#include <filesystem>
 
 namespace libcomm
 {
@@ -33,7 +34,7 @@ file_lut<real>::file_lut(const char* filename, const int tau, const int m)
 {
     file_lut::m = m;
 
-    const char* s = strrchr(filename, libbase::DIR_SEPARATOR);
+    const char* s = strrchr(filename, std::filesystem::path::preferred_separator);
     const char* p = (s == NULL) ? filename : s + 1;
     this->lutname = p;
 

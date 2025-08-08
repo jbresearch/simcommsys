@@ -80,7 +80,6 @@ extern std::ostream trace;
 // Constants
 
 extern const double PI;
-extern const char DIR_SEPARATOR;
 
 // Interactive keyboard handling
 int keypressed(void);
