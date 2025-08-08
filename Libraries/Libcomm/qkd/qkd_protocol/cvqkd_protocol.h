@@ -87,12 +87,17 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
             std::vector<std::unique_ptr<observable<double>>> observables;
             observables.reserve(framesize);
 
+            alice_decision_vector.init(framesize);
+
             for (int i = 0; i < framesize; ++i) {
                 if (bobs_decision_vector(i)==0){
                     observables.push_back(std::make_unique<fake_position_observable>());
+                    alice_decision_vector(i) = 0;
                 }
                 else{
+
                     observables.push_back(std::make_unique<fake_momentum_observable>());
+                    alice_decision_vector(i) = 1;
                 }
             }
 

@@ -60,7 +60,11 @@ public:
 
     // Method that does the measurement on a gaussian coherent state
     double measure(gaussian_state& state) const override {
-        return std::sqrt(transmittance*detector_eff)*(state.get_q() + noise);
+        return std::sqrt(transmittance*detector_eff)*(state.get_p() + noise); // For the case 1: S_B\ =\ \sqrt\etaT\left(S_A\ \ +\ \ S_N\right):
+
+        // return (std::sqrt(transmittance*detector_eff)*(state.get_p())) + noise; // For case 2: S_B\ =\ \sqrt\etaT\left(S_A\ \right)\ +\ S_N:
+
+        // return state.get_p() + noise; // For case 3: S_B\ =\ S_A+\ S_N
     }
 
     // To double check with johann whether quantum_channel should be a const or not

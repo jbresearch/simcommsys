@@ -527,26 +527,29 @@ BOOST_AUTO_TEST_CASE(create_measurement_vectors)
    r.seed(7896);
    source.seedfrom(r);
 
-   const int framesize = 500; // Number of generated coherent states in a single frame.
+   const int framesize = 1000; //1000; // Number of generated coherent states in a single frame.
    vector<gaussian_state> source_sequence = source.generate_sequence(size_type<vector>(framesize));
    std::cout << "Number of Generated Coherent States: " << framesize << std::endl;
 
    // 2. Set Gaussian Quantum Channel and Identity Quantum Channel
    std::stringstream ss; // Serialized parameters of the quantum channel
-   // ss << "# Homodyne Detector Efficiency\n"
-   // << "0.606\n"
-   // << "# Mean of the Gaussian Quantum Channel\n"
-   // << "0.0\n"
-   // << "# Transmittance T of the Gaussian Quantum Channel\n"
-   // << "0.302\n";
-
-   // Ideal case where they are both set to 1 - No noise - Ideal case
    ss << "# Homodyne Detector Efficiency\n"
-   << "1.0\n"
+   << "1.0\n"    //"1.0\n"
    << "# Mean of the Gaussian Quantum Channel\n"
    << "0.0\n"
    << "# Transmittance T of the Gaussian Quantum Channel\n"
-   << "1.0\n";
+   << "0.302\n";
+
+   // "0.606\n"
+
+
+   // // Ideal case where they are both set to 1 - No noise - Ideal case
+   // ss << "# Homodyne Detector Efficiency\n"
+   // << "1.0\n"
+   // << "# Mean of the Gaussian Quantum Channel\n"
+   // << "0.0\n"
+   // << "# Transmittance T of the Gaussian Quantum Channel\n"
+   // << "1.0\n";
 
 
    // Setting Alice's identity quantum channel
@@ -559,8 +562,11 @@ BOOST_AUTO_TEST_CASE(create_measurement_vectors)
 
    libbase::vector<double> params;
    params.init(1); // Only CLI parameter of the Quantum channel
-   // double variance_VN =  1.04191506; // Variance V_N of the quantum channel - with noise
-   double variance_VN = 0; // No noise case for now - Ideal case
+   double variance_VN = 3.452019867549669; // using 1 _ Xtotal
+   // double variance_VN =  1.04251; // with det eff of 1
+   // double variance_VN = 1.04191506;  // Variance with det eff 0.606
+   // 1.04191506; // Variance with det eff 0.606
+   // double variance_VN = 0; // No noise case for now - Ideal case
    params(0) = std::sqrt(variance_VN); // Standard deviation of V_N
    bob_channel->set_parameters(params);
    auto all_params = bob_channel->get_parameters();
@@ -589,11 +595,11 @@ BOOST_AUTO_TEST_CASE(create_measurement_vectors)
    // 5. Create observables for Alice
    std::vector<std::unique_ptr<observable<double>>> alice_observables = protocol->get_alice_observables(framesize, decision_vector); // Changed this method to accept two parameters: framesize and bob's decision vector
 
-   std::vector<std::unique_ptr<observable<double>>> alice_observables2 = protocol->get_alice_observables(framesize); // created this just to test the  observables for Alice. Eventually I will delete it.
+   // std::vector<std::unique_ptr<observable<double>>> alice_observables2 = protocol->get_alice_observables(framesize); // created this just to test the  observables for Alice. Eventually I will delete it.
 
    const libbase::vector<int>& alice_decision_vector = protocol->get_alice_decision_vector(); // This was just to be able to print the the type of observables that were generated.
 
-   std::cout<<"\nPrinting Alice's generated observables"<< std::endl;
+   std::cout<<"\n Alice's generated Fake observables with noise"<< std::endl;
    for (int i = 0; i < framesize; ++i) {
       std::string type = (alice_decision_vector(i) == 0) ? "Position" : "Momentum";
       std::cout << "Observable " << i << " (" << type << "): ";
@@ -616,14 +622,15 @@ BOOST_AUTO_TEST_CASE(create_measurement_vectors)
    }
 
    // Print both measurement vectors.
-   std::cout << "\nBob's measurements: [";
+   std::cout << "\nBob's measurements with noise: [";
    for (int i = 0; i < framesize; ++i) {
       std::cout << bob_measurements(i);
       if (i < framesize - 1) std::cout << ", ";
    }
    std::cout << "]" << std::endl;
+   std::cout << std::endl;
 
-   std::cout << "Alice's measurements: [";
+   std::cout << "Alice's measurements with noise: [";
    for (int i = 0; i < framesize; ++i) {
       std::cout << alice_measurements(i);
       if (i < framesize - 1) std::cout << ", ";
