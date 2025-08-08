@@ -167,7 +167,7 @@ main(int argc, char* argv[])
     desc.add_options()(
         "min-samples", po::value<int>(), "minimum number of samples");
     desc.add_options()("seed,s",
-                       po::value<libbase::int32u>(),
+                       po::value<uint32_t>(),
                        "system initialization seed (random if not stated)");
     desc.add_options()("output-format,f",
                        po::value<std::string>()->default_value("text"),
@@ -227,7 +227,7 @@ main(int argc, char* argv[])
                 estimator.set_min_samples(vm["min-samples"].as<int>());
             }
             if (vm.count("seed")) {
-                estimator.set_seed(vm["seed"].as<libbase::int32u>());
+                estimator.set_seed(vm["seed"].as<uint32_t>());
             }
 
             // Work out the following for every combination of parameters

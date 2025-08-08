@@ -158,7 +158,7 @@ resultsfile_text::lookforstate(std::fstream& sin)
     // state variables to read
     std::string digest;
     libbase::vector<double> parameters;
-    libbase::int64u samplecount = 0;
+    uint64_t samplecount = 0;
     libbase::vector<double> state;
     // read through entire file
     libbase::trace << "DEBUG (resultsfile_text): looking for state."

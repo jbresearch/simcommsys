@@ -40,7 +40,7 @@ template <int m, int poly>
 void
 gf<m, poly>::init(const std::string s)
 {
-    int32u value = 0;
+    uint32_t value = 0;
     for (std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
         // check for invalid characters
         assertalways(*it == '0' || *it == '1');

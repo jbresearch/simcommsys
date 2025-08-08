@@ -92,15 +92,15 @@ print_new_sizes()
     cout << "Type:      \tSize (bits):" << std::endl;
     cout << "~~~~~      \t~~~~~~~~~~~~" << std::endl;
 
-    cout << "int8u      \t" << sizeof(libbase::int8u) * 8 << std::endl;
-    cout << "int16u     \t" << sizeof(libbase::int16u) * 8 << std::endl;
-    cout << "int32u     \t" << sizeof(libbase::int32u) * 8 << std::endl;
-    cout << "int64u     \t" << sizeof(libbase::int64u) * 8 << std::endl;
+    cout << "uint8_t    \t" << sizeof(uint8_t) * 8 << std::endl;
+    cout << "uint16_t   \t" << sizeof(uint16_t) * 8 << std::endl;
+    cout << "uint32_t   \t" << sizeof(uint32_t) * 8 << std::endl;
+    cout << "uint64_t   \t" << sizeof(uint64_t) * 8 << std::endl;
 
-    cout << "int8s      \t" << sizeof(libbase::int8s) * 8 << std::endl;
-    cout << "int16s     \t" << sizeof(libbase::int16s) * 8 << std::endl;
-    cout << "int32s     \t" << sizeof(libbase::int32s) * 8 << std::endl;
-    cout << "int64s     \t" << sizeof(libbase::int64s) * 8 << std::endl;
+    cout << "int8_t     \t" << sizeof(int8_t) * 8 << std::endl;
+    cout << "int16_t    \t" << sizeof(int16_t) * 8 << std::endl;
+    cout << "int32_t    \t" << sizeof(int32_t) * 8 << std::endl;
+    cout << "int64_t    \t" << sizeof(int64_t) * 8 << std::endl;
 }
 
 void
@@ -136,12 +136,12 @@ print_vector_sizes()
     x.init(2);
 
     cout << std::endl;
-    cout << "Type:      \tSize (bits):" << std::endl;
-    cout << "~~~~~      \t~~~~~~~~~~~~" << std::endl;
+    cout << "Type:              \tSize (bits):" << std::endl;
+    cout << "~~~~~              \t~~~~~~~~~~~~" << std::endl;
 
-    cout << "vector size type    \t" << sizeof(x.size()) * 8 << std::endl;
-    cout << "vector container    \t" << sizeof(x) * 8 << std::endl;
-    cout << "int elements        \t" << ((char*)&x(1) - (char*)&x(0)) * 8
+    cout << "vector size type   \t" << sizeof(x.size()) * 8 << std::endl;
+    cout << "vector container   \t" << sizeof(x) * 8 << std::endl;
+    cout << "int elements       \t" << ((char*)&x(1) - (char*)&x(0)) * 8
          << std::endl;
 }
 

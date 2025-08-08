@@ -43,19 +43,19 @@ namespace libcomm
 class digest32
 {
     /*! \name Internally-used objects */
-    libbase::int64u m_size; //!< Size of message so far (used for termination)
+    uint64_t m_size; //!< Size of message so far (used for termination)
     bool m_padded;     //!< Flag indicating message padding has been applied
     bool m_terminated; //!< Flag indicating message size has been included
                        // @}
 protected:
     /*! \name Internally-used objects */
-    libbase::vector<libbase::int32u> m_hash; //!< Current hash value
+    libbase::vector<uint32_t> m_hash; //!< Current hash value
     bool lsbfirst; //!< Bytes are placed in least-significant byte positions
                    //!< first
     // @}
     /*! \name Digest-specific functions */
     virtual void derived_reset() = 0;
-    virtual void process_block(const libbase::vector<libbase::int32u>& M) = 0;
+    virtual void process_block(const libbase::vector<uint32_t>& M) = 0;
     // @}
     /*! \name Internal functions */
     void reset();

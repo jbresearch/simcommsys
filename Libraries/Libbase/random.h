@@ -53,7 +53,7 @@ private:
     /*! \name Object representation */
 #ifndef NDEBUG
     //! Debug only: number of generator advances
-    int32u counter;
+    uint32_t counter;
     //! Debug only: flag to check for explicit seeding
     bool initialized;
 #endif
@@ -70,7 +70,7 @@ protected:
     __device__
     __host__
 #endif
-    virtual void init(int32u s) = 0;
+    virtual void init(uint32_t s) = 0;
 //! Advance generator by one step
 #ifdef __CUDACC__
     __device__
@@ -82,13 +82,13 @@ protected:
     __device__
     __host__
 #endif
-    virtual int32u get_value() const = 0;
+    virtual uint32_t get_value() const = 0;
 //! The largest returnable value
 #ifdef __CUDACC__
     __device__
     __host__
 #endif
-    virtual int32u get_max() const = 0;
+    virtual uint32_t get_max() const = 0;
     // @}
 
 public:
@@ -165,7 +165,7 @@ public:
     __device__
     __host__
 #endif
-    void seed(int32u s)
+    void seed(uint32_t s)
     {
 #if DEBUG >= 2
         std::cerr << "DEBUG: random (" << this << ") reseeded with " << s
@@ -186,7 +186,7 @@ public:
     __device__
     __host__
 #endif
-    int32u ival()
+    uint32_t ival()
     {
 #ifndef NDEBUG
         counter++;
@@ -204,7 +204,7 @@ public:
     __device__
     __host__
 #endif
-    int32u ival(int32u m)
+    uint32_t ival(uint32_t m)
     {
         assert(m - 1 <= get_max());
         return int(floor(fval_halfopen() * m));

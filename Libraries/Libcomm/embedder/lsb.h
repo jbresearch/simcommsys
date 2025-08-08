@@ -64,7 +64,7 @@ public:
     // Setup functions
     void seedfrom(libbase::random& r)
     {
-        libbase::int32u seed = r.ival();
+        uint32_t seed = r.ival();
         this->r.seed(seed);
     }
 

@@ -42,7 +42,7 @@ namespace libbase
 class bitfield
 {
 private:
-    int32u field; //!< bit field value
+    uint32_t field; //!< bit field value
     int bits;     //!< number of bits
 
     //! Check that given field size is representable by class
@@ -61,7 +61,7 @@ private:
     __device__
     __host__
 #endif
-    int32u mask() const
+    uint32_t mask() const
     {
         return bits == 32 ? 0xffffffff : ((1L << bits) - 1L);
     }
@@ -81,7 +81,7 @@ public:
     __device__
     __host__
 #endif
-    bitfield(const int32u field, const int bits) : field(field), bits(bits) {}
+    bitfield(const uint32_t field, const int bits) : field(field), bits(bits) {}
     //! Constructor to directly convert a string representation
     explicit bitfield(std::string s) { set_fromstring(s); }
     //! Constructor to directly convert a vector representation
@@ -93,7 +93,7 @@ public:
     __device__
     __host__
 #endif
-    operator int32u() const { return field; }
+    operator uint32_t() const { return field; }
     std::string asstring() const;
     vector<bool> asvector() const;
     // @}
@@ -130,7 +130,7 @@ public:
     __device__
     __host__
 #endif
-    bitfield& operator=(const int32u x)
+    bitfield& operator=(const uint32_t x)
     {
         cuda_assert((x & ~mask()) == 0);
         field = x;
@@ -254,7 +254,7 @@ public:
         cuda_assert(this->bits == x.bits);
         bitfield y;
         y.bits = 1;
-        int32u r = this->field & x.field;
+        uint32_t r = this->field & x.field;
         for (int i = 0; i < this->bits; i++) {
             if (r & (1 << i)) {
                 y.field ^= 1;

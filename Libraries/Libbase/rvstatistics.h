@@ -40,7 +40,7 @@ namespace libbase
 
 class rvstatistics
 {
-    int64u m_n;
+    uint64_t m_n;
     double m_sum, m_sumsq;
     double m_hi, m_lo;
 
@@ -88,7 +88,7 @@ public:
         }
     }
 
-    int64u count() const { return m_n; }
+    uint64_t count() const { return m_n; }
     double hi() const { return m_hi; }
     double lo() const { return m_lo; }
     double sum() const { return m_sum; }

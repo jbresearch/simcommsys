@@ -32,7 +32,7 @@ bool sha::tested = false;
 
 // Const values
 
-const libbase::int32u sha::K[] = {
+const uint32_t sha::K[] = {
     0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6};
 
 // Construction/Destruction
@@ -65,16 +65,16 @@ sha::derived_reset()
 }
 
 void
-sha::process_block(const libbase::vector<libbase::int32u>& M)
+sha::process_block(const libbase::vector<uint32_t>& M)
 {
     // create expanded message block
-    libbase::vector<libbase::int32u> W;
+    libbase::vector<uint32_t> W;
     expand(M, W);
     // copy variables
-    libbase::vector<libbase::int32u> hash = m_hash;
+    libbase::vector<uint32_t> hash = m_hash;
     // main loop
     for (int t = 0; t < 80; t++) {
-        const libbase::int32u temp = cshift(hash(0), 5) +
+        const uint32_t temp = cshift(hash(0), 5) +
                                      f(t, hash(1), hash(2), hash(3)) + hash(4) +
                                      W(t) + K[t / 20];
         hash(4) = hash(3);
@@ -143,11 +143,11 @@ sha::verify(const std::string message, const std::string hash)
 
 // SHA nonlinear function implementations
 
-libbase::int32u
+uint32_t
 sha::f(const int t,
-       const libbase::int32u X,
-       const libbase::int32u Y,
-       const libbase::int32u Z)
+       const uint32_t X,
+       const uint32_t Y,
+       const uint32_t Z)
 {
     assert(t < 80);
     switch (t / 20) {
@@ -165,8 +165,8 @@ sha::f(const int t,
 
 // Circular shift function
 
-libbase::int32u
-sha::cshift(const libbase::int32u x, const int s)
+uint32_t
+sha::cshift(const uint32_t x, const int s)
 {
     return (x << s) | (x >> (32 - s));
 }
@@ -174,8 +174,8 @@ sha::cshift(const libbase::int32u x, const int s)
 // Message expansion function
 
 void
-sha::expand(const libbase::vector<libbase::int32u>& M,
-            libbase::vector<libbase::int32u>& W)
+sha::expand(const libbase::vector<uint32_t>& M,
+            libbase::vector<uint32_t>& W)
 {
     // check input size
     assert(M.size() == 16);

@@ -109,14 +109,14 @@ private:
     // helper functions
     void close();
     void setpriority(const int priority);
-    void connect(const std::string& hostname, const int16u port);
+    void connect(const std::string& hostname, const uint16_t port);
     std::string gethostname();
     int gettag();
     void sendname();
     void sendcputime();
     void dowork();
     void slaveprocess(const std::string& hostname,
-                      const int16u port,
+                      const uint16_t port,
                       const int priority);
 
 public:
@@ -128,13 +128,13 @@ public:
     // slave -> master communication
     void send(const void* buf, const size_t len);
     void send(const int x) { send(&x, sizeof(x)); }
-    void send(const int64u x) { send(&x, sizeof(x)); }
+    void send(const uint64_t x) { send(&x, sizeof(x)); }
     void send(const double x) { send(&x, sizeof(x)); }
     void send(const vector<double>& x);
     void send(const std::string& x);
     void receive(void* buf, const size_t len);
     void receive(int& x) { receive(&x, sizeof(x)); }
-    void receive(int64u& x) { receive(&x, sizeof(x)); }
+    void receive(uint64_t& x) { receive(&x, sizeof(x)); }
     void receive(double& x) { receive(&x, sizeof(x)); }
     void receive(vector<double>& x);
     void receive(std::string& x);
@@ -199,7 +199,7 @@ public:
     {
         receive(s, &x, sizeof(x));
     }
-    void receive(std::shared_ptr<socket> s, libbase::int64u& x)
+    void receive(std::shared_ptr<socket> s, uint64_t& x)
     {
         receive(s, &x, sizeof(x));
     }

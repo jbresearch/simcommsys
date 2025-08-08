@@ -72,16 +72,16 @@ digest32::process(const unsigned char* buf, int size)
     }
 
     // convert message block and process
-    libbase::vector<libbase::int32u> M(16);
+    libbase::vector<uint32_t> M(16);
     M = 0;
     for (int i = 0; i < size; i++) {
-        M(i >> 2) |= libbase::int8u(buf[i])
+        M(i >> 2) |= uint8_t(buf[i])
                      << 8 * (lsbfirst ? (i & 3) : 3 - (i & 3));
     }
 
     // add padding (1-bit followed by zeros) if it fits and is necessary
     if (size < 64 && !m_padded) {
-        M(size >> 2) |= libbase::int8u(0x80)
+        M(size >> 2) |= uint8_t(0x80)
                         << 8 * (lsbfirst ? (size & 3) : 3 - (size & 3));
         m_padded = true;
     }
@@ -93,8 +93,8 @@ digest32::process(const unsigned char* buf, int size)
     // (note that we need to fit the 8-byte size AND 1 byte of padding)
     if (size < 64 - 8 && !m_terminated) {
         assert((m_size >> 61) == 0);
-        M(lsbfirst ? 14 : 15) = libbase::int32u(m_size << 3);
-        M(lsbfirst ? 15 : 14) = libbase::int32u(m_size >> 29);
+        M(lsbfirst ? 14 : 15) = uint32_t(m_size << 3);
+        M(lsbfirst ? 15 : 14) = uint32_t(m_size >> 29);
         m_terminated = true;
     }
 

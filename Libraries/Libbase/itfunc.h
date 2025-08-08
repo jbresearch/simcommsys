@@ -83,12 +83,12 @@ weight(const matrix<T>& m)
 }
 
 //! Gray code
-inline int32u
-gray(int32u n)
+inline uint32_t
+gray(uint32_t n)
 {
     return n ^ (n >> 1);
 }
-int32u igray(int32u n);
+uint32_t igray(uint32_t n);
 
 int gcd(int a, int b);
 

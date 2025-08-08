@@ -42,10 +42,10 @@ weight(int cw)
 
 /*! \brief Inverse Gray code
  */
-int32u
-igray(int32u n)
+uint32_t
+igray(uint32_t n)
 {
-    int32u r = n;
+    uint32_t r = n;
     for (int i = 1; i < 32; i <<= 1) {
         r ^= r >> i;
     }
@@ -77,7 +77,7 @@ hexify(const std::string input)
     for (size_t i = 0; i < input.length(); i++) {
         sout.width(2);
         sout.fill('0');
-        sout << int(int8u(input.at(i)));
+        sout << int(uint8_t(input.at(i)));
     }
 
     return sout.str();

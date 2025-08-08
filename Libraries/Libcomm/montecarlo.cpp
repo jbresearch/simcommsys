@@ -271,7 +271,7 @@ montecarlo::readpendingslaves()
             cluster.receive(s, simdigest);
             cluster.receive(s, simparameters);
             // set up space for results that need to be returned
-            libbase::int64u estsamplecount = 0;
+            uint64_t estsamplecount = 0;
             vector<double> eststate;
             // get results
             cluster.receive(s, estsamplecount);
@@ -363,7 +363,7 @@ montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
         if (results_available) {
             updateresults(result, errormargin);
             // if we have done enough samples, check accuracy reached
-            if (system->get_samplecount() >= libbase::int64u(min_samples)) {
+            if (system->get_samplecount() >= uint64_t(min_samples)) {
                 switch (mode) {
                 case mode_relative_error: {
                     // determine error margin as a fraction of result mean

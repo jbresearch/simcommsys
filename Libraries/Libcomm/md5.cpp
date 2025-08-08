@@ -30,7 +30,7 @@ namespace libcomm
 // Static values
 
 bool md5::tested = false;
-libbase::vector<libbase::int32u> md5::t;
+libbase::vector<uint32_t> md5::t;
 
 // Const values
 
@@ -61,7 +61,7 @@ md5::md5()
     if (t.size() == 0) {
         t.init(64);
         for (int i = 0; i < 64; i++) {
-            t(i) = libbase::int32u(
+            t(i) = uint32_t(
                 floor(pow(double(2), 32) * fabs(sin(double(i + 1)))));
         }
     }
@@ -86,10 +86,10 @@ md5::derived_reset()
 }
 
 void
-md5::process_block(const libbase::vector<libbase::int32u>& M)
+md5::process_block(const libbase::vector<uint32_t>& M)
 {
     // copy variables
-    libbase::vector<libbase::int32u> hash = m_hash;
+    libbase::vector<uint32_t> hash = m_hash;
     // main loop
     for (int i = 0; i < 64; i++) {
         int a = (64 - i) & 0x3;
@@ -157,19 +157,19 @@ md5::verify(const std::string message, const std::string hash)
 
 // Circular shift function
 
-libbase::int32u
-md5::cshift(const libbase::int32u x, const int s)
+uint32_t
+md5::cshift(const uint32_t x, const int s)
 {
     return (x << s) | (x >> (32 - s));
 }
 
 // MD5 nonlinear function implementations
 
-libbase::int32u
+uint32_t
 md5::f(const int i,
-       const libbase::int32u X,
-       const libbase::int32u Y,
-       const libbase::int32u Z)
+       const uint32_t X,
+       const uint32_t Y,
+       const uint32_t Z)
 {
     assert(i < 64);
     switch (i / 16) {
@@ -187,13 +187,13 @@ md5::f(const int i,
 
 // Circular shift function
 
-libbase::int32u
+uint32_t
 md5::op(const int i,
-        const libbase::int32u a,
-        const libbase::int32u b,
-        const libbase::int32u c,
-        const libbase::int32u d,
-        const libbase::vector<libbase::int32u>& M)
+        const uint32_t a,
+        const uint32_t b,
+        const uint32_t c,
+        const uint32_t d,
+        const libbase::vector<uint32_t>& M)
 {
     return b + cshift(a + f(i, b, c, d) + M(ndx[i]) + t(i), s[i]);
 }

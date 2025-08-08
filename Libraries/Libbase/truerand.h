@@ -50,15 +50,15 @@ private:
     /*! \name Object representation */
     int fd;
     //! Last generated random value
-    int32u x;
+    uint32_t x;
     // @}
 
 protected:
     // Interface with random
-    void init(int32u s) {}
+    void init(uint32_t s) {}
     void advance();
-    int32u get_value() const { return x; }
-    int32u get_max() const { return 0xffffffff; }
+    uint32_t get_value() const { return x; }
+    uint32_t get_max() const { return 0xffffffff; }
 
 public:
     /*! \name Constructors / Destructors */

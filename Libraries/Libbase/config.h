@@ -77,17 +77,6 @@ namespace libbase
 
 extern std::ostream trace;
 
-// Names for integer types
-
-typedef uint8_t int8u;
-typedef uint16_t int16u;
-typedef uint32_t int32u;
-typedef uint64_t int64u;
-typedef int8_t int8s;
-typedef int16_t int16s;
-typedef int32_t int32s;
-typedef int64_t int64s;
-
 // Constants
 
 extern const double PI;

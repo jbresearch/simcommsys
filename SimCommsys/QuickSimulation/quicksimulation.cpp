@@ -121,7 +121,7 @@ main(int argc, char* argv[])
                        po::value<std::string>(),
                        "file containing system description");
     desc.add_options()("seed,s",
-                       po::value<libbase::int32u>(),
+                       po::value<uint32_t>(),
                        "system initialization seed (random if not stated)");
     desc.add_options()(
         "confidence",
@@ -202,7 +202,7 @@ main(int argc, char* argv[])
             estimator->set_min_samples(vm["min-samples"].as<int>());
         }
         if (vm.count("seed")) {
-            estimator->set_seed(vm["seed"].as<libbase::int32u>());
+            estimator->set_seed(vm["seed"].as<uint32_t>());
         }
 
         // Work out at the SNR value required
@@ -215,7 +215,7 @@ main(int argc, char* argv[])
         // Perform the simulation
         libbase::vector<double> estimate, errormargin;
         estimator->estimate(estimate, errormargin);
-        const libbase::int64u samples = estimator->get_samplecount();
+        const uint64_t samples = estimator->get_samplecount();
 
         if (!vm["quiet"].as<bool>()) {
             // Create a count of each result produced by the system.

@@ -196,8 +196,8 @@ public:
     gf& operator*=(const gf& x)
     {
         // Copy the multiplier (A) and multiplicand (B)
-        int32u A = value;
-        int32u B = x.value;
+        uint32_t A = value;
+        uint32_t B = x.value;
         // Initialize result
         value = 0;
         // Loop over all bits in multiplicand

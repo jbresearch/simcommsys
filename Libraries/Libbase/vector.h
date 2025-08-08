@@ -623,8 +623,8 @@ vector<T>::copy(T* dst, const T* src, int n)
     // check for non-overlapping arrays
     // determine the required amount of data to copy
     const int nbytes = n * sizeof(T);
-    const int8u* buf1 = std::min((int8u*)dst, (int8u*)src);
-    const int8u* buf2 = std::max((int8u*)dst, (int8u*)src);
+    const uint8_t* buf1 = std::min((uint8_t*)dst, (uint8_t*)src);
+    const uint8_t* buf2 = std::max((uint8_t*)dst, (uint8_t*)src);
     assert(buf2 >= buf1 + nbytes);
 #endif
     // do the copy

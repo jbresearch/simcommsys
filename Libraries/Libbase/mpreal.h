@@ -55,7 +55,7 @@ namespace libbase
 class mpreal
 {
     static const double base;
-    int32s exponent;
+    int32_t exponent;
     long double mantissa;
     void normalise();
 

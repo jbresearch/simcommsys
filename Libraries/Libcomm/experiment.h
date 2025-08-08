@@ -43,7 +43,7 @@ class experiment : public parametric, public libbase::serializable
 {
 private:
     /*! \name Internal variables */
-    libbase::int64u samplecount; //!< Number of samples accumulated
+    uint64_t samplecount; //!< Number of samples accumulated
                                  // @}
 
 protected:
@@ -142,7 +142,7 @@ public:
      * \param[in] samplecount The number of samples in the accumulated set
      * \param[in] state Vector set of accumulated results
      */
-    void accumulate_state(libbase::int64u samplecount,
+    void accumulate_state(uint64_t samplecount,
                           const libbase::vector<double>& state)
     {
         this->samplecount += samplecount;
@@ -163,11 +163,11 @@ public:
     /*!
      * \brief The number of samples taken to produce the result
      */
-    libbase::int64u get_samplecount() const { return samplecount; }
+    uint64_t get_samplecount() const { return samplecount; }
     /*!
      * \brief The number of samples taken to produce result 'i'
      */
-    libbase::int64u get_samplecount(int i) const
+    uint64_t get_samplecount(int i) const
     {
         return get_samplecount() * get_multiplicity(i);
     }

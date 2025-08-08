@@ -47,10 +47,10 @@ class randgen : public random
 {
 private:
     /*! \name Object representation */
-    static constexpr int32s mbig = 1000000000L;
-    static constexpr int32s mseed = 161803398L;
-    int32s next, nextp;
-    int32s ma[56], mj;
+    static constexpr int32_t mbig = 1000000000L;
+    static constexpr int32_t mseed = 161803398L;
+    int32_t next, nextp;
+    int32_t ma[56], mj;
     // @}
 
 protected:
@@ -59,13 +59,13 @@ protected:
     __device__
     __host__
 #endif
-    void init(int32u s)
+    void init(uint32_t s)
     {
         next = 0L;
         nextp = 31L;
         mj = (mseed - s) % mbig;
         ma[55] = mj;
-        int32s mk = 1;
+        int32_t mk = 1;
 
         for (int i = 1; i <= 54; i++) {
             int ii = (21 * i) % 55;
@@ -114,12 +114,12 @@ protected:
     __device__
     __host__
 #endif
-    int32u get_value() const { return mj; }
+    uint32_t get_value() const { return mj; }
 #ifdef __CUDACC__
     __device__
     __host__
 #endif
-    int32u get_max() const { return mbig; }
+    uint32_t get_max() const { return mbig; }
 };
 
 } // namespace libbase

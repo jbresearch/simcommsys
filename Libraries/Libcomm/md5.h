@@ -50,7 +50,7 @@ class md5 : public digest32
 {
     /*! \name Class-wide constants */
     static bool tested; //!< Flag to indicate self-test has been done
-    static libbase::vector<libbase::int32u> t; //!< Additive constants
+    static libbase::vector<uint32_t> t; //!< Additive constants
     static const int s[];                      //!< Rotational constants
     static const int ndx[];                    //!< Message index constants
                                                // @}
@@ -61,23 +61,23 @@ protected:
     // verification function
     static bool verify(const std::string message, const std::string hash);
     // circular shift
-    static libbase::int32u cshift(const libbase::int32u x, const int s);
+    static uint32_t cshift(const uint32_t x, const int s);
     // nonlinear functions
-    static libbase::int32u f(const int i,
-                             const libbase::int32u X,
-                             const libbase::int32u Y,
-                             const libbase::int32u Z);
+    static uint32_t f(const int i,
+                             const uint32_t X,
+                             const uint32_t Y,
+                             const uint32_t Z);
     // step operation
-    static libbase::int32u op(const int i,
-                              const libbase::int32u a,
-                              const libbase::int32u b,
-                              const libbase::int32u c,
-                              const libbase::int32u d,
-                              const libbase::vector<libbase::int32u>& M);
+    static uint32_t op(const int i,
+                              const uint32_t a,
+                              const uint32_t b,
+                              const uint32_t c,
+                              const uint32_t d,
+                              const libbase::vector<uint32_t>& M);
     // @}
     /*! \name Digest-specific functions */
     void derived_reset();
-    void process_block(const libbase::vector<libbase::int32u>& M);
+    void process_block(const libbase::vector<uint32_t>& M);
     // @}
 public:
     /*! \name Constructors / Destructors */

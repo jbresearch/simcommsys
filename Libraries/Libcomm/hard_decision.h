@@ -84,7 +84,7 @@ public:
     __device__
     __host__
 #endif
-    void seed(libbase::int32u rval) { this->r.seed(rval); }
+    void seed(uint32_t rval) { this->r.seed(rval); }
 /*!
  * \brief Hard decision on soft information
  * \param[in] ri Likelihood table for input symbols

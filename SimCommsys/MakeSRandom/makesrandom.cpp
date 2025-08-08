@@ -141,7 +141,7 @@ satisfiesspread(const myvector<int>& lut,
 myvector<int>
 create_srandom(const int tau,
                int& spread,
-               libbase::int32u& seed,
+               uint32_t& seed,
                const int max_attempts)
 {
     // set up time-keepers
@@ -216,7 +216,7 @@ create_srandom(const int tau,
 //! Returns filename according to usual convention
 
 std::string
-compose_filename(int tau, int spread, libbase::int32u seed)
+compose_filename(int tau, int spread, uint32_t seed)
 {
     std::ostringstream sout;
     sout << "sri-" << tau << "-spread" << spread << "-seed" << seed << ".txt";
@@ -230,7 +230,7 @@ serialize_interleaver(std::ostream& sout,
                       myvector<int> lut,
                       int tau,
                       int spread,
-                      libbase::int32u seed,
+                      uint32_t seed,
                       double elapsed)
 {
     sout << "#% Size: " << tau << std::endl;
@@ -276,7 +276,7 @@ main(int argc, char* argv[])
     int spread = vm["spread"].as<int>();
     const int max_attempts = vm["attempts"].as<int>();
     // Main process
-    libbase::int32u seed = 0;
+    uint32_t seed = 0;
     myvector<int> lut = create_srandom(tau, spread, seed, max_attempts);
     // Output
     const std::string fname = compose_filename(tau, spread, seed);

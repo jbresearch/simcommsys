@@ -54,7 +54,7 @@ private:
     libbase::masterslave cluster;       //!< Master/slave interface
     // @}
     /*! \name Internal variables / settings */
-    libbase::int32u seed; //! system initialization seed
+    uint32_t seed; //! system initialization seed
     int min_samples;      //!< minimum number of samples
     double confidence;    //!< confidence level for computing margin of error
     double threshold; //!< threshold for convergence (interpretation depends on
@@ -174,7 +174,7 @@ public:
     // @}
     /*! \name Simulation parameters */
     //! Set system initialization seed
-    void set_seed(libbase::int32u seed)
+    void set_seed(uint32_t seed)
     {
         if (results_file->isinitialized()) {
             std::cerr << "WARNING (montecarlo): seed value unused in "
@@ -277,7 +277,7 @@ public:
     // @}
     /*! \name Simulation results */
     //! Number of samples taken to produce the result
-    libbase::int64u get_samplecount() const
+    uint64_t get_samplecount() const
     {
         return system->get_samplecount();
     }

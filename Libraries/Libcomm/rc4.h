@@ -39,11 +39,11 @@ namespace libcomm
  * Schneier, "Applied Cryptography", 1996, pp.397-398.
  *
  * \version 1.01 (04 Jul 2003)
- * changed vector tables to int8u instead of int, to ensure validity of values.
+ * changed vector tables to uint8_t instead of int, to ensure validity of values.
  *
  * \version 1.02 (5 Jul 2003)
  * - added self-testing on creation of the first object.
- * - modified counters to be int8u instead of int - also renamed them x & y
+ * - modified counters to be uint8_t instead of int - also renamed them x & y
  * - removed superfluous mod 256 (& 0xff) operations
  *
  * \version 1.03 (17 Jul 2006)
@@ -61,8 +61,8 @@ class rc4
     // static variables
     static bool tested;
     // working spaces
-    libbase::vector<libbase::int8u> S;
-    libbase::int8u x, y;
+    libbase::vector<uint8_t> S;
+    uint8_t x, y;
 
 public:
     // basic constructor/destructor
@@ -71,7 +71,7 @@ public:
     // public functions
     void init(std::string key);
     std::string encrypt(const std::string plaintext);
-    libbase::int8u encrypt(const libbase::int8u plaintext);
+    uint8_t encrypt(const uint8_t plaintext);
 
 protected:
     // private functions

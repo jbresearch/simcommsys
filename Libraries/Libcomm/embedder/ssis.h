@@ -111,7 +111,7 @@ public:
     // Setup functions
     void seedfrom(libbase::random& r)
     {
-        libbase::int32u seed = r.ival();
+        uint32_t seed = r.ival();
 #ifndef NDEBUG
         frame = 0;
         libbase::trace << "DEBUG (ssis): Seeding with " << seed << std::endl;

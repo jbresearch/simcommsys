@@ -114,7 +114,7 @@ socket::~socket()
 // wait for client connects
 
 bool
-socket::bind(int16u port)
+socket::bind(uint16_t port)
 {
     if ((sd = (int)::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
         std::cerr << "ERROR (bind): Failed to create socket descriptor"
@@ -211,7 +211,7 @@ socket::accept()
 // open connection to server
 
 bool
-socket::connect(std::string hostname, int16u port)
+socket::connect(std::string hostname, uint16_t port)
 {
     if ((sd = (int)::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
         std::cerr << "ERROR (connect): Failed to create socket descriptor"

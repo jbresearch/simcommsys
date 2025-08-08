@@ -151,7 +151,7 @@ rc4::init(std::string key)
     }
 
     // initialise key by repeating given sequence
-    libbase::vector<libbase::int8u> K(256);
+    libbase::vector<uint8_t> K(256);
     for (i = 0; i < 256; i++) {
         K(i) = key.at(i % key.length());
     }
@@ -166,8 +166,8 @@ rc4::init(std::string key)
     x = y = 0;
 }
 
-libbase::int8u
-rc4::encrypt(const libbase::int8u plaintext)
+uint8_t
+rc4::encrypt(const uint8_t plaintext)
 {
     // sanity checks
     assert(S.size() == 256);
@@ -176,7 +176,7 @@ rc4::encrypt(const libbase::int8u plaintext)
     x++;
     y += S(x);
     std::swap(S(x), S(y));
-    libbase::int8u t = S(x) + S(y);
+    uint8_t t = S(x) + S(y);
 
     // return result;
     return plaintext ^ S(t);

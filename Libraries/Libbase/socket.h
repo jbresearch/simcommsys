@@ -79,7 +79,7 @@ class socket
     // internal variables
     int sd;
     std::string ip;
-    int16u port;
+    uint16_t port;
     bool listener;
 
 private:
@@ -96,12 +96,12 @@ public:
     // listener property
     bool islistener() const { return listener; }
     // wait for client connects
-    bool bind(int16u port);
+    bool bind(uint16_t port);
     static std::list<std::shared_ptr<socket>>
     select(std::list<std::shared_ptr<socket>> sl, const double timeout = 0);
     std::shared_ptr<socket> accept();
     // open connection to server
-    bool connect(std::string hostname, int16u port);
+    bool connect(std::string hostname, uint16_t port);
     // read/write data
     ssize_t write(const void* buf, size_t len);
     ssize_t read(void* buf, size_t len);
@@ -109,7 +109,7 @@ public:
     bool insistread(void* buf, size_t len);
     // get ip & hostname
     std::string getip() const { return ip; }
-    int16u getport() const { return port; }
+    uint16_t getport() const { return port; }
 };
 
 } // namespace libbase

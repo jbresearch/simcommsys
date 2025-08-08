@@ -61,7 +61,7 @@ createsystem(const std::string& fname)
  */
 void
 seed_experiment(std::shared_ptr<libcomm::experiment> system,
-                const libbase::int32u seed)
+                const uint32_t seed)
 {
     libbase::randgen prng;
     prng.seed(seed);
@@ -77,7 +77,7 @@ void
 seed_experiment(std::shared_ptr<libcomm::experiment> system)
 {
     libbase::truerand trng;
-    libbase::int32u seed = trng.ival();
+    uint32_t seed = trng.ival();
     seed_experiment(system, seed);
 }
 
@@ -115,7 +115,7 @@ main(int argc, char* argv[])
                        po::value<std::vector<double>>()->multitoken(),
                        "simulation parameters (e.g. SNR)");
     desc.add_options()("seed,s",
-                       po::value<libbase::int32u>(),
+                       po::value<uint32_t>(),
                        "system initialization seed (random if not stated)");
     desc.add_options()(
         "show-all,a",
@@ -144,7 +144,7 @@ main(int argc, char* argv[])
     // Initialise running values
     system->reset();
     if (vm.count("seed")) {
-        seed_experiment(system, vm["seed"].as<libbase::int32u>());
+        seed_experiment(system, vm["seed"].as<uint32_t>());
     } else {
         seed_experiment(system);
     }

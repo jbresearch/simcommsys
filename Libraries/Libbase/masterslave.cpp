@@ -150,7 +150,7 @@ masterslave::setpriority(const int priority)
 }
 
 void
-masterslave::connect(const std::string& hostname, const int16u port)
+masterslave::connect(const std::string& hostname, const uint16_t port)
 {
     std::cerr << "Connecting to " << hostname << ":" << port << std::endl;
     master.reset(new socket);
@@ -209,7 +209,7 @@ masterslave::dowork()
 
 void
 masterslave::slaveprocess(const std::string& hostname,
-                          const int16u port,
+                          const uint16_t port,
                           const int priority)
 {
     setpriority(priority);

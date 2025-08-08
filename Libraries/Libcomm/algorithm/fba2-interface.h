@@ -71,7 +71,7 @@ public:
     {
         // determine memory required
         // NOTE: do all computations at 64-bit, or we get intermediate overflow!
-        libbase::int64u bytes_required = sizeof(real);
+        uint64_t bytes_required = sizeof(real);
         bytes_required *= q;
         bytes_required *= N;
         bytes_required *= (mtau_max - mtau_min + 1);
