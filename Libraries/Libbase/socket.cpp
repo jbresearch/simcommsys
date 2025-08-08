@@ -21,6 +21,7 @@
 
 #include "socket.h"
 
+#include <cmath>
 #include <cstdlib>
 #include <cstring>
 #include <netdb.h>

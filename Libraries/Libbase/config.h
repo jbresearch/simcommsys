@@ -31,14 +31,8 @@
 // system include files - all architectures
 
 #include <iostream>
-#include <stdexcept>
 #include <string>
 #include <vector>
-
-#include <cfloat>
-#include <cmath>
-#include <cstdlib>
-#include <cstdint>
 
 // module include files
 

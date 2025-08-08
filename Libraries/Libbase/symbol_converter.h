@@ -25,6 +25,8 @@
 #include "config.h"
 #include "vector.h"
 
+#include <cmath>
+
 namespace libbase
 {
 

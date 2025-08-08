@@ -24,6 +24,7 @@
 
 #include "config.h"
 #include <cmath>
+#include <cstdint>
 #include <iostream>
 
 namespace libbase

@@ -25,6 +25,7 @@
 #include <sstream>
 #include <string>
 #include <typeinfo>
+#include <cmath>
 
 namespace libimage
 {

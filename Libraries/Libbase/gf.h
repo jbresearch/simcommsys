@@ -25,6 +25,7 @@
 #include "config.h"
 #include <iostream>
 #include <string>
+#include <cstdint>
 
 namespace libbase
 {

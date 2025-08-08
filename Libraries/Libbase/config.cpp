@@ -21,11 +21,10 @@
 
 #include "config.h"
 
-#include <cerrno>
 #include <csignal>
-#include <cstdio>
 #include <cstring>
 #include <sstream>
+
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
