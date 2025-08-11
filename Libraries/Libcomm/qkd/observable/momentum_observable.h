@@ -59,6 +59,7 @@ public:
         // return (std::sqrt(transmittance*detector_eff)*(state.get_p())) + noise; // For case 2: S_B\ =\ \sqrt\etaT\left(S_A\ \right)\ +\ S_N:
 
         // return state.get_p() + noise; // For case 3: S_B\ =\ S_A+\ S_N
+        // return (transmittance*detector_eff)*(state.get_p() + noise); // case 7
     }
 
     // Same as the position observable to double check with Johann if it should be a const or not.

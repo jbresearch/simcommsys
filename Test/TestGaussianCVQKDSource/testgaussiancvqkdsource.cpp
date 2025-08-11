@@ -534,14 +534,12 @@ BOOST_AUTO_TEST_CASE(create_measurement_vectors)
    // 2. Set Gaussian Quantum Channel and Identity Quantum Channel
    std::stringstream ss; // Serialized parameters of the quantum channel
    ss << "# Homodyne Detector Efficiency\n"
-   << "1.0\n"    //"1.0\n"
+   << "0.606\n"    //"1.0\n"
    << "# Mean of the Gaussian Quantum Channel\n"
    << "0.0\n"
    << "# Transmittance T of the Gaussian Quantum Channel\n"
    << "0.302\n";
-
    // "0.606\n"
-
 
    // // Ideal case where they are both set to 1 - No noise - Ideal case
    // ss << "# Homodyne Detector Efficiency\n"
@@ -550,7 +548,6 @@ BOOST_AUTO_TEST_CASE(create_measurement_vectors)
    // << "0.0\n"
    // << "# Transmittance T of the Gaussian Quantum Channel\n"
    // << "1.0\n";
-
 
    // Setting Alice's identity quantum channel
    std::unique_ptr<quantum_channel> alice_channel = std::make_unique<identity_quantum_channel>();
@@ -562,9 +559,10 @@ BOOST_AUTO_TEST_CASE(create_measurement_vectors)
 
    libbase::vector<double> params;
    params.init(1); // Only CLI parameter of the Quantum channel
-   double variance_VN = 3.452019867549669; // using 1 _ Xtotal
+   // double variance_VN = 1.0425099999999998; // Case 7
+   //double variance_VN = 3.452019867549669; // using 1 _ Xtotal
    // double variance_VN =  1.04251; // with det eff of 1
-   // double variance_VN = 1.04191506;  // Variance with det eff 0.606
+   double variance_VN = 1.04191506;  // Variance with det eff 0.606
    // 1.04191506; // Variance with det eff 0.606
    // double variance_VN = 0; // No noise case for now - Ideal case
    params(0) = std::sqrt(variance_VN); // Standard deviation of V_N
@@ -587,7 +585,7 @@ BOOST_AUTO_TEST_CASE(create_measurement_vectors)
    const libbase::vector<int>& decision_vector = protocol->get_decision_vector();
 
    std::cout<<"Printing Bob's generated observables"<< std::endl;
-   for (int i = 0; i < framesize; ++i) {
+   for (int i = 0; i < framesize; +0+i) {
       std::string type = (decision_vector(i) == 0) ? "Position" : "Momentum";
       std::cout << "Observable " << i << " (" << type << "): ";
    }
