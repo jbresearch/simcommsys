@@ -514,22 +514,76 @@ using namespace libbase;
 //    }
 // }
 
+vector<gaussian_state>
+generate_states(libcomm::source<gaussian_state, libbase::vector>& source, int framesize)
+{
+    vector<gaussian_state> seq =
+        source.generate_sequence(size_type<vector>(framesize));
+    std::cout << "Number of Generated Coherent States: " << framesize << std::endl;
+    return seq;
+}
+
 BOOST_AUTO_TEST_CASE(create_measurement_vectors)
 {
+     std::cout << "\n Boost Test Case: Creating the measurement vectors of Alice and Bob" << std::endl;
    // 1. Generate GM coherent states
-   double variance_VA = 18.5; // modulation variance of Alice
-   double std_dev_VA = std::sqrt(variance_VA);
-   double q_stddev = 1.0;
-   double p_stddev = 1.0;
+   // Declaring the source without using serialization
+   // double variance_VA = 18.5; // modulation variance of Alice
+   // double std_dev_VA = std::sqrt(variance_VA);
+   // double q_stddev = 1.0;
+   // double p_stddev = 1.0;
 
-   quantum_gaussian_source source(0.0, std_dev_VA, 0.0, std_dev_VA, q_stddev, p_stddev);
+   // quantum_gaussian_source source(0.0, std_dev_VA, 0.0, std_dev_VA, q_stddev, p_stddev);
+
+   // std::unique_ptr<source<gaussian_state, libbase::vector>> source;
+
+   // Generate GM coherent states (via serialization)
+   std::stringstream ss_src;
+   ss_src << "# Mean of Q_Mean\n"
+         << "0.0\n"
+         << "# Stddev of Q_Mean\n"
+         << "4.301\n"
+         << "# Mean of P_Mean\n"
+         << "0.0\n"
+         << "# Stddev of P_Mean\n"
+         << "4.301\n"
+         << "# Stddev of Q\n"
+         << "1.0\n"
+         << "# Stddev of P\n"
+         << "1.0\n";
+
+   // Build source using the same pattern as gaussian_quantum_channel
+   std::unique_ptr<libbase::serializable> s_ptr = libcomm::quantum_gaussian_source::create(ss_src);
+   auto* src = dynamic_cast<libcomm::quantum_gaussian_source*>(s_ptr.get());
+   BOOST_REQUIRE(src != nullptr);
+
+   // Also view it through the source<> interface so we can seed/generate
+   auto* source = dynamic_cast<libcomm::source<gaussian_state, libbase::vector>*>(src);
+
+   // ----- Case 1: Used for non serialized
+   // randgen r;
+   // r.seed(7896);
+   // source.seedfrom(r);
+
+   // const int framesize = 1000; //1000; // Number of generated coherent states in a single frame.
+   // vector<gaussian_state> source_sequence = source.generate_sequence(size_type<vector>(framesize));
+   // std::cout << "Number of Generated Coherent States: " << framesize << std::endl;
+
+   // Case 2: Used for serialized source
    randgen r;
    r.seed(7896);
-   source.seedfrom(r);
+   source->seedfrom(r);
 
-   const int framesize = 1000; //1000; // Number of generated coherent states in a single frame.
-   vector<gaussian_state> source_sequence = source.generate_sequence(size_type<vector>(framesize));
-   std::cout << "Number of Generated Coherent States: " << framesize << std::endl;
+   // const int framesize = 1000; //1000; // Number of generated coherent states in a single frame.
+   // vector<gaussian_state> source_sequence = source->generate_sequence(size_type<vector>(framesize));
+   // std::cout << "Number of Generated Coherent States: " << framesize << std::endl;
+
+   // Case 3: Used a helper fn just to test out if I can use the source in the fn.
+   // Pick a framesize once and reuse it everywhere
+   const int framesize = 10;
+
+   // Generate states via the helper (pass the interface by reference)
+   vector<gaussian_state> source_sequence = generate_states(*source, framesize);
 
    // 2. Set Gaussian Quantum Channel and Identity Quantum Channel
    std::stringstream ss; // Serialized parameters of the quantum channel
@@ -539,7 +593,6 @@ BOOST_AUTO_TEST_CASE(create_measurement_vectors)
    << "0.0\n"
    << "# Transmittance T of the Gaussian Quantum Channel\n"
    << "0.302\n";
-   // "0.606\n"
 
    // // Ideal case where they are both set to 1 - No noise - Ideal case
    // ss << "# Homodyne Detector Efficiency\n"
@@ -562,9 +615,13 @@ BOOST_AUTO_TEST_CASE(create_measurement_vectors)
    // double variance_VN = 1.0425099999999998; // Case 7
    //double variance_VN = 3.452019867549669; // using 1 _ Xtotal
    // double variance_VN =  1.04251; // with det eff of 1
-   double variance_VN = 1.04191506;  // Variance with det eff 0.606
+   // double variance_VN = 1.04191506;  // Variance with det eff 0.606
    // 1.04191506; // Variance with det eff 0.606
    // double variance_VN = 0; // No noise case for now - Ideal case
+
+   double variance_VN = 1.0459999999999998
+; // case of det eff = 1 and Transmittance = 1
+
    params(0) = std::sqrt(variance_VN); // Standard deviation of V_N
    bob_channel->set_parameters(params);
    auto all_params = bob_channel->get_parameters();
@@ -585,7 +642,7 @@ BOOST_AUTO_TEST_CASE(create_measurement_vectors)
    const libbase::vector<int>& decision_vector = protocol->get_decision_vector();
 
    std::cout<<"Printing Bob's generated observables"<< std::endl;
-   for (int i = 0; i < framesize; +0+i) {
+   for (int i = 0; i < framesize; ++i) {
       std::string type = (decision_vector(i) == 0) ? "Position" : "Momentum";
       std::cout << "Observable " << i << " (" << type << "): ";
    }
@@ -634,5 +691,33 @@ BOOST_AUTO_TEST_CASE(create_measurement_vectors)
       if (i < framesize - 1) std::cout << ", ";
    }
    std::cout << "]" << std::endl;
-
+   std::cout << std::endl;
 }
+
+double qkd_fullcycletest(libcomm::quantum_gaussian_source& src) {
+   double VA = src.get_VA();        // OK
+   return VA;
+}
+
+BOOST_AUTO_TEST_CASE(test_get_va_function_from_source)
+{
+   std::cout << "\n Boost Test Case: Testing getter of VA from quantum gaussian source" << std::endl;
+   // 1. Generate GM coherent states
+   // Declaring the source without using serialization
+   double variance_VA = 18.5; // modulation variance of Alice
+   double std_dev_VA = std::sqrt(variance_VA);
+   double q_stddev = 1.0;
+   double p_stddev = 1.0;
+
+   quantum_gaussian_source source(0.0, std_dev_VA, 0.0, std_dev_VA, q_stddev, p_stddev);
+
+   // ----- Case 1: Used for non serialized
+   randgen r;
+   r.seed(7896);
+   source.seedfrom(r);
+
+   // double VA = source.get_VA();
+   double VA = qkd_fullcycletest(source);
+   std::cout<< "Modulation Variance VA = " << VA << std::endl;
+}
+

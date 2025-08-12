@@ -56,6 +56,7 @@ private:
     double p_mean_stddev;  // Chosen stddev to generate p_mean
     double q_stddev; // Stddev of q
     double p_stddev; // Stddev of p
+    double VA; // Modulation variance of Alice
     std::mt19937 gen;
     // libbase::randgen gen;
 
@@ -76,6 +77,12 @@ public:
     //! Seeds the Mersenne Twister random number generator from a pseudo-random sequence
     void seedfrom(libbase::random& r) override {
        gen.seed(r.ival());
+    }
+
+    double get_VA()
+    {
+        VA = ((q_mean_stddev*q_mean_stddev) + (p_mean_stddev*p_mean_stddev))/2;
+        return VA;
     }
 
     // Description
