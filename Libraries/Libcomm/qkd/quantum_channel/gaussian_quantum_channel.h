@@ -33,6 +33,7 @@ protected:
     {
         assertalways(std::isfinite(VA) && VA >= 0.0);
         assertalways(std::isfinite(SNR) && SNR > 0.0);
+        // std::cout << "\nPrinting VN from gaussian_quantum_channel.h\n = " << VA/SNR << std::endl;
         return VA/SNR;
     }
 
@@ -62,7 +63,7 @@ public:
         gen.seed(r.ival());
     }
 
-    void set_VA(double va)
+    void set_VA(double va) override
     {
         assertalways(std::isfinite(va) && va >= 0.0);
         VA = va;
