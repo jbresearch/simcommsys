@@ -27,7 +27,6 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
 {
     private:
          libbase::randgen rng; // used to randomly choose observables
-
          libbase::vector<int> decision_vector;
          libbase::vector<int> alice_decision_vector;
 
@@ -82,7 +81,7 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
         }
 
         // Also returns the observables of Alice, but this method also accepts Bob's decision vector
-        std::vector<std::unique_ptr<observable<double>>> get_alice_observables(int framesize, const libbase::vector<int>& bobs_decision_vector)
+        std::vector<std::unique_ptr<observable<double>>> get_alice_observables(int framesize, const libbase::vector<int>& bobs_decision_vector) override
         {
             std::vector<std::unique_ptr<observable<double>>> observables;
             observables.reserve(framesize);
@@ -104,14 +103,14 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
             return observables;
         }
 
-        // Getter to access the decision vector to send to Alice
+        // Getter to access the decision vector to send to Alice. To delete, created just for testing.
         const libbase::vector<int>& get_alice_decision_vector() const {return alice_decision_vector;}
 
-        // Dummy Test, to delete
+        // Getter fn to get Bob's decision vector to be used by Alice
         const libbase::vector<int>& get_decision_vector() const {return decision_vector;}
 
         // Description function
-        std::string description() const;
+        std::string description() const override;
 
         libbase::vector<bool> postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements) override
         {
