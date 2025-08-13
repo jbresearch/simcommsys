@@ -99,14 +99,37 @@ qkd_commsys<S, T, C>::serialize(std::istream& sin)
     assertalways(sin.good());
     return sin;
 }
+
+//------------------------------------------------------------------------------
+// Clone (deep copy via serialization)
+//------------------------------------------------------------------------------
+
+template <class S, class T, template <class> class C>
+std::shared_ptr<libbase::serializable>
+qkd_commsys<S, T, C>::clone() const
+{
+    // Note: we avoid copy-constructing unique_ptr members by round-tripping
+    // through the serializer.
+    auto out = std::make_shared<qkd_commsys<S, T, C>>();
+
+    std::stringstream ss;
+    this->serialize(ss);  // write "this" into the stream
+    out->serialize(ss);   // read into the new object
+
+    return out;
+}
+
 } // namespace libcomm
 
 namespace libcomm
 {
 
 // Explicit Realizations
-// TODO
+// TO ADD MORE
 // E.g.
 // template qkd_commsys<qubit, bool>;
 
+// qkd_commsys<S, T, C>
+// Template class for the CV-QKD protocol (GG02) using Gaussian modulated coherent states
+template class qkd_commsys<gaussian_state, double, libbase::vector>;
 } // namespace libcomm

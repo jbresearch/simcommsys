@@ -28,8 +28,10 @@
 #include "qkd/qkd_protocol.h"
 #include "qkd/quantum_channel.h"
 #include "qkd/quantum_state.h"
+#include "source/quantum_gaussian_source.h"
 #include "serializer.h"
 #include "vector.h"
+
 
 #include <iostream>
 #include <memory>
@@ -60,7 +62,7 @@ protected:
     std::unique_ptr<qkd_protocol<T, C>> protocol;
 
     //! \brief How many quantum states in one frame
-    int framesize;
+    int framesize = 0;
     // @}
 public:
     qkd_commsys() {}
@@ -124,10 +126,19 @@ public:
     }
     // @}
 
+    // Sets the modulation variance VA to be used by the gaussian quantum channel to calculate variance VN from it.
+    void set_VA(libcomm::quantum_gaussian_source& source)
+    {
+        double VA = source.get_VA();
+        this->bob_channel->set_VA(VA);
+    }
+
     /*! \name Communication System Interface */
     //! Perform complete transmission of one frame
-    C<bool> fullcycle(const C<S>& source)
+    C<bool> fullcycle(C<S>& source)
     {
+        // ***** Note: In this case the source here is the libbase::vector of states e.g. coherent states if S=gaussian_State *****
+
         assertalways(source.size() == framesize);
 
         // Note: Here I Changed the libbase::vector to an std::vector only for the observables stage
@@ -145,27 +156,85 @@ public:
 
         for (int i = 0; i < framesize; i++) {
             // Quantum channel transmission
-            alice_observables(i)->transmit(*this->alice_channel);
-            bob_observables(i)->transmit(*this->bob_channel);
+            alice_observables[i]->transmit(*this->alice_channel);
+            bob_observables[i]->transmit(*this->bob_channel);
 
             // Measurement of quantum states
-            if (S::is_entangled) {
+            if constexpr (S::is_entangled) {
                 alice_measurements(i) =
-                    source(i).measure(*alice_observables(i), 0);
-                bob_measurements(i) = source(i).measure(*bob_observables(i), 1);
+                    source(i).measure(*alice_observables[i], 0);
+                bob_measurements(i) = source(i).measure(*bob_observables[i], 1);
             } else {
                 alice_measurements(i) =
-                    source(i).measure(*alice_observables(i));
-                bob_measurements(i) = source(i).measure(*bob_observables(i));
+                    source(i).measure(*alice_observables[i]);
+                bob_measurements(i) = source(i).measure(*bob_observables[i]);
             }
         }
 
-        return protocol->postprocess(alice_measurements, bob_measurements);
+        // return protocol->postprocess(alice_measurements, bob_measurements)
+        return protocol->postprocess(std::move(alice_measurements), std::move(bob_measurements)); // To check with Mark why in the qkd_protocol.h for the post-processing method he used &&?
     }
     // @}
 
+    /*! \name Communication System Interface */
+    //! Perform complete transmission of one frame specifically using a libcomm::quantum_gaussian_source
+
+    // ***** Note VIMP: This will have to change back to a sequence as done in the original fullcycle, set_VA will have to be called in the simulator AND the original source will also be called in the simulator to create the sequence of coherent states. Then that sequence is the input to the full cycle method. For now I am just using fullcycle like this to test up until measurement.
+
+    // C<bool> fullcycle(libcomm::quantum_gaussian_source& source)
+    std::pair<libbase::vector<T>, libbase::vector<T>> fullcycle(libcomm::quantum_gaussian_source& source)
+    {
+
+        // Note: Here I Changed the libbase::vector to an std::vector only for the observables stage
+        std::vector<std::unique_ptr<observable<T>>> bob_observables =
+            protocol->get_bob_observables(framesize);
+
+        // Get Bob's decision vector of his observables
+        const libbase::vector<int>& decision_vector = protocol->get_decision_vector();
+
+        std::vector<std::unique_ptr<observable<T>>> alice_observables =
+        protocol->get_alice_observables(framesize, decision_vector);
+
+        // create and allocate vectors for measurements on Bob and Alice's end
+        libbase::vector<T> alice_measurements;
+        libbase::vector<T> bob_measurements;
+
+        alice_measurements.init(framesize);
+        bob_measurements.init(framesize);
+
+        // Setting modulation variance VA in the gaussian quantum of Bob
+        set_VA(source);
+
+        // Vector of coherent states where S = gaussian_state
+        libbase::vector<S> source_sequence = source.generate_sequence(libbase::size_type<libbase::vector>(framesize));
+
+        assertalways(source_sequence.size() == framesize);
+
+        for (int i = 0; i < framesize; i++) {
+            // Quantum channel transmission
+            alice_observables[i]->transmit(*this->alice_channel);
+            bob_observables[i]->transmit(*this->bob_channel);
+
+            // Measurement of quantum states
+            if constexpr (S::is_entangled) {
+                alice_measurements(i) =
+                    source_sequence(i).measure(*alice_observables[i], 0);
+                bob_measurements(i) = source_sequence(i).measure(*bob_observables[i], 1);
+            } else {
+                alice_measurements(i) =
+                    source_sequence(i).measure(*alice_observables[i]);
+                bob_measurements(i) = source_sequence(i).measure(*bob_observables[i]);
+            }
+        }
+
+        // return protocol->postprocess(alice_measurements, bob_measurements);
+        return { std::move(alice_measurements), std::move(bob_measurements) }; // Just to test pre-processing.
+    }
+    // @}
+
+
     //! Clear list of timers
-    void reset_timers() override
+    void reset_timers()
     {
         // clear list of timers we're keeping
         instrumented::reset_timers();
@@ -179,9 +248,17 @@ public:
     // Description
     std::string description() const;
 
+
     // Serialization Support
-    DECLARE_BASE_SERIALIZER(qkd_commsys)
-    DECLARE_SERIALIZER(qkd_commsys)
+    // DECLARE_SERIALIZER(qkd_commsys)
+    // DECLARE_BASE_SERIALIZER(qkd_commsys)
+
+     // libbase::serializable interface
+    const std::string name() const override { return "qkd_commsys"; }
+    std::ostream& serialize(std::ostream& sout) const override;
+    std::istream& serialize(std::istream& sin) override;
+    std::shared_ptr<libbase::serializable> clone() const override;
+
 };
 
 } // namespace libcomm
