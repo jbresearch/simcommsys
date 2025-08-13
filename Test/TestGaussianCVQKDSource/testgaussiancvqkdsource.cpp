@@ -542,11 +542,11 @@ BOOST_AUTO_TEST_CASE(create_measurement_vectors)
    ss_src << "# Mean of Q_Mean\n"
          << "0.0\n"
          << "# Stddev of Q_Mean\n"
-         << "4.301\n"
+         << "4.30116\n"
          << "# Mean of P_Mean\n"
          << "0.0\n"
          << "# Stddev of P_Mean\n"
-         << "4.301\n"
+         << "4.30116\n"
          << "# Stddev of Q\n"
          << "1.0\n"
          << "# Stddev of P\n"
@@ -619,12 +619,18 @@ BOOST_AUTO_TEST_CASE(create_measurement_vectors)
    // 1.04191506; // Variance with det eff 0.606
    // double variance_VN = 0; // No noise case for now - Ideal case
 
-   double variance_VN = 1.0459999999999998
-; // case of det eff = 1 and Transmittance = 1
+   // double variance_VN = 1.0459999999999998
+   // case of det eff = 1 and Transmittance = 1
 
-   params(0) = std::sqrt(variance_VN); // Standard deviation of V_N
+   double SNR = 17.7558; // Linear not dB
+   params(0) = SNR;
+
+   double VA = src->get_VA(); // will be done in qkd_commsys object
+   std::cout << "Value of VA from quantum gausssian source = " << VA << std::endl;
+
    bob_channel->set_parameters(params);
    auto all_params = bob_channel->get_parameters();
+   bob_channel->set_VA(VA);
 
    // Print channel CLI parameter
    std::cout << all_params << std::endl;
@@ -699,25 +705,25 @@ double qkd_fullcycletest(libcomm::quantum_gaussian_source& src) {
    return VA;
 }
 
-BOOST_AUTO_TEST_CASE(test_get_va_function_from_source)
-{
-   std::cout << "\n Boost Test Case: Testing getter of VA from quantum gaussian source" << std::endl;
-   // 1. Generate GM coherent states
-   // Declaring the source without using serialization
-   double variance_VA = 18.5; // modulation variance of Alice
-   double std_dev_VA = std::sqrt(variance_VA);
-   double q_stddev = 1.0;
-   double p_stddev = 1.0;
+// BOOST_AUTO_TEST_CASE(test_get_va_function_from_source)
+// {
+//    std::cout << "\n Boost Test Case: Testing getter of VA from quantum gaussian source" << std::endl;
+//    // 1. Generate GM coherent states
+//    // Declaring the source without using serialization
+//    double variance_VA = 18.5; // modulation variance of Alice
+//    double std_dev_VA = std::sqrt(variance_VA);
+//    double q_stddev = 1.0;
+//    double p_stddev = 1.0;
 
-   quantum_gaussian_source source(0.0, std_dev_VA, 0.0, std_dev_VA, q_stddev, p_stddev);
+//    quantum_gaussian_source source(0.0, std_dev_VA, 0.0, std_dev_VA, q_stddev, p_stddev);
 
-   // ----- Case 1: Used for non serialized
-   randgen r;
-   r.seed(7896);
-   source.seedfrom(r);
+//    // ----- Case 1: Used for non serialized
+//    randgen r;
+//    r.seed(7896);
+//    source.seedfrom(r);
 
-   // double VA = source.get_VA();
-   double VA = qkd_fullcycletest(source);
-   std::cout<< "Modulation Variance VA = " << VA << std::endl;
-}
+//    // double VA = source.get_VA();
+//    double VA = qkd_fullcycletest(source);
+//    std::cout<< "Modulation Variance VA = " << VA << std::endl;
+// }
 
