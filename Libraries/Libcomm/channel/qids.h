@@ -24,11 +24,15 @@
 
 #include "channel_stream.h"
 #include "config.h"
-#include "cuda-all.h"
+#include "cuda/matrix.h"
+#include "cuda/sharedmem.h"
+#include "cuda/util.h"
+#include "cuda/vector.h"
 #include "field_utils.h"
 #include "matrix.h"
 #include "qids-utils.h"
 #include "serializer.h"
+#include "vector.h"
 
 namespace libcomm
 {
@@ -161,7 +165,7 @@ public:
         {
 #ifdef USE_CUDA
             // Initialize CUDA
-            cuda::cudaInitialize(std::cerr);
+            ::cuda::cudaInitialize(std::cerr);
 #endif
         }
         // @}

@@ -24,7 +24,9 @@
 
 #include "channel/qids.h"
 #include "config.h"
-#include "cuda-all.h"
+#include "cuda/vector.h"
+#include "matrix.h"
+#include "vector.h"
 
 namespace cuda
 {

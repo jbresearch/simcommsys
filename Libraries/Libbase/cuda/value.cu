@@ -25,7 +25,7 @@
  * \author  Johann Briffa
  */
 
-#include "cuda-all.h"
+#include "cuda/value.h"
 
 namespace cuda
 {

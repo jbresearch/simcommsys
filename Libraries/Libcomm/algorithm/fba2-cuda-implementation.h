@@ -21,6 +21,7 @@
 
 #include "cputimer.h"
 #include "cuda/event.h"
+#include "cuda/sharedmem.h"
 #include "cuda/stream.h"
 #include "cuda/util.h"
 #include "fba2-cuda.h"

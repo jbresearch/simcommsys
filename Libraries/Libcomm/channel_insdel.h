@@ -24,7 +24,8 @@
 
 #include "channel.h"
 #include "clonable.h"
-#include "cuda-all.h"
+#include "cuda/vector.h"
+#include "vector.h"
 
 namespace libcomm
 {

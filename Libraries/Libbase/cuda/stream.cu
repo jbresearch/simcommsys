@@ -25,7 +25,9 @@
  * \author  Johann Briffa
  */
 
-#include "cuda-all.h"
+#include "cuda/event.h"
+#include "cuda/stream.h"
+#include "cuda/util.h"
 
 namespace cuda
 {

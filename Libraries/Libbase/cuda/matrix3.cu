@@ -25,7 +25,8 @@
  * \author  Mark Mizzi
  */
 
-#include "cuda-all.h"
+#include "cuda/matrix3.h"
+#include "cuda/vector.h"
 #include "gf.h"
 
 namespace cuda

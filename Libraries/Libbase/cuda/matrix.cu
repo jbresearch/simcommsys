@@ -25,7 +25,8 @@
  * \author  Johann Briffa
  */
 
-#include "cuda-all.h"
+#include "cuda/matrix.h"
+#include "cuda/vector.h"
 #include "gf.h"
 
 namespace cuda

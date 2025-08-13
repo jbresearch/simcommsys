@@ -25,7 +25,8 @@
  * \author  Johann Briffa
  */
 
-#include "cuda-all.h"
+#include "cuda/util.h"
+#include "cuda/value.h"
 #include "sysvar.h"
 
 namespace cuda
@@ -347,9 +348,8 @@ cudaInitialize(std::ostream& sout)
     sout << "CUDA device: " << device << " (" << cudaGetDeviceName() << ", "
          << (cudaGetGlobalMem() >> 20) << " MiB, "
          << cudaGetMultiprocessorSize() << "×" << cudaGetMultiprocessorCount()
-         << " @ " << cudaGetClockRate() << " GHz"
-         << ", capability " << cudaPrettyVersion(cudaGetComputeCapability())
-         << ")" << std::endl;
+         << " @ " << cudaGetClockRate() << " GHz" << ", capability "
+         << cudaPrettyVersion(cudaGetComputeCapability()) << ")" << std::endl;
     // driver and runtime version comparison
     // TODO: test this part and verify it's what we want to check
     int driver_version = cudaGetDriverVersion();

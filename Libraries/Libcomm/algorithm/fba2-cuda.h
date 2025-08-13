@@ -22,7 +22,9 @@
 #ifndef __fba2_cuda_h
 #define __fba2_cuda_h
 
-#include "cuda-all.h"
+#include "cuda/matrix.h"
+#include "cuda/value.h"
+#include "cuda/vector.h"
 #include "fba2-interface.h"
 #include "matrix.h"
 

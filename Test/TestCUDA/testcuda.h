@@ -21,7 +21,6 @@
 
 #include "config.h"
 #include "cputimer.h"
-#include "cuda-all.h"
 
 namespace cuda
 {

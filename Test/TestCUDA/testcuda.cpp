@@ -20,6 +20,7 @@
  */
 
 #include "testcuda.h"
+#include "cuda/util.h"
 #include "event_timer.h"
 
 #include <boost/program_options.hpp>
