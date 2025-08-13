@@ -84,6 +84,12 @@ public:
     }
     //! @}
 
+    // This method will only be used for the case of the gaussian quantum channel and CV-QKD called in qkd_commsys.h
+    virtual void set_VA(double)
+    {
+        failwith("Not implemented.");
+    }
+
     virtual void seedfrom(libbase::random& r) = 0;
     virtual ~quantum_channel() {}
 

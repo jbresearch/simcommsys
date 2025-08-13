@@ -27,6 +27,9 @@
 #include "random.h"
 #include "serializer.h"
 #include "vector.h"
+#include <memory>
+#include <vector>
+#include <string>
 
 #include <type_traits>
 
@@ -56,12 +59,25 @@ public:
      */
 
     virtual std::vector<std::unique_ptr<observable<T>>>
+    get_alice_observables(int framesize, const libbase::vector<int>&) {
+    return get_alice_observables(framesize);}
+
+    virtual std::vector<std::unique_ptr<observable<T>>>
     get_bob_observables(int) = 0;
+
+    virtual const libbase::vector<int>& get_decision_vector() const {
+        static libbase::vector<int> empty;
+        if (empty.size() == 0) empty.init(0); // libbase::vector needs explicit init
+        return empty;
+    }
 
     virtual C<bool> postprocess(libbase::vector<T>&& alice_measurements,
                                 libbase::vector<T>&& bob_measurements) = 0;
 
     virtual void seedfrom(libbase::random& r) = 0;
+
+    virtual std::string description() const = 0;
+
     virtual ~qkd_protocol() {}
 
     DECLARE_BASE_SERIALIZER(qkd_protocol)
