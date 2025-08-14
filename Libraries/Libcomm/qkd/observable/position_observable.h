@@ -60,9 +60,24 @@ public:
 
     // Method that does the measurement on a gaussian coherent state
     double measure(gaussian_state& state) const override {
-        return std::sqrt(transmittance*detector_eff)*(state.get_q() + noise); // For the case 1: S_B\ =\ \sqrt\etaT\left(S_A\ \ +\ \ S_N\right):
+        // return std::sqrt(transmittance*detector_eff)*(state.get_q() + noise); // For the case 1: S_B\ =\ \sqrt\etaT\left(S_A\ \ +\ \ S_N\right):
 
-        // return (std::sqrt(transmittance*detector_eff)*(state.get_q())) + noise; // For case 2: S_B\ =\ \sqrt\etaT\left(S_A\ \right)\ +\ S_N:
+        const double X = state.get_q();
+        const double g = std::sqrt(transmittance * detector_eff);
+        const double gX = g * X;
+        const double n = noise;
+        const double result = gX + n;
+
+        // Debug prints
+        // std::cout << "\n**** Breakdown of values for PE step from position_observable.h: ****\n";
+        // std::cout << "X = " << X << "\n";
+        // std::cout << "sqrt(eta*T) * X = " << gX << "\n";
+        // std::cout << "noise = " << n << "\n";
+        // std::cout << "result = " << result << "\n";
+
+        return result;
+
+        // return (std::sqrt(transmittance*detector_eff)*(X)) + noise; // For case 2: S_B\ =\ \sqrt\etaT\left(S_A\ \right)\ +\ S_N:
 
         // return state.get_q() + noise; // For case 3: S_B\ =\ S_A+\ S_N
         // return (transmittance*detector_eff)*(state.get_q() + noise); // case 7
