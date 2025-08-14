@@ -40,6 +40,7 @@ protected:
     template <class Obs>
     void transmit_impl(Obs& observable) {
         const double VN = compute_VN(); // VA has to be set before calling transmit fn
+        // std::cout << "Value of VN from gaussian_channel.h = " << VN << std::endl;
         const double noise_stddev = std::sqrt(VN);
         std::normal_distribution<double> dist(noise_mean, noise_stddev);
         const double noise = dist(gen);
