@@ -35,7 +35,6 @@ namespace libcomm
 #endif
 
 // Description & Serialization
-
 template <class S, class T, template <class> class C>
 std::string
 qkd_commsys<S, T, C>::description() const
@@ -100,15 +99,13 @@ qkd_commsys<S, T, C>::serialize(std::istream& sin)
     return sin;
 }
 
-//------------------------------------------------------------------------------
-// Clone (deep copy via serialization)
-//------------------------------------------------------------------------------
 
+// Clone (deep copy via serialization)
 template <class S, class T, template <class> class C>
 std::shared_ptr<libbase::serializable>
 qkd_commsys<S, T, C>::clone() const
 {
-    // Note: we avoid copy-constructing unique_ptr members by round-tripping
+    // Note: Avoids copy-constructing unique_ptr members by round-tripping
     // through the serializer.
     auto out = std::make_shared<qkd_commsys<S, T, C>>();
 
@@ -125,7 +122,7 @@ namespace libcomm
 {
 
 // Explicit Realizations
-// TO ADD MORE
+// TO ADD MORE depending on protocol needed
 // E.g.
 // template qkd_commsys<qubit, bool>;
 

@@ -249,15 +249,15 @@ public:
     std::string description() const;
 
 
-    // Serialization Support
+    // Serialization Support using shared pointers
+    DECLARE_BASE_SERIALIZER(qkd_commsys)
     // DECLARE_SERIALIZER(qkd_commsys)
-    // DECLARE_BASE_SERIALIZER(qkd_commsys)
 
-     // libbase::serializable interface
+    // libbase::serializable interface using unique pointers
     const std::string name() const override { return "qkd_commsys"; }
     std::ostream& serialize(std::ostream& sout) const override;
     std::istream& serialize(std::istream& sin) override;
-    std::shared_ptr<libbase::serializable> clone() const override;
+    std::shared_ptr<libbase::serializable> clone() const override; //override the clone() found in libbase::serialize
 
 };
 
