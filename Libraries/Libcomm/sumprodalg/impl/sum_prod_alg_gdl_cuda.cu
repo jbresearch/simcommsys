@@ -51,7 +51,7 @@ template <class GF_q, class real>
 __global__ void
 seed_hd_functor(
     basic_hard_decision<real, GF_q, ::cuda::vector_reference<real>>* hd_functor,
-    libbase::int32u rval)
+    uint32_t rval)
 {
     hd_functor->seed(rval);
 }

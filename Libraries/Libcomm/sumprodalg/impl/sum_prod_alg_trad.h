@@ -49,7 +49,7 @@ public:
     {
         // nothing to do
     }
-    void spa_init(const matrixd_t& ptable);
+    void spa_init(const array2d_t& ptable);
     void compute_r_mn(int pos_m, int loop_n) override;
     void compute_q_mn(int loop_m, int pos_n) override;
 

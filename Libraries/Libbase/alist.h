@@ -358,8 +358,8 @@ operator<<(std::ostream& sout, const alist<GF_q>& a)
     }
     sout << std::endl;
     sout << max_col_weight << " " << max_row_weight << std::endl;
-    a.col_weights().serialize(sout, ' ');
-    a.row_weights().serialize(sout, ' ');
+    a.col_weights().serialize(sout, " ");
+    a.row_weights().serialize(sout, " ");
     int num_of_non_zeros;
     int gf_val_int;
     int tmp_pos;
