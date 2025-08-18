@@ -111,10 +111,6 @@ ldpc<GF_q, real>::init()
         // therefore have a systematic code
         this->gen_matrix.reduce_to_ref_inplace();
         // we now need to find the pivots
-        // NOTE that this code is broken, but I didn't write it or break it, so
-        // I'm also not sure how to fix it. Beware if you are using system files
-        // with reduce_ref set to true, as info_symb_pos will NOT be computed
-        // correctly.
         int posy = 0;
         for (int loop = 0; loop < this->dim_k; loop++) {
             while (this->gen_matrix(loop, posy) == GF_q(0)) {
