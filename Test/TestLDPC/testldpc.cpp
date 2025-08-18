@@ -115,14 +115,6 @@ compute_dual()
         code_word.serialize(cout, " ");
         cout << " weight= " << code_word.sum() << std::endl;
     }
-
-    /*
-     matrix<gf<1, 0x3> > dual;
-     array1i_t systematic_perm;
-     linear_code_utils<gf<1, 0x3> , double>::compute_dual_code(test, dual,
-     systematic_perm); cout << "the dual matrix is given by:" << std::endl;
-     dual.serialize(cout, " ");
-     */
 }
 
 void
