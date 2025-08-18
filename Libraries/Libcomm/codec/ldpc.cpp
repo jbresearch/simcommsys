@@ -109,7 +109,7 @@ ldpc<GF_q, real>::init()
         // we reduce the generator matrix to REF format in the hope that the
         // info symbols will be in the first k positions and that we'll
         // therefore have a systematic code
-        this->gen_matrix.reduce_to_ref();
+        this->gen_matrix.reduce_to_ref_inplace();
         // we now need to find the pivots
         // NOTE that this code is broken, but I didn't write it or break it, so
         // I'm also not sure how to fix it. Beware if you are using system files
