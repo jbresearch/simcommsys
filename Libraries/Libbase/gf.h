@@ -27,7 +27,6 @@
 #include <cstdint>
 #include <iostream>
 #include <string>
-#include <cstdint>
 
 namespace libbase
 {
@@ -64,13 +63,6 @@ template <uint32_t m, uint32_t poly>
 class gf
 {
 public:
-    /*! \brief Alias for storage type of GF elements.
-     *
-     * \todo Port all code to use this not just new code, there also needs to be
-     * a template param.
-     */
-    using storage_element_type = uint32_t;
-
     /*! \name Class parameters */
     //! Number of elements in the field
 #ifdef __CUDACC__
