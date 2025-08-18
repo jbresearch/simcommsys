@@ -378,7 +378,7 @@ test_cc_code()
 
 template <class GF>
 void
-process(bool serialized, bool gen_matrix)
+process(bool serialized)
 {
     // read the alist LDPC code
     ldpc<GF, double> codec;
@@ -407,9 +407,6 @@ main(int argc, char* argv[])
                        "convert alist to serialized format");
     desc.add_options()(
         "alist,a", po::bool_switch(), "convert alist to alist format");
-    desc.add_options()("gen,g",
-                       po::bool_switch(),
-                       "Output generator matrix rather than pchk matrix");
     desc.add_options()("type,t",
                        po::value<std::string>()->default_value("gf2"),
                        "LDPC alphabet");
@@ -420,7 +417,6 @@ main(int argc, char* argv[])
     // read switch parameters
     const bool s = vm["serialized"].as<bool>();
     const bool a = vm["alist"].as<bool>();
-    const bool g = vm["gen"].as<bool>();
 
     // Validate user parameters
     if (vm.count("help") || (!s && !a) || (s && a)) {
@@ -436,7 +432,7 @@ main(int argc, char* argv[])
 
 #define PROCESS(r, x, gftype)                                                  \
     if (type == BOOST_PP_STRINGIZE(gftype)) {                                  \
-        process<gftype>(s, g);                                                 \
+        process<gftype>(s);                                                    \
         return 0;                                                              \
     }
 
