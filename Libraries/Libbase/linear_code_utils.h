@@ -51,7 +51,7 @@ public:
      * H is then the generator matrix of the dual code of G. H is also
      * the parity check matrix of G.
      */
-    static void compute_dual_code(libbase::matrix<GF_q>& orgMat,
+    static void compute_dual_code(const libbase::matrix<GF_q>& orgMat,
                                   libbase::matrix<GF_q>& dualCodeMatrix,
                                   array1i_t& systematic_perm);
 
@@ -63,7 +63,8 @@ public:
      * Note this is mainly useful for LDPC codes that are defined by their
      * parity check matrix.
      */
-    static void compute_row_dim(libbase::matrix<GF_q>& parMat_H);
+    static void compute_row_dim(const libbase::matrix<GF_q>& parMat_H,
+                                libbase::matrix<GF_q>& maxRowSpace_H);
 
     /*
      * !This removes any zero columns from a matrix and returns a new matrix

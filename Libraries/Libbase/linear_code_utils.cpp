@@ -38,19 +38,19 @@ namespace libbase
 template <class GF_q, class real>
 void
 linear_code_utils<GF_q, real>::compute_dual_code(
-    matrix<GF_q>& orgMat,
+    const matrix<GF_q>& orgMat,
     matrix<GF_q>& dualCodeGenMatrix,
     array1i_t& systematic_perm)
 {
     int length_n = orgMat.size().cols();
     int dim_k = orgMat.size().rows();
     int dim_m = length_n - dim_k;
-    matrix<GF_q>& refOrgMat = orgMat;
+    matrix<GF_q> refOrgMat;
 #if DEBUG >= 2
     std::cout << "The original matrix is given by:" << std::endl;
     orgMat.serialize(std::cout, "\n");
 #endif
-    linear_code_utils::compute_row_dim(orgMat);
+    linear_code_utils::compute_row_dim(orgMat, refOrgMat);
 
     dim_k = refOrgMat.size().rows();
     dim_m = length_n - dim_k;
@@ -179,13 +179,14 @@ linear_code_utils<GF_q, real>::compute_dual_code(
 
 template <class GF_q, class real>
 void
-linear_code_utils<GF_q, real>::compute_row_dim(matrix<GF_q>& orgMat)
+linear_code_utils<GF_q, real>::compute_row_dim(const matrix<GF_q>& orgMat,
+                                               matrix<GF_q>& maxRowSpaceMat)
 {
     int length_n = orgMat.size().cols();
     int dim_k = orgMat.size().rows();
 
-    // reduce matrix to REF, ie G'=(I_k|P)
-    orgMat.reduce_to_ref_inplace();
+    // copy original matrix and reduce it to REF, ie G'=(I_k|P)
+    matrix<GF_q> refOrgMat(orgMat.reduce_to_ref());
 
 #if DEBUG >= 2
     std::cout << "The REF is given by:" << std::endl;
@@ -205,7 +206,7 @@ linear_code_utils<GF_q, real>::compute_row_dim(matrix<GF_q>& orgMat)
         loop2 = length_n;
         while (isZero && (loop2 >= dim_k)) {
             loop2--;
-            if (orgMat(loop1, loop2) != (GF_q(0))) {
+            if (refOrgMat(loop1, loop2) != (GF_q(0))) {
                 isZero = false;
             }
         }
@@ -216,8 +217,23 @@ linear_code_utils<GF_q, real>::compute_row_dim(matrix<GF_q>& orgMat)
 #endif
     // compensate for the fact the we start counting rows from 0
     loop1++;
-    // drop any zero rows if they are present.
-    orgMat.droprows(dim_k - loop1);
+    if (loop1 < dim_k) {
+        dim_k = loop1;
+        // the matrix contains zero rows - drop them
+
+        maxRowSpaceMat.init(dim_k, length_n);
+        for (loop2 = 0; loop2 < dim_k; loop2++) {
+            maxRowSpaceMat.insertrow(refOrgMat.extractrow(loop2), loop2);
+        }
+#if DEBUG >= 2
+        std::cout << "After dropping zero rows, the REF is given by:"
+                  << std::endl;
+        maxRowSpaceMat.serialize(std::cout, "\n");
+#endif
+    } else {
+        // the original matrix is ok already
+        maxRowSpaceMat = refOrgMat;
+    }
 }
 
 template <class GF_q, class real>
