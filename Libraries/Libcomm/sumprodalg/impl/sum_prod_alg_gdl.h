@@ -86,7 +86,7 @@ public:
     }
     void spa_init(const array2d_t& ptable) override;
     void compute_r_mn(int pos_m, int loop_n) override;
-    void compute_q_mn(int m, int n) override;
+    void compute_q_mn(int loop_m, int pos_n) override;
     std::string spa_type() { return "gdl"; }
 
 private:
