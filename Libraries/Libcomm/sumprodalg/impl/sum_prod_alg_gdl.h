@@ -56,15 +56,15 @@ public:
     {
         int num_of_elements = GF_q::elements();
         int non_zeros = 0;
-        int pos = 0;
-        for (int loop_m = 0; loop_m < this->dim_m; loop_m++) {
-            const array1i_t& N_m = pchk_matrix.get_row_idxs(loop_m);
+        int pos_n = 0;
+        for (int pos_m = 0; pos_m < this->dim_m; pos_m++) {
+            const array1i_t& N_m = pchk_matrix.get_row_idxs(pos_m);
             non_zeros = N_m.size().length();
             for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-                pos = N_m(loop_n);
-                this->marginal_probs(loop_m, pos)
+                pos_n = N_m(loop_n);
+                this->marginal_probs(pos_m, pos_n)
                     .qmn_conv.init(num_of_elements);
-                this->marginal_probs(loop_m, pos).r_mxn.init(num_of_elements);
+                this->marginal_probs(pos_m, pos_n).r_mxn.init(num_of_elements);
             }
         }
 
@@ -72,12 +72,11 @@ public:
         this->perms(0).init(num_of_elements);
         this->perms(0) = 0; // note this is by convention and not used anywhere
 
-        for (int loop1 = 1; loop1 < num_of_elements; loop1++) {
-            this->perms(loop1).init(num_of_elements);
-            pos = 0;
-            for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
-                this->perms(loop1)(pos) = GF_q(loop_e) * GF_q(loop1);
-                pos++;
+        for (int pos_e = 1; pos_e < num_of_elements; pos_e++) {
+            this->perms(pos_e).init(num_of_elements);
+            for (int pos_e_dash = 0; pos_e_dash < num_of_elements;
+                 pos_e_dash++) {
+                this->perms(pos_e)(pos_e_dash) = GF_q(pos_e_dash) * GF_q(pos_e);
             }
         }
     }

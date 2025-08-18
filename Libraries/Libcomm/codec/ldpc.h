@@ -127,8 +127,8 @@ public:
 
         // extract information symbols from the received codeword
         decoded.init(this->info_symb_pos.size());
-        for (int k = 0; k < this->info_symb_pos.size(); k++)
-            decoded(k) = received_word(this->info_symb_pos(k));
+        for (int pos_k = 0; pos_k < this->info_symb_pos.size(); pos_k++)
+            decoded(pos_k) = received_word(this->info_symb_pos(pos_k));
 
         // add all granular timers from sum_prod_alg.
         this->add_or_accumulate_timers(*this->spa_alg);
@@ -147,8 +147,8 @@ public:
         libbase::cputimer t_extract_info("t__ldpc__extract_info");
         // extract information symbols from the received codeword
         decoded.init(this->info_symb_pos.size());
-        for (int k = 0; k < this->info_symb_pos.size(); k++)
-            decoded(k) = received_word(this->info_symb_pos(k));
+        for (int pos_k = 0; pos_k < this->info_symb_pos.size(); pos_k++)
+            decoded(pos_k) = received_word(this->info_symb_pos(pos_k));
         this->add_timer(t_extract_info);
 
         this->add_timer(this->spa_alg->get_iters(), "num_iters");

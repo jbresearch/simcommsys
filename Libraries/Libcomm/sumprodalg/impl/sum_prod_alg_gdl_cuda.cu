@@ -81,16 +81,16 @@ hadamard_transform(real*& buf, real*& swapbuf)
     int num_of_elements = GF_q::elements();
 
     for (int h = 1; h < num_of_elements; h <<= 1) {
-        int loop_e = idx % num_of_elements;
+        int pos_e = idx % num_of_elements;
 
-        // If floor(loop_e / h) is odd, sign is -1.0
-        // If floor(loop_e / h) is even, sign is 1.0
-        int sign = ((real)((loop_e / h) % 2 == 0) - 0.5) * 2.0;
+        // If floor(pos_e / h) is odd, sign is -1.0
+        // If floor(pos_e / h) is even, sign is 1.0
+        int sign = ((real)((pos_e / h) % 2 == 0) - 0.5) * 2.0;
 
         // From the butterfly property:
-        // - If floor(loop_e / h) is odd, result of the pass is P[loop_e - h] -
+        // - If floor(pos_e / h) is odd, result of the pass is P[pos_e - h] -
         // P[e]
-        // - If floor(loop_e / h) is even, result of the pass is P[loop_e +
+        // - If floor(pos_e / h) is even, result of the pass is P[pos_e +
         // h] + P[e]
         swapbuf[threadIdx.x] =
             buf[int(threadIdx.x) + sign * h] + sign * buf[threadIdx.x];
@@ -110,10 +110,10 @@ permute_divide(real*& buf, real*& swapbuf, GF_q h_m_n)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    int loop_e = idx % GF_q::elements();
+    int pos_e = idx % GF_q::elements();
 
     int offset = threadIdx.x & ~(GF_q::elements() - 1);
-    swapbuf[threadIdx.x] = buf[offset + h_m_n * GF_q(loop_e)];
+    swapbuf[threadIdx.x] = buf[offset + h_m_n * GF_q(pos_e)];
     ::cuda::swap(swapbuf, buf);
 }
 
@@ -124,10 +124,10 @@ permute_mult(real*& buf, real*& swapbuf, GF_q h_m_n)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    int loop_e = idx % GF_q::elements();
+    int pos_e = idx % GF_q::elements();
 
     int offset = threadIdx.x & ~(GF_q::elements() - 1);
-    swapbuf[offset + h_m_n * GF_q(loop_e)] = buf[threadIdx.x];
+    swapbuf[offset + h_m_n * GF_q(pos_e)] = buf[threadIdx.x];
     ::cuda::swap(swapbuf, buf);
 }
 
@@ -164,10 +164,10 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     // Also populate pchk_row_non_zeros.
     int non_zeros = 0;
     max_pchk_row_non_zeros = std::numeric_limits<int>::min();
-    for (int loop_m = 0; loop_m < m; loop_m++) {
-        non_zeros = pchk_matrix.get_row_idxs(loop_m).size().length();
+    for (int pos_m = 0; pos_m < m; pos_m++) {
+        non_zeros = pchk_matrix.get_row_idxs(pos_m).size().length();
 
-        pchk_row_non_zeros(loop_m) = non_zeros;
+        pchk_row_non_zeros(pos_m) = non_zeros;
         max_pchk_row_non_zeros = std::max(max_pchk_row_non_zeros, non_zeros);
     }
 
@@ -195,10 +195,10 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     // check matrix.
     // Also populate pchk_col_non_zeros.
     max_pchk_col_non_zeros = std::numeric_limits<int>::min();
-    for (int loop_n = 0; loop_n < n; loop_n++) {
-        non_zeros = pchk_matrix.get_col_idxs(loop_n).size().length();
+    for (int pos_n = 0; pos_n < n; pos_n++) {
+        non_zeros = pchk_matrix.get_col_idxs(pos_n).size().length();
 
-        pchk_col_non_zeros(loop_n) = non_zeros;
+        pchk_col_non_zeros(pos_n) = non_zeros;
         max_pchk_col_non_zeros = std::max(max_pchk_col_non_zeros, non_zeros);
     }
 
@@ -293,10 +293,7 @@ __device__
 real
 sum(real* psums)
 {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
     int num_of_elements = GF_q::elements();
-
-    int loop_n = i / num_of_elements;
 
     for (int stride = num_of_elements / 2; stride > 0; stride >>= 1) {
         if (threadIdx.x < blockDim.x - stride) {
@@ -332,20 +329,20 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
     int num_of_elements = GF_q::elements();
 
     // each block processes 2 * blockDim.x elements, 2 per thread.
-    // If we lay out all elements accessed by (loop_n, loop_e) in row-major
+    // If we lay out all elements accessed by (loop_n, pos_e) in row-major
     // order, it is not difficult to see that i0, i1 are the indices handled by
     // this thread:
     int i = blockIdx.x * blockDim.x + threadIdx.x;
 
-    int loop_n = i / num_of_elements;
+    int pos_n = i / num_of_elements;
     int n = probs.get_rows();
 
     // load probabilities for this thread and clip them.
     real prob = 0;
-    if (loop_n < n) {
-        int loop_e = i % num_of_elements;
+    if (pos_n < n) {
+        int pos_e = i % num_of_elements;
 
-        prob = probs(loop_n, loop_e);
+        prob = probs(pos_n, pos_e);
         perform_clipping(prob, clipping_method, almostzero);
     }
 
@@ -357,9 +354,9 @@ clip_and_normalize_probs_kern(::cuda::matrix_reference<real, false> probs,
     real alpha = sum<GF_q, real>(psums);
 
     // normalize probabilities (divide by alpha)
-    if (loop_n < n) {
-        int loop_e = i % num_of_elements;
-        probs(loop_n, loop_e) = prob / alpha;
+    if (pos_n < n) {
+        int pos_e = i % num_of_elements;
+        probs(pos_n, pos_e) = prob / alpha;
     }
 }
 
@@ -421,8 +418,8 @@ spa_init_kern(::cuda::matrix_reference<real, false> device_received_probs,
     int num_of_elements = GF_q::elements();
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    // find loop_e
-    int loop_e = idx % num_of_elements;
+    // find pos_e
+    int pos_e = idx % num_of_elements;
 
     // find pos_n
     int pos_n = idx / num_of_elements;
@@ -432,7 +429,7 @@ spa_init_kern(::cuda::matrix_reference<real, false> device_received_probs,
 
     int non_zeros = device_pchk_col_non_zeros(pos_n);
 
-    buf[threadIdx.x] = device_received_probs(pos_n, loop_e);
+    buf[threadIdx.x] = device_received_probs(pos_n, pos_e);
     __syncthreads();
 
     hadamard_transform<GF_q, real>(buf, swapbuf);
@@ -444,7 +441,7 @@ spa_init_kern(::cuda::matrix_reference<real, false> device_received_probs,
         // get index into device_qmn_conv and device_r_mxn
         qmn_row_idx = device_qmn_row_nxm_indices(pos_n, loop_m);
 
-        device_qmn_conv(qmn_row_idx, loop_e) = buf[threadIdx.x];
+        device_qmn_conv(qmn_row_idx, pos_e) = buf[threadIdx.x];
     }
 }
 
@@ -534,8 +531,8 @@ compute_r_mn_kern(
     int num_of_elements = GF_q::elements();
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    // find loop_e
-    int loop_e = idx % num_of_elements;
+    // find pos_e
+    int pos_e = idx % num_of_elements;
 
     // find loop_m
     int pos_m = idx / num_of_elements;
@@ -556,8 +553,7 @@ compute_r_mn_kern(
                 // message
                 (loop_n_dash != loop_n) *
                     device_qmn_conv(
-                        device_qmn_row_mxn_indices(pos_m, loop_n_dash),
-                        loop_e) +
+                        device_qmn_row_mxn_indices(pos_m, loop_n_dash), pos_e) +
                 // Branch where we multiply by 1, effectively removing
                 // q_nm for pos_n from the computed message.
                 (loop_n_dash == loop_n);
@@ -580,7 +576,7 @@ compute_r_mn_kern(
         perform_clipping(buf[threadIdx.x], clipping_method, almostzero);
         buf[threadIdx.x] /= sum<GF_q, real>(swapbuf);
 
-        device_r_mxn(q_mn_idx, loop_e) = buf[threadIdx.x];
+        device_r_mxn(q_mn_idx, pos_e) = buf[threadIdx.x];
     }
 }
 
@@ -653,8 +649,8 @@ compute_q_mn_kern(
     int num_of_elements = GF_q::elements();
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    // find loop_e
-    int loop_e = idx % num_of_elements;
+    // find pos_e
+    int pos_e = idx % num_of_elements;
 
     // find loop_n
     int pos_n = idx / num_of_elements;
@@ -663,7 +659,7 @@ compute_q_mn_kern(
     pos_n = min(pos_n, n - 1);
 
     // Current probability that received symbol n has value e.
-    real recvd_prob = device_received_probs(pos_n, loop_e);
+    real recvd_prob = device_received_probs(pos_n, pos_e);
 
     int non_zeros = device_pchk_col_non_zeros(pos_n);
     // Holds the actual message computed
@@ -679,7 +675,7 @@ compute_q_mn_kern(
                 // message
                 (loop_m_dash != loop_m) *
                     device_r_mxn(device_qmn_row_nxm_indices(pos_n, loop_m_dash),
-                                 loop_e) +
+                                 pos_e) +
                 // Branch where we multiply by 1, effectively removing
                 // r_mn for pos_m from the computed message.
                 (loop_m_dash == loop_m);
@@ -703,7 +699,7 @@ compute_q_mn_kern(
         hadamard_transform<GF_q, real>(buf, swapbuf);
 
         // Uncoalesced memory access.
-        device_qmn_conv(q_mn_idx, loop_e) = buf[threadIdx.x];
+        device_qmn_conv(q_mn_idx, pos_e) = buf[threadIdx.x];
         // resynchronize after uncoalesced memory access
         __syncthreads();
     }
@@ -775,10 +771,10 @@ compute_probs_kern(
     real* buf = reinterpret_cast<real*>(rawbuf);
 
     int num_of_elements = GF_q::elements();
-    // find loop_e
+    // find pos_e
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
-    int loop_e = idx % num_of_elements;
+    int pos_e = idx % num_of_elements;
 
     // find loop_n
     int pos_n = idx / num_of_elements;
@@ -788,16 +784,16 @@ compute_probs_kern(
 
     int non_zeros = device_pchk_col_non_zeros(pos_n);
     // Holds the prob computed
-    real prob = device_received_probs(pos_n, loop_e);
+    real prob = device_received_probs(pos_n, pos_e);
     for (int loop_m = 0; loop_m < non_zeros; loop_m++) {
-        prob *= device_r_mxn(device_qmn_row_nxm_indices(pos_n, loop_m), loop_e);
+        prob *= device_r_mxn(device_qmn_row_nxm_indices(pos_n, loop_m), pos_e);
     }
 
     perform_clipping(prob, clipping_method, almostzero);
 
     buf[threadIdx.x] = prob;
     __syncthreads();
-    device_out_probs(pos_n, loop_e) = prob / sum<GF_q, real>(buf);
+    device_out_probs(pos_n, pos_e) = prob / sum<GF_q, real>(buf);
 }
 
 template <class GF_q, class real>

@@ -50,18 +50,18 @@ sum_prod_alg_trad<GF_q, real>::spa_init(const array2d_t& recvd_probs)
     // and normalise the probs at the same time
 
     this->received_probs.init(recvd_probs.size().rows());
-    for (int loop_n = 0; loop_n < this->length_n; loop_n++) {
-        this->received_probs(loop_n).init(num_of_elements);
+    for (int pos_n = 0; pos_n < this->length_n; pos_n++) {
+        this->received_probs(pos_n).init(num_of_elements);
         alpha = real(0.0);
-        for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
-            tmp_prob = recvd_probs(loop_n, loop_e);
+        for (int pos_e = 0; pos_e < num_of_elements; pos_e++) {
+            tmp_prob = recvd_probs(pos_n, pos_e);
             // Clipping HACK
             this->perform_clipping(tmp_prob);
-            this->received_probs(loop_n)(loop_e) = tmp_prob;
+            this->received_probs(pos_n)(pos_e) = tmp_prob;
             alpha += tmp_prob;
         }
         assertalways(alpha != real(0.0));
-        this->received_probs(loop_n) /= alpha;
+        this->received_probs(pos_n) /= alpha;
     }
 
     // this uses the description of the algorithm as given by
@@ -73,15 +73,15 @@ sum_prod_alg_trad<GF_q, real>::spa_init(const array2d_t& recvd_probs)
     int pos_n;
 
     // simply set q_mxn(0)=P_n(0)=P(x_n=0) and q_mxn(1)=P_n(1)=P(x_n=1)
-    for (int loop_m = 0; loop_m < this->dim_m; loop_m++) {
-        const array1i_t& N_m = this->pchk_matrix.get_row_idxs(loop_m);
+    for (int pos_m = 0; pos_m < this->dim_m; pos_m++) {
+        const array1i_t& N_m = this->pchk_matrix.get_row_idxs(pos_m);
         non_zeros = N_m.size().length();
         for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
             pos_n = N_m(loop_n);
-            this->marginal_probs(loop_m, pos_n).q_mxn =
+            this->marginal_probs(pos_m, pos_n).q_mxn =
                 this->received_probs(pos_n);
-            this->marginal_probs(loop_m, pos_n).r_mxn.init(num_of_elements);
-            this->marginal_probs(loop_m, pos_n).r_mxn = 0.0;
+            this->marginal_probs(pos_m, pos_n).r_mxn.init(num_of_elements);
+            this->marginal_probs(pos_m, pos_n).r_mxn = 0.0;
         }
     }
 
@@ -119,11 +119,11 @@ sum_prod_alg_trad<GF_q, real>::compute_r_mn(int pos_m, int loop_n)
     array1i_t rel_N_m;
     rel_N_m.init(num_of_var_syms);
     int indx = 0;
-    for (int loop = 0; loop < num_of_var_syms; loop++) {
+    for (int loop_n = 0; loop_n < num_of_var_syms; loop_n++) {
         if (indx == loop_n) {
             indx++;
         }
-        rel_N_m(loop) = N_m(indx);
+        rel_N_m(loop_n) = N_m(indx);
         indx++;
     }
     // go through all cases - this will use bitwise manipulation
@@ -144,9 +144,9 @@ sum_prod_alg_trad<GF_q, real>::compute_r_mn(int pos_m, int loop_n)
         bits = loop1;
         syndrome_sym = GF_q(0);
         q_nm_prod = 1.0;
-        for (int loop2 = 0; loop2 < num_of_var_syms; loop2++) {
+        for (int loop_n = 0; loop_n < num_of_var_syms; loop_n++) {
 
-            pos_n_dash = rel_N_m(loop2);
+            pos_n_dash = rel_N_m(loop_n);
 
             // extract int value of the first symbol
             int_sym_val = bits & bitmask;
@@ -154,7 +154,7 @@ sum_prod_alg_trad<GF_q, real>::compute_r_mn(int pos_m, int loop_n)
             bits = bits >> GF_q::dimension();
 
             // the parity check symbol at this position
-            h_m_n_dash = N_m_vals(loop2);
+            h_m_n_dash = N_m_vals(loop_n);
             // compute the value that at this check
             tmp_chk_val = h_m_n_dash * GF_q(int_sym_val);
 
@@ -189,9 +189,8 @@ sum_prod_alg_trad<GF_q, real>::compute_q_mn(int loop_m, int pos_n)
     for (int loop_m_dash = 0; loop_m_dash < size_of_M_n; loop_m_dash++) {
         if (loop_m_dash != loop_m) {
             m_dash = M_n(loop_m_dash);
-            for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
-                q_mn(loop_e) *=
-                    this->marginal_probs(m_dash, pos_n).r_mxn(loop_e);
+            for (int pos_e = 0; pos_e < num_of_elements; pos_e++) {
+                q_mn(pos_e) *= this->marginal_probs(m_dash, pos_n).r_mxn(pos_e);
             }
         }
     }

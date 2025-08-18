@@ -64,13 +64,13 @@ sum_prod_alg_abstract<GF_q, real>::spa_iteration(
     int size_N_m;
 
     // loop over all check nodes - the horizontal step
-    for (int loop_m = 0; loop_m < this->dim_m; loop_m++) {
+    for (int pos_m = 0; pos_m < this->dim_m; pos_m++) {
         // get the bits that participate in this check
-        size_N_m = this->pchk_matrix.get_row_idxs(loop_m).size().length();
+        size_N_m = this->pchk_matrix.get_row_idxs(pos_m).size().length();
         for (int loop_n = 0; loop_n < size_N_m; loop_n++) {
             // this will compute the relevant r_nms fixing the x_n given by
             // loop_n
-            this->compute_r_mn(loop_m, loop_n);
+            this->compute_r_mn(pos_m, loop_n);
         }
     }
 
@@ -87,10 +87,10 @@ sum_prod_alg_abstract<GF_q, real>::spa_iteration(
 
     // loop over all the bit nodes - the vertical step
 
-    for (int loop_n = 0; loop_n < this->length_n; loop_n++) {
-        size_M_n = this->pchk_matrix.get_col_idxs(loop_n).size().length();
+    for (int pos_n = 0; pos_n < this->length_n; pos_n++) {
+        size_M_n = this->pchk_matrix.get_col_idxs(pos_n).size().length();
         for (int loop_m = 0; loop_m < size_M_n; loop_m++) {
-            this->compute_q_mn(loop_m, loop_n);
+            this->compute_q_mn(loop_m, pos_n);
         }
     }
 #if DEBUG >= 2
@@ -136,26 +136,26 @@ sum_prod_alg_abstract<GF_q, real>::compute_probs(array1vd_t& ro)
     real a_n = real(0.0);
     int size_of_M_n = 0;
     int pos_m;
-    for (int loop_n = 0; loop_n < this->length_n; loop_n++) {
-        ro(loop_n) = this->received_probs(loop_n);
-        const array1i_t& M_n = this->pchk_matrix.get_col_idxs(loop_n);
+    for (int pos_n = 0; pos_n < this->length_n; pos_n++) {
+        ro(pos_n) = this->received_probs(pos_n);
+        const array1i_t& M_n = this->pchk_matrix.get_col_idxs(pos_n);
         size_of_M_n = M_n.size().length();
         for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
             for (int loop_m = 0; loop_m < size_of_M_n; loop_m++) {
                 pos_m = M_n(loop_m);
-                ro(loop_n)(loop_e) *=
-                    this->marginal_probs(pos_m, loop_n).r_mxn(loop_e);
+                ro(pos_n)(loop_e) *=
+                    this->marginal_probs(pos_m, pos_n).r_mxn(loop_e);
             }
             // Use appropriate clipping method
-            perform_clipping(ro(loop_n)(loop_e));
+            perform_clipping(ro(pos_n)(loop_e));
         }
         // Note the following step is not strictly necessary apart from making
         // the result look neater - however it only adds a small overhead
 
         // normalise the result so that q_n_0+q_n_1=1
-        a_n = ro(loop_n).sum();
+        a_n = ro(pos_n).sum();
         assertalways(a_n != real(0.0));
-        ro(loop_n) /= a_n;
+        ro(pos_n) /= a_n;
     }
 }
 
@@ -165,17 +165,17 @@ sum_prod_alg_abstract<GF_q, real>::print_marginal_probs(std::ostream& sout)
 {
     int num_of_elements = GF_q::elements();
     bool used;
-    for (int loop_m = 0; loop_m < this->dim_m; loop_m++) {
+    for (int pos_m = 0; pos_m < this->dim_m; pos_m++) {
         sout << std::endl << "[";
-        for (int loop_n = 0; loop_n < this->length_n; loop_n++) {
+        for (int pos_n = 0; pos_n < this->length_n; pos_n++) {
             sout << " <q=(";
-            used = this->marginal_probs(loop_m, loop_n).q_mxn.size() > 0;
+            used = this->marginal_probs(pos_m, pos_n).q_mxn.size() > 0;
             if (used) {
                 for (int loop_e = 0; loop_e < num_of_elements - 1; loop_e++) {
-                    sout << this->marginal_probs(loop_m, loop_n).q_mxn(loop_e)
+                    sout << this->marginal_probs(pos_m, pos_n).q_mxn(loop_e)
                          << ", ";
                 }
-                sout << this->marginal_probs(loop_m, loop_n)
+                sout << this->marginal_probs(pos_m, pos_n)
                             .q_mxn(num_of_elements - 1);
             } else {
                 sout << " n/a ";
@@ -183,11 +183,10 @@ sum_prod_alg_abstract<GF_q, real>::print_marginal_probs(std::ostream& sout)
             sout << "), q_conv=(";
             if (used) {
                 for (int loop_e = 0; loop_e < num_of_elements - 1; loop_e++) {
-                    sout
-                        << this->marginal_probs(loop_m, loop_n).qmn_conv(loop_e)
-                        << ", ";
+                    sout << this->marginal_probs(pos_m, pos_n).qmn_conv(loop_e)
+                         << ", ";
                 }
-                sout << this->marginal_probs(loop_m, loop_n)
+                sout << this->marginal_probs(pos_m, pos_n)
                             .qmn_conv(num_of_elements - 1);
             } else {
                 sout << " n/a ";
@@ -195,10 +194,10 @@ sum_prod_alg_abstract<GF_q, real>::print_marginal_probs(std::ostream& sout)
             sout << "), r=(";
             if (used) {
                 for (int loop_e = 0; loop_e < num_of_elements - 1; loop_e++) {
-                    sout << this->marginal_probs(loop_m, loop_n).r_mxn(loop_e)
+                    sout << this->marginal_probs(pos_m, pos_n).r_mxn(loop_e)
                          << ", ";
                 }
-                sout << this->marginal_probs(loop_m, loop_n)
+                sout << this->marginal_probs(pos_m, pos_n)
                             .r_mxn(num_of_elements - 1);
             } else {
                 sout << "n/a ";

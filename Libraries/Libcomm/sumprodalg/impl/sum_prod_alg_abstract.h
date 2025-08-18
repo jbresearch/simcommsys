@@ -141,7 +141,7 @@ protected:
     /*! \brief carried out the horizontal step of the SPA
      * the q_mxn probabilities are computed
      */
-    virtual void compute_q_mn(int m, int n) = 0;
+    virtual void compute_q_mn(int loop_m, int pos_n) = 0;
 
 private:
     void print_marginal_probs(std::ostream& sout);

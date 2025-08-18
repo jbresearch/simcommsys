@@ -49,18 +49,18 @@ sum_prod_alg_gdl<GF_q, real>::spa_init(const array2d_t& recvd_probs)
     // ensure we don't have zero probabilities
     // and normalise the probs at the same time
     this->received_probs.init(recvd_probs.size().rows());
-    for (int loop_n = 0; loop_n < this->length_n; loop_n++) {
-        this->received_probs(loop_n).init(num_of_elements);
+    for (int pos_n = 0; pos_n < this->length_n; pos_n++) {
+        this->received_probs(pos_n).init(num_of_elements);
         alpha = real(0.0);
-        for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
+        for (int pos_e = 0; pos_e < num_of_elements; pos_e++) {
             // Clipping HACK
-            tmp_prob = recvd_probs(loop_n, loop_e);
+            tmp_prob = recvd_probs(pos_n, pos_e);
             this->perform_clipping(tmp_prob);
-            this->received_probs(loop_n)(loop_e) = tmp_prob;
+            this->received_probs(pos_n)(pos_e) = tmp_prob;
             alpha += tmp_prob;
         }
         assertalways(alpha != real(0.0));
-        this->received_probs(loop_n) /= alpha;
+        this->received_probs(pos_n) /= alpha;
     }
 
 #if DEBUG >= 2
@@ -76,22 +76,23 @@ sum_prod_alg_gdl<GF_q, real>::spa_init(const array2d_t& recvd_probs)
     // on page 560 - chapter 47.3
 
     // some helper variables
-    int pos = 0;
+    int pos_n = 0;
     int non_zeros = 0;
     int h_m_n = 0;
 
     array1vd_t qmn_conv;
 
     // simply set q_mxn(0)=P_n(0)=P(x_n=0) and q_mxn(1)=P_n(1)=P(x_n=1)
-    for (int loop_m = 0; loop_m < this->dim_m; loop_m++) {
-        const array1i_t& N_m = this->pchk_matrix.get_row_idxs(loop_m);
+    for (int pos_m = 0; pos_m < this->dim_m; pos_m++) {
+        const array1i_t& N_m = this->pchk_matrix.get_row_idxs(pos_m);
         const libbase::vector<GF_q>& N_m_vals =
-            this->pchk_matrix.get_row_vals(loop_m);
+            this->pchk_matrix.get_row_vals(pos_m);
         non_zeros = N_m.size();
         for (int loop_n = 0; loop_n < non_zeros; loop_n++) {
-            pos = N_m(loop_n);
+            pos_n = N_m(loop_n);
             h_m_n = N_m_vals(loop_n);
-            this->marginal_probs(loop_m, pos).q_mxn = this->received_probs(pos);
+            this->marginal_probs(pos_m, pos_n).q_mxn =
+                this->received_probs(pos_n);
 
             // If h_m_n is not 1 we need to permute the probs.
             if (1 != h_m_n) {
@@ -102,23 +103,23 @@ sum_prod_alg_gdl<GF_q, real>::spa_init(const array2d_t& recvd_probs)
                 // 0!=h_m_n in GF_q.
                 // Declerq&Fossorier: Decoding Algs for non-binary LDPC Codes
                 // over GF(q)
-                for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
+                for (int pos_e = 0; pos_e < num_of_elements; pos_e++) {
                     // perms(h_m_n)(loop)=GF_q(h_m_n)*GF_q(loop) - a look-up is
                     // quicker than a computation (I hope)
-                    this->marginal_probs(loop_m, pos)
-                        .qmn_conv(this->perms(h_m_n)(loop_e)) =
-                        this->received_probs(pos)(loop_e);
+                    this->marginal_probs(pos_m, pos_n)
+                        .qmn_conv(this->perms(h_m_n)(pos_e)) =
+                        this->received_probs(pos_n)(pos_e);
                 }
             } else {
                 // no permutation needed as h_m_n=1
-                this->marginal_probs(loop_m, pos).qmn_conv =
-                    this->received_probs(pos);
+                this->marginal_probs(pos_m, pos_n).qmn_conv =
+                    this->received_probs(pos_n);
             }
-            this->compute_convs(this->marginal_probs(loop_m, pos).qmn_conv,
+            this->compute_convs(this->marginal_probs(pos_m, pos_n).qmn_conv,
                                 0,
                                 num_of_elements - 1);
         }
-        this->marginal_probs(loop_m, pos).r_mxn = 0.0;
+        this->marginal_probs(pos_m, pos_n).r_mxn = 0.0;
     }
 
 #if DEBUG >= 2
@@ -175,9 +176,9 @@ sum_prod_alg_gdl<libbase::gf2, double>::compute_r_mn(int pos_m, int loop_n)
     int pos_n_dash;
 
     double q_nm_conv_prod = 1.0;
-    for (int loop2 = 0; loop2 < num_of_var_syms; loop2++) {
-        if (loop2 != loop_n) {
-            pos_n_dash = N_m(loop2);
+    for (int loop_n_dash = 0; loop_n_dash < num_of_var_syms; loop_n_dash++) {
+        if (loop_n_dash != loop_n) {
+            pos_n_dash = N_m(loop_n_dash);
             q_nm_conv_prod *=
                 this->marginal_probs(pos_m, pos_n_dash).qmn_conv(1);
         }
@@ -207,14 +208,15 @@ sum_prod_alg_gdl<GF_q, real>::compute_r_mn(int pos_m, int loop_n)
     array1d_t q_nm_conv_prod;
     q_nm_conv_prod.init(num_of_elements);
     q_nm_conv_prod = 1.0;
-    for (int loop2 = 1; loop2 < num_of_elements; loop2++) {
-        for (int loop1 = 0; loop1 < num_of_var_syms; loop1++) {
-            if (loop1 != loop_n) {
-                pos_n_dash = N_m(loop1);
+    for (int pos_e = 1; pos_e < num_of_elements; pos_e++) {
+        for (int loop_n_dash = 0; loop_n_dash < num_of_var_syms;
+             loop_n_dash++) {
+            if (loop_n_dash != loop_n) {
+                pos_n_dash = N_m(loop_n_dash);
 
                 // this uses the FFT of the q_mxn to work out the r_mn
-                q_nm_conv_prod(loop2) *=
-                    this->marginal_probs(pos_m, pos_n_dash).qmn_conv(loop2);
+                q_nm_conv_prod(pos_e) *=
+                    this->marginal_probs(pos_m, pos_n_dash).qmn_conv(pos_e);
             }
         }
     }
@@ -229,10 +231,10 @@ sum_prod_alg_gdl<GF_q, real>::compute_r_mn(int pos_m, int loop_n)
      * completely 0.
      */
     real sum_qnm = real(0.0);
-    for (int loop1 = 0; loop1 < num_of_elements; loop1++) {
+    for (int pos_e = 0; pos_e < num_of_elements; pos_e++) {
         // Clipping HACK
-        this->perform_clipping(q_nm_conv_prod(loop1));
-        sum_qnm += q_nm_conv_prod(loop1);
+        this->perform_clipping(q_nm_conv_prod(pos_e));
+        sum_qnm += q_nm_conv_prod(pos_e);
     }
 
     // normalise them instead of simply dividing by the number of field
@@ -240,11 +242,11 @@ sum_prod_alg_gdl<GF_q, real>::compute_r_mn(int pos_m, int loop_n)
     assertalways(sum_qnm != real(0.0));
     q_nm_conv_prod /= sum_qnm;
 
-    for (int loop1 = 0; loop1 < num_of_elements; loop1++) {
+    for (int pos_e = 0; pos_e < num_of_elements; pos_e++) {
         // perms(h_m_n)(loop)=GF_q(h_m_n)*GF_q(loop) - a look-up is quicker than
         // a computation (I hope)
-        this->marginal_probs(pos_m, pos_n).r_mxn(loop1) =
-            q_nm_conv_prod(this->perms(h_m_n)(loop1));
+        this->marginal_probs(pos_m, pos_n).r_mxn(pos_e) =
+            q_nm_conv_prod(this->perms(h_m_n)(pos_e));
     }
 }
 
@@ -268,17 +270,16 @@ sum_prod_alg_gdl<GF_q, real>::compute_q_mn(int loop_m, int pos_n)
     // all sym in GF_q
     int size_of_M_n = M_n.size().length();
 
-    for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
+    for (int pos_e = 0; pos_e < num_of_elements; pos_e++) {
         for (int loop_m_dash = 0; loop_m_dash < size_of_M_n; loop_m_dash++) {
             if (loop_m_dash != loop_m) {
                 m_dash = M_n(loop_m_dash);
 
-                q_mn(loop_e) *=
-                    this->marginal_probs(m_dash, pos_n).r_mxn(loop_e);
+                q_mn(pos_e) *= this->marginal_probs(m_dash, pos_n).r_mxn(pos_e);
             }
         }
         // Clipping HACK
-        this->perform_clipping(q_mn(loop_e));
+        this->perform_clipping(q_mn(pos_e));
     }
 
     // normalise the q_mxn's so that q_mxn_0+q_mxn_1=1
@@ -288,34 +289,34 @@ sum_prod_alg_gdl<GF_q, real>::compute_q_mn(int loop_m, int pos_n)
         // show me the error
         q_mn = this->received_probs(pos_n);
         std::cerr << "received probs:" << q_mn;
-        for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
+        for (int pos_e = 0; pos_e < num_of_elements; pos_e++) {
             for (int loop_m_dash = 0; loop_m_dash < size_of_M_n;
                  loop_m_dash++) {
                 if (loop_m_dash != loop_m) {
                     m_dash = M_n(loop_m_dash);
                     std::cerr
-                        << "q_mn(" << loop_e << ")=" << q_mn(loop_e) << " x "
-                        << this->marginal_probs(m_dash, pos_n).r_mxn(loop_e)
+                        << "q_mn(" << pos_e << ")=" << q_mn(pos_e) << " x "
+                        << this->marginal_probs(m_dash, pos_n).r_mxn(pos_e)
                         << std::endl;
-                    q_mn(loop_e) *=
-                        this->marginal_probs(m_dash, pos_n).r_mxn(loop_e);
+                    q_mn(pos_e) *=
+                        this->marginal_probs(m_dash, pos_n).r_mxn(pos_e);
                 }
             }
             // Clipping HACK - just for error display purposes
             if (1 == this->clipping_method) {
-                if (q_mn(loop_e) < this->almostzero) {
-                    std::cerr << "q_mn(" << loop_e
+                if (q_mn(pos_e) < this->almostzero) {
+                    std::cerr << "q_mn(" << pos_e
                               << ")<almostzero - setting it to almostzero="
                               << this->almostzero << std::endl;
-                    q_mn(loop_e) = this->almostzero;
+                    q_mn(pos_e) = this->almostzero;
                 }
             } else {
-                if (q_mn(loop_e) <= real(0.0)) {
+                if (q_mn(pos_e) <= real(0.0)) {
                     std::cerr
-                        << "q_mn(" << loop_e
+                        << "q_mn(" << pos_e
                         << ") is equal to zero - setting it to almostzero="
                         << this->almostzero << std::endl;
-                    q_mn(loop_e) = this->almostzero;
+                    q_mn(pos_e) = this->almostzero;
                 }
             }
         }
@@ -326,11 +327,11 @@ sum_prod_alg_gdl<GF_q, real>::compute_q_mn(int loop_m, int pos_n)
     this->marginal_probs(pos_m, pos_n).q_mxn = q_mn;
     // compute the FFT and store it for the next iteration
     int h_m_n = M_n_vals(loop_m);
-    for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
+    for (int pos_e = 0; pos_e < num_of_elements; pos_e++) {
         // perms(h_m_n)(loop)=GF_q(h_m_n)*GF_q(loop) - a look-up is quicker than
         // a computation (I hope)
-        this->marginal_probs(pos_m, pos_n)
-            .qmn_conv(this->perms(h_m_n)(loop_e)) = q_mn(loop_e);
+        this->marginal_probs(pos_m, pos_n).qmn_conv(this->perms(h_m_n)(pos_e)) =
+            q_mn(pos_e);
     }
     this->compute_convs(
         this->marginal_probs(pos_m, pos_n).qmn_conv, 0, num_of_elements - 1);

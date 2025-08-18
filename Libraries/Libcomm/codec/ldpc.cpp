@@ -101,9 +101,9 @@ ldpc<GF_q, real>::init()
         // into systematic form which gives us the information we need to
         // extract the positions of the info symbols in G. In fact the last
         // k values of perm_to_systematic are those positions.
-        for (int loop = 0; loop < this->dim_k; loop++) {
-            this->info_symb_pos(loop) =
-                this->perm_to_systematic((this->length_n - this->dim_k) + loop);
+        for (int pos_k = 0; pos_k < this->dim_k; pos_k++) {
+            this->info_symb_pos(pos_k) = this->perm_to_systematic(
+                (this->length_n - this->dim_k) + pos_k);
         }
     } else {
         // we reduce the generator matrix to REF format in the hope that the
@@ -111,12 +111,12 @@ ldpc<GF_q, real>::init()
         // therefore have a systematic code
         this->gen_matrix.reduce_to_ref_inplace();
         // we now need to find the pivots
-        int posy = 0;
-        for (int loop = 0; loop < this->dim_k; loop++) {
-            while (this->gen_matrix(loop, posy) == GF_q(0)) {
-                posy++;
+        int pos_n = 0;
+        for (int pos_k = 0; pos_k < this->dim_k; pos_k++) {
+            while (this->gen_matrix(pos_k, pos_n) == GF_q(0)) {
+                pos_n++;
             }
-            this->info_symb_pos(loop) = posy;
+            this->info_symb_pos(pos_k) = pos_n;
         }
     }
 }
@@ -137,9 +137,9 @@ ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable)
     this->received_probs.init(this->length_n, num_of_elements);
 
     // cast the values from double to real
-    for (int loop_n = 0; loop_n < this->length_n; loop_n++) {
-        for (int loop_e = 0; loop_e < num_of_elements; loop_e++) {
-            this->received_probs(loop_n, loop_e) = real(ptable(loop_n)(loop_e));
+    for (int pos_n = 0; pos_n < this->length_n; pos_n++) {
+        for (int pos_e = 0; pos_e < num_of_elements; pos_e++) {
+            this->received_probs(pos_n, pos_e) = real(ptable(pos_n)(pos_e));
         }
     }
 
@@ -428,34 +428,34 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
 
     std::vector<libbase::vector<int>> col_idxs(this->length_n);
     // read the non-zero entries pos per col
-    for (int loop1 = 0; loop1 < this->length_n; loop1++) {
-        col_idxs[loop1].init(this->col_weight(loop1));
-        sin >> libbase::eatcomments >> col_idxs[loop1] >> libbase::verify;
-        col_idxs[loop1] -= 1; // we start counting from zero.
+    for (int pos_n = 0; pos_n < this->length_n; pos_n++) {
+        col_idxs[pos_n].init(this->col_weight(pos_n));
+        sin >> libbase::eatcomments >> col_idxs[pos_n] >> libbase::verify;
+        col_idxs[pos_n] -= 1; // we start counting from zero.
         // ensure that the number of non-zero pos matches the previously read
         // value
-        assertalways(col_idxs[loop1].size().length() ==
-                     this->col_weight(loop1));
+        assertalways(col_idxs[pos_n].size().length() ==
+                     this->col_weight(pos_n));
     }
 
     std::vector<libbase::vector<GF_q>> col_vals(this->length_n);
     // read in the non-zero entries per column
     const int num_of_non_zero_elements = GF_q::elements() - 1;
-    for (int loop1 = 0; loop1 < this->length_n; loop1++) {
-        const int tmp_entries = this->col_weight(loop1);
-        col_vals[loop1].init(tmp_entries);
+    for (int pos_n = 0; pos_n < this->length_n; pos_n++) {
+        const int tmp_entries = this->col_weight(pos_n);
+        col_vals[pos_n].init(tmp_entries);
         if ("ones" == this->rand_prov_values) {
             // in the binary case the non-zero values are 1
-            col_vals[loop1] = GF_q(1);
+            col_vals[pos_n] = GF_q(1);
         } else if ("random" == this->rand_prov_values) {
             for (int loop2 = 0; loop2 < tmp_entries; loop2++) {
-                col_vals[loop1](loop2) =
+                col_vals[pos_n](loop2) =
                     GF_q(1 + int(rng.ival(num_of_non_zero_elements)));
             }
-            assertalways(col_vals[loop1].min() != GF_q(0));
+            assertalways(col_vals[pos_n].min() != GF_q(0));
         } else {
-            sin >> libbase::eatcomments >> col_vals[loop1] >> libbase::verify;
-            assertalways(col_vals[loop1].min() != GF_q(0));
+            sin >> libbase::eatcomments >> col_vals[pos_n] >> libbase::verify;
+            assertalways(col_vals[pos_n].min() != GF_q(0));
         }
     }
     this->pchk_matrix = libbase::alist<GF_q>(std::move(col_idxs),
