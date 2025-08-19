@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
       "# Version\n"
       "1\n"
       "# Frame size (# of quantum states in a frame)\n"
-      "1000\n"
+      "10\n"
       "## Alice's channel\n"
       "identity_quantum_channel\n"
       "## Bob's channel\n"

@@ -57,9 +57,12 @@ public:
 
 protected:
     /*! \name Bound objects */
-    std::unique_ptr<quantum_channel> bob_channel;
-    std::unique_ptr<quantum_channel> alice_channel;
-    std::unique_ptr<qkd_protocol<T, C>> protocol;
+    // std::unique_ptr<quantum_channel> bob_channel;
+    // std::unique_ptr<quantum_channel> alice_channel;
+    // std::unique_ptr<qkd_protocol<T, C>> protocol;
+    std::shared_ptr<quantum_channel> bob_channel;
+    std::shared_ptr<quantum_channel> alice_channel;
+    std::shared_ptr<qkd_protocol<T, C>> protocol;
 
     //! \brief How many quantum states in one frame
     int framesize = 0;
@@ -248,16 +251,15 @@ public:
     // Description
     std::string description() const;
 
-
     // Serialization Support using shared pointers
     DECLARE_BASE_SERIALIZER(qkd_commsys)
-    // DECLARE_SERIALIZER(qkd_commsys)
+    DECLARE_SERIALIZER(qkd_commsys)
 
     // libbase::serializable interface using unique pointers
-    const std::string name() const override { return "qkd_commsys"; }
-    std::ostream& serialize(std::ostream& sout) const override;
-    std::istream& serialize(std::istream& sin) override;
-    std::shared_ptr<libbase::serializable> clone() const override; //override the clone() found in libbase::serialize
+    // const std::string name() const override { return "qkd_commsys"; }
+    // std::ostream& serialize(std::ostream& sout) const override;
+    // std::istream& serialize(std::istream& sin) override;
+    // std::shared_ptr<libbase::serializable> clone() const override; //override the clone() found in libbase::serialize
 
 };
 
