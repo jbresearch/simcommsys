@@ -29,6 +29,7 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
          libbase::randgen rng; // used to randomly choose observables
          libbase::vector<int> decision_vector;
          libbase::vector<int> alice_decision_vector;
+         int N_PE; // Number of samples used for parameter estimation.
 
     public:
         void seedfrom(libbase::random& rng) override { this->rng.seed(rng.ival()); }
@@ -108,6 +109,16 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
 
         // Getter fn to get Bob's decision vector to be used by Alice
         const libbase::vector<int>& get_decision_vector() const {return decision_vector;}
+
+        // Getter to return number of samples for parameter estimation.
+        int get_N_PE() override {return N_PE;}
+
+        // Split fn to be used for parameter estimation and post-processing.
+        std::tuple<libbase::vector<double>,
+        libbase::vector<double>,
+        libbase::vector<double>,
+        libbase::vector<double>> split(libbase::vector<double>& measurements_alice, libbase::vector<double>& measurements_bob,
+        int N_PE) override;
 
         // Description function
         std::string description() const override;

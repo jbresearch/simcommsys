@@ -71,6 +71,16 @@ public:
         return empty;
     }
 
+    // Getter to be used to return number of samples for parameter estimation.
+    virtual int get_N_PE() = 0;
+
+    // Split fn to be used for parameter estimation and post-processing.
+    virtual std::tuple<libbase::vector<double>,
+    libbase::vector<double>,
+    libbase::vector<double>,
+    libbase::vector<double>> split(libbase::vector<double>& measurements_alice, libbase::vector<double>& measurements_bob,
+    int N_PE) = 0;
+
     virtual C<bool> postprocess(libbase::vector<T>&& alice_measurements,
                                 libbase::vector<T>&& bob_measurements) = 0;
 

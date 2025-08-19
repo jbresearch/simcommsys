@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
       "# Version\n"
       "1\n"
       "# Frame size (# of quantum states in a frame)\n"
-      "10\n"
+      "50\n"
       "## Alice's channel\n"
       "identity_quantum_channel\n"
       "## Bob's channel\n"
@@ -316,7 +316,9 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
       "# Transmittance T of the Gaussian Quantum Channel\n"
       "0.302\n"
       "## Postprocessing protocol\n"
-      "cvqkd_protocol\n";
+      "cvqkd_protocol\n"
+      "### Number of samples for Parameter Estimation N_PE\n"
+      "10\n";
 
    // 2) Default-construct the system and load the config
    libcomm::qkd_commsys<libcomm::gaussian_state, double, libbase::vector> sys;
@@ -377,21 +379,42 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    std::cout << "\n Checking Modulation Variance of Source = " << VA << std::endl;
 
    // 5) Run the fullcycle that consumes a quantum_gaussian_source&
-   auto [alice, bob] = sys.fullcycle(*src);
+   auto [measurements_alice, measurements_bob, X_PE, Y_PE] = sys.fullcycle(*src);
 
    // Print Measurement Vectors
-   std::cout << "Alice measurements [size=" << alice.size() << "]: [";
+   std::cout << "\nAlice measurements [size=" << measurements_alice.size() << "]: [";
    std::cout << std::fixed << std::setprecision(6);
-   for (int i = 0; i < alice.size(); ++i) {
+   for (int i = 0; i < measurements_alice.size(); ++i) {
       if (i) std::cout << ", ";
-      std::cout << alice(i);
+      std::cout << measurements_alice(i);
    }
-   std::cout << "]\n";
+   std::cout << "]\n\n";
 
-   std::cout << "Bob measurements [size=" << bob.size() << "]: [";
-   for (int i = 0; i < bob.size(); ++i) {
+   std::cout << "Bob measurements [size=" << measurements_bob.size() << "]: [";
+   for (int i = 0; i < measurements_bob.size(); ++i) {
       if (i) std::cout << ", ";
-      std::cout << bob(i);
+      std::cout << measurements_bob(i);
    }
-   std::cout << "]\n";
+   std::cout << "]\n\n\n\n";
+
+   // Testing splitting function to be used for parameter estimation.
+   // Print X_PE and Y_PE (parameter estimation subsets)
+   std::cout << "X_PE [size=" << X_PE.size() << "]: [";
+   for (int i = 0; i < X_PE.size(); ++i) {
+      if (i) std::cout << ", ";
+      std::cout << X_PE(i);
+   }
+   std::cout << "]\n\n";
+
+   std::cout << "Y_PE [size=" << Y_PE.size() << "]: [";
+   for (int i = 0; i < Y_PE.size(); ++i) {
+      if (i) std::cout << ", ";
+      std::cout << Y_PE(i);
+   }
+   std::cout << "]\n\n\n";
+
+
+
 }
+
+
