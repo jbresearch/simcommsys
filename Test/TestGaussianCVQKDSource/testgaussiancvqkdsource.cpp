@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
       "# Version\n"
       "1\n"
       "# Frame size (# of quantum states in a frame)\n"
-      "50\n"
+      "5000\n"
       "## Alice's channel\n"
       "identity_quantum_channel\n"
       "## Bob's channel\n"
@@ -317,8 +317,14 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
       "0.302\n"
       "## Postprocessing protocol\n"
       "cvqkd_protocol\n"
-      "### Number of samples for Parameter Estimation N_PE\n"
-      "10\n";
+      "# Number of samples for Parameter Estimation N_PE\n"
+      "500\n"
+      "# Shot Noise Variance N_0\n"
+      "1\n"
+      "# Electric Noise v_el\n"
+      "0.041\n"
+      "# Detector Efficiency eta\n"
+      "0.606\n";
 
    // 2) Default-construct the system and load the config
    libcomm::qkd_commsys<libcomm::gaussian_state, double, libbase::vector> sys;
@@ -379,7 +385,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    std::cout << "\n Checking Modulation Variance of Source = " << VA << std::endl;
 
    // 5) Run the fullcycle that consumes a quantum_gaussian_source&
-   auto [measurements_alice, measurements_bob, X_PE, Y_PE] = sys.fullcycle(*src);
+   auto [measurements_alice, measurements_bob, X_PE, Y_PE, T_hat, Epsilon_hat, chi_total_hat] = sys.fullcycle(*src);
 
    // Print Measurement Vectors
    std::cout << "\nAlice measurements [size=" << measurements_alice.size() << "]: [";
@@ -412,6 +418,11 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
       std::cout << Y_PE(i);
    }
    std::cout << "]\n\n\n";
+
+   std::cout << "Estimated parameters from parameter estimation:\n";
+   std::cout << "T_hat = " << T_hat << std::endl;
+   std::cout << "Epsilon_hat = " << Epsilon_hat << std::endl;
+   std::cout << "X_total = " << chi_total_hat << std::endl;
 
 
 

@@ -185,7 +185,7 @@ public:
     // ***** Note VIMP: This will have to change back to a sequence as done in the original fullcycle, set_VA will have to be called in the simulator AND the original source will also be called in the simulator to create the sequence of coherent states. Then that sequence is the input to the full cycle method. For now I am just using fullcycle like this to test up until measurement.
 
     // C<bool> fullcycle(libcomm::quantum_gaussian_source& source)
-    std::tuple<libbase::vector<T>, libbase::vector<T>, libbase::vector<T>, libbase::vector<T>> fullcycle(libcomm::quantum_gaussian_source& source)
+    std::tuple<libbase::vector<T>, libbase::vector<T>, libbase::vector<T>, libbase::vector<T>, double, double, double> fullcycle(libcomm::quantum_gaussian_source& source)
     {
 
         // Note: Here I Changed the libbase::vector to an std::vector only for the observables stage
@@ -230,14 +230,20 @@ public:
             }
         }
 
-        // Number of samples for parameter estimation.
+        // Required parameters for parameter estimation.
         int N_PE = protocol->get_N_PE();
+        int N_0 = protocol->get_N_0();
+        double v_el = protocol->get_v_el();
+        double detector_efficiency = protocol->get_det_eff();
 
         // Perform split for parameter estimation and post-processing.
         auto [X_PE, Y_PE, X_raw, Y_raw] = protocol->split(alice_measurements, bob_measurements, N_PE);
 
+        // Perform parameter estimation using optical fiber.
+        auto [T_hat, Epsilon_hat, chi_total_hat] = protocol->parameter_estimation_optical_fiber(X_PE, Y_PE, N_0, v_el, detector_efficiency);
+
         // return protocol->postprocess(alice_measurements, bob_measurements);
-        return { std::move(alice_measurements), std::move(bob_measurements), std::move(X_PE), std::move(Y_PE)}; // Just to test pre-processing.
+        return { std::move(alice_measurements), std::move(bob_measurements), std::move(X_PE), std::move(Y_PE), T_hat, Epsilon_hat, chi_total_hat}; // Just to test pre-processing.
     }
     // @}
 

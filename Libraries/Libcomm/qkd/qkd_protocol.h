@@ -73,6 +73,9 @@ public:
 
     // Getter to be used to return number of samples for parameter estimation.
     virtual int get_N_PE() = 0;
+    virtual int get_N_0() = 0; // to change these. need to check if there is an alternative to = 0? not to force all derived classes?
+    virtual double get_v_el() = 0;
+    virtual double get_det_eff() = 0;
 
     // Split fn to be used for parameter estimation and post-processing.
     virtual std::tuple<libbase::vector<double>,
@@ -80,6 +83,9 @@ public:
     libbase::vector<double>,
     libbase::vector<double>> split(libbase::vector<double>& measurements_alice, libbase::vector<double>& measurements_bob,
     int N_PE) = 0;
+
+    // Parameter Estimation using Optical Fiber
+    virtual std::tuple<double, double, double> parameter_estimation_optical_fiber(libbase::vector<double>& X_PE, libbase::vector<double>& Y_PE, int N_0, double v_el, double detector_efficiency) = 0;
 
     virtual C<bool> postprocess(libbase::vector<T>&& alice_measurements,
                                 libbase::vector<T>&& bob_measurements) = 0;

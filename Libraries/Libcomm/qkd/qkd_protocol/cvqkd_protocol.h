@@ -30,6 +30,9 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
          libbase::vector<int> decision_vector;
          libbase::vector<int> alice_decision_vector;
          int N_PE; // Number of samples used for parameter estimation.
+         int N_0; // shot noise
+         double v_el; // electric noise
+         double detector_efficiency;
 
     public:
         void seedfrom(libbase::random& rng) override { this->rng.seed(rng.ival()); }
@@ -104,14 +107,17 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
             return observables;
         }
 
-        // Getter to access the decision vector to send to Alice. To delete, created just for testing.
+        // Getter to access the decision vector to send to Alice. To delete, creWted just for testing.
         const libbase::vector<int>& get_alice_decision_vector() const {return alice_decision_vector;}
 
         // Getter fn to get Bob's decision vector to be used by Alice
         const libbase::vector<int>& get_decision_vector() const {return decision_vector;}
 
-        // Getter to return number of samples for parameter estimation.
+        // Getter to return various parameters for parameter estimation.
         int get_N_PE() override {return N_PE;}
+        int get_N_0() override {return N_0;}
+        double get_v_el() override {return v_el;}
+        double get_det_eff() override {return detector_efficiency;}
 
         // Split fn to be used for parameter estimation and post-processing.
         std::tuple<libbase::vector<double>,
@@ -119,6 +125,9 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
         libbase::vector<double>,
         libbase::vector<double>> split(libbase::vector<double>& measurements_alice, libbase::vector<double>& measurements_bob,
         int N_PE) override;
+
+        // Parameter Estimation for the GG02 protocol using Optical Fiber
+        std::tuple<double, double, double> parameter_estimation_optical_fiber(libbase::vector<double>& X_PE, libbase::vector<double>& Y_PE, int N_0, double v_el, double detector_efficiency) override;
 
         // Description function
         std::string description() const override;
@@ -131,6 +140,8 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
 
         DECLARE_SERIALIZER(cvqkd_protocol)
 };
+
+
 
 
 } // namespace libcomm
