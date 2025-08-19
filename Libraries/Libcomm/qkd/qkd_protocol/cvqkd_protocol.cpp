@@ -44,6 +44,10 @@ namespace libcomm
 
     std::tuple<double, double, double> cvqkd_protocol::parameter_estimation_optical_fiber(libbase::vector<double>& X_PE, libbase::vector<double>& Y_PE, int N_0, double v_el, double detector_efficiency)
     {
+
+        /* Reference of equations used to calculate the parameter estimation: Section A. of Chai, Geng, et al. "Parameter estimation of atmospheric continuous-variable quantum key distribution." Physical Review A 99.3 (2019): 032326.
+        */
+
         assert(X_PE.size() == Y_PE.size() && "X_PE and Y_PE must have same size.");
 
         const int m = X_PE.size();
@@ -100,7 +104,22 @@ namespace libcomm
         return {T_hat, Epsilon_hat, chi_total_hat};
     }
 
+    // Mutual Information for the GG02 protocol
+    double cvqkd_protocol::calculate_mutual_information(double chi_total_hat, double VA)
+    {
+        double I_AB = 0;
+        double V = VA + 1;
 
+        // Equation to calculate I_AB for homodyne detection and under collective attacks.
+
+        /* References for I_AB calculation: 1. Lodewyck, Jérôme, et al. "Quantum key distribution over 25 km with an all-fiber continuous-variable system." Physical Review A—Atomic, Molecular, and Optical Physics 76.4 (2007): 042305.
+        2) Zhang, Y., Bian, Y., Li, Z., Yu, S. and Guo, H., 2024. Continuous-variable quantum key distribution system: Past, present, and future. Applied Physics Reviews, 11(1).
+        */
+
+        I_AB = 0.5*std::log2((V + chi_total_hat)/(chi_total_hat + 1)); // I_AB returned is in bits/pulse. To convert to kbps multiply with the repetition rate e.g. 350 kHz
+
+        return I_AB;
+    }
 
     // Returns description of the protocol
     std::string cvqkd_protocol::description() const { return "CV-QKD Protocol using the GG02 protocol with GM Coherent states";}

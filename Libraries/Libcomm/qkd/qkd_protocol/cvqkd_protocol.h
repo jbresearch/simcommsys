@@ -119,24 +119,27 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
         double get_v_el() override {return v_el;}
         double get_det_eff() override {return detector_efficiency;}
 
-        // Split fn to be used for parameter estimation and post-processing.
+        // Split fn to be used for parameter estimation and post-processing which returns: X_PE, Y_PE, X_raw and Y_raw
         std::tuple<libbase::vector<double>,
         libbase::vector<double>,
         libbase::vector<double>,
         libbase::vector<double>> split(libbase::vector<double>& measurements_alice, libbase::vector<double>& measurements_bob,
         int N_PE) override;
 
-        // Parameter Estimation for the GG02 protocol using Optical Fiber
+        // Parameter Estimation for the GG02 protocol using Optical Fiber which returns: T_hat, Epsilon_hat, chi_total_hat
         std::tuple<double, double, double> parameter_estimation_optical_fiber(libbase::vector<double>& X_PE, libbase::vector<double>& Y_PE, int N_0, double v_el, double detector_efficiency) override;
 
-        // Description function
-        std::string description() const override;
+        // Mutual Information for the GG02 protocol
+        double calculate_mutual_information(double chi_total_hat, double VA) override;
 
         libbase::vector<bool> postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements) override
         {
             failwith("postprocess() not yet implemented for cvqkd_protocol.");
             return libbase::vector<bool>();
         }
+
+        // Description function
+        std::string description() const override;
 
         DECLARE_SERIALIZER(cvqkd_protocol)
 };

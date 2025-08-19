@@ -87,6 +87,10 @@ public:
     // Parameter Estimation using Optical Fiber
     virtual std::tuple<double, double, double> parameter_estimation_optical_fiber(libbase::vector<double>& X_PE, libbase::vector<double>& Y_PE, int N_0, double v_el, double detector_efficiency) = 0;
 
+    // Channel channel capacity of Quantum Channel.
+    virtual double calculate_mutual_information(double chi_total_hat, double VA) = 0;
+
+
     virtual C<bool> postprocess(libbase::vector<T>&& alice_measurements,
                                 libbase::vector<T>&& bob_measurements) = 0;
 

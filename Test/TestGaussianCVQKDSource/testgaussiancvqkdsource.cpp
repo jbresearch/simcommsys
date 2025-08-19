@@ -385,7 +385,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    std::cout << "\n Checking Modulation Variance of Source = " << VA << std::endl;
 
    // 5) Run the fullcycle that consumes a quantum_gaussian_source&
-   auto [measurements_alice, measurements_bob, X_PE, Y_PE, T_hat, Epsilon_hat, chi_total_hat] = sys.fullcycle(*src);
+   auto [measurements_alice, measurements_bob, X_PE, Y_PE, T_hat, Epsilon_hat, chi_total_hat, I_AB] = sys.fullcycle(*src);
 
    // Print Measurement Vectors
    std::cout << "\nAlice measurements [size=" << measurements_alice.size() << "]: [";
@@ -423,7 +423,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    std::cout << "T_hat = " << T_hat << std::endl;
    std::cout << "Epsilon_hat = " << Epsilon_hat << std::endl;
    std::cout << "X_total = " << chi_total_hat << std::endl;
-
+   std::cout << "Mutual Information I_AB = " << I_AB << " bits/pulse" << std::endl;
 
 
 }
