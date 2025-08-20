@@ -90,6 +90,7 @@ public:
     // Channel channel capacity of Quantum Channel.
     virtual double calculate_mutual_information(double chi_total_hat, double VA) = 0;
 
+    virtual double calculate_holevo_bound(double V, double T_hat, double Epsilon_hat, double X_total_hat) = 0;
 
     virtual C<bool> postprocess(libbase::vector<T>&& alice_measurements,
                                 libbase::vector<T>&& bob_measurements) = 0;

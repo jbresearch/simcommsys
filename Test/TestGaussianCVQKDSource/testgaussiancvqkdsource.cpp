@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
       "# Version\n"
       "1\n"
       "# Frame size (# of quantum states in a frame)\n"
-      "5000\n"
+      "10000\n"
       "## Alice's channel\n"
       "identity_quantum_channel\n"
       "## Bob's channel\n"
@@ -318,7 +318,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
       "## Postprocessing protocol\n"
       "cvqkd_protocol\n"
       "# Number of samples for Parameter Estimation N_PE\n"
-      "500\n"
+      "1000\n"
       "# Shot Noise Variance N_0\n"
       "1\n"
       "# Electric Noise v_el\n"
@@ -385,7 +385,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    std::cout << "\n Checking Modulation Variance of Source = " << VA << std::endl;
 
    // 5) Run the fullcycle that consumes a quantum_gaussian_source&
-   auto [measurements_alice, measurements_bob, X_PE, Y_PE, T_hat, Epsilon_hat, chi_total_hat, I_AB] = sys.fullcycle(*src);
+   auto [measurements_alice, measurements_bob, X_PE, Y_PE, T_hat, Epsilon_hat, chi_total_hat, I_AB, X_BE] = sys.fullcycle(*src);
 
    // Print Measurement Vectors
    std::cout << "\nAlice measurements [size=" << measurements_alice.size() << "]: [";
@@ -424,6 +424,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    std::cout << "Epsilon_hat = " << Epsilon_hat << std::endl;
    std::cout << "X_total = " << chi_total_hat << std::endl;
    std::cout << "Mutual Information I_AB = " << I_AB << " bits/pulse" << std::endl;
+   std::cout << "Holevo Bound X_BE = " << X_BE << " bits/pulse" << std::endl;
 
 
 }

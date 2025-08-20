@@ -112,14 +112,70 @@ namespace libcomm
 
         // Equation to calculate I_AB for homodyne detection and under collective attacks.
 
-        /* References for I_AB calculation: 1. Lodewyck, Jérôme, et al. "Quantum key distribution over 25 km with an all-fiber continuous-variable system." Physical Review A—Atomic, Molecular, and Optical Physics 76.4 (2007): 042305.
-        2) Zhang, Y., Bian, Y., Li, Z., Yu, S. and Guo, H., 2024. Continuous-variable quantum key distribution system: Past, present, and future. Applied Physics Reviews, 11(1).
+        /* References for I_AB calculation: [1] Lodewyck, Jérôme, et al. "Quantum key distribution over 25 km with an all-fiber continuous-variable system." Physical Review A—Atomic, Molecular, and Optical Physics 76.4 (2007): 042305.
+        [2] Zhang, Y., Bian, Y., Li, Z., Yu, S. and Guo, H., 2024. Continuous-variable quantum key distribution system: Past, present, and future. Applied Physics Reviews, 11(1).
         */
 
-        I_AB = 0.5*std::log2((V + chi_total_hat)/(chi_total_hat + 1)); // I_AB returned is in bits/pulse. To convert to kbps multiply with the repetition rate e.g. 350 kHz
+        I_AB = 0.5*std::log2((V + chi_total_hat)/(chi_total_hat + 1)); // In bits/pulse
+        // I_AB_kbps = I_AB * repetition_rate;
 
         return I_AB;
     }
+
+    // Holevo Bound for the GG02 protocol
+    double cvqkd_protocol::calculate_holevo_bound(double V, double T_hat, double Epsilon_hat, double X_total_hat)
+    {
+        double X_BE = 0; // X is chi
+        double X_line_hat = 0;
+        double X_hom_hat = 0;
+
+        // Original equations of X_line and X_hom
+        // X_hom = (1 - detector_efficiency + v_el)/detector_efficiency;
+        // Xline = (1/T) - 1 + epsilon
+        // Xtotal = Xline + (Xhom/T)
+
+        /* References for X_BE calculation: [1] Lodewyck, Jérôme, et al. "Quantum key distribution over 25 km with an all-fiber continuous-variable system." Physical Review A—Atomic, Molecular, and Optical Physics 76.4 (2007): 042305.
+        [2] Zhang, Y., Bian, Y., Li, Z., Yu, S. and Guo, H., 2024. Continuous-variable quantum key distribution system: Past, present, and future. Applied Physics Reviews, 11(1).
+        */
+
+        // Estimate X_line and X_hom from T_hat, Epsilon_hat and X_total_hat
+        X_line_hat = (1/T_hat) - 1 + Epsilon_hat;
+        X_hom_hat = T_hat*(X_total_hat - X_line_hat);
+
+        const double A = V*V * (1.0 - 2.0*T_hat) + 2.0*T_hat + (T_hat*T_hat) * std::pow(V + X_line_hat, 2.0);
+        const double B = (T_hat*T_hat) * std::pow(V*X_line_hat + 1.0, 2.0);
+
+        const double sqrt_B = safe_sqrt(B);
+
+        const double C_num = A * X_hom_hat + V * sqrt_B + T_hat * (V + X_line_hat);
+        const double C_den = T_hat * (V + X_total_hat);
+
+        if (C_den == 0.0) {
+            throw std::invalid_argument("compute_holevo_cvqkd: division by zero in C_den = T*(V+Xtot).");
+        }
+        const double C = C_num / C_den;
+
+        const double D = sqrt_B * (V + sqrt_B * X_hom_hat) / C_den;
+
+        const double disc1 = A*A - 4.0*B;
+        const double disc2 = C*C - 4.0*D;
+
+        const double lambda1 = std::sqrt(0.5) * safe_sqrt(A + safe_sqrt(disc1));
+        const double lambda2 = std::sqrt(0.5) * safe_sqrt(A - safe_sqrt(disc1));
+        const double lambda3 = std::sqrt(0.5) * safe_sqrt(C + safe_sqrt(disc2));
+        const double lambda4 = std::sqrt(0.5) * safe_sqrt(C - safe_sqrt(disc2));
+
+        // --- Holevo bound X_BE for homodyne detection with Gaussian modulated coherent states.
+        X_BE =
+            bosonic_entropy_G((lambda1 - 1.0) / 2.0) +
+            bosonic_entropy_G((lambda2 - 1.0) / 2.0) -
+            bosonic_entropy_G((lambda3 - 1.0) / 2.0) -
+            bosonic_entropy_G((lambda4 - 1.0) / 2.0);
+
+        // X_BE_kbps = IBE * repetition_rate;
+        return X_BE; // In bits/pulse.
+    }
+
 
     // Returns description of the protocol
     std::string cvqkd_protocol::description() const { return "CV-QKD Protocol using the GG02 protocol with GM Coherent states";}

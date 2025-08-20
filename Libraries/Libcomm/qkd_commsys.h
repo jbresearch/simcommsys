@@ -66,6 +66,13 @@ protected:
 
     //! \brief How many quantum states in one frame
     int framesize = 0;
+
+    // Check that verifies if I_AB > X_BE?
+    int MI_check = 0;
+
+    // Frame Error Rate
+    double FER = 0;
+
     // @}
 public:
     qkd_commsys() {}
@@ -174,7 +181,7 @@ public:
             }
         }
 
-        // return protocol->postprocess(alice_measurements, bob_measurements)
+        // return protocol->postprocess(alice_measurements, bob_measurements) // original implementation of Mark.
         return protocol->postprocess(std::move(alice_measurements), std::move(bob_measurements)); // To check with Mark why in the qkd_protocol.h for the post-processing method he used &&?
     }
     // @}
@@ -185,7 +192,7 @@ public:
     // ***** Note VIMP: This will have to change back to a sequence as done in the original fullcycle, set_VA will have to be called in the simulator AND the original source will also be called in the simulator to create the sequence of coherent states. Then that sequence is the input to the full cycle method. For now I am just using fullcycle like this to test up until measurement.
 
     // C<bool> fullcycle(libcomm::quantum_gaussian_source& source)
-    std::tuple<libbase::vector<T>, libbase::vector<T>, libbase::vector<T>, libbase::vector<T>, double, double, double, double> fullcycle(libcomm::quantum_gaussian_source& source)
+    std::tuple<libbase::vector<T>, libbase::vector<T>, libbase::vector<T>, libbase::vector<T>, double, double, double, double, double> fullcycle(libcomm::quantum_gaussian_source& source)
     {
 
         // Note: Here I Changed the libbase::vector to an std::vector only for the observables stage
@@ -243,11 +250,32 @@ public:
         auto [T_hat, Epsilon_hat, chi_total_hat] = protocol->parameter_estimation_optical_fiber(X_PE, Y_PE, N_0, v_el, detector_efficiency);
 
         double modulation_variance = source.get_VA();
+        double V = modulation_variance + 1;
 
         double I_AB = protocol->calculate_mutual_information(chi_total_hat, modulation_variance);
+        double X_BE = protocol->calculate_holevo_bound(V, T_hat, Epsilon_hat, chi_total_hat);
+
+
+        // Checks whether the protocol is aborted or not.
+        if(I_AB > X_BE)
+        {
+            MI_check = 1;
+            FER = 0;
+            // Continue with post-processing
+            // protocol->postprocess(alice_measurements, bob_measurements);
+            std::cout << "In qkd_commsys.h fullcycle2, MI_Check = " << MI_check << std::endl; // To delete
+        }
+        else
+        {
+            MI_check = 0;
+            FER = 1;
+            // Post-processing returns a zero-vector or null? Still to check
+             std::cout << "In qkd_commsys.h fullcycle2, MI_Check = " << MI_check << std::endl; // To deletea
+        }
+
 
         // return protocol->postprocess(alice_measurements, bob_measurements);
-        return { std::move(alice_measurements), std::move(bob_measurements), std::move(X_PE), std::move(Y_PE), T_hat, Epsilon_hat, chi_total_hat, I_AB}; // Just to test pre-processing.
+        return { std::move(alice_measurements), std::move(bob_measurements), std::move(X_PE), std::move(Y_PE), T_hat, Epsilon_hat, chi_total_hat, I_AB, X_BE}; // Just to test pre-processing.
     }
     // @}
 

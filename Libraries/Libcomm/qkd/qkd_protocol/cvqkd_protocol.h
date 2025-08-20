@@ -132,6 +132,21 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
         // Mutual Information for the GG02 protocol
         double calculate_mutual_information(double chi_total_hat, double VA) override;
 
+        // Helper functions used to calculate the Holevo Bound.
+        // G(x) from Eq. (2.54). sTILL TO ADD REFERENCE
+        inline double bosonic_entropy_G(double x) {
+            if (x <= 0.0) return 0.0;
+            return (x + 1.0) * std::log2(x + 1.0) - x * std::log2(x);
+        }
+
+        // Safe sqrt: clamp tiny negative values due to round-off
+        inline double safe_sqrt(double x) {
+            return std::sqrt(x < 0.0 ? 0.0 : x);
+        }
+
+        // Holevo Bound calculation for the GG02 protocol.
+        double calculate_holevo_bound(double V, double T_hat, double Epsilon_hat, double X_total_hat) override;
+
         libbase::vector<bool> postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements) override
         {
             failwith("postprocess() not yet implemented for cvqkd_protocol.");
