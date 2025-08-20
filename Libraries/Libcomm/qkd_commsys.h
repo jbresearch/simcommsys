@@ -152,12 +152,15 @@ public:
         assertalways(source.size() == framesize);
 
         // Note: Here I Changed the libbase::vector to an std::vector only for the observables stage
-        std::vector<std::unique_ptr<observable<T>>> alice_observables =
-            protocol->get_alice_observables(framesize);
-        std::vector<std::unique_ptr<observable<T>>> bob_observables =
-            protocol->get_bob_observables(framesize);
+        std::vector<std::unique_ptr<observable<T>>> bob_observables = protocol->get_bob_observables(framesize);
 
-        // create and allocate vectors for measurements on Bob and Alice's end
+        // Get Bob's decision vector of his observables.
+        const libbase::vector<int>& decision_vector = protocol->get_decision_vector();
+
+        std::vector<std::unique_ptr<observable<T>>> alice_observables =
+            protocol->get_alice_observables(framesize, decision_vector);
+
+        // Create and allocate vectors for measurements on Bob and Alice's end
         libbase::vector<T> alice_measurements;
         libbase::vector<T> bob_measurements;
 
@@ -181,62 +184,7 @@ public:
             }
         }
 
-        // return protocol->postprocess(alice_measurements, bob_measurements) // original implementation of Mark.
-        return protocol->postprocess(std::move(alice_measurements), std::move(bob_measurements)); // To check with Mark why in the qkd_protocol.h for the post-processing method he used &&?
-    }
-    // @}
-
-    /*! \name Communication System Interface */
-    //! Perform complete transmission of one frame specifically using a libcomm::quantum_gaussian_source
-
-    // ***** Note VIMP: This will have to change back to a sequence as done in the original fullcycle, set_VA will have to be called in the simulator AND the original source will also be called in the simulator to create the sequence of coherent states. Then that sequence is the input to the full cycle method. For now I am just using fullcycle like this to test up until measurement.
-
-    // C<bool> fullcycle(libcomm::quantum_gaussian_source& source)
-    std::tuple<libbase::vector<T>, libbase::vector<T>, libbase::vector<T>, libbase::vector<T>, double, double, double, double, double> fullcycle(libcomm::quantum_gaussian_source& source)
-    {
-
-        // Note: Here I Changed the libbase::vector to an std::vector only for the observables stage
-        std::vector<std::unique_ptr<observable<T>>> bob_observables =
-            protocol->get_bob_observables(framesize);
-
-        // Get Bob's decision vector of his observables
-        const libbase::vector<int>& decision_vector = protocol->get_decision_vector();
-
-        std::vector<std::unique_ptr<observable<T>>> alice_observables =
-        protocol->get_alice_observables(framesize, decision_vector);
-
-        // create and allocate vectors for measurements on Bob and Alice's end
-        libbase::vector<T> alice_measurements;
-        libbase::vector<T> bob_measurements;
-
-        alice_measurements.init(framesize);
-        bob_measurements.init(framesize);
-
-        // Setting modulation variance VA in the gaussian quantum of Bob
-        set_VA(source);
-
-        // Vector of coherent states where S = gaussian_state
-        libbase::vector<S> source_sequence = source.generate_sequence(libbase::size_type<libbase::vector>(framesize));
-
-        assertalways(source_sequence.size() == framesize);
-
-        for (int i = 0; i < framesize; i++) {
-            // Quantum channel transmission
-            alice_observables[i]->transmit(*this->alice_channel);
-            bob_observables[i]->transmit(*this->bob_channel);
-
-            // Measurement of quantum states
-            if constexpr (S::is_entangled) {
-                alice_measurements(i) =
-                    source_sequence(i).measure(*alice_observables[i], 0);
-                bob_measurements(i) = source_sequence(i).measure(*bob_observables[i], 1);
-            } else {
-                alice_measurements(i) =
-                    source_sequence(i).measure(*alice_observables[i]);
-                bob_measurements(i) = source_sequence(i).measure(*bob_observables[i]);
-            }
-        }
-
+        /* Perform Parameter Estimation*/
         // Required parameters for parameter estimation.
         int N_PE = protocol->get_N_PE();
         int N_0 = protocol->get_N_0();
@@ -246,36 +194,46 @@ public:
         // Perform split for parameter estimation and post-processing.
         auto [X_PE, Y_PE, X_raw, Y_raw] = protocol->split(alice_measurements, bob_measurements, N_PE);
 
-        // Perform parameter estimation using optical fiber.
+        // Calculate parameter estimation using optical fiber.
         auto [T_hat, Epsilon_hat, chi_total_hat] = protocol->parameter_estimation_optical_fiber(X_PE, Y_PE, N_0, v_el, detector_efficiency);
 
-        double modulation_variance = source.get_VA();
+        double modulation_variance = this->bob_channel->get_VA();
         double V = modulation_variance + 1;
 
+        /* Calculate Mutual Information. */
         double I_AB = protocol->calculate_mutual_information(chi_total_hat, modulation_variance);
+        std::cout << "(Prints from qkd_commsys.h) I_AB = " << I_AB << std::endl;
+
+         /* Calculate Holevo Bound. */
         double X_BE = protocol->calculate_holevo_bound(V, T_hat, Epsilon_hat, chi_total_hat);
+        std::cout << "(Prints from qkd_commsys.h) X_BE = " << X_BE << std::endl;
 
-
-        // Checks whether the protocol is aborted or not.
+        // Checks whether the protocol is aborted or not to continue with the Information Reconciliation stage.
         if(I_AB > X_BE)
         {
             MI_check = 1;
             FER = 0;
-            // Continue with post-processing
-            // protocol->postprocess(alice_measurements, bob_measurements);
-            std::cout << "In qkd_commsys.h fullcycle2, MI_Check = " << MI_check << std::endl; // To delete
+            std::cout << "(Prints from qkd_commsys.h) MI_Check = " << MI_check << std::endl; // To delete
+
+            // Continue with post-processing: Still to implement
+            return protocol->postprocess(std::move(X_raw), std::move(Y_raw));
+            // std::move was required due to the following: Was passing lvalues to a function that expects rvalue references (&&).
+            // return protocol->postprocess(alice_measurements, bob_measurements); // To check with Mark why in the qkd_protocol.h for the post-processing method he used &&?
+
         }
         else
         {
             MI_check = 0;
             FER = 1;
             // Post-processing returns a zero-vector or null? Still to check
-             std::cout << "In qkd_commsys.h fullcycle2, MI_Check = " << MI_check << std::endl; // To deletea
+            std::cout << "(Prints from qkd_commsys.h) MI_Check = " << MI_check << std::endl; // To deletea
+
+            // Continue with post-processing
+            libbase::vector<bool> all_zero_final_key;
+            all_zero_final_key.init(framesize - N_PE); // to change to the size after privacy_amplification?
+            return all_zero_final_key;
         }
 
-
-        // return protocol->postprocess(alice_measurements, bob_measurements);
-        return { std::move(alice_measurements), std::move(bob_measurements), std::move(X_PE), std::move(Y_PE), T_hat, Epsilon_hat, chi_total_hat, I_AB, X_BE}; // Just to test pre-processing.
     }
     // @}
 
@@ -288,7 +246,7 @@ public:
         protocol->reset_timers();
     }
 
-    //! Get number of input quantum states in a frame
+    //! Get number of input quantum states in a frame.
     int input_block_size() const { return framesize; }
 
     // Description

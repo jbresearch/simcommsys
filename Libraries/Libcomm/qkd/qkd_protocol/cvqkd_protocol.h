@@ -107,7 +107,7 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
             return observables;
         }
 
-        // Getter to access the decision vector to send to Alice. To delete, creWted just for testing.
+        // Getter to access the decision vector to send to Alice. To delete, created just for testing.
         const libbase::vector<int>& get_alice_decision_vector() const {return alice_decision_vector;}
 
         // Getter fn to get Bob's decision vector to be used by Alice
@@ -147,11 +147,15 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
         // Holevo Bound calculation for the GG02 protocol.
         double calculate_holevo_bound(double V, double T_hat, double Epsilon_hat, double X_total_hat) override;
 
-        libbase::vector<bool> postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements) override
-        {
-            failwith("postprocess() not yet implemented for cvqkd_protocol.");
-            return libbase::vector<bool>();
+        // Calculates the L2 norm.
+        static double l2(const libbase::vector<double>& v) {
+            long double s = 0.0L;
+            for (int i = 0; i < v.size(); ++i) s += (long double)v(i) * v(i);
+            return std::sqrt((double)s);
         }
+
+        // Returns final secret key.
+        libbase::vector<bool> postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements) override;
 
         // Description function
         std::string description() const override;

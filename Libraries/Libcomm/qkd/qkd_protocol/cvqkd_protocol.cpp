@@ -88,18 +88,24 @@ namespace libcomm
 
         // Calculating estimate of epsilon: Epsilon_hat (eq. (5))
         Epsilon_hat = (sigma2_hat - sigma2_0)/(t_hat*N_0);
+        std::cout << "(Prints from cvqkd_protocol.cpp) Epsilon_hat = " << Epsilon_hat << std::endl;
 
         if(Epsilon_hat < 0)
         {
             Epsilon_hat = 0; // Epsilon_hat cannot be negative.
         }
 
+        std::cout << "(Prints from cvqkd_protocol.cpp) clipped Epsilon_hat = " << Epsilon_hat << std::endl;
+
         // Calculating estimate of transmittance: T_hat (eq. (5))
         // Note: I still need to add, v_el, N_0 and det_ff as serialized parameters to the cv-qkd protocol for parameter estimation.
         T_hat = (t_hat*t_hat/detector_efficiency);
+        std::cout << "(Prints from cvqkd_protocol.cpp) T_hat = " << T_hat << std::endl;
+
 
         // Calculating estimate for x_total_hat
         chi_total_hat = ((sigma2_hat)/(t_hat * t_hat)) - 1;
+        std::cout << "(Prints from cvqkd_protocol.cpp) X_total_hat = " << T_hat << std::endl;
 
         return {T_hat, Epsilon_hat, chi_total_hat};
     }
@@ -174,6 +180,35 @@ namespace libcomm
 
         // X_BE_kbps = IBE * repetition_rate;
         return X_BE; // In bits/pulse.
+    }
+
+    // Returns final secret key.
+    libbase::vector<bool> cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements)
+    {
+        libbase::vector<bool> final_key;
+        libbase::vector<double> X, Y;
+        X.init(alice_measurements.size()); // alice_measurements == X_raw
+        Y.init(bob_measurements.size()); // bob_measurements == Y_raw
+
+        // Calculates L2 norms.
+        double nX = l2(alice_measurements);
+        double nY = l2(bob_measurements);
+        assert(nX > 0.0 && nY > 0.0 && "cannot normalise a zero vector");
+
+        // Normalises the X_raw and Y_raw measurement vectors of Alice and Bob to get X and Y.
+        for (int i = 0; i < X.size(); ++i) X(i) = alice_measurements(i) / nX;
+        for (int i = 0; i < Y.size(); ++i) Y(i) = bob_measurements(i) / nY;
+
+        /* Bob: Randomly generate vector s. -> STILL TO DO */
+        // const int k = 1000; // Size of information bits without encoding. // Still to define in an automated way -> probably to serialized related to the LDPC.
+
+
+        // Vector s should be bool but I kept int due to future LDPC computations.
+        // Still to randomly generate using libbase::randgen.
+        libbase::vector<int> s;
+
+        final_key.init(alice_measurements.size()); // To change to the final size after privacy amplification.
+        return final_key;
     }
 
 

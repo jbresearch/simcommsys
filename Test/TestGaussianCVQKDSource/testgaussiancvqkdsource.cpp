@@ -304,7 +304,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
       "# Version\n"
       "1\n"
       "# Frame size (# of quantum states in a frame)\n"
-      "10000\n"
+      "5000\n"
       "## Alice's channel\n"
       "identity_quantum_channel\n"
       "## Bob's channel\n"
@@ -318,7 +318,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
       "## Postprocessing protocol\n"
       "cvqkd_protocol\n"
       "# Number of samples for Parameter Estimation N_PE\n"
-      "1000\n"
+      "500\n"
       "# Shot Noise Variance N_0\n"
       "1\n"
       "# Electric Noise v_el\n"
@@ -384,47 +384,28 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    double VA = src->get_VA();
    std::cout << "\n Checking Modulation Variance of Source = " << VA << std::endl;
 
-   // 5) Run the fullcycle that consumes a quantum_gaussian_source&
-   auto [measurements_alice, measurements_bob, X_PE, Y_PE, T_hat, Epsilon_hat, chi_total_hat, I_AB, X_BE] = sys.fullcycle(*src);
+   // Gets the number of coherent states generated for a single frame from the qkd_commsys object.
+   int framesize = sys.input_block_size();
 
-   // Print Measurement Vectors
-   std::cout << "\nAlice measurements [size=" << measurements_alice.size() << "]: [";
-   std::cout << std::fixed << std::setprecision(6);
-   for (int i = 0; i < measurements_alice.size(); ++i) {
+   // Setting modulation variance VA in the gaussian quantum channel of Bob
+   sys.set_VA(*src);
+
+   // Generates a sequence of coherent states which is the input to the fullcycle method in qkd_commsys.h
+   libbase::vector<gaussian_state> source = src->generate_sequence(libbase::size_type<libbase::vector>(framesize));
+
+   // Initialise final_key
+   libbase::vector<bool> final_key;
+
+   /* Calling fullcylce method from qkd_commsys.h for a single frame*/
+   final_key = sys.fullcycle(source);
+
+   // Prints Final Secret Key
+   std::cout << "\nFinal Secret Key [size=" << final_key.size() << "]: [";
+   for (int i = 0; i < final_key.size(); ++i) {
       if (i) std::cout << ", ";
-      std::cout << measurements_alice(i);
+      std::cout << final_key(i);
    }
    std::cout << "]\n\n";
-
-   std::cout << "Bob measurements [size=" << measurements_bob.size() << "]: [";
-   for (int i = 0; i < measurements_bob.size(); ++i) {
-      if (i) std::cout << ", ";
-      std::cout << measurements_bob(i);
-   }
-   std::cout << "]\n\n\n\n";
-
-   // Testing splitting function to be used for parameter estimation.
-   // Print X_PE and Y_PE (parameter estimation subsets)
-   std::cout << "X_PE [size=" << X_PE.size() << "]: [";
-   for (int i = 0; i < X_PE.size(); ++i) {
-      if (i) std::cout << ", ";
-      std::cout << X_PE(i);
-   }
-   std::cout << "]\n\n";
-
-   std::cout << "Y_PE [size=" << Y_PE.size() << "]: [";
-   for (int i = 0; i < Y_PE.size(); ++i) {
-      if (i) std::cout << ", ";
-      std::cout << Y_PE(i);
-   }
-   std::cout << "]\n\n\n";
-
-   std::cout << "Estimated parameters from parameter estimation:\n";
-   std::cout << "T_hat = " << T_hat << std::endl;
-   std::cout << "Epsilon_hat = " << Epsilon_hat << std::endl;
-   std::cout << "X_total = " << chi_total_hat << std::endl;
-   std::cout << "Mutual Information I_AB = " << I_AB << " bits/pulse" << std::endl;
-   std::cout << "Holevo Bound X_BE = " << X_BE << " bits/pulse" << std::endl;
 
 
 }

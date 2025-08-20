@@ -70,6 +70,8 @@ public:
         VA = va;
     }
 
+    double get_VA() override {return VA;}
+
     // Applies Gaussian noise to momentum and position observable
     void transmit(position_observable& observable) override { transmit_impl(observable); }
     void transmit(momentum_observable& observable) override { transmit_impl(observable); }
