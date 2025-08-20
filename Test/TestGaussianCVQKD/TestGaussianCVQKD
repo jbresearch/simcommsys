@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{14CF7B43-B4BD-4F56-90B0-1CBF1D45449A}</ProjectGuid>
-    <RootNamespace>TestGaussianCVQKDSource</RootNamespace>
+    <RootNamespace>TestGaussianCVQKD</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -201,7 +201,7 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="testgaussiancvqkdsource.cpp" />
+    <ClCompile Include="testgaussiancvqkd.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Libraries\Libbase\LibBase.vcxproj">
