@@ -67,7 +67,7 @@ public:
         : length_n(pchk_matrix.cols()), dim_m(pchk_matrix.rows()),
           pchk_matrix(pchk_matrix)
     {
-        this->init_timer_with_variance("t_spa_iteration");
+        this->init_timer("t_spa_iteration");
         this->marginal_probs.init(dim_m, length_n);
     }
     /*! \brief default destructor
