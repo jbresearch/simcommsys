@@ -66,7 +66,7 @@ ldpc<GF_q, real>::ldpc(libbase::alist<GF_q> paritycheck_mat,
     this->reduce_to_ref = false;
     this->rand_prov_values = "provided";
     // we are done and can call init now.
-    this->init();
+    this->init_gen_matrix();
 
     // use sensible default values for the rest
     std::string spa_type = "gdl";
@@ -80,7 +80,7 @@ ldpc<GF_q, real>::ldpc(libbase::alist<GF_q> paritycheck_mat,
 
 template <class GF_q, class real>
 void
-ldpc<GF_q, real>::init()
+ldpc<GF_q, real>::init_gen_matrix()
 {
     // compute the generator matrix for the code
 
@@ -475,7 +475,7 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
         sin >> libbase::eatcomments >> this->perm_to_systematic >>
             libbase::verify;
     } else {
-        this->init();
+        this->init_gen_matrix();
     }
     this->spa_alg =
         libcomm::spa_factory<GF_q, real>::get_spa(spa_type, this->pchk_matrix);
@@ -599,7 +599,7 @@ ldpc<GF_q, real>::read_alist(std::istream& sin)
     } else {
         this->rand_prov_values = "provided";
     }
-    this->init();
+    this->init_gen_matrix();
     this->spa_alg =
         libcomm::spa_factory<GF_q, real>::get_spa("gdl", this->pchk_matrix);
     this->spa_alg->set_clipping("zero", real(1e-100));

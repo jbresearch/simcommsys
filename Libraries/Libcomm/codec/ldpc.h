@@ -208,7 +208,7 @@ private:
     //! \brief initialises the LDPC codec
     // simply initialises the LDPC code and checks that the parity check matrix
     // has the right dimensions
-    void init();
+    void init_gen_matrix();
 
     /*
      * internal variables needed by the LDPC code
