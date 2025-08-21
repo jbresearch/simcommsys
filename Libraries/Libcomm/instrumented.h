@@ -42,6 +42,14 @@ namespace libcomm
  * within the cycle. This class also provides an interface for bulk addition
  * of timers, to facilitate implementation in classes that contain other
  * instrumented classes.
+ *
+ * There are two general ways to add a timer:
+ * a) The add_timer interface is used when the flow of control during a sample
+ * is such that the method will be called exactly once per timing.
+ * b) The add_or_accumulate_timer is used when the flow of control during a
+ * sample may cause the timing to be added 0 or more times. In this case, the
+ * timing should first be initialised with init_timer, unless it is known for
+ * certain that the timing will be added at least once.
  */
 
 class instrumented
