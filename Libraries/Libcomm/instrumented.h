@@ -78,13 +78,6 @@ public:
 
         add_timer(timer.elapsed(), timer.get_name());
     }
-    //! Add a single timer (from components) with variance
-    void add_timer_with_variance(double time, const std::string& name)
-    {
-        add_timer(time, name);
-        // add variance
-        add_timer(time * time, name + "_sq");
-    }
     //! Add a single, new timer, or if a timer with same name already exists,
     //! accumulate
     void add_or_accumulate_timer(libbase::timer& timer)
@@ -94,15 +87,6 @@ public:
         }
 
         add_or_accumulate_timer(timer.elapsed(), timer.get_name());
-    }
-    //! Add a single, new timer, or if a timer with same name already exists,
-    //! accumulate. Also add square of timing so that variance in timing result
-    //! can be computed.
-    void add_or_accumulate_timer_with_variance(libbase::timer& timer)
-    {
-        add_or_accumulate_timer(timer);
-        add_or_accumulate_timer(timer.elapsed() * timer.elapsed(),
-                                timer.get_name() + "_sq");
     }
     //! Add a single, new timing, or if a timing with same name already exists,
     //! accumulate
@@ -157,13 +141,6 @@ public:
         m_timings.push_back(0);
         m_names.push_back(name);
         m_counts.push_back(0);
-    }
-    //! Initialize a timing with a certain name, and its squared version. Both
-    //! the count and total time will be set to 0.
-    void init_timer_with_variance(std::string name)
-    {
-        init_timer(name);
-        init_timer(name + "_sq");
     }
     // @}
 
