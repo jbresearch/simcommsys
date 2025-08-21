@@ -175,7 +175,4 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    }
    std::cout << "]\n\n";
 
-
 }
-
-

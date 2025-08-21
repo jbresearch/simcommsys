@@ -205,7 +205,16 @@ namespace libcomm
 
         // Vector s should be bool but I kept int due to future LDPC computations.
         // Still to randomly generate using libbase::randgen.
-        libbase::vector<int> s;
+
+        int k = 1000; // Size of vector s
+        libbase::vector<bool> s =  create_vector_s(rng, k);
+
+        std::cout << "\n (prints from cvqkd_protocol.cpp) Generated vector s [size k = " << k << "]: [";
+        for (int i = 0; i < k; ++i) {
+            if (i) std::cout << ", ";
+            std::cout << s(i);
+        }
+        std::cout << "]\n\n";
 
         final_key.init(alice_measurements.size()); // To change to the final size after privacy amplification.
         return final_key;
