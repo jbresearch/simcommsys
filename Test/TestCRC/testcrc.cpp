@@ -12,8 +12,6 @@
 #include <iomanip>
 #include <boost/crc.hpp>
 #include "crc/crc32.h"
-#include <cstdint>
-#include <iomanip>
 #include <sstream>
 
 using namespace libcomm;
