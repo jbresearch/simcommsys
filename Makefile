@@ -30,6 +30,10 @@ endif
 ifndef CPUS
     export CPUS := $(shell grep processor /proc/cpuinfo |wc -l)
 endif
+# Build Architecture
+ifndef USE_ARCH
+    export USE_ARCH := $(shell gcc -march=native -E -v - </dev/null 2>&1 |grep cc1 |xargs -n 1 |grep -- '-march' |cut -d '=' -f 2)
+endif
 # OpenMP Library (0 if absent)
 ifndef USE_OMP
     export USE_OMP := 1
@@ -81,7 +85,7 @@ export SIMCOMMSYS_VERSION := $(shell git describe --always --dirty)
 ## Build and installations details
 
 # String to identify build
-export BUILDID := plain
+export BUILDID := $(USE_ARCH)
 ifneq ($(USE_OMP),0)
     BUILDID := $(BUILDID)-omp
 endif
@@ -94,7 +98,6 @@ endif
 ifneq ($(USE_CUDA),0)
     BUILDID := $(BUILDID)-cuda$(USE_CUDA)
 endif
-BUILDID := $(subst plain-,,$(BUILDID))
 
 ## Folders
 
@@ -112,6 +115,7 @@ endif
 ## User pacifier
 ifeq ($(MAKELEVEL),0)
     ifeq ($(MAKECMDGOALS),)
+        $(info Using ARCH: $(USE_ARCH))
         ifneq ($(USE_OMP),0)
             $(info Using OMP: yes)
         endif
@@ -206,7 +210,7 @@ CCopts := $(CCopts) -Wall -Werror
 CCopts := $(CCopts) -Wno-array-bounds
 CCopts := $(CCopts) -std=c++17
 # Architecture-specific options (auto-detected from build computer)
-CCopts := $(CCopts) -march=native
+CCopts := $(CCopts) -march=$(USE_ARCH)
 # -fPIE is required for libraries to be usable from Rust
 CCopts := $(CCopts) -fPIE
 
