@@ -23,6 +23,7 @@
 #define SUM_PROD_ALG_GDL_CUDA_H_
 
 #include "../sum_prod_alg_inf.h"
+#include "hard_decision.h"
 #include "alist.h"
 #include "cuda/device_ptr.h"
 #include "cuda/matrix.h"

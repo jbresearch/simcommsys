@@ -24,8 +24,11 @@
 #include "alist.h"
 #include "gf.h"
 #include "sum_prod_alg_inf.h"
-#include "sumprodalg/impl/sum_prod_alg_gdl.h"
-#include "sumprodalg/impl/sum_prod_alg_gdl_cuda.h"
+#ifndef USE_CUDA
+#    include "sumprodalg/impl/sum_prod_alg_gdl.h"
+#else
+#    include "sumprodalg/impl/sum_prod_alg_gdl_cuda.h"
+#endif
 #include "sumprodalg/impl/sum_prod_alg_trad.h"
 
 #include "logrealfast.h"
