@@ -176,15 +176,7 @@ ifneq ($(USE_GMP),0)
 endif
 # CUDA options
 ifneq ($(USE_CUDA),0)
-    ifeq ($(OSARCH),x86_64)
-        LDopts := $(LDopts) -L/usr/local/cuda/lib64 -lcudart
-    else
-        ifeq ($(OSARCH),aarch64)
-            LDopts := $(LDopts) -L/usr/local/cuda/lib64 -lcudart
-        else
-            LDopts := $(LDopts) -L/usr/local/cuda/lib -lcudart
-        endif
-    endif
+    LDopts := $(LDopts) -L/usr/local/cuda/lib64 -lcudart
 endif
 # Standard libraries
 LDopts := $(LDopts) -lm -lrt -lstdc++
