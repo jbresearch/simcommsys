@@ -26,10 +26,6 @@
 ifndef OSARCH
     export OSARCH := $(shell uname -m)
 endif
-# Kernel version
-ifndef KERNEL
-    export KERNEL := $(shell uname -r)
-endif
 # Number of CPUs
 ifndef CPUS
     export CPUS := $(shell grep processor /proc/cpuinfo |wc -l)
@@ -108,11 +104,7 @@ export ROOTDIR := $(CURDIR)
 export BUILDDIR = $(RELEASE)/$(OSARCH)/$(BUILDID)
 # Folder for installed binaries
 ifndef BINDIR
-    ifeq ($(shell [ -d ~/bin.$(KERNEL) ] && echo 1),1)
-        export BINDIR = ~/bin.$(KERNEL)
-    else
-        export BINDIR = ~/bin.$(OSARCH)
-    endif
+    export BINDIR = ~/bin.$(OSARCH)
 else
     export BINDIR
 endif
