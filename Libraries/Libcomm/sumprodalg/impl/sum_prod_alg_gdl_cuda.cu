@@ -48,7 +48,7 @@ namespace libcomm
 #endif
 
 template <class GF_q, class real>
-const int sum_prod_alg_gdl_cuda<GF_q, real>::warpSize = cuda::cudaGetWarpSize();
+const int sum_prod_alg_gdl_cuda<GF_q, real>::warp_size = cuda::cudaGetWarpSize();
 
 template <class GF_q, class real>
 __global__ void
@@ -365,7 +365,7 @@ inline void
 clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
                          int clipping_method,
                          real almostzero,
-                         int warpSize)
+                         int warp_size)
 {
     int n = probs.get_rows();
     int num_elements = GF_q::elements();
@@ -383,7 +383,7 @@ clip_and_normalize_probs(::cuda::matrix_reference<real, false> probs,
     assert(max_block_dim >= num_elements);
 #endif
 
-    int block_dim = std::max(warpSize, num_elements);
+    int block_dim = std::max(warp_size, num_elements);
     int num_blocks = ROUND_UP_DIV(n * num_elements, block_dim);
 
     clip_and_normalize_probs_kern<GF_q, real>
@@ -469,7 +469,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_init(const array2d_t& recvd_probs)
     clip_and_normalize_probs<GF_q, real>(this->device_received_probs,
                                          this->clipping_method,
                                          this->almostzero,
-                                         this->warpSize);
+                                         this->warp_size);
 
     this->add_or_accumulate_timer(t_spa_init_norm_probs);
     ////// END NORMALIZE
@@ -603,7 +603,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
     assert(max_block_dim >= num_of_elements);
 #endif
 
-    int block_dim = std::max(warpSize, num_of_elements);
+    int block_dim = std::max(warp_size, num_of_elements);
     int num_blocks = ROUND_UP_DIV(m * num_of_elements, block_dim);
 
     compute_r_mn_kern<GF_q, real>
@@ -728,7 +728,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_q_mn()
     assert(max_block_dim >= num_of_elements);
 #endif
 
-    int block_dim = std::max(warpSize, num_of_elements);
+    int block_dim = std::max(warp_size, num_of_elements);
     int num_blocks = ROUND_UP_DIV(n * num_of_elements, block_dim);
 
     compute_q_mn_kern<GF_q, real>
@@ -805,7 +805,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_probs()
 
     int n = device_pchk_col_non_zeros.size();
     int num_of_elements = GF_q::elements();
-    int block_dim = std::max(warpSize, num_of_elements);
+    int block_dim = std::max(warp_size, num_of_elements);
     // use division which truncates upwards.
     int num_blocks = ROUND_UP_DIV(num_of_elements * n, (int)block_dim);
     compute_probs_kern<GF_q, real>
@@ -889,7 +889,7 @@ bool
 sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration()
 {
     // block size for any kernels called within this function
-    int blockdim = warpSize;
+    int blockdim = warp_size;
     int n = this->device_received_word.size();
     int m = this->device_syndrome.size();
     int num_of_elements = GF_q::elements();

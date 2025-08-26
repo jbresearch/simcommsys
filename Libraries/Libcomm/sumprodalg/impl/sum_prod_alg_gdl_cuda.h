@@ -203,7 +203,7 @@ private:
 
     /*! \brief Warp size for the CUDA-enabled device used.
      */
-    static const int warpSize;
+    static const int warp_size;
 
 private:
     /*! \name Internal methods for a single SPA iteration */
