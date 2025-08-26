@@ -26,10 +26,6 @@
 ifndef OSARCH
     export OSARCH := $(shell uname -m)
 endif
-# Number of CPUs
-ifndef CPUS
-    export CPUS := $(shell grep processor /proc/cpuinfo |wc -l)
-endif
 # Build Architecture
 ifndef USE_ARCH
     export USE_ARCH := $(shell gcc -march=native -E -v - </dev/null 2>&1 |grep cc1 |xargs -n 1 |grep -- '-march' |cut -d '=' -f 2)
