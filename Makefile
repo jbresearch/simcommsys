@@ -22,7 +22,7 @@
 
 ## Control variables
 
-# Build Architecture (ie i686 x86_64).
+# OS Architecture (ie i686 x86_64).
 ifndef OSARCH
     export OSARCH := $(shell uname -m)
 endif
