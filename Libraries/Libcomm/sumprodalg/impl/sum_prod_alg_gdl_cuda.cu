@@ -48,6 +48,9 @@ namespace libcomm
 #endif
 
 template <class GF_q, class real>
+const int sum_prod_alg_gdl_cuda<GF_q, real>::warpSize = cuda::cudaGetWarpSize();
+
+template <class GF_q, class real>
 __global__ void
 seed_hd_functor(
     basic_hard_decision<real, GF_q, ::cuda::vector_reference<real>>* hd_functor,
@@ -135,9 +138,6 @@ template <class GF_q, class real>
 sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     const libbase::alist<GF_q>& pchk_matrix)
 {
-    device = ::cuda::cudaGetCurrentDevice();
-    warpSize = ::cuda::cudaGetWarpSize(device);
-
     this->init_timer("t__spa_init__copy_probs_h_to_d");
     this->init_timer("t__spa_init__norm_probs");
     this->init_timer("t__spa_init__spa_init_kern");
