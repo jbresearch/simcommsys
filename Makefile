@@ -104,7 +104,7 @@ endif
 # Root folder for package
 export ROOTDIR := $(CURDIR)
 # Folder for the build object files and binaries
-export BUILDDIR = $(RELEASE)/$(OSARCH)/$(BUILDID)
+export BUILDDIR = $(RELEASE)/$(BUILDID)
 # Folder for installed binaries
 ifndef BINDIR
     export BINDIR = ~/bin.$(OSARCH)
