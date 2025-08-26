@@ -102,7 +102,7 @@ public:
         for (; this->num_iters < max_iters; this->num_iters++) {
             this->spa_iteration(received_word);
 
-            if (is_codeword(received_word))
+            if (is_converged(received_word))
                 break;
         }
     }
@@ -150,7 +150,7 @@ private:
 
 protected:
     /*! \brief Computes syndrome of received_word, returns true if this is 0. */
-    bool is_codeword(libbase::vector<GF_q>& received_word)
+    bool is_converged(libbase::vector<GF_q>& received_word)
     {
         int dim_pchk = this->pchk_matrix.rows();
         bool dec_success = true;

@@ -118,7 +118,7 @@ sum_prod_alg_abstract<GF_q, real>::spa_iteration(
     this->add_or_accumulate_timer(t_decode_iter);
 
     this->num_iters++;
-    if (is_codeword(received_word)) {
+    if (is_converged(received_word)) {
         this->decode_success = true;
         this->received_word = received_word;
     }
