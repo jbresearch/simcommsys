@@ -48,11 +48,8 @@ ifndef USE_CUDA
     export USE_CUDA := $(shell nvcc -V 2>/dev/null |wc -l)
     # Check for min supported architecture
     ifneq ($(USE_CUDA),0)
-        # Compile tools if necessary
-        ifeq (,$(wildcard BuildUtils/bin/getdevicearch))
-            USE_CUDA := $(shell $(MAKE) -C "BuildUtils/" build)
-        endif
-        # Get the highest capability of installed cards
+        # Compile tools and get the highest capability of installed cards
+        USE_CUDA := $(shell $(MAKE) -C "BuildUtils/" build)
         USE_CUDA := $(shell BuildUtils/bin/getdevicearch 2>/dev/null)
         # If nothing was found
         ifeq (,$(USE_CUDA))
