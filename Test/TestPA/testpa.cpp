@@ -14,6 +14,12 @@
 #include <randgen.h>  // libbase::randgen
 #include <toeplitz_standard.h>  //libbasee::toeplitz_standard
 
+#include "qkd/privacy_amplification.h"
+#include "qkd/privacy_amplification/pa_standard_toeplitz.h"
+
+using namespace libcomm;
+using namespace libbase;
+;
 
 /* Notes for me:
 1. arma::Col<T> is Armadillo’s type for a column vector (a matrix with 1 column) with element of Type T.
@@ -346,4 +352,39 @@ BOOST_AUTO_TEST_CASE(hash_gf16_libbase_matches_armadillo)
     for (arma::uword i = 0; i < y_ref.n_elem; ++i) std::cout << y_ref(i) << (i + 1 == y_ref.n_elem ? "" : " ");
     std::cout << '\n';
     std::cout<<"Final Hashed Key in GF(16) using libbase y_lib: " << y_lib;
+}
+
+BOOST_AUTO_TEST_CASE(testing_pa_standard_toeplitz_without_serialization)
+{
+    std::cout << "Boost Test 5: Testing Privacy Amplification using Toeplitz Matrix without Serialization directly from object" << std::endl;
+    // Construct the object directly
+    libcomm::pa_standard_toeplitz<bool> pa_system;
+    const int L = 3;
+    const int N = 10;
+    const int q = 2;
+
+    pa_system.init(L, N, q);
+
+    randgen r;
+    r.seed(2602);
+
+    pa_system.seedfrom(r);
+
+    int start_vector_len = pa_system.generate_starting_vector_length();
+    std::cout << "\n Privacy Amplification System Description = " << pa_system.description() << std::endl;
+    std::cout << "\nStarting Vector Length = " << start_vector_len << std::endl;
+
+    libbase::vector<bool> starting_vector = pa_system.generate_starting_vector(start_vector_len, q);
+
+
+    std::cout << "\nStarting Vector:" << std::endl;
+    for (int i =0;  i<start_vector_len; ++i)
+    {
+        std::cout << starting_vector(i);
+    }
+    std::cout <<"\n";
+
+    libbase::matrix<bool> standard_toeplitz_matrix = pa_system.generate_toeplitz_matrix(starting_vector);
+
+    std::cout << "\n Generated Standard Toeplitz Matrix:" << standard_toeplitz_matrix  << std::endl;
 }

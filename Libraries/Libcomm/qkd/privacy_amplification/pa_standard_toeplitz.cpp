@@ -16,12 +16,11 @@
 using libbase::serializer;
 namespace libcomm
 {
-    // left to do are the serialization fns
-
     template<class T>
     std::ostream& pa_standard_toeplitz<T>::serialize(std::ostream& sout) const
+    // std::ostream& pa_standard_toeplitz::serialize(std::ostream& sout) const // bool case
     {
-        std::ostringstream sout;
+        // std::ostringstream sout; -> this should not have been there....
         sout << "Length of final secret hashed key L" << std::endl;
         sout << L << std::endl;
         sout << "Length of pre-hashed key" << std::endl;
@@ -33,6 +32,7 @@ namespace libcomm
 
     template<class T>
     std::istream& pa_standard_toeplitz<T>::serialize(std::istream& sin)
+    // std::istream& pa_standard_toeplitz::serialize(std::istream& sin) // bool case
     {
         assertalways(sin.good());
         sin >> libbase::eatcomments >> L >> libbase::verify;
@@ -49,4 +49,6 @@ namespace libcomm
     template class pa_standard_toeplitz<bool>;
     template class pa_standard_toeplitz<int>;
 
+    // // Bool case Only
+    // const serializer pa_standard_toeplitz::shelper("privacy_amplification", "standard_toeplitz", pa_standard_toeplitz::create);
 }

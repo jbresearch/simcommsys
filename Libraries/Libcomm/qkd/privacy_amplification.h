@@ -39,8 +39,8 @@
 
 namespace libcomm {
 
-template<class T> // Type can be bool, int or even a GF field e.g. GF2.
-class privacy_amplification : public libbase::serializable
+template<class T>
+class privacy_amplification_base : public libbase::serializable
 {
 protected:
     libbase::randgen rng;
@@ -86,10 +86,20 @@ public:
 
         libbase::vector<T> starting_vector(starting_vector_len);
 
+        // bool case only
+        // assert(alphabet_size == 2);
+        // for (int i = 0; i < starting_vector_len; ++i)
+        // {
+        //     starting_vector(i) = (rng.ival(2) != 0);
+        // }
+
+
         if (std::is_same<T, bool>::value) {
             assert(alphabet_size == 2);
             for (int i = 0; i < starting_vector_len; ++i)
+            {
                 starting_vector(i) = (rng.ival(2) != 0);
+            }
         } else if (std::is_integral<T>::value) {
             for (int i = 0; i < starting_vector_len; ++i)
                 starting_vector(i) = static_cast<T>(rng.ival(alphabet_size));
@@ -126,6 +136,25 @@ public:
         assert(toeplitz_matrix.size().rows() > 0);
         assert(toeplitz_matrix.size().cols() > 0);
         assert(pre_hashed_key.size() > 0);
+
+
+        // // bool case only
+        // libbase::matrix<int> A_int(toeplitz_matrix); // L×N
+        // libbase::vector<int> x_int(N);
+
+        // for (int j = 0; j < N; ++j)
+        //     x_int(j) = pre_hashed_key(j) ? 1 : 0;
+
+        // // matrix.h operator*(vector) computes A^T * x, so use A^T
+        // libbase::vector<int> y_int = (A_int.transpose()) * x_int; // length L
+
+        // libbase::vector<bool> y(L);
+        // for (int i = 0; i < L; ++i)
+        //     y(i) = (y_int(i) & 1) != 0;
+
+        // hashed_key = y;
+        // assert(hashed_key.size() == L);
+        // return hashed_key;
 
         // ---- Case using bool.
         if (std::is_same<T, bool>::value) {
@@ -177,13 +206,16 @@ public:
     // Helper getter fn to get hashed_key.
     const libbase::vector<T>& get_hashed_key() const { return hashed_key; }
 
-    virtual ~privacy_amplification() {}
+    virtual ~privacy_amplification_base() {}
 
     //! \brief Description of serializable object
     virtual std::string description() const = 0;
 
+    using privacy_amplification = privacy_amplification_base<T>;
+
     // Serialization Support
-    DECLARE_BASE_SERIALIZER(privacy_amplification)
+    // DECLARE_BASE_SERIALIZER(privacy_amplification) // bool case
+     DECLARE_BASE_SERIALIZER(privacy_amplification) // templated case
 };
 
 } // namespace libcomm

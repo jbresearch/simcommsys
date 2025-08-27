@@ -9,15 +9,22 @@
 namespace libcomm {
 
 template<class T>
-class pa_standard_toeplitz : public privacy_amplification<T>
+class pa_standard_toeplitz: public privacy_amplification_base<T>
+// class pa_standard_toeplitz : public privacy_amplification // bool case
 {
     private:
         int L; // Final length of secret key
         int N; // Length of pre-hashed key.
-        libbase::randgen rng;
+        // libbase::randgen rng;
         int alphabet_size;    // e.g. 2 for binary arithmetic.
 
     public:
+
+        void init(int L_, int N_, int q_) {
+        L = L_;
+        N = N_;
+        alphabet_size = q_;
+        }
 
         void seedfrom(libbase::random& r) override { this->rng.seed(r.ival()); }
 
@@ -43,7 +50,9 @@ class pa_standard_toeplitz : public privacy_amplification<T>
             return "Privacy Amplification using the standard Toeplitz matrix";
         }
 
+
         DECLARE_SERIALIZER(pa_standard_toeplitz<T>)
+        //  DECLARE_SERIALIZER(pa_standard_toeplitz) // bool case
 };
 
 }
