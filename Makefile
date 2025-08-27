@@ -22,10 +22,6 @@
 
 ## Control variables
 
-# OS Architecture (ie i686 x86_64).
-ifndef OSARCH
-    export OSARCH := $(shell uname -m)
-endif
 # Build Architecture
 ifndef USE_ARCH
     export USE_ARCH := $(shell gcc -march=native -E -v - </dev/null 2>&1 |grep cc1 |xargs -n 1 |grep -- '-march' |cut -d '=' -f 2)
@@ -100,7 +96,7 @@ export ROOTDIR := $(CURDIR)
 export BUILDDIR = $(RELEASE)/$(BUILDID)
 # Folder for installed binaries
 ifndef BINDIR
-    export BINDIR = ~/bin.$(OSARCH)
+    export BINDIR = ~/bin.$(shell uname -m)
 else
     export BINDIR
 endif
