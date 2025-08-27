@@ -27,6 +27,8 @@
  *
  * The Toeplitz matrix is built from a single starting vector.
  *
+ * sv is the starting_vector which will be used to build the toeplitz matrix.
+ *
  * L is the length of the final hashed key outputted after privacy amplification.
  *
  * N is the length of the inputted key that will be hashed. In the case of MDR the input vector is Bob's s vector of size k.
