@@ -68,31 +68,38 @@ cudaGetMultiprocessorSize(int device)
     } sSMtoCores;
 
     sSMtoCores nGpuArchCoresPerSM[] = {
-        {0x10, 8},  // Tesla Generation (SM 1.0) G80 class
-        {0x11, 8},  // Tesla Generation (SM 1.1) G8x class
-        {0x12, 8},  // Tesla Generation (SM 1.2) G9x class
-        {0x13, 8},  // Tesla Generation (SM 1.3) GT200 class
-        {0x20, 32}, // Fermi Generation (SM 2.0) GF100 class
-        {0x21, 48}, // Fermi Generation (SM 2.1) GF10x class
+        {0x10, 8},  // Tesla (SM 1.0) G80 class
+        {0x11, 8},  // Tesla (SM 1.1) G8x class
+        {0x12, 8},  // Tesla (SM 1.2) G9x class
+        {0x13, 8},  // Tesla (SM 1.3) GT200 class
+        {0x20, 32}, // Fermi (SM 2.0) GF100 class
+        {0x21, 48}, // Fermi (SM 2.1) GF10x class
         // *** Architectures above this line not supported ***
-        {0x30, 192}, // Kepler Generation (SM 3.0) GK10x class
-        {0x32, 192}, // Kepler Generation (SM 3.2) GK10x class
-        {0x35, 192}, // Kepler Generation (SM 3.5) GK11x class
-        {0x37, 192}, // Kepler Generation (SM 3.7) GK21x class
-        {0x50, 128}, // Maxwell Generation (SM 5.0) GM10x class
-        {0x52, 128}, // Maxwell Generation (SM 5.2)
-        {0x53, 128}, // Maxwell Generation (SM 5.3)
-        {0x60, 64},  // Pascal Generation (SM 6.0)
-        {0x61, 128}, // Pascal Generation (SM 6.1)
-        {0x62, 128}, // Pascal Generation (SM 6.2)
-        {0x70, 64},  // Volta Generation (SM 7.0)
-        {0x72, 64},  // Volta Generation (SM 7.2)
-        {0x75, 32},  // Volta Generation (SM 7.5)
-        {0x80, 64},  // Ampere Generation (SM 8.0)
-        {0x86, 48},  // Ampere Generation (SM 8.6)
-        {0x87, 48},  // Ampere Generation (SM 8.7) Orin
-        {0x89, 48},  // Ada Generation (SM 8.9)
-        {-1, -1}};   // Undefined
+        {0x30, 192}, // Kepler (SM 3.0) GK10x class
+        {0x32, 192}, // Kepler (SM 3.2) GK10x class
+        {0x35, 192}, // Kepler (SM 3.5) GK11x class
+        {0x37, 192}, // Kepler (SM 3.7) GK21x class
+        {0x50, 128}, // Maxwell (SM 5.0) GM10x class
+        {0x52, 128}, // Maxwell (SM 5.2)
+        {0x53, 128}, // Maxwell (SM 5.3)
+        {0x60, 64},  // Pascal (SM 6.0)
+        {0x61, 128}, // Pascal (SM 6.1)
+        {0x62, 128}, // Pascal (SM 6.2)
+        {0x70, 64},  // Volta (SM 7.0)
+        {0x72, 64},  // Volta (SM 7.2)
+        {0x75, 64},  // Volta (SM 7.5)
+        {0x80, 64},  // Ampere (SM 8.0)
+        {0x86, 128}, // Ampere (SM 8.6)
+        {0x87, 128}, // Ampere (SM 8.7) Jetson Orin
+        {0x89, 128}, // Ada (SM 8.9)
+        {0x90, 128}, // Hopper (SM 9.0)
+        {0xa0, 128}, // Blackwell (SM 10.0)
+        {0xa1, 128},
+        {0xa3, 128},
+        {0xb0, 128},
+        {0xc0, 128}, // Blackwell (SM 12.0)
+        {0xc1, 128},
+        {-1, -1}}; // Undefined
 
     // If no device is specified, pick the current one
     if (device < 0) {
