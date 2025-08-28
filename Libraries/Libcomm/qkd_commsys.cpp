@@ -99,7 +99,6 @@ qkd_commsys<S, T, C>::serialize(std::istream& sin)
     return sin;
 }
 
-
 // // Clone (deep copy via serialization)
 // template <class S, class T, template <class> class C>
 // std::shared_ptr<libbase::serializable>

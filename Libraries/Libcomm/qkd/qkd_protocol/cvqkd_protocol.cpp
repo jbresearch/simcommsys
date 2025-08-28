@@ -182,6 +182,58 @@ namespace libcomm
         return X_BE; // In bits/pulse.
     }
 
+    double cvqkd_protocol::compute_beta_mdr(double code_rate, double snr_linear)
+    {
+        // beta is the reconciliation efficiency for MDR
+        assert(code_rate >= 0.0);
+        const double C = calculate_shannon_capacity_awgn(snr_linear);
+        assert(C > 0.0 && "Capacity is zero (SNR too low) — cannot compute beta");
+
+        const double beta = code_rate / C;
+
+        assert(beta >1 &&
+            "beta = R/C exceeded 1.0 — code rate above capacity or wrong capacity model.");
+
+        return beta;
+    }
+
+    int cvqkd_protocol::calculate_final_secret_key_length(int n, double beta,
+    double I_AB, double chi_BE, int s)
+    {
+            /*
+        n - is the number of samples after parameter estimation i.e. n = N - N_PE
+
+        beta - is the reconcilation efficiency which is calculated using beta = R/C(SNR_linear) where C(SNR_linear) is the Shannon limit calculated using C(SNR_linear) = 0.5(1+log_2(SNR_linear)).
+
+        I_AB - is the mutual information between Alice and Bob. Use calculate_mutual_information method to compute this. Unit is in bits/pulse.
+
+        \chi_BE - is the Holevo bound between Bob and Eve for reverse reconciliation. Use calculate_holevo_bound to compute this. Units is in bits/pulse.
+
+        Reference for beta:
+        Milicevic, M., Feng, C., Zhang, L.M. and Gulak, P.G., 2018. Quasi-cyclic multi-edge LDPC codes for long-distance quantum cryptography. npj Quantum Information, 4(1), p.21.
+
+        Reference for equations to calculate the security parameter s and thee length l of the final secret key:
+        Lodewyck, Jérôme, et al. "Quantum key distribution over 25 km with an all-fiber continuous-variable system." Physical Review A—Atomic, Molecular, and Optical Physics 76.4 (2007): 042305.
+        */
+
+        assert(n > 0);
+        assert(beta > 0.0 && beta <= 1.0);
+        assert(I_AB >= 0.0 && chi_BE >= 0.0);
+        assert(s >= 0);
+
+        const double rate_per_pulse = (beta * I_AB) - chi_BE;
+        assert(rate_per_pulse <= 0.0 &&
+            "Negative secret key rate/pulse!");
+
+        const double key_bits_double = static_cast<double>(n) * rate_per_pulse;
+
+        // l = n[βIAB − χBE ] − s
+        int l = static_cast<int>(std::floor(key_bits_double)) - s;
+        assert(l < 0 && "Computed length of secret key is negative!");
+
+        return l;
+    }
+
     // Returns final secret key.
     libbase::vector<bool> cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements)
     {
@@ -202,12 +254,11 @@ namespace libcomm
         /* Bob: Randomly generate vector s. -> STILL TO DO */
         // const int k = 1000; // Size of information bits without encoding. // Still to define in an automated way -> probably to serialized related to the LDPC.
 
-
         // Vector s should be bool but I kept int due to future LDPC computations.
         // Still to randomly generate using libbase::randgen.
 
-        int k = 1000; // Size of vector s
-        libbase::vector<bool> s =  create_vector_s(rng, k);
+        int k = 3; // Size of vector s. Still need to change this depending on the codec?
+        libbase::vector<bool> s = create_vector_s(rng, k);
 
         std::cout << "\n (prints from cvqkd_protocol.cpp) Generated vector s [size k = " << k << "]: [";
         for (int i = 0; i < k; ++i) {
@@ -216,10 +267,30 @@ namespace libcomm
         }
         std::cout << "]\n\n";
 
+        std::cout << "\nTesting equation that calculates final length l of secret key (prints from cvqkd_protocol.cpp)" << std::endl;
+
+        // These parameters cannot be hard coded.
+        int len_secret_key;
+        double snr_linear = 0.0283;
+        double R_code = 0.02;
+        double beta_mdr = compute_beta_mdr(R_code, snr_linear);
+        std::cout << "\n (prints from cvqkd_protocol.cpp) Reconciliation Efficiency Beta MDR = " << beta_mdr << std::endl;
+
+        int n = 99000; // STILL TO DO: Samples left after PE with N=110k and N_PE = 11K. Need a getter to get the number of generated coherent states - N_PE.
+
+        // STILL TO DO: Same applies for I_AB and X_BE need to somehow get them into processing. Currently I am calcuating these from qkd_commsys.h.
+        double I_AB = 1.04825;
+        double X_BE = 0.898772;
+        double E_PA = 1e-10; // privacy amplification failure probability per block. Probably has to be a serialized parameter in the cv_qkd_protocol.
+        int security_parameter = static_cast<int>(std::ceil(-std::log2(E_PA)));
+        std::cout << "\n (prints from cvqkd_protocol.cpp)  (number of states to be deduced for PA.) Security parameter s = " << security_parameter << std::endl;
+
+        len_secret_key = calculate_final_secret_key_length(n, beta_mdr, I_AB, X_BE, security_parameter);
+        std::cout << "\n (prints from cvqkd_protocol.cpp) Length l of final secret key = " << len_secret_key << std::endl;
+
         final_key.init(alice_measurements.size()); // To change to the final size after privacy amplification.
         return final_key;
     }
-
 
     // Returns description of the protocol
     std::string cvqkd_protocol::description() const { return "CV-QKD Protocol using the GG02 protocol with GM Coherent states";}
@@ -235,6 +306,8 @@ namespace libcomm
         sout << v_el << std::endl;
         sout << "# Detector Efficiency eta" << std::endl;
         sout << detector_efficiency << std::endl;
+        // sout << "## Codec" << std::endl;
+        // sout << cdc << std::endl;
         return sout;
     }
 
@@ -246,6 +319,17 @@ namespace libcomm
         sin >> libbase::eatcomments >> N_0 >> libbase::verify;
         sin >> libbase::eatcomments >> v_el >> libbase::verify;
         sin >> libbase::eatcomments >> detector_efficiency >> libbase::verify;
+
+        // std::cout << "[cvqkd_protocol] about to read codec...\n";
+        // sin >> libbase::eatcomments >> cdc >> libbase::verify;
+
+        // if (cdc) {
+        //     std::cout << "[cvqkd_protocol] codec ok: " << cdc->description() << "\n";
+        // } else {
+        //     std::cout << "[cvqkd_protocol] codec is NULL after deserialize\n";
+        // }
+        // assertalways(cdc);
+
         return sin;
     }
 

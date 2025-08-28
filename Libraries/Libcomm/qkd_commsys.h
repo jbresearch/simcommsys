@@ -32,7 +32,6 @@
 #include "serializer.h"
 #include "vector.h"
 
-
 #include <iostream>
 #include <memory>
 #include <sstream>
@@ -72,7 +71,6 @@ protected:
 
     // Frame Error Rate
     double FER = 0;
-
     // @}
 public:
     qkd_commsys() {}
@@ -86,6 +84,7 @@ public:
         this->protocol->seedfrom(r);
     }
     // @}
+
 
     /*! \name Parametric interface */
     void set_parameters(const libbase::vector<double>& x) override
@@ -187,6 +186,7 @@ public:
         /* Perform Parameter Estimation*/
         // Required parameters for parameter estimation.
         int N_PE = protocol->get_N_PE();
+        std::cout << "\n (prints from qkd_commsys.h) Number of States used for Parameter Estimation = " << N_PE << std::endl;
         int N_0 = protocol->get_N_0();
         double v_el = protocol->get_v_el();
         double detector_efficiency = protocol->get_det_eff();
@@ -213,7 +213,11 @@ public:
         {
             MI_check = 1;
             FER = 0;
+
             std::cout << "(Prints from qkd_commsys.h) MI_Check = " << MI_check << std::endl; // To delete
+
+            // I_AB and X_BE needs to be accessible inside postprocess as well stil to add...
+            // framesize and N_PE also need to used within post-process for the codec and to calculate the final length of the secret key where I need n = framesize - N_PE.
 
             // Continue with post-processing: Still to implement
             return protocol->postprocess(std::move(X_raw), std::move(Y_raw));
@@ -230,7 +234,7 @@ public:
 
             // Continue with post-processing
             libbase::vector<bool> all_zero_final_key;
-            all_zero_final_key.init(framesize - N_PE); // to change to the size after privacy_amplification?
+            all_zero_final_key.init(framesize - N_PE); // has to be used in the post-processing method to get n = N - N_PE to calculate the final key length .
             return all_zero_final_key;
         }
 
@@ -261,7 +265,6 @@ public:
     // std::ostream& serialize(std::ostream& sout) const override;
     // std::istream& serialize(std::istream& sin) override;
     // std::shared_ptr<libbase::serializable> clone() const override; //override the clone() found in libbase::serialize
-
 };
 
 } // namespace libcomm
