@@ -609,3 +609,84 @@ BOOST_AUTO_TEST_CASE(testing_pa_standard_toeplitz_without_serialization_using_li
     std::cout << "The final secure key = " << final_secret_key << std::endl;
 }
 
+
+
+BOOST_AUTO_TEST_CASE(testing_pa_standard_toeplitz_with_serialization)
+{
+    std::cout << "*** Boost Test 5 ***: Testing Privacy Amplification using Toeplitz Matrix with Serialization" << std::endl;
+
+    libcomm::pa_standard_toeplitz<bool> pa_system;
+
+    std::stringstream ss;
+    ss << "# Length of final secret hashed key L\n"
+    << "5\n"
+    << "# Length of pre-hashed key\n"
+    << "15\n"
+    << "# Alphabet Symbol Size\n"
+    << "2\n";
+
+    pa_system.serialize(ss);
+
+    randgen r;
+    r.seed(2602);
+
+    pa_system.seedfrom(r);
+
+    std::cout << "\n Privacy Amplification System Description = " << pa_system.description() << std::endl;
+
+    int starting_vector_len = pa_system.generate_starting_vector_length();
+
+    // PA System Parameters
+    int N = pa_system.get_N();
+    int L = pa_system.get_L();
+    int q = pa_system.get_alphabet_size();
+
+    std::cout << "Length of starting vector = " << starting_vector_len << std::endl;
+
+    std::cout << "Length L of the PA system: " << L << std::endl;
+    std::cout << "Length N of the PA system: " << N << std::endl;
+
+    std::cout << "Alphabet size of the PA system: " << q << std::endl;
+
+    libbase::vector<bool> starting_vector = pa_system.generate_starting_vector(starting_vector_len, pa_system.get_alphabet_size());
+
+    std::cout << "\nStarting Vector from python:" << std::endl;
+    for (int i =0;  i<starting_vector_len; ++i)
+    {
+        std::cout << starting_vector(i);
+    }
+    std::cout <<"\n";
+
+    libbase::matrix<bool> standard_toeplitz_matrix = pa_system.generate_toeplitz_matrix(starting_vector);
+
+    std::cout << "\n Generated Standard Toeplitz Matrix:" << standard_toeplitz_matrix  << std::endl;
+
+    libbase::vector<bool> pre_hashed_key(N); // initialises pre-hashed-key
+    pre_hashed_key(0) = 1;
+    pre_hashed_key(1) = 0;
+    pre_hashed_key(2) = 1;
+    pre_hashed_key(3) = 1;
+    pre_hashed_key(4) = 1;
+    pre_hashed_key(5) = 0;
+    pre_hashed_key(6) = 1;
+    pre_hashed_key(7) = 0;
+    pre_hashed_key(8) = 0;
+    pre_hashed_key(9) = 0;
+    pre_hashed_key(10) = 1;
+    pre_hashed_key(11) = 0;
+    pre_hashed_key(12) = 0;
+    pre_hashed_key(13) = 0;
+    pre_hashed_key(14) = 0;
+
+    std::cout << "\nPre-hashed key:" << std::endl;
+    for (int i =0;  i<starting_vector_len; ++i)
+    {
+        std::cout << starting_vector(i);
+    }
+    std::cout <<"\n";
+
+    libbase::vector<bool> final_secret_key(pa_system.get_N()); // initialises final secret key
+
+    final_secret_key = pa_system.compute_hashed_key(standard_toeplitz_matrix, pre_hashed_key, L, N, q); // computes the hashed key
+    std::cout << "The final secure key = " << final_secret_key << std::endl;
+}
