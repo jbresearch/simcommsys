@@ -22,11 +22,11 @@ namespace libcomm
     // std::ostream& pa_standard_toeplitz::serialize(std::ostream& sout) const // bool case
     {
         // std::ostringstream sout; -> this should not have been there....
-        sout << "Length of final secret hashed key L" << std::endl;
+        sout << "# Length of final secret hashed key L" << std::endl;
         sout << L << std::endl;
-        sout << "Length of pre-hashed key" << std::endl;
+        sout << "# Length of pre-hashed key" << std::endl;
         sout << N << std::endl;
-        sout << "Alphabet Symbol Size" << std::endl;
+        sout << "# Alphabet Symbol Size" << std::endl;
         sout << alphabet_size << std::endl;
         return sout;
     }

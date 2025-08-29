@@ -48,6 +48,11 @@ class pa_standard_toeplitz: public privacy_amplification_base<T>
             return "Privacy Amplification using the standard Toeplitz matrix";
         }
 
+        // getters to get the sizes of L, N and alphabet_size
+        int get_L() {return L;}
+        int get_N() {return N;}
+        int get_alphabet_size() {return alphabet_size;}
+
 
         DECLARE_SERIALIZER(pa_standard_toeplitz<T>)
 };
