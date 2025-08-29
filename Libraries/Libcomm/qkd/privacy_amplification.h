@@ -44,37 +44,9 @@ class privacy_amplification_base : public libbase::serializable
 {
 protected:
     libbase::randgen rng;
-    // int L;                // final hashed key length (rows). Serializzed parameter.
-    // int N;                // pre-hash key length (cols). Serialized parameter.
-    // int alphabet_size;    // e.g. 2 for binary arithmetic.
     libbase::vector<T> hashed_key;
 
 public:
-    // privacy_amplification()
-    //     : rng(), L(0), N(0), alphabet_size(2) {}
-
-    // privacy_amplification(int L, int N)
-    //     : rng(), L(0), N(0), alphabet_size(2)
-    // {
-    //     init(L, N);
-    // }
-
-    // void init(int L, int N)
-    // {
-    //     assert(L > 0);
-    //     assert(N > 0);
-    //     this->L = L;
-    //     this->N = N;
-    //     hashed_key.init(L);
-    // }
-
-    // void set_alphabet_size(int q)
-    // {
-    //     assert(q >= 2);
-    //     alphabet_size = q;
-    // }
-
-    // void seedfrom(libbase::random& r) { this->rng.seed(r.ival()); }
 
     virtual void seedfrom(libbase::random& r) = 0 ;
 
@@ -85,14 +57,6 @@ public:
         assert(starting_vector_len > 0);
 
         libbase::vector<T> starting_vector(starting_vector_len);
-
-        // bool case only
-        // assert(alphabet_size == 2);
-        // for (int i = 0; i < starting_vector_len; ++i)
-        // {
-        //     starting_vector(i) = (rng.ival(2) != 0);
-        // }
-
 
         if (std::is_same<T, bool>::value) {
             assert(alphabet_size == 2);
@@ -136,25 +100,6 @@ public:
         assert(toeplitz_matrix.size().rows() > 0);
         assert(toeplitz_matrix.size().cols() > 0);
         assert(pre_hashed_key.size() > 0);
-
-
-        // // bool case only
-        // libbase::matrix<int> A_int(toeplitz_matrix); // L×N
-        // libbase::vector<int> x_int(N);
-
-        // for (int j = 0; j < N; ++j)
-        //     x_int(j) = pre_hashed_key(j) ? 1 : 0;
-
-        // // matrix.h operator*(vector) computes A^T * x, so use A^T
-        // libbase::vector<int> y_int = (A_int.transpose()) * x_int; // length L
-
-        // libbase::vector<bool> y(L);
-        // for (int i = 0; i < L; ++i)
-        //     y(i) = (y_int(i) & 1) != 0;
-
-        // hashed_key = y;
-        // assert(hashed_key.size() == L);
-        // return hashed_key;
 
         // ---- Case using bool.
         if (std::is_same<T, bool>::value) {
@@ -214,7 +159,6 @@ public:
     using privacy_amplification = privacy_amplification_base<T>;
 
     // Serialization Support
-    // DECLARE_BASE_SERIALIZER(privacy_amplification) // bool case
      DECLARE_BASE_SERIALIZER(privacy_amplification) // templated case
 };
 

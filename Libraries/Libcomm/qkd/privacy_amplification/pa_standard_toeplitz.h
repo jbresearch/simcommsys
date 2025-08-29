@@ -10,12 +10,10 @@ namespace libcomm {
 
 template<class T>
 class pa_standard_toeplitz: public privacy_amplification_base<T>
-// class pa_standard_toeplitz : public privacy_amplification // bool case
 {
     private:
         int L; // Final length of secret key
         int N; // Length of pre-hashed key.
-        // libbase::randgen rng;
         int alphabet_size;    // e.g. 2 for binary arithmetic.
 
     public:
@@ -52,7 +50,6 @@ class pa_standard_toeplitz: public privacy_amplification_base<T>
 
 
         DECLARE_SERIALIZER(pa_standard_toeplitz<T>)
-        //  DECLARE_SERIALIZER(pa_standard_toeplitz) // bool case
 };
 
 }

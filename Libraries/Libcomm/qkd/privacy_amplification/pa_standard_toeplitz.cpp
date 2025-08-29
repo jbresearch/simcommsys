@@ -12,6 +12,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include "gf.h"
 
 using libbase::serializer;
 namespace libcomm
@@ -49,6 +50,15 @@ namespace libcomm
     template class pa_standard_toeplitz<bool>;
     template class pa_standard_toeplitz<int>;
 
-    // // Bool case Only
-    // const serializer pa_standard_toeplitz::shelper("privacy_amplification", "standard_toeplitz", pa_standard_toeplitz::create);
+    // GF template types
+    template class pa_standard_toeplitz<libbase::gf2>;
+    template class pa_standard_toeplitz<libbase::gf4>;
+    template class pa_standard_toeplitz<libbase::gf8>;
+    template class pa_standard_toeplitz<libbase::gf16>;
+    template class pa_standard_toeplitz<libbase::gf32>;
+    template class pa_standard_toeplitz<libbase::gf64>;
+    template class pa_standard_toeplitz<libbase::gf128>;
+    template class pa_standard_toeplitz<libbase::gf256>;
+    template class pa_standard_toeplitz<libbase::gf512>;
+    template class pa_standard_toeplitz<libbase::gf1024>;
 }
