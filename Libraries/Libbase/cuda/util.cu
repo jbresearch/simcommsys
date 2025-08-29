@@ -29,6 +29,8 @@
 #include "cuda/value.h"
 #include "sysvar.h"
 
+#include <cuda_runtime_api.h>
+
 namespace cuda
 {
 
@@ -51,9 +53,9 @@ cudaGetMultiprocessorCount(int device)
         device = cudaGetCurrentDevice();
     }
 
-    cudaDeviceProp prop;
-    cudaSafeCall(cudaGetDeviceProperties(&prop, device));
-    return prop.multiProcessorCount;
+    int multiProcessorCount;
+    cudaSafeCall(cudaDeviceGetAttribute(&multiProcessorCount, cudaDeviceAttr::cudaDevAttrMultiProcessorCount, device));
+    return multiProcessorCount;
 }
 
 // Get the number of cores per multiprocessor for the given device
@@ -107,17 +109,18 @@ cudaGetMultiprocessorSize(int device)
     }
 
     // Get properties for chosen device
-    cudaDeviceProp prop;
-    cudaSafeCall(cudaGetDeviceProperties(&prop, device));
+    int major, minor;
+    cudaSafeCall(cudaDeviceGetAttribute(&major, cudaDeviceAttr::cudaDevAttrComputeCapabilityMajor, device));
+    cudaSafeCall(cudaDeviceGetAttribute(&minor, cudaDeviceAttr::cudaDevAttrComputeCapabilityMinor, device));
 
     // Find the SM version in the table
     for (int i = 0; nGpuArchCoresPerSM[i].SM != -1; i++) {
-        if (nGpuArchCoresPerSM[i].SM == ((prop.major << 4) + prop.minor)) {
+        if (nGpuArchCoresPerSM[i].SM == ((major << 4) + minor)) {
             return nGpuArchCoresPerSM[i].Cores;
         }
     }
 
-    std::cerr << "WARNING: SM " << prop.major << "." << prop.minor
+    std::cerr << "WARNING: SM " << major << "." << minor
               << " is undefined!" << std::endl;
     return -1;
 }
@@ -131,9 +134,9 @@ cudaGetSharedMemPerBlock(int device)
         device = cudaGetCurrentDevice();
     }
 
-    cudaDeviceProp prop;
-    cudaSafeCall(cudaGetDeviceProperties(&prop, device));
-    return prop.sharedMemPerBlock;
+    int sharedMemPerBlock;
+    cudaSafeCall(cudaDeviceGetAttribute(&sharedMemPerBlock, cudaDeviceAttr::cudaDevAttrMaxSharedMemoryPerBlock, device));
+    return sharedMemPerBlock;
 }
 
 //! Get the number of registers available per block
@@ -145,9 +148,9 @@ cudaGetRegsPerBlock(int device)
         device = cudaGetCurrentDevice();
     }
 
-    cudaDeviceProp prop;
-    cudaSafeCall(cudaGetDeviceProperties(&prop, device));
-    return prop.regsPerBlock;
+    int regsPerBlock;
+    cudaSafeCall(cudaDeviceGetAttribute(&regsPerBlock, cudaDeviceAttr::cudaDevAttrMaxRegistersPerBlock, device));
+    return regsPerBlock;
 }
 
 //! Get the maximum number of threads per block
@@ -159,9 +162,9 @@ cudaGetMaxThreadsPerBlock(int device)
         device = cudaGetCurrentDevice();
     }
 
-    cudaDeviceProp prop;
-    cudaSafeCall(cudaGetDeviceProperties(&prop, device));
-    return prop.maxThreadsPerBlock;
+    int maxThreadsPerBlock;
+    cudaSafeCall(cudaDeviceGetAttribute(&maxThreadsPerBlock, cudaDeviceAttr::cudaDevAttrMaxThreadsPerBlock, device));
+    return maxThreadsPerBlock;
 }
 
 //! Get the warp size for the given device
@@ -173,9 +176,9 @@ cudaGetWarpSize(int device)
         device = cudaGetCurrentDevice();
     }
 
-    cudaDeviceProp prop;
-    cudaSafeCall(cudaGetDeviceProperties(&prop, device));
-    return prop.warpSize;
+    int warpSize;
+    cudaSafeCall(cudaDeviceGetAttribute(&warpSize, cudaDeviceAttr::cudaDevAttrWarpSize, device));
+    return warpSize;
 }
 
 //! Get the clock rate in GHz for the given device
@@ -187,9 +190,9 @@ cudaGetClockRate(int device)
         device = cudaGetCurrentDevice();
     }
 
-    cudaDeviceProp prop;
-    cudaSafeCall(cudaGetDeviceProperties(&prop, device));
-    return prop.clockRate * 1e-6f;
+    int clockRate;
+    cudaSafeCall(cudaDeviceGetAttribute(&clockRate, cudaDeviceAttr::cudaDevAttrClockRate, device));
+    return clockRate * 1e-6f;
 }
 
 //! Get the name for the given device
@@ -215,9 +218,9 @@ cudaGetGlobalMem(int device)
         device = cudaGetCurrentDevice();
     }
 
-    cudaDeviceProp prop;
-    cudaSafeCall(cudaGetDeviceProperties(&prop, device));
-    return prop.totalGlobalMem;
+    size_t _, totalGlobalMem;
+    cudaSafeCall(cudaMemGetInfo(&_, &totalGlobalMem));
+    return totalGlobalMem;
 }
 
 //! Get the compute capability for the given device
@@ -229,9 +232,10 @@ cudaGetComputeCapability(int device)
         device = cudaGetCurrentDevice();
     }
 
-    cudaDeviceProp prop;
-    cudaSafeCall(cudaGetDeviceProperties(&prop, device));
-    return prop.major * 1000 + prop.minor;
+    int major, minor;
+    cudaSafeCall(cudaDeviceGetAttribute(&major, cudaDeviceAttr::cudaDevAttrComputeCapabilityMajor, device));
+    cudaSafeCall(cudaDeviceGetAttribute(&minor, cudaDeviceAttr::cudaDevAttrComputeCapabilityMinor, device));
+    return major * 1000 + minor;
 }
 
 //! Get the number of CUDA-capable devices
@@ -411,14 +415,16 @@ cudaQueryDevices(std::ostream& sout)
         sout << "  Clock rate:\t" << cudaGetClockRate(i) << " GHz" << std::endl;
 
         // Get the properties for the given device
-        cudaDeviceProp prop;
-        cudaSafeCall(cudaGetDeviceProperties(&prop, i));
-        sout << "  Memory per block:\t" << prop.sharedMemPerBlock << " bytes"
+        int sharedMemPerBlock, maxThreadsPerBlock, concurrentKernels;
+        cudaSafeCall(cudaDeviceGetAttribute(&sharedMemPerBlock, cudaDeviceAttr::cudaDevAttrMaxSharedMemoryPerBlock, i));
+        cudaSafeCall(cudaDeviceGetAttribute(&maxThreadsPerBlock, cudaDeviceAttr::cudaDevAttrMaxThreadsPerBlock, i));
+        cudaSafeCall(cudaDeviceGetAttribute(&concurrentKernels, cudaDeviceAttr::cudaDevAttrConcurrentKernels, i));
+        sout << "  Memory per block:\t" << sharedMemPerBlock << " bytes"
              << std::endl;
-        sout << "  Threads per block:\t" << prop.maxThreadsPerBlock
+        sout << "  Threads per block:\t" << maxThreadsPerBlock
              << std::endl;
         sout << "  Concurrent kernels:\t"
-             << (prop.concurrentKernels ? "Yes" : "No") << std::endl;
+             << (concurrentKernels ? "Yes" : "No") << std::endl;
     }
 }
 
