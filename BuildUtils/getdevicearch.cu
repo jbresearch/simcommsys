@@ -56,9 +56,10 @@ main()
     // determine highest compute capability for installed devices
     int max_cc = 0;
     for (int i = 0; i < devices; i++) {
-        cudaDeviceProp prop;
-        cudaSafeCall(cudaGetDeviceProperties(&prop, i));
-        const int cc = prop.major * 10 + prop.minor;
+        int major, minor;
+        cudaSafeCall(cudaDeviceGetAttribute(&major, cudaDeviceAttr::cudaDevAttrComputeCapabilityMajor, i));
+        cudaSafeCall(cudaDeviceGetAttribute(&minor, cudaDeviceAttr::cudaDevAttrComputeCapabilityMinor, i));
+        const int cc = major * 10 + minor;
         max_cc = std::max(max_cc, cc);
     }
 
