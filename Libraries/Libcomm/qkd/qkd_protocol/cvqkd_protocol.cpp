@@ -197,44 +197,6 @@ namespace libcomm
         return beta;
     }
 
-    int cvqkd_protocol::calculate_final_secret_key_length(int n, double beta,
-    double I_AB, double chi_BE, int s)
-    {
-            /*
-        n - is the number of samples after parameter estimation i.e. n = N - N_PE
-
-        beta - is the reconcilation efficiency which is calculated using beta = R/C(SNR_linear) where C(SNR_linear) is the Shannon limit calculated using C(SNR_linear) = 0.5(1+log_2(SNR_linear)).
-
-        I_AB - is the mutual information between Alice and Bob. Use calculate_mutual_information method to compute this. Unit is in bits/pulse.
-
-        \chi_BE - is the Holevo bound between Bob and Eve for reverse reconciliation. Use calculate_holevo_bound to compute this. Units is in bits/pulse.
-
-        Reference for beta:
-        Milicevic, M., Feng, C., Zhang, L.M. and Gulak, P.G., 2018. Quasi-cyclic multi-edge LDPC codes for long-distance quantum cryptography. npj Quantum Information, 4(1), p.21.
-
-        Reference for equations to calculate the security parameter s and thee length l of the final secret key:
-        Lodewyck, Jérôme, et al. "Quantum key distribution over 25 km with an all-fiber continuous-variable system." Physical Review A—Atomic, Molecular, and Optical Physics 76.4 (2007): 042305.
-        */
-
-        assert(n > 0);
-        assert(beta > 0.0 && beta <= 1.0);
-        assert(I_AB >= 0.0 && chi_BE >= 0.0);
-        assert(s >= 0);
-
-        const double rate_per_pulse = (beta * I_AB) - chi_BE;
-        assert(rate_per_pulse <= 0.0 &&
-            "Negative secret key rate/pulse!");
-
-        const double key_bits_double = static_cast<double>(n) * rate_per_pulse;
-
-        // l = n[βIAB − χBE ] − s
-        int l = static_cast<int>(std::floor(key_bits_double)) - s;
-        assert(l < 0 && "Computed length of secret key is negative!");
-
-        return l;
-    }
-
-
     const int cvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     {
         /*
@@ -258,6 +220,7 @@ namespace libcomm
         assert(n_samples > 0);
         assert(smoothing_parameter > 0);
 
+        // Equation (32) from Reference 2
         double delta_n = 7 * std::sqrt(std::log2(2/smoothing_parameter)/n_samples);
         std::cout << "(prints from cvqkdprotocol.cpp) delta(n) = " << delta_n << std::endl;
 
@@ -265,7 +228,7 @@ namespace libcomm
         assert(I_AB >= 0.0 && chi_BE >= 0.0);
         assert(delta_n >= 0);
 
-        // Equation (32) from Reference 2
+        // Equation from reference 2.
         const double rate_per_pulse = (beta_mdr * I_AB) - chi_BE - delta_n;
         assert(rate_per_pulse <= 0.0 &&
             "Negative secret key rate/pulse!");
@@ -278,10 +241,6 @@ namespace libcomm
 
         return l;
     }
-
-
-
-
 
     // Returns final secret key.
     libbase::vector<bool> cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements)

@@ -87,6 +87,11 @@ public:
     // Parameter Estimation using Optical Fiber
     virtual std::tuple<double, double, double> parameter_estimation_optical_fiber(libbase::vector<double>& X_PE, libbase::vector<double>& Y_PE, int N_0, double v_el, double detector_efficiency) = 0;
 
+    double calculate_shannon_capacity_awgn(double snr_linear)
+    {  // bits/use to be used to compute Beta for MDR.
+        return 0.5 * std::log2(1.0 + snr_linear);
+    }
+
     // Channel channel capacity of Quantum Channel.
     virtual double calculate_mutual_information(double chi_total_hat, double VA) = 0;
 

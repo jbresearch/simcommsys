@@ -40,6 +40,7 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
          double chi_BE; // Holevo Bound between Bob and Eve for RR.
          int n_samples; //Number of samples after parameter estimation.
          double beta_mdr; // Reconciliation Efficiency for MDR.
+         double SNR_linear; // Retrieved from bob's quantum channel.
 
     public:
         // void seedfrom(libbase::random& rng) override { this->rng.seed(rng.ival());  if (cdc) cdc->seedfrom(rng);}
@@ -174,11 +175,6 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
             return s;
         }
 
-        double calculate_shannon_capacity_awgn(double snr_linear)
-        {  // bits/use to be used to compute Beta
-            return 0.5 * std::log2(1.0 + snr_linear);
-        }
-
         double compute_beta_mdr(double code_rate, double snr_linear);
 
         void set_parameters_secret_key_length(double beta, double I_AB, double chi_BE, int n_samples) override
@@ -190,12 +186,6 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
         }
 
         const int calculate_finite_size_effects_secret_key_length();
-
-        int calculate_final_secret_key_length(int n,
-                                               double beta,
-                                               double I_AB,
-                                               double chi_BE,
-                                               int s);
 
         // Returns final secret key.
         libbase::vector<bool> postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements) override;

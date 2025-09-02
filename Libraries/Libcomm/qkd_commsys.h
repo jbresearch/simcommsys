@@ -216,8 +216,31 @@ public:
 
             std::cout << "(Prints from qkd_commsys.h) MI_Check = " << MI_check << std::endl; // To delete
 
-            double beta_mdr = 0.958; // still to calculate as I still need R from codec and SNR from channel.
             double n_samples = 99000; // still to get from codec. Length of codeword.
+            double beta_mdr = 0.958;
+            std::cout << "(prints from qkd_commsys.h full cycle) beta_mdr = " << beta_mdr << std::endl;
+
+            /* Gets SNR_linear from Bob's Gaussian Quantum Channel -> to uncomment!!
+            libbase::vector<double> bobs_channel_parameters;
+            bobs_channel_pararmeters.init(1);
+            bobs_channel_parameters= bob_channel->get_parameters();
+            double SNR_linear = bobs_channel_parameters(0);
+            */
+
+            // *** Will also need to use the SNR_linear later to  get SNR_dB to use it in the codec for decoding in the post processing probably. ***/
+
+            /* Question: To confirm with Johann. Should I use Beta for the calculation of the final length? If so what equation do I use?
+            // As in the case of the 2018 paper they use a very small code rate  e.g. 0.02 or 0.01 and very low SNR such as -15 dB
+
+            // calculate as I still need R from codec and SNR from channel.
+            // Beta as used in Quasi Cyclic Paper 2018, Mario Milicevic
+            double code_rate = 0.02;
+            double beta_mdr = code_rate/(protocol->calculate_shannon_capacity_awgn(SNR_linear)); // still to Beta is coming too small
+
+            // Another option is to use Beta = R/I_AB taken from the 2023 review paper by Yang. 2023.
+
+            // Option 3: check equation used in Rate-Adaptive Non-Binary LDPC Code-Based Information Reconciliation Protocol for Continuous-Variable Quantum Key Distribution written by Long Xing */
+
 
             // Use setter in CV-QKD protocol
             protocol->set_parameters_secret_key_length(beta_mdr, I_AB, X_BE, n_samples);
@@ -236,7 +259,7 @@ public:
 
             // Continue with post-processing
             libbase::vector<bool> all_zero_final_key;
-            all_zero_final_key.init(framesize - N_PE); // has to be used in the post-processing method to get n = N - N_PE to calculate the final key length .
+            all_zero_final_key.init(framesize - N_PE); // has to be used in the post-processing method to get n = N - N_PE to calculate the final key length. Have to change the length to the actual length of the final secret key as calculated when MI_check = 1.
             return all_zero_final_key;
         }
 
