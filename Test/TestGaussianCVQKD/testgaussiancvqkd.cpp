@@ -1,100 +1,147 @@
 /*!
  * \file
  * \brief Boost unit tests for quantum_gaussian_source and cvqkd_protocol
- *
- * Copyright (c) 2025 Aaron Abela
  */
 
 #define BOOST_TEST_MODULE GaussianSourceTest
 #include <boost/test/included/unit_test.hpp>
 
-
-#include "source/quantum_gaussian_source.h"
-#include "qkd/observable/position_observable.h"
-#include "qkd/observable/momentum_observable.h"
 #include "qkd/qkd_protocol/cvqkd_protocol.h"
 #include "qkd/quantum_channel/gaussian_quantum_channel.h"
 #include "qkd/quantum_channel/identity_quantum_channel.h"
-#include "truerand.h"
-
-#include "qkd_commsys.h"
-#include "qkd/quantum_state.h"
-#include "qkd/qkd_protocol.h"
-#include "qkd/observable.h"
-#include "qkd/quantum_channel.h"
 #include "source/quantum_gaussian_source.h"
+#include "qkd_commsys.h"
+
+#include "serializer.h"
 #include "random.h"
 #include "vector.h"
-
-#include <memory>
-#include <vector>
+#include "gf.h"
+#include "codec/ldpc.h"
 
 #include <iostream>
-#include <cmath>
+#include <sstream>
+#include <memory>
+#include <vector>
+#include <algorithm>
 
 using namespace libcomm;
 using namespace libbase;
 
-// Force-link the registration translation units by constructing each type and calling its *output* serialize.
-// This ensures that the shelpers run and register the types.
-static void force_link_qkd_types()
-{
-  std::ostringstream oss;
+// Force-link registrars by touching const serialize (runs TU static registration)
+static void force_link_qkd_types() {
+    std::ostringstream oss;
+    { libcomm::identity_quantum_channel i; static_cast<const libcomm::identity_quantum_channel&>(i).serialize(oss); }
+    { libcomm::gaussian_quantum_channel g; static_cast<const libcomm::gaussian_quantum_channel&>(g).serialize(oss); }
 
-  {
-    // identity_quantum_channel TU
-    libcomm::identity_quantum_channel obj;
-    static_cast<const libcomm::identity_quantum_channel&>(obj).serialize(oss);
-  }
-  {
-    // gaussian_quantum_channel TU
-    libcomm::gaussian_quantum_channel obj;
-    static_cast<const libcomm::gaussian_quantum_channel&>(obj).serialize(oss);
-  }
-  {
+   // {
+   // libcomm::ldpc<libbase::gf2, double> c;
+   // // Calling serialize() on the const base triggers vtable usage and
+   // // ensures the explicit instantiation + registrar in ldpc.cpp are linked.
+   // static_cast<const libcomm::ldpc<libbase::gf2, double>&>(c).serialize(oss);
+   // }
+
+    {
     // cvqkd_protocol TU
     libcomm::cvqkd_protocol obj;
     static_cast<const libcomm::cvqkd_protocol&>(obj).serialize(oss);
-  }
+    }
+
+
 }
+
+// static void force_link_ldpc() {
+//   // Touch serialize() so the TU’s registrar isn’t discarded by the linker.
+//   std::ostringstream oss;
+//   libcomm::ldpc<libbase::gf2,double> tmp;
+//   static_cast<const libcomm::ldpc<libbase::gf2,double>&>(tmp).serialize(oss);
+// }
 
 BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
 {
-   std::cout << "\n*****Boost Test Case *****\n";
-   std::cout << "\nTesting QKD Commsys up until Measurement\n";
+    std::cout << "\n*****Boost Test Case *****\n";
 
-   // Ensure registrars are linked & run
-   force_link_qkd_types();
+    // Ensure registrars are linked & run
+    force_link_qkd_types();
 
-   // 1) Build a config that matches qkd_commsys::serialize(std::istream&)
-   std::stringstream cfg;
-   cfg <<
-      "# Version\n"
-      "1\n"
-      "# Frame size (# of quantum states in a frame)\n"
-      "5000\n"
-      "## Alice's channel\n"
-      "identity_quantum_channel\n"
-      "## Bob's channel\n"
-      "gaussian_quantum_channel\n"
-      "# Homodyne Detector Efficiency\n"
-      "0.606\n"
-      "# Mean of the Gaussian Quantum Channel\n"
-      "0.0\n"
-      "# Transmittance T of the Gaussian Quantum Channel\n"
-      "0.302\n"
-      "## Postprocessing protocol\n"
-      "cvqkd_protocol\n"
-      "# Number of samples for Parameter Estimation N_PE\n"
-      "500\n"
-      "# Shot Noise Variance N_0\n"
-      "1\n"
-      "# Electric Noise v_el\n"
-      "0.041\n"
-      "# Detector Efficiency eta\n"
-      "0.606\n";
+    libcomm::ldpc<libbase::gf2,double> codec; // Without this entire qkd_commsys serialization won't work as the codec can't be loaded!!!
 
-   // 2) Default-construct the system and load the config
+    //  force_link_codec_types();
+
+    // Build config: GAUSSIAN for Alice with explicit params (parse-proof)
+    std::stringstream cfg;
+    cfg <<
+        "# Version\n"
+        "1\n"
+        "# Frame size (# of quantum states in a frame)\n"
+        "110000\n"
+        "## Alice's channel\n"
+        "identity_quantum_channel\n"
+        "## Bob's channel\n"
+        "gaussian_quantum_channel\n"
+        "# Homodyne Detector Efficiency\n"
+        "0.606\n"
+        "# Mean of the Gaussian Quantum Channel\n"
+        "0.0\n"
+        "# Transmittance T of the Gaussian Quantum Channel\n"
+        "0.302\n"
+        "## Postprocessing protocol\n"
+        "cvqkd_protocol\n"
+        "# Number of samples for Parameter Estimation N_PE\n"
+        "11000\n"
+        "# Shot Noise Variance N_0\n"
+        "1\n"
+        "# Electric Noise v_el\n"
+        "0.041\n"
+        "# Detector Efficiency eta\n"
+        "0.606\n"
+        "# Smoothing Parameter\n"
+        "1e-4\n";
+      //   "## Codec\n"
+      //   "ldpc<gf2,double>\n"
+      //   "# Version\n"
+      //   "5\n"
+      //   "# SPA type (trad|gdl)\n"
+      //   "gdl\n"
+      //   "# Number of iterations\n"
+      //   "50\n"
+      //   "# Clipping method\n"
+      //   "zero\n"
+      //   "# Value of almostzero\n"
+      //   "1e-100\n"
+      //   "# Reduce generator matrix to REF? (true|false)\n"
+      //   "1\n"
+      //   "# Length (n)\n"
+      //   "7\n"
+      //   "# Dimension (m)\n"
+      //   "7\n"
+      //   "# Max column weight\n"
+      //   "3\n"
+      //   "# Max row weight\n"
+      //   "3\n"
+      //   "# Non-zero values (ones|random|provided)\n"
+      //   "ones\n"
+      //   "# Column weight vector\n"
+      //   "7\n"
+      //   "3 3 3 3 3 3 3\n"
+      //   "# Row weight vector\n"
+      //   "7\n"
+      //   "3 3 3 3 3 3 3\n"
+      //   "# Non zero positions per col\n"
+      //   "3\n"
+      //   "1 5 7\n"
+      //   "3\n"
+      //   "1 2 6\n"
+      //   "3\n"
+      //   "2 3 7\n"
+      //   "3\n"
+      //   "1 3 4\n"
+      //   "3\n"
+      //   "2 4 5\n"
+      //   "3\n"
+      //   "3 5 6\n"
+      //   "3\n"
+      //   "4 6 7\n";
+
    libcomm::qkd_commsys<libcomm::gaussian_state, double, libbase::vector> sys;
 
    std::cout << "Derived under quantum_channel:\n";
@@ -154,6 +201,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
 
    // Gets the number of coherent states generated for a single frame from the qkd_commsys object.
    int framesize = sys.input_block_size();
+   std::cout << "Number of generated quantum states from Alice = " << framesize << std::endl;
 
    // Setting modulation variance VA in the gaussian quantum channel of Bob
    sys.set_VA(*src);
@@ -164,15 +212,18 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    // Initialise final_key
    libbase::vector<bool> final_key;
 
+   // auto qkd_commsys_codec = sys.getcodec();
+   // std::cout << "\nPrint description of the qkd_commsys codec: " << qkd_commsys_codec->description();
+
+
    /* Calling fullcylce method from qkd_commsys.h for a single frame*/
    final_key = sys.fullcycle(source);
 
-   // Prints Final Secret Key
-   std::cout << "\nFinal Secret Key [size=" << final_key.size() << "]: [";
-   for (int i = 0; i < final_key.size(); ++i) {
-      if (i) std::cout << ", ";
-      std::cout << final_key(i);
-   }
-   std::cout << "]\n\n";
-
+   // // Prints Final Secret Key
+   // std::cout << "\nFinal Secret Key [size=" << final_key.size() << "]: [";
+   // for (int i = 0; i < final_key.size(); ++i) {
+   //    if (i) std::cout << ", ";
+   //    std::cout << final_key(i);
+   // }
+   // std::cout << "]\n\n";
 }

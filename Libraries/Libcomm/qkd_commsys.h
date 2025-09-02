@@ -216,8 +216,11 @@ public:
 
             std::cout << "(Prints from qkd_commsys.h) MI_Check = " << MI_check << std::endl; // To delete
 
-            // I_AB and X_BE needs to be accessible inside postprocess as well stil to add...
-            // framesize and N_PE also need to used within post-process for the codec and to calculate the final length of the secret key where I need n = framesize - N_PE.
+            double beta_mdr = 0.958; // still to calculate as I still need R from codec and SNR from channel.
+            double n_samples = 99000; // still to get from codec. Length of codeword.
+
+            // Use setter in CV-QKD protocol
+            protocol->set_parameters_secret_key_length(beta_mdr, I_AB, X_BE, n_samples);
 
             // Continue with post-processing: Still to implement
             return protocol->postprocess(std::move(X_raw), std::move(Y_raw));
@@ -230,7 +233,6 @@ public:
             MI_check = 0;
             FER = 1;
             // Post-processing returns a zero-vector or null? Still to check
-            std::cout << "(Prints from qkd_commsys.h) MI_Check = " << MI_check << std::endl; // To deletea
 
             // Continue with post-processing
             libbase::vector<bool> all_zero_final_key;

@@ -92,6 +92,10 @@ public:
 
     virtual double calculate_holevo_bound(double V, double T_hat, double Epsilon_hat, double X_total_hat) = 0;
 
+    // Parameters used to calculate the length of the final secret key after privacy amplification.
+    // Note: For the BB84 I would have to also add N_leaked later on.
+    virtual void set_parameters_secret_key_length(double beta, double I_AB, double chi_BE, int n_samples) = 0;
+
     virtual C<bool> postprocess(libbase::vector<T>&& alice_measurements,
                                 libbase::vector<T>&& bob_measurements) = 0;
 

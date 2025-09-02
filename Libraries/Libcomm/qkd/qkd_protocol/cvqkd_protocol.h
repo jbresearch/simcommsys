@@ -35,6 +35,11 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
          int N_0; // shot noise
          double v_el; // electric noise
          double detector_efficiency;
+         double smoothing_parameter;
+         double I_AB; // Mutual Information between Alice and Bob.
+         double chi_BE; // Holevo Bound between Bob and Eve for RR.
+         int n_samples; //Number of samples after parameter estimation.
+         double beta_mdr; // Reconciliation Efficiency for MDR.
 
     public:
         // void seedfrom(libbase::random& rng) override { this->rng.seed(rng.ival());  if (cdc) cdc->seedfrom(rng);}
@@ -175,6 +180,16 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
         }
 
         double compute_beta_mdr(double code_rate, double snr_linear);
+
+        void set_parameters_secret_key_length(double beta, double I_AB, double chi_BE, int n_samples) override
+        {
+            this->beta_mdr   = beta;
+            this->I_AB       = I_AB;
+            this->chi_BE     = chi_BE;
+            this->n_samples  = n_samples;
+        }
+
+        const int calculate_finite_size_effects_secret_key_length();
 
         int calculate_final_secret_key_length(int n,
                                                double beta,

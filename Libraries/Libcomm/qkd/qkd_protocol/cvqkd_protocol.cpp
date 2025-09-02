@@ -234,6 +234,55 @@ namespace libcomm
         return l;
     }
 
+
+    const int cvqkd_protocol::calculate_finite_size_effects_secret_key_length()
+    {
+        /*
+        n - is the number of samples after parameter estimation i.e. n = N - N_PE
+
+        beta - is the reconcilation efficiency which is calculated using beta = R/C(SNR_linear) where C(SNR_linear) is the Shannon limit calculated using C(SNR_linear) = 0.5(1+log_2(SNR_linear)).
+
+        I_AB - is the mutual information between Alice and Bob. Use calculate_mutual_information method to compute this. Unit is in bits/pulse.
+
+        \chi_BE - is the Holevo bound between Bob and Eve for reverse reconciliation. Use calculate_holevo_bound to compute this. Units is in bits/pulse.
+
+        delta (n) is the finite size offset term which is related to the security of privacy amplification. It is used to ensure that the key is secure even in the presence of statistical fluctuations in parameter estimation and error correction~\cite{lodewyck2007quantum}.
+
+        Reference 1 for beta_mdr:
+        Milicevic, M., Feng, C., Zhang, L.M. and Gulak, P.G., 2018. Quasi-cyclic multi-edge LDPC codes for long-distance quantum cryptography. npj Quantum Information, 4(1), p.21.
+
+        Reference 2 for equations to calculate the offset size Delta(n) and thee length l of the final secret key:
+        Leverrier, A., Grosshans, F. and Grangier, P., 2010. Finite-size analysis of a continuous-variable quantum key distribution. Physical Review A—Atomic, Molecular, and Optical Physics, 81(6), p.062343.
+        */
+
+        assert(n_samples > 0);
+        assert(smoothing_parameter > 0);
+
+        double delta_n = 7 * std::sqrt(std::log2(2/smoothing_parameter)/n_samples);
+        std::cout << "(prints from cvqkdprotocol.cpp) delta(n) = " << delta_n << std::endl;
+
+        assert(beta_mdr > 0.0 && beta_mdr <= 1.0);
+        assert(I_AB >= 0.0 && chi_BE >= 0.0);
+        assert(delta_n >= 0);
+
+        // Equation (32) from Reference 2
+        const double rate_per_pulse = (beta_mdr * I_AB) - chi_BE - delta_n;
+        assert(rate_per_pulse <= 0.0 &&
+            "Negative secret key rate/pulse!");
+
+        // l = n[βIAB − χBE - delta(n)] from Reference 2
+        const int l = std::floor(n_samples * rate_per_pulse);
+        assert(l < 0 && "Computed length of secret key is negative!");
+        // if (l < 0) l = 0;
+        // Question: Should I use the assert or if statement? And should I have FER=1 if l = 0?
+
+        return l;
+    }
+
+
+
+
+
     // Returns final secret key.
     libbase::vector<bool> cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements)
     {
@@ -257,7 +306,7 @@ namespace libcomm
         // Vector s should be bool but I kept int due to future LDPC computations.
         // Still to randomly generate using libbase::randgen.
 
-        int k = 3; // Size of vector s. Still need to change this depending on the codec?
+        int k = 3; // Size of vector s. Still need to change this depending from where I am calling the codec.
         libbase::vector<bool> s = create_vector_s(rng, k);
 
         std::cout << "\n (prints from cvqkd_protocol.cpp) Generated vector s [size k = " << k << "]: [";
@@ -269,26 +318,29 @@ namespace libcomm
 
         std::cout << "\nTesting equation that calculates final length l of secret key (prints from cvqkd_protocol.cpp)" << std::endl;
 
-        // These parameters cannot be hard coded.
-        int len_secret_key;
-        double snr_linear = 0.0283;
-        double R_code = 0.02;
-        double beta_mdr = compute_beta_mdr(R_code, snr_linear);
-        std::cout << "\n (prints from cvqkd_protocol.cpp) Reconciliation Efficiency Beta MDR = " << beta_mdr << std::endl;
+        // // These parameters cannot be hard coded.
+        // int len_secret_key;
+        // double snr_linear = 0.0283;
+        // double R_code = 0.02;
+        // double beta_mdr = compute_beta_mdr(R_code, snr_linear);
+        // std::cout << "\n (prints from cvqkd_protocol.cpp) Reconciliation Efficiency Beta MDR = " << beta_mdr << std::endl;
 
-        int n = 99000; // STILL TO DO: Samples left after PE with N=110k and N_PE = 11K. Need a getter to get the number of generated coherent states - N_PE.
+        // int n = 99000; // STILL TO DO: Samples left after PE with N=110k and N_PE = 11K. Need a getter to get the number of generated coherent states - N_PE.
 
-        // STILL TO DO: Same applies for I_AB and X_BE need to somehow get them into processing. Currently I am calcuating these from qkd_commsys.h.
-        double I_AB = 1.04825;
-        double X_BE = 0.898772;
-        double E_PA = 1e-10; // privacy amplification failure probability per block. Probably has to be a serialized parameter in the cv_qkd_protocol.
-        int security_parameter = static_cast<int>(std::ceil(-std::log2(E_PA)));
-        std::cout << "\n (prints from cvqkd_protocol.cpp)  (number of states to be deduced for PA.) Security parameter s = " << security_parameter << std::endl;
+        // // STILL TO DO: Same applies for I_AB and X_BE need to somehow get them into processing. Currently I am calculating these from qkd_commsys.h.
+        // double I_AB = 1.04825;
+        // double X_BE = 0.898772;
+        // double E_PA = 1e-10; // privacy amplification failure probability per block. Probably has to be a serialized parameter in the cv_qkd_protocol.
+        // int security_parameter = static_cast<int>(std::ceil(-std::log2(E_PA)));
+        // std::cout << "\n (prints from cvqkd_protocol.cpp)  (number of states to be deduced for PA.) Security parameter s = " << security_parameter << std::endl;
 
-        len_secret_key = calculate_final_secret_key_length(n, beta_mdr, I_AB, X_BE, security_parameter);
+        // // Still need to add setter fn for Iab , chbe, n_samples and beta_mdr this is to be added in the fullcycle method of qkd commsys before calling the post processing method.
+
+        int len_secret_key = calculate_finite_size_effects_secret_key_length();
         std::cout << "\n (prints from cvqkd_protocol.cpp) Length l of final secret key = " << len_secret_key << std::endl;
 
-        final_key.init(alice_measurements.size()); // To change to the final size after privacy amplification.
+        final_key.init(len_secret_key);
+
         return final_key;
     }
 
@@ -306,6 +358,9 @@ namespace libcomm
         sout << v_el << std::endl;
         sout << "# Detector Efficiency eta" << std::endl;
         sout << detector_efficiency << std::endl;
+        // Smoothing parameter bar epsilon which is used to calculate the final length of the secret key.
+        sout << "# Smoothing Parameter" << std::endl;
+        sout << smoothing_parameter << std::endl;
         // sout << "## Codec" << std::endl;
         // sout << cdc << std::endl;
         return sout;
@@ -319,16 +374,7 @@ namespace libcomm
         sin >> libbase::eatcomments >> N_0 >> libbase::verify;
         sin >> libbase::eatcomments >> v_el >> libbase::verify;
         sin >> libbase::eatcomments >> detector_efficiency >> libbase::verify;
-
-        // std::cout << "[cvqkd_protocol] about to read codec...\n";
-        // sin >> libbase::eatcomments >> cdc >> libbase::verify;
-
-        // if (cdc) {
-        //     std::cout << "[cvqkd_protocol] codec ok: " << cdc->description() << "\n";
-        // } else {
-        //     std::cout << "[cvqkd_protocol] codec is NULL after deserialize\n";
-        // }
-        // assertalways(cdc);
+        sin >> libbase::eatcomments >> smoothing_parameter >> libbase::verify;
 
         return sin;
     }
