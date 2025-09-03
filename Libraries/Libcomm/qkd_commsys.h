@@ -71,6 +71,10 @@ protected:
 
     // Frame Error Rate
     double FER = 0;
+
+    // Number of Generated keys.
+    int N_keys;
+
     // @}
 public:
     qkd_commsys() {}
@@ -212,7 +216,9 @@ public:
         if(I_AB > X_BE)
         {
             MI_check = 1;
+            // **** FER and N_keys need to be added to the results collector to calculate the SKR.
             FER = 0;
+            N_keys = 1;
 
             std::cout << "(Prints from qkd_commsys.h) MI_Check = " << MI_check << std::endl; // To delete
 
@@ -254,8 +260,14 @@ public:
         else
         {
             MI_check = 0;
+
+            // **** FER and N_keys need to be added to the results collector to calculate the SKR.
+            N_keys = 0;
             FER = 1;
+
             // Post-processing returns a zero-vector or null? Still to check
+
+            // Still need to calculate the length of the secret key and use it.
 
             // Continue with post-processing
             libbase::vector<bool> all_zero_final_key;
