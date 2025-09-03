@@ -36,11 +36,33 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
     result.init(count());
     result = 0;
 
+    /* Still to add (already implemented): randgen rng; and set seed of src and system? */
+
     libbase::vector<S> source = src->generate_sequence(sys->input_block_size());
+
+    /* Still to add (already implemented):
+
+    int framesize = sys->input_block_size(); // Number of generated states per frame from Alice.
+
+    // Setting modulation variance VA in the gaussian quantum channel of Bob
+    double VA = src->get_VA();
+    sys->set_VA(*src);
+    */
+
     libbase::vector<bool> skey = sys->fullcycle(source);
 
     libbase::indirect_vector<double> result_segment =
         result.segment(0, R::count());
+
+    /*
+    // Still to add (already implemented):
+
+    int l_secret_key = sys->protocol->get_length_secret_key();
+
+    // Still to change update_results of results collector to:
+    R::updateresults(result_segment, source, skey, l_secret_key, framesize);
+
+    */
     R::updateresults(result_segment, source, skey);
 }
 
@@ -107,6 +129,8 @@ qkd_commsys_simulator<S, T, R>::serialize(std::istream& sin)
 namespace libcomm
 {
 
+// To be used for the R (third) templated parameter.
+#include "result_collector/qkd_commsys/cv_qkd_errors_hamming.h"
 // Explicit Realizations
 // TODO
 // E.g.
