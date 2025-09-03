@@ -234,9 +234,11 @@ namespace libcomm
             "Negative secret key rate/pulse!");
 
         // l = n[βIAB − χBE - delta(n)] from Reference 2
-        const int l = std::floor(n_samples * rate_per_pulse);
-        assert(l < 0 && "Computed length of secret key is negative!");
-        // if (l < 0) l = 0;
+        int l = std::floor(n_samples * rate_per_pulse);
+
+        // assert(l < 0 && "Computed length of secret key is negative!");
+        if (l < 0) {l = 0;} // To be used to calculate final SKR in Results collector.
+
         // Question: Should I use the assert or if statement? And should I have FER=1 if l = 0?
 
         return l;
@@ -297,6 +299,9 @@ namespace libcomm
 
         int len_secret_key = calculate_finite_size_effects_secret_key_length();
         std::cout << "\n (prints from cvqkd_protocol.cpp) Length l of final secret key = " << len_secret_key << std::endl;
+
+        // Sets length of secret key to later be able to retrieve it for the results collector.
+        set_length_secret_key(len_secret_key);
 
         final_key.init(len_secret_key);
 

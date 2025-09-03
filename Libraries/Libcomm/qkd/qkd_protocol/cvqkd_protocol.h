@@ -41,6 +41,7 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
          int n_samples; //Number of samples after parameter estimation.
          double beta_mdr; // Reconciliation Efficiency for MDR.
          double SNR_linear; // Retrieved from bob's quantum channel.
+         int l_secret_key; // Length of final secret key after PA.
 
     public:
         // void seedfrom(libbase::random& rng) override { this->rng.seed(rng.ival());  if (cdc) cdc->seedfrom(rng);}
@@ -185,7 +186,20 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
             this->n_samples  = n_samples;
         }
 
-        const int calculate_finite_size_effects_secret_key_length();
+        // Equations related to length of final secret key.
+        const int calculate_finite_size_effects_secret_key_length() override;
+
+        void set_length_secret_key(int l_secret_key) override
+        {
+            this->l_secret_key = l_secret_key;
+        }
+
+        // To be used by the Results collector to calculate the final SKR.
+        int get_length_secret_key() override
+        {
+            return l_secret_key;
+        }
+
 
         // Returns final secret key.
         libbase::vector<bool> postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements) override;
