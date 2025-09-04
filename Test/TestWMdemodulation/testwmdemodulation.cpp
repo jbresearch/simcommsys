@@ -48,7 +48,7 @@ typedef std::unique_ptr<channel<bool>> channel_ptr;
 
 modem_ptr
 create_modem(bool tvb,
-             bool math,
+             bool use_float,
              bool deep,
              int tau,
              int n,
@@ -60,7 +60,7 @@ create_modem(bool tvb,
     const double th_outer = 0;
     modem_ptr mdm;
     if (tvb) {
-        if (math) {
+        if (use_float) {
             if (deep) {
                 mdm = modem_ptr(new tvb<bool, float, float>(
                     n, k, th_inner, th_outer));
@@ -76,7 +76,7 @@ create_modem(bool tvb,
             }
         }
     } else {
-        if (math) {
+        if (use_float) {
             if (deep) {
                 mdm = modem_ptr(new dminner<float>(n, k, th_inner, th_outer));
             } else {
@@ -220,7 +220,7 @@ count_errors(const vector<int>& encoded, const vector<vector<double>>& ptable)
 
 void
 testcycle(bool tvb,
-          bool math,
+          bool use_float,
           bool deep,
           int seed,
           int n,
@@ -233,7 +233,7 @@ testcycle(bool tvb,
     libbase::randgen prng;
     prng.seed(seed);
     // create modem and channel
-    modem_ptr mdm = create_modem(tvb, math, deep, tau, n, k, prng);
+    modem_ptr mdm = create_modem(tvb, use_float, deep, tau, n, k, prng);
     channel_ptr chan = create_channel(Pe, prng);
     cout << std::endl;
     cout << mdm->description() << std::endl;
@@ -266,7 +266,7 @@ main(int argc, char* argv[])
     const double Phi = 0.056282;
 
     // Set up user parameters
-    bool tvb, math, deep;
+    bool tvb, use_float, deep;
     int type, seed, k, n, N;
     double Pe;
     namespace po = boost::program_options;
@@ -274,7 +274,7 @@ main(int argc, char* argv[])
     desc.add_options()("help,h", "print this help message");
     desc.add_options()("type,t", po::value<int>(&type)->default_value(0), "test to run (0: single-cycle, 1: multiple-cycle)");
     desc.add_options()("tvb", po::bool_switch(&tvb), "use alternative (rather than classic) decoder");
-    desc.add_options()("float", po::bool_switch(&math), "use 32-bit float (rather than 64-bit double)");
+    desc.add_options()("float", po::bool_switch(&use_float), "use 32-bit float (rather than 64-bit double)");
     desc.add_options()("deep", po::bool_switch(&deep), "do not perform any path truncation");
     desc.add_options()("seed", po::value<int>(&seed)->default_value(0), "seed for random generator");
     desc.add_options()("k", po::value<int>(&k)->default_value(4), "number of bits in message (input) symbol");
@@ -298,18 +298,18 @@ main(int argc, char* argv[])
     // do what the user asked for
     switch (type) {
     case 0:
-        testcycle(tvb, math, deep, seed, n, k, N, Pe);
+        testcycle(tvb, use_float, deep, seed, n, k, N, Pe);
         break;
 
     case 1:
         // try short,medium,large codes for benchmarking at low error
         // probability
-        testcycle(tvb, math, deep, seed, n, k, 10, Plo, false);
-        testcycle(tvb, math, deep, seed, n, k, 100, Plo, false);
-        testcycle(tvb, math, deep, seed, n, k, 1000, Plo, false);
+        testcycle(tvb, use_float, deep, seed, n, k, 10, Plo, false);
+        testcycle(tvb, use_float, deep, seed, n, k, 100, Plo, false);
+        testcycle(tvb, use_float, deep, seed, n, k, 1000, Plo, false);
         // try short,medium codes for benchmarking at high error probability
-        testcycle(tvb, math, deep, seed, n, k, 10, Phi, false);
-        testcycle(tvb, math, deep, seed, n, k, 100, Phi, false);
+        testcycle(tvb, use_float, deep, seed, n, k, 10, Phi, false);
+        testcycle(tvb, use_float, deep, seed, n, k, 100, Phi, false);
         break;
 
     default:
