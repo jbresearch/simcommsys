@@ -61,7 +61,7 @@ public:
      * \param   reference Reference value (estimate of the host value)
      * \return  Index corresponding to most-likely transmitted symbol
      */
-    virtual const int extract(const S& rx, const S reference) const = 0;
+    virtual const int extract(const S& rx, const S& reference) const = 0;
     // @}
 
     /*! \name Setup functions */
