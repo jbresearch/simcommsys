@@ -77,10 +77,10 @@ public:
     /*! \name Block blind embedder operations */
     /*!
      * \brief Embed a sequence of symbols
-     * \param[in]  N        The number of possible values of each encoded
-     * element \param[in]  data     Sequence of data values to be embedded
+     * \param[in]  N        The number of possible values of each encoded element
+     * \param[in]  data     Sequence of data values to be embedded
      * \param[in]  host     Sequence of host values into which to embed data
-     * \param[out] stego    Sequence of stego-values corresponding to the given
+     * \param[out] stego    Sequence of marked values corresponding to the given
      * input
      *
      * \todo Remove parameter N, replacing 'int' type for data vector with
@@ -94,7 +94,7 @@ public:
      * \brief Extract a sequence of symbols
      * \param[in]  chan     The channel model (used to obtain likelihoods)
      * \param[in]  rx       Sequence of received (possibly corrupted)
-     * stego-values \param[out] ptable   Table of likelihoods of possible
+     * marked values \param[out] ptable   Table of likelihoods of possible
      * transmitted symbols
      *
      * \note \c ptable(i)(d) \c is the a posteriori probability of having
@@ -145,7 +145,7 @@ template <class S,
           template <class> class C = libbase::vector,
           class dbl = double>
 class block_blind_embedder : public basic_block_blind_embedder<S, C, dbl>,
-                      public libbase::serializable
+                             public libbase::serializable
 {
 public:
     // Serialization Support

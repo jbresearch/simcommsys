@@ -35,7 +35,7 @@ namespace libcomm
  * \brief   Common Blind Data Embedder/Extractor Interface.
  * \author  Johann Briffa
  *
- * Class defines common interface for blind blind_embedder classes.
+ * Class defines common interface for blind_embedder classes.
  */
 
 template <class S>
@@ -52,12 +52,12 @@ public:
      * \brief Embed a single symbol
      * \param   data Index into the symbol alphabet (data to embed)
      * \param   host Host value into which to embed data
-     * \return  Stego-value, encoding the given data
+     * \return  Marked value, encoding the given data
      */
     virtual const S embed(const int data, const S host) const = 0;
     /*!
      * \brief Extract a single symbol
-     * \param   rx Received (possibly corrupted) stego-value
+     * \param   rx Received (possibly corrupted) marked value
      * \return  Index corresponding to most-likely transmitted symbol
      */
     virtual const int extract(const S& rx) const = 0;

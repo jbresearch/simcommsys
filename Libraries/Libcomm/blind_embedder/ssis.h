@@ -86,13 +86,13 @@ protected:
      * \param   data Index into the symbol alphabet (data to embed)
      * \param   host Host value into which to embed data
      * \param   u    Value from uniform sequence corresponding to this position
-     * \return  Stego-value, encoding the given data
+     * \return  Marked value, encoding the given data
      */
     static const S
     embed(const int data, const S host, const dbl u, const dbl A);
     /*!
      * \brief Extract a single symbol
-     * \param   rx Received (possibly corrupted) stego-value
+     * \param   rx Received (possibly corrupted) marked value
      * \return  Index corresponding to most-likely transmitted symbol
      */
     // const int extract(const S& rx) const;
