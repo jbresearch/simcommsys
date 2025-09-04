@@ -41,12 +41,13 @@ using libbase::vector;
 using libcomm::blockmodem;
 using libcomm::channel;
 using libcomm::dminner;
+using libcomm::tvb;
 
 typedef std::unique_ptr<blockmodem<bool>> modem_ptr;
 typedef std::unique_ptr<channel<bool>> channel_ptr;
 
 modem_ptr
-create_modem(bool decoder,
+create_modem(bool tvb,
              bool math,
              bool deep,
              int tau,
@@ -58,20 +59,20 @@ create_modem(bool decoder,
     const double th_inner = 0;
     const double th_outer = 0;
     modem_ptr mdm;
-    if (decoder) {
+    if (tvb) {
         if (math) {
             if (deep) {
-                mdm = modem_ptr(new libcomm::tvb<bool, float, float>(
+                mdm = modem_ptr(new tvb<bool, float, float>(
                     n, k, th_inner, th_outer));
             } else {
-                mdm = modem_ptr(new libcomm::tvb<bool, float, float>(n, k));
+                mdm = modem_ptr(new tvb<bool, float, float>(n, k));
             }
         } else {
             if (deep) {
-                mdm = modem_ptr(new libcomm::tvb<bool, double, float>(
+                mdm = modem_ptr(new tvb<bool, double, float>(
                     n, k, th_inner, th_outer));
             } else {
-                mdm = modem_ptr(new libcomm::tvb<bool, double, float>(n, k));
+                mdm = modem_ptr(new tvb<bool, double, float>(n, k));
             }
         }
     } else {
@@ -218,7 +219,7 @@ count_errors(const vector<int>& encoded, const vector<vector<double>>& ptable)
 }
 
 void
-testcycle(bool decoder,
+testcycle(bool tvb,
           bool math,
           bool deep,
           int seed,
@@ -232,7 +233,7 @@ testcycle(bool decoder,
     libbase::randgen prng;
     prng.seed(seed);
     // create modem and channel
-    modem_ptr mdm = create_modem(decoder, math, deep, tau, n, k, prng);
+    modem_ptr mdm = create_modem(tvb, math, deep, tau, n, k, prng);
     channel_ptr chan = create_channel(Pe, prng);
     cout << std::endl;
     cout << mdm->description() << std::endl;
@@ -265,14 +266,14 @@ main(int argc, char* argv[])
     const double Phi = 0.056282;
 
     // Set up user parameters
-    bool decoder, math, deep;
+    bool tvb, math, deep;
     int type, seed, k, n, N;
     double Pe;
     namespace po = boost::program_options;
     po::options_description desc("Allowed options");
     desc.add_options()("help,h", "print this help message");
     desc.add_options()("type,t", po::value<int>(&type)->default_value(0), "test to run (0: single-cycle, 1: multiple-cycle)");
-    desc.add_options()("alternative_decoder", po::bool_switch(&decoder), "use alternative (rather than classic) decoder");
+    desc.add_options()("tvb", po::bool_switch(&tvb), "use alternative (rather than classic) decoder");
     desc.add_options()("float", po::bool_switch(&math), "use 32-bit float (rather than 64-bit double)");
     desc.add_options()("deep", po::bool_switch(&deep), "do not perform any path truncation");
     desc.add_options()("seed", po::value<int>(&seed)->default_value(0), "seed for random generator");
@@ -297,18 +298,18 @@ main(int argc, char* argv[])
     // do what the user asked for
     switch (type) {
     case 0:
-        testcycle(decoder, math, deep, seed, n, k, N, Pe);
+        testcycle(tvb, math, deep, seed, n, k, N, Pe);
         break;
 
     case 1:
         // try short,medium,large codes for benchmarking at low error
         // probability
-        testcycle(decoder, math, deep, seed, n, k, 10, Plo, false);
-        testcycle(decoder, math, deep, seed, n, k, 100, Plo, false);
-        testcycle(decoder, math, deep, seed, n, k, 1000, Plo, false);
+        testcycle(tvb, math, deep, seed, n, k, 10, Plo, false);
+        testcycle(tvb, math, deep, seed, n, k, 100, Plo, false);
+        testcycle(tvb, math, deep, seed, n, k, 1000, Plo, false);
         // try short,medium codes for benchmarking at high error probability
-        testcycle(decoder, math, deep, seed, n, k, 10, Phi, false);
-        testcycle(decoder, math, deep, seed, n, k, 100, Phi, false);
+        testcycle(tvb, math, deep, seed, n, k, 10, Phi, false);
+        testcycle(tvb, math, deep, seed, n, k, 100, Phi, false);
         break;
 
     default:
