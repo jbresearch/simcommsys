@@ -23,7 +23,7 @@
 #define __qim_h
 
 #include "config.h"
-#include "embedder.h"
+#include "blind_embedder.h"
 
 namespace libcomm
 {
@@ -34,7 +34,7 @@ namespace libcomm
  */
 
 template <class S>
-class qim : public embedder<S>
+class qim : public blind_embedder<S>
 {
 private:
     /*! \name User-defined parameters */
@@ -62,7 +62,7 @@ public:
     {
     }
 
-    // Atomic embedder operations
+    // Atomic blind_embedder operations
     const S embed(const int i, const S s) const
     {
         return S(Q(i, s * alpha) + (1 - alpha) * s);

@@ -269,7 +269,7 @@ using libbase::vector;
       template class ssis<BOOST_PP_SEQ_ENUM(args)>; \
       template <> \
       const serializer ssis<BOOST_PP_SEQ_ENUM(args)>::shelper( \
-            "blockembedder", \
+            "block_blind_embedder", \
             "ssis<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2,args)) ">", \

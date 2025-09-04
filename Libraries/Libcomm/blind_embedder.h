@@ -19,8 +19,8 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __embedder_h
-#define __embedder_h
+#ifndef __blind_embedder_h
+#define __blind_embedder_h
 
 #include "config.h"
 #include "random.h"
@@ -32,22 +32,22 @@ namespace libcomm
 {
 
 /*!
- * \brief   Common Data Embedder/Extractor Interface.
+ * \brief   Common Blind Data Embedder/Extractor Interface.
  * \author  Johann Briffa
  *
- * Class defines common interface for embedder classes.
+ * Class defines common interface for blind blind_embedder classes.
  */
 
 template <class S>
-class basic_embedder
+class basic_blind_embedder
 {
 public:
     /*! \name Constructors / Destructors */
     //! Virtual destructor
-    virtual ~basic_embedder() {}
+    virtual ~basic_blind_embedder() {}
     // @}
 
-    /*! \name Atomic embedder operations */
+    /*! \name Atomic blind_embedder operations */
     /*!
      * \brief Embed a single symbol
      * \param   data Index into the symbol alphabet (data to embed)
@@ -80,16 +80,16 @@ public:
 };
 
 /*!
- * \brief   Data Embedder/Extractor Base.
+ * \brief   Blind Data Embedder/Extractor Base.
  * \author  Johann Briffa
  */
 
 template <class S>
-class embedder : public basic_embedder<S>, public libbase::serializable
+class blind_embedder : public basic_blind_embedder<S>, public libbase::serializable
 {
 public:
     // Serialization Support
-    DECLARE_BASE_SERIALIZER(embedder)
+    DECLARE_BASE_SERIALIZER(blind_embedder)
 };
 
 } // namespace libcomm

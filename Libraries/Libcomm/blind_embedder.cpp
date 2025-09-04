@@ -19,7 +19,7 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "embedder.h"
+#include "blind_embedder.h"
 #include <cstdlib>
 #include <sstream>
 
@@ -30,8 +30,8 @@ namespace libcomm
 
 // Explicit Realizations
 
-template class basic_embedder<int>;
-template class basic_embedder<float>;
-template class basic_embedder<double>;
+template class basic_blind_embedder<int>;
+template class basic_blind_embedder<float>;
+template class basic_blind_embedder<double>;
 
 } // namespace libcomm

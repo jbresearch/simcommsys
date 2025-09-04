@@ -19,7 +19,7 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "blockembedder.h"
+#include "block_blind_embedder.h"
 #include <cstdlib>
 #include <sstream>
 
@@ -32,7 +32,7 @@ namespace libcomm
 
 template <class S, template <class> class C, class dbl>
 void
-basic_blockembedder<S, C, dbl>::embed(const int N,
+basic_block_blind_embedder<S, C, dbl>::embed(const int N,
                                       const C<int>& data,
                                       const C<S>& host,
                                       C<S>& stego)
@@ -44,7 +44,7 @@ basic_blockembedder<S, C, dbl>::embed(const int N,
 
 template <class S, template <class> class C, class dbl>
 void
-basic_blockembedder<S, C, dbl>::extract(const channel<S, C>& chan,
+basic_block_blind_embedder<S, C, dbl>::extract(const channel<S, C>& chan,
                                         const C<S>& rx,
                                         C<array1d_t>& ptable)
 {
@@ -59,24 +59,24 @@ basic_blockembedder<S, C, dbl>::extract(const channel<S, C>& chan,
 using libbase::matrix;
 using libbase::vector;
 
-template class basic_blockembedder<int, vector, double>;
-template class basic_blockembedder<float, vector, double>;
-template class basic_blockembedder<double, vector, double>;
+template class basic_block_blind_embedder<int, vector, double>;
+template class basic_block_blind_embedder<float, vector, double>;
+template class basic_block_blind_embedder<double, vector, double>;
 
-template class basic_blockembedder<int, matrix, double>;
-template class basic_blockembedder<float, matrix, double>;
-template class basic_blockembedder<double, matrix, double>;
+template class basic_block_blind_embedder<int, matrix, double>;
+template class basic_block_blind_embedder<float, matrix, double>;
+template class basic_block_blind_embedder<double, matrix, double>;
 
 // *** Blockwise Data Embedder/Extractor Common Interface ***
 
 // Explicit Realizations
 
-template class blockembedder<int, vector, double>;
-template class blockembedder<float, vector, double>;
-template class blockembedder<double, vector, double>;
+template class block_blind_embedder<int, vector, double>;
+template class block_blind_embedder<float, vector, double>;
+template class block_blind_embedder<double, vector, double>;
 
-template class blockembedder<int, matrix, double>;
-template class blockembedder<float, matrix, double>;
-template class blockembedder<double, matrix, double>;
+template class block_blind_embedder<int, matrix, double>;
+template class block_blind_embedder<float, matrix, double>;
+template class block_blind_embedder<double, matrix, double>;
 
 } // namespace libcomm

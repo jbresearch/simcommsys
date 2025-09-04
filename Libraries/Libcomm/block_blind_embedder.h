@@ -19,8 +19,8 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __blockembedder_h
-#define __blockembedder_h
+#ifndef __block_blind_embedder_h
+#define __block_blind_embedder_h
 
 #include "blockprocess.h"
 #include "channel.h"
@@ -32,16 +32,16 @@ namespace libcomm
 {
 
 /*!
- * \brief   Blockwise Data Embedder/Extractor Common Interface.
+ * \brief   Blockwise Blind Data Embedder/Extractor Common Interface.
  * \author  Johann Briffa
  *
- * Class defines common interface for blockembedder classes.
+ * Class defines common interface for block_blind_embedder classes.
  */
 
 template <class S,
           template <class> class C = libbase::vector,
           class dbl = double>
-class basic_blockembedder : public blockprocess
+class basic_block_blind_embedder : public blockprocess
 {
 public:
     /*! \name Type definitions */
@@ -71,15 +71,10 @@ protected:
 public:
     /*! \name Constructors / Destructors */
     //! Virtual destructor
-    virtual ~basic_blockembedder() {}
+    virtual ~basic_block_blind_embedder() {}
     // @}
 
-    // Atomic embedder operations
-    // (necessary because overloaded methods hide those in templated base)
-    // using embedder<S>::embed;
-    // using embedder<S>::extract;
-
-    /*! \name Block embedder operations */
+    /*! \name Block blind embedder operations */
     /*!
      * \brief Embed a sequence of symbols
      * \param[in]  N        The number of possible values of each encoded
@@ -140,21 +135,21 @@ public:
 };
 
 /*!
- * \brief   Blockwise Data Embedder/Extractor Base.
+ * \brief   Blockwise Blind Data Embedder/Extractor Base.
  * \author  Johann Briffa
  *
- * Class defines base interface for blockembedder classes.
+ * Class defines base interface for block_blind_embedder classes.
  */
 
 template <class S,
           template <class> class C = libbase::vector,
           class dbl = double>
-class blockembedder : public basic_blockembedder<S, C, dbl>,
+class block_blind_embedder : public basic_block_blind_embedder<S, C, dbl>,
                       public libbase::serializable
 {
 public:
     // Serialization Support
-    DECLARE_BASE_SERIALIZER(blockembedder)
+    DECLARE_BASE_SERIALIZER(block_blind_embedder)
 };
 
 } // namespace libcomm

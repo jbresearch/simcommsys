@@ -19,7 +19,7 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "blockembedder.h"
+#include "block_blind_embedder.h"
 #include "cputimer.h"
 #include "hard_decision.h"
 #include "image.h"
@@ -73,8 +73,8 @@ process(const std::string& systemfile,
     // Load stego-medium
     libimage::image<S> stegoimage = loadimage<S>(sin);
     // Stego-system embedder
-    std::shared_ptr<libcomm::blockembedder<S, C>> system =
-        libcomm::loadfromfile<libcomm::blockembedder<S, C>>(systemfile);
+    std::shared_ptr<libcomm::block_blind_embedder<S, C>> system =
+        libcomm::loadfromfile<libcomm::block_blind_embedder<S, C>>(systemfile);
     std::cerr << system->description() << std::endl;
     // Channel model
     std::shared_ptr<libcomm::channel<S, C>> chan =

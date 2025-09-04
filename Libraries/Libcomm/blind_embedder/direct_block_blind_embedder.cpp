@@ -19,7 +19,7 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "direct_blockembedder.h"
+#include "direct_block_blind_embedder.h"
 #include <cstdlib>
 #include <sstream>
 #include <vectorutils.h>
@@ -30,13 +30,13 @@ namespace libcomm
 using libbase::matrix;
 using libbase::vector;
 
-// *** Vector position-independent blockembedder ***
+// *** Vector position-independent block_blind_embedder ***
 
 // Block modem operations
 
 template <class S, class dbl>
 void
-direct_blockembedder<S, vector, dbl>::doembed(const int N,
+direct_block_blind_embedder<S, vector, dbl>::doembed(const int N,
                                               const vector<int>& data,
                                               const vector<S>& host,
                                               vector<S>& tx)
@@ -57,7 +57,7 @@ direct_blockembedder<S, vector, dbl>::doembed(const int N,
 
 template <class S, class dbl>
 void
-direct_blockembedder<S, vector, dbl>::doextract(const channel<S, vector>& chan,
+direct_block_blind_embedder<S, vector, dbl>::doextract(const channel<S, vector>& chan,
                                                 const vector<S>& rx,
                                                 vector<array1d_t>& ptable)
 {
@@ -89,7 +89,7 @@ direct_blockembedder<S, vector, dbl>::doextract(const channel<S, vector>& chan,
 
 template <class S, class dbl>
 std::string
-direct_blockembedder<S, vector, dbl>::description() const
+direct_block_blind_embedder<S, vector, dbl>::description() const
 {
     std::ostringstream sout;
     sout << "Vector " << implementation->description();
@@ -100,7 +100,7 @@ direct_blockembedder<S, vector, dbl>::description() const
 
 template <class S, class dbl>
 std::ostream&
-direct_blockembedder<S, vector, dbl>::serialize(std::ostream& sout) const
+direct_block_blind_embedder<S, vector, dbl>::serialize(std::ostream& sout) const
 {
     sout << implementation;
     return sout;
@@ -108,19 +108,19 @@ direct_blockembedder<S, vector, dbl>::serialize(std::ostream& sout) const
 
 template <class S, class dbl>
 std::istream&
-direct_blockembedder<S, vector, dbl>::serialize(std::istream& sin)
+direct_block_blind_embedder<S, vector, dbl>::serialize(std::istream& sin)
 {
     sin >> libbase::eatcomments >> implementation >> libbase::verify;
     return sin;
 }
 
-// *** Matrix position-independent blockembedder ***
+// *** Matrix position-independent block_blind_embedder ***
 
 // Block modem operations
 
 template <class S, class dbl>
 void
-direct_blockembedder<S, matrix, dbl>::doembed(const int N,
+direct_block_blind_embedder<S, matrix, dbl>::doembed(const int N,
                                               const matrix<int>& data,
                                               const matrix<S>& host,
                                               matrix<S>& tx)
@@ -147,7 +147,7 @@ direct_blockembedder<S, matrix, dbl>::doembed(const int N,
 
 template <class S, class dbl>
 void
-direct_blockembedder<S, matrix, dbl>::doextract(const channel<S, matrix>& chan,
+direct_block_blind_embedder<S, matrix, dbl>::doextract(const channel<S, matrix>& chan,
                                                 const matrix<S>& rx,
                                                 matrix<array1d_t>& ptable)
 {
@@ -185,7 +185,7 @@ direct_blockembedder<S, matrix, dbl>::doextract(const channel<S, matrix>& chan,
 
 template <class S, class dbl>
 std::string
-direct_blockembedder<S, matrix, dbl>::description() const
+direct_block_blind_embedder<S, matrix, dbl>::description() const
 {
     std::ostringstream sout;
     sout << "Matrix " << implementation->description();
@@ -196,7 +196,7 @@ direct_blockembedder<S, matrix, dbl>::description() const
 
 template <class S, class dbl>
 std::ostream&
-direct_blockembedder<S, matrix, dbl>::serialize(std::ostream& sout) const
+direct_block_blind_embedder<S, matrix, dbl>::serialize(std::ostream& sout) const
 {
     sout << implementation;
     return sout;
@@ -204,7 +204,7 @@ direct_blockembedder<S, matrix, dbl>::serialize(std::ostream& sout) const
 
 template <class S, class dbl>
 std::istream&
-direct_blockembedder<S, matrix, dbl>::serialize(std::istream& sin)
+direct_block_blind_embedder<S, matrix, dbl>::serialize(std::istream& sin)
 {
     sin >> libbase::eatcomments >> implementation >> libbase::verify;
     return sin;
@@ -232,7 +232,7 @@ using libbase::vector;
 #define REAL_TYPE_SEQ \
    (double)
 
-/* Serialization string: direct_blockembedder<type,container,real>
+/* Serialization string: direct_block_blind_embedder<type,container,real>
  * where:
  *      type = int | float | double
  *      container = vector | matrix
@@ -240,14 +240,14 @@ using libbase::vector;
  *              [real is the interface arithmetic type]
  */
 #define INSTANTIATE(r, args) \
-      template class direct_blockembedder<BOOST_PP_SEQ_ENUM(args)>; \
+      template class direct_block_blind_embedder<BOOST_PP_SEQ_ENUM(args)>; \
       template <> \
-      const serializer direct_blockembedder<BOOST_PP_SEQ_ENUM(args)>::shelper( \
-            "blockembedder", \
-            "direct_blockembedder<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
+      const serializer direct_block_blind_embedder<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+            "block_blind_embedder", \
+            "direct_block_blind_embedder<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) "," \
             BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2,args)) ">", \
-            direct_blockembedder<BOOST_PP_SEQ_ENUM(args)>::create);
+            direct_block_blind_embedder<BOOST_PP_SEQ_ENUM(args)>::create);
 // clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(

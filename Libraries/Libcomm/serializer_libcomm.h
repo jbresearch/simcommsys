@@ -45,13 +45,13 @@
 #include "channel/selective.h"
 
 // Embedders - atomic
-#include "embedder.h"
-#include "embedder/lsb.h"
-#include "embedder/qim.h"
-#include "embedder/ssis.h"
+#include "blind_embedder.h"
+#include "blind_embedder/lsb.h"
+#include "blind_embedder/qim.h"
+#include "blind_embedder/ssis.h"
 // Embedders - block
-#include "blockembedder.h"
-#include "embedder/direct_blockembedder.h"
+#include "block_blind_embedder.h"
+#include "blind_embedder/direct_block_blind_embedder.h"
 
 // Modulators
 #include "blockmodem.h"
@@ -188,7 +188,7 @@ private:
     qim<int> _qim_int;
     lsb<int> _lsb_int;
     // Embedders - block
-    direct_blockembedder<int> _direct_blockembedder_int;
+    direct_block_blind_embedder<int> _direct_block_blind_embedder_int;
     ssis<int> _ssis_int;
     // Modulators
     direct_modem<bool> _direct_modem_bool;

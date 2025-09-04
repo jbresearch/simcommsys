@@ -347,7 +347,7 @@ public:
     // Channel functions
     void transmit(const array1b_t& tx, array1b_t& rx);
     using channel<bool>::receive;
-    /*! \note Used by: direct_blockembedder, ssis, direct_blockmodem,
+    /*! \note Used by: direct_block_blind_embedder, ssis, direct_blockmodem,
      * lut_modulator
      */
     void

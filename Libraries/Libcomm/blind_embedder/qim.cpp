@@ -101,7 +101,7 @@ using libbase::serializer;
       template class qim<type>; \
       template <> \
       const serializer qim<type>::shelper( \
-            "embedder", \
+            "blind_embedder", \
             "qim<" BOOST_PP_STRINGIZE(type) ">", \
             qim<type>::create);
 // clang-format on

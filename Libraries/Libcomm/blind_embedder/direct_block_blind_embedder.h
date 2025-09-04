@@ -19,20 +19,20 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __direct_blockembedder_h
-#define __direct_blockembedder_h
+#ifndef __direct_block_blind_embedder_h
+#define __direct_block_blind_embedder_h
 
-#include "blockembedder.h"
-#include "embedder.h"
+#include "block_blind_embedder.h"
+#include "blind_embedder.h"
 
 namespace libcomm
 {
 
 /*!
- * \brief   Position-Independent Blockwise Data Embedder/Extractor.
+ * \brief   Position-Independent Blockwise Blind Data Embedder/Extractor.
  * \author  Johann Briffa
  *
- * This class is a template definition for position-independent block
+ * This class is a template definition for position-independent block blind
  * embedders; this needs to be specialized for actual use. Template parameter
  * defaults are provided here.
  */
@@ -40,20 +40,20 @@ namespace libcomm
 template <class S,
           template <class> class C = libbase::vector,
           class dbl = double>
-class direct_blockembedder : public blockembedder<S, C, dbl>
+class direct_block_blind_embedder : public block_blind_embedder<S, C, dbl>
 {
 };
 
 /*!
- * \brief   Position-Independent Vector Data Embedder/Extractor
+ * \brief   Position-Independent Vector Blind Data Embedder/Extractor
  * \author  Johann Briffa
  *
- * Vector implementation of a position-independent block embedder.
+ * Vector implementation of a position-independent block blind embedder.
  */
 
 template <class S, class dbl>
-class direct_blockembedder<S, libbase::vector, dbl>
-    : public blockembedder<S, libbase::vector, dbl>
+class direct_block_blind_embedder<S, libbase::vector, dbl>
+    : public block_blind_embedder<S, libbase::vector, dbl>
 {
 public:
     /*! \name Type definitions */
@@ -61,7 +61,7 @@ public:
     // @}
 private:
     /*! \name User-defined parameters */
-    std::shared_ptr<embedder<S>>
+    std::shared_ptr<blind_embedder<S>>
         implementation; //! Implementation of embedding/extraction functions
                         // @}
 protected:
@@ -82,19 +82,19 @@ public:
     std::string description() const;
 
     // Serialization Support
-    DECLARE_SERIALIZER(direct_blockembedder)
+    DECLARE_SERIALIZER(direct_block_blind_embedder)
 };
 
 /*!
- * \brief   Position-Independent Matrix Data Embedder/Extractor
+ * \brief   Position-Independent Matrix Blind Data Embedder/Extractor
  * \author  Johann Briffa
  *
- * Matrix implementation of a position-independent block embedder.
+ * Matrix implementation of a position-independent block blind embedder.
  */
 
 template <class S, class dbl>
-class direct_blockembedder<S, libbase::matrix, dbl>
-    : public blockembedder<S, libbase::matrix, dbl>
+class direct_block_blind_embedder<S, libbase::matrix, dbl>
+    : public block_blind_embedder<S, libbase::matrix, dbl>
 {
 public:
     /*! \name Type definitions */
@@ -102,7 +102,7 @@ public:
     // @}
 private:
     /*! \name User-defined parameters */
-    std::shared_ptr<embedder<S>>
+    std::shared_ptr<blind_embedder<S>>
         implementation; //! Implementation of embedding/extraction functions
                         // @}
 protected:
@@ -123,7 +123,7 @@ public:
     std::string description() const;
 
     // Serialization Support
-    DECLARE_SERIALIZER(direct_blockembedder)
+    DECLARE_SERIALIZER(direct_block_blind_embedder)
 };
 
 } // namespace libcomm

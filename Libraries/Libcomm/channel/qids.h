@@ -765,7 +765,7 @@ public:
 
     // Channel functions
     void transmit(const array1g_t& tx, array1g_t& rx);
-    /*! \note Used by: direct_blockembedder, ssis, direct_blockmodem,
+    /*! \note Used by: direct_block_blind_embedder, ssis, direct_blockmodem,
      * lut_modulator
      */
     void

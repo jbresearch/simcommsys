@@ -22,8 +22,8 @@
 #ifndef __ssis_h
 #define __ssis_h
 
-#include "blockembedder.h"
-#include "embedder.h"
+#include "block_blind_embedder.h"
+#include "blind_embedder.h"
 
 namespace libcomm
 {
@@ -40,7 +40,7 @@ namespace libcomm
 template <class S,
           template <class> class C = libbase::matrix,
           class dbl = double>
-class ssis : public blockembedder<S, C, dbl>
+class ssis : public block_blind_embedder<S, C, dbl>
 {
 };
 
@@ -54,7 +54,7 @@ class ssis : public blockembedder<S, C, dbl>
 
 template <class S, class dbl>
 class ssis<S, libbase::matrix, dbl>
-    : public blockembedder<S, libbase::matrix, dbl>
+    : public block_blind_embedder<S, libbase::matrix, dbl>
 {
 public:
     /*! \name Type definitions */

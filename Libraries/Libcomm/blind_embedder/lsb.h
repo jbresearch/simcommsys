@@ -23,7 +23,7 @@
 #define __lsb_h
 
 #include "config.h"
-#include "embedder.h"
+#include "blind_embedder.h"
 #include "randgen.h"
 
 namespace libcomm
@@ -40,7 +40,7 @@ namespace libcomm
  */
 
 template <class S>
-class lsb : public embedder<S>
+class lsb : public blind_embedder<S>
 {
 private:
     /*! \name User-defined parameters */
@@ -68,7 +68,7 @@ public:
         this->r.seed(seed);
     }
 
-    // Atomic embedder operations
+    // Atomic blind_embedder operations
     const S embed(const int i, const S s) const
     {
         assert(i >= 0 && i < M);

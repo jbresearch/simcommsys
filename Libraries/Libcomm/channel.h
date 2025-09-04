@@ -145,7 +145,7 @@ public:
      *
      * \note Not suitable for non-substitution channels
      *
-     * \note Used by direct_blockembedder, ssis
+     * \note Used by direct_block_blind_embedder, ssis
      */
     virtual void receive(const C<array1s_t>& tx,
                          const C<S>& rx,

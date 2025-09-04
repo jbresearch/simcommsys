@@ -116,7 +116,7 @@ using libbase::serializer;
       template class lsb<type>; \
       template <> \
       const serializer lsb<type>::shelper( \
-            "embedder", \
+            "blind_embedder", \
             "lsb<" BOOST_PP_STRINGIZE(type) ">", \
             lsb<type>::create);
 // clang-format on
