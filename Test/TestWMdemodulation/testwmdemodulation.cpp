@@ -25,6 +25,8 @@
 #include "randgen.h"
 #include "version.h"
 
+#include <boost/program_options.hpp>
+
 #include <iostream>
 #include <memory>
 #include <string>
@@ -262,35 +264,31 @@ main(int argc, char* argv[])
     const double Plo = 9.00601e-09;
     const double Phi = 0.056282;
 
-    // user-defined parameters
-    if (argc < 3) {
-        cout << "Usage: " << argv[0]
-             << " <type> <decoder> [math [deep [seed [k [n [N [Pe]]]]]]]"
-             << std::endl;
-        cout << "Where: type = 1 for multiple-cycle test" << std::endl;
-        cout << "       type = 2 for single-cycle test" << std::endl;
-        cout << "       decoder = 0/1 for classic/alternative decoder"
-             << std::endl;
-        cout << "       math = 0/1 for double(default) / float" << std::endl;
-        cout << "       deep = 0/1 for with(default) / without path truncation"
-             << std::endl;
-        cout << "Code settings seed,n,k are used always;" << std::endl;
-        cout << "   Defaults to seed 0, k/n = 4/15" << std::endl;
-        cout << "Block size N and error probability Pe are for single-cycle."
-             << std::endl;
-        exit(1);
-    }
+    // Set up user parameters
+    bool decoder, math, deep;
+    int type, seed, k, n, N;
+    double Pe;
+    namespace po = boost::program_options;
+    po::options_description desc("Allowed options");
+    desc.add_options()("help,h", "print this help message");
+    desc.add_options()("type,t", po::value<int>(&type)->default_value(0), "test to run (0: single-cycle, 1: multiple-cycle)");
+    desc.add_options()("alternative_decoder", po::bool_switch(&decoder), "use alternative (rather than classic) decoder");
+    desc.add_options()("float", po::bool_switch(&math), "use 32-bit float (rather than 64-bit double)");
+    desc.add_options()("deep", po::bool_switch(&deep), "do not perform any path truncation");
+    desc.add_options()("seed", po::value<int>(&seed)->default_value(0), "seed for random generator");
+    desc.add_options()("k", po::value<int>(&k)->default_value(4), "number of bits in message (input) symbol");
+    desc.add_options()("n", po::value<int>(&n)->default_value(15), "number of bits in sparse (output) symbol");
+    desc.add_options()("N", po::value<int>(&N)->default_value(5), "block size in symbols at encoder output (single-cycle test only)");
+    desc.add_options()("Pe", po::value<double>(&Pe)->default_value(Plo), "block size in symbols at encoder output (single-cycle test only)");
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
 
-    int i = 0;
-    const int type = atoi(argv[++i]);
-    const bool decoder = atoi(argv[++i]) != 0;
-    const bool math = ((argc > ++i) ? atoi(argv[i]) : 0) != 0;
-    const bool deep = ((argc > ++i) ? atoi(argv[i]) : 0) != 0;
-    const int seed = ((argc > ++i) ? atoi(argv[i]) : 0);
-    const int k = ((argc > ++i) ? atoi(argv[i]) : 4);
-    const int n = ((argc > ++i) ? atoi(argv[i]) : 15);
-    const int N = ((argc > ++i) ? atoi(argv[i]) : 5);
-    const double Pe = ((argc > ++i) ? atof(argv[i]) : Plo);
+    // Validate user parameters
+    if (vm.count("help")) {
+        cout << desc << std::endl;
+        return 0;
+    }
 
     // show revision information
     cout << "Build: " << SIMCOMMSYS_BUILD << std::endl;
@@ -298,6 +296,10 @@ main(int argc, char* argv[])
 
     // do what the user asked for
     switch (type) {
+    case 0:
+        testcycle(decoder, math, deep, seed, n, k, N, Pe);
+        break;
+
     case 1:
         // try short,medium,large codes for benchmarking at low error
         // probability
@@ -307,10 +309,6 @@ main(int argc, char* argv[])
         // try short,medium codes for benchmarking at high error probability
         testcycle(decoder, math, deep, seed, n, k, 10, Phi, false);
         testcycle(decoder, math, deep, seed, n, k, 100, Phi, false);
-        break;
-
-    case 2:
-        testcycle(decoder, math, deep, seed, n, k, N, Pe);
         break;
 
     default:
