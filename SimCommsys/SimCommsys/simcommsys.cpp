@@ -232,15 +232,19 @@ main(int argc, char* argv[])
 
             // Work out the following for every combination of parameters
             // required
-            for (auto params_it =
-                     libbase::multi_range_iterator::begin(param_ranges);
-                 params_it < libbase::multi_range_iterator::end(param_ranges);
-                 ++params_it) {
+            auto params_it = libbase::multi_range_iterator::begin(param_ranges);
+            int params_count = 1;
+            int params_total_count = params_it.count();
+            for (;
+                 params_it <= libbase::multi_range_iterator::end(param_ranges);
+                 ++params_it, params_count++) {
                 libbase::vector<double> params = *params_it;
                 system->set_parameters(params);
 
-                cerr << "Simulating system at parameters = ";
-                params.serialize(cerr, ", ");
+                cerr << "[" << params_count << "/" << params_total_count
+                     << "] Simulating system at parameters = ";
+                for (int i = 0; i < params.size(); i++)
+                    cerr << params(i) << ", ";
                 cerr << std::endl;
                 libbase::vector<double> estimate, errormargin;
                 estimator.estimate(estimate, errormargin);
