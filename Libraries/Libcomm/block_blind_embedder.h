@@ -77,7 +77,8 @@ public:
     /*! \name Block blind embedder operations */
     /*!
      * \brief Embed a sequence of symbols
-     * \param[in]  N        The number of possible values of each encoded element
+     * \param[in]  N        The number of possible values of each encoded
+     * element
      * \param[in]  data     Sequence of data values to be embedded
      * \param[in]  host     Sequence of host values into which to embed data
      * \param[out] stego    Sequence of marked values corresponding to the given
@@ -93,9 +94,9 @@ public:
     /*!
      * \brief Extract a sequence of symbols
      * \param[in]  chan     The channel model (used to obtain likelihoods)
-     * \param[in]  rx       Sequence of received (possibly corrupted)
-     * marked values \param[out] ptable   Table of likelihoods of possible
-     * transmitted symbols
+     * \param[in]  rx       Sequence of received (possibly corrupted) marked
+     * values
+     * \param[out] ptable   Table of likelihoods of possible transmitted symbols
      *
      * \note \c ptable(i)(d) \c is the a posteriori probability of having
      * transmitted symbol 'd' at time 'i'

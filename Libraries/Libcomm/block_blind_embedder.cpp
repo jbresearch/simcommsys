@@ -26,7 +26,7 @@
 namespace libcomm
 {
 
-// *** Blockwise Data Embedder/Extractor Common Interface ***
+// *** Blockwise Blind Data Embedder/Extractor Common Interface ***
 
 // Block modem operations
 
