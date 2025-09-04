@@ -44,7 +44,7 @@ public:
     sign() {}
 
     // Atomic informed_embedder operations
-    const S embed(const int i, const S s) const
+    const S embed(const int i, const S s) const override
     {
         // sign embedding works only for binary sources
         assert(i >= 0 && i < 2);
@@ -55,7 +55,7 @@ public:
             return -s;
         }
     }
-    const int extract(const S& rx, const S& reference) const
+    const int extract(const S& rx, const S& reference) const override
     {
         if (std::signbit(rx) == std::signbit(reference)) {
             return 0;
@@ -65,10 +65,10 @@ public:
     }
 
     // Informative functions
-    int num_symbols() const { return 2; }
+    int num_symbols() const override { return 2; }
 
     // Description
-    std::string description() const { return "Sign embedder"; };
+    std::string description() const override { return "Sign embedder"; };
 
     // Serialization Support
     DECLARE_SERIALIZER(sign)

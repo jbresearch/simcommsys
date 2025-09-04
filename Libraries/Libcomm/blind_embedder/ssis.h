@@ -22,8 +22,8 @@
 #ifndef __ssis_h
 #define __ssis_h
 
-#include "block_blind_embedder.h"
 #include "blind_embedder.h"
+#include "block_blind_embedder.h"
 
 namespace libcomm
 {
@@ -98,18 +98,18 @@ protected:
     // const int extract(const S& rx) const;
     // @}
     // Interface with derived classes
-    void advance() const;
+    void advance() const override;
     void doembed(const int N,
                  const libbase::matrix<int>& data,
                  const libbase::matrix<S>& host,
-                 libbase::matrix<S>& tx);
+                 libbase::matrix<S>& tx) override;
     void doextract(const channel<S, libbase::matrix>& chan,
                    const libbase::matrix<S>& rx,
-                   libbase::matrix<array1d_t>& ptable);
+                   libbase::matrix<array1d_t>& ptable) override;
 
 public:
     // Setup functions
-    void seedfrom(libbase::random& r)
+    void seedfrom(libbase::random& r) override
     {
         uint32_t seed = r.ival();
 #ifndef NDEBUG
@@ -121,10 +121,10 @@ public:
     }
 
     // Informative functions
-    int num_symbols() const { return 2; }
+    int num_symbols() const override { return 2; }
 
     // Description
-    std::string description() const;
+    std::string description() const override;
 
     // Serialization Support
     DECLARE_SERIALIZER(ssis)

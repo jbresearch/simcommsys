@@ -69,18 +69,18 @@ protected:
     void doembed(const int N,
                  const libbase::vector<int>& data,
                  const libbase::vector<S>& host,
-                 libbase::vector<S>& tx);
+                 libbase::vector<S>& tx) override;
     void doextract(const channel<S, libbase::vector>& chan,
                    const libbase::vector<S>& rx,
                    const libbase::vector<S>& reference,
-                   libbase::vector<array1d_t>& ptable);
+                   libbase::vector<array1d_t>& ptable) override;
 
 public:
     // Informative functions
-    int num_symbols() const { return implementation->num_symbols(); }
+    int num_symbols() const override { return implementation->num_symbols(); }
 
     // Description
-    std::string description() const;
+    std::string description() const override;
 
     // Serialization Support
     DECLARE_SERIALIZER(direct_block_informed_embedder)
@@ -111,18 +111,18 @@ protected:
     void doembed(const int N,
                  const libbase::matrix<int>& data,
                  const libbase::matrix<S>& host,
-                 libbase::matrix<S>& tx);
+                 libbase::matrix<S>& tx) override;
     void doextract(const channel<S, libbase::matrix>& chan,
                    const libbase::matrix<S>& rx,
                    const libbase::matrix<S>& reference,
-                   libbase::matrix<array1d_t>& ptable);
+                   libbase::matrix<array1d_t>& ptable) override;
 
 public:
     // Informative functions
-    int num_symbols() const { return implementation->num_symbols(); }
+    int num_symbols() const override { return implementation->num_symbols(); }
 
     // Description
-    std::string description() const;
+    std::string description() const override;
 
     // Serialization Support
     DECLARE_SERIALIZER(direct_block_informed_embedder)

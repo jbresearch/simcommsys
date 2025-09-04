@@ -22,8 +22,8 @@
 #ifndef __qim_h
 #define __qim_h
 
-#include "config.h"
 #include "blind_embedder.h"
+#include "config.h"
 
 namespace libcomm
 {
@@ -63,11 +63,11 @@ public:
     }
 
     // Atomic blind_embedder operations
-    const S embed(const int i, const S s) const
+    const S embed(const int i, const S s) const override
     {
         return S(Q(i, s * alpha) + (1 - alpha) * s);
     }
-    const int extract(const S& rx) const
+    const int extract(const S& rx) const override
     {
         // Find the symbol with the smallest discrepancy
         int d = 0;
@@ -83,10 +83,10 @@ public:
     }
 
     // Informative functions
-    int num_symbols() const { return M; }
+    int num_symbols() const override { return M; }
 
     // Description
-    std::string description() const;
+    std::string description() const override;
 
     // Serialization Support
     DECLARE_SERIALIZER(qim)

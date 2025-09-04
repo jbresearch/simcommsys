@@ -22,8 +22,8 @@
 #ifndef __lsb_h
 #define __lsb_h
 
-#include "config.h"
 #include "blind_embedder.h"
+#include "config.h"
 #include "randgen.h"
 
 namespace libcomm
@@ -62,14 +62,14 @@ public:
     lsb(const int M = 2) : M(M), algorithm(AL_REPLACEMENT) {}
 
     // Setup functions
-    void seedfrom(libbase::random& r)
+    void seedfrom(libbase::random& r) override
     {
         uint32_t seed = r.ival();
         this->r.seed(seed);
     }
 
     // Atomic blind_embedder operations
-    const S embed(const int i, const S s) const
+    const S embed(const int i, const S s) const override
     {
         assert(i >= 0 && i < M);
         switch (algorithm) {
@@ -93,13 +93,13 @@ public:
             return s;
         }
     }
-    const int extract(const S& rx) const { return int(rx % M); }
+    const int extract(const S& rx) const override { return int(rx % M); }
 
     // Informative functions
-    int num_symbols() const { return M; }
+    int num_symbols() const override { return M; }
 
     // Description
-    std::string description() const;
+    std::string description() const override;
 
     // Serialization Support
     DECLARE_SERIALIZER(lsb)
