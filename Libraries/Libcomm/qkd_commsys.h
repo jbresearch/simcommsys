@@ -68,13 +68,6 @@ protected:
 
     // Check that verifies if I_AB > X_BE?
     int MI_check = 0;
-
-    // Frame Error Rate
-    double FER = 0;
-
-    // Number of Generated keys.
-    int N_keys;
-
     // @}
 public:
     qkd_commsys() {}
@@ -216,10 +209,6 @@ public:
         if(I_AB > X_BE)
         {
             MI_check = 1;
-            // **** FER and N_keys need to be added to the results collector to calculate the SKR.
-            FER = 0;
-            N_keys = 1;
-
             std::cout << "(Prints from qkd_commsys.h) MI_Check = " << MI_check << std::endl; // To delete
 
             double n_samples = 99000; // still to get from codec. Length of codeword.
@@ -235,18 +224,11 @@ public:
 
             // *** Will also need to use the SNR_linear later to  get SNR_dB to use it in the codec for decoding in the post processing probably. ***/
 
-            /* Question: To confirm with Johann. Should I use Beta for the calculation of the final length? If so what equation do I use?
-            // As in the case of the 2018 paper they use a very small code rate  e.g. 0.02 or 0.01 and very low SNR such as -15 dB
-
+            /* Confirmed: Beta equation that needs to be used: \beta = R/C(S) taken from the Quasi Cyclic Paper 2018, Mario Milicevic.
             // calculate as I still need R from codec and SNR from channel.
-            // Beta as used in Quasi Cyclic Paper 2018, Mario Milicevic
             double code_rate = 0.02;
             double beta_mdr = code_rate/(protocol->calculate_shannon_capacity_awgn(SNR_linear)); // still to Beta is coming too small
-
-            // Another option is to use Beta = R/I_AB taken from the 2023 review paper by Yang. 2023.
-
-            // Option 3: check equation used in Rate-Adaptive Non-Binary LDPC Code-Based Information Reconciliation Protocol for Continuous-Variable Quantum Key Distribution written by Long Xing */
-
+            */
 
             // Use setter in CV-QKD protocol
             protocol->set_parameters_secret_key_length(beta_mdr, I_AB, X_BE, n_samples);
@@ -255,24 +237,15 @@ public:
             return protocol->postprocess(std::move(X_raw), std::move(Y_raw));
             // std::move was required due to the following: Was passing lvalues to a function that expects rvalue references (&&).
             // return protocol->postprocess(alice_measurements, bob_measurements); // To check with Mark why in the qkd_protocol.h for the post-processing method he used &&?
-
         }
         else
         {
             MI_check = 0;
+            int len_secret_key = 0;
 
-            // **** FER and N_keys need to be added to the results collector to calculate the SKR.
-            N_keys = 0;
-            FER = 1;
-
-            // Post-processing returns a zero-vector or null? Still to check
-
-            // Still need to calculate the length of the secret key and use it.
-
-            // Continue with post-processing
-            libbase::vector<bool> all_zero_final_key;
-            all_zero_final_key.init(framesize - N_PE); // has to be used in the post-processing method to get n = N - N_PE to calculate the final key length. Have to change the length to the actual length of the final secret key as calculated when MI_check = 1.
-            return all_zero_final_key;
+            libbase::vector<bool> final_secret_key;
+            final_secret_key.init(len_secret_key);
+            return final_secret_key; // Returns an empty libbase bool vector.
         }
 
     }
