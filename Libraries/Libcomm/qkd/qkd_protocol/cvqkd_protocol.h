@@ -31,6 +31,7 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
          libbase::randgen rng; // used to randomly choose observables
          libbase::vector<int> decision_vector;
          libbase::vector<int> alice_decision_vector;
+
          int N_PE; // Number of samples used for parameter estimation.
          int N_0; // shot noise
          double v_el; // electric noise
@@ -42,6 +43,9 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
          double beta_mdr; // Reconciliation Efficiency for MDR.
          double SNR_linear; // Retrieved from bob's quantum channel.
          int l_secret_key; // Length of final secret key after PA.
+
+    protected:
+        // std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
 
     public:
         // void seedfrom(libbase::random& rng) override { this->rng.seed(rng.ival());  if (cdc) cdc->seedfrom(rng);}
@@ -193,6 +197,12 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
         {
             this->l_secret_key = l_secret_key;
         }
+
+        // // Helper functions related to the codec.
+        // std::string codec_description() const
+        // {
+        //     return cdc->description();
+        // }
 
         // Returns final secret key.
         libbase::vector<bool> postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements) override;

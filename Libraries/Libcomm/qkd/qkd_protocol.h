@@ -101,11 +101,13 @@ public:
     // Note: For the BB84 I would have to also add N_leaked later on.
     virtual void set_parameters_secret_key_length(double beta, double I_AB, double chi_BE, int n_samples) = 0;
 
-    // Helper functions to get length of secret key.
     // Equations related to length of final secret key.
     virtual const int calculate_finite_size_effects_secret_key_length() = 0;
 
     virtual void set_length_secret_key(int l_secret_key) = 0;
+
+    // Helper functions related to codec.
+    // virtual std::string codec_description() const = 0;
 
     virtual C<bool> postprocess(libbase::vector<T>&& alice_measurements,
                                 libbase::vector<T>&& bob_measurements) = 0;

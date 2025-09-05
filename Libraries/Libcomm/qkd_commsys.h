@@ -62,6 +62,7 @@ protected:
     std::shared_ptr<quantum_channel> bob_channel;
     std::shared_ptr<quantum_channel> alice_channel;
     std::shared_ptr<qkd_protocol<T, C>> protocol;
+    std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
 
     //! \brief How many quantum states in one frame
     int framesize = 0;
@@ -233,6 +234,8 @@ public:
             // Use setter in CV-QKD protocol
             protocol->set_parameters_secret_key_length(beta_mdr, I_AB, X_BE, n_samples);
 
+            // std::cout <<" (prints from qkd_commsys.h fullcycle method system description of the codec of the cv-qkd protocol: " << protocol->codec_description() << std::endl;
+
             // Continue with post-processing: Still to implement
             return protocol->postprocess(std::move(X_raw), std::move(Y_raw));
             // std::move was required due to the following: Was passing lvalues to a function that expects rvalue references (&&).
@@ -262,6 +265,13 @@ public:
 
     //! Get number of input quantum states in a frame.
     int input_block_size() const { return framesize; }
+
+
+    // Helper functions related to the codec.
+    std::string codec_description() const
+    {
+        return cdc->description();
+    }
 
     // Description
     std::string description() const;

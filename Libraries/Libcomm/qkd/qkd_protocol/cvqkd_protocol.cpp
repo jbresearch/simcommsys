@@ -339,6 +339,7 @@ namespace libcomm
         sin >> libbase::eatcomments >> v_el >> libbase::verify;
         sin >> libbase::eatcomments >> detector_efficiency >> libbase::verify;
         sin >> libbase::eatcomments >> smoothing_parameter >> libbase::verify;
+        // sin >> libbase::eatcomments >> cdc >> libbase::verify;
 
         return sin;
     }
