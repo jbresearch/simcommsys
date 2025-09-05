@@ -9,6 +9,8 @@
 #ifndef CVQKD_PROTOCOL_H
 #define CVQKD_PROTOCOL_H
 
+#include "commsys.h"
+
 #include "qkd/qkd_protocol.h"
 #include "qkd/observable/position_observable.h"
 #include "qkd/observable/momentum_observable.h"
@@ -45,11 +47,13 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
          int l_secret_key; // Length of final secret key after PA.
 
     protected:
-        // std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
+        std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
 
     public:
         // void seedfrom(libbase::random& rng) override { this->rng.seed(rng.ival());  if (cdc) cdc->seedfrom(rng);}
-        void seedfrom(libbase::random& rng) override { this->rng.seed(rng.ival());}
+        void seedfrom(libbase::random& rng) override { this->rng.seed(rng.ival());
+        if (cdc) cdc->seedfrom(rng);
+        }
 
         // Note: here I replaced libbase::vector with the std::vector only for the observables.
         // Returns the observables of Bob
@@ -198,11 +202,19 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
             this->l_secret_key = l_secret_key;
         }
 
-        // // Helper functions related to the codec.
-        // std::string codec_description() const
-        // {
-        //     return cdc->description();
-        // }
+        // Helper functions related to the codec.
+        int get_codec_input_bits_k() const
+        {
+            return cdc->input_block_size();
+        }
+
+        /* Helper function to set the codec. Needs to be deleted during code review. */
+        void set_cvqkd_protocol_codec(std::shared_ptr<codec<libbase::vector>> CDC) {
+            cdc = std::move(CDC);
+        }
+
+        // Get codec.
+        std::shared_ptr<codec<libbase::vector>> getcodec() const { return cdc; }
 
         // Returns final secret key.
         libbase::vector<bool> postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements) override;

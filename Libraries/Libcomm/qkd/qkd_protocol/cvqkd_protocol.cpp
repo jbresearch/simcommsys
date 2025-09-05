@@ -1,4 +1,6 @@
 #include "cvqkd_protocol.h"
+#include "codec/ldpc.h"
+#include "gf.h"
 #include <sstream>
 
 using libbase::serializer;
@@ -244,6 +246,15 @@ namespace libcomm
         return l;
     }
 
+    // Build an LDPC(gf2,double) from a config stream and install it into `cdc`.
+    static std::shared_ptr<codec<libbase::vector>>
+    make_ldpc_from_stream(std::istream& sin) {
+        // ldpc<gf2,double> inherits codec<libbase::vector,double>  :contentReference[oaicite:3]{index=3}
+        auto ldpc_ptr = std::make_shared<libcomm::ldpc<libbase::gf2,double>>();
+        ldpc_ptr->serialize(sin); // loads v5/v6 format like in your snippet       :contentReference[oaicite:4]{index=4}
+        return ldpc_ptr;
+    }
+
     // Returns final secret key.
     libbase::vector<bool> cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements)
     {
@@ -277,8 +288,6 @@ namespace libcomm
         }
         std::cout << "]\n\n";
 
-        std::cout << "\nTesting equation that calculates final length l of secret key (prints from cvqkd_protocol.cpp)" << std::endl;
-
         // // These parameters cannot be hard coded.
         // int len_secret_key;
         // double snr_linear = 0.0283;
@@ -297,6 +306,65 @@ namespace libcomm
 
         // // Still need to add setter fn for Iab , chbe, n_samples and beta_mdr this is to be added in the fullcycle method of qkd commsys before calling the post processing method.
 
+        /* Setting codec of CV-QKD protocol. This will have to be refactored during code review with Johann.*/
+
+        if (!cdc) {
+            std::stringstream ss;
+            ss <<
+            "# Version\n"
+            "5\n"
+            "# SPA type (trad|gdl)\n"
+            "gdl\n"
+            "# Number of iterations\n"
+            "50\n"
+            "# Clipping method\n"
+            "zero\n"
+            "# Value of almostzero\n"
+            "1e-100\n"
+            "# Reduce generator matrix to REF? (true|false)\n"
+            "1\n"
+            "# Length (n)\n"
+            "7\n"
+            "# Dimension (m)\n"
+            "7\n"
+            "# Max column weight\n"
+            "3\n"
+            "# Max row weight\n"
+            "3\n"
+            "# Non-zero values (ones|random|provided)\n"
+            "ones\n"
+            "# Column weight vector\n"
+            "7\n"
+            "3 3 3 3 3 3 3\n"
+            "# Row weight vector\n"
+            "7\n"
+            "3 3 3 3 3 3 3\n"
+            "# Non zero positions per col\n"
+            "3\n"
+            "1 5 7\n"
+            "3\n"
+            "1 2 6\n"
+            "3\n"
+            "2 3 7\n"
+            "3\n"
+            "1 3W 4\n"
+            "3\n"
+            "2 4 5\n"
+            "3\n"
+            "3 5 6\n"
+            "3\n"
+            "4 6 7\n";
+
+            /* Sets the codec I want to use in the CV-QKD protocol. This has to be changed in the code review and it has to go in the serialization ,method not here. */
+            set_cvqkd_protocol_codec(make_ldpc_from_stream(ss));
+        }
+
+        std::cout << "(printing from cv-qkd-protocol.cpp the system details of the codec used in the cv-qkd protocol: " << cdc->description() << "\n";
+
+        std::cout << "(printing from cv-qkd-protocol.pp) input bits k of codec =  " << get_codec_input_bits_k() << "\n";
+
+        std::cout << "\nTesting equation that calculates final length l of secret key (prints from cvqkd_protocol.cpp)" << std::endl;
+
         int len_secret_key = calculate_finite_size_effects_secret_key_length();
         std::cout << "\n (prints from cvqkd_protocol.cpp) Length l of final secret key = " << len_secret_key << std::endl;
 
@@ -307,6 +375,7 @@ namespace libcomm
 
         return final_key;
     }
+
 
     // Returns description of the protocol
     std::string cvqkd_protocol::description() const { return "CV-QKD Protocol using the GG02 protocol with GM Coherent states";}

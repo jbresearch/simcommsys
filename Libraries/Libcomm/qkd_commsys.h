@@ -62,7 +62,6 @@ protected:
     std::shared_ptr<quantum_channel> bob_channel;
     std::shared_ptr<quantum_channel> alice_channel;
     std::shared_ptr<qkd_protocol<T, C>> protocol;
-    std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
 
     //! \brief How many quantum states in one frame
     int framesize = 0;
@@ -266,25 +265,12 @@ public:
     //! Get number of input quantum states in a frame.
     int input_block_size() const { return framesize; }
 
-
-    // Helper functions related to the codec.
-    std::string codec_description() const
-    {
-        return cdc->description();
-    }
-
     // Description
     std::string description() const;
 
     // Serialization Support using shared pointers
     DECLARE_BASE_SERIALIZER(qkd_commsys)
     DECLARE_SERIALIZER(qkd_commsys)
-
-    // libbase::serializable interface using unique pointers
-    // const std::string name() const override { return "qkd_commsys"; }
-    // std::ostream& serialize(std::ostream& sout) const override;
-    // std::istream& serialize(std::istream& sin) override;
-    // std::shared_ptr<libbase::serializable> clone() const override; //override the clone() found in libbase::serialize
 };
 
 } // namespace libcomm

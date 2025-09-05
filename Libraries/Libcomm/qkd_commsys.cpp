@@ -44,7 +44,7 @@ qkd_commsys<S, T, C>::description() const
     sout << alice_channel->description() << ", ";
     sout << bob_channel->description() << ", ";
     sout << protocol->description();
-    sout << cdc->description();
+    // sout << cdc->description();
     return sout.str();
 }
 
@@ -65,8 +65,6 @@ qkd_commsys<S, T, C>::serialize(std::ostream& sout) const
     sout << bob_channel << std::endl;
     sout << "## Postprocessing protocol" << std::endl;
     sout << protocol;
-    sout << "## Codec" << std::endl;
-    sout << cdc << std::endl;
 
     return sout;
 }
@@ -98,27 +96,10 @@ qkd_commsys<S, T, C>::serialize(std::istream& sin)
     sin >> libbase::eatcomments >> alice_channel >> libbase::verify;
     sin >> libbase::eatcomments >> bob_channel >> libbase::verify;
     sin >> libbase::eatcomments >> protocol >> libbase::verify;
-    sin >> libbase::eatcomments >> cdc >> libbase::verify;
 
     assertalways(sin.good());
     return sin;
 }
-
-// // Clone (deep copy via serialization)
-// template <class S, class T, template <class> class C>
-// std::shared_ptr<libbase::serializable>
-// qkd_commsys<S, T, C>::clone() const
-// {
-//     // Note: Avoids copy-constructing unique_ptr members by round-tripping
-//     // through the serializer.
-//     auto out = std::make_shared<qkd_commsys<S, T, C>>();
-
-//     std::stringstream ss;
-//     this->serialize(ss);  // write "this" into the stream
-//     out->serialize(ss);   // read into the new object
-
-//     return out;
-// }
 
 } // namespace libcomm
 
