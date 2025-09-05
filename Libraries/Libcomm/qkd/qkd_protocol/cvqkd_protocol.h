@@ -194,13 +194,6 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
             this->l_secret_key = l_secret_key;
         }
 
-        // To be used by the Results collector to calculate the final SKR.
-        int get_length_secret_key() override
-        {
-            return l_secret_key;
-        }
-
-
         // Returns final secret key.
         libbase::vector<bool> postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements) override;
 

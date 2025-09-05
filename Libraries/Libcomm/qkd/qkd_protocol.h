@@ -107,10 +107,6 @@ public:
 
     virtual void set_length_secret_key(int l_secret_key) = 0;
 
-    // To be used by the Results collector to calculate the final SKR.
-    virtual int get_length_secret_key() = 0;
-
-
     virtual C<bool> postprocess(libbase::vector<T>&& alice_measurements,
                                 libbase::vector<T>&& bob_measurements) = 0;
 
