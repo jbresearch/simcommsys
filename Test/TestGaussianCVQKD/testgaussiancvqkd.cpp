@@ -1,5 +1,7 @@
 /*!
  * \file
+ *
+ * Copyright (c) 2025 Aaron Abela
  * \brief Boost unit tests for quantum_gaussian_source and cvqkd_protocol
  */
 
@@ -45,16 +47,16 @@ static void force_link_qkd_types() {
     libcomm::cvqkd_protocol obj;
     static_cast<const libcomm::cvqkd_protocol&>(obj).serialize(oss);
     }
-
-
 }
 
-// static void force_link_ldpc() {
-//   // Touch serialize() so the TU’s registrar isn’t discarded by the linker.
-//   std::ostringstream oss;
-//   libcomm::ldpc<libbase::gf2,double> tmp;
-//   static_cast<const libcomm::ldpc<libbase::gf2,double>&>(tmp).serialize(oss);
-// }
+// Build an LDPC(gf2,double) from a config stream and install it into `cdc`.
+   static std::shared_ptr<codec<libbase::vector>>
+   make_ldpc_from_stream(std::istream& sin) {
+      auto ldpc_ptr = std::make_shared<libcomm::ldpc<libbase::gf2,double>>();
+      ldpc_ptr->serialize(sin);
+      return ldpc_ptr;
+   }
+
 
 BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
 {
@@ -63,9 +65,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    // Ensure registrars are linked & run
    force_link_qkd_types();
 
-   libcomm::ldpc<libbase::gf2,double> codec; // Without this entire qkd_commsys serialization won't work as the codec can't be loaded!!!
-
-   //  force_link_ldpc();
+   // libcomm::ldpc<libbase::gf2,double> codec; // Without this entire qkd_commsys serialization won't work as the codec can't be loaded!!!
 
     // Build config: GAUSSIAN for Alice with explicit params (parse-proof)
     std::stringstream cfg;
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
         "0.606\n"
         "# Smoothing Parameter\n"
         "1e-4\n";
-      //   "## Codec\n"
+      //   "### Codec\n"
       //   "ldpc<gf2,double>\n"
       //   "# Version\n"
       //   "5\n"
@@ -208,6 +208,66 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    int framesize = sys.input_block_size();
    std::cout << "Number of generated quantum states from Alice = " << framesize << std::endl;
 
+   // Get CV-QKD protocol from qkd_commsys object.
+   auto protocol = sys.get_protocol();
+
+   std::cout << "Protocol description: " << protocol->description() << std::endl;
+
+   // Parameters of LDPC codec.
+   std::stringstream ss;
+            ss <<
+            "# Version\n"
+            "5\n"
+            "# SPA type (trad|gdl)\n"
+            "gdl\n"
+            "# Number of iterations\n"
+            "50\n"
+            "# Clipping method\n"
+            "zero\n"
+            "# Value of almostzero\n"
+            "1e-100\n"
+            "# Reduce generator matrix to REF? (true|false)\n"
+            "1\n"
+            "# Length (n)\n"
+            "7\n"
+            "# Dimension (m)\n"
+            "7\n"
+            "# Max column weight\n"
+            "3\n"
+            "# Max row weight\n"
+            "3\n"
+            "# Non-zero values (ones|random|provided)\n"
+            "ones\n"
+            "# Column weight vector\n"
+            "7\n"
+            "3 3 3 3 3 3 3\n"
+            "# Row weight vector\n"
+            "7\n"
+            "3 3 3 3 3 3 3\n"
+            "# Non zero positions per col\n"
+            "3\n"
+            "1 5 7\n"
+            "3\n"
+            "1 2 6\n"
+            "3\n"
+            "2 3 7\n"
+            "3\n"
+            "1 3 4\n"
+            "3\n"
+            "2 4 5\n"
+            "3\n"
+            "3 5 6\n"
+            "3\n"
+            "4 6 7\n";
+
+   // Set the Codec that will be used in the CV-QKD protocol.
+   protocol->set_codec(make_ldpc_from_stream(ss));
+   auto cdc = protocol->get_codec();
+
+   std::cout << "System details of the codec used in the CV-QKD protocol: " << cdc->description() << "\n";
+
+   std::cout << "Input bits k of codec of CV-QKD protocol =  " << protocol->get_codec_input_bits_k() << "\n";
+
    // Setting modulation variance VA in the gaussian quantum channel of Bob
    sys.set_VA(*src);
 
@@ -217,18 +277,17 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    // Initialise final_key
    libbase::vector<bool> final_key;
 
-   // auto qkd_commsys_codec = sys.getcodec();
-   // std::cout << "\nPrint description of the qkd_commsys codec: " << qkd_commsys_codec->description();
-
-
    /* Calling fullcylce method from qkd_commsys.h for a single frame*/
    final_key = sys.fullcycle(source);
 
+
+   std::cout << "\n Size of Final Secret Key: "<< final_key.size() << std::endl;
+
    // // Prints Final Secret Key
    // std::cout << "\nFinal Secret Key [size=" << final_key.size() << "]: [";
-   // for (int i = 0; i < final_key.size(); ++i) {
-   //    if (i) std::cout << ", ";
-   //    std::cout << final_key(i);
-   // }
+   // // for (int i = 0; i < final_key.size(); ++i) {
+   // //    if (i) std::cout << ", ";
+   // //    std::cout << final_key(i);
+   // // }
    // std::cout << "]\n\n";
 }
