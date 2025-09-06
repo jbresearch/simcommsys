@@ -1,7 +1,7 @@
 /*!
  * \file
  *
- * Copyright (c) 2025 Mark Mizzi
+ * Copyright (c) 2025 Mark Mizzi, Aaron Abela
  *
  * This file is part of SimCommSys.
  *
@@ -233,8 +233,6 @@ public:
             // Use setter in CV-QKD protocol
             protocol->set_parameters_secret_key_length(beta_mdr, I_AB, X_BE, n_samples);
 
-            // std::cout <<" (prints from qkd_commsys.h fullcycle method system description of the codec of the cv-qkd protocol: " << protocol->codec_description() << std::endl;
-
             // Continue with post-processing: Still to implement
             return protocol->postprocess(std::move(X_raw), std::move(Y_raw));
             // std::move was required due to the following: Was passing lvalues to a function that expects rvalue references (&&).
@@ -267,6 +265,12 @@ public:
 
     // Description
     std::string description() const;
+
+    // Getter to get the protocol to be used in the TestGaussiancvqkd. To remove when using simulator.
+    auto get_protocol()
+    {
+        return protocol;
+    }
 
     // Serialization Support using shared pointers
     DECLARE_BASE_SERIALIZER(qkd_commsys)
