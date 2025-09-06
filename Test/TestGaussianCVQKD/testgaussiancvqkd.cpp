@@ -262,32 +262,60 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
 
    // Set the Codec that will be used in the CV-QKD protocol.
    protocol->set_codec(make_ldpc_from_stream(ss));
-   auto cdc = protocol->get_codec();
+   auto cdc = protocol->get_codec(); // Just to test that the codec was set correctly.
+
+   std::cout << "\n***** Testing LDPC encoding *****" << std::endl;
 
    std::cout << "System details of the codec used in the CV-QKD protocol: " << cdc->description() << "\n";
 
-   std::cout << "Input bits k of codec of CV-QKD protocol =  " << protocol->get_codec_input_bits_k() << "\n";
+   int k = protocol->get_codec_input_bits_k(); // size of vector s
+   std::cout << "Input bits k of codec of CV-QKD protocol/ size of vector s =  " << k << "\n"; // just to test that k is correct. This will be added in simulator
 
-   // Setting modulation variance VA in the gaussian quantum channel of Bob
-   sys.set_VA(*src);
+   libbase::vector<bool> dummy_vector_s;
+   dummy_vector_s.init(k); // s = {1,0,1}
+   dummy_vector_s(0) = 1;
+   dummy_vector_s(1) = 0;
+   dummy_vector_s(2) = 1;
 
-   // Generates a sequence of coherent states which is the input to the fullcycle method in qkd_commsys.h
-   libbase::vector<gaussian_state> source = src->generate_sequence(libbase::size_type<libbase::vector>(framesize));
+   libbase::vector<int>  dummy_vector_s_int(dummy_vector_s);
 
-   // Initialise final_key
-   libbase::vector<bool> final_key;
+   // Encoding vector s using small Hamming code just for testing.
+   int n = 7;
+   libbase::vector<int> encoded_int;
+   encoded_int.init(n);
 
-   /* Calling fullcylce method from qkd_commsys.h for a single frame*/
-   final_key = sys.fullcycle(source);
+   cdc->encode(dummy_vector_s_int, encoded_int); // idea taken from commsys.cpp.
+
+   // now convert back
+   libbase::vector<bool> encoded(encoded_int);    // or do the loop above
+
+   std::cout << "\nPrinting encoded bool vector" << std::endl;
+   for(int i = 0; i<n; i++)
+   {
+      std::cout << encoded(i) << "\t";
+   }
+   std::cout << std::endl;
+
+//    // Setting modulation variance VA in the gaussian quantum channel of Bob
+//    sys.set_VA(*src);
+
+//    // Generates a sequence of coherent states which is the input to the fullcycle method in qkd_commsys.h
+//    libbase::vector<gaussian_state> source = src->generate_sequence(libbase::size_type<libbase::vector>(framesize));
+
+//    // Initialise final_key
+//    libbase::vector<bool> final_key;
+
+//    /* Calling fullcylce method from qkd_commsys.h for a single frame*/
+//    final_key = sys.fullcycle(source);
 
 
-   std::cout << "\n Size of Final Secret Key: "<< final_key.size() << std::endl;
+//    std::cout << "\n Size of Final Secret Key: "<< final_key.size() << std::endl;
 
-   // // Prints Final Secret Key
-   // std::cout << "\nFinal Secret Key [size=" << final_key.size() << "]: [";
-   // // for (int i = 0; i < final_key.size(); ++i) {
-   // //    if (i) std::cout << ", ";
-   // //    std::cout << final_key(i);
-   // // }
-   // std::cout << "]\n\n";
+//    // // Prints Final Secret Key
+//    // std::cout << "\nFinal Secret Key [size=" << final_key.size() << "]: [";
+//    // // for (int i = 0; i < final_key.size(); ++i) {
+//    // //    if (i) std::cout << ", ";
+//    // //    std::cout << final_key(i);
+//    // // }
+//    // std::cout << "]\n\n";
 }
