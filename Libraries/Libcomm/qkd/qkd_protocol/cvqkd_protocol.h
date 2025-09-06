@@ -29,7 +29,6 @@ namespace libcomm {
 class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
 {
     private:
-        //  std::shared_ptr<codec<libbase::vector>> cdc; // error-correcting code
          libbase::randgen rng; // used to randomly choose observables
          libbase::vector<int> decision_vector;
          libbase::vector<int> alice_decision_vector;
@@ -41,7 +40,7 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
          double smoothing_parameter;
          double I_AB; // Mutual Information between Alice and Bob.
          double chi_BE; // Holevo Bound between Bob and Eve for RR.
-         int n_samples; //Number of samples after parameter estimation.
+         int n_samples; //Number of samples after parameter estimation. Equivalent to same n of LDPC codec.
          double beta_mdr; // Reconciliation Efficiency for MDR.
          double SNR_linear; // Retrieved from bob's quantum channel.
          int l_secret_key; // Length of final secret key after PA.
@@ -50,7 +49,6 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
         std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
 
     public:
-        // void seedfrom(libbase::random& rng) override { this->rng.seed(rng.ival());  if (cdc) cdc->seedfrom(rng);}
         void seedfrom(libbase::random& rng) override { this->rng.seed(rng.ival());
         if (cdc) cdc->seedfrom(rng);
         }
@@ -209,12 +207,12 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
         }
 
         /* Helper function to set the codec. Needs to be deleted during code review. */
-        void set_cvqkd_protocol_codec(std::shared_ptr<codec<libbase::vector>> CDC) {
+        void set_codec(std::shared_ptr<codec<libbase::vector>> CDC) override {
             cdc = std::move(CDC);
         }
 
-        // Get codec.
-        std::shared_ptr<codec<libbase::vector>> getcodec() const { return cdc; }
+        // Helper function to Get codec.
+        std::shared_ptr<codec<libbase::vector>> get_codec() const { return cdc; }
 
         // Returns final secret key.
         libbase::vector<bool> postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements) override;
