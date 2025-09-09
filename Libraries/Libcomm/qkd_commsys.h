@@ -195,14 +195,25 @@ public:
 
         /* Perform Parameter Estimation*/
         // Required parameters for parameter estimation.
-        int N_PE = protocol->get_N_PE();
+        int n_output_codec_block_size = protocol->get_codec_output_bits_n();
+
+        // Number of samples used for Parameter Estimation
+        // N_PE = N (number of generated states) - n (size of codework)
+        int N_PE = framesize - n_output_codec_block_size;
+
         std::cout << "\n (prints from qkd_commsys.h) Number of States used for Parameter Estimation = " << N_PE << std::endl;
+
         int N_0 = protocol->get_N_0();
         double v_el = protocol->get_v_el();
         double detector_efficiency = protocol->get_det_eff();
 
         // Perform split for parameter estimation and post-processing.
         auto [X_PE, Y_PE, X_raw, Y_raw] = protocol->split(alice_measurements, bob_measurements, N_PE);
+
+
+        std::cout << "\n (prints from qkd_commsys.h) Size of X_PE and Y_PE: " << X_PE.size() << "\t" << Y_PE.size() << std::endl;
+
+        std::cout << "\n (prints from qkd_commsys.h) Size of X_Raw and Y_Raw: " << X_PE.size() << "\t" << Y_PE.size() << std::endl;
 
         // Calculate parameter estimation using optical fiber.
         auto [T_hat, Epsilon_hat, chi_total_hat] = protocol->parameter_estimation_optical_fiber(X_PE, Y_PE, N_0, v_el, detector_efficiency);
@@ -224,7 +235,8 @@ public:
             MI_check = 1;
             std::cout << "(Prints from qkd_commsys.h) MI_Check = " << MI_check << std::endl; // To delete
 
-            double n_samples = 99000; // still to get from codec. Length of codeword.
+            // TODO: Still to calculate using beta = R/C(S)
+            // C(S) is the Shannon Capacity of an AWGN channel.
             double beta_mdr = 0.958;
             std::cout << "(prints from qkd_commsys.h full cycle) beta_mdr = " << beta_mdr << std::endl;
 
@@ -244,7 +256,7 @@ public:
             */
 
             // Use setter in CV-QKD protocol
-            protocol->set_parameters_secret_key_length(beta_mdr, I_AB, X_BE, n_samples);
+            protocol->set_parameters_secret_key_length(beta_mdr, I_AB, X_BE, n_output_codec_block_size);
 
             // Continue with post-processing: Still to implement
             return protocol->postprocess(std::move(X_raw), std::move(Y_raw));
@@ -260,7 +272,6 @@ public:
             final_secret_key.init(len_secret_key);
             return final_secret_key; // Returns an empty libbase bool vector.
         }
-
     }
     // @}
 
