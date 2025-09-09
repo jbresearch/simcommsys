@@ -41,9 +41,15 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
          double I_AB; // Mutual Information between Alice and Bob.
          double chi_BE; // Holevo Bound between Bob and Eve for RR.
          int n_samples; //Number of samples after parameter estimation. Equivalent to same n of LDPC codec.
+
+         // Vector s from Bob from qkd_commsys
+         libbase::vector<bool> bob_vector_s;
+
          double beta_mdr; // Reconciliation Efficiency for MDR.
          double SNR_linear; // Retrieved from bob's quantum channel.
          int l_secret_key; // Length of final secret key after PA.
+
+
 
     protected:
         std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
@@ -201,6 +207,12 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
         /* Helper function to set the codec. Needs to be deleted during code review. */
         void set_codec(std::shared_ptr<codec<libbase::vector>> CDC) override {
             cdc = std::move(CDC);
+        }
+
+        // Getter to get Bob's vector s from qkd_commsys
+        void set_bob_vector_s(libbase::vector<bool>& s) override
+        {
+            bob_vector_s = s;
         }
 
         // Helper function to Get codec.

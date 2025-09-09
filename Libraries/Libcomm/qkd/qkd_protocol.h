@@ -116,6 +116,8 @@ public:
     virtual  int get_codec_input_bits_k() const = 0;
     virtual int get_codec_output_bits_n() const = 0;
 
+    // Setter to set vector s for CV-QKD which is generated from qkd_commsys_simulator.h.
+    virtual void set_bob_vector_s(libbase::vector<bool>& s) = 0;
 
     virtual C<bool> postprocess(libbase::vector<T>&& alice_measurements,
                                 libbase::vector<T>&& bob_measurements) = 0;

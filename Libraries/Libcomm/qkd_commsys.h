@@ -229,6 +229,13 @@ public:
         double X_BE = protocol->calculate_holevo_bound(V, T_hat, Epsilon_hat, chi_total_hat);
         std::cout << "(Prints from qkd_commsys.h) X_BE = " << X_BE << std::endl;
 
+        /* Set Bob's vector s from qkd_commsys to the cv-qkd protocol. Vector s is originally generaeted in qkd_commsys_simulator. */
+        protocol->set_bob_vector_s(vector_s_from_bob);
+
+        /* TODO: TO delete lines 236 and 237. I am just doing this for debugging purposes */
+        I_AB = 1.05;
+        X_BE = 0.82;
+
         // Checks whether the protocol is aborted or not to continue with the Information Reconciliation stage.
         if(I_AB > X_BE)
         {

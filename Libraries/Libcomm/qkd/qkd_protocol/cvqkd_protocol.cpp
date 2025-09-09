@@ -276,6 +276,8 @@ namespace libcomm
         print_vector("(Prints from cv_qkdprotocol.cpp) Prints values of X (normalized): ", X);
         print_vector("(Prints from cv_qkdprotocol.cpp) Prints values of Y (normalized): ", Y);
 
+        print_vector("(Prints from cv_qkdprotocol.cpp) Prints Bob's Vector s: ", bob_vector_s);
+
         // // These parameters cannot be hard coded.
         // int len_secret_key;
         // double snr_linear = 0.0283;
