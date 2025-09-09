@@ -45,6 +45,9 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
     // Generate vector s for Bob with size k.
     vector_s = create_vector_s(k);
 
+    // Set the vector in the system object.
+    sys->set_bob_vector(vector_s);
+
     /* Still to add (already implemented):
 
     int framesize = sys->input_block_size(); // Number of generated states per frame from Alice.

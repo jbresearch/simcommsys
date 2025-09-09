@@ -68,6 +68,8 @@ protected:
 
     // Check that verifies if I_AB > X_BE?
     int MI_check = 0;
+
+    libbase::vector<bool> vector_s_from_bob;
     // @}
 public:
     qkd_commsys() {}
@@ -145,12 +147,17 @@ public:
         return protocol->get_codec_input_bits_k();
     }
 
+    // Setter method to get vector s which is generated in the qkd_commsys_simulator.
+    void set_bob_vector(const libbase::vector<bool>& vector_s)
+    {
+        vector_s_from_bob = vector_s;
+    }
+
     /*! \name Communication System Interface */
     //! Perform complete transmission of one frame
     C<bool> fullcycle(C<S>& source)
     {
         // ***** Note: In this case the source here is the libbase::vector of states e.g. coherent states if S=gaussian_State *****
-
         assertalways(source.size() == framesize);
 
         // Note: Here I Changed the libbase::vector to an std::vector only for the observables stage
