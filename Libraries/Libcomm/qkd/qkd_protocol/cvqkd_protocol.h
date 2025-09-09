@@ -130,7 +130,6 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
         const libbase::vector<int>& get_decision_vector() const {return decision_vector;}
 
         // Getter to return various parameters for parameter estimation.
-        int get_N_PE() override {return N_PE;}
         int get_N_0() override {return N_0;}
         double get_v_el() override {return v_el;}
         double get_det_eff() override {return detector_efficiency;}

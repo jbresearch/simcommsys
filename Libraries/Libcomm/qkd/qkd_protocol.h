@@ -72,7 +72,6 @@ public:
     }
 
     // Getter to be used to return number of samples for parameter estimation.
-    virtual int get_N_PE() = 0;
     virtual int get_N_0() = 0; // to change these. need to check if there is an alternative to = 0? not to force all derived classes?
     virtual double get_v_el() = 0;
     virtual double get_det_eff() = 0;
