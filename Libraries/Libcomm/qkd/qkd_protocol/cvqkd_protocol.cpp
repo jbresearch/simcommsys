@@ -300,8 +300,39 @@ namespace libcomm
 
         print_vector("(Prints from cv-qkdprotocol.cpp) (Encoded Result) Vector C : ", bob_vector_c);
 
-        // Modulation step: Generate Vector M using BPSK.
+        /* Modulation step: Generate Vector M using BPSK modulation.*/
 
+        int alphabet_size = 2;
+
+        // The direct_block_informed_embedder uses the embed method from the base class block_informed_embedder.h.
+
+        // Data to embed which is encoded bit vector C, converted from bool to int.
+        libbase::vector<int> data_to_embed(bob_vector_c.size());
+        for (int i = 0; i < bob_vector_c.size(); ++i)
+        {
+            data_to_embed(i) = bob_vector_c(i);
+        }
+
+        // Vector M which stores the modulated signal.
+        libbase::vector<double> modulated_signal_M;
+        modulated_signal_M.init(get_codec_output_bits_n());
+
+        if (!embedder) {
+            embedder = std::make_shared<
+                direct_block_informed_embedder<double, libbase::vector, double>>();
+        }
+
+        // Setting sign implementation for BPSK modulation.
+        embedder->set_implementation(std::make_shared<sign<double>>());
+
+        embedder->set_blocksize(Y.size());
+
+        embedder->embed(alphabet_size, data_to_embed, Y, modulated_signal_M);
+
+        print_vector("(Prints from cv-qkdprotocol.cpp) Modulated Vector M (from embedder):", modulated_signal_M);
+
+        /* Demodulation step to get the Probability Table for the decoder. */
+        // embedder->extract();
 
         // // These parameters cannot be hard coded. Parameters to calculate length l of final secret key.
         // int len_secret_key;

@@ -19,6 +19,9 @@
 #include "random.h"
 #include "serializer.h"
 #include "codec.h"
+#include "informed_embedder/direct_block_informed_embedder.h"
+#include "informed_embedder/sign.h"
+
 
 #include <memory>
 #include <vector>
@@ -56,6 +59,7 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
 
     protected:
         std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
+        std::shared_ptr<direct_block_informed_embedder<double, libbase::vector, double>> embedder; // Embedder
 
     public:
         void seedfrom(libbase::random& rng) override { this->rng.seed(rng.ival());
