@@ -278,14 +278,37 @@ namespace libcomm
 
         print_vector("(Prints from cv_qkdprotocol.cpp) Prints Bob's Vector s: ", bob_vector_s);
 
-        // // These parameters cannot be hard coded.
+        // Generate Vector C from Bob's vector s.
+        libbase::vector<int> encoded_int(get_codec_output_bits_n());
+
+        libbase::vector<int> bob_vector_int(bob_vector_s.size());
+        for (int i = 0; i < bob_vector_s.size(); ++i)
+        {
+            bob_vector_int(i) = bob_vector_s(i);
+        }
+
+        // Encodes Vector S of Bob to get Vector C.
+        cdc->encode(bob_vector_int, encoded_int);
+
+        bob_vector_c.init(encoded_int.size());
+
+        // Obtains Bob'c vector C of bool type through conversion.
+        for (int i = 0; i < encoded_int.size(); ++i)
+        {
+            bob_vector_c(i) = encoded_int(i);
+        }
+
+        print_vector("(Prints from cv-qkdprotocol.cpp) (Encoded Result) Vector C : ", bob_vector_c);
+
+        // Modulation step: Generate Vector M using BPSK.
+
+
+        // // These parameters cannot be hard coded. Parameters to calculate length l of final secret key.
         // int len_secret_key;
         // double snr_linear = 0.0283;
         // double R_code = 0.02;
         // double beta_mdr = compute_beta_mdr(R_code, snr_linear);
         // std::cout << "\n (prints from cvqkd_protocol.cpp) Reconciliation Efficiency Beta MDR = " << beta_mdr << std::endl;
-
-        // int n = 99000; // STILL TO DO: Samples left after PE with N=110k and N_PE = 11K. Need a getter to get the number of generated coherent states - N_PE.
 
         // // STILL TO DO: Same applies for I_AB and X_BE need to somehow get them into processing. Currently I am calculating these from qkd_commsys.h.
         // double I_AB = 1.04825;
@@ -293,8 +316,6 @@ namespace libcomm
         // double E_PA = 1e-10; // privacy amplification failure probability per block. Probably has to be a serialized parameter in the cv_qkd_protocol.
         // int security_parameter = static_cast<int>(std::ceil(-std::log2(E_PA)));
         // std::cout << "\n (prints from cvqkd_protocol.cpp)  (number of states to be deduced for PA.) Security parameter s = " << security_parameter << std::endl;
-
-        // // Still need to add setter fn for Iab , chbe, n_samples and beta_mdr this is to be added in the fullcycle method of qkd commsys before calling the post processing method.
 
         std::cout << "\nTesting equation that calculates final length l of secret key (prints from cvqkd_protocol.cpp)" << std::endl;
 
