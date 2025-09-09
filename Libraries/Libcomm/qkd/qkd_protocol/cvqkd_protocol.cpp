@@ -15,13 +15,15 @@ namespace libcomm
     cvqkd_protocol::split(libbase::vector<double>& measurements_alice, libbase::vector<double>& measurements_bob,
     int N_PE)
     {
+
+        // Setting size of N_PE for parameter estimation.
+        this->N_PE = N_PE;
+
         assert(measurements_alice.size() == measurements_bob.size() && "Alice and Bob's measurement vector sizes are not equal.");
 
         assert(N_PE > 0 && "N_PE must be > 0.");
 
         const int N = measurements_alice.size();
-        if (N_PE < 0) N_PE = 0;
-        if (N_PE > N) N_PE = N;
 
         libbase::vector<double> X_PE, Y_PE, X_raw, Y_raw;
         X_PE.init(N_PE);
@@ -40,6 +42,15 @@ namespace libcomm
             X_raw(j) = measurements_alice(i); // Unnormalised key of Alice to be used for post-processing
             Y_raw(j)   = measurements_bob(i); // Unnormalised key of Bob to be used for post-processing
         }
+
+        // Prints vectors just for debuggin.
+        // TODO: To delete.
+        print_vector("(Prints from cv_qkdprotocol.cpp) Prints Measurements values of Alice: ", measurements_alice);
+        print_vector("(Prints from cv_qkdprotocol.cpp) Prints Measurements values of Bob: ", measurements_bob);
+        print_vector("(Prints from cv_qkdprotocol.cpp) Prints values of X_PE: ", X_PE);
+        print_vector("(Prints from cv_qkdprotocol.cpp) Prints values of Y_PE: ", Y_PE);
+        print_vector("(Prints from cv_qkdprotocol.cpp) Prints values of X_Raw: ", X_raw);
+        print_vector("(Prints from cv_qkdprotocol.cpp) Prints values of Y_raw: ", Y_raw);
 
         return {X_PE, Y_PE, X_raw, Y_raw};
     }
@@ -262,6 +273,9 @@ namespace libcomm
         for (int i = 0; i < X.size(); ++i) X(i) = alice_measurements(i) / nX;
         for (int i = 0; i < Y.size(); ++i) Y(i) = bob_measurements(i) / nY;
 
+        print_vector("(Prints from cv_qkdprotocol.cpp) Prints values of X (normalized): ", X);
+        print_vector("(Prints from cv_qkdprotocol.cpp) Prints values of Y (normalized): ", Y);
+
         // // These parameters cannot be hard coded.
         // int len_secret_key;
         // double snr_linear = 0.0283;
@@ -300,8 +314,6 @@ namespace libcomm
     //! Serialize protocol
     std::ostream& cvqkd_protocol::serialize(std::ostream& sout) const
     {
-        sout << "# Number of samples for Parameter Estimation N_PE" << std::endl;
-        sout << N_PE << std::endl;
         sout << "# Shot Noise Variance N_0" << std::endl;
         sout << N_0 << std::endl;
         sout << "# Electric Noise v_el" << std::endl;
@@ -320,7 +332,6 @@ namespace libcomm
     std::istream& cvqkd_protocol::serialize(std::istream& sin)
     {
         assertalways(sin.good());
-        sin >> libbase::eatcomments >> N_PE >> libbase::verify;
         sin >> libbase::eatcomments >> N_0 >> libbase::verify;
         sin >> libbase::eatcomments >> v_el >> libbase::verify;
         sin >> libbase::eatcomments >> detector_efficiency >> libbase::verify;

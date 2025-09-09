@@ -194,6 +194,11 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
             return cdc->input_block_size();
         }
 
+        int get_codec_output_bits_n() const override
+        {
+            return cdc->output_block_size();
+        }
+
         /* Helper function to set the codec. Needs to be deleted during code review. */
         void set_codec(std::shared_ptr<codec<libbase::vector>> CDC) override {
             cdc = std::move(CDC);
@@ -204,6 +209,18 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
 
         // Returns final secret key.
         libbase::vector<bool> postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements) override;
+
+        // Helper function to print a vector.
+        template <typename T>
+        void print_vector(const std::string& title, const libbase::vector<T>& vec)
+        {
+            std::cout << "\n" << title << std::endl;
+            for (int i = 0; i < vec.size(); ++i)
+            {
+                std::cout << vec(i) << "\t";
+            }
+            std::cout << std::endl;
+}
 
         // Description function
         std::string description() const override;
