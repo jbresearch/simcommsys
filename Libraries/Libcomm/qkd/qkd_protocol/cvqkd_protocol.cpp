@@ -262,24 +262,6 @@ namespace libcomm
         for (int i = 0; i < X.size(); ++i) X(i) = alice_measurements(i) / nX;
         for (int i = 0; i < Y.size(); ++i) Y(i) = bob_measurements(i) / nY;
 
-        /* Bob: Randomly generate vector s. -> STILL TO DO */
-        // const int k = 1000; // Size of information bits without encoding. // Still to define in an automated way -> probably to serialized related to the LDPC.
-
-        // Vector s should be bool but I kept int due to future LDPC computations.
-        // Still to randomly generate using libbase::randgen.
-
-        int k = 3; // Size of vector s. Still need to change this depending from where I am calling the codec.
-        libbase::vector<bool> s = create_vector_s(rng, k);
-
-        std::cout << "\n (prints from cvqkd_protocol.cpp) Generated vector s [size k = " << k << "]: [";
-        for (int i = 0; i < k; ++i) {
-            if (i) std::cout << ", ";
-            std::cout << s(i);
-        }
-        std::cout << "]\n\n";
-
-        // std::cout << "\n(Printing from cv_qkd_protocol.cpp codec details" << cdc->description() << std::endl;
-
         // // These parameters cannot be hard coded.
         // int len_secret_key;
         // double snr_linear = 0.0283;

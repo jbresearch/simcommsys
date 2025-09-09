@@ -37,8 +37,13 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
     result = 0;
 
     /* Still to add (already implemented): randgen rng; and set seed of src and system? */
-
     libbase::vector<S> source = src->generate_sequence(sys->input_block_size());
+
+    // k is known from codec of the cv-qkd protocol.
+    int k = get_codec_input_bits_k();
+
+    // Generate vector s for Bob with size k.
+    vector_s = create_vector_s(k);
 
     /* Still to add (already implemented):
 
@@ -63,6 +68,7 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
     R::updateresults(result_segment, source, skey, l_secret_key, framesize);
 
     */
+
     R::updateresults(result_segment, source, skey);
 }
 

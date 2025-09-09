@@ -139,6 +139,12 @@ public:
         this->bob_channel->set_VA(VA);
     }
 
+    // Getter to get the input bits from the codec from cvqkd_protocol.h.
+    int get_codec_input_bits_k()
+    {
+        return protocol->get_codec_input_bits_k();
+    }
+
     /*! \name Communication System Interface */
     //! Perform complete transmission of one frame
     C<bool> fullcycle(C<S>& source)
