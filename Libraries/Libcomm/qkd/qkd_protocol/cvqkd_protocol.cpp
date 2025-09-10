@@ -314,8 +314,8 @@ namespace libcomm
         }
 
         // Vector M which stores the modulated signal.
-        libbase::vector<double> modulated_signal_M;
-        modulated_signal_M.init(get_codec_output_bits_n());
+        libbase::vector<double> vector_M;
+        vector_M.init(get_codec_output_bits_n());
 
         if (!embedder) {
             embedder = std::make_shared<
@@ -327,24 +327,55 @@ namespace libcomm
 
         embedder->set_blocksize(Y.size());
 
-        embedder->embed(alphabet_size, data_to_embed, Y, modulated_signal_M);
+        embedder->embed(alphabet_size, data_to_embed, Y, vector_M);
 
-        print_vector("(Prints from cv-qkdprotocol.cpp) Modulated Vector M (from embedder):", modulated_signal_M);
+        print_vector("(Prints from cv-qkdprotocol.cpp) Modulated Vector M (from embedder):", vector_M);
 
         /* Demodulation step to get the Probability Table for the decoder. */
 
         // Instantiate the AWGN channel object.
-        demodulation_channel = std::make_shared<libcomm::awgn>();
+        // demodulation_channel = std::make_shared<libcomm::awgn>();W
+        demodulation_channel = std::make_shared<libcomm::awgn1d>();
 
         std::cout << "\n(Prints from cv-qkdprotocol.cpp) Description of Demodulation channel: " << demodulation_channel->description() << std::endl;
 
         std::cout << "\n(Prints from cv-qkdprotocol.cpp) Print value of SNR_linear: " << SNR_linear << std::endl;
 
         // Convert SNR to dB
-        double snr_dB = 10.0 * std::log10(SNR_linear);
-        std::cout << "\n(Prints from cv-qkdprotocol.cpp) SNR (dB): " << snr_dB << std::endl;
+        double SNR_dB = 10.0 * std::log10(SNR_linear);
+        std::cout << "\n(Prints from cv-qkdprotocol.cpp) SNR (dB): " << SNR_dB << std::endl;
 
-        // embedder->extract();
+        // Set SNR_db in AWGN channel
+        demodulation_channel->set_parameter(SNR_dB);
+
+        // Instantiate Probability Table.
+        libbase::vector<libbase::vector<double>> prob_table;
+
+        std::cout <<"\n(Prints from cv-qkdprotocol.cpp) Size of Vector M = " << vector_M.size() << "\tSize of Vector X = " << X.size() << std::endl;
+
+        // Perform Demodulation to get Probability Table.
+        embedder->extract(*demodulation_channel, vector_M, X, prob_table);
+
+        std::cout << "\n(Prints probability table from cv-qkdprotocol.cpp:)" << std::endl;
+        print_prob_table(prob_table);
+
+        /*LDPC decoding using the prob_table to get vector s_hat */
+        cdc->init_decoder(prob_table);
+
+        auto decoded = libbase::vector<int>();
+        cdc->decode(decoded);
+
+        print_vector("\n(Prints from cv-qkdprotocol.cpp using cout:) Decoded bits:", decoded);
+
+        // Copy decoded bits to vector s_hat  of Alice which is of bool type.
+        libbase::vector<bool> vector_s_hat(get_codec_input_bits_k());
+
+        for (int i = 0; i<decoded.size(); ++i)
+        {
+            vector_s_hat(i) = decoded(i);
+        }
+
+        print_vector("\n(Prints from cv-qkdprotocol.cpp using cout:) Vector S_hat of Alice:", vector_s_hat);
 
         // // These parameters cannot be hard coded. Parameters to calculate length l of final secret key.
         // int len_secret_key;
