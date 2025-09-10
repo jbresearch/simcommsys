@@ -23,6 +23,7 @@
 #include "informed_embedder/sign.h"
 #include "channel.h"
 #include "channel/awgn1d.h"
+#include "crc/crc32.h"
 
 
 #include <memory>
@@ -61,6 +62,9 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
         std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
         std::shared_ptr<direct_block_informed_embedder<double, libbase::vector, double>> embedder; // Embedder
         std::shared_ptr<libcomm::channel<double>> demodulation_channel; // Channel to be used for demodulation.
+
+        // Check that verifies if hash_hs == hash_hsat?
+        int H_check = 0;
 
     public:
         void seedfrom(libbase::random& rng) override { this->rng.seed(rng.ival());

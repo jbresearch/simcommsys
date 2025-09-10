@@ -375,7 +375,27 @@ namespace libcomm
             vector_s_hat(i) = decoded(i);
         }
 
-        print_vector("\n(Prints from cv-qkdprotocol.cpp using cout:) Vector S_hat of Alice:", vector_s_hat);
+        print_vector("\n(Prints from cv-qkdprotocol.cpp) Vector S_hat of Alice:", vector_s_hat);
+
+        /* Calculating Hashing for Vectors s and s_hat */
+        std::uint32_t hash_hs = crc32_ieee<>::compute(bob_vector_s);
+        std::cout << "Hash hs of Bob's vector s = " << hash_hs << std::endl;
+
+        std::uint32_t hash_hs_hat = crc32_ieee<>::compute(vector_s_hat);
+        std::cout << "Hash hs_hat of Alice's vector s_hat = " << hash_hs_hat << std::endl;
+
+        if(hash_hs == hash_hs_hat)
+        {
+            H_check = 1;
+            std::cout << "(Prints from cv-qkdprotocol.cpp) Hash Check = " << H_check << std::endl;
+            // TODO: Move and calculate length l in here to perform privacy amplification for both keys.
+        }
+        else
+        {
+            H_check = 0;
+            std::cout << "(Prints from cv-qkdprotocol.cpp) Hash Check = " << H_check << std::endl;
+            // TODO: Return empty key like I did for when MI_check was zero.
+        }
 
         // // These parameters cannot be hard coded. Parameters to calculate length l of final secret key.
         // int len_secret_key;
