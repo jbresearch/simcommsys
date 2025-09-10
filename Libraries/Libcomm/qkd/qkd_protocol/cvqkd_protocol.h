@@ -22,7 +22,7 @@
 #include "informed_embedder/direct_block_informed_embedder.h"
 #include "informed_embedder/sign.h"
 #include "channel.h"
-#include "channel/awgn.h"
+#include "channel/awgn1d.h"
 
 
 #include <memory>
@@ -60,7 +60,7 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
     protected:
         std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
         std::shared_ptr<direct_block_informed_embedder<double, libbase::vector, double>> embedder; // Embedder
-        std::shared_ptr<libcomm::channel<libcomm::sigspace>> demodulation_channel; // Channel to be used for demodulation.
+        std::shared_ptr<libcomm::channel<double>> demodulation_channel; // Channel to be used for demodulation.
 
     public:
         void seedfrom(libbase::random& rng) override { this->rng.seed(rng.ival());
@@ -245,7 +245,27 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
                 std::cout << vec(i) << "\t";
             }
             std::cout << std::endl;
-}
+        }
+
+        // Helper function to print probability table.
+        void print_prob_table(const libbase::vector<libbase::vector<double>>& ptable) {
+            using std::cout;
+            using std::fixed;
+            using std::setprecision;
+
+            const int T = ptable.size();          // time steps
+            if (T == 0) { cout << "[ptable is empty]\n"; return; }
+
+            for (int t = 0; t < T; ++t) {
+                const int M = ptable(t).size();   // symbols
+                cout << "t=" << t << " : ";
+                for (int m = 0; m < M; ++m) {
+                    cout << fixed << setprecision(6) << ptable(t)(m);
+                    if (m + 1 < M) cout << ", ";
+                }
+                cout << '\n';
+            }
+        }
 
         // Description function
         std::string description() const override;
