@@ -67,13 +67,89 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
 
    // libcomm::ldpc<libbase::gf2,double> codec; // Without this entire qkd_commsys serialization won't work as the codec can't be loaded!!!
 
-    // Build config: GAUSSIAN for Alice with explicit params (parse-proof)
+    // Build config: GAUSSIAN for Alice with explicit params (parse-proof) // Using N = 110K states and N_PE was previously a set parameter.
+   //  std::stringstream cfg;
+   //  cfg <<
+   //      "# Version\n"
+   //      "1\n"
+   //      "# Frame size (# of quantum states in a frame)\n"
+   //      "110000\n"
+   //      "## Alice's channel\n"
+   //      "identity_quantum_channel\n"
+   //      "## Bob's channel\n"
+   //      "gaussian_quantum_channel\n"
+   //      "# Homodyne Detector Efficiency\n"
+   //      "0.606\n"
+   //      "# Mean of the Gaussian Quantum Channel\n"
+   //      "0.0\n"
+   //      "# Transmittance T of the Gaussian Quantum Channel\n"
+   //      "0.302\n"
+   //      "## Postprocessing protocol\n"
+   //      "cvqkd_protocol\n"
+   //      "# Number of samples for Parameter Estimation N_PE\n"
+   //      "11000\n"
+   //      "# Shot Noise Variance N_0\n"
+   //      "1\n"
+   //      "# Electric Noise v_el\n"
+   //      "0.041\n"
+   //      "# Detector Efficiency eta\n"
+   //      "0.606\n"
+   //      "# Smoothing Parameter\n"
+   //      "1e-4\n";
+   //    //   "### Codec\n"
+   //    //   "ldpc<gf2,double>\n"
+   //    //   "# Version\n"
+   //    //   "5\n"
+   //    //   "# SPA type (trad|gdl)\n"
+   //    //   "gdl\n"
+   //    //   "# Number of iterations\n"
+   //    //   "50\n"
+   //    //   "# Clipping method\n"
+   //    //   "zero\n"
+   //    //   "# Value of almostzero\n"
+   //    //   "1e-100\n"
+   //    //   "# Reduce generator matrix to REF? (true|false)\n"
+   //    //   "1\n"
+   //    //   "# Length (n)\n"
+   //    //   "7\n"
+   //    //   "# Dimension (m)\n"
+   //    //   "7\n"
+   //    //   "# Max column weight\n"
+   //    //   "3\n"
+   //    //   "# Max row weight\n"
+   //    //   "3\n"
+   //    //   "# Non-zero values (ones|random|provided)\n"
+   //    //   "ones\n"
+   //    //   "# Column weight vector\n"
+   //    //   "7\n"
+   //    //   "3 3 3 3 3 3 3\n"
+   //    //   "# Row weight vector\n"
+   //    //   "7\n"
+   //    //   "3 3 3 3 3 3 3\n"
+   //    //   "# Non zero positions per col\n"
+   //    //   "3\n"
+   //    //   "1 5 7\n"
+   //    //   "3\n"
+   //    //   "1 2 6\n"
+   //    //   "3\n"
+   //    //   "2 3 7\n"
+   //    //   "3\n"
+   //    //   "1 3 4\n"
+   //    //   "3\n"
+   //    //   "2 4 5\n"
+   //    //   "3\n"
+   //    //   "3 5 6\n"
+   //    //   "3\n"
+   //    //   "4 6 7\n";
+
+
+   // Build config: GAUSSIAN for Alice with explicit params (parse-proof) // Using N = 14 states and N_PE is no longer a serialized parameter. It is calculated N_PE = framesize - n (from codec)
     std::stringstream cfg;
     cfg <<
         "# Version\n"
         "1\n"
         "# Frame size (# of quantum states in a frame)\n"
-        "110000\n"
+        "14\n"
         "## Alice's channel\n"
         "identity_quantum_channel\n"
         "## Bob's channel\n"
@@ -86,8 +162,6 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
         "0.302\n"
         "## Postprocessing protocol\n"
         "cvqkd_protocol\n"
-        "# Number of samples for Parameter Estimation N_PE\n"
-        "11000\n"
         "# Shot Noise Variance N_0\n"
         "1\n"
         "# Electric Noise v_el\n"
@@ -96,51 +170,6 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
         "0.606\n"
         "# Smoothing Parameter\n"
         "1e-4\n";
-      //   "### Codec\n"
-      //   "ldpc<gf2,double>\n"
-      //   "# Version\n"
-      //   "5\n"
-      //   "# SPA type (trad|gdl)\n"
-      //   "gdl\n"
-      //   "# Number of iterations\n"
-      //   "50\n"
-      //   "# Clipping method\n"
-      //   "zero\n"
-      //   "# Value of almostzero\n"
-      //   "1e-100\n"
-      //   "# Reduce generator matrix to REF? (true|false)\n"
-      //   "1\n"
-      //   "# Length (n)\n"
-      //   "7\n"
-      //   "# Dimension (m)\n"
-      //   "7\n"
-      //   "# Max column weight\n"
-      //   "3\n"
-      //   "# Max row weight\n"
-      //   "3\n"
-      //   "# Non-zero values (ones|random|provided)\n"
-      //   "ones\n"
-      //   "# Column weight vector\n"
-      //   "7\n"
-      //   "3 3 3 3 3 3 3\n"
-      //   "# Row weight vector\n"
-      //   "7\n"
-      //   "3 3 3 3 3 3 3\n"
-      //   "# Non zero positions per col\n"
-      //   "3\n"
-      //   "1 5 7\n"
-      //   "3\n"
-      //   "1 2 6\n"
-      //   "3\n"
-      //   "2 3 7\n"
-      //   "3\n"
-      //   "1 3 4\n"
-      //   "3\n"
-      //   "2 4 5\n"
-      //   "3\n"
-      //   "3 5 6\n"
-      //   "3\n"
-      //   "4 6 7\n";
 
    libcomm::qkd_commsys<libcomm::gaussian_state, double, libbase::vector> sys;
 
@@ -153,6 +182,33 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    // Set seed for qkd_commsys object
    randgen rng;
    rng.seed(17);
+   // rng.seed(26);
+
+   /*
+
+   With this seed:
+   rng.seed(17);
+
+   and a
+   randgen r; // for src and vector s
+   r.seed(2602); // for src and  vector s
+
+   I had the following:
+   - Generated vector s of Bob = [1 1 1]
+   - Generated vector C (after encoding s) = [1       1       1       0       0       1       0]
+   - Generated vector M = -0.324052       -0.172396       0.0642522       0.840933        -0.233945       -0.0788091      0.305013
+   - Generated probability table:
+   (Prints probability table from cv-qkdprotocol.cpp:)
+   t=0 : 0.000037, 0.361188
+   t=1 : 0.396687, 0.059911
+   t=2 : 0.392867, 0.335163
+   t=3 : 0.201802, 0.000000
+   t=4 : 0.388728, 0.004239
+   t=5 : 0.005572, 0.000231
+   t=6 : 0.049393, 0.112772
+   - decoded sequence s_hat = [1 1 1]
+   */
+
    sys.seedfrom(rng);
 
    // 3) Set the CLI params (Bob’s SNR) through qkd_commsys
@@ -198,6 +254,8 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
 
    randgen r;
    r.seed(2602);
+   // r.seed(26);
+
    // r.seed(7896); variance was 16.9 (should be a bit closer to 18.5)
    src->seedfrom(r);
 
@@ -268,48 +326,60 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
 
    std::cout << "System details of the codec used in the CV-QKD protocol: " << cdc->description() << "\n";
 
-   int k = protocol->get_codec_input_bits_k(); // size of vector s
-   std::cout << "Input bits k of codec of CV-QKD protocol/ size of vector s =  " << k << "\n"; // just to test that k is correct. This will be added in simulator
+   // Gets input k bits from codec of the CV-QKD protocol.
+   int k = sys.get_codec_input_bits_k();
+   std::cout << "Input bits k of codec of CV-QKD protocol from qkd_commsys/ size of vector s =  " << k << "\n"; // just to test that k is correct. This is also added in simulator.
 
-   libbase::vector<bool> dummy_vector_s;
-   dummy_vector_s.init(k); // s = {1,0,1}
-   dummy_vector_s(0) = 1;
-   dummy_vector_s(1) = 0;
-   dummy_vector_s(2) = 1;
-
-   libbase::vector<int>  dummy_vector_s_int(dummy_vector_s);
-
-   // Encoding vector s using small Hamming code just for testing.
-   int n = 7;
-   libbase::vector<int> encoded_int;
-   encoded_int.init(n);
-
-   cdc->encode(dummy_vector_s_int, encoded_int); // idea taken from commsys.cpp.
-
-   // now convert back
-   libbase::vector<bool> encoded(encoded_int);    // or do the loop above
-
-   std::cout << "\nPrinting encoded bool vector" << std::endl;
-   for(int i = 0; i<n; i++)
+   // Generate vector s from k as done in qkd_commsys simulator.h
+   libbase::vector<bool> vector_s(k);
+   for (int i = 0; i < k; ++i)
    {
-      std::cout << encoded(i) << "\t";
+      vector_s(i) = (r.ival(2) != 0);
+   }
+
+   std::cout << "Generated vector s from Testgaussiancvqkd.h: " << std::endl;
+   for (int i = 0; i<vector_s.size();++i)
+   {
+      std::cout << vector_s(i) << "\t";
    }
    std::cout << std::endl;
 
-//    // Setting modulation variance VA in the gaussian quantum channel of Bob
-//    sys.set_VA(*src);
-
-//    // Generates a sequence of coherent states which is the input to the fullcycle method in qkd_commsys.h
-//    libbase::vector<gaussian_state> source = src->generate_sequence(libbase::size_type<libbase::vector>(framesize));
-
-//    // Initialise final_key
-//    libbase::vector<bool> final_key;
-
-//    /* Calling fullcylce method from qkd_commsys.h for a single frame*/
-//    final_key = sys.fullcycle(source);
+   sys.set_bob_vector(vector_s);
 
 
-//    std::cout << "\n Size of Final Secret Key: "<< final_key.size() << std::endl;
+   // libbase::vector<int>  dummy_vector_s_int(dummy_vector_s);
+
+   // // Encoding vector s using small Hamming code just for testing.
+   // int n = 7;
+   // libbase::vector<int> encoded_int;
+   // encoded_int.init(n);
+
+   // cdc->encode(dummy_vector_s_int, encoded_int); // idea taken from commsys.cpp.
+
+   // // now convert back
+   // libbase::vector<bool> encoded(encoded_int);    // or do the loop above
+
+   // std::cout << "\nPrinting encoded bool vector" << std::endl;
+   // for(int i = 0; i<n; i++)
+   // {
+   //    std::cout << encoded(i) << "\t";
+   // }
+   // std::cout << std::endl;
+
+   // Setting modulation variance VA in the gaussian quantum channel of Bob
+   sys.set_VA(*src);
+
+   // Generates a sequence of coherent states which is the input to the fullcycle method in qkd_commsys.h
+   libbase::vector<gaussian_state> source = src->generate_sequence(libbase::size_type<libbase::vector>(framesize));
+
+   // Initialise final_key
+   libbase::vector<bool> final_key;
+
+   /* Calling fullcylce method from qkd_commsys.h for a single frame*/
+   final_key = sys.fullcycle(source);
+
+
+   std::cout << "\n Size of Final Secret Key: "<< final_key.size() << std::endl;
 
 //    // // Prints Final Secret Key
 //    // std::cout << "\nFinal Secret Key [size=" << final_key.size() << "]: [";
