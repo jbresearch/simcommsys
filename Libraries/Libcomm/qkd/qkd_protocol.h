@@ -119,6 +119,9 @@ public:
     // Setter to set vector s for CV-QKD which is generated from qkd_commsys_simulator.h.
     virtual void set_bob_vector_s(libbase::vector<bool>& s) = 0;
 
+    // Helper function to set the SNR_linear of the Gaussian Quantum Channel.
+    virtual void set_SNR_linear(double snr_linear) = 0;
+
     virtual C<bool> postprocess(libbase::vector<T>&& alice_measurements,
                                 libbase::vector<T>&& bob_measurements) = 0;
 

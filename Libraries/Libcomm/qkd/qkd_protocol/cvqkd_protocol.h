@@ -21,6 +21,8 @@
 #include "codec.h"
 #include "informed_embedder/direct_block_informed_embedder.h"
 #include "informed_embedder/sign.h"
+#include "channel.h"
+#include "channel/awgn.h"
 
 
 #include <memory>
@@ -55,11 +57,10 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
          double SNR_linear; // Retrieved from bob's quantum channel.
          int l_secret_key; // Length of final secret key after PA.
 
-
-
     protected:
         std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
         std::shared_ptr<direct_block_informed_embedder<double, libbase::vector, double>> embedder; // Embedder
+        std::shared_ptr<libcomm::channel<libcomm::sigspace>> demodulation_channel; // Channel to be used for demodulation.
 
     public:
         void seedfrom(libbase::random& rng) override { this->rng.seed(rng.ival());
@@ -224,6 +225,12 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
 
         // Helper function to Get codec.
         std::shared_ptr<codec<libbase::vector>> get_codec() const { return cdc; }
+
+        // Helper function to set the SNR_linear of the Gaussian Quantum Channel.
+        void set_SNR_linear(double snr_linear) override
+        {
+            this->SNR_linear = snr_linear;
+        }
 
         // Returns final secret key.
         libbase::vector<bool> postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements) override;

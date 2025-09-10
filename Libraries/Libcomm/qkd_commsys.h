@@ -247,12 +247,14 @@ public:
             double beta_mdr = 0.958;
             std::cout << "(prints from qkd_commsys.h full cycle) beta_mdr = " << beta_mdr << std::endl;
 
-            /* Gets SNR_linear from Bob's Gaussian Quantum Channel -> to uncomment!!
+            /* Gets SNR_linear from Bob's Gaussian Quantum Channel -> to uncomment!!*/
             libbase::vector<double> bobs_channel_parameters;
-            bobs_channel_pararmeters.init(1);
+            bobs_channel_parameters.init(1);
             bobs_channel_parameters= bob_channel->get_parameters();
             double SNR_linear = bobs_channel_parameters(0);
-            */
+
+            // Set SNR_linear to be used in the CV-QKD protocol.
+            protocol->set_SNR_linear(SNR_linear);
 
             // *** Will also need to use the SNR_linear later to  get SNR_dB to use it in the codec for decoding in the post processing probably. ***/
 

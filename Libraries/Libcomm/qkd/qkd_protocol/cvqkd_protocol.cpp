@@ -332,6 +332,18 @@ namespace libcomm
         print_vector("(Prints from cv-qkdprotocol.cpp) Modulated Vector M (from embedder):", modulated_signal_M);
 
         /* Demodulation step to get the Probability Table for the decoder. */
+
+        // Instantiate the AWGN channel object.
+        demodulation_channel = std::make_shared<libcomm::awgn>();
+
+        std::cout << "\n(Prints from cv-qkdprotocol.cpp) Description of Demodulation channel: " << demodulation_channel->description() << std::endl;
+
+        std::cout << "\n(Prints from cv-qkdprotocol.cpp) Print value of SNR_linear: " << SNR_linear << std::endl;
+
+        // Convert SNR to dB
+        double snr_dB = 10.0 * std::log10(SNR_linear);
+        std::cout << "\n(Prints from cv-qkdprotocol.cpp) SNR (dB): " << snr_dB << std::endl;
+
         // embedder->extract();
 
         // // These parameters cannot be hard coded. Parameters to calculate length l of final secret key.
