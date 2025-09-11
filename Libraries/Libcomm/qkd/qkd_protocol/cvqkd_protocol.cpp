@@ -377,6 +377,8 @@ namespace libcomm
 
         print_vector("\n(Prints from cv-qkdprotocol.cpp) Vector S_hat of Alice:", vector_s_hat);
 
+        std::cout << "\n(Prints from cv-qkdprotocol.cpp) Hamming distance between vectors s and s_hat: " << hamming_distance(bob_vector_s, vector_s_hat) << std::endl;
+
         /* Calculating Hashing for Vectors s and s_hat */
         std::uint32_t hash_hs = crc32_ieee<>::compute(bob_vector_s);
         std::cout << "Hash hs of Bob's vector s = " << hash_hs << std::endl;
@@ -423,7 +425,6 @@ namespace libcomm
 
         return final_key;
     }
-
 
     // Returns description of the protocol
     std::string cvqkd_protocol::description() const { return "CV-QKD Protocol using the GG02 protocol with GM Coherent states";}

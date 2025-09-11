@@ -271,6 +271,20 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
             }
         }
 
+        // Helper function that computes hamming distance between 2 vectors.
+        std::size_t hamming_distance(const libbase::vector<bool>& s_hat,
+                             const libbase::vector<bool>& s)
+        {
+            if (s_hat.size() != s.size())
+                throw std::invalid_argument("hamming_distance: size mismatch");
+
+            int d = 0;
+            for (int i = 0; i < s.size(); ++i)
+                d += (s_hat(i) != s(i));  // bool promotes to 0/1
+
+            return d;
+        }
+
         // Description function
         std::string description() const override;
 
