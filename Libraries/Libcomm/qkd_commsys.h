@@ -242,10 +242,10 @@ public:
             MI_check = 1;
             std::cout << "(Prints from qkd_commsys.h) MI_Check = " << MI_check << std::endl; // To delete
 
-            // TODO: Still to calculate using beta = R/C(S)
-            // C(S) is the Shannon Capacity of an AWGN channel.
-            double beta_mdr = 0.958;
-            std::cout << "(prints from qkd_commsys.h full cycle) beta_mdr = " << beta_mdr << std::endl;
+            // // TODO: Still to calculate using beta = R/C(S)
+            // // C(S) is the Shannon Capacity of an AWGN channel.
+            // double beta_mdr = 0.958;
+            // std::cout << "(prints from qkd_commsys.h full cycle) beta_mdr = " << beta_mdr << std::endl;
 
             /* Gets SNR_linear from Bob's Gaussian Quantum Channel -> to uncomment!!*/
             libbase::vector<double> bobs_channel_parameters;
@@ -265,7 +265,7 @@ public:
             */
 
             // Use setter in CV-QKD protocol
-            protocol->set_parameters_secret_key_length(beta_mdr, I_AB, X_BE, n_output_codec_block_size);
+            protocol->set_parameters_secret_key_length(I_AB, X_BE, n_output_codec_block_size);
 
             // Continue with post-processing: Still to implement
             return protocol->postprocess(std::move(X_raw), std::move(Y_raw));

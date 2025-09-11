@@ -98,7 +98,7 @@ public:
 
     // Parameters used to calculate the length of the final secret key after privacy amplification.
     // Note: For the BB84 I would have to also add N_leaked later on.
-    virtual void set_parameters_secret_key_length(double beta, double I_AB, double chi_BE, int n_samples) = 0;
+    virtual void set_parameters_secret_key_length(double I_AB, double chi_BE, int n_samples) = 0;
 
     // Equations related to length of final secret key.
     virtual const int calculate_finite_size_effects_secret_key_length() = 0;
