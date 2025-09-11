@@ -241,8 +241,15 @@ namespace libcomm
         assert(I_AB >= 0.0 && chi_BE >= 0.0);
         assert(delta_n >= 0);
 
-        // Equation from reference 2.
-        const double rate_per_pulse = (beta_mdr * I_AB) - chi_BE - delta_n;
+        // Equation from reference 2
+        /* TODO: to uncommment line 248 and add back delta(n) and delete line 250. For now I am excluding delta(n) and using Beta = 1 as the framesize is too small and beta is too small as well just for testing purposes.*/
+
+        // Finite-Size Effects Case.
+        // const double rate_per_pulse = (beta_mdr * I_AB) - chi_BE - delta_n;
+
+        // Asymptotic Case.
+        const double rate_per_pulse = (1 * I_AB) - chi_BE;
+
         assert(rate_per_pulse <= 0.0 &&
             "Negative secret key rate/pulse!");
 
@@ -302,8 +309,6 @@ namespace libcomm
 
         /* Modulation step: Generate Vector M using BPSK modulation.*/
 
-        int alphabet_size = 2;
-
         // The direct_block_informed_embedder uses the embed method from the base class block_informed_embedder.h.
 
         // Data to embed which is encoded bit vector C, converted from bool to int.
@@ -343,6 +348,7 @@ namespace libcomm
 
         // Convert SNR to dB
         double SNR_dB = 10.0 * std::log10(SNR_linear);
+
         std::cout << "\n(Prints from cv-qkdprotocol.cpp) SNR (dB): " << SNR_dB << std::endl;
 
         // Set SNR_db in AWGN channel
@@ -391,37 +397,114 @@ namespace libcomm
             H_check = 1;
             std::cout << "(Prints from cv-qkdprotocol.cpp) Hash Check = " << H_check << std::endl;
             // TODO: Move and calculate length l in here to perform privacy amplification for both keys.
+
+            /* Calculate Beta for MDR: beta = R/C(S)
+            // // C(S) is the Shannon Capacity of an AWGN channel. */
+
+            double R_code = static_cast<double>(get_codec_input_bits_k())/static_cast<double>(get_codec_output_bits_n());
+
+            std::cout << "\n(Prints from cv-qkdprotocol.cpp) R_code  = " << R_code << std::endl;
+
+            double C_awgn_capacity = calculate_shannon_capacity_awgn(SNR_linear);
+
+            beta_mdr = R_code /C_awgn_capacity;
+            std::cout << "\n(Prints from cv-qkdprotocol.cpp) beta_mdr  = " << beta_mdr << std::endl;
+
+            /* Calculate length l of final secret key */
+            std::cout << "\nTesting equation that calculates final length l of secret key (prints from cvqkd_protocol.cpp)" << std::endl;
+
+            int len_secret_key = calculate_finite_size_effects_secret_key_length();
+            std::cout << "\n (prints from cvqkd_protocol.cpp) Length l of final secret key = " << len_secret_key << std::endl;
+
+            // Sets length of secret key to later be able to retrieve it for the results collector.
+            set_length_secret_key(len_secret_key);
+            final_key.init(len_secret_key);
+
+            /* Perform Privacy Amplification */
+
+            // // Intialise Privacy Amplification system.
+            // pa_system = std::make_shared<libcomm::pa_standard_toeplitz<bool>>();
+
+            std::cout << "\n (prints from cvqkd_protocol.cpp) Privacy Amplification System Description = " << pa_system.description() << std::endl;
+
+            // to use alphabet size of 2
+            pa_system.set_alphabet_size(alphabet_size);
+            // Length of final key after doing PA.
+            pa_system.set_L(len_secret_key);
+            // Length of pre-hased key which in this case is the size of vectors s and s_hat.
+            pa_system.set_N(get_codec_input_bits_k());
+
+            int starting_vector_len = pa_system.generate_starting_vector_length();
+
+            // Printing PA System Parameters
+            std::cout << "(prints from cvqkd_protocol.cpp)  Length of starting vector = " << starting_vector_len << std::endl;
+
+            std::cout << "(prints from cvqkd_protocol.cpp)  Length L of the PA system: " << pa_system.get_L() << std::endl;
+            std::cout << "(prints from cvqkd_protocol.cpp)  Length N of the PA system: " << pa_system.get_N() << std::endl;
+            std::cout << "(prints from cvqkd_protocol.cpp)  Alphabet size of the PA system: " << pa_system.get_alphabet_size() << std::endl;
+
+            // Generate starting vector.
+            libbase::vector<bool> starting_vector = pa_system.generate_starting_vector(starting_vector_len, pa_system.get_alphabet_size());
+
+            // Generate Standard Toeplitz matrix.
+            libbase::matrix<bool> standard_toeplitz_matrix = pa_system.generate_toeplitz_matrix(starting_vector);
+
+            // Instaniates both final secret keys KA and KB.
+            libbase::vector<bool> final_secret_key_KA(len_secret_key);
+
+            libbase::vector<bool> final_secret_key_KB(len_secret_key); //
+
+            // Generates KB of Bob.
+            final_secret_key_KB = pa_system.compute_hashed_key(standard_toeplitz_matrix, bob_vector_s, len_secret_key, bob_vector_s.size(), alphabet_size);
+
+            // Generates KA of Alice.
+            final_secret_key_KA = pa_system.compute_hashed_key(standard_toeplitz_matrix, vector_s_hat, len_secret_key, vector_s_hat.size(), alphabet_size);
+
+            print_vector("(prints from cvqkd_protocol.cpp)  Final Secret Key KA of Alice: ", final_secret_key_KA);
+            print_vector("(prints from cvqkd_protocol.cpp)  Final Secret Key KB of Bob: ", final_secret_key_KB);
+
+            // Check if KA == KB
+            bool keys_equal = (final_secret_key_KA.size() == final_secret_key_KB.size());
+
+            if (keys_equal)
+            {
+                for (int i = 0; i < final_secret_key_KA.size(); ++i) {
+                    if (final_secret_key_KA(i) != final_secret_key_KB(i)) {
+                        keys_equal = false;
+                        break;
+                    }
+                }
+            }
+
+            if (keys_equal)
+            {
+                std::cout << "(prints from cvqkd_protocol.cpp) Final secret keys match!" << std::endl;
+                final_key = final_secret_key_KA;
+                return final_key;
+            }
+            else
+            {
+                std::cout << "(prints from cvqkd_protocol.cpp) Final secret keys differ! Returning empty key." << std::endl;
+                int len_secret_key = 0;
+                set_length_secret_key(len_secret_key);
+                final_key.init(len_secret_key); // Returns empty key.
+                return final_key;
+            }
+
         }
         else
         {
             H_check = 0;
             std::cout << "(Prints from cv-qkdprotocol.cpp) Hash Check = " << H_check << std::endl;
             // TODO: Return empty key like I did for when MI_check was zero.
+
+            int len_secret_key = 0;
+
+            // Sets length of secret key to later be able to retrieve it for the results collector.
+            set_length_secret_key(len_secret_key);
+            final_key.init(len_secret_key);
+            return final_key;
         }
-
-        // // These parameters cannot be hard coded. Parameters to calculate length l of final secret key.
-        // int len_secret_key;
-        // double snr_linear = 0.0283;
-        // double R_code = 0.02;
-        // double beta_mdr = compute_beta_mdr(R_code, snr_linear);
-        // std::cout << "\n (prints from cvqkd_protocol.cpp) Reconciliation Efficiency Beta MDR = " << beta_mdr << std::endl;
-
-        // // STILL TO DO: Same applies for I_AB and X_BE need to somehow get them into processing. Currently I am calculating these from qkd_commsys.h.
-        // double I_AB = 1.04825;
-        // double X_BE = 0.898772;
-        // double E_PA = 1e-10; // privacy amplification failure probability per block. Probably has to be a serialized parameter in the cv_qkd_protocol.
-        // int security_parameter = static_cast<int>(std::ceil(-std::log2(E_PA)));
-        // std::cout << "\n (prints from cvqkd_protocol.cpp)  (number of states to be deduced for PA.) Security parameter s = " << security_parameter << std::endl;
-
-        std::cout << "\nTesting equation that calculates final length l of secret key (prints from cvqkd_protocol.cpp)" << std::endl;
-
-        int len_secret_key = calculate_finite_size_effects_secret_key_length();
-        std::cout << "\n (prints from cvqkd_protocol.cpp) Length l of final secret key = " << len_secret_key << std::endl;
-
-        // Sets length of secret key to later be able to retrieve it for the results collector.
-        set_length_secret_key(len_secret_key);
-
-        final_key.init(len_secret_key);
 
         return final_key;
     }
@@ -441,6 +524,8 @@ namespace libcomm
         // Smoothing parameter bar epsilon which is used to calculate the final length of the secret key.
         sout << "# Smoothing Parameter" << std::endl;
         sout << smoothing_parameter << std::endl;
+        sout << "# Alphabet size" << std::endl;
+        sout << alphabet_size << std::endl;
         // sout << "### Codec" << std::endl;
         // sout << cdc << std::endl;
         return sout;
@@ -455,6 +540,7 @@ namespace libcomm
         sin >> libbase::eatcomments >> detector_efficiency >> libbase::verify;
         sin >> libbase::eatcomments >> smoothing_parameter >> libbase::verify;
         // sin >> libbase::eatcomments >> cdc >> libbase::verify;
+        sin >> libbase::eatcomments >> alphabet_size >> libbase::verify;
 
         return sin;
     }

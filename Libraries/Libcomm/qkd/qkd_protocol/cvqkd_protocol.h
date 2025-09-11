@@ -24,7 +24,9 @@
 #include "channel.h"
 #include "channel/awgn1d.h"
 #include "crc/crc32.h"
-
+#include "qkd/privacy_amplification.h"
+#include "qkd/privacy_amplification/pa_standard_toeplitz.h"
+#include "gf.h"
 
 #include <memory>
 #include <vector>
@@ -56,7 +58,10 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
 
          double beta_mdr; // Reconciliation Efficiency for MDR.
          double SNR_linear; // Retrieved from bob's quantum channel.
-         int l_secret_key; // Length of final secret key after PA.
+         int len_secret_key; // Length of final secret key after PA.
+
+         // Alphabet size to be used in embedder for modem and privacy amplification.
+         int alphabet_size;
 
     protected:
         std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
@@ -66,9 +71,16 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
         // Check that verifies if hash_hs == hash_hsat?
         int H_check = 0;
 
+        //  Privacy Amplification System that uses the standard Toeplitz matrix method.
+        // std::shared_ptr<libcomm::pa_standard_toeplitz<bool>> pa_system;
+        libcomm::pa_standard_toeplitz<bool> pa_system;
+
+
+
     public:
         void seedfrom(libbase::random& rng) override { this->rng.seed(rng.ival());
         if (cdc) cdc->seedfrom(rng);
+        pa_system.seedfrom(rng);
         }
 
         // Note: here I replaced libbase::vector with the std::vector only for the observables.
@@ -189,9 +201,8 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
 
         double compute_beta_mdr(double code_rate, double snr_linear);
 
-        void set_parameters_secret_key_length(double beta, double I_AB, double chi_BE, int n_samples) override
+        void set_parameters_secret_key_length(double I_AB, double chi_BE, int n_samples) override
         {
-            this->beta_mdr   = beta;
             this->I_AB       = I_AB;
             this->chi_BE     = chi_BE;
             this->n_samples  = n_samples;
@@ -202,7 +213,7 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
 
         void set_length_secret_key(int l_secret_key) override
         {
-            this->l_secret_key = l_secret_key;
+            this->len_secret_key = l_secret_key;
         }
 
         // Helper functions related to the codec.
