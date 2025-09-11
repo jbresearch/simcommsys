@@ -53,6 +53,12 @@ class pa_standard_toeplitz: public privacy_amplification_base<T>
         int get_N() {return N;}
         int get_alphabet_size() {return alphabet_size;}
 
+        // setters to set the sizes of L, N and alphabet_size
+        void set_L(int l) {this->L = l;}
+        void set_N(int n) {this->N = n;}
+        void set_alphabet_size(int q) {this->alphabet_size = q;}
+
+
 
         DECLARE_SERIALIZER(pa_standard_toeplitz<T>)
 };
