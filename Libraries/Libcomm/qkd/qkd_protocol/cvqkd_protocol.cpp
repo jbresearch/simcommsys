@@ -401,7 +401,7 @@ namespace libcomm
             /* Calculate Beta for MDR: beta = R/C(S)
             // // C(S) is the Shannon Capacity of an AWGN channel. */
 
-            double R_code = static_cast<double>(get_codec_input_bits_k())/static_cast<double>(get_codec_output_bits_n());
+            double R_code = cdc->rate();
 
             std::cout << "\n(Prints from cv-qkdprotocol.cpp) R_code  = " << R_code << std::endl;
 
