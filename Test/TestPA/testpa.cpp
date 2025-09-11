@@ -732,7 +732,7 @@ BOOST_AUTO_TEST_CASE(testing_pa_standard_toeplitz_with_serialization)
     }
     std::cout <<"\n";
 
-    libbase::vector<bool> final_secret_key(pa_system.get_N()); // initialises final secret key
+    libbase::vector<bool> final_secret_key(pa_system.get_L()); // initialises final secret key
 
     final_secret_key = pa_system.compute_hashed_key(standard_toeplitz_matrix, pre_hashed_key, L, N, q); // computes the hashed key
     std::cout << "\nThe final secure key = " << final_secret_key << std::endl;
