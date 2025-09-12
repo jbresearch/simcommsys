@@ -172,7 +172,7 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
         int N_PE) override;
 
         // Parameter Estimation for the GG02 protocol using Optical Fiber which returns: T_hat, Epsilon_hat, chi_total_hat
-        std::tuple<double, double, double> parameter_estimation_optical_fiber(libbase::vector<double>& X_PE, libbase::vector<double>& Y_PE, int N_0, double v_el, double detector_efficiency) override;
+        std::tuple<double, double, double> parameter_estimation_optical_fiber(const libbase::vector<double>& X_PE, const libbase::vector<double>& Y_PE, int N_0, double v_el, double detector_efficiency) override;
 
         // Mutual Information for the GG02 protocol
         double calculate_mutual_information(double chi_total_hat, double VA) override;

@@ -83,6 +83,7 @@ public:
             case 2:
                 return "SKR"; // Secret Key Rate
         }
+        return std::string();
     }
     // @}
 };

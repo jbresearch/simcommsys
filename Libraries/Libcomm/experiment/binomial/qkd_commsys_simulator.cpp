@@ -1,7 +1,7 @@
 /*!
  * \file
  *
- * Copyright (c) 2025 Mark Mizzi
+ * Copyright (c) 2025 Mark Mizzi, Aaron Abela
  *
  * This file is part of SimCommSys.
  *
@@ -36,42 +36,51 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
     result.init(count());
     result = 0;
 
-    libbase::vector<S> source = src->generate_sequence(sys->input_block_size());
+    // Gets modulation variance VA from source prepared by Alice.
+    // double VA = src->get_VA(); // unused
 
-    // k is known from codec of the cv-qkd protocol.
-    int k = get_codec_input_bits_k();
+    // k is the input bits of the codec of the cv-qkd protocol.
+    int k = sys->get_codec_input_bits_k();
 
     // Generate vector s for Bob with size k.
-    vector_s = create_vector_s(k);
+    vector_s = sgen.generate_vector(k, *rng_);
 
     // Set the vector in the qkd_commsys system object.
     sys->set_bob_vector(vector_s);
 
-    /* Still to add (already implemented):
+    // Setting modulation variance VA in the gaussian quantum channel of Bob.
+    // sys->set_VA(*src);
+    if (src) { // I had to do this because in qkd_commsys.h the method is defined as: void set_VA(libcomm::quantum_gaussian_source& source)
+        if (auto qsrc = dynamic_cast<libcomm::quantum_gaussian_source*>(src.get()))
+            {
+                sys->set_VA(*qsrc);
+            }
+    }
 
-    int framesize = sys->input_block_size(); // Number of generated states per frame from Alice.
+    // Gets the number of coherent states generated for a single frame from the qkd_commsys object.
+    const libbase::size_type<libbase::vector> framesize(sys->input_block_size());
 
-    // Setting modulation variance VA in the gaussian quantum channel of Bob
-    double VA = src->get_VA();
-    sys->set_VA(*src);
-    */
+    // Generates a sequence of coherent states which is the input to the fullcycle method in qkd_commsys.
+    libbase::vector<S> source = src->generate_sequence(framesize);
 
-    libbase::vector<bool> skey = sys->fullcycle(source);
+    libbase::vector<bool> final_secret_key = sys->fullcycle(source);
 
     libbase::indirect_vector<double> result_segment =
         result.segment(0, R::count());
 
     /*
-    // Still to add (already implemented):
-
-    int l_secret_key = sys->protocol->get_length_secret_key();
-
-    // Still to change update_results of results collector to:
-    R::updateresults(result_segment, source, skey, l_secret_key, framesize);
-
+    // Still to change the update_results of results collector of below to the new results collector which I still need to implement and refix as discussed with Johann
+    R::updateresults(result_segment, source, final_secret_key, l_secret_key, framesize);
     */
 
-    R::updateresults(result_segment, source, skey);
+    // R::updateresults(result_segment, source, final_secret_key);
+
+    // CV collector expects (result, sifted_key, final_key, k_bits, m_bits)
+    const libbase::vector<bool>& sifted_key = vector_s; // already generated of size k
+    const int k_bits = static_cast<int>(sifted_key.size());
+    const int m_bits = 0; // set to your parity length if you have one
+
+    R::updateresults(result_segment, sifted_key, final_secret_key, k_bits, m_bits);
 }
 
 template <class S, class T, class R>
@@ -134,14 +143,46 @@ qkd_commsys_simulator<S, T, R>::serialize(std::istream& sin)
 
 } // namespace libcomm
 
+#include "result_collector/qkd_commsys/cv_qkd_errors_hamming.h"
+// #include "result_collector/commsys/errors_hamming.h"
+
 namespace libcomm
 {
 
-// To be used for the R (third) templated parameter.
-#include "result_collector/qkd_commsys/cv_qkd_errors_hamming.h"
-// Explicit Realizations
-// TODO
-// E.g.
-// template qkd_commsys_simulator<qubit, bool>;
+// ----- explicit instantiations & serializer registration (Boost PP) -----
+#include <boost/preprocessor/seq/enum.hpp>
+#include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/seq/elem.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
+#define QKD_STATE_SEQ     (gaussian_state)      /* add more states here depending on protocol that is added. */
+#define QKD_SCALAR_SEQ    (double) (float) (bool)
+#define QKD_COLLECTOR_TYPE_SEQ  (cv_qkd_errors_hamming) // (errors_hamming)
+
+/* Serialization string qkd_commsys_simulator<S, T, R>:  qkd_commsys_simulator<gaussian_state, double, cv_qkd_errors_hamming>
+ * where:
+ *  S (type of quantum state) = gaussian_state ..
+ *  T (type) = double, float, bool.
+ *  R (results collector) = cv_qkd_errors_hamming
+ */
+
+#define QKD_INSTANTIATE(r, args)                                                              \
+    template class qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>;                                      \
+    template<>                                                                                \
+    const libbase::serializer                                                                 \
+    qkd_commsys_simulator<                                                                              \
+        BOOST_PP_SEQ_ELEM(0, args), /* S */                                                   \
+        BOOST_PP_SEQ_ELEM(1, args), /* T */                                                   \
+        BOOST_PP_SEQ_ELEM(2, args)  /* C */                                                   \
+    >::shelper(                                                                               \
+        "experiment", \
+        "qkd_commsys_simulator<"                                                                        \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0, args)) ","                                \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) ","                                \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2, args)) ">",                                \
+        qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::create);
+
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(QKD_INSTANTIATE,
+                              (QKD_STATE_SEQ)(QKD_SCALAR_SEQ)(QKD_COLLECTOR_TYPE_SEQ))
 
 } // namespace libcomm

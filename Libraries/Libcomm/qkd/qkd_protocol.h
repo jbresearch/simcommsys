@@ -77,14 +77,14 @@ public:
     virtual double get_det_eff() = 0;
 
     // Split fn to be used for parameter estimation and post-processing.
-    virtual std::tuple<libbase::vector<double>,
-    libbase::vector<double>,
-    libbase::vector<double>,
-    libbase::vector<double>> split(libbase::vector<double>& measurements_alice, libbase::vector<double>& measurements_bob,
+    virtual std::tuple<libbase::vector<T>,
+    libbase::vector<T>,
+    libbase::vector<T>,
+    libbase::vector<T>> split(libbase::vector<T>& measurements_alice, libbase::vector<T>& measurements_bob,
     int N_PE) = 0;
 
     // Parameter Estimation using Optical Fiber
-    virtual std::tuple<double, double, double> parameter_estimation_optical_fiber(libbase::vector<double>& X_PE, libbase::vector<double>& Y_PE, int N_0, double v_el, double detector_efficiency) = 0;
+    virtual std::tuple<double, double, double> parameter_estimation_optical_fiber(const C<T>& X_PE, const C<T>& Y_PE, int N_0, double v_el, double detector_efficiency) = 0;
 
     double calculate_shannon_capacity_awgn(double snr_linear)
     {  // bits/use to be used to compute Beta for MDR.

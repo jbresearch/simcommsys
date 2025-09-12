@@ -55,7 +55,7 @@ namespace libcomm
         return {X_PE, Y_PE, X_raw, Y_raw};
     }
 
-    std::tuple<double, double, double> cvqkd_protocol::parameter_estimation_optical_fiber(libbase::vector<double>& X_PE, libbase::vector<double>& Y_PE, int N_0, double v_el, double detector_efficiency)
+    std::tuple<double, double, double> cvqkd_protocol::parameter_estimation_optical_fiber(const libbase::vector<double>& X_PE, const libbase::vector<double>& Y_PE, int N_0, double v_el, double detector_efficiency)
     {
 
         /* Reference of equations used to calculate the parameter estimation: Section A. of Chai, Geng, et al. "Parameter estimation of atmospheric continuous-variable quantum key distribution." Physical Review A 99.3 (2019): 032326.
