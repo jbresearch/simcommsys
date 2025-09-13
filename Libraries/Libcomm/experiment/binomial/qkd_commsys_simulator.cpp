@@ -63,7 +63,8 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
     // Generates a sequence of coherent states which is the input to the fullcycle method in qkd_commsys.
     libbase::vector<S> source = src->generate_sequence(framesize);
 
-    libbase::vector<bool> final_secret_key = sys->fullcycle(source);
+    // Both final keys are of libbase::vector<bool> type.
+    auto [key_KA, key_KB] = sys->fullcycle(source);
 
     libbase::indirect_vector<double> result_segment =
         result.segment(0, R::count());
@@ -73,19 +74,15 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
     R::updateresults(result_segment, source, final_secret_key, l_secret_key, framesize);
     */
 
-    // R::updateresults(result_segment, source, final_secret_key);
+    // R::updateresults(result_segment, source, vector_s, key_KA, key_KB);
 
     // CV collector expects (result, sifted_key, final_key, k_bits, m_bits)
-    const libbase::vector<bool>& sifted_key = vector_s; // already generated of size k
-    const int k_bits = static_cast<int>(sifted_key.size());
-    const int m_bits = 0; // set to your parity length if you have one
-
-    R::updateresults(result_segment, sifted_key, final_secret_key, k_bits, m_bits);
+    R::updateresults(result_segment, source, vector_s, key_KA, key_KB);
 }
 
 template <class S, class T, class R>
 std::string
-qkd_commsys_simulator<S, T, R>::description() const
+    qkd_commsys_simulator<S, T, R>::description() const
 {
     std::ostringstream sout;
     sout << "QKD Simulator for ";

@@ -155,7 +155,7 @@ public:
 
     /*! \name Communication System Interface */
     //! Perform complete transmission of one frame
-    C<bool> fullcycle(C<S>& source)
+    std::pair<C<bool> , C<bool>> fullcycle(C<S>& source)
     {
         // ***** Note: In this case the source here is the libbase::vector of states e.g. coherent states if S=gaussian_State *****
         assertalways(source.size() == framesize);
@@ -232,9 +232,9 @@ public:
         /* Set Bob's vector s from qkd_commsys to the cv-qkd protocol. Vector s is originally generaeted in qkd_commsys_simulator. */
         protocol->set_bob_vector_s(vector_s_from_bob);
 
-        /* TODO: TO delete lines 236 and 237. I am just doing this for debugging purposes */
-        I_AB = 1.05;
-        X_BE = 0.82;
+        /* TODO: TO delete lines 236 and 237. I am just doing this for debugging purposes since the framesize I started with was small/ */
+        // I_AB = 1.05;
+        // X_BE = 0.82;
 
         // Checks whether the protocol is aborted or not to continue with the Information Reconciliation stage.
         if(I_AB > X_BE)
@@ -267,19 +267,29 @@ public:
             // Use setter in CV-QKD protocol
             protocol->set_parameters_secret_key_length(I_AB, X_BE, n_output_codec_block_size);
 
-            // Continue with post-processing: Still to implement
-            return protocol->postprocess(std::move(X_raw), std::move(Y_raw));
+            // Continue with post-processing.
+
+            auto [secret_key_KA, secret_key_KB] = protocol->postprocess(std::move(X_raw), std::move(Y_raw));
+
+            return { std::move(secret_key_KA), std::move(secret_key_KB)};
+
             // std::move was required due to the following: Was passing lvalues to a function that expects rvalue references (&&).
             // return protocol->postprocess(alice_measurements, bob_measurements); // To check with Mark why in the qkd_protocol.h for the post-processing method he used &&?
         }
         else
         {
             MI_check = 0;
+            std::cout << "(Prints from qkd_commsys.h) MI_Check = " << MI_check << std::endl; // To delete
+
             int len_secret_key = 0;
 
-            libbase::vector<bool> final_secret_key;
-            final_secret_key.init(len_secret_key);
-            return final_secret_key; // Returns an empty libbase bool vector.
+            libbase::vector<bool> secret_key_KA(len_secret_key);
+            libbase::vector<bool> secret_key_KB(len_secret_key); //
+
+            print_bool_vector("(prints from qkd_commsys.h)  Final Secret Key KA of Alice: ", secret_key_KA);
+            print_bool_vector("(prints from qkd_commsys.h)  Final Secret Key KB of Bob: ", secret_key_KB);
+
+            return {std::move(secret_key_KA), std::move(secret_key_KA)};
         }
     }
     // @}
@@ -303,6 +313,17 @@ public:
     auto get_protocol()
     {
         return protocol;
+    }
+
+    // Helper function to print a vector.
+    void print_bool_vector(const std::string& title, const libbase::vector<bool>& vec)
+    {
+        std::cout << "\n" << title << std::endl;
+        for (int i = 0; i < vec.size(); ++i)
+        {
+            std::cout << vec(i) << "\t";
+        }
+        std::cout << std::endl;
     }
 
     // Serialization Support using shared pointers
