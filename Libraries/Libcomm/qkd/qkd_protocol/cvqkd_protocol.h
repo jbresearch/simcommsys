@@ -27,6 +27,7 @@
 #include "qkd/privacy_amplification.h"
 #include "qkd/privacy_amplification/pa_standard_toeplitz.h"
 #include "gf.h"
+#include "hamming.h"
 
 #include <memory>
 #include <vector>
@@ -58,7 +59,6 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
 
          double beta_mdr; // Reconciliation Efficiency for MDR.
          double SNR_linear; // Retrieved from bob's quantum channel.
-         int len_secret_key; // Length of final secret key after PA.
 
          // Alphabet size to be used in embedder for modem and privacy amplification.
          int alphabet_size;
@@ -211,11 +211,6 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
         // Equations related to length of final secret key.
         const int calculate_finite_size_effects_secret_key_length() override;
 
-        void set_length_secret_key(int l_secret_key) override
-        {
-            this->len_secret_key = l_secret_key;
-        }
-
         // Helper functions related to the codec.
         int get_codec_input_bits_k() const override
         {
@@ -247,8 +242,8 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
             this->SNR_linear = snr_linear;
         }
 
-        // Returns final secret key.
-        libbase::vector<bool> postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements) override;
+        // Returns final secret keys KA and KB.
+        std::pair<libbase::vector<bool>, libbase::vector<bool>>  postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements) override;
 
         // Helper function to print a vector.
         template <typename T>
@@ -280,20 +275,6 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
                 }
                 cout << '\n';
             }
-        }
-
-        // Helper function that computes hamming distance between 2 vectors.
-        std::size_t hamming_distance(const libbase::vector<bool>& s_hat,
-                             const libbase::vector<bool>& s)
-        {
-            if (s_hat.size() != s.size())
-                throw std::invalid_argument("hamming_distance: size mismatch");
-
-            int d = 0;
-            for (int i = 0; i < s.size(); ++i)
-                d += (s_hat(i) != s(i));  // bool promotes to 0/1
-
-            return d;
         }
 
         // Description function

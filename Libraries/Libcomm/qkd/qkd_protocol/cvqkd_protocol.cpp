@@ -263,10 +263,13 @@ namespace libcomm
         return l;
     }
 
-    // Returns final secret key.
-    libbase::vector<bool> cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements)
+    // Returns final secret keys KA and KB.
+    std::pair<libbase::vector<bool>, libbase::vector<bool>> cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements)
     {
-        libbase::vector<bool> final_key;
+        // Instaniates both final secret keys KA and KB.
+        libbase::vector<bool> final_secret_key_KA;
+        libbase::vector<bool> final_secret_key_KB; //
+
         libbase::vector<double> X, Y;
         X.init(alice_measurements.size()); // alice_measurements == X_raw
         Y.init(bob_measurements.size()); // bob_measurements == Y_raw
@@ -383,7 +386,7 @@ namespace libcomm
 
         print_vector("\n(Prints from cv-qkdprotocol.cpp) Vector S_hat of Alice:", vector_s_hat);
 
-        std::cout << "\n(Prints from cv-qkdprotocol.cpp) Hamming distance between vectors s and s_hat: " << hamming_distance(bob_vector_s, vector_s_hat) << std::endl;
+        std::cout << "\n(Prints from cv-qkdprotocol.cpp) Hamming distance between vectors s and s_hat: " << libbase::hamming(bob_vector_s, vector_s_hat) << std::endl;
 
         /* Calculating Hashing for Vectors s and s_hat */
         std::uint32_t hash_hs = crc32_ieee<>::compute(bob_vector_s);
@@ -416,9 +419,9 @@ namespace libcomm
             int len_secret_key = calculate_finite_size_effects_secret_key_length();
             std::cout << "\n (prints from cvqkd_protocol.cpp) Length l of final secret key = " << len_secret_key << std::endl;
 
-            // Sets length of secret key to later be able to retrieve it for the results collector.
-            set_length_secret_key(len_secret_key);
-            final_key.init(len_secret_key);
+            // Sets length of secret keys KA and KB to later be able to retrieve them for the results collector.
+            libbase::vector<bool> final_secret_key_KA(len_secret_key);
+            libbase::vector<bool> final_secret_key_KB(len_secret_key); //
 
             /* Perform Privacy Amplification */
 
@@ -449,11 +452,6 @@ namespace libcomm
             // Generate Standard Toeplitz matrix.
             libbase::matrix<bool> standard_toeplitz_matrix = pa_system.generate_toeplitz_matrix(starting_vector);
 
-            // Instaniates both final secret keys KA and KB.
-            libbase::vector<bool> final_secret_key_KA(len_secret_key);
-
-            libbase::vector<bool> final_secret_key_KB(len_secret_key); //
-
             // Generates KB of Bob.
             final_secret_key_KB = pa_system.compute_hashed_key(standard_toeplitz_matrix, bob_vector_s, len_secret_key, bob_vector_s.size(), alphabet_size);
 
@@ -463,50 +461,21 @@ namespace libcomm
             print_vector("(prints from cvqkd_protocol.cpp)  Final Secret Key KA of Alice: ", final_secret_key_KA);
             print_vector("(prints from cvqkd_protocol.cpp)  Final Secret Key KB of Bob: ", final_secret_key_KB);
 
-            // Check if KA == KB
-            bool keys_equal = (final_secret_key_KA.size() == final_secret_key_KB.size());
-
-            if (keys_equal)
-            {
-                for (int i = 0; i < final_secret_key_KA.size(); ++i) {
-                    if (final_secret_key_KA(i) != final_secret_key_KB(i)) {
-                        keys_equal = false;
-                        break;
-                    }
-                }
-            }
-
-            if (keys_equal)
-            {
-                std::cout << "(prints from cvqkd_protocol.cpp) Final secret keys match!" << std::endl;
-                final_key = final_secret_key_KA;
-                return final_key;
-            }
-            else
-            {
-                std::cout << "(prints from cvqkd_protocol.cpp) Final secret keys differ! Returning empty key." << std::endl;
-                int len_secret_key = 0;
-                set_length_secret_key(len_secret_key);
-                final_key.init(len_secret_key); // Returns empty key.
-                return final_key;
-            }
-
+            return { std::move(final_secret_key_KA), std::move(final_secret_key_KB)};
         }
         else
         {
             H_check = 0;
             std::cout << "(Prints from cv-qkdprotocol.cpp) Hash Check = " << H_check << std::endl;
-            // TODO: Return empty key like I did for when MI_check was zero.
 
             int len_secret_key = 0;
 
-            // Sets length of secret key to later be able to retrieve it for the results collector.
-            set_length_secret_key(len_secret_key);
-            final_key.init(len_secret_key);
-            return final_key;
-        }
+            // Sets length of secret keys KA and KB to zero to later be able to retrieve it for the results collector.
+            final_secret_key_KA(len_secret_key);
+            final_secret_key_KB(len_secret_key);
 
-        return final_key;
+            return { std::move(final_secret_key_KA), std::move(final_secret_key_KB)};
+        }
     }
 
     // Returns description of the protocol
