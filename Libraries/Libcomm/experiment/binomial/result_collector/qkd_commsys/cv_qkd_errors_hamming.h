@@ -25,6 +25,7 @@
 #include "config.h"
 #include "vector.h"
 #include <string>
+#include "source/quantum_gaussian_source.h"
 
 namespace libcomm
 {
@@ -34,7 +35,7 @@ namespace libcomm
  *
  *
  * Implements standard error rate calculators and SKR for CV-QKD
- * wit Gaussian modulated coherent states.
+ * with Gaussian modulated coherent states.
  */
 class cv_qkd_errors_hamming
 {
@@ -48,13 +49,12 @@ protected:
 public:
     virtual ~cv_qkd_errors_hamming() {}
     /*! \name Public interface */
-    void updateresults(libbase::vector<double>& result,
-                       const libbase::vector<bool>& source,
-                       const libbase::vector<bool>& decoded, int l_secret_key, int framesize) const;
+    void updateresults(libbase::vector<double>& result, libbase::vector<gaussian_state> source,
+    libbase::vector<bool> vector_s, libbase::vector<bool>& key_KA, libbase::vector<bool>& key_KB) const;
     /*! \copydoc experiment::count()
      * We count the number of symbol, frame errors and secret key rate for CV-QKD.
      */
-    int count() const { return 3; } // Changed from 2 to 3 to account for addition of SKR.
+    int count() const { return 4; }  // Accounts for the current results in updateresults().
     /*! \copydoc experiment::get_multiplicity()
      *
      * Since results are organized as (symbol,frame) error count, the
@@ -71,17 +71,20 @@ public:
      * The description is a string which indicates symbol or
      * frame error rates or SKR.
      */
-    std::string result_description(int i) const // Changed to account for addition of SKR.
+    std::string result_description(int i) const
     {
         assert(i >= 0 && i < count());
         switch(i)
         {
             case 0:
-                return "SER"; // Symbol Error Rate
+                return "Sum of lengths of Key KA";
             case 1:
-                return "FER"; // Frame Error Rate
+                // Sum of length of source which is the sequence of generated coherent states. This is equal to N because it is fixed. In qkd_commsys_simulator.cpp it is called the framesize.
+                return "Sum of length of source";
             case 2:
-                return "SKR"; // Secret Key Rate
+                return "SER";
+            case 3:
+                return "FER";
         }
         return std::string();
     }
