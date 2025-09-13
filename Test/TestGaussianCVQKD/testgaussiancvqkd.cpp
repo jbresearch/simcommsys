@@ -885,10 +885,10 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    libbase::vector<bool> final_key;
 
    /* Calling fullcylce method from qkd_commsys.h for a single frame*/
-   final_key = sys.fullcycle(source);
+   auto [key_KA, key_KB]  = sys.fullcycle(source);
 
 
-   std::cout << "\n Size of Final Secret Key: "<< final_key.size() << std::endl;
+   std::cout << "\n Size of Final Secret Key KA: "<< key_KA.size() << std::endl;
 
 //    // // Prints Final Secret Key
 //    // std::cout << "\nFinal Secret Key [size=" << final_key.size() << "]: [";
