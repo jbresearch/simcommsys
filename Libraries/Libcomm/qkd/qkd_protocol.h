@@ -103,8 +103,6 @@ public:
     // Equations related to length of final secret key.
     virtual const int calculate_finite_size_effects_secret_key_length() = 0;
 
-    virtual void set_length_secret_key(int l_secret_key) = 0;
-
     // Helper functions related to codec.
     // virtual std::string codec_description() const = 0;
 
@@ -122,7 +120,8 @@ public:
     // Helper function to set the SNR_linear of the Gaussian Quantum Channel.
     virtual void set_SNR_linear(double snr_linear) = 0;
 
-    virtual C<bool> postprocess(libbase::vector<T>&& alice_measurements,
+    // Returns final secret keys KA and KB.
+    virtual std::pair<C<bool> , C<bool>> postprocess(libbase::vector<T>&& alice_measurements,
                                 libbase::vector<T>&& bob_measurements) = 0;
 
     virtual void seedfrom(libbase::random& r) = 0;
