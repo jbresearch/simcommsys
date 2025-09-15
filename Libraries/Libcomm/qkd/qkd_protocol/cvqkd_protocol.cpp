@@ -212,23 +212,29 @@ namespace libcomm
 
     const int cvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     {
-        /*
-        n - is the number of samples after parameter estimation i.e. n = N - N_PE
-
-        beta - is the reconcilation efficiency which is calculated using beta = R/C(SNR_linear) where C(SNR_linear) is the Shannon limit calculated using C(SNR_linear) = 0.5(1+log_2(SNR_linear)).
-
-        I_AB - is the mutual information between Alice and Bob. Use calculate_mutual_information method to compute this. Unit is in bits/pulse.
-
-        \chi_BE - is the Holevo bound between Bob and Eve for reverse reconciliation. Use calculate_holevo_bound to compute this. Units is in bits/pulse.
-
-        delta (n) is the finite size offset term which is related to the security of privacy amplification. It is used to ensure that the key is secure even in the presence of statistical fluctuations in parameter estimation and error correction~\cite{lodewyck2007quantum}.
-
-        Reference 1 for beta_mdr:
-        Milicevic, M., Feng, C., Zhang, L.M. and Gulak, P.G., 2018. Quasi-cyclic multi-edge LDPC codes for long-distance quantum cryptography. npj Quantum Information, 4(1), p.21.
-
-        Reference 2 for equations to calculate the offset size Delta(n) and thee length l of the final secret key:
-        Leverrier, A., Grosshans, F. and Grangier, P., 2010. Finite-size analysis of a continuous-variable quantum key distribution. Physical Review A—Atomic, Molecular, and Optical Physics, 81(6), p.062343.
-        */
+        /**
+         * Finite-Size Secret Key Length Calculation (CV-QKD)
+         *
+         * Parameters:
+         *   - n: Number of samples after parameter estimation (n = N - N_PE).
+         *   - beta: Reconciliation efficiency, computed as beta = R / C(SNR_linear),
+         *           where C(SNR_linear) is the Shannon limit: C = 0.5 * (1 + log2(SNR_linear)).
+         *   - I_AB: Mutual information between Alice and Bob (bits/pulse).
+         *           Use calculate_mutual_information().
+         *   - chi_BE: Holevo bound between Bob and Eve for reverse reconciliation (bits/pulse).
+         *             Use calculate_holevo_bound().
+         *   - delta(n): Finite-size security offset, ensuring key security against statistical
+         *               fluctuations in parameter estimation and error correction.
+         *               See Lodewyck et al., Phys. Rev. A 76, 042305 (2007).
+         *
+         * References:
+         *   1. Milicevic, M., Feng, C., Zhang, L.M., & Gulak, P.G. (2018).
+         *      Quasi-cyclic multi-edge LDPC codes for long-distance quantum cryptography.
+         *      npj Quantum Information, 4(1), 21.
+         *   2. Leverrier, A., Grosshans, F., & Grangier, P. (2010).
+         *      Finite-size analysis of a continuous-variable quantum key distribution.
+         *      Phys. Rev. A, 81(6), 062343.
+         */
 
         assert(n_samples > 0);
         assert(smoothing_parameter > 0);
