@@ -9,16 +9,13 @@
 #include <iostream>
 #include <sstream>
 
-#include <vector.h>   // libbase::vector
-#include <randgen.h>  // libbase::randgen
-#include <toeplitz_standard.h>  //libbasee::toeplitz_standard
+#include "vector.h"
+#include "randgen.h"
+#include "toeplitz_standard.h"
 
 #include "qkd/privacy_amplification.h"
 #include "qkd/privacy_amplification/pa_standard_toeplitz.h"
 #include "gf.h"
-
-using namespace libcomm;
-using namespace libbase;
 
 // Print Helper Functions
 template <class GFVec>
@@ -102,7 +99,7 @@ BOOST_AUTO_TEST_CASE(testing_pa_standard_toeplitz_without_serialization_q_2_intt
     */
     pa_system.init(L, N, q);
 
-    randgen r;
+    libbase::randgen r;
     r.seed(2602);
 
     pa_system.seedfrom(r);
@@ -197,7 +194,7 @@ BOOST_AUTO_TEST_CASE(testing_pa_standard_toeplitz_without_serialization_q_16_int
 
     pa_system.init(L, N, q);
 
-    randgen r;
+    libbase::randgen r;
     r.seed(2602);
 
     pa_system.seedfrom(r);
@@ -491,7 +488,7 @@ BOOST_AUTO_TEST_CASE(testing_pa_standard_toeplitz_without_serialization_using_li
     */
     pa_system.init(L, N, q);
 
-    randgen r;
+    libbase::randgen r;
     r.seed(2602);
 
     pa_system.seedfrom(r);
@@ -581,7 +578,7 @@ BOOST_AUTO_TEST_CASE(testing_pa_standard_toeplitz_without_serialization_using_li
 
     pa_system.init(L, N, q);
 
-    randgen r;
+    libbase::randgen r;
     r.seed(2602);
 
     pa_system.seedfrom(r);
@@ -673,7 +670,7 @@ BOOST_AUTO_TEST_CASE(testing_pa_standard_toeplitz_with_serialization)
 
     pa_system.serialize(ss);
 
-    randgen r;
+    libbase::randgen r;
     r.seed(2602);
 
     pa_system.seedfrom(r);

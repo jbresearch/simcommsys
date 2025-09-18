@@ -26,23 +26,21 @@
 #define BOOST_TEST_MODULE SelectiveChannel
 #include <boost/test/included/unit_test.hpp>
 
-using namespace libcomm;
-
 using symbol = libbase::gf2;
 
 static const std::string TEST_BITMASK = "1110011";
 
 BOOST_AUTO_TEST_CASE(initialise_bitmask_from_constructor)
 {
-    auto channel = selective<symbol>(TEST_BITMASK);
+    auto channel = libcomm::selective<symbol>(TEST_BITMASK);
 
     BOOST_CHECK_EQUAL(TEST_BITMASK, channel.get_bitmask());
 }
 
 BOOST_AUTO_TEST_CASE(validate_bitmask)
 {
-    BOOST_CHECK_THROW(selective<symbol>("1210011"), libbase::load_error);
-    BOOST_CHECK_THROW(selective<symbol>("1100z11"), libbase::load_error);
+    BOOST_CHECK_THROW(libcomm::selective<symbol>("1210011"), libbase::load_error);
+    BOOST_CHECK_THROW(libcomm::selective<symbol>("1100z11"), libbase::load_error);
 }
 
 BOOST_AUTO_TEST_CASE(set_and_retrieve_parameter)
@@ -51,7 +49,7 @@ BOOST_AUTO_TEST_CASE(set_and_retrieve_parameter)
     auto secondary_channel = std::make_shared<libcomm::qsc<symbol>>();
 
     auto test_parameter = 0.2;
-    auto channel = selective<symbol>(
+    auto channel = libcomm::selective<symbol>(
         TEST_BITMASK, primary_channel, secondary_channel, 0.0);
 
     channel.set_parameter(test_parameter);
@@ -67,7 +65,7 @@ BOOST_AUTO_TEST_CASE(set_secondary_channel_parameter)
     auto secondary_channel = std::make_shared<libcomm::qsc<symbol>>();
     const auto secondary_channel_parameter = double(0.1);
 
-    auto channel = selective<symbol>(TEST_BITMASK,
+    auto channel = libcomm::selective<symbol>(TEST_BITMASK,
                                      primary_channel,
                                      secondary_channel,
                                      secondary_channel_parameter);
@@ -79,7 +77,7 @@ BOOST_AUTO_TEST_CASE(set_secondary_channel_parameter)
 
 BOOST_AUTO_TEST_CASE(throw_exception_if_bitmask_and_tx_sequence_mismatch)
 {
-    auto channel = selective<symbol>(TEST_BITMASK);
+    auto channel = libcomm::selective<symbol>(TEST_BITMASK);
 
     const auto tx_vector = std::vector<int>{1, 0, 1, 0};
     const auto tx_sequence = libbase::vector<symbol>(tx_vector);
@@ -114,7 +112,7 @@ BOOST_AUTO_TEST_CASE(test_transmission)
     auto primary_channel = std::make_shared<mock_channel>();
     auto secondary_channel = std::make_shared<libcomm::qsc<symbol>>();
 
-    auto selective_channel = selective<symbol>(
+    auto selective_channel = libcomm::selective<symbol>(
         TEST_BITMASK, primary_channel, secondary_channel, 0.0);
 
     libbase::randgen r;
@@ -149,7 +147,7 @@ BOOST_AUTO_TEST_CASE(test_reception)
     auto secondary_channel = std::make_shared<libcomm::qsc<symbol>>();
     secondary_channel->seedfrom(r);
 
-    auto selective_channel = selective<symbol>(
+    auto selective_channel = libcomm::selective<symbol>(
         TEST_BITMASK, primary_channel, secondary_channel, 0.0);
     auto ptable = libbase::vector<libbase::vector<double>>();
 
@@ -190,7 +188,7 @@ BOOST_AUTO_TEST_CASE(test_serialisation)
        << "### Secondary channel fixed parameter value\n"
        << channel_parameter;
 
-    auto channel = selective<symbol>();
+    auto channel = libcomm::selective<symbol>();
 
     // Input serialisation
     channel.serialize(ss);
@@ -243,7 +241,7 @@ BOOST_AUTO_TEST_CASE(test_correct_random_seed_initialisation)
 
 BOOST_AUTO_TEST_CASE(test_valid_initialisation_of_num_tx_bits_per_channel)
 {
-    auto channel = selective<symbol>(TEST_BITMASK);
+    auto channel = libcomm::selective<symbol>(TEST_BITMASK);
 
     BOOST_CHECK_EQUAL(channel.get_num_tx_bits_on_primary_channel(), 5);
     BOOST_CHECK_EQUAL(channel.get_num_tx_bits_on_secondary_channel(), 2);

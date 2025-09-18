@@ -8,6 +8,12 @@
 #define BOOST_TEST_MODULE GaussianSourceTest
 #include <boost/test/included/unit_test.hpp>
 
+#include <iostream>
+#include <sstream>
+#include <memory>
+#include <vector>
+#include <algorithm>
+
 #include "qkd/qkd_protocol/cvqkd_protocol.h"
 #include "qkd/quantum_channel/gaussian_quantum_channel.h"
 #include "qkd/quantum_channel/identity_quantum_channel.h"
@@ -19,15 +25,6 @@
 #include "vector.h"
 #include "gf.h"
 #include "codec/ldpc.h"
-
-#include <iostream>
-#include <sstream>
-#include <memory>
-#include <vector>
-#include <algorithm>
-
-using namespace libcomm;
-using namespace libbase;
 
 // Force-link registrars by touching const serialize (runs TU static registration)
 static void force_link_qkd_types() {
@@ -50,7 +47,7 @@ static void force_link_qkd_types() {
 }
 
 // Build an LDPC(gf2,double) from a config stream and install it into `cdc`.
-   static std::shared_ptr<codec<libbase::vector>>
+   static std::shared_ptr<libcomm::codec<libbase::vector>>
    make_ldpc_from_stream(std::istream& sin) {
       auto ldpc_ptr = std::make_shared<libcomm::ldpc<libbase::gf2,double>>();
       ldpc_ptr->serialize(sin);
@@ -222,7 +219,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    sys.serialize(cfg);   // this populates alice_channel, bob_channel, protocol, framesize
 
    // Set seed for qkd_commsys object
-   randgen rng;
+   libbase::randgen rng;
    rng.seed(17);
    // rng.seed(26);
    // rng.seed(7);
@@ -295,7 +292,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    auto* src = dynamic_cast<libcomm::quantum_gaussian_source*>(s_ptr.get());
    BOOST_REQUIRE(src != nullptr);
 
-   randgen r;
+   libbase::randgen r;
    r.seed(2602);
    // r.seed(26);
    // r.seed(7);
@@ -879,7 +876,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    sys.set_VA(*src);
 
    // Generates a sequence of coherent states which is the input to the fullcycle method in qkd_commsys.h
-   libbase::vector<gaussian_state> source = src->generate_sequence(libbase::size_type<libbase::vector>(framesize));
+   libbase::vector<libcomm::gaussian_state> source = src->generate_sequence(libbase::size_type<libbase::vector>(framesize));
 
    // Initialise final_key
    libbase::vector<bool> final_key;

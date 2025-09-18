@@ -10,12 +10,10 @@
 
 #include <cstdint>
 #include <iomanip>
-#include <boost/crc.hpp>
-#include "crc/crc32.h"
 #include <sstream>
+#include <boost/crc.hpp>
 
-using namespace libcomm;
-using namespace libbase;
+#include "crc/crc32.h"
 
 BOOST_AUTO_TEST_CASE(test_crc32_libcomm_implementation)
 {
@@ -54,7 +52,7 @@ BOOST_AUTO_TEST_CASE(testing_crc32_serialization)
    std::cout << "\nTesting CRC32 Libcomm Serialization \n";
 
    // Create via the registry
-   auto obj = serializer::call("crc", "crc_32");
+   auto obj = libbase::serializer::call("crc", "crc_32");
    BOOST_REQUIRE_MESSAGE(bool(obj), "serializer::call returned null");
 
    // Should report its registered name
