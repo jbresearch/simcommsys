@@ -6,7 +6,6 @@
 #define BOOST_TEST_MODULE testpa
 #include <boost/test/included/unit_test.hpp>
 
-#include <armadillo>
 #include <iostream>
 #include <sstream>
 
