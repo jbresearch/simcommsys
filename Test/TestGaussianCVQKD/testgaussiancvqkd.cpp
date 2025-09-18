@@ -14,6 +14,8 @@
 #include <sstream>
 #include <vector>
 
+#include "serializer_libcomm.h"
+
 #include "qkd/qkd_protocol/cvqkd_protocol.h"
 #include "qkd/quantum_channel/gaussian_quantum_channel.h"
 #include "qkd/quantum_channel/identity_quantum_channel.h"
@@ -23,7 +25,6 @@
 #include "codec/ldpc.h"
 #include "gf.h"
 #include "random.h"
-#include "serializer.h"
 #include "vector.h"
 
 template <typename T>
@@ -39,12 +40,15 @@ print_vector(const std::string& title, const libbase::vector<T>& vec)
 
 BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
 {
+    // Make sure we instantiate everything
+    const libcomm::serializer_libcomm my_serializer_libcomm;
+
     std::cout << "\n*****Boost Test Case *****\n";
 
     std::cout << "Base classes:" << std::endl;
     for (auto& s : libbase::serializer::get_base_classes())
         std::cout << " - " << s << std::endl;
-    std::cout << "Derived classes for quantum_channel:"<< std::endl;
+    std::cout << "Derived classes for quantum_channel:" << std::endl;
     for (auto& s : libbase::serializer::get_derived_classes("quantum_channel"))
         std::cout << " - " << s << std::endl;
 
