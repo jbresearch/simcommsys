@@ -46,14 +46,6 @@ static void force_link_qkd_types() {
     }
 }
 
-// Build an LDPC(gf2,double) from a config stream and install it into `cdc`.
-   static std::shared_ptr<libcomm::codec<libbase::vector>>
-   make_ldpc_from_stream(std::istream& sin) {
-      auto ldpc_ptr = std::make_shared<libcomm::ldpc<libbase::gf2,double>>();
-      ldpc_ptr->serialize(sin);
-      return ldpc_ptr;
-   }
-
    template <typename T>
    void print_vector(const std::string& title, const libbase::vector<T>& vec)
    {
@@ -306,11 +298,6 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    // Gets the number of coherent states generated for a single frame from the qkd_commsys object.
    int framesize = sys.input_block_size();
    std::cout << "Number of generated quantum states from Alice = " << framesize << std::endl;
-
-   // Get CV-QKD protocol from qkd_commsys object.
-   auto protocol = sys.get_protocol();
-
-   std::cout << "Protocol description: " << protocol->description() << std::endl;
 
    // // Test 1: Parameters of LDPC codec with n=7, k=3 and m=4. For this test I used a framesize=14 and 50% for PE.
    // std::stringstream ss;
@@ -843,14 +830,6 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
    // << "3\n" << "16 20 24\n"
    // << "3\n" << "50 30 59\n"
    // << "3\n" << "14 19 41\n";
-
-   // Set the Codec that will be used in the CV-QKD protocol.
-   protocol->set_codec(make_ldpc_from_stream(ss));
-   auto cdc = protocol->get_codec(); // Just to test that the codec was set correctly.
-
-   std::cout << "\n***** Testing LDPC encoding *****" << std::endl;
-
-   std::cout << "System details of the codec used in the CV-QKD protocol: " << cdc->description() << "\n";
 
    // Gets input k bits from codec of the CV-QKD protocol.
    int k = sys.get_codec_input_bits_k();

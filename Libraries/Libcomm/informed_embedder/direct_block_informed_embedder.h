@@ -77,13 +77,6 @@ protected:
 
 public:
     // Informative functions
-
-    // Setting concrete informed_embedder implementation (e.g. sign<double>).
-    void set_implementation(std::shared_ptr<informed_embedder<S>> impl)
-    {
-        implementation = std::move(impl);
-    }
-
     int num_symbols() const override { return implementation->num_symbols(); }
 
     // Description
@@ -125,13 +118,6 @@ protected:
                    libbase::matrix<array1d_t>& ptable) override;
 
 public:
-
-    // --- Injection of the concrete informed_embedder implementation (e.g., sign<double>) ---
-    void set_implementation(std::shared_ptr<informed_embedder<S>> impl)
-    {
-        implementation = std::move(impl);
-    }
-
     // Informative functions
     int num_symbols() const override { return implementation->num_symbols(); }
 

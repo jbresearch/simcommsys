@@ -107,8 +107,6 @@ public:
     // virtual std::string codec_description() const = 0;
 
     /* Helper functions related to codec.*/
-    virtual void set_codec(std::shared_ptr<codec<libbase::vector>> CDC) = 0;
-
     virtual std::shared_ptr<codec<libbase::vector>> get_codec() const = 0;
 
     virtual  int get_codec_input_bits_k() const = 0;

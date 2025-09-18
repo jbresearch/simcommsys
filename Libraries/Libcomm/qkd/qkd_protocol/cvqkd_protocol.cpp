@@ -345,14 +345,6 @@ namespace libcomm
         libbase::vector<double> vector_M;
         vector_M.init(get_codec_output_bits_n());
 
-        if (!embedder) {
-            embedder = std::make_shared<
-                direct_block_informed_embedder<double, libbase::vector, double>>();
-        }
-
-        // Setting sign implementation for BPSK modulation.
-        embedder->set_implementation(std::make_shared<sign<double>>());
-
         embedder->set_blocksize(Y.size());
 
         embedder->embed(alphabet_size, data_to_embed, Y, vector_M);
@@ -362,7 +354,6 @@ namespace libcomm
         /* Demodulation step to get the Probability Table for the decoder. */
 
         // Instantiate the AWGN channel object.
-        // demodulation_channel = std::make_shared<libcomm::awgn>();W
         demodulation_channel = std::make_shared<libcomm::awgn1d>();
 
         std::cout << "\n(Prints from cv-qkdprotocol.cpp) Description of Demodulation channel: " << demodulation_channel->description() << std::endl;
@@ -513,8 +504,10 @@ namespace libcomm
         sout << smoothing_parameter << std::endl;
         sout << "# Alphabet size" << std::endl;
         sout << alphabet_size << std::endl;
-        // sout << "### Codec" << std::endl;
-        // sout << cdc << std::endl;
+        sout << "# Codec" << std::endl;
+        sout << cdc << std::endl;
+        sout << "# Embedder" << std::endl;
+        sout << embedder << std::endl;
         return sout;
     }
 
@@ -526,8 +519,9 @@ namespace libcomm
         sin >> libbase::eatcomments >> v_el >> libbase::verify;
         sin >> libbase::eatcomments >> detector_efficiency >> libbase::verify;
         sin >> libbase::eatcomments >> smoothing_parameter >> libbase::verify;
-        // sin >> libbase::eatcomments >> cdc >> libbase::verify;
         sin >> libbase::eatcomments >> alphabet_size >> libbase::verify;
+        sin >> libbase::eatcomments >> cdc >> libbase::verify;
+        sin >> libbase::eatcomments >> embedder >> libbase::verify;
 
         return sin;
     }

@@ -303,12 +303,6 @@ public:
     // Description
     std::string description() const;
 
-    // Getter to get the protocol to be used in the TestGaussiancvqkd. To remove when using simulator.
-    auto get_protocol()
-    {
-        return protocol;
-    }
-
     // Helper function to print a vector.
     void print_bool_vector(const std::string& title, const libbase::vector<bool>& vec)
     {

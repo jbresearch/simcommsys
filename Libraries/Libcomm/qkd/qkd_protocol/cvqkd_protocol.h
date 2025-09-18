@@ -65,15 +65,15 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
 
     protected:
         std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
-        std::shared_ptr<direct_block_informed_embedder<double, libbase::vector, double>> embedder; // Embedder
-        std::shared_ptr<libcomm::channel<double>> demodulation_channel; // Channel to be used for demodulation.
+        std::shared_ptr<block_informed_embedder<double, libbase::vector, double>> embedder; // Embedder
+        std::shared_ptr<channel<double>> demodulation_channel; // Channel to be used for demodulation.
 
         // Check that verifies if hash_hs == hash_hsat?
         int H_check = 0;
 
         //  Privacy Amplification System that uses the standard Toeplitz matrix method.
-        // std::shared_ptr<libcomm::pa_standard_toeplitz<bool>> pa_system;
-        libcomm::pa_standard_toeplitz<bool> pa_system;
+        // std::shared_ptr<pa_standard_toeplitz<bool>> pa_system;
+        pa_standard_toeplitz<bool> pa_system;
 
 
 
@@ -220,11 +220,6 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
         int get_codec_output_bits_n() const override
         {
             return cdc->output_block_size();
-        }
-
-        /* Helper function to set the codec. Needs to be deleted during code review. */
-        void set_codec(std::shared_ptr<codec<libbase::vector>> CDC) override {
-            cdc = std::move(CDC);
         }
 
         // Getter to get Bob's vector s from qkd_commsys
