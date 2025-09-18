@@ -32,6 +32,11 @@
 #include "mpgnu.h"
 #include "mpreal.h"
 
+// Hashes
+#include "crc/crc32.h"
+
+// *** Classical Communication ***
+
 // Channels
 #include "channel.h"
 #include "channel/awgn.h"
@@ -136,6 +141,28 @@
 #include "experiment/binomial/result_collector/commsys/prof_pos.h"
 #include "experiment/binomial/result_collector/commsys/prof_sym.h"
 
+// *** Quantum Communication ***
+
+// QKD Channels
+#include "qkd/quantum_channel/gaussian_quantum_channel.h"
+#include "qkd/quantum_channel/identity_quantum_channel.h"
+
+// QKD Protocols
+#include "qkd/qkd_protocol/cvqkd_protocol.h"
+
+// QKD Privacy Amplification
+#include "qkd/privacy_amplification/pa_standard_toeplitz.h"
+
+// QKD Systems
+#include "qkd_commsys.h"
+
+// QKD Experiments
+#include "experiment/binomial/qkd_commsys_simulator.h"
+
+// QKD Results Collectors
+#include "experiment/binomial/result_collector/qkd_commsys/cv_qkd_errors_hamming.h"
+
+// *** Other includes ***
 #include <iostream>
 
 namespace libcomm
@@ -171,6 +198,9 @@ private:
     typedef libbase::logrealfast logrealfast;
 
 private:
+    // Hashes
+    crc32_ieee<libbase::vector> _crc32_ieee;
+    // *** Classical Communication ***
     // Channels
     awgn _awgn;
     bpmr<float> _bpmr;
@@ -252,6 +282,20 @@ private:
     prof_burst _prof_burst;
     prof_pos _prof_pos;
     prof_sym _prof_sym;
+
+    // *** Quantum Communication ***
+    // QKD Channels
+    gaussian_quantum_channel _gaussian_quantum_channel;
+    identity_quantum_channel _identity_quantum_channel;
+    // QKD Protocols
+    cvqkd_protocol _cvqkd_protocol;
+    // QKD Privacy Amplification
+    pa_standard_toeplitz<bool> _pa_standard_toeplitz;
+    // QKD Systems
+    qkd_commsys<gaussian_state, double, libbase::vector> _qkd_commsys;
+    // QKD Experiments
+    qkd_commsys_simulator<gaussian_state, double, cv_qkd_errors_hamming>
+        _qkd_commsys_simulator;
 
 public:
     serializer_libcomm() : _mpsk(2), _qam(4) {}
