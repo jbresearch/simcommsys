@@ -41,9 +41,12 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
 {
     std::cout << "\n*****Boost Test Case *****\n";
 
-    std::cout << "Derived under quantum_channel:\n";
+    std::cout << "Base classes:" << std::endl;
+    for (auto& s : libbase::serializer::get_base_classes())
+        std::cout << " - " << s << std::endl;
+    std::cout << "Derived classes for quantum_channel:"<< std::endl;
     for (auto& s : libbase::serializer::get_derived_classes("quantum_channel"))
-        std::cout << " - " << s << "\n";
+        std::cout << " - " << s << std::endl;
 
     std::stringstream cfg;
     cfg << R"SS(
