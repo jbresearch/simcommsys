@@ -26,36 +26,6 @@
 #include "serializer.h"
 #include "vector.h"
 
-// Force-link registrars by touching const serialize (runs TU static
-// registration)
-static void
-force_link_qkd_types()
-{
-    std::ostringstream oss;
-    {
-        libcomm::identity_quantum_channel i;
-        static_cast<const libcomm::identity_quantum_channel&>(i).serialize(oss);
-    }
-    {
-        libcomm::gaussian_quantum_channel g;
-        static_cast<const libcomm::gaussian_quantum_channel&>(g).serialize(oss);
-    }
-
-    // {
-    // libcomm::ldpc<libbase::gf2, double> c;
-    // // Calling serialize() on the const base triggers vtable usage and
-    // // ensures the explicit instantiation + registrar in ldpc.cpp are linked.
-    // static_cast<const libcomm::ldpc<libbase::gf2,
-    // double>&>(c).serialize(oss);
-    // }
-
-    {
-        // cvqkd_protocol TU
-        libcomm::cvqkd_protocol obj;
-        static_cast<const libcomm::cvqkd_protocol&>(obj).serialize(oss);
-    }
-}
-
 template <typename T>
 void
 print_vector(const std::string& title, const libbase::vector<T>& vec)
@@ -70,9 +40,6 @@ print_vector(const std::string& title, const libbase::vector<T>& vec)
 BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
 {
     std::cout << "\n*****Boost Test Case *****\n";
-
-    // Ensure registrars are linked & run
-    force_link_qkd_types();
 
     std::cout << "Derived under quantum_channel:\n";
     for (auto& s : libbase::serializer::get_derived_classes("quantum_channel"))
