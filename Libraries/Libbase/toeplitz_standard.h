@@ -22,16 +22,19 @@
 /*!
  * Documentation of Code:
  *
- * This code is based on the Python implementation of the scipy.linalg.toeplitz function.
- * Reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.toe
+ * This code is based on the Python implementation of the scipy.linalg.toeplitz
+ * function. Reference:
+ * https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.toe
  *
  * The Toeplitz matrix is built from a single starting vector.
  *
  * sv is the starting_vector which will be used to build the toeplitz matrix.
  *
- * L is the length of the final hashed key outputted after privacy amplification.
+ * L is the length of the final hashed key outputted after privacy
+ * amplification.
  *
- * N is the length of the inputted key that will be hashed. In the case of MDR the input vector is Bob's s vector of size k.
+ * N is the length of the inputted key that will be hashed. In the case of MDR
+ * the input vector is Bob's s vector of size k.
  *
  * Builds the L×N Toeplitz matrix using:
  *   c = sv[L-1::-1],  r = sv[L-1:]
@@ -48,8 +51,8 @@
 #define __toeplitz_standard_h
 
 #include "config.h"
-#include "vector.h"
 #include "matrix.h"
+#include "vector.h"
 #include <cassert>
 
 namespace libbase
@@ -78,8 +81,7 @@ public:
                 // SciPy-equivalent indexing:
                 // if j <= i: A(i,j) = sv[(L-1) - (i - j)]
                 // else     : A(i,j) = sv[(L-1) + (j - i)]
-                const int sv_idx = (j <= i) ? (Lm1 - (i - j))
-                                            : (Lm1 + (j - i));
+                const int sv_idx = (j <= i) ? (Lm1 - (i - j)) : (Lm1 + (j - i));
                 assert(sv_idx >= 0 && sv_idx < sv.size().length());
                 A(i, j) = sv(sv_idx);
             }

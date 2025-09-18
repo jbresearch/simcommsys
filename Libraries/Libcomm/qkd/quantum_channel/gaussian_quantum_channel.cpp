@@ -1,18 +1,23 @@
 #include "qkd/quantum_channel/gaussian_quantum_channel.h"
-#include "serializer.h"
 #include "assertalways.h"
+#include "serializer.h"
 
 using libbase::serializer;
 
-namespace libcomm {
+namespace libcomm
+{
 
 //! Return a string describing the channel
-std::string gaussian_quantum_channel::description() const {
+std::string
+gaussian_quantum_channel::description() const
+{
     return "gaussian_quantum_channel";
 }
 
 //! Serialize channel to output stream
-std::ostream& gaussian_quantum_channel::serialize(std::ostream& sout) const {
+std::ostream&
+gaussian_quantum_channel::serialize(std::ostream& sout) const
+{
     sout << "# Homodyne Detector Efficiency" << std::endl;
     sout << noise_detector_eff << std::endl;
     sout << "# Mean of the Gaussian Quantum Channel" << std::endl;
@@ -23,17 +28,23 @@ std::ostream& gaussian_quantum_channel::serialize(std::ostream& sout) const {
 }
 
 //! Deserialize channel from input stream
-std::istream& gaussian_quantum_channel::serialize(std::istream& sin) {
+std::istream&
+gaussian_quantum_channel::serialize(std::istream& sin)
+{
 
     // assertalways(sin.good());
-    sin >> libbase::eatcomments >> noise_detector_eff >> libbase::verify;  // Detector Efficiency of the homodyne detector
-    sin >> libbase::eatcomments >> noise_mean >> libbase::verify; // Mean of Noise
-    sin >> libbase::eatcomments >> noise_transmittance >> libbase::verify; // Transmittance T
+    sin >> libbase::eatcomments >> noise_detector_eff >>
+        libbase::verify; // Detector Efficiency of the homodyne detector
+    sin >> libbase::eatcomments >> noise_mean >>
+        libbase::verify; // Mean of Noise
+    sin >> libbase::eatcomments >> noise_transmittance >>
+        libbase::verify; // Transmittance T
     return sin;
 }
 
 //! Register with serializer system
-const serializer gaussian_quantum_channel::shelper(
-    "quantum_channel", "gaussian_quantum_channel", gaussian_quantum_channel::create);
-}
-
+const serializer
+    gaussian_quantum_channel::shelper("quantum_channel",
+                                      "gaussian_quantum_channel",
+                                      gaussian_quantum_channel::create);
+} // namespace libcomm

@@ -23,26 +23,31 @@
 #define __crc_h
 
 #include "config.h"
-#include "vector.h"
 #include "serializer.h"
+#include "vector.h"
+#include <boost/crc.hpp>
 #include <cstdint>
 #include <type_traits>
-#include <boost/crc.hpp>
 
-namespace libcomm {
+namespace libcomm
+{
 
 // Generic bitwise CRC base using Boost
-// and the container template (defaults to libbase::vector). The Bits template parameter is the CRC width.
-template <unsigned Bits, template<class> class C = libbase::vector>
-class crc_base{
+// and the container template (defaults to libbase::vector). The Bits template
+// parameter is the CRC width.
+template <unsigned Bits, template <class> class C = libbase::vector>
+class crc_base
+{
 protected:
     boost::crc_basic<Bits> crc_;
-public:
 
-    // value_type is an unsigned integer type. E.g. for CRC-32 the value_type is std::uint32_t
+public:
+    // value_type is an unsigned integer type. E.g. for CRC-32 the value_type is
+    // std::uint32_t
     using value_type = typename boost::crc_basic<Bits>::value_type;
 
-    /* Reference: [1] https://boost.org.cpp.al/doc/libs/master/doc/html/crc/reference.html?*/
+    /* Reference: [1]
+     * https://boost.org.cpp.al/doc/libs/master/doc/html/crc/reference.html?*/
 
     explicit crc_base(value_type truncated_polynomial,
                       value_type initial_remainder,
@@ -53,17 +58,22 @@ public:
                initial_remainder,
                final_xor_value,
                reflect_input,
-               reflect_remainder) {}
+               reflect_remainder)
+    {
+    }
 
     void reset() { crc_.reset(); }
 
-    // Per bit. Turns b into 0/1 and pushes that one bit into the CRC calculator.
+    // Per bit. Turns b into 0/1 and pushes that one bit into the CRC
+    // calculator.
     void process_bit(bool b) { crc_.process_bit(b ? 1u : 0u); }
 
     // Per sequence.
     template <class T>
-    void process_bits(const C<T>& bits01) {
-        static_assert(std::is_integral<T>::value, "Element type must be integral (e.g., bool, int).");
+    void process_bits(const C<T>& bits01)
+    {
+        static_assert(std::is_integral<T>::value,
+                      "Element type must be integral (e.g., bool, int).");
         const std::size_t n = bits01.size();
         for (std::size_t i = 0; i < n; ++i) {
             process_bit(bits01(i) != 0);
@@ -74,13 +84,14 @@ public:
 
     // Computes for any integral element type (bool/int/...)
     template <class T>
-    value_type compute(const C<T>& bits01) {
+    value_type compute(const C<T>& bits01)
+    {
         reset();
         process_bits(bits01);
         return checksum();
     }
 
-     // --- Serialization support for base class ---
+    // --- Serialization support for base class ---
     using crc = crc_base<Bits, C>;
 
     // Serialization Support

@@ -23,73 +23,94 @@
 #define __source_quantum_gaussian_h
 
 #include "config.h"
+#include "qkd/quantum_state.h"
 #include "serializer.h"
 #include "source.h"
-#include "qkd/quantum_state.h"
 
+#include <memory>
 #include <random>
+#include <sstream>
 #include <string>
 #include <type_traits>
-#include <sstream>
-#include <memory>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Gaussian state source (not-templated)
  * \author  Aaron Abela
  *
- * Implements a source for CV-QKD using the GG02 protocol that returns a Gaussian coherent state with q_mean and p_mean, where p_mean and q_mean follow a normal distribution with p_mean_mean, p_mean_stddev, q_mean_mean and q_mean_stddev respectively. Note: Variance = (Stddev)^2 and Q and P are the quadrature components of the coherent state.
+ * Implements a source for CV-QKD using the GG02 protocol that returns a
+ Gaussian coherent state with q_mean and p_mean, where p_mean and q_mean follow
+ a normal distribution with p_mean_mean, p_mean_stddev, q_mean_mean and
+ q_mean_stddev respectively. Note: Variance = (Stddev)^2 and Q and P are the
+ quadrature components of the coherent state.
 
- Inputs: q_mean_mean, q_mean_stddev, p_mean_mean, p_mean_stddev, q_stddev, p_stddev
- Return: Coherent state with q_mean, p_mean, q_stddev and p_stddev
+ Inputs: q_mean_mean, q_mean_stddev, p_mean_mean, p_mean_stddev, q_stddev,
+ p_stddev Return: Coherent state with q_mean, p_mean, q_stddev and p_stddev
  *
  *
  */
 
-class quantum_gaussian_source: public source<gaussian_state, libbase::vector> {
+class quantum_gaussian_source : public source<gaussian_state, libbase::vector>
+{
 
 private:
-    double q_mean_mean; // Chosen mean to generate q_mean
+    double q_mean_mean;   // Chosen mean to generate q_mean
     double q_mean_stddev; // Chosen stddev to generate q_mean
-    double p_mean_mean; // Chosen mean to generate p_mean
-    double p_mean_stddev;  // Chosen stddev to generate p_mean
-    double q_stddev; // Stddev of q
-    double p_stddev; // Stddev of p
-    double VA; // Modulation variance of Alice
+    double p_mean_mean;   // Chosen mean to generate p_mean
+    double p_mean_stddev; // Chosen stddev to generate p_mean
+    double q_stddev;      // Stddev of q
+    double p_stddev;      // Stddev of p
+    double VA;            // Modulation variance of Alice
     std::mt19937 gen;
     // libbase::randgen gen;
 
 public:
     // Default constructor
-    quantum_gaussian_source(double q_mean_mean = 0.0, double q_mean_stddev = 1.0, double p_mean_mean = 0.0, double p_mean_stddev = 1.0, double q_stddev = 1.0, double p_stddev = 1.0)
-        : q_mean_mean(q_mean_mean), q_mean_stddev(q_mean_stddev), p_mean_mean(p_mean_mean), p_mean_stddev(p_mean_stddev), q_stddev(q_stddev), p_stddev(p_stddev), gen() {}
+    quantum_gaussian_source(double q_mean_mean = 0.0,
+                            double q_mean_stddev = 1.0,
+                            double p_mean_mean = 0.0,
+                            double p_mean_stddev = 1.0,
+                            double q_stddev = 1.0,
+                            double p_stddev = 1.0)
+        : q_mean_mean(q_mean_mean), q_mean_stddev(q_mean_stddev),
+          p_mean_mean(p_mean_mean), p_mean_stddev(p_mean_stddev),
+          q_stddev(q_stddev), p_stddev(p_stddev), gen()
+    {
+    }
 
     //! Generate a single Gaussian state with q_mean and p_mean.
-    gaussian_state generate_single() override {
+    gaussian_state generate_single() override
+    {
         std::normal_distribution<double> q_dist(q_mean_mean, q_mean_stddev);
         std::normal_distribution<double> p_dist(p_mean_mean, p_mean_stddev);
-        double q_mean = q_dist(gen); // Value will have added noise to it to be used for measurement.
-        double p_mean = p_dist(gen); // Value will have added noise to it to be used fWor measurement.
-        return gaussian_state(q_mean, q_stddev,  p_mean, p_stddev);
+        double q_mean = q_dist(gen); // Value will have added noise to it to be
+                                     // used for measurement.
+        double p_mean = p_dist(gen); // Value will have added noise to it to be
+                                     // used fWor measurement.
+        return gaussian_state(q_mean, q_stddev, p_mean, p_stddev);
     }
 
-    //! Seeds the Mersenne Twister random number generator from a pseudo-random sequence
-    void seedfrom(libbase::random& r) override {
-       gen.seed(r.ival());
-    }
+    //! Seeds the Mersenne Twister random number generator from a pseudo-random
+    //! sequence
+    void seedfrom(libbase::random& r) override { gen.seed(r.ival()); }
 
     double get_VA()
     {
-        VA = ((q_mean_stddev*q_mean_stddev) + (p_mean_stddev*p_mean_stddev))/2;
+        VA = ((q_mean_stddev * q_mean_stddev) +
+              (p_mean_stddev * p_mean_stddev)) /
+             2;
         return VA;
     }
 
     // Description
     std::string description() const;
 
-    // Helper function - Required only for TestGaussianCVQKDsource with Boost usage
-    static std::unique_ptr<libbase::serializable> create(std::istream& sin) {
+    // Helper function - Required only for TestGaussianCVQKDsource with Boost
+    // usage
+    static std::unique_ptr<libbase::serializable> create(std::istream& sin)
+    {
         auto obj = std::make_unique<quantum_gaussian_source>();
         obj->serialize(sin);
         return obj;

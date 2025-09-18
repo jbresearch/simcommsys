@@ -119,25 +119,26 @@ public:
 class gaussian_state : public quantum_state_inf<gaussian_state>
 {
 private:
-    std::mt19937 gen; //  Mersenne Twister random number generator
-    bool was_measured = false; // Enforces measurement to be done only once for each created coherent state
+    std::mt19937 gen;          //  Mersenne Twister random number generator
+    bool was_measured = false; // Enforces measurement to be done only once for
+                               // each created coherent state
 
     double q_mean, q_stddev, p_mean, p_stddev;
 
 public:
-
     gaussian_state()
-    : gen(), q_mean(0.0), q_stddev(1.0), p_mean(0.0), p_stddev(1.0) {}
+        : gen(), q_mean(0.0), q_stddev(1.0), p_mean(0.0), p_stddev(1.0)
+    {
+    }
 
     gaussian_state(double q_mean,
                    double q_stddev,
                    double p_mean,
                    double p_stddev)
-                   : gen()
+        : gen()
     {
         init(q_mean, q_stddev, p_mean, p_stddev);
     }
-
 
     void init(double q_mean, double q_stddev, double p_mean, double p_stddev)
     {
@@ -153,23 +154,26 @@ public:
         this->p_stddev = p_stddev;
     }
 
-    //! Seeds the Mersenne Twister random number generator from a pseudo-random sequence
-    void seedfrom(libbase::random& r)
-    {
-        gen.seed(r.ival());
-    }
+    //! Seeds the Mersenne Twister random number generator from a pseudo-random
+    //! sequence
+    void seedfrom(libbase::random& r) { gen.seed(r.ival()); }
 
-    // The two get functions are to be used for Measurement i.e. to implement the measurement in "observable.h" which is then used in "qkd_commsys.h". In both get_p and get_q, p_stddev = 1 and q_stddev = 1 respectively to get the measured values.
+    // The two get functions are to be used for Measurement i.e. to implement
+    // the measurement in "observable.h" which is then used in "qkd_commsys.h".
+    // In both get_p and get_q, p_stddev = 1 and q_stddev = 1 respectively to
+    // get the measured values.
     double get_p()
     {
-        assertalways(!was_measured && "Gaussian state can only be measured once.");
+        assertalways(!was_measured &&
+                     "Gaussian state can only be measured once.");
         was_measured = true;
         std::normal_distribution normdist{p_mean, p_stddev};
         return normdist(gen);
     }
     double get_q()
     {
-        assertalways(!was_measured && "Gaussian state can only be measured once.");
+        assertalways(!was_measured &&
+                     "Gaussian state can only be measured once.");
         was_measured = true;
         std::normal_distribution normdist{q_mean, q_stddev};
         return normdist(gen);
@@ -186,7 +190,8 @@ public:
     }
 };
 
-class entangled_qubit_pair : public entangled_quantum_state_inf<entangled_qubit_pair>
+class entangled_qubit_pair
+    : public entangled_quantum_state_inf<entangled_qubit_pair>
 {
 };
 

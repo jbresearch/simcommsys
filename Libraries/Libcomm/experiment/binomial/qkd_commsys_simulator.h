@@ -51,7 +51,9 @@ public:
 protected:
     /*! \name Bound objects */
 
-    /* TODO: Discuss with Johann both the src and sys originally were unique_ptrs but this was causing issues during compilation. Changed to shared_ptrs.*/
+    /* TODO: Discuss with Johann both the src and sys originally were
+     * unique_ptrs but this was causing issues during compilation. Changed to
+     * shared_ptrs.*/
 
     std::shared_ptr<source<S>> src;         //!< Source data sequence generator
     std::shared_ptr<qkd_commsys<S, T>> sys; //!< Communication systems
@@ -60,17 +62,18 @@ protected:
     /*! \name Internal state */
     array1i_t last_event;
 
-    libbase::random* rng_ = nullptr; // non-owning: set in seedfrom(), reused in sample()
+    libbase::random* rng_ =
+        nullptr; // non-owning: set in seedfrom(), reused in sample()
     // @}
 
-
     // Class created to generate Bob's vector s of bool type.
-    class bit_vector_generator {
+    class bit_vector_generator
+    {
     public:
-        libbase::vector<bool> generate_vector(int k, libbase::random& r) {
+        libbase::vector<bool> generate_vector(int k, libbase::random& r)
+        {
             libbase::vector<bool> s(k);
-            for (int i = 0; i < k; ++i)
-            {
+            for (int i = 0; i < k; ++i) {
                 s(i) = (r.ival(2) != 0);
             }
             return s;
@@ -84,14 +87,13 @@ public:
      *
      * Initializes system with bound objects cloned from supplied system.
      */
-      qkd_commsys_simulator(const qkd_commsys_simulator<S, T, R>& c)
-        : experiment_binomial(c)
-        , R(c)
-        , rng_(c.rng_)
-        , sgen(c.sgen)
+    qkd_commsys_simulator(const qkd_commsys_simulator<S, T, R>& c)
+        : experiment_binomial(c), R(c), rng_(c.rng_), sgen(c.sgen)
     {
-        if (c.src) src = std::dynamic_pointer_cast<source<S>>(c.src->clone());
-        if (c.sys) sys = std::dynamic_pointer_cast<qkd_commsys<S, T>>(c.sys->clone());
+        if (c.src)
+            src = std::dynamic_pointer_cast<source<S>>(c.src->clone());
+        if (c.sys)
+            sys = std::dynamic_pointer_cast<qkd_commsys<S, T>>(c.sys->clone());
     }
     // @}
 
@@ -141,12 +143,9 @@ public:
     }
     array1i_t get_event() const { return last_event; }
 
-
-    //  Getter to get the input bits from qkd_commsys.h which gets the inputs bits from the codec of the cvqkd_protocol.h.
-    int get_codec_input_bits_k()
-    {
-        return sys->get_codec_input_bits_k();
-    }
+    //  Getter to get the input bits from qkd_commsys.h which gets the inputs
+    //  bits from the codec of the cvqkd_protocol.h.
+    int get_codec_input_bits_k() { return sys->get_codec_input_bits_k(); }
 
     /*! \name Component object handles */
     //! Clear list of timers
@@ -157,18 +156,17 @@ public:
     std::vector<std::string> get_names() const { return sys->get_names(); }
     // @}
 
-
-    // Required as they need to override the virtual methods found in cv_qkd_errors_hamming.h.
-    // TODO: Might have to remove these depending on the final results collector I will implement.
+    // Required as they need to override the virtual methods found in
+    // cv_qkd_errors_hamming.h.
+    // TODO: Might have to remove these depending on the final results collector
+    // I will implement.
     int get_symbolsperblock() const override
     {
-        return sys ? sys->input_block_size() : 0;  // guard for default-constructed serializer path
+        return sys ? sys->input_block_size()
+                   : 0; // guard for default-constructed serializer path
     }
 
-    int get_alphabetsize() const override
-    {
-        return 2;
-    }
+    int get_alphabetsize() const override { return 2; }
 
     // Description
     std::string description() const;

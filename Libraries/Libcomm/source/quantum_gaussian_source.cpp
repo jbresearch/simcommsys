@@ -19,60 +19,62 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "quantum_gaussian_source.h"
+#include <sstream>
 
- #include "quantum_gaussian_source.h"
- #include <sstream>
+using libbase::serializer;
 
- using libbase::serializer;
+namespace libcomm
+{
 
- namespace libcomm
- {
+// Register with serializer system
+const serializer quantum_gaussian_source::shelper(
+    "source", "quantum_gaussian_source", quantum_gaussian_source::create);
 
- // Register with serializer system
- const serializer quantum_gaussian_source::shelper(
- "source", "quantum_gaussian_source", quantum_gaussian_source::create);
+//! Description
+std::string
+quantum_gaussian_source::description() const
+{
+    std::ostringstream sout;
+    sout << "Quantum Gaussian Source ("
+         << "q_mean ~ N(" << q_mean_mean << ", " << q_mean_stddev << "), "
+         << "p_mean ~ N(" << p_mean_mean << ", " << p_mean_stddev << "))";
+    return sout.str();
+}
 
-  //! Description
- std::string
- quantum_gaussian_source::description() const {
-     std::ostringstream sout;
-     sout << "Quantum Gaussian Source ("
-     << "q_mean ~ N(" << q_mean_mean << ", " << q_mean_stddev << "), "
-     << "p_mean ~ N(" << p_mean_mean << ", " << p_mean_stddev << "))";
-     return sout.str();
- }
+// Save mean and variance to stream
+std::ostream&
+quantum_gaussian_source::serialize(std::ostream& sout) const
+{
+    sout << "# Mean of Q_Mean" << std::endl;
+    sout << q_mean_mean << std::endl;
+    sout << "# Stddev of Q_Mean" << std::endl;
+    sout << q_mean_stddev << std::endl;
+    sout << "# Mean of P_Mean" << std::endl;
+    sout << p_mean_mean << std::endl;
+    sout << "# Stddev of P_Mean" << std::endl;
+    sout << p_mean_stddev << std::endl;
+    sout << "# Stddev of Q" << std::endl;
+    sout << q_stddev << std::endl;
+    sout << "# Stddev of P" << std::endl;
+    sout << p_stddev << std::endl;
 
- // Save mean and variance to stream
- std::ostream& quantum_gaussian_source::serialize(std::ostream& sout) const
- {
-      sout << "# Mean of Q_Mean" << std::endl;
-      sout << q_mean_mean  << std::endl;
-      sout << "# Stddev of Q_Mean" << std::endl;
-      sout << q_mean_stddev << std::endl;
-      sout << "# Mean of P_Mean" << std::endl;
-      sout << p_mean_mean  << std::endl;
-      sout << "# Stddev of P_Mean" << std::endl;
-      sout << p_mean_stddev << std::endl;
-      sout << "# Stddev of Q" << std::endl;
-      sout << q_stddev << std::endl;
-      sout << "# Stddev of P" << std::endl;
-      sout << p_stddev << std::endl;
+    return sout;
+}
 
-      return sout;
- }
+// Load mean and variance from stream
+std::istream&
+quantum_gaussian_source::serialize(std::istream& sin)
+{
+    assertalways(sin.good());
+    sin >> libbase::eatcomments >> q_mean_mean >> libbase::verify;
+    sin >> libbase::eatcomments >> q_mean_stddev >> libbase::verify;
+    sin >> libbase::eatcomments >> p_mean_mean >> libbase::verify;
+    sin >> libbase::eatcomments >> p_mean_stddev >> libbase::verify;
+    sin >> libbase::eatcomments >> q_stddev >> libbase::verify;
+    sin >> libbase::eatcomments >> p_stddev >> libbase::verify;
 
- // Load mean and variance from stream
- std::istream& quantum_gaussian_source::serialize(std::istream& sin)
- {
-     assertalways(sin.good());
-     sin >> libbase::eatcomments >> q_mean_mean >> libbase::verify;
-     sin >> libbase::eatcomments >> q_mean_stddev >> libbase::verify;
-     sin >> libbase::eatcomments >> p_mean_mean >> libbase::verify;
-     sin >> libbase::eatcomments >> p_mean_stddev >> libbase::verify;
-     sin >> libbase::eatcomments >> q_stddev >> libbase::verify;
-     sin >> libbase::eatcomments >> p_stddev >> libbase::verify;
+    return sin;
+}
 
-     return sin;
- }
-
- } // namespace libcomm
+} // namespace libcomm

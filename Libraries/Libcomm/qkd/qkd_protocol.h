@@ -28,8 +28,8 @@
 #include "serializer.h"
 #include "vector.h"
 #include <memory>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include <type_traits>
 
@@ -49,7 +49,8 @@ public:
      * Integer param determines number of observables returned.
      */
 
-    // Note: Changed only the observables to work with a std::vector rather than a libbase::vector
+    // Note: Changed only the observables to work with a std::vector rather than
+    // a libbase::vector
     virtual std::vector<std::unique_ptr<observable<T>>>
     get_alice_observables(int) = 0;
 
@@ -59,46 +60,66 @@ public:
      */
 
     virtual std::vector<std::unique_ptr<observable<T>>>
-    get_alice_observables(int framesize, const libbase::vector<int>&) {
-    return get_alice_observables(framesize);}
+    get_alice_observables(int framesize, const libbase::vector<int>&)
+    {
+        return get_alice_observables(framesize);
+    }
 
     virtual std::vector<std::unique_ptr<observable<T>>>
     get_bob_observables(int) = 0;
 
-    virtual const libbase::vector<int>& get_decision_vector() const {
+    virtual const libbase::vector<int>& get_decision_vector() const
+    {
         static libbase::vector<int> empty;
-        if (empty.size() == 0) empty.init(0); // libbase::vector needs explicit init
+        if (empty.size() == 0)
+            empty.init(0); // libbase::vector needs explicit init
         return empty;
     }
 
     // Getter to be used to return number of samples for parameter estimation.
-    virtual int get_N_0() = 0; // to change these. need to check if there is an alternative to = 0? not to force all derived classes?
+    virtual int
+    get_N_0() = 0; // to change these. need to check if there is an alternative
+                   // to = 0? not to force all derived classes?
     virtual double get_v_el() = 0;
     virtual double get_det_eff() = 0;
 
     // Split fn to be used for parameter estimation and post-processing.
     virtual std::tuple<libbase::vector<T>,
-    libbase::vector<T>,
-    libbase::vector<T>,
-    libbase::vector<T>> split(libbase::vector<T>& measurements_alice, libbase::vector<T>& measurements_bob,
-    int N_PE) = 0;
+                       libbase::vector<T>,
+                       libbase::vector<T>,
+                       libbase::vector<T>>
+    split(libbase::vector<T>& measurements_alice,
+          libbase::vector<T>& measurements_bob,
+          int N_PE) = 0;
 
     // Parameter Estimation using Optical Fiber
-    virtual std::tuple<double, double, double> parameter_estimation_optical_fiber(const C<T>& X_PE, const C<T>& Y_PE, int N_0, double v_el, double detector_efficiency) = 0;
+    virtual std::tuple<double, double, double>
+    parameter_estimation_optical_fiber(const C<T>& X_PE,
+                                       const C<T>& Y_PE,
+                                       int N_0,
+                                       double v_el,
+                                       double detector_efficiency) = 0;
 
     double calculate_shannon_capacity_awgn(double snr_linear)
-    {  // bits/use to be used to compute Beta for MDR.
+    { // bits/use to be used to compute Beta for MDR.
         return 0.5 * std::log2(1.0 + snr_linear);
     }
 
     // Channel channel capacity of Quantum Channel.
-    virtual double calculate_mutual_information(double chi_total_hat, double VA) = 0;
+    virtual double calculate_mutual_information(double chi_total_hat,
+                                                double VA) = 0;
 
-    virtual double calculate_holevo_bound(double V, double T_hat, double Epsilon_hat, double X_total_hat) = 0;
+    virtual double calculate_holevo_bound(double V,
+                                          double T_hat,
+                                          double Epsilon_hat,
+                                          double X_total_hat) = 0;
 
-    // Parameters used to calculate the length of the final secret key after privacy amplification.
-    // Note: For the BB84 I would have to also add N_leaked later on.
-    virtual void set_parameters_secret_key_length(double I_AB, double chi_BE, int n_samples) = 0;
+    // Parameters used to calculate the length of the final secret key after
+    // privacy amplification. Note: For the BB84 I would have to also add
+    // N_leaked later on.
+    virtual void set_parameters_secret_key_length(double I_AB,
+                                                  double chi_BE,
+                                                  int n_samples) = 0;
 
     // Equations related to length of final secret key.
     virtual const int calculate_finite_size_effects_secret_key_length() = 0;
@@ -109,18 +130,20 @@ public:
     /* Helper functions related to codec.*/
     virtual std::shared_ptr<codec<libbase::vector>> get_codec() const = 0;
 
-    virtual  int get_codec_input_bits_k() const = 0;
+    virtual int get_codec_input_bits_k() const = 0;
     virtual int get_codec_output_bits_n() const = 0;
 
-    // Setter to set vector s for CV-QKD which is generated from qkd_commsys_simulator.h.
+    // Setter to set vector s for CV-QKD which is generated from
+    // qkd_commsys_simulator.h.
     virtual void set_bob_vector_s(libbase::vector<bool>& s) = 0;
 
     // Helper function to set the SNR_linear of the Gaussian Quantum Channel.
     virtual void set_SNR_linear(double snr_linear) = 0;
 
     // Returns final secret keys KA and KB.
-    virtual std::pair<C<bool> , C<bool>> postprocess(libbase::vector<T>&& alice_measurements,
-                                libbase::vector<T>&& bob_measurements) = 0;
+    virtual std::pair<C<bool>, C<bool>>
+    postprocess(libbase::vector<T>&& alice_measurements,
+                libbase::vector<T>&& bob_measurements) = 0;
 
     virtual void seedfrom(libbase::random& r) = 0;
 

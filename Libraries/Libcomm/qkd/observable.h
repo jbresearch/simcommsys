@@ -56,8 +56,16 @@ class observable
 {
 public:
     //! \name Visitor interface methods for regular (non-entangled) states
-    virtual T measure(qubit&) const { failwith("Not implemented."); return T(); }
-    virtual T measure(gaussian_state&) const { failwith("Not implemented."); return T(); }
+    virtual T measure(qubit&) const
+    {
+        failwith("Not implemented.");
+        return T();
+    }
+    virtual T measure(gaussian_state&) const
+    {
+        failwith("Not implemented.");
+        return T();
+    }
     //! @}
 
     //! \name Visitor interface methods for entangled states
@@ -66,7 +74,11 @@ public:
         failwith("Not implemented.");
         return T();
     }
-    virtual T measure(epr_beam&, int) const { failwith("Not implemented."); return T();}
+    virtual T measure(epr_beam&, int) const
+    {
+        failwith("Not implemented.");
+        return T();
+    }
     //! @}
 
     /** \brief Implements the other side of the visitor pattern, which calls the

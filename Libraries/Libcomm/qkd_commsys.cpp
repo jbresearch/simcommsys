@@ -112,49 +112,45 @@ qkd_commsys<S, T, C>::serialize(std::istream& sin)
 // // template qkd_commsys<qubit, bool>;
 
 // // qkd_commsys<S, T, C>
-// // Template class for the CV-QKD protocol (GG02) using Gaussian modulated coherent states
-// template class qkd_commsys<gaussian_state, double, libbase::vector>;
-// } // namespace libcomm
+// // Template class for the CV-QKD protocol (GG02) using Gaussian modulated
+// coherent states template class qkd_commsys<gaussian_state, double,
+// libbase::vector>; } // namespace libcomm
 
 namespace libcomm
 {
 
 // ----- explicit instantiations & serializer registration (Boost PP) -----
+#include <boost/preprocessor/seq/elem.hpp>
 #include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/seq/for_each_product.hpp>
-#include <boost/preprocessor/seq/elem.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-
 // define the type sequences you want to build (extend as you add support)
-#define QKD_STATE_SEQ     (gaussian_state)      /* add more states here */
-#define QKD_SCALAR_SEQ    (double) (float)
-#define QKD_CONTAINER_SEQ (libbase::vector)              /* e.g. (libbase::vector)(libbase::matrix) */
+#define QKD_STATE_SEQ (gaussian_state) /* add more states here */
+#define QKD_SCALAR_SEQ (double)(float)
+#define QKD_CONTAINER_SEQ                                                      \
+    (libbase::vector) /* e.g. (libbase::vector)(libbase::matrix) */
 
-/* Serialization string (S, T, C):  qkd_commsys<gaussian_state, double, libbase::vector>
- * where:
- *  S = gaussian_state ..
- *  T = double, float
- *  C = libbase::vector
+/* Serialization string (S, T, C):  qkd_commsys<gaussian_state, double,
+ * libbase::vector> where: S = gaussian_state .. T = double, float C =
+ * libbase::vector
  */
 
-#define QKD_INSTANTIATE(r, args)                                                              \
-    template class qkd_commsys<BOOST_PP_SEQ_ENUM(args)>;                                      \
-    template<>                                                                                \
-    const libbase::serializer                                                                 \
-    qkd_commsys<                                                                              \
-        BOOST_PP_SEQ_ELEM(0, args), /* S */                                                   \
-        BOOST_PP_SEQ_ELEM(1, args), /* T */                                                   \
-        BOOST_PP_SEQ_ELEM(2, args)  /* C */                                                   \
-    >::shelper(                                                                               \
-        "qkd_commsys", \
-        "qkd_commsys<"                                                                        \
-            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0, args)) ","                                \
-            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) ","                                \
-            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2, args)) ">",                                \
-        qkd_commsys<BOOST_PP_SEQ_ENUM(args)>::create);
+#define QKD_INSTANTIATE(r, args)                                                \
+    template class qkd_commsys<BOOST_PP_SEQ_ENUM(args)>;                        \
+    template <>                                                                 \
+    const libbase::serializer qkd_commsys<BOOST_PP_SEQ_ELEM(0, args), /* S */   \
+                                          BOOST_PP_SEQ_ELEM(1, args), /* T */   \
+                                          BOOST_PP_SEQ_ELEM(2, args)  /* C */   \
+                                          >::                                   \
+        shelper(                                                                \
+            "qkd_commsys",                                                      \
+            "qkd_commsys<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2, args)) ">", \
+                                                  qkd_commsys<                  \
+                                                      BOOST_PP_SEQ_ENUM(        \
+                                                          args)>::create);
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(QKD_INSTANTIATE,
-                              (QKD_STATE_SEQ)(QKD_SCALAR_SEQ)(QKD_CONTAINER_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(
+    QKD_INSTANTIATE, (QKD_STATE_SEQ)(QKD_SCALAR_SEQ)(QKD_CONTAINER_SEQ))
 
 } // namespace libcomm

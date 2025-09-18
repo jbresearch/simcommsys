@@ -2,7 +2,8 @@
  * \brief CV-QKD Protocol
  * \author Aaron Abela
  *
- * Implements the steps that are exclusive to the CV-QKD protocol  namely the GG02 protocol with GM coherent states.
+ * Implements the steps that are exclusive to the CV-QKD protocol  namely the
+ * GG02 protocol with GM coherent states.
  *
  */
 
@@ -11,277 +12,315 @@
 
 #include "commsys.h"
 
-#include "qkd/qkd_protocol.h"
-#include "qkd/observable/position_observable.h"
-#include "qkd/observable/momentum_observable.h"
-#include "qkd/observable/fake_position_observable.h"
-#include "qkd/observable/fake_momentum_observable.h"
-#include "random.h"
-#include "serializer.h"
-#include "codec.h"
-#include "informed_embedder/direct_block_informed_embedder.h"
-#include "informed_embedder/sign.h"
 #include "channel.h"
 #include "channel/awgn1d.h"
+#include "codec.h"
 #include "crc/crc32.h"
-#include "qkd/privacy_amplification.h"
-#include "qkd/privacy_amplification/pa_standard_toeplitz.h"
 #include "gf.h"
 #include "hamming.h"
+#include "informed_embedder/direct_block_informed_embedder.h"
+#include "informed_embedder/sign.h"
+#include "qkd/observable/fake_momentum_observable.h"
+#include "qkd/observable/fake_position_observable.h"
+#include "qkd/observable/momentum_observable.h"
+#include "qkd/observable/position_observable.h"
+#include "qkd/privacy_amplification.h"
+#include "qkd/privacy_amplification/pa_standard_toeplitz.h"
+#include "qkd/qkd_protocol.h"
+#include "random.h"
+#include "serializer.h"
 
 #include <memory>
 #include <vector>
 
-
-namespace libcomm {
+namespace libcomm
+{
 
 class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
 {
-    private:
-         libbase::randgen rng; // used to randomly choose observables
-         libbase::vector<int> decision_vector;
-         libbase::vector<int> alice_decision_vector;
+private:
+    libbase::randgen rng; // used to randomly choose observables
+    libbase::vector<int> decision_vector;
+    libbase::vector<int> alice_decision_vector;
 
-         int N_PE; // Number of samples used for parameter estimation.
-         int N_0; // shot noise
-         double v_el; // electric noise
-         double detector_efficiency;
-         double smoothing_parameter;
-         double I_AB; // Mutual Information between Alice and Bob.
-         double chi_BE; // Holevo Bound between Bob and Eve for RR.
-         int n_samples; //Number of samples after parameter estimation. Equivalent to same n of LDPC codec.
+    int N_PE;    // Number of samples used for parameter estimation.
+    int N_0;     // shot noise
+    double v_el; // electric noise
+    double detector_efficiency;
+    double smoothing_parameter;
+    double I_AB;   // Mutual Information between Alice and Bob.
+    double chi_BE; // Holevo Bound between Bob and Eve for RR.
+    int n_samples; // Number of samples after parameter estimation. Equivalent
+                   // to same n of LDPC codec.
 
-         // Vector s from Bob from qkd_commsys
-         libbase::vector<bool> bob_vector_s;
+    // Vector s from Bob from qkd_commsys
+    libbase::vector<bool> bob_vector_s;
 
-         // Vector C from Bob to be used only within the post-processing method.
-         libbase::vector<bool> bob_vector_c;
+    // Vector C from Bob to be used only within the post-processing method.
+    libbase::vector<bool> bob_vector_c;
 
-         double beta_mdr; // Reconciliation Efficiency for MDR.
-         double SNR_linear; // Retrieved from bob's quantum channel.
+    double beta_mdr;   // Reconciliation Efficiency for MDR.
+    double SNR_linear; // Retrieved from bob's quantum channel.
 
-         // Alphabet size to be used in embedder for modem and privacy amplification.
-         int alphabet_size;
+    // Alphabet size to be used in embedder for modem and privacy amplification.
+    int alphabet_size;
 
-    protected:
-        std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
-        std::shared_ptr<block_informed_embedder<double, libbase::vector, double>> embedder; // Embedder
-        std::shared_ptr<channel<double>> demodulation_channel; // Channel to be used for demodulation.
+protected:
+    std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
+    std::shared_ptr<block_informed_embedder<double, libbase::vector, double>>
+        embedder; // Embedder
+    std::shared_ptr<channel<double>>
+        demodulation_channel; // Channel to be used for demodulation.
 
-        // Check that verifies if hash_hs == hash_hsat?
-        int H_check = 0;
+    // Check that verifies if hash_hs == hash_hsat?
+    int H_check = 0;
 
-        //  Privacy Amplification System that uses the standard Toeplitz matrix method.
-        // std::shared_ptr<pa_standard_toeplitz<bool>> pa_system;
-        pa_standard_toeplitz<bool> pa_system;
+    //  Privacy Amplification System that uses the standard Toeplitz matrix
+    //  method.
+    // std::shared_ptr<pa_standard_toeplitz<bool>> pa_system;
+    pa_standard_toeplitz<bool> pa_system;
 
-
-
-    public:
-        void seedfrom(libbase::random& rng) override { this->rng.seed(rng.ival());
-        if (cdc) cdc->seedfrom(rng);
+public:
+    void seedfrom(libbase::random& rng) override
+    {
+        this->rng.seed(rng.ival());
+        if (cdc)
+            cdc->seedfrom(rng);
         pa_system.seedfrom(rng);
-        }
+    }
 
-        // Note: here I replaced libbase::vector with the std::vector only for the observables.
-        // Returns the observables of Bob
-        std::vector<std::unique_ptr<observable<double>>> get_bob_observables(int framesize) override
-        {
-            std::vector<std::unique_ptr<observable<double>>> observables;
-            observables.reserve(framesize);
+    // Note: here I replaced libbase::vector with the std::vector only for the
+    // observables. Returns the observables of Bob
+    std::vector<std::unique_ptr<observable<double>>>
+    get_bob_observables(int framesize) override
+    {
+        std::vector<std::unique_ptr<observable<double>>> observables;
+        observables.reserve(framesize);
 
-            decision_vector.init(framesize);
+        decision_vector.init(framesize);
 
-            for (int i = 0; i < framesize; ++i) {
-                if (rng.ival(2)==0){
-                    observables.push_back(std::make_unique<position_observable>());
-                    decision_vector(i) = 0;
-                }
-                else{
-                    observables.push_back(std::make_unique<momentum_observable>());
-                    decision_vector(i) = 1;
-                }
-            }
-
-            return observables;
-        }
-
-        // Returns the observables of Alice
-        std::vector<std::unique_ptr<observable<double>>> get_alice_observables(int framesize) override
-        {
-            std::vector<std::unique_ptr<observable<double>>> observables;
-            observables.reserve(framesize);
-
-            alice_decision_vector.init(framesize);
-
-            for (int i = 0; i < framesize; ++i) {
-                if (rng.ival(2)==0){
-                    observables.push_back(std::make_unique<fake_position_observable>());
-                    // Dummy test to check what alice created. To delete.
-                    alice_decision_vector(i) = 0;
-                }
-                else{
-                    observables.push_back(std::make_unique<fake_momentum_observable>());
-                    // Dummy test to check what alice created. To delete.
-                    alice_decision_vector(i) = 1;
-                }
-            }
-
-            return observables;
-        }
-
-        // Also returns the observables of Alice, but this method also accepts Bob's decision vector
-        std::vector<std::unique_ptr<observable<double>>> get_alice_observables(int framesize, const libbase::vector<int>& bobs_decision_vector) override
-        {
-            std::vector<std::unique_ptr<observable<double>>> observables;
-            observables.reserve(framesize);
-
-            alice_decision_vector.init(framesize);
-
-            for (int i = 0; i < framesize; ++i) {
-                if (bobs_decision_vector(i)==0){
-                    observables.push_back(std::make_unique<fake_position_observable>());
-                    alice_decision_vector(i) = 0;
-                }
-                else{
-
-                    observables.push_back(std::make_unique<fake_momentum_observable>());
-                    alice_decision_vector(i) = 1;
-                }
-            }
-
-            return observables;
-        }
-
-        // Getter to access the decision vector to send to Alice. To delete, created just for testing.
-        const libbase::vector<int>& get_alice_decision_vector() const {return alice_decision_vector;}
-
-        // Getter fn to get Bob's decision vector to be used by Alice
-        const libbase::vector<int>& get_decision_vector() const {return decision_vector;}
-
-        // Getter to return various parameters for parameter estimation.
-        int get_N_0() override {return N_0;}
-        double get_v_el() override {return v_el;}
-        double get_det_eff() override {return detector_efficiency;}
-
-        // Split fn to be used for parameter estimation and post-processing which returns: X_PE, Y_PE, X_raw and Y_raw
-        std::tuple<libbase::vector<double>,
-        libbase::vector<double>,
-        libbase::vector<double>,
-        libbase::vector<double>> split(libbase::vector<double>& measurements_alice, libbase::vector<double>& measurements_bob,
-        int N_PE) override;
-
-        // Parameter Estimation for the GG02 protocol using Optical Fiber which returns: T_hat, Epsilon_hat, chi_total_hat
-        std::tuple<double, double, double> parameter_estimation_optical_fiber(const libbase::vector<double>& X_PE, const libbase::vector<double>& Y_PE, int N_0, double v_el, double detector_efficiency) override;
-
-        // Mutual Information for the GG02 protocol
-        double calculate_mutual_information(double chi_total_hat, double VA) override;
-
-        // Helper functions used to calculate the Holevo Bound.
-        // G(x) from Eq. (2.54). sTILL TO ADD REFERENCE
-        inline double bosonic_entropy_G(double x) {
-            if (x <= 0.0) return 0.0;
-            return (x + 1.0) * std::log2(x + 1.0) - x * std::log2(x);
-        }
-
-        // Safe sqrt: clamp tiny negative values due to round-off
-        inline double safe_sqrt(double x) {
-            return std::sqrt(x < 0.0 ? 0.0 : x);
-        }
-
-        // Holevo Bound calculation for the GG02 protocol.
-        double calculate_holevo_bound(double V, double T_hat, double Epsilon_hat, double X_total_hat) override;
-
-        // Calculates the L2 norm.
-        static double l2(const libbase::vector<double>& v) {
-            long double s = 0.0L;
-            for (int i = 0; i < v.size(); ++i) s += (long double)v(i) * v(i);
-            return std::sqrt((double)s);
-        }
-
-        double compute_beta_mdr(double code_rate, double snr_linear);
-
-        void set_parameters_secret_key_length(double I_AB, double chi_BE, int n_samples) override
-        {
-            this->I_AB       = I_AB;
-            this->chi_BE     = chi_BE;
-            this->n_samples  = n_samples;
-        }
-
-        // Equations related to length of final secret key.
-        const int calculate_finite_size_effects_secret_key_length() override;
-
-        // Helper functions related to the codec.
-        int get_codec_input_bits_k() const override
-        {
-            return cdc->input_block_size();
-        }
-
-        int get_codec_output_bits_n() const override
-        {
-            return cdc->output_block_size();
-        }
-
-        // Getter to get Bob's vector s from qkd_commsys
-        void set_bob_vector_s(libbase::vector<bool>& s) override
-        {
-            bob_vector_s = s;
-        }
-
-        // Helper function to Get codec.
-        std::shared_ptr<codec<libbase::vector>> get_codec() const { return cdc; }
-
-        // Helper function to set the SNR_linear of the Gaussian Quantum Channel.
-        void set_SNR_linear(double snr_linear) override
-        {
-            this->SNR_linear = snr_linear;
-        }
-
-        // Returns final secret keys KA and KB.
-        std::pair<libbase::vector<bool>, libbase::vector<bool>>  postprocess(libbase::vector<double>&& alice_measurements,  libbase::vector<double>&& bob_measurements) override;
-
-        // Helper function to print a vector.
-        template <typename T>
-        void print_vector(const std::string& title, const libbase::vector<T>& vec)
-        {
-            std::cout << "\n" << title << std::endl;
-            for (int i = 0; i < vec.size(); ++i)
-            {
-                std::cout << vec(i) << "\t";
-            }
-            std::cout << std::endl;
-        }
-
-        // Helper function to print probability table.
-        void print_prob_table(const libbase::vector<libbase::vector<double>>& ptable) {
-            using std::cout;
-            using std::fixed;
-            using std::setprecision;
-
-            const int T = ptable.size();          // time steps
-            if (T == 0) { cout << "[ptable is empty]\n"; return; }
-
-            for (int t = 0; t < T; ++t) {
-                const int M = ptable(t).size();   // symbols
-                cout << "t=" << t << " : ";
-                for (int m = 0; m < M; ++m) {
-                    cout << fixed << setprecision(6) << ptable(t)(m);
-                    if (m + 1 < M) cout << ", ";
-                }
-                cout << '\n';
+        for (int i = 0; i < framesize; ++i) {
+            if (rng.ival(2) == 0) {
+                observables.push_back(std::make_unique<position_observable>());
+                decision_vector(i) = 0;
+            } else {
+                observables.push_back(std::make_unique<momentum_observable>());
+                decision_vector(i) = 1;
             }
         }
 
-        // Description function
-        std::string description() const override;
+        return observables;
+    }
 
-        DECLARE_SERIALIZER(cvqkd_protocol)
+    // Returns the observables of Alice
+    std::vector<std::unique_ptr<observable<double>>>
+    get_alice_observables(int framesize) override
+    {
+        std::vector<std::unique_ptr<observable<double>>> observables;
+        observables.reserve(framesize);
+
+        alice_decision_vector.init(framesize);
+
+        for (int i = 0; i < framesize; ++i) {
+            if (rng.ival(2) == 0) {
+                observables.push_back(
+                    std::make_unique<fake_position_observable>());
+                // Dummy test to check what alice created. To delete.
+                alice_decision_vector(i) = 0;
+            } else {
+                observables.push_back(
+                    std::make_unique<fake_momentum_observable>());
+                // Dummy test to check what alice created. To delete.
+                alice_decision_vector(i) = 1;
+            }
+        }
+
+        return observables;
+    }
+
+    // Also returns the observables of Alice, but this method also accepts Bob's
+    // decision vector
+    std::vector<std::unique_ptr<observable<double>>> get_alice_observables(
+        int framesize,
+        const libbase::vector<int>& bobs_decision_vector) override
+    {
+        std::vector<std::unique_ptr<observable<double>>> observables;
+        observables.reserve(framesize);
+
+        alice_decision_vector.init(framesize);
+
+        for (int i = 0; i < framesize; ++i) {
+            if (bobs_decision_vector(i) == 0) {
+                observables.push_back(
+                    std::make_unique<fake_position_observable>());
+                alice_decision_vector(i) = 0;
+            } else {
+
+                observables.push_back(
+                    std::make_unique<fake_momentum_observable>());
+                alice_decision_vector(i) = 1;
+            }
+        }
+
+        return observables;
+    }
+
+    // Getter to access the decision vector to send to Alice. To delete, created
+    // just for testing.
+    const libbase::vector<int>& get_alice_decision_vector() const
+    {
+        return alice_decision_vector;
+    }
+
+    // Getter fn to get Bob's decision vector to be used by Alice
+    const libbase::vector<int>& get_decision_vector() const
+    {
+        return decision_vector;
+    }
+
+    // Getter to return various parameters for parameter estimation.
+    int get_N_0() override { return N_0; }
+    double get_v_el() override { return v_el; }
+    double get_det_eff() override { return detector_efficiency; }
+
+    // Split fn to be used for parameter estimation and post-processing which
+    // returns: X_PE, Y_PE, X_raw and Y_raw
+    std::tuple<libbase::vector<double>,
+               libbase::vector<double>,
+               libbase::vector<double>,
+               libbase::vector<double>>
+    split(libbase::vector<double>& measurements_alice,
+          libbase::vector<double>& measurements_bob,
+          int N_PE) override;
+
+    // Parameter Estimation for the GG02 protocol using Optical Fiber which
+    // returns: T_hat, Epsilon_hat, chi_total_hat
+    std::tuple<double, double, double>
+    parameter_estimation_optical_fiber(const libbase::vector<double>& X_PE,
+                                       const libbase::vector<double>& Y_PE,
+                                       int N_0,
+                                       double v_el,
+                                       double detector_efficiency) override;
+
+    // Mutual Information for the GG02 protocol
+    double calculate_mutual_information(double chi_total_hat,
+                                        double VA) override;
+
+    // Helper functions used to calculate the Holevo Bound.
+    // G(x) from Eq. (2.54). sTILL TO ADD REFERENCE
+    inline double bosonic_entropy_G(double x)
+    {
+        if (x <= 0.0)
+            return 0.0;
+        return (x + 1.0) * std::log2(x + 1.0) - x * std::log2(x);
+    }
+
+    // Safe sqrt: clamp tiny negative values due to round-off
+    inline double safe_sqrt(double x) { return std::sqrt(x < 0.0 ? 0.0 : x); }
+
+    // Holevo Bound calculation for the GG02 protocol.
+    double calculate_holevo_bound(double V,
+                                  double T_hat,
+                                  double Epsilon_hat,
+                                  double X_total_hat) override;
+
+    // Calculates the L2 norm.
+    static double l2(const libbase::vector<double>& v)
+    {
+        long double s = 0.0L;
+        for (int i = 0; i < v.size(); ++i)
+            s += (long double)v(i) * v(i);
+        return std::sqrt((double)s);
+    }
+
+    double compute_beta_mdr(double code_rate, double snr_linear);
+
+    void set_parameters_secret_key_length(double I_AB,
+                                          double chi_BE,
+                                          int n_samples) override
+    {
+        this->I_AB = I_AB;
+        this->chi_BE = chi_BE;
+        this->n_samples = n_samples;
+    }
+
+    // Equations related to length of final secret key.
+    const int calculate_finite_size_effects_secret_key_length() override;
+
+    // Helper functions related to the codec.
+    int get_codec_input_bits_k() const override
+    {
+        return cdc->input_block_size();
+    }
+
+    int get_codec_output_bits_n() const override
+    {
+        return cdc->output_block_size();
+    }
+
+    // Getter to get Bob's vector s from qkd_commsys
+    void set_bob_vector_s(libbase::vector<bool>& s) override
+    {
+        bob_vector_s = s;
+    }
+
+    // Helper function to Get codec.
+    std::shared_ptr<codec<libbase::vector>> get_codec() const { return cdc; }
+
+    // Helper function to set the SNR_linear of the Gaussian Quantum Channel.
+    void set_SNR_linear(double snr_linear) override
+    {
+        this->SNR_linear = snr_linear;
+    }
+
+    // Returns final secret keys KA and KB.
+    std::pair<libbase::vector<bool>, libbase::vector<bool>>
+    postprocess(libbase::vector<double>&& alice_measurements,
+                libbase::vector<double>&& bob_measurements) override;
+
+    // Helper function to print a vector.
+    template <typename T>
+    void print_vector(const std::string& title, const libbase::vector<T>& vec)
+    {
+        std::cout << "\n" << title << std::endl;
+        for (int i = 0; i < vec.size(); ++i) {
+            std::cout << vec(i) << "\t";
+        }
+        std::cout << std::endl;
+    }
+
+    // Helper function to print probability table.
+    void
+    print_prob_table(const libbase::vector<libbase::vector<double>>& ptable)
+    {
+        using std::cout;
+        using std::fixed;
+        using std::setprecision;
+
+        const int T = ptable.size(); // time steps
+        if (T == 0) {
+            cout << "[ptable is empty]\n";
+            return;
+        }
+
+        for (int t = 0; t < T; ++t) {
+            const int M = ptable(t).size(); // symbols
+            cout << "t=" << t << " : ";
+            for (int m = 0; m < M; ++m) {
+                cout << fixed << setprecision(6) << ptable(t)(m);
+                if (m + 1 < M)
+                    cout << ", ";
+            }
+            cout << '\n';
+        }
+    }
+
+    // Description function
+    std::string description() const override;
+
+    DECLARE_SERIALIZER(cvqkd_protocol)
 };
 
-
-
-
 } // namespace libcomm
-
 
 #endif // CVQKD_PROTOCOL_H

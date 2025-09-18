@@ -24,7 +24,6 @@
 namespace libcomm
 {
 
-
 const libbase::serializer awgn1d::shelper("channel", "awgn1d", awgn1d::create);
 
 // handle functions
@@ -32,7 +31,7 @@ const libbase::serializer awgn1d::shelper("channel", "awgn1d", awgn1d::create);
 void
 awgn1d::compute_parameters(const double Eb_in, const double No_in)
 {
-        sigma = std::sqrt(Eb_in * No_in);
+    sigma = std::sqrt(Eb_in * No_in);
 }
 
 // channel handle functions
@@ -60,12 +59,14 @@ awgn1d::description() const
 
 // Serialization Support
 
-std::ostream& awgn1d::serialize(std::ostream& sout) const
+std::ostream&
+awgn1d::serialize(std::ostream& sout) const
 {
     return sout;
 }
 
-std::istream& awgn1d::serialize(std::istream& sin)
+std::istream&
+awgn1d::serialize(std::istream& sin)
 {
     return sin;
 }

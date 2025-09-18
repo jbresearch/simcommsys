@@ -29,7 +29,8 @@
 #include <cmath>
 #include <string>
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief Additive White Gaussian Noise channel (scalar, 1D) double variant.
@@ -37,12 +38,13 @@ namespace libcomm {
  *
  * Expects Eb/N0 in dB via set_parameter(snr_db).
  */
-class awgn1d : public channel<double> {
+class awgn1d : public channel<double>
+{
     // ---- Channel parameters ----
-    double snr_db{0.0};  // 10*log10(Eb/N0)
-    double Eb{1.0};      // energy per bit
-    double No{0.0};      // half the noise energy per symbol
-    double sigma{0.0};   // std dev of Gaussian noise: sqrt(Eb*No)
+    double snr_db{0.0}; // 10*log10(Eb/N0)
+    double Eb{1.0};     // energy per bit
+    double No{0.0};     // half the noise energy per symbol
+    double sigma{0.0};  // std dev of Gaussian noise: sqrt(Eb*No)
 
     void compute_noise()
     {
@@ -59,7 +61,7 @@ protected:
     double pdf(const double& tx, const double& rx) const override;
 
 public:
-    awgn1d() { set_parameter(0.0); }  // default 0 dB
+    awgn1d() { set_parameter(0.0); } // default 0 dB
 
     // ---- Parameter API required by mono_parametric ----
     void set_parameter(const double snr_db_in) override
@@ -68,10 +70,7 @@ public:
         compute_noise();
     }
 
-    double get_parameter() const override
-    {
-        return snr_db;
-    }
+    double get_parameter() const override { return snr_db; }
 
     // Convenience (same shape as channel<sigspace>)
     void set_eb(const double Eb_in)
@@ -86,15 +85,9 @@ public:
         compute_noise();
     }
 
-    double get_eb() const
-    {
-        return Eb;
-    }
+    double get_eb() const { return Eb; }
 
-    double get_no() const
-    {
-        return No;
-    }
+    double get_no() const { return No; }
 
     // ---- Description ----
     std::string description() const override;

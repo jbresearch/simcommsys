@@ -1,5 +1,6 @@
 /*!
- * \file Base class for Privacy Amplification to get the final secret (hashed) key.
+ * \file Base class for Privacy Amplification to get the final secret (hashed)
+ * key.
  *
  * Copyright (c) 2025 Aaron Abela.
  *
@@ -20,26 +21,29 @@
  */
 
 /*!
- * \file Base class for Privacy Amplification to get the final secret (hashed) key.
+ * \file Base class for Privacy Amplification to get the final secret (hashed)
+ * key.
  */
 
 #ifndef __privacy_amplification_h
 #define __privacy_amplification_h
 
-#include "assertalways.h"
-#include "vector.h"
-#include "matrix.h"
-#include "random.h"
-#include "randgen.h"
-#include "serializer.h"
-#include <string>
 #include <iostream>
 #include <sstream>
+#include <string>
 #include <type_traits> // for std::is_same, std::is_integral
 
-namespace libcomm {
+#include "assertalways.h"
+#include "matrix.h"
+#include "randgen.h"
+#include "random.h"
+#include "serializer.h"
+#include "vector.h"
 
-template<class T>
+namespace libcomm
+{
+
+template <class T>
 class privacy_amplification_base : public libbase::serializable
 {
 protected:
@@ -47,11 +51,11 @@ protected:
     libbase::vector<T> hashed_key;
 
 public:
-
-    virtual void seedfrom(libbase::random& r) = 0 ;
+    virtual void seedfrom(libbase::random& r) = 0;
 
     // Generates a random starting vector of the requested length.
-    libbase::vector<T> generate_starting_vector(int starting_vector_len, int alphabet_size)
+    libbase::vector<T> generate_starting_vector(int starting_vector_len,
+                                                int alphabet_size)
     {
         assert(alphabet_size >= 2);
         assert(starting_vector_len > 0);
@@ -60,8 +64,7 @@ public:
 
         if (std::is_same<T, bool>::value) {
             assert(alphabet_size == 2);
-            for (int i = 0; i < starting_vector_len; ++i)
-            {
+            for (int i = 0; i < starting_vector_len; ++i) {
                 starting_vector(i) = (rng.ival(2) != 0);
             }
         } else if (std::is_integral<T>::value) {
@@ -87,7 +90,10 @@ public:
     // Handles both bool, int and GF types.
     libbase::vector<T>
     compute_hashed_key(const libbase::matrix<T>& toeplitz_matrix,
-                       const libbase::vector<T>& pre_hashed_key, int L, int N, int alphabet_size)
+                       const libbase::vector<T>& pre_hashed_key,
+                       int L,
+                       int N,
+                       int alphabet_size)
     {
         // ---- sanity checks ----
         assert(L > 0 && N > 0);
@@ -109,7 +115,8 @@ public:
                 x_int(j) = pre_hashed_key(j) ? 1 : 0;
 
             // matrix.h operator*(vector) computes A^T * x, so use A^T
-            libbase::vector<int> y_int = (A_int.transpose()) * x_int; // length L
+            libbase::vector<int> y_int =
+                (A_int.transpose()) * x_int; // length L
 
             libbase::vector<T> y(L);
             for (int i = 0; i < L; ++i)
@@ -125,12 +132,14 @@ public:
             assert(alphabet_size >= 2);
 
             // y = (A^T) * x
-            libbase::vector<T> y = (toeplitz_matrix.transpose()) * pre_hashed_key; // length L
+            libbase::vector<T> y =
+                (toeplitz_matrix.transpose()) * pre_hashed_key; // length L
 
             // Reduce modulo alphabet_size element-wise
             for (int i = 0; i < y.size(); ++i) {
                 int r = static_cast<int>(y(i)) % alphabet_size;
-                if (r < 0) r += alphabet_size;
+                if (r < 0)
+                    r += alphabet_size;
                 y(i) = static_cast<T>(r);
             }
 
@@ -141,7 +150,8 @@ public:
 
         // ---- Case: using GF fields.
         {
-            libbase::vector<T> y = (toeplitz_matrix.transpose()) * pre_hashed_key; // length L
+            libbase::vector<T> y =
+                (toeplitz_matrix.transpose()) * pre_hashed_key; // length L
             hashed_key = y;
             assertalways(hashed_key.size() == L);
             return hashed_key;
@@ -159,7 +169,7 @@ public:
     using privacy_amplification = privacy_amplification_base<T>;
 
     // Serialization Support
-     DECLARE_BASE_SERIALIZER(privacy_amplification) // templated case
+    DECLARE_BASE_SERIALIZER(privacy_amplification) // templated case
 };
 
 } // namespace libcomm

@@ -26,9 +26,8 @@
 #include "parametric.h"
 #include "random.h"
 #include "serializer.h"
-#include <random>
 #include <cmath>
-
+#include <random>
 
 namespace libcomm
 {
@@ -66,29 +65,21 @@ public:
     }
 
     virtual void transmit(fake_position_observable&)
-    {  // Only to be used for the observables of Alice.
+    { // Only to be used for the observables of Alice.
         failwith("Not implemented.");
     }
     virtual void transmit(fake_momentum_observable&)
-    {  // Only to be used for the observables of Alice.
+    { // Only to be used for the observables of Alice.
         failwith("Not implemented.");
     }
 
-    virtual void transmit(spin_computational&)
-    {
-        failwith("Not implemented.");
-    }
-    virtual void transmit(spin_hadamard&)
-    {
-        failwith("Not implemented.");
-    }
+    virtual void transmit(spin_computational&) { failwith("Not implemented."); }
+    virtual void transmit(spin_hadamard&) { failwith("Not implemented."); }
     //! @}
 
-    // These methods concerning VA will only be used for the case of the gaussian quantum channel and CV-QKD called in qkd_commsys.h
-    virtual void set_VA(double)
-    {
-        failwith("Not implemented.");
-    }
+    // These methods concerning VA will only be used for the case of the
+    // gaussian quantum channel and CV-QKD called in qkd_commsys.h
+    virtual void set_VA(double) { failwith("Not implemented."); }
 
     virtual double get_VA()
     {

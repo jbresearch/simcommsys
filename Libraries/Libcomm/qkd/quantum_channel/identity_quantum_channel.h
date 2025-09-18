@@ -1,10 +1,11 @@
 #ifndef __identity_quantum_channel_h
 #define __identity_quantum_channel_h
 
-#include "qkd/quantum_channel.h"
 #include "assertalways.h"
+#include "qkd/quantum_channel.h"
 
-namespace libcomm {
+namespace libcomm
+{
 
 /*!
  * \brief   Identity Quantum channel.
@@ -47,6 +48,6 @@ public:
     DECLARE_SERIALIZER(identity_quantum_channel)
 };
 
-}
+} // namespace libcomm
 
 #endif // __identity_quantum_channel_h

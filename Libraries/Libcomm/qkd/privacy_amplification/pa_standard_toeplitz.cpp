@@ -8,57 +8,62 @@
  */
 
 #include "pa_standard_toeplitz.h"
+#include "gf.h"
 #include "serializer.h"
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "gf.h"
 
 using libbase::serializer;
 namespace libcomm
 {
-    template<class T>
-    std::ostream& pa_standard_toeplitz<T>::serialize(std::ostream& sout) const
-    // std::ostream& pa_standard_toeplitz::serialize(std::ostream& sout) const // bool case
-    {
-        // std::ostringstream sout; -> this should not have been there....
-        sout << "# Length of final secret hashed key L" << std::endl;
-        sout << L << std::endl;
-        sout << "# Length of pre-hashed key" << std::endl;
-        sout << N << std::endl;
-        sout << "# Alphabet Symbol Size" << std::endl;
-        sout << alphabet_size << std::endl;
-        return sout;
-    }
-
-    template<class T>
-    std::istream& pa_standard_toeplitz<T>::serialize(std::istream& sin)
-    // std::istream& pa_standard_toeplitz::serialize(std::istream& sin) // bool case
-    {
-        assertalways(sin.good());
-        sin >> libbase::eatcomments >> L >> libbase::verify;
-        sin >> libbase::eatcomments >> N >> libbase::verify;
-        sin >> libbase::eatcomments >> alphabet_size >> libbase::verify;
-        return sin;
-    }
-
-    template<class T>
-    const serializer pa_standard_toeplitz<T>::shelper("privacy_amplification", "standard_toeplitz", pa_standard_toeplitz<T>::create);
-
-
-    // Explicit instantiations for used types T:
-    template class pa_standard_toeplitz<bool>;
-    template class pa_standard_toeplitz<int>;
-
-    // GF template types
-    template class pa_standard_toeplitz<libbase::gf2>;
-    template class pa_standard_toeplitz<libbase::gf4>;
-    template class pa_standard_toeplitz<libbase::gf8>;
-    template class pa_standard_toeplitz<libbase::gf16>;
-    template class pa_standard_toeplitz<libbase::gf32>;
-    template class pa_standard_toeplitz<libbase::gf64>;
-    template class pa_standard_toeplitz<libbase::gf128>;
-    template class pa_standard_toeplitz<libbase::gf256>;
-    template class pa_standard_toeplitz<libbase::gf512>;
-    template class pa_standard_toeplitz<libbase::gf1024>;
+template <class T>
+std::ostream&
+pa_standard_toeplitz<T>::serialize(std::ostream& sout) const
+// std::ostream& pa_standard_toeplitz::serialize(std::ostream& sout) const //
+// bool case
+{
+    // std::ostringstream sout; -> this should not have been there....
+    sout << "# Length of final secret hashed key L" << std::endl;
+    sout << L << std::endl;
+    sout << "# Length of pre-hashed key" << std::endl;
+    sout << N << std::endl;
+    sout << "# Alphabet Symbol Size" << std::endl;
+    sout << alphabet_size << std::endl;
+    return sout;
 }
+
+template <class T>
+std::istream&
+pa_standard_toeplitz<T>::serialize(std::istream& sin)
+// std::istream& pa_standard_toeplitz::serialize(std::istream& sin) // bool case
+{
+    assertalways(sin.good());
+    sin >> libbase::eatcomments >> L >> libbase::verify;
+    sin >> libbase::eatcomments >> N >> libbase::verify;
+    sin >> libbase::eatcomments >> alphabet_size >> libbase::verify;
+    return sin;
+}
+
+template <class T>
+const serializer
+    pa_standard_toeplitz<T>::shelper("privacy_amplification",
+                                     "standard_toeplitz",
+                                     pa_standard_toeplitz<T>::create);
+
+// Explicit instantiations for used types T:
+template class pa_standard_toeplitz<bool>;
+template class pa_standard_toeplitz<int>;
+
+// GF template types
+template class pa_standard_toeplitz<libbase::gf2>;
+template class pa_standard_toeplitz<libbase::gf4>;
+template class pa_standard_toeplitz<libbase::gf8>;
+template class pa_standard_toeplitz<libbase::gf16>;
+template class pa_standard_toeplitz<libbase::gf32>;
+template class pa_standard_toeplitz<libbase::gf64>;
+template class pa_standard_toeplitz<libbase::gf128>;
+template class pa_standard_toeplitz<libbase::gf256>;
+template class pa_standard_toeplitz<libbase::gf512>;
+template class pa_standard_toeplitz<libbase::gf1024>;
+} // namespace libcomm

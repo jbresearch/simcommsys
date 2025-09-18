@@ -50,17 +50,22 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
 
     // Setting modulation variance VA in the gaussian quantum channel of Bob.
     // sys->set_VA(*src);
-    if (src) { // I had to do this because in qkd_commsys.h the method is defined as: void set_VA(libcomm::quantum_gaussian_source& source)
-        if (auto qsrc = dynamic_cast<libcomm::quantum_gaussian_source*>(src.get()))
-            {
-                sys->set_VA(*qsrc);
-            }
+    if (src) { // I had to do this because in qkd_commsys.h the method is
+               // defined as: void set_VA(libcomm::quantum_gaussian_source&
+               // source)
+        if (auto qsrc =
+                dynamic_cast<libcomm::quantum_gaussian_source*>(src.get())) {
+            sys->set_VA(*qsrc);
+        }
     }
 
-    // Gets the number of coherent states generated for a single frame from the qkd_commsys object.
-    const libbase::size_type<libbase::vector> framesize(sys->input_block_size());
+    // Gets the number of coherent states generated for a single frame from the
+    // qkd_commsys object.
+    const libbase::size_type<libbase::vector> framesize(
+        sys->input_block_size());
 
-    // Generates a sequence of coherent states which is the input to the fullcycle method in qkd_commsys.
+    // Generates a sequence of coherent states which is the input to the
+    // fullcycle method in qkd_commsys.
     libbase::vector<S> source = src->generate_sequence(framesize);
 
     // Both final keys are of libbase::vector<bool> type.
@@ -75,7 +80,7 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
 
 template <class S, class T, class R>
 std::string
-    qkd_commsys_simulator<S, T, R>::description() const
+qkd_commsys_simulator<S, T, R>::description() const
 {
     std::ostringstream sout;
     sout << "QKD Simulator for ";
@@ -140,39 +145,40 @@ namespace libcomm
 {
 
 // ----- explicit instantiations & serializer registration (Boost PP) -----
+#include <boost/preprocessor/seq/elem.hpp>
 #include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/seq/for_each_product.hpp>
-#include <boost/preprocessor/seq/elem.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-#define QKD_STATE_SEQ     (gaussian_state)      /* add more states here depending on protocol that is added. */
-#define QKD_SCALAR_SEQ    (double) (float) (bool)
-#define QKD_COLLECTOR_TYPE_SEQ  (cv_qkd_errors_hamming) // (errors_hamming)
+#define QKD_STATE_SEQ                                                          \
+    (gaussian_state) /* add more states here depending on protocol that is     \
+                        added. */
+#define QKD_SCALAR_SEQ (double)(float)(bool)
+#define QKD_COLLECTOR_TYPE_SEQ (cv_qkd_errors_hamming) // (errors_hamming)
 
-/* Serialization string qkd_commsys_simulator<S, T, R>:  qkd_commsys_simulator<gaussian_state, double, cv_qkd_errors_hamming>
- * where:
+/* Serialization string qkd_commsys_simulator<S, T, R>:
+ * qkd_commsys_simulator<gaussian_state, double, cv_qkd_errors_hamming> where:
  *  S (type of quantum state) = gaussian_state ..
  *  T (type) = double, float, bool.
  *  R (results collector) = cv_qkd_errors_hamming
  */
 
-#define QKD_INSTANTIATE(r, args)                                                              \
-    template class qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>;                                      \
-    template<>                                                                                \
-    const libbase::serializer                                                                 \
-    qkd_commsys_simulator<                                                                              \
-        BOOST_PP_SEQ_ELEM(0, args), /* S */                                                   \
-        BOOST_PP_SEQ_ELEM(1, args), /* T */                                                   \
-        BOOST_PP_SEQ_ELEM(2, args)  /* C */                                                   \
-    >::shelper(                                                                               \
-        "experiment", \
-        "qkd_commsys_simulator<"                                                                        \
-            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0, args)) ","                                \
-            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) ","                                \
-            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2, args)) ">",                                \
-        qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::create);
+#define QKD_INSTANTIATE(r, args)                                                \
+    template class qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>;              \
+    template <>                                                                 \
+    const libbase::serializer qkd_commsys_simulator<                            \
+        BOOST_PP_SEQ_ELEM(0, args), /* S */                                     \
+        BOOST_PP_SEQ_ELEM(1, args), /* T */                                     \
+        BOOST_PP_SEQ_ELEM(2, args)  /* C */                                     \
+        >::                                                                     \
+        shelper(                                                                \
+            "experiment",                                                       \
+            "qkd_commsys_simulator<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2, args)) ">", \
+                                                  qkd_commsys_simulator<        \
+                                                      BOOST_PP_SEQ_ENUM(        \
+                                                          args)>::create);
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(QKD_INSTANTIATE,
-                              (QKD_STATE_SEQ)(QKD_SCALAR_SEQ)(QKD_COLLECTOR_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(
+    QKD_INSTANTIATE, (QKD_STATE_SEQ)(QKD_SCALAR_SEQ)(QKD_COLLECTOR_TYPE_SEQ))
 
 } // namespace libcomm

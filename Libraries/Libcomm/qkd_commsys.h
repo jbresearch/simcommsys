@@ -28,8 +28,8 @@
 #include "qkd/qkd_protocol.h"
 #include "qkd/quantum_channel.h"
 #include "qkd/quantum_state.h"
-#include "source/quantum_gaussian_source.h"
 #include "serializer.h"
+#include "source/quantum_gaussian_source.h"
 #include "vector.h"
 
 #include <iostream>
@@ -84,7 +84,6 @@ public:
     }
     // @}
 
-
     /*! \name Parametric interface */
     void set_parameters(const libbase::vector<double>& x) override
     {
@@ -119,7 +118,8 @@ public:
             params(i) = alice_channel_params(i);
         }
 
-        libbase::vector<double> bob_channel_params = this->bob_channel->get_parameters();
+        libbase::vector<double> bob_channel_params =
+            this->bob_channel->get_parameters();
         int k = i; // continue from where alice_channel_params left off
         for (int j = 0; j < this->bob_channel->get_num_params(); j++, k++) {
             params(k) = bob_channel_params(j);
@@ -134,7 +134,8 @@ public:
     }
     // @}
 
-    // Sets the modulation variance VA to be used by the gaussian quantum channel to calculate variance VN from it.
+    // Sets the modulation variance VA to be used by the gaussian quantum
+    // channel to calculate variance VN from it.
     void set_VA(libcomm::quantum_gaussian_source& source)
     {
         double VA = source.get_VA();
@@ -142,12 +143,10 @@ public:
     }
 
     // Getter to get the input bits from the codec from cvqkd_protocol.h.
-    int get_codec_input_bits_k()
-    {
-        return protocol->get_codec_input_bits_k();
-    }
+    int get_codec_input_bits_k() { return protocol->get_codec_input_bits_k(); }
 
-    // Setter method to get vector s which is generated in the qkd_commsys_simulator.
+    // Setter method to get vector s which is generated in the
+    // qkd_commsys_simulator.
     void set_bob_vector(const libbase::vector<bool>& vector_s)
     {
         vector_s_from_bob = vector_s;
@@ -155,16 +154,20 @@ public:
 
     /*! \name Communication System Interface */
     //! Perform complete transmission of one frame
-    std::pair<C<bool> , C<bool>> fullcycle(C<S>& source)
+    std::pair<C<bool>, C<bool>> fullcycle(C<S>& source)
     {
-        // ***** Note: In this case the source here is the libbase::vector of states e.g. coherent states if S=gaussian_State *****
+        // ***** Note: In this case the source here is the libbase::vector of
+        // states e.g. coherent states if S=gaussian_State *****
         assertalways(source.size() == framesize);
 
-        // Note: Here I Changed the libbase::vector to an std::vector only for the observables stage
-        std::vector<std::unique_ptr<observable<T>>> bob_observables = protocol->get_bob_observables(framesize);
+        // Note: Here I Changed the libbase::vector to an std::vector only for
+        // the observables stage
+        std::vector<std::unique_ptr<observable<T>>> bob_observables =
+            protocol->get_bob_observables(framesize);
 
         // Get Bob's decision vector of his observables.
-        const libbase::vector<int>& decision_vector = protocol->get_decision_vector();
+        const libbase::vector<int>& decision_vector =
+            protocol->get_decision_vector();
 
         std::vector<std::unique_ptr<observable<T>>> alice_observables =
             protocol->get_alice_observables(framesize, decision_vector);
@@ -198,90 +201,112 @@ public:
         int n_output_codec_block_size = protocol->get_codec_output_bits_n();
 
         // Number of samples used for Parameter Estimation
-        // N_PE = N (number of generated states) - n (size of codeword of the codec)
+        // N_PE = N (number of generated states) - n (size of codeword of the
+        // codec)
         int N_PE = framesize - n_output_codec_block_size;
 
-        std::cout << "\n (prints from qkd_commsys.h) Number of States used for Parameter Estimation = " << N_PE << std::endl;
+        std::cout << "\n (prints from qkd_commsys.h) Number of States used for "
+                     "Parameter Estimation = "
+                  << N_PE << std::endl;
 
-        // N_0, v_el and detector efficiency are all serialized parameters in the cv-qkd protocol.
-        // They are set in the configuration file.
+        // N_0, v_el and detector efficiency are all serialized parameters in
+        // the cv-qkd protocol. They are set in the configuration file.
         int N_0 = protocol->get_N_0();
         double v_el = protocol->get_v_el();
         double detector_efficiency = protocol->get_det_eff();
 
         // Perform split for parameter estimation and post-processing.
-        auto [X_PE, Y_PE, X_raw, Y_raw] = protocol->split(alice_measurements, bob_measurements, N_PE);
+        auto [X_PE, Y_PE, X_raw, Y_raw] =
+            protocol->split(alice_measurements, bob_measurements, N_PE);
 
+        std::cout << "\n (prints from qkd_commsys.h) Size of X_PE and Y_PE: "
+                  << X_PE.size() << "\t" << Y_PE.size() << std::endl;
 
-        std::cout << "\n (prints from qkd_commsys.h) Size of X_PE and Y_PE: " << X_PE.size() << "\t" << Y_PE.size() << std::endl;
-
-        std::cout << "\n (prints from qkd_commsys.h) Size of X_Raw and Y_Raw: " << X_PE.size() << "\t" << Y_PE.size() << std::endl;
+        std::cout << "\n (prints from qkd_commsys.h) Size of X_Raw and Y_Raw: "
+                  << X_PE.size() << "\t" << Y_PE.size() << std::endl;
 
         // Calculate parameter estimation using optical fiber.
-        auto [T_hat, Epsilon_hat, chi_total_hat] = protocol->parameter_estimation_optical_fiber(X_PE, Y_PE, N_0, v_el, detector_efficiency);
+        auto [T_hat, Epsilon_hat, chi_total_hat] =
+            protocol->parameter_estimation_optical_fiber(
+                X_PE, Y_PE, N_0, v_el, detector_efficiency);
 
         double modulation_variance = this->bob_channel->get_VA();
         double V = modulation_variance + 1;
 
         /* Calculate Mutual Information. */
-        double I_AB = protocol->calculate_mutual_information(chi_total_hat, modulation_variance);
+        double I_AB = protocol->calculate_mutual_information(
+            chi_total_hat, modulation_variance);
         std::cout << "(Prints from qkd_commsys.h) I_AB = " << I_AB << std::endl;
 
-         /* Calculate Holevo Bound. */
-        double X_BE = protocol->calculate_holevo_bound(V, T_hat, Epsilon_hat, chi_total_hat);
+        /* Calculate Holevo Bound. */
+        double X_BE = protocol->calculate_holevo_bound(
+            V, T_hat, Epsilon_hat, chi_total_hat);
         std::cout << "(Prints from qkd_commsys.h) X_BE = " << X_BE << std::endl;
 
-        /* Vector s is first generated in qkd_commsys_simulator sample() method. It is then also set in the qkd_commsys_simulator sample() to the qkd_commsys object; so that then it is set in the cv-qkd protocol. */
+        /* Vector s is first generated in qkd_commsys_simulator sample() method.
+         * It is then also set in the qkd_commsys_simulator sample() to the
+         * qkd_commsys object; so that then it is set in the cv-qkd protocol. */
         protocol->set_bob_vector_s(vector_s_from_bob);
 
-        /* TODO: TO delete lines 236 and 237. I am just doing this for debugging purposes since the framesize I started with was small/ */
+        /* TODO: TO delete lines 236 and 237. I am just doing this for debugging
+         * purposes since the framesize I started with was small/ */
         // I_AB = 1.05;
         // X_BE = 0.82;
 
-        // Checks whether the protocol is aborted or not to continue with the Information Reconciliation stage.
-        if(I_AB > X_BE)
-        {
+        // Checks whether the protocol is aborted or not to continue with the
+        // Information Reconciliation stage.
+        if (I_AB > X_BE) {
             MI_check = 1;
-            std::cout << "(Prints from qkd_commsys.h) MI_Check = " << MI_check << std::endl; // To delete
+            std::cout << "(Prints from qkd_commsys.h) MI_Check = " << MI_check
+                      << std::endl; // To delete
 
             // // TODO: Still to calculate using beta = R/C(S)
             // // C(S) is the Shannon Capacity of an AWGN channel.
             // double beta_mdr = 0.958;
-            // std::cout << "(prints from qkd_commsys.h full cycle) beta_mdr = " << beta_mdr << std::endl;
+            // std::cout << "(prints from qkd_commsys.h full cycle) beta_mdr = "
+            // << beta_mdr << std::endl;
 
             /* Gets SNR_linear from Bob's Gaussian Quantum Channel*/
             libbase::vector<double> bobs_channel_parameters;
             bobs_channel_parameters.init(1);
-            bobs_channel_parameters= bob_channel->get_parameters();
+            bobs_channel_parameters = bob_channel->get_parameters();
             double SNR_linear = bobs_channel_parameters(0);
 
             // Set SNR_linear to be used in the CV-QKD protocol.
             protocol->set_SNR_linear(SNR_linear);
 
             // Use setter in CV-QKD protocol
-            protocol->set_parameters_secret_key_length(I_AB, X_BE, n_output_codec_block_size);
+            protocol->set_parameters_secret_key_length(
+                I_AB, X_BE, n_output_codec_block_size);
 
             // Continue with post-processing.
 
-            auto [secret_key_KA, secret_key_KB] = protocol->postprocess(std::move(X_raw), std::move(Y_raw));
+            auto [secret_key_KA, secret_key_KB] =
+                protocol->postprocess(std::move(X_raw), std::move(Y_raw));
 
-            return { std::move(secret_key_KA), std::move(secret_key_KB)};
+            return {std::move(secret_key_KA), std::move(secret_key_KB)};
 
-            // std::move was required due to the following: Was passing lvalues to a function that expects rvalue references (&&).
-            // return protocol->postprocess(alice_measurements, bob_measurements); // To check with Mark why in the qkd_protocol.h for the post-processing method he used &&?
-        }
-        else
-        {
+            // std::move was required due to the following: Was passing lvalues
+            // to a function that expects rvalue references (&&). return
+            // protocol->postprocess(alice_measurements, bob_measurements); //
+            // To check with Mark why in the qkd_protocol.h for the
+            // post-processing method he used &&?
+        } else {
             MI_check = 0;
-            std::cout << "(Prints from qkd_commsys.h) MI_Check = " << MI_check << std::endl; // To delete
+            std::cout << "(Prints from qkd_commsys.h) MI_Check = " << MI_check
+                      << std::endl; // To delete
 
             int len_secret_key = 0;
 
             libbase::vector<bool> secret_key_KA(len_secret_key);
             libbase::vector<bool> secret_key_KB(len_secret_key);
 
-            print_bool_vector("(prints from qkd_commsys.h)  Final Secret Key KA of Alice: ", secret_key_KA);
-            print_bool_vector("(prints from qkd_commsys.h)  Final Secret Key KB of Bob: ", secret_key_KB);
+            print_bool_vector(
+                "(prints from qkd_commsys.h)  Final Secret Key KA of Alice: ",
+                secret_key_KA);
+            print_bool_vector(
+                "(prints from qkd_commsys.h)  Final Secret Key KB of Bob: ",
+                secret_key_KB);
 
             return {std::move(secret_key_KA), std::move(secret_key_KA)};
         }
@@ -304,11 +329,11 @@ public:
     std::string description() const;
 
     // Helper function to print a vector.
-    void print_bool_vector(const std::string& title, const libbase::vector<bool>& vec)
+    void print_bool_vector(const std::string& title,
+                           const libbase::vector<bool>& vec)
     {
         std::cout << "\n" << title << std::endl;
-        for (int i = 0; i < vec.size(); ++i)
-        {
+        for (int i = 0; i < vec.size(); ++i) {
             std::cout << vec(i) << "\t";
         }
         std::cout << std::endl;

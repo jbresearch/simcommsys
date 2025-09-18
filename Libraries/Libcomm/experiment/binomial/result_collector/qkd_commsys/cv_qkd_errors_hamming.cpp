@@ -33,29 +33,42 @@ namespace libcomm
  * \param[in]  source   Source data sequence
  * \param[in]  decoded  Decoded data sequence
  *
- * Results are organized as (symbol,frame, SKR) error count. Eventually these will be
- * divided by the respective multiplicity to get the average error rates.
+ * Results are organized as (symbol,frame, SKR) error count. Eventually these
+ * will be divided by the respective multiplicity to get the average error
+ * rates.
  */
 void
-cv_qkd_errors_hamming::updateresults(libbase::vector<double>& result, libbase::vector<gaussian_state> source,
-    libbase::vector<bool> vector_s, libbase::vector<bool>& key_KA, libbase::vector<bool>& key_KB) const
+cv_qkd_errors_hamming::updateresults(libbase::vector<double>& result,
+                                     libbase::vector<gaussian_state> source,
+                                     libbase::vector<bool> vector_s,
+                                     libbase::vector<bool>& key_KA,
+                                     libbase::vector<bool>& key_KB) const
 {
-    /* Results needed to calculate the Secret Key Rate (SKR) are results(0) and results(1).
+    /* Results needed to calculate the Secret Key Rate (SKR) are results(0) and
+    results(1).
 
     The SKR is calculated using: SKR = result(0)/result(1).
 
-    SKR = Sum of the lengths of the final secret key KA / Sum of the lengths of the source (which is equal to N because it is fixed).
+    SKR = Sum of the lengths of the final secret key KA / Sum of the lengths of
+    the source (which is equal to N because it is fixed).
 
     TODO: Confirm with Johann where the division needs to happen.
     */
 
-    result(0) += key_KA.size(); // Sum of Lengths of Key KA where the length will be the final length of the secret key after privacy amplification.
+    result(0) += key_KA.size(); // Sum of Lengths of Key KA where the length
+                                // will be the final length of the secret key
+                                // after privacy amplification.
 
-    result(1) += source.size(); // Sum of length of source which is the sequence of generated coherent states. This is equal to N because it is fixed. In qkd_commsys_simulator.cpp it is called the framesize.
+    result(1) +=
+        source.size(); // Sum of length of source which is the sequence of
+                       // generated coherent states. This is equal to N because
+                       // it is fixed. In qkd_commsys_simulator.cpp it is called
+                       // the framesize.
 
     /* Results needed to calculate the SER: results(0) and results(2)
 
-    SER = Sum of Hamming Differences of keys KA and KB / Sum of lengths of key KA.
+    SER = Sum of Hamming Differences of keys KA and KB / Sum of lengths of key
+    KA.
 
     TODO: Again to confirm with Johann where the division needs to happen.
     */

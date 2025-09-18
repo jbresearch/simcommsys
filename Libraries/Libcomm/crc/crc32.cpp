@@ -26,19 +26,20 @@ namespace libcomm
 {
 
 // Registrar (matches the static member declared by the macro)
-template <template<class> class C>
-const serializer crc32_ieee<C>::shelper(
-    "crc", "crc_32", crc32_ieee<C>::create);
+template <template <class> class C>
+const serializer crc32_ieee<C>::shelper("crc", "crc_32", crc32_ieee<C>::create);
 
 // Define the serialize functions declared by the macro
-template <template<class> class C>
-std::ostream& crc32_ieee<C>::serialize(std::ostream& sout) const
+template <template <class> class C>
+std::ostream&
+crc32_ieee<C>::serialize(std::ostream& sout) const
 {
     return sout;
 }
 
-template <template<class> class C>
-std::istream& crc32_ieee<C>::serialize(std::istream& sin)
+template <template <class> class C>
+std::istream&
+crc32_ieee<C>::serialize(std::istream& sin)
 {
     return sin;
 }
