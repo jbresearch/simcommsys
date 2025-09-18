@@ -45,8 +45,8 @@ protected:
         std::normal_distribution<double> dist(noise_mean, noise_stddev);
         const double noise = dist(gen);
         observable.set_noise(noise);
-        observable.set_transmittance(noise_transmittance);
-        observable.set_detector_eff(noise_detector_eff);
+        observable.set_transmittance(noise_transmittance); //Serialized parameter
+        observable.set_detector_eff(noise_detector_eff); // Serialized parameter
     }
 
 public:

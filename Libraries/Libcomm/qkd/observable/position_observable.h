@@ -65,7 +65,7 @@ public:
         const double X = state.get_q();
         const double g = std::sqrt(transmittance * detector_eff);
         const double gX = g * X;
-        const double n = noise;
+        const double n = noise; // Noise is being set in the transmit method of the gaussian quantum channel.
         const double result = gX + n;
 
         // Debug prints

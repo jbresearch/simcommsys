@@ -198,11 +198,13 @@ public:
         int n_output_codec_block_size = protocol->get_codec_output_bits_n();
 
         // Number of samples used for Parameter Estimation
-        // N_PE = N (number of generated states) - n (size of codework)
+        // N_PE = N (number of generated states) - n (size of codeword of the codec)
         int N_PE = framesize - n_output_codec_block_size;
 
         std::cout << "\n (prints from qkd_commsys.h) Number of States used for Parameter Estimation = " << N_PE << std::endl;
 
+        // N_0, v_el and detector efficiency are all serialized parameters in the cv-qkd protocol.
+        // They are set in the configuration file.
         int N_0 = protocol->get_N_0();
         double v_el = protocol->get_v_el();
         double detector_efficiency = protocol->get_det_eff();
@@ -229,7 +231,7 @@ public:
         double X_BE = protocol->calculate_holevo_bound(V, T_hat, Epsilon_hat, chi_total_hat);
         std::cout << "(Prints from qkd_commsys.h) X_BE = " << X_BE << std::endl;
 
-        /* Set Bob's vector s from qkd_commsys to the cv-qkd protocol. Vector s is originally generaeted in qkd_commsys_simulator. */
+        /* Vector s is first generated in qkd_commsys_simulator sample() method. It is then also set in the qkd_commsys_simulator sample() to the qkd_commsys object; so that then it is set in the cv-qkd protocol. */
         protocol->set_bob_vector_s(vector_s_from_bob);
 
         /* TODO: TO delete lines 236 and 237. I am just doing this for debugging purposes since the framesize I started with was small/ */
@@ -247,7 +249,7 @@ public:
             // double beta_mdr = 0.958;
             // std::cout << "(prints from qkd_commsys.h full cycle) beta_mdr = " << beta_mdr << std::endl;
 
-            /* Gets SNR_linear from Bob's Gaussian Quantum Channel -> to uncomment!!*/
+            /* Gets SNR_linear from Bob's Gaussian Quantum Channel*/
             libbase::vector<double> bobs_channel_parameters;
             bobs_channel_parameters.init(1);
             bobs_channel_parameters= bob_channel->get_parameters();
@@ -255,14 +257,6 @@ public:
 
             // Set SNR_linear to be used in the CV-QKD protocol.
             protocol->set_SNR_linear(SNR_linear);
-
-            // *** Will also need to use the SNR_linear later to  get SNR_dB to use it in the codec for decoding in the post processing probably. ***/
-
-            /* Confirmed: Beta equation that needs to be used: \beta = R/C(S) taken from the Quasi Cyclic Paper 2018, Mario Milicevic.
-            // calculate as I still need R from codec and SNR from channel.
-            double code_rate = 0.02;
-            double beta_mdr = code_rate/(protocol->calculate_shannon_capacity_awgn(SNR_linear)); // still to Beta is coming too small
-            */
 
             // Use setter in CV-QKD protocol
             protocol->set_parameters_secret_key_length(I_AB, X_BE, n_output_codec_block_size);
@@ -284,7 +278,7 @@ public:
             int len_secret_key = 0;
 
             libbase::vector<bool> secret_key_KA(len_secret_key);
-            libbase::vector<bool> secret_key_KB(len_secret_key); //
+            libbase::vector<bool> secret_key_KB(len_secret_key);
 
             print_bool_vector("(prints from qkd_commsys.h)  Final Secret Key KA of Alice: ", secret_key_KA);
             print_bool_vector("(prints from qkd_commsys.h)  Final Secret Key KB of Bob: ", secret_key_KB);

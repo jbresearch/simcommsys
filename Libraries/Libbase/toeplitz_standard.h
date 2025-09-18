@@ -19,11 +19,11 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 /*!
  * Documentation of Code:
  *
- * This code is based on the Python implementation of the toeplitz_standard.py implemented by Dr. Ing. Chris Galea found in the following repository which uses Scipy: https://dsrg-ict.research.um.edu.mt/qkd/ldpc-codes/-/blob/modularise_hungary_code/Other/Botond/Code/privacy_amplification/toeplitz_standard.py?ref_type=heads
+ * This code is based on the Python implementation of the scipy.linalg.toeplitz function.
+ * Reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.linalg.toe
  *
  * The Toeplitz matrix is built from a single starting vector.
  *

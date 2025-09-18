@@ -58,8 +58,11 @@ namespace libcomm
     std::tuple<double, double, double> cvqkd_protocol::parameter_estimation_optical_fiber(const libbase::vector<double>& X_PE, const libbase::vector<double>& Y_PE, int N_0, double v_el, double detector_efficiency)
     {
 
-        /* Reference of equations used to calculate the parameter estimation: Section A. of Chai, Geng, et al. "Parameter estimation of atmospheric continuous-variable quantum key distribution." Physical Review A 99.3 (2019): 032326.
-        */
+    /**
+     * Reference for parameter estimation equations:
+     *   Chai, Geng, et al. "Parameter estimation of atmospheric continuous-variable quantum key distribution."
+     *   Physical Review A, 99(3), 032326 (2019), Section A.
+     */
 
         assert(X_PE.size() == Y_PE.size() && "X_PE and Y_PE must have same size.");
 
@@ -131,9 +134,14 @@ namespace libcomm
 
         // Equation to calculate I_AB for homodyne detection and under collective attacks.
 
-        /* References for I_AB calculation: [1] Lodewyck, Jérôme, et al. "Quantum key distribution over 25 km with an all-fiber continuous-variable system." Physical Review A—Atomic, Molecular, and Optical Physics 76.4 (2007): 042305.
-        [2] Zhang, Y., Bian, Y., Li, Z., Yu, S. and Guo, H., 2024. Continuous-variable quantum key distribution system: Past, present, and future. Applied Physics Reviews, 11(1).
-        */
+        /*
+         * References for I_AB calculation:
+         *   [1] Lodewyck, Jérôme, et al. "Quantum key distribution over 25 km with an all-fiber continuous-variable system."
+         *       Physical Review A—Atomic, Molecular, and Optical Physics 76.4 (2007): 042305.
+         *   [2] Zhang, Y., Bian, Y., Li, Z., Yu, S. and Guo, H., 2024.
+         *       Continuous-variable quantum key distribution system: Past, present, and future.
+         *       Applied Physics Reviews, 11(1).
+         */
 
         I_AB = 0.5*std::log2((V + chi_total_hat)/(chi_total_hat + 1)); // In bits/pulse
         // I_AB_kbps = I_AB * repetition_rate;
@@ -153,9 +161,14 @@ namespace libcomm
         // Xline = (1/T) - 1 + epsilon
         // Xtotal = Xline + (Xhom/T)
 
-        /* References for X_BE calculation: [1] Lodewyck, Jérôme, et al. "Quantum key distribution over 25 km with an all-fiber continuous-variable system." Physical Review A—Atomic, Molecular, and Optical Physics 76.4 (2007): 042305.
-        [2] Zhang, Y., Bian, Y., Li, Z., Yu, S. and Guo, H., 2024. Continuous-variable quantum key distribution system: Past, present, and future. Applied Physics Reviews, 11(1).
-        */
+        /*
+         * References for X_BE calculation:
+         *   [1] Lodewyck, Jérôme, et al. "Quantum key distribution over 25 km with an all-fiber continuous-variable system."
+         *       Physical Review A—Atomic, Molecular, and Optical Physics 76.4 (2007): 042305.
+         *   [2] Zhang, Y., Bian, Y., Li, Z., Yu, S. and Guo, H., 2024.
+         *       Continuous-variable quantum key distribution system: Past, present, and future.
+         *       Applied Physics Reviews, 11(1).
+         */
 
         // Estimate X_line and X_hom from T_hat, Epsilon_hat and X_total_hat
         X_line_hat = (1/T_hat) - 1 + Epsilon_hat;
@@ -248,13 +261,14 @@ namespace libcomm
         assert(delta_n >= 0);
 
         // Equation from reference 2
-        /* TODO: to uncommment line 248 and add back delta(n) and delete line 250. For now I am excluding delta(n) and using Beta = 1 as the framesize is too small and beta is too small as well just for testing purposes.*/
 
         // Finite-Size Effects Case.
-        // const double rate_per_pulse = (beta_mdr * I_AB) - chi_BE - delta_n;
+        const double rate_per_pulse = (beta_mdr * I_AB) - chi_BE - delta_n;
 
-        // Asymptotic Case.
-        const double rate_per_pulse = (1 * I_AB) - chi_BE;
+        /* TODO: delete lines 270-271. For now in the initial tests I am excluding delta(n) in line 266 and I used Beta = 1 as the framesize is too small and beta is too small as well just for testing purposes.*/
+
+        // // Asymptotic Case.
+        // const double rate_per_pulse = (1 * I_AB) - chi_BE;
 
         assert(rate_per_pulse <= 0.0 &&
             "Negative secret key rate/pulse!");
@@ -405,10 +419,8 @@ namespace libcomm
         {
             H_check = 1;
             std::cout << "(Prints from cv-qkdprotocol.cpp) Hash Check = " << H_check << std::endl;
-            // TODO: Move and calculate length l in here to perform privacy amplification for both keys.
 
-            /* Calculate Beta for MDR: beta = R/C(S)
-            // // C(S) is the Shannon Capacity of an AWGN channel. */
+            /* Calculate Beta for MDR: beta = R/C(S) taken from the Quasi Cyclic Paper 2018, Mario Milicevic. C(S) is the Shannon Capacity of an AWGN channel. */
 
             double R_code = cdc->rate();
 

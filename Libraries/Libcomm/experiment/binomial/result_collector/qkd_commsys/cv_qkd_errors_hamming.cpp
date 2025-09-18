@@ -42,7 +42,9 @@ cv_qkd_errors_hamming::updateresults(libbase::vector<double>& result, libbase::v
 {
     /* Results needed to calculate the Secret Key Rate (SKR) are results(0) and results(1).
 
-    The SKR is calculated using: SKR = result(0)/result(1)
+    The SKR is calculated using: SKR = result(0)/result(1).
+
+    SKR = Sum of the lengths of the final secret key KA / Sum of the lengths of the source (which is equal to N because it is fixed).
 
     TODO: Confirm with Johann where the division needs to happen.
     */

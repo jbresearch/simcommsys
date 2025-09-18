@@ -1,3 +1,19 @@
+
+/*!
+ * Documentation of Code:
+ *
+ * This code is based on the Python implementation of the toeplitz_standard.py implemented by Dr. Ing. Chris Galea found in the following repository which uses Scipy: https://dsrg-ict.research.um.edu.mt/qkd/ldpc-codes/-/blob/modularise_hungary_code/Other/Botond/Code/privacy_amplification/toeplitz_standard.py?ref_type=heads
+ *
+ * The Toeplitz matrix is built from a single starting vector.
+ *
+ * sv is the starting_vector which will be used to build the toeplitz matrix.
+ *
+ * L is the length of the final hashed key outputted after privacy amplification.
+ *
+ * N is the length of the inputted key that will be hashed. In the case of MDR the input vector is Bob's s vector of size k.
+ *
+ */
+
 #ifndef __pa_standard_toeplitz_h
 #define __pa_standard_toeplitz_h
 
