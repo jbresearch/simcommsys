@@ -2,8 +2,6 @@
 #include "assertalways.h"
 #include "serializer.h"
 
-using libbase::serializer;
-
 namespace libcomm
 {
 
@@ -43,7 +41,7 @@ gaussian_quantum_channel::serialize(std::istream& sin)
 }
 
 //! Register with serializer system
-const serializer
+const libbase::serializer
     gaussian_quantum_channel::shelper("quantum_channel",
                                       "gaussian_quantum_channel",
                                       gaussian_quantum_channel::create);
