@@ -69,14 +69,7 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
     libbase::indirect_vector<double> result_segment =
         result.segment(0, R::count());
 
-    /*
-    // Still to change the update_results of results collector of below to the new results collector which I still need to implement and refix as discussed with Johann
-    R::updateresults(result_segment, source, final_secret_key, l_secret_key, framesize);
-    */
-
-    // R::updateresults(result_segment, source, vector_s, key_KA, key_KB);
-
-    // CV collector expects (result, sifted_key, final_key, k_bits, m_bits)
+    // CV collector
     R::updateresults(result_segment, source, vector_s, key_KA, key_KB);
 }
 
