@@ -62,7 +62,7 @@ using libbase::serializer;
 
 /* Serialization string: sign<type>
  * where:
- *      type = int
+ *      type = float|double
  */
 #define INSTANTIATE(r, x, type) \
       template class sign<type>; \
