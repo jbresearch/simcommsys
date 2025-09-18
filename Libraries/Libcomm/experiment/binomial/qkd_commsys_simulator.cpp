@@ -150,11 +150,10 @@ namespace libcomm
 #include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-#define QKD_STATE_SEQ                                                          \
-    (gaussian_state) /* add more states here depending on protocol that is     \
-                        added. */
-#define QKD_SCALAR_SEQ (double)(float)(bool)
-#define QKD_COLLECTOR_TYPE_SEQ (cv_qkd_errors_hamming) // (errors_hamming)
+// clang-format off
+#define STATE_SEQ (gaussian_state)
+#define SCALAR_SEQ (double)
+#define COLLECTOR_TYPE_SEQ (cv_qkd_errors_hamming)
 
 /* Serialization string qkd_commsys_simulator<S, T, R>:
  * qkd_commsys_simulator<gaussian_state, double, cv_qkd_errors_hamming> where:
@@ -163,22 +162,18 @@ namespace libcomm
  *  R (results collector) = cv_qkd_errors_hamming
  */
 
-#define QKD_INSTANTIATE(r, args)                                                \
-    template class qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>;              \
-    template <>                                                                 \
-    const libbase::serializer qkd_commsys_simulator<                            \
-        BOOST_PP_SEQ_ELEM(0, args), /* S */                                     \
-        BOOST_PP_SEQ_ELEM(1, args), /* T */                                     \
-        BOOST_PP_SEQ_ELEM(2, args)  /* C */                                     \
-        >::                                                                     \
-        shelper(                                                                \
-            "experiment",                                                       \
-            "qkd_commsys_simulator<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2, args)) ">", \
-                                                  qkd_commsys_simulator<        \
-                                                      BOOST_PP_SEQ_ENUM(        \
-                                                          args)>::create);
+#define INSTANTIATE(r, args) \
+    template class qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>; \
+    template <> \
+    const libbase::serializer qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+        "experiment", \
+        "qkd_commsys_simulator<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0, args)) "," \
+        BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) "," \
+        BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2, args)) ">", \
+        qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::create);
+// clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(
-    QKD_INSTANTIATE, (QKD_STATE_SEQ)(QKD_SCALAR_SEQ)(QKD_COLLECTOR_TYPE_SEQ))
+    INSTANTIATE, (STATE_SEQ)(SCALAR_SEQ)(COLLECTOR_TYPE_SEQ))
 
 } // namespace libcomm
