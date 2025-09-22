@@ -150,6 +150,10 @@
 // QKD Protocols
 #include "qkd/qkd_protocol/cvqkd_protocol.h"
 
+// QKD Embedders
+#include "informed_embedder/direct_block_informed_embedder.h"
+#include "informed_embedder/sign.h"
+
 // QKD Privacy Amplification
 #include "qkd/privacy_amplification/pa_standard_toeplitz.h"
 
@@ -289,6 +293,10 @@ private:
     identity_quantum_channel _identity_quantum_channel;
     // QKD Protocols
     cvqkd_protocol _cvqkd_protocol;
+    // QKD embedders
+    direct_block_informed_embedder<double, libbase::vector, double> _direct_block_informed_embedder;
+    sign<double> _sign;
+
     // QKD Privacy Amplification
     pa_standard_toeplitz<bool> _pa_standard_toeplitz;
     // QKD Systems
