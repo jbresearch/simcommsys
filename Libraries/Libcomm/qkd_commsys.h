@@ -157,6 +157,22 @@ public:
     /*! \name Communication System Interface */
     std::pair<C<bool>, C<bool>> fullcycle(C<S>& source);
 
+    /*! \name Communication System Interface */
+    //! Perform complete transmission of one frame for the BB84 protocol.
+    std::pair<C<bool>, C<bool>> fullcycleBB84(C<S>& source)
+    {
+
+        assertalways(source.size() == framesize);
+
+
+        int len_secret_key = 0;
+
+        libbase::vector<bool> secret_key_KA(len_secret_key);
+        libbase::vector<bool> secret_key_KB(len_secret_key);
+
+        return {std::move(secret_key_KA), std::move(secret_key_KA)};
+    }
+
     //! Clear list of timers
     void reset_timers()
     {
