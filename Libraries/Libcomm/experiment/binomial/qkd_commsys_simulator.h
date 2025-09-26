@@ -128,6 +128,10 @@ public:
 
     // Experiment handling
     void sample(array1d_t& result) override;
+
+    // Sample method specifically for the BB84 protocol.
+    void sampleBB84(array1d_t& result);
+
     int count() const { return R::count(); }
     int get_multiplicity(int i) const
     {

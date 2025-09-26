@@ -56,6 +56,27 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
 }
 
 template <class S, class T, class R>
+void
+qkd_commsys_simulator<S, T, R>::sampleBB84(array1d_t& result)
+{
+    // Reset timers
+    this->reset_timers();
+    // Initialise result vector
+    result.init(count());
+    result = 0;
+
+    //  Gets the number of bits that Alice needs to generate for a single frame/ bit string a from the qkd_commsys object.
+    const libbase::size_type<libbase::vector> framesize(
+        sys->input_block_size());
+
+    bit_string_a.init(framesize);
+
+    // Generates bit string a for Alice with size n.
+    bit_string_a = sgen.generate_vector(framesize, *rng_);
+}
+
+
+template <class S, class T, class R>
 std::string
 qkd_commsys_simulator<S, T, R>::description() const
 {
