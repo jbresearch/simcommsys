@@ -69,7 +69,10 @@ public:
     // Description function
     std::string description() const override
     {
-        return "Privacy Amplification using the standard Toeplitz matrix";
+        std::ostringstream sout;
+        sout << "Standard Toeplitz Matrix (L=" << L << ", N=" << N
+             << ", q=" << alphabet_size << ")";
+        return sout.str();
     }
 
     // getters to get the sizes of L, N and alphabet_size
