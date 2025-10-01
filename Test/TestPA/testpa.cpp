@@ -193,8 +193,8 @@ BOOST_AUTO_TEST_CASE(
     // --- Final secret key ---
     libbase::vector<bool> final_secret_key(L); // make sure L matches your test
 
-    final_secret_key = pa_system.compute_hashed_key(
-        standard_toeplitz_matrix, pre_hashed_key, L, N, q);
+    final_secret_key =
+        pa_system.compute_hashed_key(standard_toeplitz_matrix, pre_hashed_key);
 
     std::cout << "The final secure key = " << final_secret_key << std::endl;
 }
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE(
                  "for q=16 with int type "
               << std::endl;
     // Construct the object directly
-    libcomm::pa_standard_toeplitz<int> pa_system;
+    libcomm::pa_standard_toeplitz<libbase::gf16> pa_system;
     const int L = 5;
     const int N = 15;
     const int q = 16;
@@ -437,7 +437,7 @@ BOOST_AUTO_TEST_CASE(
     // Test 4
 
     // --- Starting vector ---
-    libbase::vector<int> starting_vector(L + N - 1);
+    libbase::vector<libbase::gf16> starting_vector(L + N - 1);
     int values[19] = {
         6, 3, 12, 14, 10, 7, 12, 4, 6, 9, 2, 6, 10, 10, 7, 4, 3, 7, 7};
 
@@ -450,7 +450,7 @@ BOOST_AUTO_TEST_CASE(
         std::cout << starting_vector(i);
     std::cout << "\n";
 
-    libbase::matrix<int> standard_toeplitz_matrix =
+    libbase::matrix<libbase::gf16> standard_toeplitz_matrix =
         pa_system.generate_toeplitz_matrix(starting_vector);
 
     std::cout << "\nGenerated Standard Toeplitz Matrix:"
@@ -458,7 +458,7 @@ BOOST_AUTO_TEST_CASE(
 
     // --- Pre-hashed key ---
     // Length = 15
-    libbase::vector<int> pre_hashed_key(15);
+    libbase::vector<libbase::gf16> pre_hashed_key(15);
 
     int values2[15] = {2, 5, 10, 7, 15, 5, 14, 6, 5, 5, 2, 0, 9, 11, 0};
     for (int i = 0; i < 15; i++) {
@@ -473,8 +473,8 @@ BOOST_AUTO_TEST_CASE(
     // --- Final secret key ---
     libbase::vector<int> final_secret_key(L); // make sure L matches your test
 
-    final_secret_key = pa_system.compute_hashed_key(
-        standard_toeplitz_matrix, pre_hashed_key, L, N, q);
+    final_secret_key =
+        pa_system.compute_hashed_key(standard_toeplitz_matrix, pre_hashed_key);
 
     std::cout << "The final secure key = " << final_secret_key << std::endl;
 }
@@ -587,8 +587,8 @@ BOOST_AUTO_TEST_CASE(
     libbase::vector<libbase::gf2> final_secret_key(
         L); // make sure L matches your test
 
-    final_secret_key = pa_system.compute_hashed_key(
-        standard_toeplitz_matrix, pre_hashed_key, L, N, q);
+    final_secret_key =
+        pa_system.compute_hashed_key(standard_toeplitz_matrix, pre_hashed_key);
 
     std::cout << "The final secure key = " << std::endl;
     print_vec_bin(final_secret_key, print_gf2_bit);
@@ -679,8 +679,8 @@ BOOST_AUTO_TEST_CASE(
     libbase::vector<libbase::gf16> final_secret_key(
         L); // make sure L matches your test
 
-    final_secret_key = pa_system.compute_hashed_key(
-        standard_toeplitz_matrix, pre_hashed_key, L, N, q);
+    final_secret_key =
+        pa_system.compute_hashed_key(standard_toeplitz_matrix, pre_hashed_key);
 
     std::cout
         << "The final secure key = \n"; //<< final_secret_key << std::endl;
@@ -715,21 +715,11 @@ BOOST_AUTO_TEST_CASE(testing_pa_standard_toeplitz_with_serialization)
 
     int starting_vector_len = pa_system.generate_starting_vector_length();
 
-    // PA System Parameters
-    int N = pa_system.get_N();
-    int L = pa_system.get_L();
-    int q = pa_system.get_alphabet_size();
-
     std::cout << "Length of starting vector = " << starting_vector_len
               << std::endl;
 
-    std::cout << "Length L of the PA system: " << L << std::endl;
-    std::cout << "Length N of the PA system: " << N << std::endl;
-
-    std::cout << "Alphabet size of the PA system: " << q << std::endl;
-
-    libbase::vector<bool> starting_vector = pa_system.generate_starting_vector(
-        starting_vector_len, pa_system.get_alphabet_size());
+    libbase::vector<bool> starting_vector =
+        pa_system.generate_starting_vector(starting_vector_len, 2);
 
     std::cout << "\nStarting Vector from python:" << std::endl;
     for (int i = 0; i < starting_vector_len; ++i) {
@@ -743,7 +733,7 @@ BOOST_AUTO_TEST_CASE(testing_pa_standard_toeplitz_with_serialization)
     std::cout << "\n Generated Standard Toeplitz Matrix:"
               << standard_toeplitz_matrix << std::endl;
 
-    libbase::vector<bool> pre_hashed_key(N); // initialises pre-hashed-key
+    libbase::vector<bool> pre_hashed_key(15); // initialises pre-hashed-key
     pre_hashed_key(0) = 1;
     pre_hashed_key(1) = 0;
     pre_hashed_key(2) = 1;
@@ -766,14 +756,8 @@ BOOST_AUTO_TEST_CASE(testing_pa_standard_toeplitz_with_serialization)
     }
     std::cout << "\n";
 
-    libbase::vector<bool> final_secret_key(
-        pa_system.get_L()); // initialises final secret key
-
-    final_secret_key =
+    libbase::vector<bool> final_secret_key =
         pa_system.compute_hashed_key(standard_toeplitz_matrix,
-                                     pre_hashed_key,
-                                     L,
-                                     N,
-                                     q); // computes the hashed key
+                                     pre_hashed_key); // computes the hashed key
     std::cout << "\nThe final secure key = " << final_secret_key << std::endl;
 }

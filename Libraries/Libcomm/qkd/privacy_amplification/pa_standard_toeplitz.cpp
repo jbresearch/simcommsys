@@ -53,7 +53,6 @@ const serializer
 
 // Explicit instantiations for used types T:
 template class pa_standard_toeplitz<bool>;
-template class pa_standard_toeplitz<int>;
 
 // GF template types
 template class pa_standard_toeplitz<libbase::gf2>;

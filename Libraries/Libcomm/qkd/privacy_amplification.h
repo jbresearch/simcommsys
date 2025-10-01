@@ -37,6 +37,7 @@
 #include "matrix.h"
 #include "randgen.h"
 #include "random.h"
+#include "field_utils.h"
 #include "serializer.h"
 #include "vector.h"
 
@@ -90,25 +91,18 @@ public:
     // Handles both bool, int and GF types.
     libbase::vector<T>
     compute_hashed_key(const libbase::matrix<T>& toeplitz_matrix,
-                       const libbase::vector<T>& pre_hashed_key,
-                       int L,
-                       int N,
-                       int alphabet_size)
+                       const libbase::vector<T>& pre_hashed_key)
     {
         // ---- sanity checks ----
-        assert(L > 0 && N > 0);
-        // matrix must be L×N
-        assert(toeplitz_matrix.size().rows() == L);
-        assert(toeplitz_matrix.size().cols() == N);
-        // vector must be length N
-        assert(pre_hashed_key.size() == N);
-
         assert(toeplitz_matrix.size().rows() > 0);
         assert(toeplitz_matrix.size().cols() > 0);
         assert(pre_hashed_key.size() > 0);
 
         // ---- Case using bool.
         if (std::is_same<T, bool>::value) {
+            const int L = toeplitz_matrix.size().rows();
+            const int N = toeplitz_matrix.size().cols();
+
             libbase::matrix<int> A_int(toeplitz_matrix); // L×N
             libbase::vector<int> x_int(N);
             for (int j = 0; j < N; ++j)
@@ -129,6 +123,7 @@ public:
 
         // ---- Case using int.
         if (std::is_integral<T>::value) {
+            const int alphabet_size = field_utils<T>::elements();
             assert(alphabet_size >= 2);
 
             // y = (A^T) * x
@@ -144,7 +139,7 @@ public:
             }
 
             hashed_key = y;
-            assert(hashed_key.size() == L);
+            assert(hashed_key.size() == toeplitz_matrix.size().rows());
             return hashed_key;
         }
 
@@ -153,7 +148,7 @@ public:
             libbase::vector<T> y =
                 (toeplitz_matrix.transpose()) * pre_hashed_key; // length L
             hashed_key = y;
-            assertalways(hashed_key.size() == L);
+            assertalways(hashed_key.size() == toeplitz_matrix.size().rows());
             return hashed_key;
         }
     }
