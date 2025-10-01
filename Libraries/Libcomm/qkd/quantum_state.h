@@ -142,9 +142,9 @@ public:
 
     void init(double q_mean, double q_stddev, double p_mean, double p_stddev)
     {
-        assert(q_mean >= 0);
+        assert(std::isfinite(q_mean));
         assert(q_stddev >= 0);
-        assert(p_mean >= 0);
+        assert(std::isfinite(p_mean));
         assert(p_stddev >= 0);
         assertalways(q_stddev * p_stddev >= hbar / 2);
 
