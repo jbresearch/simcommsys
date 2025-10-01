@@ -7,6 +7,14 @@ using libbase::serializer;
 
 namespace libcomm
 {
+
+// Determine debug level:
+// 1 - Normal debug output only
+#ifndef NDEBUG
+#    undef DEBUG
+#    define DEBUG 1
+#endif
+
 // Split fn to be used for parameter estimation and post-processing.
 std::tuple<libbase::vector<double>, // X_PE for Alice
            libbase::vector<double>, // Y_PE for Bob
@@ -47,22 +55,16 @@ cvqkd_protocol::split(libbase::vector<double>& alice_measurements,
             i); // Unnormalised key of Bob to be used for post-processing
     }
 
-    // Prints vectors just for debuggin.
-    // TODO: To delete.
-    print_vector("(Prints from cv_qkdprotocol.cpp) Prints Measurements values "
-                 "of Alice: ",
-                 measurements_alice);
-    print_vector(
-        "(Prints from cv_qkdprotocol.cpp) Prints Measurements values of Bob: ",
-        measurements_bob);
-    print_vector("(Prints from cv_qkdprotocol.cpp) Prints values of X_PE: ",
-                 X_PE);
-    print_vector("(Prints from cv_qkdprotocol.cpp) Prints values of Y_PE: ",
-                 Y_PE);
-    print_vector("(Prints from cv_qkdprotocol.cpp) Prints values of X_Raw: ",
-                 X_raw);
-    print_vector("(Prints from cv_qkdprotocol.cpp) Prints values of Y_raw: ",
-                 Y_raw);
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL: alice_measurements = " << alice_measurements
+              << std::endl;
+    std::cerr << "CV_QKDPROTOCOL: bob_measurements = " << bob_measurements
+              << std::endl;
+    std::cerr << "CV_QKDPROTOCOL: X_PE = " << X_PE << std::endl;
+    std::cerr << "CV_QKDPROTOCOL: Y_PE = " << Y_PE << std::endl;
+    std::cerr << "CV_QKDPROTOCOL: X_raw = " << X_raw << std::endl;
+    std::cerr << "CV_QKDPROTOCOL: Y_raw = " << Y_raw << std::endl;
+#endif
 
     return {X_PE, Y_PE, X_raw, Y_raw};
 }
@@ -359,9 +361,9 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         bob_vector_c(i) = encoded_int(i);
     }
 
-    print_vector(
-        "(Prints from cv-qkdprotocol.cpp) (Encoded Result) Vector C : ",
-        bob_vector_c);
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL: bob_vector_c = " << bob_vector_c << std::endl;
+#endif
 
     /* Modulation step: Generate Vector M using BPSK modulation.*/
 
@@ -382,9 +384,9 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 
     embedder->embed(alphabet_size, data_to_embed, bob_measurements, vector_M);
 
-    print_vector(
-        "(Prints from cv-qkdprotocol.cpp) Modulated Vector M (from embedder):",
-        vector_M);
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL: vector_M = " << vector_M << std::endl;
+#endif
 
     /* Demodulation step to get the Probability Table for the decoder. */
 
@@ -416,7 +418,8 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
               << alice_measurements.size() << std::endl;
 
     // Perform Demodulation to get Probability Table.
-    embedder->extract(*demodulation_channel, vector_M, X, prob_table);
+    embedder->extract(
+        *demodulation_channel, vector_M, alice_measurements, prob_table);
 
     std::cout << "\n(Prints probability table from cv-qkdprotocol.cpp:)"
               << std::endl;
@@ -428,8 +431,9 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     auto decoded = libbase::vector<int>();
     cdc->decode(decoded);
 
-    print_vector("\n(Prints from cv-qkdprotocol.cpp using cout:) Decoded bits:",
-                 decoded);
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL: decoded = " << decoded << std::endl;
+#endif
 
     // Copy decoded bits to vector s_hat  of Alice which is of bool type.
     libbase::vector<bool> vector_s_hat(get_codec_input_bits_k());
@@ -438,25 +442,25 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         vector_s_hat(i) = decoded(i);
     }
 
-    print_vector("\n(Prints from cv-qkdprotocol.cpp) Vector S_hat of Alice:",
-                 vector_s_hat);
-
-    std::cout << "\n(Prints from cv-qkdprotocol.cpp) Hamming distance between "
-                 "vectors s and s_hat: "
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL: vector_s_hat = " << vector_s_hat << std::endl;
+    std::cerr << "CV_QKDPROTOCOL: hamming(vectors s, s_hat) = "
               << libbase::hamming(bob_vector_s, vector_s_hat) << std::endl;
+#endif
 
     /* Calculating Hashing for Vectors s and s_hat */
     std::uint32_t hash_hs = crc32_ieee<>::compute(bob_vector_s);
-    std::cout << "Hash hs of Bob's vector s = " << hash_hs << std::endl;
-
     std::uint32_t hash_hs_hat = crc32_ieee<>::compute(vector_s_hat);
-    std::cout << "Hash hs_hat of Alice's vector s_hat = " << hash_hs_hat
-              << std::endl;
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL: hash_hs = " << hash_hs << std::endl;
+    std::cerr << "CV_QKDPROTOCOL: hash_hs_hat = " << hash_hs_hat << std::endl;
+#endif
 
     if (hash_hs == hash_hs_hat) {
         H_check = 1;
-        std::cout << "(Prints from cv-qkdprotocol.cpp) Hash Check = " << H_check
-                  << std::endl;
+#if DEBUG >= 1
+        std::cerr << "CV_QKDPROTOCOL: H_check = " << H_check << std::endl;
+#endif
 
         /* Calculate Beta for MDR: beta = R/C(S) taken from the Quasi Cyclic
          * Paper 2018, Mario Milicevic. C(S) is the Shannon Capacity of an AWGN
@@ -464,101 +468,72 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 
         double R_code = cdc->rate();
 
-        std::cout << "\n(Prints from cv-qkdprotocol.cpp) R_code  = " << R_code
-                  << std::endl;
+#if DEBUG >= 1
+        std::cerr << "CV_QKDPROTOCOL: R_code = " << R_code << std::endl;
+#endif
 
         double C_awgn_capacity = calculate_shannon_capacity_awgn(SNR_linear);
 
         beta_mdr = R_code / C_awgn_capacity;
-        std::cout << "\n(Prints from cv-qkdprotocol.cpp) beta_mdr  = "
-                  << beta_mdr << std::endl;
+#if DEBUG >= 1
+        std::cerr << "CV_QKDPROTOCOL: beta_mdr = " << beta_mdr << std::endl;
+#endif
 
         /* Calculate length l of final secret key */
-        std::cout << "\nTesting equation that calculates final length l of "
-                     "secret key (prints from cvqkd_protocol.cpp)"
-                  << std::endl;
-
         int len_secret_key = calculate_finite_size_effects_secret_key_length();
-        std::cout << "\n (prints from cvqkd_protocol.cpp) Length l of final "
-                     "secret key = "
-                  << len_secret_key << std::endl;
+#if DEBUG >= 1
+        std::cerr << "CV_QKDPROTOCOL: len_secret_key = " << len_secret_key
+                  << std::endl;
+#endif
 
         // Sets length of secret keys KA and KB to later be able to retrieve
         // them for the results collector.
         libbase::vector<bool> final_secret_key_KA(len_secret_key);
         libbase::vector<bool> final_secret_key_KB(len_secret_key); //
 
-        /* Perform Privacy Amplification */
-
-        // // Intialise Privacy Amplification system.
-        // pa_system = std::make_shared<libcomm::pa_standard_toeplitz<bool>>();
-
-        std::cout << "\n (prints from cvqkd_protocol.cpp) Privacy "
-                     "Amplification System Description = "
-                  << pa_system.description() << std::endl;
-
-        // to use alphabet size of 2
-        pa_system.set_alphabet_size(alphabet_size);
-        // Length of final key after doing PA.
-        pa_system.set_L(len_secret_key);
-        // Length of pre-hased key which in this case is the size of vectors s
-        // and s_hat.
-        pa_system.set_N(get_codec_input_bits_k());
+        // Intialise Privacy Amplification system:
+        // * alphabet size of 2
+        // * length of final key after doing PA.
+        // * length of pre-hashed key which in this case is the size of vectors
+        // s and s_hat.
+        pa_system.init(len_secret_key, get_codec_input_bits_k(), alphabet_size);
 
         int starting_vector_len = pa_system.generate_starting_vector_length();
 
-        // Printing PA System Parameters
-        std::cout
-            << "(prints from cvqkd_protocol.cpp)  Length of starting vector = "
-            << starting_vector_len << std::endl;
-
-        std::cout
-            << "(prints from cvqkd_protocol.cpp)  Length L of the PA system: "
-            << pa_system.get_L() << std::endl;
-        std::cout
-            << "(prints from cvqkd_protocol.cpp)  Length N of the PA system: "
-            << pa_system.get_N() << std::endl;
-        std::cout << "(prints from cvqkd_protocol.cpp)  Alphabet size of the "
-                     "PA system: "
-                  << pa_system.get_alphabet_size() << std::endl;
+#if DEBUG >= 1
+        std::cerr << "CV_QKDPROTOCOL: PA system = " << pa_system.description()
+                  << std::endl;
+#endif
 
         // Generate starting vector.
         libbase::vector<bool> starting_vector =
-            pa_system.generate_starting_vector(starting_vector_len,
-                                               pa_system.get_alphabet_size());
+            pa_system.generate_starting_vector(starting_vector_len, 2);
 
         // Generate Standard Toeplitz matrix.
         libbase::matrix<bool> standard_toeplitz_matrix =
             pa_system.generate_toeplitz_matrix(starting_vector);
 
         // Generates KB of Bob.
-        final_secret_key_KB =
-            pa_system.compute_hashed_key(standard_toeplitz_matrix,
-                                         bob_vector_s,
-                                         len_secret_key,
-                                         bob_vector_s.size(),
-                                         alphabet_size);
+        final_secret_key_KB = pa_system.compute_hashed_key(
+            standard_toeplitz_matrix, bob_vector_s);
 
         // Generates KA of Alice.
-        final_secret_key_KA =
-            pa_system.compute_hashed_key(standard_toeplitz_matrix,
-                                         vector_s_hat,
-                                         len_secret_key,
-                                         vector_s_hat.size(),
-                                         alphabet_size);
+        final_secret_key_KA = pa_system.compute_hashed_key(
+            standard_toeplitz_matrix, vector_s_hat);
 
-        print_vector(
-            "(prints from cvqkd_protocol.cpp)  Final Secret Key KA of Alice: ",
-            final_secret_key_KA);
-        print_vector(
-            "(prints from cvqkd_protocol.cpp)  Final Secret Key KB of Bob: ",
-            final_secret_key_KB);
+#if DEBUG >= 1
+        std::cerr << "CV_QKDPROTOCOL: final_secret_key_KA = "
+                  << final_secret_key_KA << std::endl;
+        std::cerr << "CV_QKDPROTOCOL: final_secret_key_KB = "
+                  << final_secret_key_KB << std::endl;
+#endif
 
         return {std::move(final_secret_key_KA), std::move(final_secret_key_KB)};
     } else {
         H_check = 0;
-        std::cout << "(Prints from cv-qkdprotocol.cpp) Hash Check = " << H_check
-                  << std::endl;
+#if DEBUG >= 1
+        std::cerr << "CV_QKDPROTOCOL: H_check = " << H_check << std::endl;
+#endif
 
         int len_secret_key = 0;
 

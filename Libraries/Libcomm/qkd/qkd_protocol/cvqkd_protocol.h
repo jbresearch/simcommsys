@@ -75,9 +75,7 @@ protected:
     // Check that verifies if hash_hs == hash_hsat?
     int H_check = 0;
 
-    //  Privacy Amplification System that uses the standard Toeplitz matrix
-    //  method.
-    // std::shared_ptr<pa_standard_toeplitz<bool>> pa_system;
+    //  Privacy Amplification System using the standard Toeplitz matrix
     pa_standard_toeplitz<bool> pa_system;
 
 public:
@@ -277,17 +275,6 @@ public:
     std::pair<libbase::vector<bool>, libbase::vector<bool>>
     postprocess(libbase::vector<double>&& alice_measurements,
                 libbase::vector<double>&& bob_measurements) override;
-
-    // Helper function to print a vector.
-    template <typename T>
-    void print_vector(const std::string& title, const libbase::vector<T>& vec)
-    {
-        std::cout << "\n" << title << std::endl;
-        for (int i = 0; i < vec.size(); ++i) {
-            std::cout << vec(i) << "\t";
-        }
-        std::cout << std::endl;
-    }
 
     // Helper function to print probability table.
     void
