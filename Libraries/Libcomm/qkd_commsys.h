@@ -63,6 +63,9 @@ protected:
 
     std::shared_ptr<source<S>> src;
 
+    //! \brief Pointer to the random number generator used by the system.
+    libbase::random* r = nullptr;
+
     //! \brief How many quantum states in one frame
     int framesize = 0;
 
@@ -89,6 +92,7 @@ public:
     /*! \name Communication System Setup */
     void seedfrom(libbase::random& r)
     {
+        this->r = &r;
         this->alice_channel->seedfrom(r);
         this->bob_channel->seedfrom(r);
         this->protocol->seedfrom(r);
@@ -164,6 +168,19 @@ public:
 
         assertalways(source.size() == framesize);
 
+        assertalways(this->r != nullptr && "RNG not seeded! Call seedfrom() first.");
+
+        // Generate vector b which contains Alices's basis vector.
+        libbase::vector<bool> basis_vector_b(framesize);
+        for (int i = 0; i < framesize; ++i) {
+            basis_vector_b(i) = (this->r->ival(2) != 0);
+        }
+
+        // Encode the source (vector a of Alice) to qubits
+        /* Algorithm to encode:
+        if b(i) == 0 > Encode respective bit into the computational basis
+        if b(i) == 1 > Encode respective bit into the Hadamard basis
+        */
 
         int len_secret_key = 0;
 
