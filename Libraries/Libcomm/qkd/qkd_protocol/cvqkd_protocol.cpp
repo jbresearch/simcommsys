@@ -331,33 +331,15 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 {
     // Instaniates both final secret keys KA and KB.
     libbase::vector<bool> final_secret_key_KA;
-    libbase::vector<bool> final_secret_key_KB; //
+    libbase::vector<bool> final_secret_key_KB;
 
-    libbase::vector<double> X, Y;
-    X.init(alice_measurements.size()); // alice_measurements == X_raw
-    Y.init(bob_measurements.size());   // bob_measurements == Y_raw
-
-    // Calculates L2 norms.
-    double nX = l2(alice_measurements);
-    double nY = l2(bob_measurements);
-    assert(nX > 0.0 && nY > 0.0 && "cannot normalise a zero vector");
-
-    // Normalises the X_raw and Y_raw measurement vectors of Alice and Bob to
-    // get X and Y.
-    for (int i = 0; i < X.size(); ++i)
-        X(i) = alice_measurements(i) / nX;
-    for (int i = 0; i < Y.size(); ++i)
-        Y(i) = bob_measurements(i) / nY;
-
-    print_vector(
-        "(Prints from cv_qkdprotocol.cpp) Prints values of X (normalized): ",
-        X);
-    print_vector(
-        "(Prints from cv_qkdprotocol.cpp) Prints values of Y (normalized): ",
-        Y);
-
-    print_vector("(Prints from cv_qkdprotocol.cpp) Prints Bob's Vector s: ",
-                 bob_vector_s);
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL: alice_measurements = " << alice_measurements
+              << std::endl;
+    std::cerr << "CV_QKDPROTOCOL: bob_measurements = " << bob_measurements
+              << std::endl;
+    std::cerr << "CV_QKDPROTOCOL: bob_vector_s = " << bob_vector_s << std::endl;
+#endif
 
     // Generate Vector C from Bob's vector s.
     libbase::vector<int> encoded_int(get_codec_output_bits_n());
@@ -434,8 +416,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
               << alice_measurements.size() << std::endl;
 
     // Perform Demodulation to get Probability Table.
-    embedder->extract(
-        *demodulation_channel, vector_M, alice_measurements, prob_table);
+    embedder->extract(*demodulation_channel, vector_M, X, prob_table);
 
     std::cout << "\n(Prints probability table from cv-qkdprotocol.cpp:)"
               << std::endl;
