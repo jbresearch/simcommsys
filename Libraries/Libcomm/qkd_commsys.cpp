@@ -125,10 +125,12 @@ namespace libcomm
 #include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
+using libbase::vector;
+
 // clang-format off
 #define STATE_SEQ (gaussian_state)
 #define SCALAR_SEQ (double)
-#define CONTAINER_SEQ (libbase::vector)
+#define CONTAINER_SEQ (vector)
 
 /* Serialization string (S, T, C):  qkd_commsys<gaussian_state, double,
  * libbase::vector> where: S = gaussian_state .. T = double, float C =
