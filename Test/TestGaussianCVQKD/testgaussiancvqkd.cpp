@@ -206,22 +206,26 @@ sign<double>
 
     // 6) Create Gaussian Quantum Source
     std::stringstream ss_src;
-    ss_src << "# Mean of Q_Mean\n"
-           << "0.0\n"
-           << "# Stddev of Q_Mean\n"
-           << "4.30116\n"
-           << "# Mean of P_Mean\n"
-           << "0.0\n"
-           << "# Stddev of P_Mean\n"
-           << "4.30116\n"
-           << "# Stddev of Q\n"
-           << "1.0\n"
-           << "# Stddev of P\n"
-           << "1.0\n";
+    ss_src << R"SS(
+quantum_gaussian_source
+# Mean of Q_Mean
+0.0
+# Stddev of Q_Mean
+4.30116
+# Mean of P_Mean
+0.0
+# Stddev of P_Mean
+4.30116
+# Stddev of Q
+1.0
+# Stddev of P
+1.0
+)SS";
 
     // Build source using the same pattern as gaussian_quantum_channel
-    std::unique_ptr<libbase::serializable> s_ptr =
-        libcomm::quantum_gaussian_source::create(ss_src);
+    std::unique_ptr<libcomm::source<libcomm::gaussian_state, libbase::vector>>
+        s_ptr;
+    ss_src >> s_ptr;
     auto* src = dynamic_cast<libcomm::quantum_gaussian_source*>(s_ptr.get());
     BOOST_REQUIRE(src != nullptr);
 
