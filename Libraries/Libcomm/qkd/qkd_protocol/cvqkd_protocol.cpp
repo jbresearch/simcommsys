@@ -12,20 +12,20 @@ std::tuple<libbase::vector<double>, // X_PE for Alice
            libbase::vector<double>, // Y_PE for Bob
            libbase::vector<double>, // Alice's raw key
            libbase::vector<double>> // Bob's raw key
-cvqkd_protocol::split(libbase::vector<double>& measurements_alice,
-                      libbase::vector<double>& measurements_bob,
+cvqkd_protocol::split(libbase::vector<double>& alice_measurements,
+                      libbase::vector<double>& bob_measurements,
                       int N_PE)
 {
 
     // Setting size of N_PE for parameter estimation.
     this->N_PE = N_PE;
 
-    assert(measurements_alice.size() == measurements_bob.size() &&
+    assert(alice_measurements.size() == bob_measurements.size() &&
            "Alice and Bob's measurement vector sizes are not equal.");
 
     assert(N_PE > 0 && "N_PE must be > 0.");
 
-    const int N = measurements_alice.size();
+    const int N = alice_measurements.size();
 
     libbase::vector<double> X_PE, Y_PE, X_raw, Y_raw;
     X_PE.init(N_PE);
@@ -35,15 +35,15 @@ cvqkd_protocol::split(libbase::vector<double>& measurements_alice,
 
     // First N_PE -> PE
     for (int i = 0; i < N_PE; ++i) {
-        X_PE(i) = measurements_alice(i);
-        Y_PE(i) = measurements_bob(i);
+        X_PE(i) = alice_measurements(i);
+        Y_PE(i) = bob_measurements(i);
     }
 
     for (int i = N_PE; i < N; ++i) {
         const int j = i - N_PE;
-        X_raw(j) = measurements_alice(
+        X_raw(j) = alice_measurements(
             i); // Unnormalised key of Alice to be used for post-processing
-        Y_raw(j) = measurements_bob(
+        Y_raw(j) = bob_measurements(
             i); // Unnormalised key of Bob to be used for post-processing
     }
 
@@ -396,9 +396,9 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     libbase::vector<double> vector_M;
     vector_M.init(get_codec_output_bits_n());
 
-    embedder->set_blocksize(Y.size());
+    embedder->set_blocksize(bob_measurements.size());
 
-    embedder->embed(alphabet_size, data_to_embed, Y, vector_M);
+    embedder->embed(alphabet_size, data_to_embed, bob_measurements, vector_M);
 
     print_vector(
         "(Prints from cv-qkdprotocol.cpp) Modulated Vector M (from embedder):",
@@ -430,11 +430,12 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     libbase::vector<libbase::vector<double>> prob_table;
 
     std::cout << "\n(Prints from cv-qkdprotocol.cpp) Size of Vector M = "
-              << vector_M.size() << "\tSize of Vector X = " << X.size()
-              << std::endl;
+              << vector_M.size() << "\tSize of Vector alice_measurements = "
+              << alice_measurements.size() << std::endl;
 
     // Perform Demodulation to get Probability Table.
-    embedder->extract(*demodulation_channel, vector_M, X, prob_table);
+    embedder->extract(
+        *demodulation_channel, vector_M, alice_measurements, prob_table);
 
     std::cout << "\n(Prints probability table from cv-qkdprotocol.cpp:)"
               << std::endl;
