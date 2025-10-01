@@ -27,10 +27,6 @@ using libbase::serializer;
 namespace libcomm
 {
 
-// Register with serializer system
-const serializer quantum_gaussian_source::shelper(
-    "source", "quantum_gaussian_source", quantum_gaussian_source::create);
-
 //! Description
 std::string
 quantum_gaussian_source::description() const
@@ -76,5 +72,9 @@ quantum_gaussian_source::serialize(std::istream& sin)
 
     return sin;
 }
+
+// Register with serializer system
+const serializer quantum_gaussian_source::shelper(
+    "source", "quantum_gaussian_source", quantum_gaussian_source::create);
 
 } // namespace libcomm
