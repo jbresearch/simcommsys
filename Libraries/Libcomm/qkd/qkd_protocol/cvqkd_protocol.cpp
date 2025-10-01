@@ -392,20 +392,15 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 
     // Instantiate the AWGN channel object.
     demodulation_channel = std::make_shared<libcomm::awgn1d>();
-
-    std::cout << "\n(Prints from cv-qkdprotocol.cpp) Description of "
-                 "Demodulation channel: "
-              << demodulation_channel->description() << std::endl;
-
-    std::cout
-        << "\n(Prints from cv-qkdprotocol.cpp) Print value of SNR_linear: "
-        << SNR_linear << std::endl;
-
     // Convert SNR to dB
     double SNR_dB = 10.0 * std::log10(SNR_linear);
 
-    std::cout << "\n(Prints from cv-qkdprotocol.cpp) SNR (dB): " << SNR_dB
-              << std::endl;
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL: demodulation_channel = "
+              << demodulation_channel->description() << std::endl;
+    std::cerr << "CV_QKDPROTOCOL: SNR_linear = " << SNR_linear << std::endl;
+    std::cerr << "CV_QKDPROTOCOL: SNR_dB = " << SNR_dB << std::endl;
+#endif
 
     // Set SNR_db in AWGN channel
     demodulation_channel->set_parameter(SNR_dB);
@@ -413,17 +408,13 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     // Instantiate Probability Table.
     libbase::vector<libbase::vector<double>> prob_table;
 
-    std::cout << "\n(Prints from cv-qkdprotocol.cpp) Size of Vector M = "
-              << vector_M.size() << "\tSize of Vector alice_measurements = "
-              << alice_measurements.size() << std::endl;
-
     // Perform Demodulation to get Probability Table.
     embedder->extract(
         *demodulation_channel, vector_M, alice_measurements, prob_table);
 
-    std::cout << "\n(Prints probability table from cv-qkdprotocol.cpp:)"
-              << std::endl;
-    print_prob_table(prob_table);
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL: prob_table = " << prob_table << std::endl;
+#endif
 
     /*LDPC decoding using the prob_table to get vector s_hat */
     cdc->init_decoder(prob_table);

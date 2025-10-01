@@ -276,32 +276,6 @@ public:
     postprocess(libbase::vector<double>&& alice_measurements,
                 libbase::vector<double>&& bob_measurements) override;
 
-    // Helper function to print probability table.
-    void
-    print_prob_table(const libbase::vector<libbase::vector<double>>& ptable)
-    {
-        using std::cout;
-        using std::fixed;
-        using std::setprecision;
-
-        const int T = ptable.size(); // time steps
-        if (T == 0) {
-            cout << "[ptable is empty]\n";
-            return;
-        }
-
-        for (int t = 0; t < T; ++t) {
-            const int M = ptable(t).size(); // symbols
-            cout << "t=" << t << " : ";
-            for (int m = 0; m < M; ++m) {
-                cout << fixed << setprecision(6) << ptable(t)(m);
-                if (m + 1 < M)
-                    cout << ", ";
-            }
-            cout << '\n';
-        }
-    }
-
     // Description function
     std::string description() const override;
 
