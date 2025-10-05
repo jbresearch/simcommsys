@@ -278,7 +278,7 @@ default:
 all:
 	@$(MAKE) install plain-install
 
-doc:	FORCE
+doc:
 	@$(DOXYGEN)
 #	@echo "*** To compile latex documentation: $(MAKE) -C doc/latex/"
 
@@ -312,18 +312,18 @@ build-test:	build-test-debug build-test-release
 build-libs:	build-libs-debug build-libs-release
 
 # libs build target is explicit here to avoid duplicate making
-build-main-%:	build-libs-%
+build-main-%:
 	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_MAIN)
-build-test-%:	build-libs-%
+build-test-%:
 	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_TEST)
-build-libs-%:	FORCE
+build-libs-%:
 	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_LIBS)
 
-dry-run-build-main-%:	dry-run-build-libs-%
+dry-run-build-main-%:
 	@$(MAKE) RELEASE=$* DOTARGET=build $(patsubst %,dry-run-%,$(TARGETS_MAIN))
-dry-run-build-test-%:	dry-run-build-libs-%
+dry-run-build-test-%:
 	@$(MAKE) RELEASE=$* DOTARGET=build $(patsubst %,dry-run-%,$(TARGETS_TEST))
-dry-run-build-libs-%:	FORCE
+dry-run-build-libs-%:
 	@$(MAKE) RELEASE=$* DOTARGET=build $(patsubst %,dry-run-%,$(TARGETS_LIBS))
 
 install:	install-main install-test
@@ -332,11 +332,11 @@ install-test:	install-test-debug install-test-release
 install-libs:	install-libs-debug install-libs-release
 
 # libs install target is explicit here to avoid duplicate making
-install-main-%:	install-libs-%
+install-main-%:
 	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_MAIN)
-install-test-%:	install-libs-%
+install-test-%:
 	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_TEST)
-install-libs-%:	FORCE
+install-libs-%:
 	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_LIBS)
 
 clean:	clean-main clean-test clean-libs
@@ -356,8 +356,6 @@ compile-commands-%:
 
 ## Setting targets
 
-FORCE:
-
 .PHONY:	all doc build install clean showsettings showbuildid showversion $(TARGETS_MAIN) $(TARGETS_TEST) $(TARGETS_LIBS)
 
 .SUFFIXES: # Delete the default suffixes
@@ -368,19 +366,19 @@ FORCE:
 
 ## Manual targets
 
-$(TARGETS_MAIN) $(TARGETS_TEST):	$(TARGETS_LIBS) FORCE
+$(TARGETS_MAIN) $(TARGETS_TEST):	$(TARGETS_LIBS)
 	@echo "----> Making target \"$(notdir $@)\" [$(BUILDID): $(RELEASE)]."
 	@$(MAKE) -C "$(ROOTDIR)/$@" $(DOTARGET)
 
-$(TARGETS_LIBS):	FORCE
+$(TARGETS_LIBS):
 	@echo "----> Making library \"$(notdir $@)\" [$(BUILDID): $(RELEASE)]."
 	@$(MAKE) -C "$(ROOTDIR)/$@" $(DOTARGET)
 
-$(patsubst %,dry-run-%,$(TARGETS_MAIN)) $(patsubst %,dry-run-%,$(TARGETS_TEST)):	$(patsubst %,dry-run-%,$(TARGETS_LIBS)) FORCE
+$(patsubst %,dry-run-%,$(TARGETS_MAIN)) $(patsubst %,dry-run-%,$(TARGETS_TEST)):	$(patsubst %,dry-run-%,$(TARGETS_LIBS))
 	@echo "----> Dry run of making target \"$(notdir $(patsubst dry-run-%,%,$@))\" [$(BUILDID): $(RELEASE)]."
 	@$(MAKE) --dry-run --always-make -C "$(ROOTDIR)/$(patsubst dry-run-%,%,$@)" $(DOTARGET)
 
-$(patsubst %,dry-run-%,$(TARGETS_LIBS)):	FORCE
+$(patsubst %,dry-run-%,$(TARGETS_LIBS)):
 	@echo "----> Dry run of making library \"$(notdir $(patsubst dry-run-%,%,$@))\" [$(BUILDID): $(RELEASE)]."
 	@$(MAKE) --dry-run --always-make -C "$(ROOTDIR)/$(patsubst dry-run-%,%,$@)" $(DOTARGET)
 

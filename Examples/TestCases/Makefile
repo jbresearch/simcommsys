@@ -68,8 +68,6 @@ clean:
 
 ## Setting targets
 
-FORCE:
-
 .PHONY:	all simulators timers test-all test-simulators test-timers clean
 
 .SUFFIXES: # Delete the default suffixes
