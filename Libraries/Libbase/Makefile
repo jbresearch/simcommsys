@@ -49,8 +49,6 @@ clean:
 
 ## Setting targets
 
-FORCE:
-
 .PHONY:	default build install clean
 
 .SUFFIXES: # Delete the default suffixes
@@ -59,14 +57,14 @@ FORCE:
 
 # Manual targets
 
-$(BUILDDIR)/version.h.tmp:	FORCE
+$(BUILDDIR)/version.h.tmp:
 	@echo "Creating $@ [$(BUILDID): $(RELEASE)]"
 	@echo "#define SIMCOMMSYS_VERSION \"$(SIMCOMMSYS_VERSION)\"" > $@
 	@echo "#define SIMCOMMSYS_BUILD \"$(BUILDID)\"" >> $@
 
 $(BUILDDIR)/version.h:	$(BUILDDIR)/version.h.tmp
 	@echo "Checking $@ [$(BUILDID): $(RELEASE)]"
-	@cmp -s $< $@ || ( cp $< $@ && echo "New version: $(SIMCOMMSYS_VERSION) [$(BUILDID): $(RELEASE)]" )
+	@( cmp -s $< $@ && rm $< ) || ( mv $< $@ && echo "New version: $(SIMCOMMSYS_VERSION) [$(BUILDID): $(RELEASE)]" )
 
 $(LIBRARY):	$(OBJECTS)
 	@echo "Building library $* [$(BUILDID): $(RELEASE)]"
