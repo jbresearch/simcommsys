@@ -39,9 +39,7 @@ LIBRARY := $(LIBRARY:Lib%=$(BUILDDIR)/lib%.a)
 default:
 	@echo No default target.
 
-version:	$(BUILDDIR)/version.h
-
-build:	$(LIBRARY) | version
+build:	$(LIBRARY) | $(BUILDDIR)/version.h
 
 install:	build
 
@@ -53,7 +51,7 @@ clean:
 
 FORCE:
 
-.PHONY:	default version build install clean
+.PHONY:	default build install clean
 
 .SUFFIXES: # Delete the default suffixes
 

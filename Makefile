@@ -306,9 +306,6 @@ showversion:
 plain-%:
 	@$(MAKE) USE_OMP=0 USE_MPI=0 USE_GMP=0 USE_CUDA=0 $*
 
-version-%:
-	@$(MAKE) RELEASE=$* DOTARGET=version Libraries/Libbase
-
 build:	build-main build-test
 build-main:	build-main-debug build-main-release
 build-test:	build-test-debug build-test-release
@@ -319,14 +316,14 @@ build-main-%:	build-libs-%
 	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_MAIN)
 build-test-%:	build-libs-%
 	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_TEST)
-build-libs-%:	version-%
+build-libs-%:	FORCE
 	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_LIBS)
 
 dry-run-build-main-%:	dry-run-build-libs-%
 	@$(MAKE) RELEASE=$* DOTARGET=build $(patsubst %,dry-run-%,$(TARGETS_MAIN))
 dry-run-build-test-%:	dry-run-build-libs-%
 	@$(MAKE) RELEASE=$* DOTARGET=build $(patsubst %,dry-run-%,$(TARGETS_TEST))
-dry-run-build-libs-%:	version-%
+dry-run-build-libs-%:	FORCE
 	@$(MAKE) RELEASE=$* DOTARGET=build $(patsubst %,dry-run-%,$(TARGETS_LIBS))
 
 install:	install-main install-test
@@ -339,7 +336,7 @@ install-main-%:	install-libs-%
 	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_MAIN)
 install-test-%:	install-libs-%
 	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_TEST)
-install-libs-%:	version-%
+install-libs-%:	FORCE
 	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_LIBS)
 
 clean:	clean-main clean-test clean-libs
