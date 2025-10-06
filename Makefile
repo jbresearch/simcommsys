@@ -263,8 +263,8 @@ default:
 	@echo "   <plain>-<cmd>-<set>-<release>"
 	@echo "Where:"
 	@echo "   <plain> = plain : disable optional libraries [optional]"
-	@echo "   <cmd> = build|install|clean : build-only, install, or remove"
-	@echo "   <set> = main|test|libs : what to build [default:main+test]"
+	@echo "   <cmd> = build|install|clean : build-only, install, or clean"
+	@echo "   <set> = all|main|test|libs : what to build [default:all]"
 	@echo "   <release> = debug|release|profile : [default:debug+release]"
 	@echo "Master targets:"
 	@echo "   all : equivalent to install and plain-install"
@@ -306,12 +306,15 @@ showversion:
 plain-%:
 	@$(MAKE) USE_OMP=0 USE_MPI=0 USE_GMP=0 USE_CUDA=0 $*
 
-build:	build-main build-test
+build:	build-all
+build-all:	build-all-debug build-all-release
 build-main:	build-main-debug build-main-release
 build-test:	build-test-debug build-test-release
 build-libs:	build-libs-debug build-libs-release
 
 # libs build target is explicit here to avoid duplicate making
+build-all-%:
+	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_MAIN) $(TARGETS_TEST)
 build-main-%:
 	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_MAIN)
 build-test-%:
@@ -326,12 +329,15 @@ dry-run-build-test-%:
 dry-run-build-libs-%:
 	@$(MAKE) RELEASE=$* DOTARGET=build $(patsubst %,dry-run-%,$(TARGETS_LIBS))
 
-install:	install-main install-test
+install:	install-all
+install-all:	install-all-debug install-all-release
 install-main:	install-main-debug install-main-release
 install-test:	install-test-debug install-test-release
 install-libs:	install-libs-debug install-libs-release
 
 # libs install target is explicit here to avoid duplicate making
+install-all-%:
+	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_MAIN) $(TARGETS_TEST)
 install-main-%:
 	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_MAIN)
 install-test-%:
