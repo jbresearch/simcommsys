@@ -165,12 +165,8 @@ public:
         std::vector<std::unique_ptr<observable<T>>> bob_observables =
             protocol->get_bob_observables(framesize);
 
-        // Get Bob's decision vector of his observables.
-        const libbase::vector<int>& decision_vector =
-            protocol->get_decision_vector();
-
         std::vector<std::unique_ptr<observable<T>>> alice_observables =
-            protocol->get_alice_observables(framesize, decision_vector);
+            protocol->get_alice_observables(framesize);
 
         // Create and allocate vectors for measurements on Bob and Alice's end
         libbase::vector<T> alice_measurements;
@@ -298,8 +294,11 @@ public:
 
             int len_secret_key = 0;
 
-            libbase::vector<bool> secret_key_KA(len_secret_key);
-            libbase::vector<bool> secret_key_KB(len_secret_key);
+            libbase::vector<bool> secret_key_KA;
+            libbase::vector<bool> secret_key_KB;
+
+            secret_key_KA.init(len_secret_key);
+            secret_key_KB.init(len_secret_key);
 
             print_bool_vector(
                 "(prints from qkd_commsys.h)  Final Secret Key KA of Alice: ",
