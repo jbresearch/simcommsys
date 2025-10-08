@@ -60,21 +60,7 @@ public:
      */
 
     virtual std::vector<std::unique_ptr<observable<T>>>
-    get_alice_observables(int framesize, const libbase::vector<int>&)
-    {
-        return get_alice_observables(framesize);
-    }
-
-    virtual std::vector<std::unique_ptr<observable<T>>>
     get_bob_observables(int) = 0;
-
-    virtual const libbase::vector<int>& get_decision_vector() const
-    {
-        static libbase::vector<int> empty;
-        if (empty.size() == 0)
-            empty.init(0); // libbase::vector needs explicit init
-        return empty;
-    }
 
     // Getter to be used to return number of samples for parameter estimation.
     virtual int
