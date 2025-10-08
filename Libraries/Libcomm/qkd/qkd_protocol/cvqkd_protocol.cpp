@@ -479,8 +479,11 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 
         // Sets length of secret keys KA and KB to later be able to retrieve
         // them for the results collector.
-        libbase::vector<bool> final_secret_key_KA(len_secret_key);
-        libbase::vector<bool> final_secret_key_KB(len_secret_key); //
+        libbase::vector<bool> final_secret_key_KA;
+        libbase::vector<bool> final_secret_key_KB;
+
+        final_secret_key_KA.init(len_secret_key);
+        final_secret_key_KB.init(len_secret_key);
 
         // Intialise Privacy Amplification system:
         // * alphabet size of 2
@@ -530,8 +533,8 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 
         // Sets length of secret keys KA and KB to zero to later be able to
         // retrieve it for the results collector.
-        final_secret_key_KA(len_secret_key);
-        final_secret_key_KB(len_secret_key);
+        final_secret_key_KA.init(len_secret_key);
+        final_secret_key_KB.init(len_secret_key);
 
         return {std::move(final_secret_key_KA), std::move(final_secret_key_KB)};
     }
