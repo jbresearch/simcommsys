@@ -49,7 +49,7 @@ namespace libcomm
  Inputs: q_mean_mean, q_mean_stddev, p_mean_mean, p_mean_stddev, q_stddev,
  p_stddev Return: Coherent state with q_mean, p_mean, q_stddev and p_stddev
  *
- *
+ * TODO: rename to quantum_coherent_source
  */
 
 class quantum_gaussian_source : public source<gaussian_state, libbase::vector>

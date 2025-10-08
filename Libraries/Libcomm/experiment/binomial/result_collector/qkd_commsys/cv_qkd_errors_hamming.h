@@ -60,7 +60,7 @@ public:
      */
     int count() const
     {
-        return 4;
+        return 3;
     } // Accounts for the current results in updateresults().
     /*! \copydoc experiment::get_multiplicity()
      *
@@ -70,8 +70,21 @@ public:
      */
     int get_multiplicity(int i) const
     {
-        assert(i >= 0 && i < count());
         return (i == 0) ? get_symbolsperblock() : 1;
+        assert(i >= 0 && i < count());
+        switch (i) {
+        case 0: // SKR
+            return get_symbolsperblock();
+        case 1: // SER
+            // TODO: this is incorrect, what we need here is sum(len(KA))
+            // only solution is to change the experiment interface where
+            // estimate is calculated
+            return get_symbolsperblock();
+        case 2: // FER
+            return 1;
+        }
+        // this should never happen
+        return 0;
     }
     /*! \copydoc experiment::result_description()
      *
@@ -83,18 +96,14 @@ public:
         assert(i >= 0 && i < count());
         switch (i) {
         case 0:
-            return "Sum of lengths of Key KA";
+            return "SKR";
         case 1:
-            // Sum of length of source which is the sequence of generated
-            // coherent states. This is equal to N because it is fixed. In
-            // qkd_commsys_simulator.cpp it is called the framesize.
-            return "Sum of length of source";
-        case 2:
             return "SER";
-        case 3:
+        case 2:
             return "FER";
         }
-        return std::string();
+        // this should never happen
+        return "";
     }
     // @}
 };

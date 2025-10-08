@@ -162,8 +162,7 @@ public:
     // I will implement.
     int get_symbolsperblock() const override
     {
-        return sys ? sys->input_block_size()
-                   : 0; // guard for default-constructed serializer path
+        return sys->input_block_size();
     }
 
     int get_alphabetsize() const override { return 2; }

@@ -44,40 +44,11 @@ cv_qkd_errors_hamming::updateresults(libbase::vector<double>& result,
                                      libbase::vector<bool>& key_KA,
                                      libbase::vector<bool>& key_KB) const
 {
-    /* Results needed to calculate the Secret Key Rate (SKR) are results(0) and
-    results(1).
-
-    The SKR is calculated using: SKR = result(0)/result(1).
-
-    SKR = Sum of the lengths of the final secret key KA / Sum of the lengths of
-    the source (which is equal to N because it is fixed).
-
-    TODO: Confirm with Johann where the division needs to happen.
-    */
-
-    result(0) += key_KA.size(); // Sum of Lengths of Key KA where the length
-                                // will be the final length of the secret key
-                                // after privacy amplification.
-
-    result(1) +=
-        source.size(); // Sum of length of source which is the sequence of
-                       // generated coherent states. This is equal to N because
-                       // it is fixed. In qkd_commsys_simulator.cpp it is called
-                       // the framesize.
-
-    /* Results needed to calculate the SER: results(0) and results(2)
-
-    SER = Sum of Hamming Differences of keys KA and KB / Sum of lengths of key
-    KA.
-
-    TODO: Again to confirm with Johann where the division needs to happen.
-    */
+    result(0) += key_KA.size(); // SKR = sum(len(KA)) / sum(len(source))
 
     int symerrors = libbase::hamming(key_KA, key_KB);
-    result(2) += symerrors;
-
-    // FER
-    result(3) += symerrors ? 1 : 0;
+    result(1) += symerrors; // SER = sum(hamming(KA,KB)) / sum(len(KA))
+    result(2) += symerrors ? 1 : 0; // FER = sum(hamming(KA,KB)>0) / sum(samples)
 }
 
 } // namespace libcomm
