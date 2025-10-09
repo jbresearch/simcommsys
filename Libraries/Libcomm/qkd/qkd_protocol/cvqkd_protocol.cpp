@@ -331,6 +331,17 @@ std::pair<libbase::vector<bool>, libbase::vector<bool>>
 cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
                             libbase::vector<double>&& bob_measurements)
 {
+
+    // Calculating N_PE: the number of samples used for Parameter Estimation.
+    // N_PE = N (number of generated states) - n (size of codeword of the
+        // codec)
+    N_PE = alice_measurements.size() - get_codec_output_bits_n();
+
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL: Number of states used for Parameter Estimation = " << N_PE << std::endl;
+#endif
+
+
     // Instaniates both final secret keys KA and KB.
     libbase::vector<bool> final_secret_key_KA;
     libbase::vector<bool> final_secret_key_KB;

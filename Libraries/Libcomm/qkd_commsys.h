@@ -196,14 +196,7 @@ public:
         // Required parameters for parameter estimation.
         int n_output_codec_block_size = protocol->get_codec_output_bits_n();
 
-        // Number of samples used for Parameter Estimation
-        // N_PE = N (number of generated states) - n (size of codeword of the
-        // codec)
-        int N_PE = framesize - n_output_codec_block_size;
 
-        std::cout << "\n (prints from qkd_commsys.h) Number of States used for "
-                     "Parameter Estimation = "
-                  << N_PE << std::endl;
 
         // N_0, v_el and detector efficiency are all serialized parameters in
         // the cv-qkd protocol. They are set in the configuration file.
