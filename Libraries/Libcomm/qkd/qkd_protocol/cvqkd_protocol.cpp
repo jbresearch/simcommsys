@@ -149,6 +149,7 @@ cvqkd_protocol::parameter_estimation_optical_fiber(
 void cvqkd_protocol::prepare_for_cycle(std::shared_ptr<quantum_channel> bob_channel)
 {
     // This works directly because get_VA() is virtual in the base class.
+    this->m_bob_channel = bob_channel;
     this->m_modulation_variance = bob_channel->get_VA();
 }
 
@@ -375,11 +376,33 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     std::cerr << "CV_QKDPROTOCOL:  Holevo Bound Chi_BE = " << chi_BE << std::endl;
 #endif
 
+    /* TODO: TO delete lines 236 and 237. I am just doing this for debugging
+        * purposes since the framesize I started with was small/ */
+    // I_AB = 1.05;
+    // X_BE = 0.82;
 
+    /* Checks whether the protocol is aborted or not to continue with the Information Reconciliation stage. */
 
+    if (I_AB > chi_BE)
+    {
+        MI_Check = true;
 
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL:  Mutual Information Check MI_Check = " << MI_Check << std::endl;
+#endif
 
+    /* Gets SNR_linear from Bob's Gaussian Quantum Channel*/
+    libbase::vector<double> bobs_channel_parameters;
+    bobs_channel_parameters.init(1);
+    bobs_channel_parameters = this->m_bob_channel->get_parameters();
 
+    // CLI parameter of the gaussian quantum channel.
+    SNR_linear = bobs_channel_parameters(0);
+
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL:  SNR_linear = " << SNR_linear << std::endl;
+#endif
+    }
 
     // Instaniates both final secret keys KA and KB.
     libbase::vector<bool> final_secret_key_KA;

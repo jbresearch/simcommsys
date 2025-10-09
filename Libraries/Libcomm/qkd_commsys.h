@@ -66,9 +66,6 @@ protected:
     //! \brief How many quantum states in one frame
     int framesize = 0;
 
-    // Check that verifies if I_AB > X_BE?
-    int MI_check = 0;
-
     libbase::vector<bool> vector_s_from_bob;
     // @}
 public:
@@ -199,20 +196,11 @@ public:
         // Pass Bob's channel to the protocol to get modulation variance V_A.
         protocol->prepare_for_cycle(this->bob_channel);
 
-
-
         /* Vector s is first generated in qkd_commsys_simulator sample() method.
          * It is then also set in the qkd_commsys_simulator sample() to the
          * qkd_commsys object; so that then it is set in the cv-qkd protocol. */
         protocol->set_bob_vector_s(vector_s_from_bob);
 
-        /* TODO: TO delete lines 236 and 237. I am just doing this for debugging
-         * purposes since the framesize I started with was small/ */
-        // I_AB = 1.05;
-        // X_BE = 0.82;
-
-        // Checks whether the protocol is aborted or not to continue with the
-        // Information Reconciliation stage.
         if (I_AB > X_BE) {
             MI_check = 1;
             std::cout << "(Prints from qkd_commsys.h) MI_Check = " << MI_check
@@ -232,6 +220,10 @@ public:
 
             // Set SNR_linear to be used in the CV-QKD protocol.
             protocol->set_SNR_linear(SNR_linear);
+
+
+
+
 
             // Use setter in CV-QKD protocol
             protocol->set_parameters_secret_key_length(

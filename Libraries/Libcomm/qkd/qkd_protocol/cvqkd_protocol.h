@@ -41,6 +41,7 @@ class cvqkd_protocol : public qkd_protocol<double, libbase::vector>
 private:
     libbase::randgen rng; // used to randomly choose observables
     libbase::vector<int> decision_vector;
+    std::shared_ptr<quantum_channel> m_bob_channel;
 
     int N_PE;    // Number of samples used for parameter estimation.
     int N_0;     // shot noise
@@ -50,6 +51,7 @@ private:
     double smoothing_parameter;
     double I_AB = 0.0;   // Mutual Information between Alice and Bob.
     double chi_BE = 0.0; // Holevo Bound between Bob and Eve for RR.
+    bool MI_Check = false;     // Check that verifies if I_AB > X_B?
     int n_samples; // Number of samples after parameter estimation. Equivalent
                    // to same n of LDPC codec.
 
@@ -60,7 +62,7 @@ private:
     libbase::vector<bool> bob_vector_c;
 
     double beta_mdr;   // Reconciliation Efficiency for MDR.
-    double SNR_linear; // Retrieved from bob's quantum channel.
+    double SNR_linear = 0.0; // Retrieved from bob's quantum channel.
 
     // Alphabet size to be used in embedder for modem and privacy amplification.
     int alphabet_size;
@@ -211,12 +213,6 @@ public:
 
     // Helper function to Get codec.
     std::shared_ptr<codec<libbase::vector>> get_codec() const { return cdc; }
-
-    // Helper function to set the SNR_linear of the Gaussian Quantum Channel.
-    void set_SNR_linear(double snr_linear) override
-    {
-        this->SNR_linear = snr_linear;
-    }
 
     // Returns final secret keys KA and KB.
     std::pair<libbase::vector<bool>, libbase::vector<bool>>
