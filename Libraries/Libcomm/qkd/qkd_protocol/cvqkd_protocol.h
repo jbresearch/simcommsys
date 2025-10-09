@@ -142,8 +142,7 @@ public:
                libbase::vector<double>,
                libbase::vector<double>>
     split(libbase::vector<double>& measurements_alice,
-          libbase::vector<double>& measurements_bob,
-          int N_PE) override;
+          libbase::vector<double>& measurements_bob) override;
 
     // Parameter Estimation for the GG02 protocol using Optical Fiber which
     // returns: T_hat, Epsilon_hat, chi_total_hat

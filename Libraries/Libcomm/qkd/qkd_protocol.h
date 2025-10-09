@@ -75,8 +75,7 @@ public:
                        libbase::vector<T>,
                        libbase::vector<T>>
     split(libbase::vector<T>& measurements_alice,
-          libbase::vector<T>& measurements_bob,
-          int N_PE) = 0;
+          libbase::vector<T>& measurements_bob) = 0;
 
     // Parameter Estimation using Optical Fiber
     virtual std::tuple<double, double, double>
