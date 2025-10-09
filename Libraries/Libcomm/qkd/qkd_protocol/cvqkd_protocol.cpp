@@ -374,15 +374,28 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     // Calculate Holevo Bound Chi_BE
     chi_BE = calculate_holevo_bound(T_hat, Epsilon_hat, chi_total_hat);
 
+    // chi_be can never be negative
+    if(chi_BE < 0)
+    {
+        chi_BE = 0;
+    }
+
 #if DEBUG >= 1
     std::cerr << "CV_QKDPROTOCOL:  Mutual Information I_AB = " << I_AB << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  Holevo Bound Chi_BE = " << chi_BE << std::endl;
 #endif
 
-    /* TODO: TO delete lines 236 and 237. I am just doing this for debugging
-        * purposes since the framesize I started with was small/ */
-    // I_AB = 1.05;
-    // X_BE = 0.82;
+// ------------ to delETE
+//     /* TODO: TO delete lines 236 and 237. I am just doing this for debugging
+//         * purposes since the framesize I started with was small/ */
+//     I_AB = 1.05;
+//     chi_BE = 0.82;
+
+// #if DEBUG >= 1
+//     std::cerr << "CV_QKDPROTOCOL:  Mutual Information I_AB = " << I_AB << std::endl;
+//     std::cerr << "CV_QKDPROTOCOL:  Holevo Bound Chi_BE = " << chi_BE << std::endl;
+// #endif
+// ----------- TO DELETE
 
     /* Checks whether the protocol is aborted or not to continue with the Information Reconciliation stage. */
 
@@ -565,36 +578,46 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
             final_secret_key_KA.init(len_secret_key);
             final_secret_key_KB.init(len_secret_key);
 
-            // Intialise Privacy Amplification system:
-            // * alphabet size of 2
-            // * length of final key after doing PA.
-            // * length of pre-hashed key which in this case is the size of vectors
-            // s and s_hat.
-            pa_system.init(len_secret_key, get_codec_input_bits_k(), alphabet_size);
+            if(len_secret_key==0)
+            {
+                // Return empty keys.
+                final_secret_key_KA.init(len_secret_key);
+                final_secret_key_KB.init(len_secret_key);
 
-            int starting_vector_len = pa_system.generate_starting_vector_length();
+                return {std::move(final_secret_key_KA), std::move(final_secret_key_KB)};
+            }
+            else
+            {
+                // Continue and initialise Privacy Amplification system:
+                // * alphabet size of 2
+                // * length of final key after doing PA.
+                // * length of pre-hashed key which in this case is the size of vectors
+                // s and s_hat.
+                pa_system.init(len_secret_key, get_codec_input_bits_k(), alphabet_size);
+
+                int starting_vector_len = pa_system.generate_starting_vector_length();
 
 #if DEBUG >= 1
         std::cerr << "CV_QKDPROTOCOL: PA system = " << pa_system.description()
                   << std::endl;
 #endif
 
-            // Generate starting vector.
-            libbase::vector<bool> starting_vector =
-                pa_system.generate_starting_vector(starting_vector_len, 2);
+                // Generate starting vector.
+                libbase::vector<bool> starting_vector =
+                    pa_system.generate_starting_vector(starting_vector_len, 2);
 
-            // Generate Standard Toeplitz matrix.
-            libbase::matrix<bool> standard_toeplitz_matrix =
-                pa_system.generate_toeplitz_matrix(starting_vector);
+                // Generate Standard Toeplitz matrix.
+                libbase::matrix<bool> standard_toeplitz_matrix =
+                    pa_system.generate_toeplitz_matrix(starting_vector);
 
-            // Generates KB of Bob.
-            final_secret_key_KB = pa_system.compute_hashed_key(
-                standard_toeplitz_matrix, bob_vector_s);
+                // Generates KB of Bob.
+                final_secret_key_KB = pa_system.compute_hashed_key(
+                    standard_toeplitz_matrix, bob_vector_s);
 
-            // Generates KA of Alice.
-            final_secret_key_KA = pa_system.compute_hashed_key(
-                standard_toeplitz_matrix, vector_s_hat);
-
+                // Generates KA of Alice.
+                final_secret_key_KA = pa_system.compute_hashed_key(
+                    standard_toeplitz_matrix, vector_s_hat);
+            }
 #if DEBUG >= 1
         std::cerr << "CV_QKDPROTOCOL: final_secret_key_KA = "
                   << final_secret_key_KA << std::endl;

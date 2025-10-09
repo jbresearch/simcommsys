@@ -48,16 +48,17 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
     // Set the vector in the qkd_commsys system object.
     sys->set_bob_vector(vector_s);
 
-    // Setting modulation variance VA in the gaussian quantum channel of Bob.
-    // sys->set_VA(*src);
-    if (src) { // I had to do this because in qkd_commsys.h the method is
-               // defined as: void set_VA(libcomm::quantum_gaussian_source&
-               // source)
-        if (auto qsrc =
-                dynamic_cast<libcomm::quantum_gaussian_source*>(src.get())) {
-            sys->set_VA(*qsrc);
-        }
-    }
+    // TO CONFIRM WITH JOHANN. No longer need this as I am getting VA from the quantum_channel of bob within the CV-QKD post-processing method.
+    // // Setting modulation variance VA in the gaussian quantum channel of Bob.
+    // // sys->set_VA(*src);
+    // if (src) { // I had to do this because in qkd_commsys.h the method is
+    //            // defined as: void set_VA(libcomm::quantum_gaussian_source&
+    //            // source)
+    //     if (auto qsrc =
+    //             dynamic_cast<libcomm::quantum_gaussian_source*>(src.get())) {
+    //         // sys->set_VA(*qsrc);
+    //     }
+    // }
 
     // Gets the number of coherent states generated for a single frame from the
     // qkd_commsys object.

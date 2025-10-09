@@ -200,7 +200,7 @@ public:
 
         // Perform post-processing to get the final secret keys.
         auto [secret_key_KA, secret_key_KB] =
-            protocol->postprocess(std::move(X_raw), std::move(Y_raw));
+            protocol->postprocess(std::move(alice_measurements), std::move(bob_measurements));
 
         return {std::move(secret_key_KA), std::move(secret_key_KB)};
     }
