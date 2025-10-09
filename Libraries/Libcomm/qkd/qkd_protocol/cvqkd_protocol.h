@@ -130,11 +130,6 @@ public:
         return observables;
     }
 
-    // Getter to return various parameters for parameter estimation.
-    int get_N_0() override { return N_0; }
-    double get_v_el() override { return v_el; }
-    double get_det_eff() override { return detector_efficiency; }
-
     // Split fn to be used for parameter estimation and post-processing which
     // returns: X_PE, Y_PE, X_raw and Y_raw
     std::tuple<libbase::vector<double>,
@@ -148,10 +143,7 @@ public:
     // returns: T_hat, Epsilon_hat, chi_total_hat
     std::tuple<double, double, double>
     parameter_estimation_optical_fiber(const libbase::vector<double>& X_PE,
-                                       const libbase::vector<double>& Y_PE,
-                                       int N_0,
-                                       double v_el,
-                                       double detector_efficiency) override;
+                                       const libbase::vector<double>& Y_PE);
 
     // Mutual Information for the GG02 protocol
     double calculate_mutual_information(double chi_total_hat,

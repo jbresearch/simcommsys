@@ -71,10 +71,7 @@ cvqkd_protocol::split(libbase::vector<double>& alice_measurements,
 std::tuple<double, double, double>
 cvqkd_protocol::parameter_estimation_optical_fiber(
     const libbase::vector<double>& X_PE,
-    const libbase::vector<double>& Y_PE,
-    int N_0,
-    double v_el,
-    double detector_efficiency)
+    const libbase::vector<double>& Y_PE)
 {
 
     /**
@@ -347,6 +344,17 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     std::cerr << "CV_QKDPROTOCOL:  Size of X_PE and Y_PE = " << X_PE.size() << "\t" << Y_PE.size() << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  Size of X_raw and Y_raw = " << X_raw.size() << "\t" << Y_raw.size() << std::endl;
 #endif
+
+    // Calculate parameter estimation using optical fiber.
+    auto [T_hat, Epsilon_hat, chi_total_hat] = parameter_estimation_optical_fiber(X_PE, Y_PE);
+
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL:  T_hat = " << T_hat << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  Epsilon_hat = " << Epsilon_hat << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  chi_total_hat = " << chi_total_hat << std::endl;
+#endif
+
+    // TODO: Add the line of the modulation variance next which you get from Bob's channel.
 
 
     // Instaniates both final secret keys KA and KB.

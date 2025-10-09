@@ -62,13 +62,6 @@ public:
     virtual std::vector<std::unique_ptr<observable<T>>>
     get_bob_observables(int) = 0;
 
-    // Getter to be used to return number of samples for parameter estimation.
-    virtual int
-    get_N_0() = 0; // to change these. need to check if there is an alternative
-                   // to = 0? not to force all derived classes?
-    virtual double get_v_el() = 0;
-    virtual double get_det_eff() = 0;
-
     // Split fn to be used for parameter estimation and post-processing.
     virtual std::tuple<libbase::vector<T>,
                        libbase::vector<T>,
@@ -76,14 +69,6 @@ public:
                        libbase::vector<T>>
     split(libbase::vector<T>& measurements_alice,
           libbase::vector<T>& measurements_bob) = 0;
-
-    // Parameter Estimation using Optical Fiber
-    virtual std::tuple<double, double, double>
-    parameter_estimation_optical_fiber(const C<T>& X_PE,
-                                       const C<T>& Y_PE,
-                                       int N_0,
-                                       double v_el,
-                                       double detector_efficiency) = 0;
 
     double calculate_shannon_capacity_awgn(double snr_linear)
     { // bits/use to be used to compute Beta for MDR.

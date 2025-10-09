@@ -196,16 +196,7 @@ public:
         // Required parameters for parameter estimation.
         int n_output_codec_block_size = protocol->get_codec_output_bits_n();
 
-        // N_0, v_el and detector efficiency are all serialized parameters in
-        // the cv-qkd protocol. They are set in the configuration file.
-        int N_0 = protocol->get_N_0();
-        double v_el = protocol->get_v_el();
-        double detector_efficiency = protocol->get_det_eff();
 
-        // Calculate parameter estimation using optical fiber.
-        auto [T_hat, Epsilon_hat, chi_total_hat] =
-            protocol->parameter_estimation_optical_fiber(
-                X_PE, Y_PE, N_0, v_el, detector_efficiency);
 
         double modulation_variance = this->bob_channel->get_VA();
         double V = modulation_variance + 1;
