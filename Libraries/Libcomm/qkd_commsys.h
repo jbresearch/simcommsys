@@ -134,13 +134,13 @@ public:
     }
     // @}
 
-    // Sets the modulation variance VA to be used by the gaussian quantum
-    // channel to calculate variance VN from it.
-    void set_VA(libcomm::quantum_gaussian_source& source)
-    {
-        double VA = source.get_VA();
-        this->bob_channel->set_VA(VA);
-    }
+    // // Sets the modulation variance VA to be used by the gaussian quantum
+    // // channel to calculate variance VN from it.
+    // void set_VA(libcomm::quantum_gaussian_source& source)
+    // {
+    //     double VA = source.get_VA();
+    //     this->bob_channel->set_VA(VA);
+    // }
 
     // Getter to get the input bits from the codec from cvqkd_protocol.h.
     int get_codec_input_bits_k() { return protocol->get_codec_input_bits_k(); }
@@ -196,20 +196,10 @@ public:
         // Required parameters for parameter estimation.
         int n_output_codec_block_size = protocol->get_codec_output_bits_n();
 
+        // Pass Bob's channel to the protocol to get modulation variance V_A.
+        protocol->prepare_for_cycle(this->bob_channel);
 
 
-        double modulation_variance = this->bob_channel->get_VA();
-        double V = modulation_variance + 1;
-
-        /* Calculate Mutual Information. */
-        double I_AB = protocol->calculate_mutual_information(
-            chi_total_hat, modulation_variance);
-        std::cout << "(Prints from qkd_commsys.h) I_AB = " << I_AB << std::endl;
-
-        /* Calculate Holevo Bound. */
-        double X_BE = protocol->calculate_holevo_bound(
-            V, T_hat, Epsilon_hat, chi_total_hat);
-        std::cout << "(Prints from qkd_commsys.h) X_BE = " << X_BE << std::endl;
 
         /* Vector s is first generated in qkd_commsys_simulator sample() method.
          * It is then also set in the qkd_commsys_simulator sample() to the

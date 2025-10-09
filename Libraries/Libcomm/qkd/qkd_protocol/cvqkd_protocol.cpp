@@ -145,15 +145,20 @@ cvqkd_protocol::parameter_estimation_optical_fiber(
     return {T_hat, Epsilon_hat, chi_total_hat};
 }
 
+// Method that gets VA from Bob's quantum channel initialised in qkd_commsys.h
+void cvqkd_protocol::prepare_for_cycle(std::shared_ptr<quantum_channel> bob_channel)
+{
+    // This works directly because get_VA() is virtual in the base class.
+    this->m_modulation_variance = bob_channel->get_VA();
+}
+
 // Mutual Information for the GG02 protocol
 double
-cvqkd_protocol::calculate_mutual_information(double chi_total_hat, double VA)
+cvqkd_protocol::calculate_mutual_information(double chi_total_hat)
 {
-    double I_AB = 0;
-    double V = VA + 1;
+    double V = m_modulation_variance + 1;
 
-    // Equation to calculate I_AB for homodyne detection and under collective
-    // attacks.
+    // Equation to calculate I_AB for homodyne detection and under collective attacks. It calculates the channel capacity of the quantum channel.
 
     /*
      * References for I_AB calculation:
@@ -174,12 +179,11 @@ cvqkd_protocol::calculate_mutual_information(double chi_total_hat, double VA)
 
 // Holevo Bound for the GG02 protocol
 double
-cvqkd_protocol::calculate_holevo_bound(double V,
-                                       double T_hat,
+cvqkd_protocol::calculate_holevo_bound(double T_hat,
                                        double Epsilon_hat,
                                        double X_total_hat)
 {
-    double X_BE = 0; // X is chi
+    double V = m_modulation_variance + 1;
     double X_line_hat = 0;
     double X_hom_hat = 0;
 
@@ -229,13 +233,13 @@ cvqkd_protocol::calculate_holevo_bound(double V,
 
     // --- Holevo bound X_BE for homodyne detection with Gaussian modulated
     // coherent states.
-    X_BE = bosonic_entropy_G((lambda1 - 1.0) / 2.0) +
+    chi_BE = bosonic_entropy_G((lambda1 - 1.0) / 2.0) +
            bosonic_entropy_G((lambda2 - 1.0) / 2.0) -
            bosonic_entropy_G((lambda3 - 1.0) / 2.0) -
            bosonic_entropy_G((lambda4 - 1.0) / 2.0);
 
-    // X_BE_kbps = IBE * repetition_rate;
-    return X_BE; // In bits/pulse.
+    // chi_BE_kbps = IBE * repetition_rate;
+    return chi_BE; // In bits/pulse.
 }
 
 double
@@ -354,7 +358,27 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     std::cerr << "CV_QKDPROTOCOL:  chi_total_hat = " << chi_total_hat << std::endl;
 #endif
 
-    // TODO: Add the line of the modulation variance next which you get from Bob's channel.
+    // Gets modulation V_A after prepare_for_cycle is called in qkd commsys.h
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL:  modulation variance V_A = " << m_modulation_variance << std::endl;
+#endif
+
+    // Calculate Mutual Information I_AB
+    I_AB = calculate_mutual_information(
+            chi_total_hat);
+
+    // Calculate Holevo Bound Chi_BE
+    chi_BE = calculate_holevo_bound(T_hat, Epsilon_hat, chi_total_hat);
+
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL:  Mutual Information I_AB = " << I_AB << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  Holevo Bound Chi_BE = " << chi_BE << std::endl;
+#endif
+
+
+
+
+
 
 
     // Instaniates both final secret keys KA and KB.

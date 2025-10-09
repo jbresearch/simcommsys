@@ -70,19 +70,13 @@ public:
     split(libbase::vector<T>& measurements_alice,
           libbase::vector<T>& measurements_bob) = 0;
 
+    // Allows the system to pass Bob's channel to the protocol for setup.
+    virtual void prepare_for_cycle(std::shared_ptr<quantum_channel> bob_channel) {}
+
     double calculate_shannon_capacity_awgn(double snr_linear)
     { // bits/use to be used to compute Beta for MDR.
         return 0.5 * std::log2(1.0 + snr_linear);
     }
-
-    // Channel channel capacity of Quantum Channel.
-    virtual double calculate_mutual_information(double chi_total_hat,
-                                                double VA) = 0;
-
-    virtual double calculate_holevo_bound(double V,
-                                          double T_hat,
-                                          double Epsilon_hat,
-                                          double X_total_hat) = 0;
 
     // Parameters used to calculate the length of the final secret key after
     // privacy amplification. Note: For the BB84 I would have to also add

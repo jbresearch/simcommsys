@@ -46,9 +46,10 @@ private:
     int N_0;     // shot noise
     double v_el; // electric noise
     double detector_efficiency;
+    double m_modulation_variance = 0.0;
     double smoothing_parameter;
-    double I_AB;   // Mutual Information between Alice and Bob.
-    double chi_BE; // Holevo Bound between Bob and Eve for RR.
+    double I_AB = 0.0;   // Mutual Information between Alice and Bob.
+    double chi_BE = 0.0; // Holevo Bound between Bob and Eve for RR.
     int n_samples; // Number of samples after parameter estimation. Equivalent
                    // to same n of LDPC codec.
 
@@ -145,9 +146,11 @@ public:
     parameter_estimation_optical_fiber(const libbase::vector<double>& X_PE,
                                        const libbase::vector<double>& Y_PE);
 
-    // Mutual Information for the GG02 protocol
-    double calculate_mutual_information(double chi_total_hat,
-                                        double VA) override;
+    // Method that gets VA from Bob's quantum channel initialised in qkd_commsys.h
+    void prepare_for_cycle(std::shared_ptr<quantum_channel>) override;
+
+    // Mutual Information for the GG02 protocol.
+    double calculate_mutual_information(double chi_total_hat);
 
     // Helper functions used to calculate the Holevo Bound.
     // G(x) from Eq. (2.54). sTILL TO ADD REFERENCE
@@ -162,10 +165,9 @@ public:
     inline double safe_sqrt(double x) { return std::sqrt(x < 0.0 ? 0.0 : x); }
 
     // Holevo Bound calculation for the GG02 protocol.
-    double calculate_holevo_bound(double V,
-                                  double T_hat,
+    double calculate_holevo_bound(double T_hat,
                                   double Epsilon_hat,
-                                  double X_total_hat) override;
+                                  double X_total_hat);
 
     // Calculates the L2 norm.
     static double l2(const libbase::vector<double>& v)
