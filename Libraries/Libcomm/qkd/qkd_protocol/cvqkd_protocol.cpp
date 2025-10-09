@@ -148,8 +148,9 @@ cvqkd_protocol::parameter_estimation_optical_fiber(
 // Method that gets VA from Bob's quantum channel initialised in qkd_commsys.h
 void cvqkd_protocol::prepare_for_cycle(std::shared_ptr<quantum_channel> bob_channel)
 {
-    // This works directly because get_VA() is virtual in the base class.
+    // Gets Bobs quantum channel from qkd_commsys.
     this->m_bob_channel = bob_channel;
+    // This works directly because get_VA() is virtual in the base class.
     this->m_modulation_variance = bob_channel->get_VA();
 }
 
@@ -402,16 +403,15 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 #if DEBUG >= 1
     std::cerr << "CV_QKDPROTOCOL:  SNR_linear = " << SNR_linear << std::endl;
 #endif
-    }
 
     // Instaniates both final secret keys KA and KB.
     libbase::vector<bool> final_secret_key_KA;
     libbase::vector<bool> final_secret_key_KB;
 
 #if DEBUG >= 1
-    std::cerr << "CV_QKDPROTOCOL: alice_measurements = " << alice_measurements
+    std::cerr << "CV_QKDPROTOCOL: alice X_raw measurements = " << X_raw
               << std::endl;
-    std::cerr << "CV_QKDPROTOCOL: bob_measurements = " << bob_measurements
+    std::cerr << "CV_QKDPROTOCOL: bob Y_raw measurements = " << Y_raw
               << std::endl;
     std::cerr << "CV_QKDPROTOCOL: bob_vector_s = " << bob_vector_s << std::endl;
 #endif
@@ -453,9 +453,9 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     libbase::vector<double> vector_M;
     vector_M.init(get_codec_output_bits_n());
 
-    embedder->set_blocksize(bob_measurements.size());
+    embedder->set_blocksize(Y_raw.size()); // Y_raw are bob_measurements after parameter estimation.
 
-    embedder->embed(alphabet_size, data_to_embed, bob_measurements, vector_M);
+    embedder->embed(alphabet_size, data_to_embed, Y_raw, vector_M);
 
 #if DEBUG >= 1
     std::cerr << "CV_QKDPROTOCOL: vector_M = " << vector_M << std::endl;
@@ -465,6 +465,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 
     // Instantiate the AWGN channel object.
     demodulation_channel = std::make_shared<libcomm::awgn1d>();
+
     // Convert SNR to dB
     double SNR_dB = 10.0 * std::log10(SNR_linear);
 
@@ -483,7 +484,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 
     // Perform Demodulation to get Probability Table.
     embedder->extract(
-        *demodulation_channel, vector_M, alice_measurements, prob_table);
+        *demodulation_channel, vector_M, X_raw, prob_table); //X_raw are alice_measurement after parameter estimation.
 
 #if DEBUG >= 1
     std::cerr << "CV_QKDPROTOCOL: prob_table = " << prob_table << std::endl;
@@ -536,7 +537,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         std::cerr << "CV_QKDPROTOCOL: R_code = " << R_code << std::endl;
 #endif
 
-        double C_awgn_capacity = calculate_shannon_capacity_awgn(SNR_linear);
+        double C_awgn_capacity = calculate_shannon_capacity_awgn();
 
         beta_mdr = R_code / C_awgn_capacity;
 #if DEBUG >= 1

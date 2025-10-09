@@ -73,11 +73,6 @@ public:
     // Allows the system to pass Bob's channel to the protocol for setup.
     virtual void prepare_for_cycle(std::shared_ptr<quantum_channel> bob_channel) {}
 
-    double calculate_shannon_capacity_awgn(double snr_linear)
-    { // bits/use to be used to compute Beta for MDR.
-        return 0.5 * std::log2(1.0 + snr_linear);
-    }
-
     // Parameters used to calculate the length of the final secret key after
     // privacy amplification. Note: For the BB84 I would have to also add
     // N_leaked later on.

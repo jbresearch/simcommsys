@@ -171,6 +171,12 @@ public:
                                   double Epsilon_hat,
                                   double X_total_hat);
 
+
+    double calculate_shannon_capacity_awgn()
+    { // bits/use to be used to compute Beta for MDR.
+        return 0.5 * std::log2(1.0 + SNR_linear);
+    }
+
     // Calculates the L2 norm.
     static double l2(const libbase::vector<double>& v)
     {
