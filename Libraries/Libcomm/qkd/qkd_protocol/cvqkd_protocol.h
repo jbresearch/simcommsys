@@ -52,7 +52,8 @@ private:
     double I_AB = 0.0;   // Mutual Information between Alice and Bob.
     double chi_BE = 0.0; // Holevo Bound between Bob and Eve for RR.
     bool MI_Check = false;     // Check that verifies if I_AB > X_B?
-    int n_samples; // Number of samples after parameter estimation. Equivalent
+    int len_secret_key = 0; // Length of final secret key
+    int n_samples = 0; // Number of samples after parameter estimation. Equivalent
                    // to same n of LDPC codec.
 
     // Vector s from Bob from qkd_commsys
@@ -186,19 +187,10 @@ public:
         return std::sqrt((double)s);
     }
 
-    double compute_beta_mdr(double code_rate, double snr_linear);
-
-    void set_parameters_secret_key_length(double I_AB,
-                                          double chi_BE,
-                                          int n_samples) override
-    {
-        this->I_AB = I_AB;
-        this->chi_BE = chi_BE;
-        this->n_samples = n_samples;
-    }
+    double compute_beta_mdr(double code_rate);
 
     // Equations related to length of final secret key.
-    const int calculate_finite_size_effects_secret_key_length() override;
+    const int calculate_finite_size_effects_secret_key_length();
 
     // Helper functions related to the codec.
     int get_codec_input_bits_k() const override

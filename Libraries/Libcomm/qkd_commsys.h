@@ -189,9 +189,6 @@ public:
             }
         }
 
-        /* Perform Parameter Estimation*/
-        // Required parameters for parameter estimation.
-        int n_output_codec_block_size = protocol->get_codec_output_bits_n();
 
         // Pass Bob's channel to the protocol to get modulation variance V_A.
         protocol->prepare_for_cycle(this->bob_channel);
@@ -201,68 +198,11 @@ public:
          * qkd_commsys object; so that then it is set in the cv-qkd protocol. */
         protocol->set_bob_vector_s(vector_s_from_bob);
 
-        if (I_AB > X_BE) {
-            MI_check = 1;
-            std::cout << "(Prints from qkd_commsys.h) MI_Check = " << MI_check
-                      << std::endl; // To delete
+        // Perform post-processing to get the final secret keys.
+        auto [secret_key_KA, secret_key_KB] =
+            protocol->postprocess(std::move(X_raw), std::move(Y_raw));
 
-            // // TODO: Still to calculate using beta = R/C(S)
-            // // C(S) is the Shannon Capacity of an AWGN channel.
-            // double beta_mdr = 0.958;
-            // std::cout << "(prints from qkd_commsys.h full cycle) beta_mdr = "
-            // << beta_mdr << std::endl;
-
-            /* Gets SNR_linear from Bob's Gaussian Quantum Channel*/
-            libbase::vector<double> bobs_channel_parameters;
-            bobs_channel_parameters.init(1);
-            bobs_channel_parameters = bob_channel->get_parameters();
-            double SNR_linear = bobs_channel_parameters(0);
-
-            // Set SNR_linear to be used in the CV-QKD protocol.
-            protocol->set_SNR_linear(SNR_linear);
-
-
-
-
-
-            // Use setter in CV-QKD protocol
-            protocol->set_parameters_secret_key_length(
-                I_AB, X_BE, n_output_codec_block_size);
-
-            // Continue with post-processing.
-
-            auto [secret_key_KA, secret_key_KB] =
-                protocol->postprocess(std::move(X_raw), std::move(Y_raw));
-
-            return {std::move(secret_key_KA), std::move(secret_key_KB)};
-
-            // std::move was required due to the following: Was passing lvalues
-            // to a function that expects rvalue references (&&). return
-            // protocol->postprocess(alice_measurements, bob_measurements); //
-            // To check with Mark why in the qkd_protocol.h for the
-            // post-processing method he used &&?
-        } else {
-            MI_check = 0;
-            std::cout << "(Prints from qkd_commsys.h) MI_Check = " << MI_check
-                      << std::endl; // To delete
-
-            int len_secret_key = 0;
-
-            libbase::vector<bool> secret_key_KA;
-            libbase::vector<bool> secret_key_KB;
-
-            secret_key_KA.init(len_secret_key);
-            secret_key_KB.init(len_secret_key);
-
-            print_bool_vector(
-                "(prints from qkd_commsys.h)  Final Secret Key KA of Alice: ",
-                secret_key_KA);
-            print_bool_vector(
-                "(prints from qkd_commsys.h)  Final Secret Key KB of Bob: ",
-                secret_key_KB);
-
-            return {std::move(secret_key_KA), std::move(secret_key_KA)};
-        }
+        return {std::move(secret_key_KA), std::move(secret_key_KB)};
     }
     // @}
 

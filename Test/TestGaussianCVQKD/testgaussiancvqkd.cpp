@@ -343,7 +343,7 @@ quantum_gaussian_source
     sys.set_bob_vector(vector_s);
 
     // Setting modulation variance VA in the gaussian quantum channel of Bob
-    sys.set_VA(*src);
+    // sys.set_VA(*src);
 
     // Generates a sequence of coherent states which is the input to the
     // fullcycle method in qkd_commsys.h
