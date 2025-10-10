@@ -48,6 +48,62 @@ qkd_commsys<S, T, C>::description() const
     return sout.str();
 }
 
+/*! \name Communication System Interface */
+//! Perform complete transmission of one frame
+template <class S, class T, template <class> class C>
+std::pair<C<bool>, C<bool>>
+qkd_commsys<S, T, C>::fullcycle(C<S>& source)
+{
+    // ***** Note: In this case the source here is the libbase::vector of
+    // states e.g. coherent states if S=gaussian_State *****
+    assertalways(source.size() == framesize);
+
+    // Note: Here I Changed the libbase::vector to an std::vector only for
+    // the observables stage
+    std::vector<std::unique_ptr<observable<T>>> bob_observables =
+        protocol->get_bob_observables(framesize);
+
+    std::vector<std::unique_ptr<observable<T>>> alice_observables =
+        protocol->get_alice_observables(framesize);
+
+    // Create and allocate vectors for measurements on Bob and Alice's end
+    libbase::vector<T> alice_measurements;
+    libbase::vector<T> bob_measurements;
+
+    alice_measurements.init(framesize);
+    bob_measurements.init(framesize);
+
+    for (int i = 0; i < framesize; i++) {
+        // Quantum channel transmission
+        alice_observables[i]->transmit(*this->alice_channel);
+        bob_observables[i]->transmit(*this->bob_channel);
+
+        // Measurement of quantum states
+        if constexpr (S::is_entangled) {
+            alice_measurements(i) = source(i).measure(*alice_observables[i], 0);
+            bob_measurements(i) = source(i).measure(*bob_observables[i], 1);
+        } else {
+            alice_measurements(i) = source(i).measure(*alice_observables[i]);
+            bob_measurements(i) = source(i).measure(*bob_observables[i]);
+        }
+    }
+
+    // Pass Bob's channel to the protocol to get modulation variance V_A.
+    protocol->prepare_for_cycle(this->bob_channel);
+
+    /* Vector s is first generated in qkd_commsys_simulator sample() method.
+     * It is then also set in the qkd_commsys_simulator sample() to the
+     * qkd_commsys object; so that then it is set in the cv-qkd protocol. */
+    protocol->set_bob_vector_s(vector_s_from_bob);
+
+    // Perform post-processing to get the final secret keys.
+    auto [secret_key_KA, secret_key_KB] = protocol->postprocess(
+        std::move(alice_measurements), std::move(bob_measurements));
+
+    return {std::move(secret_key_KA), std::move(secret_key_KB)};
+}
+// @}
+
 // object serialization - saving
 
 template <class S, class T, template <class> class C>
@@ -103,18 +159,10 @@ qkd_commsys<S, T, C>::serialize(std::istream& sin)
 
 } // namespace libcomm
 
-// namespace libcomm
-// {
-
-// // Explicit Realizations
-// // TO ADD MORE depending on protocol needed
-// // E.g.
-// // template qkd_commsys<qubit, bool>;
-
-// // qkd_commsys<S, T, C>
-// // Template class for the CV-QKD protocol (GG02) using Gaussian modulated
-// coherent states template class qkd_commsys<gaussian_state, double,
-// libbase::vector>; } // namespace libcomm
+// Explicit Realizations
+// TO ADD MORE depending on protocol needed
+// E.g.
+// template qkd_commsys<qubit, bool>;
 
 namespace libcomm
 {
@@ -132,7 +180,7 @@ using libbase::vector;
 #define SCALAR_SEQ (double)
 #define CONTAINER_SEQ (vector)
 
-/* Serialization string (S, T, C):  qkd_commsys<gaussian_state, double,
+/* Serialization string (S, T, C); qkd_commsys<S, T, C> : qkd_commsys<gaussian_state, double,
  * libbase::vector> where: S = gaussian_state .. T = double, float C =
  * libbase::vector
  */
@@ -148,7 +196,7 @@ using libbase::vector;
             qkd_commsys<BOOST_PP_SEQ_ENUM(args)>::create);
 // clang-format on
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(
-    INSTANTIATE, (STATE_SEQ)(SCALAR_SEQ)(CONTAINER_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
+                              (STATE_SEQ)(SCALAR_SEQ)(CONTAINER_SEQ))
 
 } // namespace libcomm

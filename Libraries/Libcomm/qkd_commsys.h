@@ -150,61 +150,7 @@ public:
     }
 
     /*! \name Communication System Interface */
-    //! Perform complete transmission of one frame
-    std::pair<C<bool>, C<bool>> fullcycle(C<S>& source)
-    {
-        // ***** Note: In this case the source here is the libbase::vector of
-        // states e.g. coherent states if S=gaussian_State *****
-        assertalways(source.size() == framesize);
-
-        // Note: Here I Changed the libbase::vector to an std::vector only for
-        // the observables stage
-        std::vector<std::unique_ptr<observable<T>>> bob_observables =
-            protocol->get_bob_observables(framesize);
-
-        std::vector<std::unique_ptr<observable<T>>> alice_observables =
-            protocol->get_alice_observables(framesize);
-
-        // Create and allocate vectors for measurements on Bob and Alice's end
-        libbase::vector<T> alice_measurements;
-        libbase::vector<T> bob_measurements;
-
-        alice_measurements.init(framesize);
-        bob_measurements.init(framesize);
-
-        for (int i = 0; i < framesize; i++) {
-            // Quantum channel transmission
-            alice_observables[i]->transmit(*this->alice_channel);
-            bob_observables[i]->transmit(*this->bob_channel);
-
-            // Measurement of quantum states
-            if constexpr (S::is_entangled) {
-                alice_measurements(i) =
-                    source(i).measure(*alice_observables[i], 0);
-                bob_measurements(i) = source(i).measure(*bob_observables[i], 1);
-            } else {
-                alice_measurements(i) =
-                    source(i).measure(*alice_observables[i]);
-                bob_measurements(i) = source(i).measure(*bob_observables[i]);
-            }
-        }
-
-
-        // Pass Bob's channel to the protocol to get modulation variance V_A.
-        protocol->prepare_for_cycle(this->bob_channel);
-
-        /* Vector s is first generated in qkd_commsys_simulator sample() method.
-         * It is then also set in the qkd_commsys_simulator sample() to the
-         * qkd_commsys object; so that then it is set in the cv-qkd protocol. */
-        protocol->set_bob_vector_s(vector_s_from_bob);
-
-        // Perform post-processing to get the final secret keys.
-        auto [secret_key_KA, secret_key_KB] =
-            protocol->postprocess(std::move(alice_measurements), std::move(bob_measurements));
-
-        return {std::move(secret_key_KA), std::move(secret_key_KB)};
-    }
-    // @}
+    std::pair<C<bool>, C<bool>> fullcycle(C<S>& source);
 
     //! Clear list of timers
     void reset_timers()
