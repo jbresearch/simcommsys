@@ -23,10 +23,6 @@ std::tuple<libbase::vector<double>, // X_PE for Alice
 cvqkd_protocol::split(libbase::vector<double>& alice_measurements,
                       libbase::vector<double>& bob_measurements)
 {
-
-    // Setting size of N_PE for parameter estimation.
-    this->N_PE = N_PE;
-
     assert(alice_measurements.size() == bob_measurements.size() &&
            "Alice and Bob's measurement vector sizes are not equal.");
 
