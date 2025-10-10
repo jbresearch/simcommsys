@@ -459,7 +459,7 @@ reedsolomon<GF_q>::init()
     int powerOfAlpha = GF_q(1);
 
     // Determine whether we are dealing with an extended RS code
-    bool extendedRS = (this->length_n == GF_q::elements());
+    bool extendedRS = (static_cast<uint32_t>(this->length_n) == GF_q::elements());
 
     int codelength = (extendedRS ? this->length_n - 1 : this->length_n);
 
