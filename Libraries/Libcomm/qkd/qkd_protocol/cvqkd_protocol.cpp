@@ -115,27 +115,18 @@ cvqkd_protocol::parameter_estimation_optical_fiber(
 
     // Calculating estimate of epsilon: Epsilon_hat (eq. (5))
     Epsilon_hat = (sigma2_hat - sigma2_0) / (t_hat * N_0);
-    std::cout << "(Prints from cvqkd_protocol.cpp) Epsilon_hat = "
-              << Epsilon_hat << std::endl;
 
     if (Epsilon_hat < 0) {
         Epsilon_hat = 0; // Epsilon_hat cannot be negative.
     }
 
-    std::cout << "(Prints from cvqkd_protocol.cpp) clipped Epsilon_hat = "
-              << Epsilon_hat << std::endl;
-
     // Calculating estimate of transmittance: T_hat (eq. (5))
     // Note: I still need to add, v_el, N_0 and det_ff as serialized parameters
     // to the cv-qkd protocol for parameter estimation.
     T_hat = (t_hat * t_hat / detector_efficiency);
-    std::cout << "(Prints from cvqkd_protocol.cpp) T_hat = " << T_hat
-              << std::endl;
 
     // Calculating estimate for x_total_hat
     chi_total_hat = ((sigma2_hat) / (t_hat * t_hat)) - 1;
-    std::cout << "(Prints from cvqkd_protocol.cpp) X_total_hat = " << T_hat
-              << std::endl;
 
     return {T_hat, Epsilon_hat, chi_total_hat};
 }
@@ -293,8 +284,10 @@ cvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     // Equation (32) from Reference 2
     double delta_n =
         7 * std::sqrt(std::log2(2 / smoothing_parameter) / n_samples);
-    std::cout << "(prints from cvqkdprotocol.cpp) delta(n) = " << delta_n
-              << std::endl;
+
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL:  delta(n) = " << delta_n << std::endl;
+#endif
 
     assert(beta_mdr > 0.0 && beta_mdr <= 1.0);
     assert(I_AB >= 0.0 && chi_BE >= 0.0);

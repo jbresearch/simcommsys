@@ -279,8 +279,11 @@ sign<double>
 
     // 5) Verify CLI parameters of Quantum Channel of Bob
     auto back = sys.get_parameters();
-    std::cout << "Print (SNR) CLI parameter of Bob's Quantum Channel " << back
-              << std::endl;
+    
+    std::cout
+        << "TESTGAUSSIANCVQKD:  (CLI parameter of Bob's Quantum Channel) SNR = "
+        << SNR_linear << std::endl;
+
 
     // 6) Create Gaussian Quantum Source
     std::stringstream ss_src;
@@ -312,20 +315,19 @@ quantum_gaussian_source
     src->seedfrom(r);
 
     double VA = src->get_VA();
-    std::cout << "\n Checking Modulation Variance of Source = " << VA
+    std::cout << "TESTGAUSSIANCVQKD: Modulation Variance of Source = " << VA
               << std::endl;
 
     // Gets the number of coherent states generated for a single frame from the
     // qkd_commsys object.
     int framesize = sys.input_block_size();
-    std::cout << "Number of generated quantum states from Alice = " << framesize
+    std::cout << "TESTGAUSSIANCVQKD:  Number of generated coherent states (Alice) = " << framesize
               << std::endl;
 
     // Gets input k bits from codec of the CV-QKD protocol.
     int k = sys.get_codec_input_bits_k();
-    std::cout << "Input bits k of codec of CV-QKD protocol from qkd_commsys/ "
-                 "size of vector s =  "
-              << k << "\n"; // just to test that k is correct. This is also
+    std::cout << "TESTGAUSSIANCVQKD:  : size of vector s =  "
+              << k << std::endl; // just to test that k is correct. This is also
                             // added in simulator.
 
     // Generate vector s from k as done in qkd_commsys simulator.h
@@ -334,7 +336,7 @@ quantum_gaussian_source
         vector_s(i) = (r.ival(2) != 0);
     }
 
-    std::cout << "Generated vector s from Testgaussiancvqkd.h: " << std::endl;
+    std::cout << "TESTGAUSSIANCVQKD:  Generated vector s: " << std::endl;
     for (int i = 0; i < vector_s.size(); ++i) {
         std::cout << vector_s(i) << "\t";
     }
@@ -356,7 +358,7 @@ quantum_gaussian_source
     /* Calling fullcylce method from qkd_commsys.h for a single frame*/
     auto [key_KA, key_KB] = sys.fullcycle(source);
 
-    std::cout << "\n Size of Final Secret Key KA: " << key_KA.size()
+    std::cout << "TESTGAUSSIANCVQKD:  Size of Final Secret Key KA: " << key_KA.size()
               << std::endl;
 
     //    // // Prints Final Secret Key
