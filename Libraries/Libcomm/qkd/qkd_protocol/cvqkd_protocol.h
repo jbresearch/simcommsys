@@ -49,12 +49,12 @@ private:
     double detector_efficiency;
     double m_modulation_variance = 0.0;
     double smoothing_parameter;
-    double I_AB = 0.0;   // Mutual Information between Alice and Bob.
-    double chi_BE = 0.0; // Holevo Bound between Bob and Eve for RR.
-    bool MI_Check = false;     // Check that verifies if I_AB > X_B?
+    double I_AB = 0.0;      // Mutual Information between Alice and Bob.
+    double chi_BE = 0.0;    // Holevo Bound between Bob and Eve for RR.
+    bool MI_Check = false;  // Check that verifies if I_AB > X_B?
     int len_secret_key = 0; // Length of final secret key
-    int n_samples = 0; // Number of samples after parameter estimation. Equivalent
-                   // to same n of LDPC codec.
+    int n_samples = 0;      // Number of samples after parameter estimation.
+                            // Equivalent to same n of LDPC codec.
 
     // Vector s from Bob from qkd_commsys
     libbase::vector<bool> bob_vector_s;
@@ -62,7 +62,7 @@ private:
     // Vector C from Bob to be used only within the post-processing method.
     libbase::vector<bool> bob_vector_c;
 
-    double beta_mdr;   // Reconciliation Efficiency for MDR.
+    double beta_mdr;         // Reconciliation Efficiency for MDR.
     double SNR_linear = 0.0; // Retrieved from bob's quantum channel.
 
     // Alphabet size to be used in embedder for modem and privacy amplification.
@@ -149,7 +149,8 @@ public:
     parameter_estimation_optical_fiber(const libbase::vector<double>& X_PE,
                                        const libbase::vector<double>& Y_PE);
 
-    // Method that gets VA from Bob's quantum channel initialised in qkd_commsys.h
+    // Method that gets VA from Bob's quantum channel initialised in
+    // qkd_commsys.h
     void prepare_for_cycle(std::shared_ptr<quantum_channel>) override;
 
     // Mutual Information for the GG02 protocol.
@@ -171,7 +172,6 @@ public:
     double calculate_holevo_bound(double T_hat,
                                   double Epsilon_hat,
                                   double X_total_hat);
-
 
     double calculate_shannon_capacity_awgn()
     { // bits/use to be used to compute Beta for MDR.

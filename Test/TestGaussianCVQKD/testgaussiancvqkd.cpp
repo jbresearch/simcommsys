@@ -52,99 +52,99 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
     for (auto& s : libbase::serializer::get_derived_classes("quantum_channel"))
         std::cout << " - " << s << std::endl;
 
-//     std::stringstream cfg;
-//     cfg << R"SS(
-// # Version
-// 1
-// # Frame size (# of quantum states in a frame)
-// 30
-// ## Alice's channel
-// identity_quantum_channel
-// ## Bob's channel
-// gaussian_quantum_channel
-// # Homodyne Detector Efficiency
-// 0.606
-// # Mean of the Gaussian Quantum Channel
-// 0.0
-// # Transmittance T of the Gaussian Quantum Channel
-// 0.302
-// ## Postprocessing protocol
-// cvqkd_protocol
-// # Shot Noise Variance N_0
-// 1
-// # Electric Noise v_el
-// 0.041
-// # Detector Efficiency eta
-// 0.606
-// # Smoothing Parameter
-// 1e-4
-// # Alphabet size
-// 2
-// # Codec
-// ldpc<gf2,double>
-// # Version
-// 5
-// # SPA type (trad|gdl)
-// gdl
-// # Number of iterations
-// 100
-// # Clipping method
-// zero
-// # Value of almostzero
-// 1e-100
-// # Reduce generator matrix to REF? (true|false)
-// 0
-// # Length (n)
-// 15
-// # Dimension (m)
-// 10
-// # Max column weight
-// 2
-// # Max row weight
-// 3
-// # Non-zero values (ones|random|provided)
-// ones
-// # Column weight vector
-// 15
-// 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
-// # Row weight vector
-// 10
-// 3 3 3 3 3 3 3 3 3 3
-// # Non zero positions per col
-// 2
-// 1 2
-// 2
-// 2 3
-// 2
-// 3 4
-// 2
-// 4 5
-// 2
-// 1 5
-// 2
-// 1 6
-// 2
-// 2 8
-// 2
-// 3 10
-// 2
-// 4 7
-// 2
-// 5 9
-// 2
-// 6 7
-// 2
-// 7 8
-// 2
-// 8 9
-// 2
-// 9 10
-// 2
-// 6 10
-// # Embedder
-// direct_block_informed_embedder<double,vector,double>
-// sign<double>
-// )SS";
+    //     std::stringstream cfg;
+    //     cfg << R"SS(
+    // # Version
+    // 1
+    // # Frame size (# of quantum states in a frame)
+    // 30
+    // ## Alice's channel
+    // identity_quantum_channel
+    // ## Bob's channel
+    // gaussian_quantum_channel
+    // # Homodyne Detector Efficiency
+    // 0.606
+    // # Mean of the Gaussian Quantum Channel
+    // 0.0
+    // # Transmittance T of the Gaussian Quantum Channel
+    // 0.302
+    // ## Postprocessing protocol
+    // cvqkd_protocol
+    // # Shot Noise Variance N_0
+    // 1
+    // # Electric Noise v_el
+    // 0.041
+    // # Detector Efficiency eta
+    // 0.606
+    // # Smoothing Parameter
+    // 1e-4
+    // # Alphabet size
+    // 2
+    // # Codec
+    // ldpc<gf2,double>
+    // # Version
+    // 5
+    // # SPA type (trad|gdl)
+    // gdl
+    // # Number of iterations
+    // 100
+    // # Clipping method
+    // zero
+    // # Value of almostzero
+    // 1e-100
+    // # Reduce generator matrix to REF? (true|false)
+    // 0
+    // # Length (n)
+    // 15
+    // # Dimension (m)
+    // 10
+    // # Max column weight
+    // 2
+    // # Max row weight
+    // 3
+    // # Non-zero values (ones|random|provided)
+    // ones
+    // # Column weight vector
+    // 15
+    // 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+    // # Row weight vector
+    // 10
+    // 3 3 3 3 3 3 3 3 3 3
+    // # Non zero positions per col
+    // 2
+    // 1 2
+    // 2
+    // 2 3
+    // 2
+    // 3 4
+    // 2
+    // 4 5
+    // 2
+    // 1 5
+    // 2
+    // 1 6
+    // 2
+    // 2 8
+    // 2
+    // 3 10
+    // 2
+    // 4 7
+    // 2
+    // 5 9
+    // 2
+    // 6 7
+    // 2
+    // 7 8
+    // 2
+    // 8 9
+    // 2
+    // 9 10
+    // 2
+    // 6 10
+    // # Embedder
+    // direct_block_informed_embedder<double,vector,double>
+    // sign<double>
+    // )SS";
 
     std::stringstream cfg;
     cfg << R"SS(

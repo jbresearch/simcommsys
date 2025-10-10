@@ -48,7 +48,8 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
     // Set the vector in the qkd_commsys system object.
     sys->set_bob_vector(vector_s);
 
-    // TO CONFIRM WITH JOHANN. No longer need this as I am getting VA from the quantum_channel of bob within the CV-QKD post-processing method.
+    // TO CONFIRM WITH JOHANN. No longer need this as I am getting VA from the
+    // quantum_channel of bob within the CV-QKD post-processing method.
     // // Setting modulation variance VA in the gaussian quantum channel of Bob.
     // // sys->set_VA(*src);
     // if (src) { // I had to do this because in qkd_commsys.h the method is
@@ -174,7 +175,7 @@ namespace libcomm
         qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::create);
 // clang-format on
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(
-    INSTANTIATE, (STATE_SEQ)(SCALAR_SEQ)(COLLECTOR_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
+                              (STATE_SEQ)(SCALAR_SEQ)(COLLECTOR_TYPE_SEQ))
 
 } // namespace libcomm

@@ -1,6 +1,6 @@
 /*!
  * \file
- *
+ *qw
  * Copyright (c) 2025 Mark Mizzi
  *
  * This file is part of SimCommSys.
@@ -71,7 +71,9 @@ public:
           libbase::vector<T>& measurements_bob) = 0;
 
     // Allows the system to pass Bob's channel to the protocol for setup.
-    virtual void prepare_for_cycle(std::shared_ptr<quantum_channel> bob_channel) {}
+    virtual void prepare_for_cycle(std::shared_ptr<quantum_channel> bob_channel)
+    {
+    }
 
     /* Helper functions related to codec.*/
     virtual std::shared_ptr<codec<libbase::vector>> get_codec() const = 0;
