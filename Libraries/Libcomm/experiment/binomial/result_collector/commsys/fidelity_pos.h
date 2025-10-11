@@ -23,7 +23,8 @@
 #define __fidelity_pos_h
 
 #include "config.h"
-#include "vector.h"
+#include "experiment/results_collector.h"
+
 #include <sstream>
 #include <string>
 
@@ -37,35 +38,37 @@ namespace libcomm
  * Implements computation of the fidelity metric at frame and codeword
  * boundary positions.
  */
-class fidelity_pos
+class fidelity_pos : public results_collector<typename libbase::vector<int>>
 {
 protected:
-    /*! \name System Interface */
+    /*! \name System parameters */
     //! The number of information symbols per frame (ie modem input)
-    virtual int get_symbolsperframe() const = 0;
+    int symbolsperframe;
     // @}
 public:
+    fidelity_pos() : symbolsperframe(0) {}
     virtual ~fidelity_pos() {}
-    /*! \name Public interface */
+    /*! \name Results collector interface */
+    void init(const queryable& system) override;
     void updateresults(libbase::vector<double>& result,
                        const libbase::vector<int>& act_drift,
-                       const libbase::vector<int>& est_drift) const;
+                       const libbase::vector<int>& est_drift) const override;
     /*! \copydoc experiment::count()
      * For each iteration, we count the fidelity at codeword boundary positions.
      * \warning This assumes that the codec and modem output sizes are the same!
      */
-    int count() const { return get_symbolsperframe() + 1; }
+    int count() const override { return symbolsperframe + 1; }
     /*! \copydoc experiment::get_multiplicity()
      * Only one result can be incremented for every position.
      */
-    int get_multiplicity(int i) const { return 1; }
+    int get_multiplicity(int i) const override { return 1; }
     /*! \copydoc experiment::result_description()
      *
      * The description is a string FID_X, where 'X' is the symbol position
      * (starting at zero), denoting the fidelity at the start of the
      * corresponding symbol.
      */
-    std::string result_description(int i) const
+    std::string result_description(int i) const override
     {
         assert(i >= 0 && i < count());
         std::ostringstream sout;
@@ -73,6 +76,15 @@ public:
         return sout.str();
     }
     // @}
+
+        // Description
+    std::string description() const override
+    {
+        return "Codeword Boundary Fidelity";
+    }
+
+    // Serialization Support
+    DECLARE_SERIALIZER(fidelity_pos)
 };
 
 } // namespace libcomm

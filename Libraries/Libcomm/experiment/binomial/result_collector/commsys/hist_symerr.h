@@ -39,31 +39,42 @@ namespace libcomm
 class hist_symerr : public errors_hamming
 {
 public:
-    // Public interface
+    /*! \name Results collector interface */
     void updateresults(libbase::vector<double>& result,
                        const libbase::vector<int>& source,
-                       const libbase::vector<int>& decoded) const;
+                       const libbase::vector<int>& decoded) const override;
     /*! \copydoc experiment::count()
      * We count the frequency of each possible symbol-error count, including
      * zero
      */
-    int count() const { return get_symbolsperblock() + 1; }
+    int count() const override { return symbolsperblock + 1; }
     /*! \copydoc experiment::get_multiplicity()
      * Only one result can be incremented for every frame.
      */
-    int get_multiplicity(int i) const { return 1; }
+    int get_multiplicity(int i) const override { return 1; }
     /*! \copydoc experiment::result_description()
      *
      * The description is a string ER_X, where 'X' is the symbol-error
      * count (starting at zero).
      */
-    std::string result_description(int i) const
+    std::string result_description(int i) const override
     {
         assert(i >= 0 && i < count());
         std::ostringstream sout;
         sout << "ER_" << i;
         return sout.str();
     }
+    // @}
+
+    // Description
+    std::string description() const override
+    {
+        return "Symbol-Error per Frame Histogram";
+    }
+
+    // Serialization Support
+    DECLARE_SERIALIZER(hist_symerr)
+
 };
 
 } // namespace libcomm

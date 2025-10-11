@@ -38,15 +38,15 @@ namespace libcomm
 class errors_levenshtein : public errors_hamming
 {
 public:
-    /*! \name Public interface */
+    /*! \name Results collector interface */
     void updateresults(libbase::vector<double>& result,
                        const libbase::vector<int>& source,
-                       const libbase::vector<int>& decoded) const;
+                       const libbase::vector<int>& decoded) const override;
     /*! \copydoc experiment::count()
      * We count the number of symbol errors using Hamming and Levenshtein
      * metrics, as well as the number of frame errors.
      */
-    int count() const { return 3; }
+    int count() const override { return 3; }
     /*! \copydoc experiment::get_multiplicity()
      *
      * Since results are organized as (symbol_hamming, symbol_levenshtein,frame)
@@ -56,17 +56,21 @@ public:
      * \warning In the case of Levenshtein distance, it is not clear how the
      * multiplicity should be computed.
      */
-    int get_multiplicity(int i) const
+    int get_multiplicity(int i) const override
     {
         assert(i >= 0 && i < count());
         switch (i) {
         case 0:
         case 1:
-            return get_symbolsperblock();
+            return symbolsperblock;
         case 2:
             return 1;
         }
-        return -1; // This should never happen
+        // This should never happen
+        std::ostringstream sout;
+        sout << "Index " << i << " out of range. Valid range is [0,"
+             << count() - 1 << "].";
+        throw std::out_of_range(sout.str());
     }
 
     /*! \copydoc experiment::result_description()
@@ -75,7 +79,7 @@ public:
      * (Hamming distance), Levenshtein distance, or frame error rate
      * respectively.
      */
-    std::string result_description(int i) const
+    std::string result_description(int i) const override
     {
         assert(i >= 0 && i < count());
         switch (i) {
@@ -86,9 +90,22 @@ public:
         case 2:
             return "FER";
         }
-        return ""; // This should never happen
+        // This should never happen
+        std::ostringstream sout;
+        sout << "Index " << i << " out of range. Valid range is [0,"
+             << count() - 1 << "].";
+        throw std::out_of_range(sout.str());
     }
     // @}
+
+    // Description
+    std::string description() const override
+    {
+        return "Substitution/Edit/Frame Error Rates";
+    }
+
+    // Serialization Support
+    DECLARE_SERIALIZER(errors_levenshtein)
 };
 
 } // namespace libcomm

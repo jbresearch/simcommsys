@@ -50,8 +50,8 @@
 #include "blind_embedder/qim.h"
 #include "blind_embedder/ssis.h"
 // Embedders - block
-#include "block_blind_embedder.h"
 #include "blind_embedder/direct_block_blind_embedder.h"
+#include "block_blind_embedder.h"
 
 // Modulators
 #include "blockmodem.h"
@@ -127,6 +127,14 @@
 #include "experiment/binomial/commsys_threshold.h"
 #include "experiment/normal/commsys_timer.h"
 #include "experiment/normal/exit_computer.h"
+// Results Collectors
+#include "experiment/binomial/result_collector/commsys/errors_hamming.h"
+#include "experiment/binomial/result_collector/commsys/errors_levenshtein.h"
+#include "experiment/binomial/result_collector/commsys/fidelity_pos.h"
+#include "experiment/binomial/result_collector/commsys/hist_symerr.h"
+#include "experiment/binomial/result_collector/commsys/prof_burst.h"
+#include "experiment/binomial/result_collector/commsys/prof_pos.h"
+#include "experiment/binomial/result_collector/commsys/prof_sym.h"
 
 #include <iostream>
 
@@ -231,12 +239,19 @@ private:
     commsys_iterative<bool> _commsys_iterative;
     commsys_fulliter<bool> _commsys_fulliter;
     // Experiments
-    commsys_simulator<bool, errors_hamming> _commsys_simulator;
-    commsys_stream_simulator<bool, errors_hamming, float>
-        _commsys_stream_simulator;
-    commsys_threshold<bool, errors_hamming> _commsys_threshold;
+    commsys_simulator<bool> _commsys_simulator;
+    commsys_stream_simulator<bool, float> _commsys_stream_simulator;
+    commsys_threshold<bool> _commsys_threshold;
     commsys_timer<bool> _commsys_timer;
     exit_computer<bool> _exit_computer;
+    // Results Collectors
+    errors_hamming _errors_hamming;
+    errors_levenshtein _errors_levenshtein;
+    fidelity_pos _fidelity_pos;
+    hist_symerr _hist_symerr;
+    prof_burst _prof_burst;
+    prof_pos _prof_pos;
+    prof_sym _prof_sym;
 
 public:
     serializer_libcomm() : _mpsk(2), _qam(4) {}

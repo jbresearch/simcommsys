@@ -41,10 +41,10 @@ namespace libcomm
 class prof_burst : public errors_hamming
 {
 public:
-    // Public interface
+    /*! \name Results collector interface */
     void updateresults(libbase::vector<double>& result,
                        const libbase::vector<int>& source,
-                       const libbase::vector<int>& decoded) const;
+                       const libbase::vector<int>& decoded) const override;
     /*! \copydoc experiment::count()
      * We count respectively the number symbol errors:
      * - in the first frame symbol
@@ -54,7 +54,7 @@ public:
      * - in the prior symbol (required when applying Bayes' rule
      * to the above two counts)
      */
-    int count() const { return 4; }
+    int count() const override { return 4; }
     /*! \copydoc experiment::get_multiplicity()
      *
      * We count respectively the number symbol errors:
@@ -65,16 +65,16 @@ public:
      * to the above two counts)
      * (last three above: at most #symbols/frame - 1)
      */
-    int get_multiplicity(int i) const
+    int get_multiplicity(int i) const override
     {
         assert(i >= 0 && i < count());
-        return (i == 0) ? 1 : get_symbolsperblock() - 1;
+        return (i == 0) ? 1 : symbolsperblock - 1;
     }
     /*! \copydoc experiment::result_description()
      *
      * The description is a string indicating the probability represented.
      */
-    std::string result_description(int i) const
+    std::string result_description(int i) const override
     {
         assert(i >= 0 && i < count());
         switch (i) {
@@ -89,6 +89,16 @@ public:
         }
         return ""; // This should never happen
     }
+    // @}
+
+    // Description
+    std::string description() const override
+    {
+        return "Error Burstiness Profile";
+    }
+
+    // Serialization Support
+    DECLARE_SERIALIZER(prof_burst)
 };
 
 } // namespace libcomm

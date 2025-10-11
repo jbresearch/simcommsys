@@ -26,6 +26,7 @@
 #include "commsys.h"
 #include "config.h"
 #include "experiment/experiment_normal.h"
+#include "experiment/results_collector.h"
 #include "randgen.h"
 #include "serializer.h"
 #include "source/uniform.h"
@@ -99,6 +100,18 @@ protected:
                          const array1vd_t& pout,
                          array1d_t& result) const;
     // @}
+
+protected:
+    // Interface for Results Collector
+    std::any get_value(const int index) const override
+    {
+        switch (index) {
+        }
+        // this should never happen
+        throw std::out_of_range("Unknown parameter index " +
+                                std::to_string(index));
+    }
+
 public:
     /*! \name Constructors / Destructors */
     /*!

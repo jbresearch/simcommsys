@@ -20,15 +20,19 @@
  */
 
 #include "errors_hamming.h"
-#include "fsm.h"
 #include "hamming.h"
-#include "itfunc.h"
 
 namespace libcomm
 {
 
+void
+errors_hamming::init(const queryable& system)
+{
+    symbolsperblock = std::any_cast<int>(system.get_value(1));
+}
+
 /*!
- * \brief Update result set
+ * \copydoc results_collector::updateresults()
  * \param[out] result   Vector containing the set of results to be updated
  * \param[in]  source   Source data sequence
  * \param[in]  decoded  Decoded data sequence
@@ -41,11 +45,31 @@ errors_hamming::updateresults(libbase::vector<double>& result,
                               const libbase::vector<int>& source,
                               const libbase::vector<int>& decoded) const
 {
+    assert(source.size() == symbolsperblock);
+    assert(decoded.size() == symbolsperblock);
     // Count errors
     int symerrors = libbase::hamming(source, decoded);
     // Estimate the SER, FER
     result(0) += symerrors;
     result(1) += symerrors ? 1 : 0;
+}
+
+// Serialisation interface
+
+const libbase::serializer errors_hamming::shelper("results_collector",
+                                                  "errors_hamming",
+                                                  errors_hamming::create);
+
+std::ostream&
+errors_hamming::serialize(std::ostream& sout) const
+{
+    return sout;
+}
+
+std::istream&
+errors_hamming::serialize(std::istream& sin)
+{
+    return sin;
 }
 
 } // namespace libcomm

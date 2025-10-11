@@ -34,14 +34,31 @@ prof_pos::updateresults(libbase::vector<double>& result,
                         const libbase::vector<int>& decoded) const
 {
     // Update the count for every symbol in error
-    assert(source.size() == get_symbolsperblock());
-    assert(decoded.size() == get_symbolsperblock());
-    for (int t = 0; t < get_symbolsperblock(); t++) {
+    assert(source.size() == symbolsperblock);
+    assert(decoded.size() == symbolsperblock);
+    for (int t = 0; t < symbolsperblock; t++) {
         assert(source(t) != fsm::tail);
         if (source(t) != decoded(t)) {
             result(t)++;
         }
     }
+}
+
+// Serialisation interface
+
+const libbase::serializer
+    prof_pos::shelper("results_collector", "prof_pos", prof_pos::create);
+
+std::ostream&
+prof_pos::serialize(std::ostream& sout) const
+{
+    return sout;
+}
+
+std::istream&
+prof_pos::serialize(std::istream& sin)
+{
+    return sin;
 }
 
 } // namespace libcomm

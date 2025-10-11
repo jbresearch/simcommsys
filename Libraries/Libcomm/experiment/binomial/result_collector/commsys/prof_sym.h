@@ -38,33 +38,50 @@ namespace libcomm
 
 class prof_sym : public errors_hamming
 {
+protected:
+    /*! \name System parameters */
+    //! The information symbol alphabet size
+    int alphabetsize;
+    // @}
 public:
-    // Public interface
+    prof_sym() : alphabetsize(0) {}
+    /*! \name Results collector interface */
+    void init(const queryable& system) override;
     void updateresults(libbase::vector<double>& result,
                        const libbase::vector<int>& source,
-                       const libbase::vector<int>& decoded) const;
+                       const libbase::vector<int>& decoded) const override;
     /*! \copydoc experiment::count()
      * We count the number of symbol errors for every input alphabet symbol
      * value.
      */
-    int count() const { return get_alphabetsize(); }
+    int count() const override { return alphabetsize; }
     /*! \copydoc experiment::get_multiplicity()
      * A total equal to the number of symbols/frame may be incremented
      * in every sample.
      */
-    int get_multiplicity(int i) const { return get_symbolsperblock(); }
+    int get_multiplicity(int i) const override { return symbolsperblock; }
     /*! \copydoc experiment::result_description()
      *
      * The description is a string SER_X, where 'X' is the symbol value
      * (starting at zero).
      */
-    std::string result_description(int i) const
+    std::string result_description(int i) const override
     {
         assert(i >= 0 && i < count());
         std::ostringstream sout;
         sout << "SER_" << i;
         return sout.str();
     }
+    // @}
+
+    // Description
+    std::string description() const override
+    {
+        return "Symbol-Value Error Profile";
+    }
+
+    // Serialization Support
+    DECLARE_SERIALIZER(prof_sym)
 };
 
 } // namespace libcomm

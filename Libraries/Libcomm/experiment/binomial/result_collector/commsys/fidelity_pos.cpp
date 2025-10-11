@@ -24,6 +24,12 @@
 namespace libcomm
 {
 
+void
+fidelity_pos::init(const queryable& system)
+{
+    symbolsperframe = std::any_cast<int>(system.get_value(0));
+}
+
 /*!
  * \brief Update result set
  * \param[out] result   Vector containing the set of results to be updated
@@ -47,6 +53,24 @@ fidelity_pos::updateresults(libbase::vector<double>& result,
     for (int t = 0; t < N; t++) {
         result(t) += (act_drift(t) == est_drift(t)) ? 1 : 0;
     }
+}
+
+// Serialisation interface
+
+const libbase::serializer fidelity_pos::shelper("results_collector",
+                                                "fidelity_pos",
+                                                fidelity_pos::create);
+
+std::ostream&
+fidelity_pos::serialize(std::ostream& sout) const
+{
+    return sout;
+}
+
+std::istream&
+fidelity_pos::serialize(std::istream& sin)
+{
+    return sin;
 }
 
 } // namespace libcomm

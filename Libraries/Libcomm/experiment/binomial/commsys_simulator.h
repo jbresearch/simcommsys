@@ -26,12 +26,15 @@
 #include "commsys.h"
 #include "config.h"
 #include "experiment/experiment_binomial.h"
+#include "experiment/results_collector.h"
 #include "randgen.h"
 #include "result_collector/commsys/fidelity_pos.h"
 #include "serializer.h"
 #include "source.h"
 #include "vector.h"
+
 #include <sstream>
+#include <stdexcept>
 
 namespace libcomm
 {
@@ -45,8 +48,8 @@ namespace libcomm
  * \todo Update interface to allow use of source<S> rather than source<int>
  */
 
-template <class S, class R>
-class commsys_simulator : public experiment_binomial, public R
+template <class S>
+class commsys_simulator : public experiment_binomial
 {
 public:
     /*! \name Type definitions */
@@ -60,6 +63,7 @@ protected:
     /*! \name Bound objects */
     std::shared_ptr<source<int>> src; //!< Source data sequence generator
     std::shared_ptr<commsys<S>> sys;  //!< Communication systems
+    std::shared_ptr<results_collector<array1i_t>> rc; //!< Results collector
     // @}
     /*! \name Internal state */
     array1i_t last_event;
@@ -68,13 +72,26 @@ protected:
     bool analyze_decode_iters = false;
 
 protected:
-    // System Interface for Results
-    int get_symbolsperframe() const
+    // Interface for Results Collector
+    typedef enum {
+        SYMBOLS_PER_FRAME,
+        SYMBOLS_PER_BLOCK,
+        ALPHABET_SIZE
+    } index_t;
+    std::any get_value(const int index) const override
     {
-        return sys->getmodem()->input_block_size();
+        switch (index) {
+        case SYMBOLS_PER_FRAME:
+            return int(sys->getmodem()->input_block_size());
+        case SYMBOLS_PER_BLOCK:
+            return int(sys->input_block_size());
+        case ALPHABET_SIZE:
+            return int(sys->num_inputs());
+        }
+        // this should never happen
+        throw std::out_of_range("Unknown parameter index " +
+                                std::to_string(index));
     }
-    int get_symbolsperblock() const { return sys->input_block_size(); }
-    int get_alphabetsize() const { return sys->num_inputs(); }
 
 public:
     /*! \name Constructors / Destructors */
@@ -83,9 +100,11 @@ public:
      *
      * Initializes system with bound objects cloned from supplied system.
      */
-    commsys_simulator(const commsys_simulator<S, R>& c)
+    commsys_simulator(const commsys_simulator<S>& c)
         : src(std::dynamic_pointer_cast<source<int>>(c.src->clone())),
-          sys(std::dynamic_pointer_cast<commsys<S>>(c.sys->clone()))
+          sys(std::dynamic_pointer_cast<commsys<S>>(c.sys->clone())),
+          rc(std::dynamic_pointer_cast<results_collector<array1i_t>>(
+              c.rc->clone()))
     {
     }
     commsys_simulator() {}
@@ -119,25 +138,26 @@ public:
     void sample(array1d_t& result) override;
     int count() const
     {
-        const fidelity_pos* rc = dynamic_cast<const fidelity_pos*>(this);
-        if (analyze_decode_iters && !rc)
-            return R::count() * sys->num_iter();
+        const fidelity_pos* rc_fidelity =
+            dynamic_cast<const fidelity_pos*>(rc.get());
+        if (analyze_decode_iters && !rc_fidelity)
+            return rc->count() * sys->num_iter();
         else
-            return R::count();
+            return rc->count();
     }
     int get_multiplicity(int i) const
     {
         assert(i >= 0 && i < count());
-        const int index = i % R::count();
-        return R::get_multiplicity(index);
+        const int index = i % rc->count();
+        return rc->get_multiplicity(index);
     }
     std::string result_description(int i) const
     {
         assert(i >= 0 && i < count());
-        const int iter = i / R::count();
-        const int index = i % R::count();
+        const int iter = i / rc->count();
+        const int index = i % rc->count();
         std::ostringstream sout;
-        sout << R::result_description(index) << "_" << iter;
+        sout << rc->result_description(index) << "_" << iter;
         return sout.str();
     }
     array1i_t get_event() const { return last_event; }
@@ -154,7 +174,7 @@ public:
     // @}
 
     // Description
-    std::string description() const;
+    std::string description() const override;
 
     // Serialization Support
     DECLARE_SERIALIZER(commsys_simulator)

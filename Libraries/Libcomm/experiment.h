@@ -24,6 +24,7 @@
 
 #include "config.h"
 #include "parametric.h"
+#include "queryable.h"
 #include "random.h"
 #include "serializer.h"
 #include "vector.h"
@@ -39,7 +40,7 @@ namespace libcomm
  * \author  Johann Briffa
  */
 
-class experiment : public parametric, public libbase::serializable
+class experiment : public parametric, public queryable, public libbase::serializable
 {
 private:
     /*! \name Internal variables */

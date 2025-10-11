@@ -38,4 +38,22 @@ hist_symerr::updateresults(libbase::vector<double>& result,
     result(symerrors)++;
 }
 
+// Serialisation interface
+
+const libbase::serializer hist_symerr::shelper("results_collector",
+                                               "hist_symerr",
+                                               hist_symerr::create);
+
+std::ostream&
+hist_symerr::serialize(std::ostream& sout) const
+{
+    return sout;
+}
+
+std::istream&
+hist_symerr::serialize(std::istream& sin)
+{
+    return sin;
+}
+
 } // namespace libcomm

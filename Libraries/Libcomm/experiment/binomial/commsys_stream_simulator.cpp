@@ -51,9 +51,9 @@ namespace libcomm
  * so that every call adds to the existing result. This explains the need to
  * initialize the result vector to zero.
  */
-template <class S, class R, class real>
+template <class S, class real>
 void
-commsys_stream_simulator<S, R, real>::sample(libbase::vector<double>& result)
+commsys_stream_simulator<S, real>::sample(libbase::vector<double>& result)
 {
     // Commsys stream files should have analyze_decode_iters set to true.
     assertalways(this->analyze_decode_iters);
@@ -77,7 +77,7 @@ commsys_stream_simulator<S, R, real>::sample(libbase::vector<double>& result)
     }
 
     // Get access to the results collector in codeword boundary analysis mode
-    fidelity_pos* rc = dynamic_cast<fidelity_pos*>(this);
+    fidelity_pos* rc_fidelity = dynamic_cast<fidelity_pos*>(this->rc.get());
     // Get access to the decoder-side commsys object in stream-oriented mode
     commsys_stream<S, libbase::vector, real>& sys_dec = getsys_stream();
 
@@ -117,7 +117,7 @@ commsys_stream_simulator<S, R, real>::sample(libbase::vector<double>& result)
         // Transmit next frame
         const array1s_t received_next = sys_dec.transmit(transmitted);
         // keep data for codeword boundary analysis if this is indicated
-        if (rc) {
+        if (rc_fidelity) {
             // get codeword boundary positions from modem (encoder-side)
             const array1i_t boundary_pos =
                 sys_enc->getmodem_stream().get_boundaries();
@@ -211,7 +211,7 @@ commsys_stream_simulator<S, R, real>::sample(libbase::vector<double>& result)
         sys_dec.getmapper()->mark_as_clean();
 
         // and perform codeword boundary analysis if this is indicated
-        if (rc) {
+        if (rc_fidelity) {
             // get estimated drift pdfs
             array1vd_t post_pdftable;
             sys_dec.getmodem_stream().get_post_drift_pdf(post_pdftable, offset);
@@ -235,8 +235,8 @@ commsys_stream_simulator<S, R, real>::sample(libbase::vector<double>& result)
 #endif
             // accumulate results
             libbase::indirect_vector<double> result_segment =
-                result.segment(R::count() * iter_modem, R::count());
-            rc->updateresults(result_segment, act_drift, est_drift);
+                result.segment(this->rc->count() * iter_modem, this->rc->count());
+            this->rc->updateresults(result_segment, act_drift, est_drift);
         }
 
         // ** Outer code (codec class) **
@@ -256,13 +256,13 @@ commsys_stream_simulator<S, R, real>::sample(libbase::vector<double>& result)
             // Compute hard-decision for results gatherer
             hd_functor(ri_codec, decoded);
             // Update results if necessary
-            if (!rc) {
+            if (!rc_fidelity) {
                 libbase::indirect_vector<double> result_segment =
                     result.segment(
-                        R::count() *
+                        this->rc->count() *
                             (iter_modem * sys_dec.num_iter() + iter_codec),
-                        R::count());
-                R::updateresults(result_segment, source_this, decoded);
+                        this->rc->count());
+                this->rc->updateresults(result_segment, source_this, decoded);
             }
         }
         // Normalize posterior information
@@ -287,7 +287,7 @@ commsys_stream_simulator<S, R, real>::sample(libbase::vector<double>& result)
 
     // Prepare comparison sequences for next frame
     source.pop_front();
-    if (rc) {
+    if (rc_fidelity) {
         act_bdry_drift.pop_front();
     }
 
@@ -332,9 +332,9 @@ commsys_stream_simulator<S, R, real>::sample(libbase::vector<double>& result)
 
 // Description & Serialization
 
-template <class S, class R, class real>
+template <class S, class real>
 std::string
-commsys_stream_simulator<S, R, real>::description() const
+commsys_stream_simulator<S, real>::description() const
 {
     std::ostringstream sout;
     sout << "Stream-oriented ";
@@ -357,9 +357,9 @@ commsys_stream_simulator<S, R, real>::description() const
 
 // object serialization - saving
 
-template <class S, class R, class real>
+template <class S, class real>
 std::ostream&
-commsys_stream_simulator<S, R, real>::serialize(std::ostream& sout) const
+commsys_stream_simulator<S, real>::serialize(std::ostream& sout) const
 {
     // format version
     sout << "# Version" << std::endl;
@@ -393,9 +393,9 @@ commsys_stream_simulator<S, R, real>::serialize(std::ostream& sout) const
  * \version 2 Changed format to include stream mode, and terminating streams
  */
 
-template <class S, class R, class real>
+template <class S, class real>
 std::istream&
-commsys_stream_simulator<S, R, real>::serialize(std::istream& sin)
+commsys_stream_simulator<S, real>::serialize(std::istream& sin)
 {
     assertalways(sin.good());
     // get format version
@@ -482,14 +482,6 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 #define SYMBOL_TYPE_SEQ \
    (sigspace)(bool) \
    GF_TYPE_SEQ
-#define COLLECTOR_TYPE_SEQ \
-   (errors_hamming) \
-   (errors_levenshtein) \
-   (prof_burst) \
-   (prof_pos) \
-   (prof_sym) \
-   (hist_symerr) \
-   (fidelity_pos)
 #ifdef USE_CUDA
 #define REAL_TYPE_SEQ \
    (float)(double)
@@ -501,7 +493,6 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 /* Serialization string: commsys_stream_simulator<type,collector,real>
  * where:
  *      type = sigspace | bool | gf2 | gf4 ...
- *      collector = errors_hamming | errors_levenshtein | ...
  *      real = float | double | [mpgnu | logrealfast (CPU only)]
  */
 #define INSTANTIATE(r, args) \
@@ -510,12 +501,11 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
       const serializer commsys_stream_simulator<BOOST_PP_SEQ_ENUM(args)>::shelper( \
             "experiment", \
             "commsys_stream_simulator<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
-            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) "," \
-            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2,args)) ">", \
+            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
             commsys_stream_simulator<BOOST_PP_SEQ_ENUM(args)>::create);
 // clang-format on
 
 BOOST_PP_SEQ_FOR_EACH_PRODUCT(
-    INSTANTIATE, (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ)(REAL_TYPE_SEQ))
+    INSTANTIATE, (SYMBOL_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // namespace libcomm

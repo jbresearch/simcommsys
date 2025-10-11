@@ -28,18 +28,18 @@ namespace libcomm
 
 // Experiment parameter handling
 
-template <class S, class R>
+template <class S>
 void
-commsys_threshold<S, R>::set_parameters(const libbase::vector<double>& params)
+commsys_threshold<S>::set_parameters(const libbase::vector<double>& params)
 {
     assertalways(params.size() == 1);
     mono_parametric& m = dynamic_cast<mono_parametric&>(*this->sys->getmodem());
     m.set_parameter(params(0));
 }
 
-template <class S, class R>
+template <class S>
 libbase::vector<double>
-commsys_threshold<S, R>::get_parameters() const
+commsys_threshold<S>::get_parameters() const
 {
     const mono_parametric& m =
         dynamic_cast<const mono_parametric&>(*this->sys->getmodem());
@@ -51,9 +51,9 @@ commsys_threshold<S, R>::get_parameters() const
 
 // Description & Serialization
 
-template <class S, class R>
+template <class S>
 std::string
-commsys_threshold<S, R>::description() const
+commsys_threshold<S>::description() const
 {
     std::ostringstream sout;
     sout << "Modem-threshold-varying ";
@@ -61,18 +61,18 @@ commsys_threshold<S, R>::description() const
     return sout.str();
 }
 
-template <class S, class R>
+template <class S>
 std::ostream&
-commsys_threshold<S, R>::serialize(std::ostream& sout) const
+commsys_threshold<S>::serialize(std::ostream& sout) const
 {
     sout << Base::get_parameters() << std::endl;
     Base::serialize(sout);
     return sout;
 }
 
-template <class S, class R>
+template <class S>
 std::istream&
-commsys_threshold<S, R>::serialize(std::istream& sin)
+commsys_threshold<S>::serialize(std::istream& sin)
 {
     libbase::vector<double> params;
     sin >> libbase::eatcomments >> params >> libbase::verify;
@@ -113,30 +113,21 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 #define SYMBOL_TYPE_SEQ \
    (sigspace)(bool) \
    GF_TYPE_SEQ
-#define COLLECTOR_TYPE_SEQ \
-   (errors_hamming) \
-   (errors_levenshtein) \
-   (prof_burst) \
-   (prof_pos) \
-   (prof_sym) \
-   (hist_symerr)
 
 /* Serialization string: commsys_threshold<type,collector>
  * where:
  *      type = sigspace | bool | gf2 | gf4 ...
  *      collector = errors_hamming | errors_levenshtein | ...
  */
-#define INSTANTIATE(r, args) \
-      template class commsys_threshold<BOOST_PP_SEQ_ENUM(args)>; \
+#define INSTANTIATE(r, x, type) \
+      template class commsys_threshold<type>; \
       template <> \
-      const serializer commsys_threshold<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+      const serializer commsys_threshold<type>::shelper( \
             "experiment", \
-            "commsys_threshold<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
-            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
-            commsys_threshold<BOOST_PP_SEQ_ENUM(args)>::create);
+            "commsys_threshold<" BOOST_PP_STRINGIZE(type) ">", \
+            commsys_threshold<type>::create);
 // clang-format on
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
-                              (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, SYMBOL_TYPE_SEQ)
 
 } // namespace libcomm

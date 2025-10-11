@@ -39,30 +39,40 @@ namespace libcomm
 class prof_pos : public errors_hamming
 {
 public:
-    // Public interface
+    /*! \name Results collector interface */
     void updateresults(libbase::vector<double>& result,
                        const libbase::vector<int>& source,
-                       const libbase::vector<int>& decoded) const;
+                       const libbase::vector<int>& decoded) const override;
     /*! \copydoc experiment::count()
      * We determine the (symbol) error rate for every frame position.
      */
-    int count() const { return get_symbolsperblock(); }
+    int count() const override { return symbolsperblock; }
     /*! \copydoc experiment::get_multiplicity()
      * Only one result can be incremented for every position.
      */
-    int get_multiplicity(int i) const { return 1; }
+    int get_multiplicity(int i) const override { return 1; }
     /*! \copydoc experiment::result_description()
      *
      * The description is a string SER_X, where 'X' is the symbol position
      * (starting at zero).
      */
-    std::string result_description(int i) const
+    std::string result_description(int i) const override
     {
         assert(i >= 0 && i < count());
         std::ostringstream sout;
         sout << "SER_" << i;
         return sout.str();
     }
+    // @}
+
+    // Description
+    std::string description() const override
+    {
+        return "Frame-Position Error Profile";
+    }
+
+    // Serialization Support
+    DECLARE_SERIALIZER(prof_pos)
 };
 
 } // namespace libcomm

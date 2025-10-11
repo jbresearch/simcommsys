@@ -49,16 +49,15 @@ namespace libcomm
  * according to the distribution provided by the channel.
  *
  * \tparam S Channel symbol type
- * \tparam R Results collector type
  * \tparam real Floating-point type for metric computer interface
  */
-template <class S, class R, class real>
-class commsys_stream_simulator : public commsys_simulator<S, R>
+template <class S, class real>
+class commsys_stream_simulator : public commsys_simulator<S>
 {
 private:
     // Shorthand for class hierarchy
-    typedef commsys_stream_simulator<S, R, real> This;
-    typedef commsys_simulator<S, R> Base;
+    typedef commsys_stream_simulator<S, real> This;
+    typedef commsys_simulator<S> Base;
 
 public:
     /*! \name Type definitions */
@@ -145,16 +144,21 @@ protected:
     }
     // @}
 
-    // System Interface for Results
-    int get_symbolsperframe() const
+    // Interface for Results Collector
+    std::any get_value(const int index) const override
     {
-        return sys_enc->getmodem()->input_block_size();
+        // values to override
+        switch (index) {
+        case Base::SYMBOLS_PER_FRAME:
+            return int(sys_enc->getmodem()->input_block_size());
+        }
+        // fall-through behaviour for the rest
+        return Base::get_value(index);
     }
-    int get_symbolsperblock() const { return Base::get_symbolsperblock(); }
 
 public:
     /*! \name Constructors / Destructors */
-    commsys_stream_simulator(const commsys_stream_simulator<S, R, real>& c)
+    commsys_stream_simulator(const commsys_stream_simulator<S, real>& c)
         : Base(c), stream_mode(c.stream_mode), N(c.N), source(c.source),
           received(c.received), eof_post(c.eof_post), offset(c.offset),
           estimated_drift(c.estimated_drift), act_bdry_drift(c.act_bdry_drift),
@@ -200,8 +204,10 @@ public:
     {
         // Get access to the results collector in codeword boundary analysis
         // mode
-        const fidelity_pos* rc = dynamic_cast<const fidelity_pos*>(this);
-        const int base_count = (rc) ? R::count() : Base::count();
+        const fidelity_pos* rc_fidelity =
+            dynamic_cast<const fidelity_pos*>(this->rc.get());
+        const int base_count =
+            (rc_fidelity) ? this->rc->count() : Base::count();
         return base_count * getsys_stream().sys_iter();
     }
 

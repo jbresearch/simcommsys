@@ -20,16 +20,14 @@
  */
 
 #include "errors_levenshtein.h"
-#include "fsm.h"
 #include "hamming.h"
-#include "itfunc.h"
 #include "levenshtein.h"
 
 namespace libcomm
 {
 
 /*!
- * \brief Update result set
+ * \copydoc results_collector::updateresults()
  * \param[out] result   Vector containing the set of results to be updated
  * \param[in]  source   Source data sequence
  * \param[in]  decoded  Decoded data sequence
@@ -51,6 +49,23 @@ errors_levenshtein::updateresults(libbase::vector<double>& result,
     result(0) += hd;
     result(1) += ld;
     result(2) += hd ? 1 : 0;
+}
+
+// Serialisation interface
+
+const libbase::serializer errors_levenshtein::shelper(
+    "results_collector", "errors_levenshtein", errors_levenshtein::create);
+
+std::ostream&
+errors_levenshtein::serialize(std::ostream& sout) const
+{
+    return sout;
+}
+
+std::istream&
+errors_levenshtein::serialize(std::istream& sin)
+{
+    return sin;
 }
 
 } // namespace libcomm

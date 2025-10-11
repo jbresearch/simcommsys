@@ -24,8 +24,8 @@
 
 #include "config.h"
 #include "experiment/binomial/commsys_simulator.h"
-#include "experiment/binomial/result_collector/commsys/errors_hamming.h"
 #include "experiment/experiment_normal.h"
+#include "experiment/results_collector.h"
 #include "vector.h"
 
 #include <string>
@@ -44,9 +44,20 @@ template <class S>
 class commsys_timer : public experiment_normal
 {
 private:
-    commsys_simulator<S, errors_hamming> simulator; //!< Base simulator object
+    commsys_simulator<S> simulator; //!< Base simulator object
     std::vector<double> timings;    //!< List of timings from last cycle
     std::vector<std::string> names; //!< List of timer names from last cycle
+
+protected:
+    // Interface for Results Collector
+    std::any get_value(const int index) const override
+    {
+        switch (index) {
+        }
+        // this should never happen
+        throw std::out_of_range("Unknown parameter index " +
+                                std::to_string(index));
+    }
 
 public:
     // Experiment parameter handling

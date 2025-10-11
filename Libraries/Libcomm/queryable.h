@@ -19,43 +19,43 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __commsys_threshold_h
-#define __commsys_threshold_h
+#ifndef __queryable_h
+#define __queryable_h
 
-#include "commsys_simulator.h"
 #include "config.h"
-#include "vector.h"
+
+#include <any>
 
 namespace libcomm
 {
 
 /*!
- * \brief   Communication System Simulator - Variation of modem threshold.
+ * \brief   Queryable Class Interface.
  * \author  Johann Briffa
  *
- * A variation on the regular commsys_simulator object, taking a fixed channel
- * parameter and varying modem threshold.
- *
- * \todo Remove assumption of a dminner-derived modem.
+ * Defines a class that can be queried for specific values.
  */
-template <class S>
-class commsys_threshold : public commsys_simulator<S>
+
+class queryable
 {
-private:
-    // Shorthand for class hierarchy
-    typedef commsys_threshold<S> This;
-    typedef commsys_simulator<S> Base;
-
 public:
-    // Experiment parameter handling
-    void set_parameters(const libbase::vector<double>& params) override;
-    libbase::vector<double> get_parameters() const override;
+    /*! \name Constructors / Destructors */
+    virtual ~queryable() {}
+    // @}
 
-    // Description
-    std::string description() const;
-
-    // Serialization Support
-    DECLARE_SERIALIZER(commsys_threshold)
+    /*! \name Query handling */
+    /*!
+     * \brief Getter for values by index
+     * \param[in] index A system-dependent index into the dictionary of
+     * values that can be obtained
+     * \return The requested value
+     * 
+     * This method is used by the results collector interface, so that a
+     * specific results collector can obtain relevant values from the
+     * system being simulated.
+     */
+    virtual std::any get_value(const int index) const = 0;
+    // @}
 };
 
 } // namespace libcomm

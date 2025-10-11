@@ -33,8 +33,8 @@ prof_burst::updateresults(libbase::vector<double>& result,
                           const libbase::vector<int>& source,
                           const libbase::vector<int>& decoded) const
 {
-    assert(source.size() == get_symbolsperblock());
-    assert(decoded.size() == get_symbolsperblock());
+    assert(source.size() == symbolsperblock);
+    assert(decoded.size() == symbolsperblock);
     // Update the relevant count for every symbol in error
     // Check the first symbol first
     assert(source(0) != fsm::tail);
@@ -43,7 +43,7 @@ prof_burst::updateresults(libbase::vector<double>& result,
     }
 
     // For each remaining symbol
-    for (int t = 1; t < get_symbolsperblock(); t++) {
+    for (int t = 1; t < symbolsperblock; t++) {
         if (source(t - 1) != decoded(t - 1)) {
             result(3)++;
         }
@@ -59,6 +59,23 @@ prof_burst::updateresults(libbase::vector<double>& result,
             }
         }
     }
+}
+
+// Serialisation interface
+
+const libbase::serializer
+    prof_burst::shelper("results_collector", "prof_burst", prof_burst::create);
+
+std::ostream&
+prof_burst::serialize(std::ostream& sout) const
+{
+    return sout;
+}
+
+std::istream&
+prof_burst::serialize(std::istream& sin)
+{
+    return sin;
 }
 
 } // namespace libcomm

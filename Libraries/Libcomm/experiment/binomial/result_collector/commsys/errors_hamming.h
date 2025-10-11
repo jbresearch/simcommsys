@@ -23,8 +23,10 @@
 #define __errors_hamming_h
 
 #include "config.h"
-#include "vector.h"
-#include <string>
+#include "experiment/results_collector.h"
+
+#include <sstream>
+#include <stdexcept>
 
 namespace libcomm
 {
@@ -35,47 +37,76 @@ namespace libcomm
  *
  * Implements standard error rate calculators.
  */
-class errors_hamming
+class errors_hamming : public results_collector<typename libbase::vector<int>>
 {
 protected:
-    /*! \name System Interface */
+    /*! \name System parameters */
     //! The number of information symbols per block
-    virtual int get_symbolsperblock() const = 0;
-    //! The information symbol alphabet size
-    virtual int get_alphabetsize() const = 0;
+    int symbolsperblock;
     // @}
 public:
+    errors_hamming() : symbolsperblock(0) {}
     virtual ~errors_hamming() {}
-    /*! \name Public interface */
+    /*! \name Results collector interface */
+    void init(const queryable& system) override;
     void updateresults(libbase::vector<double>& result,
                        const libbase::vector<int>& source,
-                       const libbase::vector<int>& decoded) const;
-    /*! \copydoc experiment::count()
+                       const libbase::vector<int>& decoded) const override;
+    /*! \copydoc results_collector::count()
      * We count the number of symbol and frame errors
      */
-    int count() const { return 2; }
-    /*! \copydoc experiment::get_multiplicity()
+    int count() const override { return 2; }
+    /*! \copydoc results_collector::get_multiplicity()
      *
      * Since results are organized as (symbol,frame) error count, the
      * multiplicity is respectively the number of symbols and the number of
      * frames (=1) per sample.
      */
-    int get_multiplicity(int i) const
+    int get_multiplicity(int i) const override
     {
         assert(i >= 0 && i < count());
-        return (i == 0) ? get_symbolsperblock() : 1;
+        switch (i) {
+        case 0:
+            return symbolsperblock;
+        case 1:
+            return 1;
+        }
+        // This should never happen
+        std::ostringstream sout;
+        sout << "Index " << i << " out of range. Valid range is [0,"
+             << count() - 1 << "].";
+        throw std::out_of_range(sout.str());
     }
-    /*! \copydoc experiment::result_description()
+    /*! \copydoc results_collector::result_description()
      *
-     * The description is a string XER, where 'X' is S,F to indicate symbol or
-     * frame error rates respectively.
+     * The description is SER or FER to indicate symbol or frame error rate
+     * respectively.
      */
-    std::string result_description(int i) const
+    std::string result_description(int i) const override
     {
         assert(i >= 0 && i < count());
-        return (i == 0) ? "SER" : "FER";
+        switch (i) {
+        case 0:
+            return "SER";
+        case 1:
+            return "FER";
+        }
+        // This should never happen
+        std::ostringstream sout;
+        sout << "Index " << i << " out of range. Valid range is [0,"
+             << count() - 1 << "].";
+        throw std::out_of_range(sout.str());
     }
     // @}
+
+    // Description
+    std::string description() const override
+    {
+        return "Symbol/Frame Error Rates";
+    }
+
+    // Serialization Support
+    DECLARE_SERIALIZER(errors_hamming)
 };
 
 } // namespace libcomm

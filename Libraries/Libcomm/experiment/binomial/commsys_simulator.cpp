@@ -62,9 +62,9 @@ namespace libcomm
  * so that every call adds to the existing result. This explains the need to
  * initialize the result vector to zero.
  */
-template <class S, class R>
+template <class S>
 void
-commsys_simulator<S, R>::sample(libbase::vector<double>& result)
+commsys_simulator<S>::sample(libbase::vector<double>& result)
 {
     // Reset timers
     this->reset_timers();
@@ -72,7 +72,7 @@ commsys_simulator<S, R>::sample(libbase::vector<double>& result)
     result.init(count());
     result = 0;
     // Get access to the results collector in codeword boundary analysis mode
-    fidelity_pos* rc = dynamic_cast<fidelity_pos*>(this);
+    fidelity_pos* rc_fidelity = dynamic_cast<fidelity_pos*>(rc.get());
 
     // Create source stream
     libbase::vector<int> source =
@@ -97,7 +97,7 @@ commsys_simulator<S, R>::sample(libbase::vector<double>& result)
     sys->receive_path(received);
 
     // Decode
-    if (analyze_decode_iters && !rc) {
+    if (analyze_decode_iters && !rc_fidelity) {
         // We check that rc since analyze_decode_iters does not matter in
         // context of codeword boundary analysis; we always need all iters
 
@@ -112,8 +112,8 @@ commsys_simulator<S, R>::sample(libbase::vector<double>& result)
         for (int curr_cdc_iter = 0; curr_cdc_iter < this->sys->num_iter();
              curr_cdc_iter++) {
             libbase::indirect_vector<double> result_segment =
-                result.segment(curr_cdc_iter * R::count(), R::count());
-            R::updateresults(result_segment, source, decoded(curr_cdc_iter));
+                result.segment(curr_cdc_iter * rc->count(), rc->count());
+            rc->updateresults(result_segment, source, decoded(curr_cdc_iter));
         }
 
         // Keep record of what we last simulated
@@ -136,10 +136,10 @@ commsys_simulator<S, R>::sample(libbase::vector<double>& result)
         std::cout << "Decoded: " << decoded << std::endl;
 #endif
 
-        if (!rc) {
+        if (!rc_fidelity) {
             libbase::indirect_vector<double> result_segment =
-                result.segment(0, R::count());
-            R::updateresults(result_segment, source, decoded);
+                result.segment(0, rc->count());
+            rc->updateresults(result_segment, source, decoded);
 
         } else { // perform codeword boundary analysis if this is indicated
 
@@ -194,33 +194,37 @@ commsys_simulator<S, R>::sample(libbase::vector<double>& result)
 
 // Description & Serialization
 
-template <class S, class R>
+template <class S>
 std::string
-commsys_simulator<S, R>::description() const
+commsys_simulator<S>::description() const
 {
     std::ostringstream sout;
     sout << "Simulator for ";
     sout << sys->description();
     sout << ", ";
     sout << src->description();
+    sout << ", collecting ";
+    sout << rc->description();
     return sout.str();
 }
 
 // object serialization - saving
 
-template <class S, class R>
+template <class S>
 std::ostream&
-commsys_simulator<S, R>::serialize(std::ostream& sout) const
+commsys_simulator<S>::serialize(std::ostream& sout) const
 {
     // format version
     sout << "# Version" << std::endl;
-    sout << 4 << std::endl;
+    sout << 5 << std::endl;
     sout << "# Analyze all decode iterations" << std::endl;
     sout << analyze_decode_iters << std::endl;
     sout << "# Source generator" << std::endl;
     sout << src;
     sout << "# Communication system" << std::endl;
     sout << sys;
+    sout << "# Results collector" << std::endl;
+    sout << rc;
     return sout;
 }
 
@@ -236,11 +240,13 @@ commsys_simulator<S, R>::serialize(std::ostream& sout) const
  * \version 3 Using source-generator object
  *
  * \version 4 Adding option to analyze all decode iterations.
+ *
+ * \version 5 Adding results collector
  */
 
-template <class S, class R>
+template <class S>
 std::istream&
-commsys_simulator<S, R>::serialize(std::istream& sin)
+commsys_simulator<S>::serialize(std::istream& sin)
 {
     assertalways(sin.good());
     // get format version
@@ -314,6 +320,13 @@ commsys_simulator<S, R>::serialize(std::istream& sin)
     sin >> libbase::eatcomments >> sys >> libbase::verify;
     assertalways(sys);
 
+    // get results collector if version is right
+    if (version >= 5) {
+        sin >> libbase::eatcomments >> rc >> libbase::verify;
+    } else {
+        failwith("Results collector not specified");
+    }
+
     // create source generator if not done yet
     if (!src) {
         src.reset(new uniform<int>(sys->num_inputs()));
@@ -328,21 +341,12 @@ commsys_simulator<S, R>::serialize(std::istream& sin)
 
 #include "erasable.h"
 #include "gf.h"
-#include "result_collector/commsys/errors_hamming.h"
-#include "result_collector/commsys/errors_levenshtein.h"
-#include "result_collector/commsys/fidelity_pos.h"
-#include "result_collector/commsys/hist_symerr.h"
-#include "result_collector/commsys/prof_burst.h"
-#include "result_collector/commsys/prof_pos.h"
-#include "result_collector/commsys/prof_sym.h"
 
 namespace libcomm
 {
 
 // Explicit Realizations
-#include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
-#include <boost/preprocessor/seq/for_each_product.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
 using libbase::erasable;
@@ -369,31 +373,20 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
 #define SYMBOL_TYPE_SEQ \
    (sigspace) \
    ALL_FINITE_TYPE_SEQ
-#define COLLECTOR_TYPE_SEQ \
-   (errors_hamming) \
-   (errors_levenshtein) \
-   (prof_burst) \
-   (prof_pos) \
-   (prof_sym) \
-   (hist_symerr) \
-   (fidelity_pos)
 
-/* Serialization string: commsys_simulator<type,collector,bool>
+/* Serialization string: commsys_simulator<type>
  * where:
  *      type = sigspace | bool | gf2 | gf4 ...
- *      collector = errors_hamming | errors_levenshtein | ...
  */
-#define INSTANTIATE(r, args) \
-      template class commsys_simulator<BOOST_PP_SEQ_ENUM(args)>; \
+#define INSTANTIATE(r, x, type) \
+      template class commsys_simulator<type>; \
       template <> \
-      const serializer commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::shelper( \
+      const serializer commsys_simulator<type>::shelper( \
             "experiment", \
-            "commsys_simulator<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0,args)) "," \
-            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1,args)) ">", \
-            commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::create);
+            "commsys_simulator<" BOOST_PP_STRINGIZE(type) ">", \
+            commsys_simulator<type>::create);
 // clang-format on
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
-                              (SYMBOL_TYPE_SEQ)(COLLECTOR_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, SYMBOL_TYPE_SEQ)
 
 } // namespace libcomm
