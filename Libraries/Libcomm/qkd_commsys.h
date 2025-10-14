@@ -131,13 +131,13 @@ public:
     }
     // @}
 
-    // // Sets the modulation variance VA to be used by the gaussian quantum
-    // // channel to calculate variance VN from it.
-    // void set_VA(libcomm::quantum_gaussian_source& source)
-    // {
-    //     double VA = source.get_VA();
-    //     this->bob_channel->set_VA(VA);
-    // }
+    // Sets the modulation variance VA to be used by the gaussian quantum
+    // channel to calculate variance VN from it.
+    void set_VA(libcomm::quantum_gaussian_source& source)
+    {
+        double VA = source.get_VA();
+        this->bob_channel->set_VA(VA);
+    }
 
     // Getter to get the input bits from the codec from cvqkd_protocol.h.
     int get_codec_input_bits_k() { return protocol->get_codec_input_bits_k(); }

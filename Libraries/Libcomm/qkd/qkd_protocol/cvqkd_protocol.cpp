@@ -133,7 +133,7 @@ cvqkd_protocol::parameter_estimation_optical_fiber(
 
 // Method that gets VA from Bob's quantum channel initialised in qkd_commsys.h
 void
-cvqkd_protocol::prepare_for_cycle(std::shared_ptr<quantum_channel> bob_channel)
+cvqkd_protocol::prepare_for_cycle(std::shared_ptr<quantum_channel> bob_channel) 
 {
     // Gets Bobs quantum channel from qkd_commsys.
     this->m_bob_channel = bob_channel;
@@ -387,8 +387,8 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     //     /* TODO: TO delete lines 236 and 237. I am just doing this for
     //     debugging
     //         * purposes since the framesize I started with was small/ */
-    //     I_AB = 1.05;
-    //     chi_BE = 0.82;
+        I_AB = 1.05;
+        chi_BE = 0.82;
 
     // #if DEBUG >= 1
     //     std::cerr << "CV_QKDPROTOCOL:  Mutual Information I_AB = " << I_AB <<
