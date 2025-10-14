@@ -27,17 +27,6 @@
 #include "random.h"
 #include "vector.h"
 
-template <typename T>
-void
-print_vector(const std::string& title, const libbase::vector<T>& vec)
-{
-    std::cout << "\n" << title << std::endl;
-    for (int i = 0; i < vec.size(); ++i) {
-        std::cout << vec(i) << "\t";
-    }
-    std::cout << std::endl;
-}
-
 BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
 {
     // Make sure we instantiate everything
