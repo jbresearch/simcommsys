@@ -89,7 +89,7 @@ protected:
 
 public:
     // Description
-    std::string description() const;
+    std::string description() const override { return "AWGN channel"; }
 
     // Serialization Support
     DECLARE_SERIALIZER(awgn)

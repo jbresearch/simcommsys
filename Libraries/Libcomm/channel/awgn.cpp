@@ -51,13 +51,6 @@ awgn::pdf(const sigspace& tx, const sigspace& rx) const
     return libbase::gauss(n.i() / sigma) * libbase::gauss(n.q() / sigma);
 }
 
-// Description
-
-std::string
-awgn::description() const
-{
-    return "AWGN channel";
-}
 
 // Serialization Support
 
