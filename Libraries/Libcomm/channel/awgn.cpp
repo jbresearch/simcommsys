@@ -24,8 +24,6 @@
 namespace libcomm
 {
 
-const libbase::serializer awgn::shelper("channel", "awgn", awgn::create);
-
 // handle functions
 
 void
@@ -51,8 +49,9 @@ awgn::pdf(const sigspace& tx, const sigspace& rx) const
     return libbase::gauss(n.i() / sigma) * libbase::gauss(n.q() / sigma);
 }
 
+// Serialisation interface
 
-// Serialization Support
+const libbase::serializer awgn::shelper("channel", "awgn", awgn::create);
 
 std::ostream&
 awgn::serialize(std::ostream& sout) const
