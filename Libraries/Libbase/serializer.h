@@ -168,14 +168,14 @@ private:                                                                       \
     }                                                                          \
     /* @} */                                                                   \
 public:                                                                        \
-    std::shared_ptr<libbase::serializable> clone() const                       \
+    std::shared_ptr<libbase::serializable> clone() const override              \
     {                                                                          \
         return std::static_pointer_cast<libbase::serializable>(                \
             std::shared_ptr<class_name>(new class_name(*this)));               \
     }                                                                          \
-    const std::string name() const { return shelper.name(); }                  \
-    std::ostream& serialize(std::ostream& sout) const;                         \
-    std::istream& serialize(std::istream& sin);
+    const std::string name() const override { return shelper.name(); }         \
+    std::ostream& serialize(std::ostream& sout) const override;                \
+    std::istream& serialize(std::istream& sin) override;
 
 } // namespace libbase
 
