@@ -1,6 +1,8 @@
 #include "cvqkd_protocol.h"
 #include "codec/ldpc.h"
 #include "gf.h"
+#include "source/quantum_gaussian_source.h"
+#include <cmath>
 #include <sstream>
 
 using libbase::serializer;
@@ -14,6 +16,15 @@ namespace libcomm
 #    undef DEBUG
 #    define DEBUG 1
 #endif
+
+void cvqkd_protocol::initialise(source<gaussian_state>& src_gen_base)
+{
+    // Safely cast the base class reference to the derived class we need.
+    auto& src_gen = dynamic_cast<quantum_gaussian_source&>(src_gen_base);
+
+    // Now, correctly get the modulation variance from the source.
+    m_modulation_variance = src_gen.get_VA();
+}
 
 // Split fn to be used for parameter estimation and post-processing.
 std::tuple<libbase::vector<double>, // X_PE for Alice
@@ -133,12 +144,11 @@ cvqkd_protocol::parameter_estimation_optical_fiber(
 
 // Method that gets VA from Bob's quantum channel initialised in qkd_commsys.h
 void
-cvqkd_protocol::prepare_for_cycle(std::shared_ptr<quantum_channel> bob_channel) 
+// TODO: to delete this method.
+cvqkd_protocol::prepare_for_cycle(const std::shared_ptr<quantum_channel>& bob_channel)
 {
     // Gets Bobs quantum channel from qkd_commsys.
     this->m_bob_channel = bob_channel;
-    // This works directly because get_VA() is virtual in the base class.
-    this->m_modulation_variance = bob_channel->get_VA();
 }
 
 // Mutual Information for the GG02 protocol
@@ -387,8 +397,8 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     //     /* TODO: TO delete lines 236 and 237. I am just doing this for
     //     debugging
     //         * purposes since the framesize I started with was small/ */
-        I_AB = 1.05;
-        chi_BE = 0.82;
+    I_AB = 1.05;
+    chi_BE = 0.82;
 
     // #if DEBUG >= 1
     //     std::cerr << "CV_QKDPROTOCOL:  Mutual Information I_AB = " << I_AB <<
@@ -408,22 +418,28 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
                   << MI_Check << std::endl;
 #endif
 
-        /* Gets SNR_linear from Bob's Gaussian Quantum Channel*/
+        /* Gets variance VN from Bob's Gaussian Quantum Channel*/
         libbase::vector<double> bobs_channel_parameters;
         bobs_channel_parameters.init(1);
         bobs_channel_parameters = this->m_bob_channel->get_parameters();
 
+        std::cout << "Printing variance VN from get parameters (cvqkdprotocol.cpp) = " << bobs_channel_parameters(0) 
+        << std::endl; 
+
         // CLI parameter of the gaussian quantum channel.
-        SNR_linear = bobs_channel_parameters(0);
+        SNR_linear = (this->m_modulation_variance) / (bobs_channel_parameters(0));
 
 #if DEBUG >= 1
         std::cerr << "CV_QKDPROTOCOL:  SNR_linear = " << SNR_linear
                   << std::endl;
 #endif
 
-        // Instaniates both final secret keys KA and KB.
-        libbase::vector<bool> final_secret_key_KA;
-        libbase::vector<bool> final_secret_key_KB;
+        // // Instaniates both final secret keys KA and KB.
+        // libbase::vector<bool> final_secret_key_KA;
+        // libbase::vector<bool> final_secret_key_KB;
+
+        // final_secret_key_KA.init(len_secret_key);
+        // final_secret_key_KB.init(len_secret_key);
 
 #if DEBUG >= 1
         std::cerr << "CV_QKDPROTOCOL: alice X_raw measurements = " << X_raw
@@ -646,6 +662,9 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
             std::cerr << "CV_QKDPROTOCOL: H_check = " << H_check << std::endl;
 #endif
 
+            libbase::vector<bool> final_secret_key_KA;
+            libbase::vector<bool> final_secret_key_KB;
+            
             len_secret_key = 0;
 
             // Sets length of secret keys KA and KB to zero to later be able to

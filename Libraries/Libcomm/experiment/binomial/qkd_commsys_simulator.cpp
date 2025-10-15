@@ -35,10 +35,7 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
     // Initialise result vector
     result.init(count());
     result = 0;
-
-    // Gets modulation variance VA from source prepared by Alice.
-    // double VA = src->get_VA(); // unused
-
+    
     // k is the input bits of the codec of the cv-qkd protocol.
     int k = sys->get_codec_input_bits_k();
 
@@ -48,17 +45,6 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
     // Set the vector in the qkd_commsys system object.
     sys->set_bob_vector(vector_s);
 
-    // Setting modulation variance VA in the gaussian quantum channel of Bob.
-    // sys->set_VA(*src);
-    if (src) { // I had to do this because in qkd_commsys.h the method is
-               // defined as: void set_VA(libcomm::quantum_gaussian_source&
-               // source)
-        if (auto qsrc =
-                dynamic_cast<libcomm::quantum_gaussian_source*>(src.get())) {
-            sys->set_VA(*qsrc);
-        }
-    }
-
     // Gets the number of coherent states generated for a single frame from the
     // qkd_commsys object.
     const libbase::size_type<libbase::vector> framesize(
@@ -67,6 +53,9 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
     // Generates a sequence of coherent states which is the input to the
     // fullcycle method in qkd_commsys.
     libbase::vector<S> source = src->generate_sequence(framesize);
+
+    // qkd_commsys sends the src generator to get VA for CV-QKD. 
+    sys->set_src(src); 
 
     // Both final keys are of libbase::vector<bool> type.
     auto [key_KA, key_KB] = sys->fullcycle(source);

@@ -87,9 +87,11 @@ qkd_commsys<S, T, C>::fullcycle(C<S>& source)
             bob_measurements(i) = source(i).measure(*bob_observables[i]);
         }
     }
+    // Pass source generator to get_VA for CV-QKD. 
+    protocol->initialise(*get_src());
 
-    // Pass Bob's channel to the protocol to get modulation variance V_A.
-    protocol->prepare_for_cycle(this->bob_channel);
+    // Pass Bob's channel to the protocol to get modulation variance V_A for CV-QKD.
+    protocol->prepare_for_cycle(bob_channel);
 
     /* Vector s is first generated in qkd_commsys_simulator sample() method.
      * It is then also set in the qkd_commsys_simulator sample() to the

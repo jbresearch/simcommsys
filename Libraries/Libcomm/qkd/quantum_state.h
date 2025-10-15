@@ -188,6 +188,16 @@ public:
     {
         return q_mean;
     }
+
+    double get_p_stddev() // Used to eventually get VA in cvqkdprotocol.
+    {
+        return p_stddev;
+    }
+
+    double get_q_stddev() // Used to eventually get VA in cvqkdprotocol.
+    {
+        return q_stddev;
+    }
 };
 
 class entangled_qubit_pair

@@ -251,12 +251,19 @@ sign<double>
     // 3) Set the CLI params (Bob’s SNR) through qkd_commsys
     // const double SNR_linear = 17.7558; // linear (not dB) excess noise of
     // 0.005
-    const double SNR_linear = 17.74018571692195; // for an excess noise of 0.01
+    // const double SNR_linear = 17.74018571692195; // for an excess noise of 0.01
+
+    const double VN = 1.041915; // Variance VN, the new CLI parameter. 
 
     libbase::vector<double> cli;
     cli.init(sys.get_num_params()); // should be 1 when Alice is identity , CLI
                                     // channel parameters
-    cli(0) = SNR_linear;            // index 0 -> Bob's SNR
+    // cli(0) = SNR_linear;            // index 0 -> Bob's SNR
+    cli(0) = VN;     // index 0 -> Bob's Variance VN to generate noise. 
+
+    // TODO: to change this to variance VN rather than SNR. As the new CLI
+    // parameter.
+
     sys.set_parameters(cli);
 
     // 4a) Print System Parameters of the QKD Commsys Object
@@ -268,10 +275,14 @@ sign<double>
 
     // 5) Verify CLI parameters of Quantum Channel of Bob
     auto back = sys.get_parameters();
-    
+
+    // std::cout
+    //     << "TESTGAUSSIANCVQKD:  (CLI parameter of Bob's Quantum Channel) SNR = "
+    //     << SNR_linear << std::endl;
+
     std::cout
-        << "TESTGAUSSIANCVQKD:  (CLI parameter of Bob's Quantum Channel) SNR = "
-        << SNR_linear << std::endl;
+        << "TESTGAUSSIANCVQKD:  (CLI parameter of Bob's Quantum Channel) Variance = "
+        << VN << std::endl;
 
 
     // 6) Create Gaussian Quantum Source
@@ -293,7 +304,7 @@ quantum_gaussian_source
 )SS";
 
     // Build source using the same pattern as gaussian_quantum_channel
-    std::unique_ptr<libcomm::source<libcomm::gaussian_state, libbase::vector>>
+    std::shared_ptr<libcomm::source<libcomm::gaussian_state, libbase::vector>>
         s_ptr;
     ss_src >> s_ptr;
     auto* src = dynamic_cast<libcomm::quantum_gaussian_source*>(s_ptr.get());
@@ -303,20 +314,21 @@ quantum_gaussian_source
     r.seed(2602);
     src->seedfrom(r);
 
-    double VA = src->get_VA();
-    std::cout << "TESTGAUSSIANCVQKD: Modulation Variance of Source = " << VA
-              << std::endl;
+    // double VA = src->get_VA(); // TODO: to move in the cvqkd_protocol. 
+    // std::cout << "TESTGAUSSIANCVQKD: Modulation Variance of Source = " << VA
+    //           << std::endl;
 
     // Gets the number of coherent states generated for a single frame from the
     // qkd_commsys object.
     int framesize = sys.input_block_size();
-    std::cout << "TESTGAUSSIANCVQKD:  Number of generated coherent states (Alice) = " << framesize
-              << std::endl;
+    std::cout
+        << "TESTGAUSSIANCVQKD:  Number of generated coherent states (Alice) = "
+        << framesize << std::endl;
 
     // Gets input k bits from codec of the CV-QKD protocol.
     int k = sys.get_codec_input_bits_k();
-    std::cout << "TESTGAUSSIANCVQKD:  : size of vector s =  "
-              << k << std::endl; // just to test that k is correct. This is also
+    std::cout << "TESTGAUSSIANCVQKD:  : size of vector s =  " << k
+              << std::endl; // just to test that k is correct. This is also
                             // added in simulator.
 
     // Generate vector s from k as done in qkd_commsys simulator.h
@@ -334,12 +346,14 @@ quantum_gaussian_source
     sys.set_bob_vector(vector_s);
 
     // Setting modulation variance VA in the gaussian quantum channel of Bob
-    sys.set_VA(*src);
+    // sys.set_VA(*src); // TODO: delete as this will be done in the cvqkdprotocol. 
 
     // Generates a sequence of coherent states which is the input to the
     // fullcycle method in qkd_commsys.h
     libbase::vector<libcomm::gaussian_state> source =
         src->generate_sequence(libbase::size_type<libbase::vector>(framesize));
+
+    sys.set_src(s_ptr);
 
     // Initialise final_key
     libbase::vector<bool> final_key;
@@ -347,8 +361,8 @@ quantum_gaussian_source
     /* Calling fullcylce method from qkd_commsys.h for a single frame*/
     auto [key_KA, key_KB] = sys.fullcycle(source);
 
-    std::cout << "TESTGAUSSIANCVQKD:  Size of Final Secret Key KA: " << key_KA.size()
-              << std::endl;
+    std::cout << "TESTGAUSSIANCVQKD:  Size of Final Secret Key KA: "
+              << key_KA.size() << std::endl;
 
     //    // // Prints Final Secret Key
     //    // std::cout << "\nFinal Secret Key [size=" << final_key.size() << "]:

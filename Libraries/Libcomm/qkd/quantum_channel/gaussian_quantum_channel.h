@@ -28,6 +28,7 @@ private:
     double SNR; // Only CLI parameter of the quantum channel (linear not dB)
     double VA; // Modulation variance of Alice that will be set by a qkd_commsys
                // object.
+    double VN; // variance VN to generate the noisy coherent states.
     double noise_mean; // Chosen mean of the ND to generate the noise. This is a
                        // serialized parameter.
     std::mt19937 gen;
@@ -46,10 +47,9 @@ protected:
     template <class Obs>
     void transmit_impl(Obs& observable)
     {
-        const double VN =
-            compute_VN(); // VA has to be set before calling transmit fn
-        std::cout << "Value of VN from gaussian_channel.h = " << VN <<
-        std::endl;
+
+        std::cout << "Value of VN from gaussian_channel.h = " << VN
+                  << std::endl;
         const double noise_stddev = std::sqrt(VN);
         std::normal_distribution<double> dist(noise_mean, noise_stddev);
         const double noise = dist(gen);
@@ -63,7 +63,7 @@ public:
     //! Constructor
     gaussian_quantum_channel()
         : noise_transmittance(0.0), noise_detector_eff(0.0), SNR(0.0), VA(0.0),
-          noise_mean(0.0), gen()
+          VN(0.0), noise_mean(0.0), gen()
     {
     }
 
@@ -95,8 +95,8 @@ public:
     {
         assertalways(x.size() ==
                      1); // Ensures all required parameters are passed
-        SNR = x(0);      // SNR
-        assertalways(std::isfinite(SNR) && SNR > 0.0);
+        VN = x(0);       // Variance VN
+        assertalways(std::isfinite(VN) && VN > 0.0);
     }
 
     //! Get the characteristic parameters
@@ -104,7 +104,7 @@ public:
     {
         libbase::vector<double> params;
         params.init(1);
-        params(0) = SNR;
+        params(0) = VN;
         return params;
     }
 

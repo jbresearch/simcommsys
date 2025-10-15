@@ -31,6 +31,7 @@
 #include "serializer.h"
 #include "source/quantum_gaussian_source.h"
 #include "vector.h"
+#include "source.h"
 
 #include <iostream>
 #include <memory>
@@ -56,12 +57,11 @@ public:
 
 protected:
     /*! \name Bound objects */
-    // std::unique_ptr<quantum_channel> bob_channel;
-    // std::unique_ptr<quantum_channel> alice_channel;
-    // std::unique_ptr<qkd_protocol<T, C>> protocol;
     std::shared_ptr<quantum_channel> bob_channel;
     std::shared_ptr<quantum_channel> alice_channel;
-    std::shared_ptr<qkd_protocol<T, C>> protocol;
+    std::shared_ptr<qkd_protocol<S, T, C>> protocol;
+
+    std::shared_ptr<source<S>> src; 
 
     //! \brief How many quantum states in one frame
     int framesize = 0;
@@ -131,8 +131,21 @@ public:
     }
     // @}
 
+    // gets src generator from qkd_commsys_simulator. 
+    void set_src(std::shared_ptr<source<S>>& src)
+    {
+        this->src = src;
+    }
+
+    // To use in qkd_commsys to get the src generator. 
+    std::shared_ptr<source<S>> get_src()
+    {
+        return this->src;
+    }
+
     // Sets the modulation variance VA to be used by the gaussian quantum
     // channel to calculate variance VN from it.
+    // TODO: to delete. 
     void set_VA(libcomm::quantum_gaussian_source& source)
     {
         double VA = source.get_VA();

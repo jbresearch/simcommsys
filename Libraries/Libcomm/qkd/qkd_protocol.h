@@ -27,6 +27,7 @@
 #include "random.h"
 #include "serializer.h"
 #include "vector.h"
+#include "source.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -38,9 +39,9 @@ namespace libcomm
 
 /*!
  * \brief   Common Base for QKD postprocessing protocol.
- * \author  Mark Mizzi
+ * \author  Mark Mizzi, Aaron Abela
  */
-template <typename T, template <class> class C = libbase::vector>
+template <class S, typename T, template <class> class C = libbase::vector>
 class qkd_protocol : public instrumented, public libbase::serializable
 {
 public:
@@ -71,9 +72,12 @@ public:
           libbase::vector<T>& measurements_bob) = 0;
 
     // Allows the system to pass Bob's channel to the protocol for setup.
-    virtual void prepare_for_cycle(std::shared_ptr<quantum_channel> bob_channel)
+    virtual void prepare_for_cycle(const std::shared_ptr<quantum_channel>&)
     {
     }
+
+    // Pass source generator to get VA for CV_QKD.
+
 
     /* Helper functions related to codec.*/
     virtual std::shared_ptr<codec<libbase::vector>> get_codec() const = 0;
@@ -85,6 +89,11 @@ public:
     // qkd_commsys_simulator.h.
     virtual void set_bob_vector_s(libbase::vector<bool>& s) = 0;
 
+    /* Template parameter S represents the type of quantum state.
+    For e.g. for the GG02 case for CV-QKD using coherent states
+    the type is: gaussian_state. Check quantum_state.h. */ 
+    virtual void initialise(source<S>& src_gen) = 0;    
+    
     // Returns final secret keys KA and KB.
     virtual std::pair<C<bool>, C<bool>>
     postprocess(libbase::vector<T>&& alice_measurements,
