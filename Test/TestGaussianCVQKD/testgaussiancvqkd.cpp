@@ -251,15 +251,16 @@ sign<double>
     // 3) Set the CLI params (Bob’s SNR) through qkd_commsys
     // const double SNR_linear = 17.7558; // linear (not dB) excess noise of
     // 0.005
-    // const double SNR_linear = 17.74018571692195; // for an excess noise of 0.01
+    // const double SNR_linear = 17.74018571692195; // for an excess noise of
+    // 0.01
 
-    const double VN = 1.041915; // Variance VN, the new CLI parameter. 
+    const double VN = 1.041915; // Variance VN, the new CLI parameter.
 
     libbase::vector<double> cli;
     cli.init(sys.get_num_params()); // should be 1 when Alice is identity , CLI
                                     // channel parameters
     // cli(0) = SNR_linear;            // index 0 -> Bob's SNR
-    cli(0) = VN;     // index 0 -> Bob's Variance VN to generate noise. 
+    cli(0) = VN; // index 0 -> Bob's Variance VN to generate noise.
 
     // TODO: to change this to variance VN rather than SNR. As the new CLI
     // parameter.
@@ -277,13 +278,13 @@ sign<double>
     auto back = sys.get_parameters();
 
     // std::cout
-    //     << "TESTGAUSSIANCVQKD:  (CLI parameter of Bob's Quantum Channel) SNR = "
+    //     << "TESTGAUSSIANCVQKD:  (CLI parameter of Bob's Quantum Channel) SNR
+    //     = "
     //     << SNR_linear << std::endl;
 
-    std::cout
-        << "TESTGAUSSIANCVQKD:  (CLI parameter of Bob's Quantum Channel) Variance = "
-        << VN << std::endl;
-
+    std::cout << "TESTGAUSSIANCVQKD:  (CLI parameter of Bob's Quantum Channel) "
+                 "Variance = "
+              << VN << std::endl;
 
     // 6) Create Gaussian Quantum Source
     std::stringstream ss_src;
@@ -314,7 +315,7 @@ quantum_gaussian_source
     r.seed(2602);
     src->seedfrom(r);
 
-    // double VA = src->get_VA(); // TODO: to move in the cvqkd_protocol. 
+    // double VA = src->get_VA(); // TODO: to move in the cvqkd_protocol.
     // std::cout << "TESTGAUSSIANCVQKD: Modulation Variance of Source = " << VA
     //           << std::endl;
 
@@ -345,9 +346,6 @@ quantum_gaussian_source
 
     sys.set_bob_vector(vector_s);
 
-    // Setting modulation variance VA in the gaussian quantum channel of Bob
-    // sys.set_VA(*src); // TODO: delete as this will be done in the cvqkdprotocol. 
-
     // Generates a sequence of coherent states which is the input to the
     // fullcycle method in qkd_commsys.h
     libbase::vector<libcomm::gaussian_state> source =
@@ -363,13 +361,4 @@ quantum_gaussian_source
 
     std::cout << "TESTGAUSSIANCVQKD:  Size of Final Secret Key KA: "
               << key_KA.size() << std::endl;
-
-    //    // // Prints Final Secret Key
-    //    // std::cout << "\nFinal Secret Key [size=" << final_key.size() << "]:
-    //    [";
-    //    // // for (int i = 0; i < final_key.size(); ++i) {
-    //    // //    if (i) std::cout << ", ";
-    //    // //    std::cout << final_key(i);
-    //    // // }
-    //    // std::cout << "]\n\n";
 }

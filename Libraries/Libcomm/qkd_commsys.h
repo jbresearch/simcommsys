@@ -29,9 +29,9 @@
 #include "qkd/quantum_channel.h"
 #include "qkd/quantum_state.h"
 #include "serializer.h"
+#include "source.h"
 #include "source/quantum_gaussian_source.h"
 #include "vector.h"
-#include "source.h"
 
 #include <iostream>
 #include <memory>
@@ -61,7 +61,7 @@ protected:
     std::shared_ptr<quantum_channel> alice_channel;
     std::shared_ptr<qkd_protocol<S, T, C>> protocol;
 
-    std::shared_ptr<source<S>> src; 
+    std::shared_ptr<source<S>> src;
 
     //! \brief How many quantum states in one frame
     int framesize = 0;
@@ -131,26 +131,11 @@ public:
     }
     // @}
 
-    // gets src generator from qkd_commsys_simulator. 
-    void set_src(std::shared_ptr<source<S>>& src)
-    {
-        this->src = src;
-    }
+    // gets src generator from qkd_commsys_simulator.
+    void set_src(std::shared_ptr<source<S>>& src) { this->src = src; }
 
-    // To use in qkd_commsys to get the src generator. 
-    std::shared_ptr<source<S>> get_src()
-    {
-        return this->src;
-    }
-
-    // Sets the modulation variance VA to be used by the gaussian quantum
-    // channel to calculate variance VN from it.
-    // TODO: to delete. 
-    void set_VA(libcomm::quantum_gaussian_source& source)
-    {
-        double VA = source.get_VA();
-        this->bob_channel->set_VA(VA);
-    }
+    // To use in qkd_commsys to get the src generator.
+    std::shared_ptr<source<S>> get_src() { return this->src; }
 
     // Getter to get the input bits from the codec from cvqkd_protocol.h.
     int get_codec_input_bits_k() { return protocol->get_codec_input_bits_k(); }
@@ -179,7 +164,7 @@ public:
 
     // Description
     std::string description() const;
-    
+
     // Serialization Support using shared pointers
     DECLARE_BASE_SERIALIZER(qkd_commsys)
     DECLARE_SERIALIZER(qkd_commsys)

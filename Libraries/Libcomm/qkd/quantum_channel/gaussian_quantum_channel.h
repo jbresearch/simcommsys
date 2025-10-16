@@ -71,12 +71,6 @@ public:
     //! sequence
     void seedfrom(libbase::random& r) override { gen.seed(r.ival()); }
 
-    void set_VA(double va) override
-    {
-        assertalways(std::isfinite(va) && va >= 0.0);
-        VA = va;
-    }
-
     double get_VA() override { return VA; }
 
     // Applies Gaussian noise to momentum and position observable

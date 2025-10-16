@@ -77,10 +77,6 @@ public:
     virtual void transmit(spin_hadamard&) { failwith("Not implemented."); }
     //! @}
 
-    // These methods concerning VA will only be used for the case of the
-    // gaussian quantum channel and CV-QKD called in qkd_commsys.h
-    virtual void set_VA(double) { failwith("Not implemented."); }
-
     virtual double get_VA()
     {
         failwith("Not implemented.");
