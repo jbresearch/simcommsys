@@ -57,7 +57,6 @@ protected:
 
     std::shared_ptr<source<S>> src;         //!< Source data sequence generator
     std::shared_ptr<qkd_commsys<S, T>> sys; //!< Communication systems
-    libbase::vector<bool> vector_s;
     // @}
     /*! \name Internal state */
     array1i_t last_event;
@@ -65,20 +64,6 @@ protected:
     libbase::random* rng_ =
         nullptr; // non-owning: set in seedfrom(), reused in sample()
     // @}
-
-    // Class created to generate Bob's vector s of bool type.
-    class bit_vector_generator
-    {
-    public:
-        libbase::vector<bool> generate_vector(int k, libbase::random& r)
-        {
-            libbase::vector<bool> s(k);
-            for (int i = 0; i < k; ++i) {
-                s(i) = (r.ival(2) != 0);
-            }
-            return s;
-        }
-    } sgen;
 
 public:
     /*! \name Constructors / Destructors */
@@ -160,10 +145,7 @@ public:
     // cv_qkd_errors_hamming.h.
     // TODO: Might have to remove these depending on the final results collector
     // I will implement.
-    int get_symbolsperblock() const override
-    {
-        return sys->input_block_size();
-    }
+    int get_symbolsperblock() const override { return sys->input_block_size(); }
 
     int get_alphabetsize() const override { return 2; }
 

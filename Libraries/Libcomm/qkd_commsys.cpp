@@ -91,11 +91,6 @@ qkd_commsys<S, T, C>::fullcycle(C<S>& source)
     // quantum channel.
     protocol->init(*get_src(), bob_channel);
 
-    /* Vector s is first generated in qkd_commsys_simulator sample() method.
-     * It is then also set in the qkd_commsys_simulator sample() to the
-     * qkd_commsys object; so that then it is set in the cv-qkd protocol. */
-    protocol->set_bob_vector_s(vector_s_from_bob);
-
     // Perform post-processing to get the final secret keys.
     auto [secret_key_KA, secret_key_KB] = protocol->postprocess(
         std::move(alice_measurements), std::move(bob_measurements));

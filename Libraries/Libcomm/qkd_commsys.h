@@ -66,7 +66,6 @@ protected:
     //! \brief How many quantum states in one frame
     int framesize = 0;
 
-    libbase::vector<bool> vector_s_from_bob;
     // @}
 public:
     qkd_commsys() {}
@@ -139,13 +138,6 @@ public:
 
     // Getter to get the input bits from the codec from cvqkd_protocol.h.
     int get_codec_input_bits_k() { return protocol->get_codec_input_bits_k(); }
-
-    // Setter method to get vector s which is generated in the
-    // qkd_commsys_simulator.
-    void set_bob_vector(const libbase::vector<bool>& vector_s)
-    {
-        vector_s_from_bob = vector_s;
-    }
 
     /*! \name Communication System Interface */
     std::pair<C<bool>, C<bool>> fullcycle(C<S>& source);
