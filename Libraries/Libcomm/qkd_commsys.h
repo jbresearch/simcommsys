@@ -179,18 +179,7 @@ public:
 
     // Description
     std::string description() const;
-
-    // Helper function to print a vector.
-    void print_bool_vector(const std::string& title,
-                           const libbase::vector<bool>& vec)
-    {
-        std::cout << "\n" << title << std::endl;
-        for (int i = 0; i < vec.size(); ++i) {
-            std::cout << vec(i) << "\t";
-        }
-        std::cout << std::endl;
-    }
-
+    
     // Serialization Support using shared pointers
     DECLARE_BASE_SERIALIZER(qkd_commsys)
     DECLARE_SERIALIZER(qkd_commsys)
