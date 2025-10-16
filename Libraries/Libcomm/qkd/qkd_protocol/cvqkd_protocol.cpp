@@ -432,12 +432,11 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
                   << std::endl;
 #endif
 
-        // // Instaniates both final secret keys KA and KB.
-        // libbase::vector<bool> final_secret_key_KA;
-        // libbase::vector<bool> final_secret_key_KB;
-
-        // final_secret_key_KA.init(len_secret_key);
-        // final_secret_key_KB.init(len_secret_key);
+        // Initialise and generate Bob's vector s which has size k.
+        bob_vector_s.init(get_codec_input_bits_k());
+        for (int i = 0; i < get_codec_input_bits_k(); ++i) {
+            bob_vector_s(i) = (rng.ival(2) != 0);
+        }
 
 #if DEBUG >= 1
         std::cerr << "CV_QKDPROTOCOL: alice X_raw measurements = " << X_raw
