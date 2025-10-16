@@ -217,14 +217,14 @@ commsys_simulator<S>::serialize(std::ostream& sout) const
     // format version
     sout << "# Version" << std::endl;
     sout << 5 << std::endl;
+    sout << "# Results collector" << std::endl;
+    sout << rc;
     sout << "# Analyze all decode iterations" << std::endl;
     sout << analyze_decode_iters << std::endl;
     sout << "# Source generator" << std::endl;
     sout << src;
     sout << "# Communication system" << std::endl;
     sout << sys;
-    sout << "# Results collector" << std::endl;
-    sout << rc;
     return sout;
 }
 
@@ -256,6 +256,12 @@ commsys_simulator<S>::serialize(std::istream& sin)
     if (sin.fail()) {
         version = 0;
         sin.clear();
+    }
+    // get results collector if version is right
+    if (version >= 5) {
+        sin >> libbase::eatcomments >> rc >> libbase::verify;
+    } else {
+        failwith("Results collector not specified");
     }
     // get analyze_decode_iters if version is right
     if (version >= 4) {
@@ -319,13 +325,6 @@ commsys_simulator<S>::serialize(std::istream& sin)
     // communication system object
     sin >> libbase::eatcomments >> sys >> libbase::verify;
     assertalways(sys);
-
-    // get results collector if version is right
-    if (version >= 5) {
-        sin >> libbase::eatcomments >> rc >> libbase::verify;
-    } else {
-        failwith("Results collector not specified");
-    }
 
     // create source generator if not done yet
     if (!src) {
