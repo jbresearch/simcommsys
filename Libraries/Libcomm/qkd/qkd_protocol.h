@@ -26,8 +26,8 @@
 #include "qkd/observable.h"
 #include "random.h"
 #include "serializer.h"
-#include "vector.h"
 #include "source.h"
+#include "vector.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -45,20 +45,22 @@ template <class S, typename T, template <class> class C = libbase::vector>
 class qkd_protocol : public instrumented, public libbase::serializable
 {
 public:
-    /*! Get observables used to measure quantum states on Alice's end, e.g. spin
+    /* Template parameter S represents the type of quantum state.
+    For e.g. for the GG02 case for CV-QKD using coherent states
+    the type is: gaussian_state. Check quantum_state.h. */
+    virtual void init(source<S>& src_gen,
+                      const std::shared_ptr<quantum_channel>&) = 0;
+
+    /*! Get observables used to measure quantum states, e.g. spin
      * in two different bases for E91
      * Integer param determines number of observables returned.
+     *
+     * Note: Changed only the observables to work with a std::vector rather than
+     * a libbase::vector
      */
 
-    // Note: Changed only the observables to work with a std::vector rather than
-    // a libbase::vector
     virtual std::vector<std::unique_ptr<observable<T>>>
     get_alice_observables(int) = 0;
-
-    /*! Get observables used to measure quantum states on Bob's end, e.g. spin
-     * in two different bases for E91
-     * Integer param determines number of observables returned.
-     */
 
     virtual std::vector<std::unique_ptr<observable<T>>>
     get_bob_observables(int) = 0;
@@ -71,13 +73,7 @@ public:
     split(libbase::vector<T>& measurements_alice,
           libbase::vector<T>& measurements_bob) = 0;
 
-    // Allows the system to pass Bob's channel to the protocol for setup.
-    virtual void prepare_for_cycle(const std::shared_ptr<quantum_channel>&)
-    {
-    }
-
     // Pass source generator to get VA for CV_QKD.
-
 
     /* Helper functions related to codec.*/
     virtual std::shared_ptr<codec<libbase::vector>> get_codec() const = 0;
@@ -89,11 +85,6 @@ public:
     // qkd_commsys_simulator.h.
     virtual void set_bob_vector_s(libbase::vector<bool>& s) = 0;
 
-    /* Template parameter S represents the type of quantum state.
-    For e.g. for the GG02 case for CV-QKD using coherent states
-    the type is: gaussian_state. Check quantum_state.h. */ 
-    virtual void initialise(source<S>& src_gen) = 0;    
-    
     // Returns final secret keys KA and KB.
     virtual std::pair<C<bool>, C<bool>>
     postprocess(libbase::vector<T>&& alice_measurements,

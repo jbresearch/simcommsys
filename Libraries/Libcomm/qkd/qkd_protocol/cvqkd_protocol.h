@@ -20,8 +20,6 @@
 #include "hamming.h"
 #include "informed_embedder/direct_block_informed_embedder.h"
 #include "informed_embedder/sign.h"
-#include "source/quantum_gaussian_source.h"
-#include "qkd/quantum_state.h"
 #include "qkd/observable/fake_momentum_observable.h"
 #include "qkd/observable/fake_position_observable.h"
 #include "qkd/observable/momentum_observable.h"
@@ -29,8 +27,10 @@
 #include "qkd/privacy_amplification.h"
 #include "qkd/privacy_amplification/pa_standard_toeplitz.h"
 #include "qkd/qkd_protocol.h"
+#include "qkd/quantum_state.h"
 #include "random.h"
 #include "serializer.h"
+#include "source/quantum_gaussian_source.h"
 
 #include <memory>
 #include <vector>
@@ -38,17 +38,18 @@
 namespace libcomm
 {
 
-class cvqkd_protocol : public qkd_protocol<gaussian_state, double, libbase::vector>
+class cvqkd_protocol
+    : public qkd_protocol<gaussian_state, double, libbase::vector>
 {
 private:
     libbase::randgen rng; // used to randomly choose observables
     libbase::vector<int> decision_vector;
     std::shared_ptr<quantum_channel> m_bob_channel;
 
-    int framesize = 0; // Number of generated coherent states per frame. 
-    int N_PE;    // Number of samples used for parameter estimation.
-    int N_0;     // shot noise
-    double v_el; // electric noise
+    int framesize = 0; // Number of generated coherent states per frame.
+    int N_PE;          // Number of samples used for parameter estimation.
+    int N_0;           // shot noise
+    double v_el;       // electric noise
     double detector_efficiency;
     double m_modulation_variance = 0.0;
     double smoothing_parameter;
@@ -93,8 +94,11 @@ public:
         pa_system.seedfrom(rng);
     }
 
-    void initialise(source<gaussian_state>& src_gen_base) override;
-    
+    // Method that initialises VA from source and bob's quantum channel.
+    void
+    init(source<gaussian_state>& src_gen_base,
+               const std::shared_ptr<quantum_channel>& bob_channel) override;
+
     // Note: here I replaced libbase::vector with the std::vector only for the
     // observables. Returns the observables of Bob
     std::vector<std::unique_ptr<observable<double>>>
@@ -153,10 +157,6 @@ public:
     std::tuple<double, double, double>
     parameter_estimation_optical_fiber(const libbase::vector<double>& X_PE,
                                        const libbase::vector<double>& Y_PE);
-
-    // Method that gets VA from Bob's quantum channel initialised in
-    // qkd_commsys.h
-    void prepare_for_cycle(const std::shared_ptr<quantum_channel>& bob_channel) override;
 
     // Mutual Information for the GG02 protocol.
     double calculate_mutual_information(double chi_total_hat);
