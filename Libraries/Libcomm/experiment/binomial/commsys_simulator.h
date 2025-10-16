@@ -40,6 +40,25 @@ namespace libcomm
 {
 
 /*!
+ * \brief   Communication Systems Simulator Base.
+ * \author  Johann Briffa
+ *
+ * Base class for simulator, to hold non-templated material that needs to be
+ * referenced externally.
+ */
+
+class commsys_simulator_base : public experiment_binomial
+{
+public:
+    // Interface for Results Collector
+    typedef enum {
+        SYMBOLS_PER_FRAME,
+        SYMBOLS_PER_BLOCK,
+        ALPHABET_SIZE
+    } index_t;
+};
+
+/*!
  * \brief   Communication Systems Simulator.
  * \author  Johann Briffa
  *
@@ -49,7 +68,7 @@ namespace libcomm
  */
 
 template <class S>
-class commsys_simulator : public experiment_binomial
+class commsys_simulator : public commsys_simulator_base
 {
 public:
     /*! \name Type definitions */
@@ -73,11 +92,6 @@ protected:
 
 protected:
     // Interface for Results Collector
-    typedef enum {
-        SYMBOLS_PER_FRAME,
-        SYMBOLS_PER_BLOCK,
-        ALPHABET_SIZE
-    } index_t;
     std::any get_value(const int index) const override
     {
         switch (index) {

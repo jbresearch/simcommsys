@@ -20,6 +20,7 @@
  */
 
 #include "fidelity_pos.h"
+#include "experiment/binomial/commsys_simulator.h"
 
 namespace libcomm
 {
@@ -27,7 +28,8 @@ namespace libcomm
 void
 fidelity_pos::init(const queryable& system)
 {
-    symbolsperframe = std::any_cast<int>(system.get_value(0));
+    symbolsperframe = std::any_cast<int>(
+        system.get_value(commsys_simulator_base::SYMBOLS_PER_FRAME));
 }
 
 /*!

@@ -20,6 +20,7 @@
  */
 
 #include "errors_hamming.h"
+#include "experiment/binomial/commsys_simulator.h"
 #include "hamming.h"
 
 namespace libcomm
@@ -28,7 +29,8 @@ namespace libcomm
 void
 errors_hamming::init(const queryable& system)
 {
-    symbolsperblock = std::any_cast<int>(system.get_value(1));
+    symbolsperblock = std::any_cast<int>(
+        system.get_value(commsys_simulator_base::SYMBOLS_PER_BLOCK));
 }
 
 /*!

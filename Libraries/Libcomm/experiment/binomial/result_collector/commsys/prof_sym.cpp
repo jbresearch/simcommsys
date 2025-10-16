@@ -20,6 +20,7 @@
  */
 
 #include "prof_sym.h"
+#include "experiment/binomial/commsys_simulator.h"
 #include "fsm.h"
 #include <sstream>
 
@@ -34,7 +35,8 @@ prof_sym::init(const queryable& system)
     // initialise base class
     errors_hamming::init(system);
     // initialise this class's elements
-    alphabetsize = std::any_cast<int>(system.get_value(2));
+    alphabetsize = std::any_cast<int>(
+        system.get_value(commsys_simulator_base::ALPHABET_SIZE));
 }
 
 void
