@@ -248,42 +248,24 @@ sign<double>
 
     sys.seedfrom(rng);
 
-    // 3) Set the CLI params (Bob’s SNR) through qkd_commsys
-    // const double SNR_linear = 17.7558; // linear (not dB) excess noise of
-    // 0.005
-    // const double SNR_linear = 17.74018571692195; // for an excess noise of
-    // 0.01
-
     const double VN = 1.041915; // Variance VN, the new CLI parameter.
+    // If VA = 18.5, SNR_linear ~ 17.7558
 
     libbase::vector<double> cli;
     cli.init(sys.get_num_params()); // should be 1 when Alice is identity , CLI
                                     // channel parameters
-    // cli(0) = SNR_linear;            // index 0 -> Bob's SNR
     cli(0) = VN; // index 0 -> Bob's Variance VN to generate noise.
-
-    // TODO: to change this to variance VN rather than SNR. As the new CLI
-    // parameter.
 
     sys.set_parameters(cli);
 
-    // 4a) Print System Parameters of the QKD Commsys Object
+    // 4) Print System Parameters of the QKD Commsys Object
     std::cout << "\n" << sys.description() << "\n\n";
-
-    // // 4b) Print Codec details of the CV-QKD protocol under qkd_commsys.h.
-    // std::cout << "\nPrinting codec description from qkd_commsys.h" <<
-    // std::endl; std::cout << sys.codec_description();
 
     // 5) Verify CLI parameters of Quantum Channel of Bob
     auto back = sys.get_parameters();
 
-    // std::cout
-    //     << "TESTGAUSSIANCVQKD:  (CLI parameter of Bob's Quantum Channel) SNR
-    //     = "
-    //     << SNR_linear << std::endl;
-
     std::cout << "TESTGAUSSIANCVQKD:  (CLI parameter of Bob's Quantum Channel) "
-                 "Variance = "
+                 "Variance VN = "
               << VN << std::endl;
 
     // 6) Create Gaussian Quantum Source
@@ -314,10 +296,6 @@ quantum_gaussian_source
     libbase::randgen r;
     r.seed(2602);
     src->seedfrom(r);
-
-    // double VA = src->get_VA(); // TODO: to move in the cvqkd_protocol.
-    // std::cout << "TESTGAUSSIANCVQKD: Modulation Variance of Source = " << VA
-    //           << std::endl;
 
     // Gets the number of coherent states generated for a single frame from the
     // qkd_commsys object.
