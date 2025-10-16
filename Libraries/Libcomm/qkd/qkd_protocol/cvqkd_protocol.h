@@ -55,7 +55,8 @@ private:
     double smoothing_parameter;
     double I_AB = 0.0;      // Mutual Information between Alice and Bob.
     double chi_BE = 0.0;    // Holevo Bound between Bob and Eve for RR.
-    bool MI_Check = false;  // Check that verifies if I_AB > X_B?
+    bool MI_Check = false;  // MI check that verifies if I_AB > X_B?
+    bool H_check = false;    // Hash check that verifies if hash_hs == hash_hsat?
     int len_secret_key = 0; // Length of final secret key
     int n_samples = 0;      // Number of samples after parameter estimation.
                             // Equivalent to same n of LDPC codec.
@@ -78,9 +79,6 @@ protected:
         embedder; // Embedder
     std::shared_ptr<channel<double>>
         demodulation_channel; // Channel to be used for demodulation.
-
-    // Check that verifies if hash_hs == hash_hsat?
-    int H_check = 0;
 
     //  Privacy Amplification System using the standard Toeplitz matrix
     pa_standard_toeplitz<bool> pa_system;
