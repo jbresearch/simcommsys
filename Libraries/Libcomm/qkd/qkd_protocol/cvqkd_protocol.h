@@ -95,9 +95,8 @@ public:
     }
 
     // Method that initialises VA from source and bob's quantum channel.
-    void
-    init(source<gaussian_state>& src_gen_base,
-               const std::shared_ptr<quantum_channel>& bob_channel) override;
+    void init(source<gaussian_state>& src_gen_base,
+              const std::shared_ptr<quantum_channel>& bob_channel) override;
 
     // Note: here I replaced libbase::vector with the std::vector only for the
     // observables. Returns the observables of Bob
@@ -206,12 +205,6 @@ public:
     int get_codec_output_bits_n() const override
     {
         return cdc->output_block_size();
-    }
-
-    // Getter to get Bob's vector s from qkd_commsys
-    void set_bob_vector_s(libbase::vector<bool>& s) override
-    {
-        bob_vector_s = s;
     }
 
     // Helper function to Get codec.
