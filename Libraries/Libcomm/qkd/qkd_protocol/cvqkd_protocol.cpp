@@ -419,15 +419,13 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         bobs_channel_parameters.init(1);
         bobs_channel_parameters = this->m_bob_channel->get_parameters();
 
-        std::cout
-            << "Printing variance VN from get parameters (cvqkdprotocol.cpp) = "
-            << bobs_channel_parameters(0) << std::endl;
-
         // CLI parameter of the gaussian quantum channel.
         SNR_linear =
             (this->m_modulation_variance) / (bobs_channel_parameters(0));
 
 #if DEBUG >= 1
+        std::cerr << "CV_QKDPROTOCOL:  Variance VN = "
+                  << (bobs_channel_parameters(0)) << std::endl;
         std::cerr << "CV_QKDPROTOCOL:  SNR_linear = " << SNR_linear
                   << std::endl;
 #endif
