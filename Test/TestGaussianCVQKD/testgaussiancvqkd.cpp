@@ -218,7 +218,8 @@ sign<double>
 
     // Set seed for qkd_commsys object
     libbase::randgen rng;
-    rng.seed(17);
+    rng.seed(17); // vector s = 000 with k = 3
+    rng.seed(7);
 
     /*
     With this seed:
@@ -304,31 +305,12 @@ quantum_gaussian_source
         << "TESTGAUSSIANCVQKD:  Number of generated coherent states (Alice) = "
         << framesize << std::endl;
 
-    // Gets input k bits from codec of the CV-QKD protocol.
-    int k = sys.get_codec_input_bits_k();
-    std::cout << "TESTGAUSSIANCVQKD:  : size of vector s =  " << k
-              << std::endl; // just to test that k is correct. This is also
-                            // added in simulator.
-
-    // Generate vector s from k as done in qkd_commsys simulator.h
-    libbase::vector<bool> vector_s(k);
-    for (int i = 0; i < k; ++i) {
-        vector_s(i) = (r.ival(2) != 0);
-    }
-
-    std::cout << "TESTGAUSSIANCVQKD:  Generated vector s: " << std::endl;
-    for (int i = 0; i < vector_s.size(); ++i) {
-        std::cout << vector_s(i) << "\t";
-    }
-    std::cout << std::endl;
-
-    sys.set_bob_vector(vector_s);
-
     // Generates a sequence of coherent states which is the input to the
     // fullcycle method in qkd_commsys.h
     libbase::vector<libcomm::gaussian_state> source =
         src->generate_sequence(libbase::size_type<libbase::vector>(framesize));
 
+    //Sends source to qkd_commsys to be later used by the protocol. 
     sys.set_src(s_ptr);
 
     // Initialise final_key
