@@ -332,6 +332,9 @@ commsys_simulator<S>::serialize(std::istream& sin)
         src.reset(new uniform<int>(sys->num_inputs()));
     }
 
+    // initialise components
+    rc->init(*this);
+
     // finish
     assertalways(sin.good());
     return sin;
