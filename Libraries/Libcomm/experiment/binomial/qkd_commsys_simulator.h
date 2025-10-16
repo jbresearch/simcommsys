@@ -73,7 +73,7 @@ public:
      * Initializes system with bound objects cloned from supplied system.
      */
     qkd_commsys_simulator(const qkd_commsys_simulator<S, T, R>& c)
-        : experiment_binomial(c), R(c), rng_(c.rng_), sgen(c.sgen)
+        : experiment_binomial(c), R(c), rng_(c.rng_)
     {
         if (c.src)
             src = std::dynamic_pointer_cast<source<S>>(c.src->clone());

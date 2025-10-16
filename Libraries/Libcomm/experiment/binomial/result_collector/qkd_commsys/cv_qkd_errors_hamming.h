@@ -51,7 +51,6 @@ public:
     /*! \name Public interface */
     void updateresults(libbase::vector<double>& result,
                        libbase::vector<gaussian_state> source,
-                       libbase::vector<bool> vector_s,
                        libbase::vector<bool>& key_KA,
                        libbase::vector<bool>& key_KB) const;
     /*! \copydoc experiment::count()

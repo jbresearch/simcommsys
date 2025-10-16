@@ -40,7 +40,6 @@ namespace libcomm
 void
 cv_qkd_errors_hamming::updateresults(libbase::vector<double>& result,
                                      libbase::vector<gaussian_state> source,
-                                     libbase::vector<bool> vector_s,
                                      libbase::vector<bool>& key_KA,
                                      libbase::vector<bool>& key_KB) const
 {
@@ -48,7 +47,8 @@ cv_qkd_errors_hamming::updateresults(libbase::vector<double>& result,
 
     int symerrors = libbase::hamming(key_KA, key_KB);
     result(1) += symerrors; // SER = sum(hamming(KA,KB)) / sum(len(KA))
-    result(2) += symerrors ? 1 : 0; // FER = sum(hamming(KA,KB)>0) / sum(samples)
+    result(2) +=
+        symerrors ? 1 : 0; // FER = sum(hamming(KA,KB)>0) / sum(samples)
 }
 
 } // namespace libcomm

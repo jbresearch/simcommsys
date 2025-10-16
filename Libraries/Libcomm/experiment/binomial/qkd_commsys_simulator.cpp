@@ -55,7 +55,7 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
         result.segment(0, R::count());
 
     // CV collector
-    R::updateresults(result_segment, source, vector_s, key_KA, key_KB);
+    R::updateresults(result_segment, source, key_KA, key_KB);
 }
 
 template <class S, class T, class R>
