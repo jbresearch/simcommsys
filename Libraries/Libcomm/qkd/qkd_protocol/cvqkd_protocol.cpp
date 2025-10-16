@@ -332,6 +332,12 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
                             libbase::vector<double>&& bob_measurements)
 {
 
+    libbase::vector<bool> final_secret_key_KA;
+    libbase::vector<bool> final_secret_key_KB;
+
+    // Set a default length of 0. This is updated upon success.
+    len_secret_key = 0;
+
     // Calculating N_PE: the number of samples used for parameter estimation.
     // N_PE = N (number of generated states) - n (size of codeword of the
     // codec)
@@ -379,8 +385,20 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 
     // chi_be can never be negative
     if (chi_BE < 0) {
-        chi_BE = 0;
+        chi_BE = 0;  // chi can never be negative. 
     }
+
+    /* TODO: To delete hard coded values. I am just doing this for debugging
+    purposes since the framesize I started with was small/ 
+
+    // Checking for MI_check = False
+    I_AB = 1.04; 
+    chi_BE = 0.82;
+
+    // Checking for MI_check = False
+    I_AB = 0.5;
+    chi_BE = 0.82;
+    */
 
 #if DEBUG >= 1
     std::cerr << "CV_QKDPROTOCOL:  Mutual Information I_AB = " << I_AB
@@ -389,29 +407,15 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
               << std::endl;
 #endif
 
-    // ------------ to delETE
-    //     /* TODO: TO delete lines 236 and 237. I am just doing this for
-    //     debugging
-    //         * purposes since the framesize I started with was small/ */
-    I_AB = 1.05;
-    chi_BE = 0.82;
-
-    // #if DEBUG >= 1
-    //     std::cerr << "CV_QKDPROTOCOL:  Mutual Information I_AB = " << I_AB <<
-    //     std::endl; std::cerr << "CV_QKDPROTOCOL:  Holevo Bound Chi_BE = " <<
-    //     chi_BE << std::endl;
-    // #endif
-    // ----------- TO DELETE
-
     /* Checks whether the protocol is aborted or not to continue with the
      * Information Reconciliation stage. */
+    MI_Check = (I_AB > chi_BE);
 
-    if (I_AB > chi_BE) {
-        MI_Check = true;
+    if (MI_Check) {
 
 #if DEBUG >= 1
-        std::cerr << "CV_QKDPROTOCOL:  Mutual Information Check MI_Check = "
-                  << MI_Check << std::endl;
+        std::cerr << "CV_QKDPROTOCOL:  Mutual Information Check MI_Check = true"
+                  << std::endl;
 #endif
 
         /* Gets variance VN from Bob's Gaussian Quantum Channel*/
@@ -559,10 +563,11 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
                   << std::endl;
 #endif
 
-        if (hash_hs == hash_hs_hat) {
-            H_check = 1;
+        H_check = (hash_hs == hash_hs_hat);
+
+        if (H_check) {
 #if DEBUG >= 1
-            std::cerr << "CV_QKDPROTOCOL: H_check = " << H_check << std::endl;
+            std::cerr << "CV_QKDPROTOCOL: H_check = true" << std::endl;
 #endif
 
             /* Calculate Beta for MDR: beta = R/C(S) taken from the Quasi Cyclic
@@ -593,23 +598,8 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
                       << std::endl;
 #endif
 
-            // Sets length of secret keys KA and KB to later be able to retrieve
-            // them for the results collector.
-            libbase::vector<bool> final_secret_key_KA;
-            libbase::vector<bool> final_secret_key_KB;
-
-            final_secret_key_KA.init(len_secret_key);
-            final_secret_key_KB.init(len_secret_key);
-
-            if (len_secret_key == 0) {
-                // Return empty keys.
-                final_secret_key_KA.init(len_secret_key);
-                final_secret_key_KB.init(len_secret_key);
-
-                return {std::move(final_secret_key_KA),
-                        std::move(final_secret_key_KB)};
-            } else {
-                // Continue and initialise Privacy Amplification system:
+            if (len_secret_key > 0) {
+                // Perform Privacy Amplification:
                 // * alphabet size of 2
                 // * length of final key after doing PA.
                 // * length of pre-hashed key which in this case is the size of
@@ -641,52 +631,31 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
                 final_secret_key_KA = pa_system.compute_hashed_key(
                     standard_toeplitz_matrix, vector_s_hat);
             }
-#if DEBUG >= 1
-            std::cerr << "CV_QKDPROTOCOL: final_secret_key_KA = "
-                      << final_secret_key_KA << std::endl;
-            std::cerr << "CV_QKDPROTOCOL: final_secret_key_KB = "
-                      << final_secret_key_KB << std::endl;
-#endif
-
-            return {std::move(final_secret_key_KA),
-                    std::move(final_secret_key_KB)};
         } else {
 
-            H_check = 0;
 #if DEBUG >= 1
-            std::cerr << "CV_QKDPROTOCOL: H_check = " << H_check << std::endl;
+            std::cerr << "CV_QKDPROTOCOL: H_check = false" << H_check
+                      << std::endl;
 #endif
-
-            libbase::vector<bool> final_secret_key_KA;
-            libbase::vector<bool> final_secret_key_KB;
-
-            len_secret_key = 0;
-
-            // Sets length of secret keys KA and KB to zero to later be able to
-            // retrieve it for the results collector.
-            final_secret_key_KA.init(len_secret_key);
-            final_secret_key_KB.init(len_secret_key);
-
-            return {std::move(final_secret_key_KA),
-                    std::move(final_secret_key_KB)};
         }
     } else {
-        MI_Check = false;
-
 #if DEBUG >= 1
-        std::cerr << "CV_QKDPROTOCOL:  Mutual Information Check MI_Check = "
-                  << MI_Check << std::endl;
+        std::cerr
+            << "CV_QKDPROTOCOL:  Mutual Information Check MI_Check = false"
+            << std::endl;
 #endif
+    }
 
-        len_secret_key = 0;
-
-        libbase::vector<bool> final_secret_key_KA;
-        libbase::vector<bool> final_secret_key_KB;
-
-        final_secret_key_KA.init(len_secret_key);
-        final_secret_key_KB.init(len_secret_key);
+    // If any check failed, len_secret_key will still be 0.
+    // Initialize empty keys in that case.
+    if (len_secret_key == 0) {
+        final_secret_key_KA.init(0);
+        final_secret_key_KB.init(0);
+    }
 
 #if DEBUG >= 1
+        std::cerr << "CV_QKDPROTOCOL: len_secret_key = " << len_secret_key
+                  << std::endl;
         std::cerr << "CV_QKDPROTOCOL: final_secret_key_KA = "
                   << final_secret_key_KA << std::endl;
         std::cerr << "CV_QKDPROTOCOL: final_secret_key_KB = "
@@ -694,8 +663,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 #endif
 
         // print final keys
-        return {std::move(final_secret_key_KA), std::move(final_secret_key_KA)};
-    }
+        return {std::move(final_secret_key_KA), std::move(final_secret_key_KB)};    
 }
 
 // Returns description of the protocol
