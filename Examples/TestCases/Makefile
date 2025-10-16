@@ -23,7 +23,8 @@ STREAM_TERM_N := 1 10
 # List of results collectors to work with
 COLLECTOR_TYPES := errors_levenshtein errors_hamming prof_pos fidelity_pos
 # List of input stream modes
-INPUT_TYPES := random zero user
+#INPUT_TYPES := random zero user
+INPUT_TYPES := random
 
 # Set default tag and release to test with
 ifndef BUILDID
@@ -78,9 +79,9 @@ clean:
 
 define GAWK_SETUP
 	# setup
-	mode["zero"] = 0
-	mode["random"] = 1
-	mode["user"] = 2
+	mode["zero"] = ""
+	mode["random"] = "uniform<int,vector>\n# Alphabet size\n2"
+	mode["user"] = ""
 endef
 
 define GAWK_USERSEQ
@@ -214,13 +215,17 @@ define GAWK_SIMULATOR_$(1)_$(2)
 	x=$$$$0
 	# use standard simulator
 	sub(/commsys[^<]*/,"commsys_simulator",x)
-	# remove container type and add results collector
-	x = gensub(/<(.+),vector>/,"<\\1,$(1)>","g",x)
+	# remove container type
+	x = gensub(/<(.+),vector>/,"<\\1>","g",x)
 	print x;
 	# add simulator version, and input mode
 	print "# Version"
-	print 2
-	print "# Input mode (0=zero, 1=random, 2=user[seq])"
+	print 5
+	print "# Results collector"
+	print "$(1)"
+	print "# Analyze all decode iterations"
+	print 1
+	print "# Source generator"
 	print mode["$(2)"]
 	if ("$(2)" == "user")
 		{
