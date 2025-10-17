@@ -107,9 +107,15 @@ public:
               std::complex<double> comp_basis_1)
     {
         // always ensure coefficients are normalized.
-        assertalways(comp_basis_0 * std::conj(comp_basis_0) +
-                         comp_basis_1 * std::conj(comp_basis_1) ==
-                     std::complex<double>(1));
+        std::complex<double> norm = comp_basis_0 * std::conj(comp_basis_0) +
+                                    comp_basis_1 * std::conj(comp_basis_1);
+
+        // Define a small tolerance for floating-point comparison
+        constexpr double epsilon = 1e-9;
+
+        // Check if the real part is close to 1 and the imaginary part is close to 0
+        assertalways(std::abs(norm.real() - 1.0) < epsilon && std::abs(norm.imag()) < epsilon);
+
         this->comp_basis_0 = comp_basis_0;
         this->comp_basis_1 = comp_basis_1;
     }
