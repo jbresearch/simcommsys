@@ -14,13 +14,13 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
+ * TODO: rename to quantum_coherent_source
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __source_quantum_gaussian_h
-#define __source_quantum_gaussian_h
+#ifndef __quantum_gaussian_source_h
+#define __quantum_gaussian_source_h
 
 #include "config.h"
 #include "qkd/quantum_state.h"
@@ -122,4 +122,4 @@ public:
 
 } // namespace libcomm
 
-#endif // __source_quantum_gaussian_h
+#endif // __quantum_gaussian_source_h
