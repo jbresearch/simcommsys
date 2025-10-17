@@ -16,9 +16,10 @@
 
 #include "serializer_libcomm.h"
 
+#include "source/quantum_bb84_source.h"
 #include "qkd_commsys.h"
 
-#include "codec/ldpc.h"
+// #include "codec/ldpc.h"
 #include "gf.h"
 #include "random.h"
 #include "vector.h"
@@ -34,19 +35,15 @@ print_vector(const std::string& title, const libbase::vector<T>& vec)
     std::cout << std::endl;
 }
 
-class bit_vector_generator
-{
-public:
-    libbase::vector<bool> generate_vector(int k, libbase::random& r)
-    {
-        libbase::vector<bool> s(k);
-        for (int i = 0; i < k; ++i) {
-            s(i) = (r.ival(2) != 0);
-        }
-        return s;
+// Helper function to print a vector
+template<typename T>
+void print_std_vector(const std::string& title, const std::vector<T>& vec) {
+    std::cout << title;
+    for (const auto& val : vec) {
+        std::cout << val << " ";
     }
-} sgen;
-
+    std::cout << std::endl;
+}
 
 
 BOOST_AUTO_TEST_CASE(test_bb84_protocol)
@@ -56,19 +53,42 @@ BOOST_AUTO_TEST_CASE(test_bb84_protocol)
 
     std::cout << "\n*****Boost Test Case *****\n";
 
-    // PRNG for vector a
-    libbase::randgen rng;
+    // Create BB84 Source Generator.
+    std::stringstream ss_src;
+    ss_src << R"SS(
+quantum_bb84_source
+)SS";
 
-    // Set seed for qkd_commsys object
-    rng.seed(17);
+    // Number of qubits generated for a single frame
+    int framesize = 10;
 
-    // Number of bits that Alice generates for bit string a.
-    int n = 100;
+    // Build source.
+    std::shared_ptr<libcomm::source<libcomm::qubit, libbase::vector>>
+        s_ptr;
+    ss_src >> s_ptr;
+    auto* src = dynamic_cast<libcomm::quantum_bb84_source*>(s_ptr.get());
+    BOOST_REQUIRE(src != nullptr);
 
-    // Bit string a will be generated in the qkd_commsys_simulator.
-    libbase::vector<bool> bit_string_a(n);
-    bit_string_a = sgen.generate_vector(n, rng);
+    libbase::randgen r;
+    r.seed(2602);
+    src->seedfrom(r);
 
-    std::cout << "Size of bit_string a: " << bit_string_a.size() << std::endl;
-    print_vector("Generated bit string a by Alice: ", bit_string_a);
+    // Generate a sequence of qubits which is the input to the fullcycle method in qkd_commsys.h
+    libbase::vector<libcomm::qubit> source =
+        src->generate_sequence(libbase::size_type<libbase::vector>(framesize));
+
+    // Get vector a of Alice which is the vector of bits.
+    std::vector<bool> vector_a(framesize);
+
+    vector_a = src->get_bits();
+
+    // Get vector b of Alice which is the basis vector.
+    std::vector<bool> vector_b(framesize);
+
+    vector_b = src->get_bases();
+
+    // In your test case:
+    print_std_vector("Print bits vector of Alice = ", vector_a);
+    print_std_vector("Print bases vector of Alice = ", vector_b);
+
 }
