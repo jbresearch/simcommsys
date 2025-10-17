@@ -1,6 +1,6 @@
 /*!
  * \file
- *qw
+ *qwqw
  * Copyright (c) 2025 Mark Mizzi
  *
  * This file is part of SimCommSys.
@@ -27,6 +27,7 @@
 #include "random.h"
 #include "serializer.h"
 #include "source.h"
+#include "source.h"
 #include "vector.h"
 #include <memory>
 #include <string>
@@ -51,7 +52,7 @@ class qkd_commsys;
 
 /*!
  * \brief   Common Base for QKD postprocessing protocol.
- * \author  Mark Mizzi, Aaron Abela
+ * \author  Mark Mizzi, Aaron Abela, Aaron Abela
  */
 template <class S, typename T, template <class> class C = libbase::vector>
 class qkd_protocol : public instrumented, public libbase::serializable
