@@ -95,6 +95,9 @@ private:
     std::complex<double> comp_basis_0, comp_basis_1;
 
 public:
+    //! default constructor
+    qubit() { init({1.0, 0.0}, {0.0, 0.0}); } // Default to |0> state
+
     qubit(std::complex<double> comp_basis_0, std::complex<double> comp_basis_1)
     {
         init(comp_basis_0, comp_basis_1);
