@@ -45,6 +45,9 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
     // fullcycle method in qkd_commsys.
     libbase::vector<S> source = src->generate_sequence(framesize);
 
+    // qkd_commsys sends the src generator to get VA for CV-QKD.
+    sys->set_src(src);
+
     // Both final keys are of libbase::vector<bool> type.
     auto [key_KA, key_KB] = sys->fullcycle(source);
 
@@ -54,27 +57,6 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
     // CV collector
     R::updateresults(result_segment, source, key_KA, key_KB);
 }
-
-template <class S, class T, class R>
-void
-qkd_commsys_simulator<S, T, R>::sampleBB84(array1d_t& result)
-{
-    // Reset timers
-    this->reset_timers();
-    // Initialise result vector
-    result.init(count());
-    result = 0;
-
-    //  Gets the number of bits that Alice needs to generate for a single frame/ bit string a from the qkd_commsys object.
-    const libbase::size_type<libbase::vector> framesize(
-        sys->input_block_size());
-
-    bit_string_a.init(framesize);
-
-    // Generates bit string a for Alice with size n.
-    bit_string_a = sgen.generate_vector(framesize, *rng_);
-}
-
 
 template <class S, class T, class R>
 std::string

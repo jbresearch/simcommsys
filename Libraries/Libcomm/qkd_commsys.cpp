@@ -193,3 +193,4 @@ BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
                               (STATE_SEQ)(SCALAR_SEQ)(CONTAINER_SEQ))
 
 } // namespace libcomm
+
