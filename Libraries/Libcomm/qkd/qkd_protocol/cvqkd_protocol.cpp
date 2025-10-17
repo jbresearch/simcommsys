@@ -3,6 +3,8 @@
 #include "gf.h"
 #include "source/quantum_gaussian_source.h"
 #include <cmath>
+#include "source/quantum_gaussian_source.h"
+#include <cmath>
 #include <sstream>
 
 using libbase::serializer;

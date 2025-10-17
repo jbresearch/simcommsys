@@ -29,6 +29,7 @@
 #include "qkd/privacy_amplification/pa_standard_toeplitz.h"
 #include "qkd/qkd_protocol.h"
 #include "qkd/quantum_state.h"
+#include "qkd/quantum_state.h"
 #include "random.h"
 #include "serializer.h"
 #include "source/quantum_gaussian_source.h"
@@ -40,7 +41,8 @@ namespace libcomm
 {
 
 class cvqkd_protocol
-    : public qkd_protocol<gaussian_state, double, libbase::vector>
+
+    : public qkd_protocol<gaussian_state, gaussian_state, double, libbase::vector>
 {
 private:
     libbase::randgen rng; // used to randomly choose observables
