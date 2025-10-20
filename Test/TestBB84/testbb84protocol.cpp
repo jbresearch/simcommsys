@@ -17,6 +17,7 @@
 #include "serializer_libcomm.h"
 
 #include "source/quantum_bb84_source.h"
+#include "qkd/quantum_state.h"
 #include "qkd_commsys.h"
 
 // #include "codec/ldpc.h"
@@ -44,6 +45,49 @@ void print_std_vector(const std::string& title, const std::vector<T>& vec) {
     }
     std::cout << std::endl;
 }
+
+std::pair<bool, bool> get_alice_choice_from_qubit(const libcomm::qubit& q)
+{
+    // Define the values Alice uses
+    const double inv_sqrt2 = 1.0 / std::sqrt(2.0);
+    const double epsilon = 1e-9; // A small tolerance for float comparison
+
+    // Get the internal amplitudes (the "cheat")
+    std::complex<double> alpha = q.get_comp_basis_0();
+    std::complex<double> beta = q.get_comp_basis_1();
+
+    // Now, compare against the 4 known noiseless states
+    // We only need to check the real parts based on quantum_bb84_source.h
+
+    // Case 1: State |0> (bit=0, basis=0)
+    // alpha=1.0, beta=0.0
+    if (std::abs(alpha.real() - 1.0) < epsilon && std::abs(beta.real()) < epsilon) {
+        return {false, false}; // bit=0, basis=0 (Z)
+    }
+
+    // Case 2: State |1> (bit=1, basis=0)
+    // alpha=0.0, beta=1.0
+    if (std::abs(alpha.real()) < epsilon && std::abs(beta.real() - 1.0) < epsilon) {
+        return {true, false}; // bit=1, basis=0 (Z)
+    }
+
+    // Case 3: State |+> (bit=0, basis=1)
+    // alpha=1/sqrt(2), beta=1/sqrt(2)
+    if (std::abs(alpha.real() - inv_sqrt2) < epsilon && std::abs(beta.real() - inv_sqrt2) < epsilon) {
+        return {false, true}; // bit=0, basis=1 (X)
+    }
+
+    // Case 4: State |-> (bit=1, basis=1)
+    // alpha=1/sqrt(2), beta=-1/sqrt(2)
+    if (std::abs(alpha.real() - inv_sqrt2) < epsilon && std::abs(beta.real() + inv_sqrt2) < epsilon) {
+        return {true, true}; // bit=1, basis=1 (X)
+    }
+
+    // If it's none of these, it's a state we don't recognize (e.g., noisy)
+    // We'll throw an error here, as a test should be precise.
+    throw std::runtime_error("Unknown qubit state. Not a valid Alice state.");
+}
+
 
 
 BOOST_AUTO_TEST_CASE(test_bb84_protocol)
@@ -88,7 +132,23 @@ quantum_bb84_source
     vector_b = src->get_bases();
 
     // In your test case:
+    std::cout << "These vectors are just being printed for testing purpose: " << std::endl;
     print_std_vector("Print bits vector of Alice = ", vector_a);
     print_std_vector("Print bases vector of Alice = ", vector_b);
+
+
+    // Get measurement value/bit of Alice and the basis vector for a single qubit.
+    std::cout << "***** Verification *****" << std::endl;
+    std::cout << "Verifying that the bit value and basis value for the first generated qubit is correct: " << std::endl; 
+
+    std::pair<bool, bool> deduced = get_alice_choice_from_qubit(source(0));
+    bool deduced_bit = deduced.first;
+    bool deduced_basis = deduced.second;
+
+    std::cout << "The deduced bit for quantum state 1 = " << deduced_bit << std::endl;
+    std::cout << "The deduced bit for quantum state 1 = " << deduced_bit << std::endl;
+
+    
+
 
 }
