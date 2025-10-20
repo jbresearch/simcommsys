@@ -31,7 +31,6 @@ public:
     double measure(gaussian_state& state) const override
     {
         return state.get_p_mean();
-        return 0;
     }
 
     void transmit(quantum_channel& c) override { c.transmit(*this); }
