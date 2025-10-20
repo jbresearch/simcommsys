@@ -1,7 +1,7 @@
 /*!
  * \file
  *
- * Copyright (c) 2025 Mark Mizzi
+ * Copyright (c) 2025 Mark Mizzi, Aaron Abela
  *
  * This file is part of SimCommSys.
  *
@@ -36,6 +36,8 @@ class position_observable;
 class momentum_observable;
 class fake_position_observable;
 class fake_momentum_observable;
+class fake_hadamard_observable;
+class fake_computational_observable;
 
 class spin_computational;
 class spin_hadamard;
@@ -72,6 +74,16 @@ public:
     { // Only to be used for the observables of Alice.
         failwith("Not implemented.");
     }
+
+    virtual void transmit(fake_hadamard_observable&)
+    { // Only to be used for the observables of Alice.
+        failwith("Not implemented.");
+    }
+    virtual void transmit(fake_computational_observable&)
+    { // Only to be used for the observables of Alice.
+        failwith("Not implemented.");
+    }
+
 
     virtual void transmit(spin_computational&) { failwith("Not implemented."); }
     virtual void transmit(spin_hadamard&) { failwith("Not implemented."); }
