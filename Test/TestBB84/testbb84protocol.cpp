@@ -52,12 +52,12 @@ std::pair<bool, bool> get_alice_choice_from_qubit(const libcomm::qubit& q)
     const double inv_sqrt2 = 1.0 / std::sqrt(2.0);
     const double epsilon = 1e-9; // A small tolerance for float comparison
 
-    // Get the internal amplitudes (the "cheat")
+    // Get the internal amplitudes.
     std::complex<double> alpha = q.get_comp_basis_0();
     std::complex<double> beta = q.get_comp_basis_1();
 
     // Now, compare against the 4 known noiseless states
-    // We only need to check the real parts based on quantum_bb84_source.h
+    // Based on the quantum_bb84_source.h, only the real parts need to be checked. 
 
     // Case 1: State |0> (bit=0, basis=0)
     // alpha=1.0, beta=0.0
