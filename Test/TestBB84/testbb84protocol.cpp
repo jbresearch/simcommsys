@@ -146,9 +146,8 @@ quantum_bb84_source
     bool deduced_basis = deduced.second;
 
     std::cout << "The deduced bit for quantum state 1 = " << deduced_bit << std::endl;
-    std::cout << "The deduced bit for quantum state 1 = " << deduced_bit << std::endl;
+    std::cout << "The deduced basis for quantum state 1 = " << deduced_basis << std::endl;
 
     
-
 
 }
