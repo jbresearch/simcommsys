@@ -20,6 +20,7 @@
 #include "hamming.h"
 #include "informed_embedder/direct_block_informed_embedder.h"
 #include "informed_embedder/sign.h"
+#include "qkd_commsys.h"
 #include "qkd/observable/fake_momentum_observable.h"
 #include "qkd/observable/fake_position_observable.h"
 #include "qkd/observable/momentum_observable.h"
@@ -84,6 +85,11 @@ protected:
     pa_standard_toeplitz<bool> pa_system;
 
 public:
+
+    // Init method for CV-qkd protocol
+    void init(qkd_commsys<gaussian_state, double, libbase::vector>* qkdcommsys) override;
+
+
     void seedfrom(libbase::random& rng) override
     {
         this->rng.seed(rng.ival());
@@ -92,12 +98,7 @@ public:
         pa_system.seedfrom(rng);
     }
 
-    // Method that initialises VA from source and bob's quantum channel.
-    void init(source<gaussian_state>& src_gen_base,
-              const std::shared_ptr<quantum_channel>& bob_channel) override;
-
-    // Note: here I replaced libbase::vector with the std::vector only for the
-    // observables. Returns the observables of Bob
+    // Note: here I replaced libbase::vector with the std::vector only for the observables. Returns the observables of Bob
     std::vector<std::unique_ptr<observable<double>>>
     get_bob_observables(int framesize) override
     {

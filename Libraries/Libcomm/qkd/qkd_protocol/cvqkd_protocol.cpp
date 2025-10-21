@@ -18,17 +18,21 @@ namespace libcomm
 #endif
 
 void
-cvqkd_protocol::init(source<gaussian_state>& src_gen_base,
-                     const std::shared_ptr<quantum_channel>& bob_channel)
+cvqkd_protocol::init(qkd_commsys<gaussian_state, double, libbase::vector>* qkdcommsys)
 {
-    // Safely cast the base class reference to the derived class we need.
-    auto& src_gen = dynamic_cast<quantum_gaussian_source&>(src_gen_base);
+    // 1. Get the source generator from commsys
+    std::shared_ptr<source<gaussian_state>> src_gen_base = qkdcommsys->get_src();
+    assert(src_gen_base && "Commsys did not provide a source generator.");
 
-    // Now, correctly get the modulation variance from the source.
+    // Safely cast to the derived class we need
+    auto& src_gen = dynamic_cast<quantum_gaussian_source&>(*src_gen_base);
+
+    // 2. Get modulation variance from the source
     m_modulation_variance = src_gen.get_VA();
 
-    // Gets Bobs quantum channel from qkd_commsys.
-    this->m_bob_channel = bob_channel;
+    // 3. Get Bob's quantum channel from commsys
+    this->m_bob_channel = qkdcommsys->get_bob_channel();
+    assert(this->m_bob_channel && "Commsys did not provide Bob's channel.");
 }
 
 // Split fn to be used for parameter estimation and post-processing.
@@ -385,14 +389,14 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 
     // chi_be can never be negative
     if (chi_BE < 0) {
-        chi_BE = 0;  // chi can never be negative. 
+        chi_BE = 0;  // chi can never be negative.
     }
 
     /* TODO: To delete hard coded values. I am just doing this for debugging
-    purposes since the framesize I started with was small/ 
+    purposes since the framesize I started with was small/
 
     // Checking for MI_check = False
-    I_AB = 1.04; 
+    I_AB = 1.04;
     chi_BE = 0.82;
 
     // Checking for MI_check = False
@@ -663,7 +667,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 #endif
 
         // print final keys
-        return {std::move(final_secret_key_KA), std::move(final_secret_key_KB)};    
+        return {std::move(final_secret_key_KA), std::move(final_secret_key_KB)};
 }
 
 // Returns description of the protocol
