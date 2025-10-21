@@ -37,6 +37,18 @@
 namespace libcomm
 {
 
+
+/* Template Definition:
+S= type of state e.g. gaussian_state, qubit ...
+For S check quantum_state for all the types of states.
+T = double, bool
+C = libbase::vector
+*/
+
+// Forward Declaration
+template <class S, class T, template <class> class C>
+class qkd_commsys;
+
 /*!
  * \brief   Common Base for QKD postprocessing protocol.
  * \author  Mark Mizzi, Aaron Abela
@@ -45,11 +57,15 @@ template <class S, typename T, template <class> class C = libbase::vector>
 class qkd_protocol : public instrumented, public libbase::serializable
 {
 public:
-    /* Template parameter S represents the type of quantum state.
-    For e.g. for the GG02 case for CV-QKD using coherent states
-    the type is: gaussian_state. Check quantum_state.h. */
-    virtual void init(source<S>& src_gen,
-                      const std::shared_ptr<quantum_channel>&) = 0;
+
+    // Allows the protocol to access anything from the qkd_commsys object.
+    virtual void init(qkd_commsys<S, T, C>* qkdcommsys) = 0;
+
+    // Pass the generated source sequence to the protocol at the start of a cycle.
+    virtual void set_source_sequence(const C<S>& /* source_sequence */)
+    {
+        // Default implementation does nothing.
+    }
 
     /*! Get observables used to measure quantum states, e.g. spin
      * in two different bases for E91
@@ -58,7 +74,6 @@ public:
      * Note: Changed only the observables to work with a std::vector rather than
      * a libbase::vector
      */
-
     virtual std::vector<std::unique_ptr<observable<T>>>
     get_alice_observables(int) = 0;
 
@@ -80,7 +95,7 @@ public:
 
     virtual int get_codec_input_bits_k() const = 0;
     virtual int get_codec_output_bits_n() const = 0;
-    
+
     // Returns final secret keys KA and KB.
     virtual std::pair<C<bool>, C<bool>>
     postprocess(libbase::vector<T>&& alice_measurements,
