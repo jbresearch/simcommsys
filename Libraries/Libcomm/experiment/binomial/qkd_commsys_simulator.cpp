@@ -45,9 +45,6 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
     // fullcycle method in qkd_commsys.
     libbase::vector<S> source = src->generate_sequence(framesize);
 
-    // qkd_commsys sends the src generator to get VA for CV-QKD.
-    sys->set_src(src);
-
     // Both final keys are of libbase::vector<bool> type.
     auto [key_KA, key_KB] = sys->fullcycle(source);
 

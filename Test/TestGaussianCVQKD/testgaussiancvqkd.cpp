@@ -136,106 +136,11 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
     // sign<double>
     // )SS";
 
-    //     std::stringstream cfg;
-    //     cfg << R"SS(
-    // # Version
-    // 1
-    // # Frame size (# of quantum states in a frame)
-    // 30
-    // ## Alice's channel
-    // identity_quantum_channel
-    // ## Bob's channel
-    // gaussian_quantum_channel
-    // # Homodyne Detector Efficiency
-    // 0.606
-    // # Mean of the Gaussian Quantum Channel
-    // 0.0
-    // # Transmittance T of the Gaussian Quantum Channel
-    // 0.302
-    // ## Postprocessing protocol
-    // cvqkd_protocol
-    // # Shot Noise Variance N_0
-    // 1
-    // # Electric Noise v_el
-    // 0.041
-    // # Detector Efficiency eta
-    // 0.606
-    // # Smoothing Parameter
-    // 1e-4
-    // # Alphabet size
-    // 2
-    // # Codec
-    // ldpc<gf2,double>
-    // # Version
-    // 5
-    // # SPA type (trad|gdl)
-    // gdl
-    // # Number of iterations
-    // 100
-    // # Clipping method
-    // zero
-    // # Value of almostzero
-    // 1e-100
-    // # Reduce generator matrix to REF? (true|false)
-    // 0
-    // # Length (n)
-    // 15
-    // # Dimension (m)
-    // 10
-    // # Max column weight
-    // 2
-    // # Max row weight
-    // 3
-    // # Non-zero values (ones|random|provided)
-    // ones
-    // # Column weight vector
-    // 15
-    // 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
-    // # Row weight vector
-    // 10
-    // 3 3 3 3 3 3 3 3 3 3
-    // # Non zero positions per col
-    // 2
-    // 1 2
-    // 2
-    // 2 3
-    // 2
-    // 3 4
-    // 2
-    // 4 5
-    // 2
-    // 1 5
-    // 2
-    // 1 6
-    // 2
-    // 2 8
-    // 2
-    // 3 10
-    // 2
-    // 4 7
-    // 2
-    // 5 9
-    // 2
-    // 6 7
-    // 2
-    // 7 8
-    // 2
-    // 8 9
-    // 2
-    // 9 10
-    // 2
-    // 6 10
-    // # Embedder
-    // direct_block_informed_embedder<double,vector,double>
-    // sign<double>
-    // )SS";
-
     std::stringstream cfg;
     cfg << R"SS(
 # Version
 1
 # Frame size (# of quantum states in a frame)
-14
 14
 ## Alice's channel
 identity_quantum_channel
@@ -267,22 +172,17 @@ ldpc<gf2,double>
 gdl
 # Number of iterations
 50
-50
 # Clipping method
 zero
 # Value of almostzero
 1e-100
 # Reduce generator matrix to REF? (true|false)
 1
-1
 # Length (n)
-7
 7
 # Dimension (m)
 7
-7
 # Max column weight
-3
 3
 # Max row weight
 3
@@ -291,28 +191,10 @@ ones
 # Column weight vector
 7
 3 3 3 3 3 3 3
-7
-3 3 3 3 3 3 3
 # Row weight vector
 7
 3 3 3 3 3 3 3
-7
-3 3 3 3 3 3 3
 # Non zero positions per col
-3
-1 5 7
-3
-1 2 6
-3
-2 3 7
-3
-1 3 4
-3
-2 4 5
-3
-3 5 6
-3
-4 6 7
 3
 1 5 7
 3
@@ -369,8 +251,6 @@ sign<double>
 
     sys->seedfrom(*rng);
 
-    const double VN = 1.041915; // Variance VN, the new CLI parameter.
-    // If VA = 18.5, SNR_linear ~ 17.7558
     const double VN = 1.041915; // Variance VN, the new CLI parameter.
     // If VA = 18.5, SNR_linear ~ 17.7558
 
@@ -461,8 +341,6 @@ quantum_gaussian_source
     /* Calling fullcylce method from qkd_commsys.h for a single frame*/
     auto [key_KA, key_KB] = sys->fullcycle(source);
 
-    std::cout << "TESTGAUSSIANCVQKD:  Size of Final Secret Key KA: "
-              << key_KA.size() << std::endl;
     std::cout << "TESTGAUSSIANCVQKD:  Size of Final Secret Key KA: "
               << key_KA.size() << std::endl;
 }

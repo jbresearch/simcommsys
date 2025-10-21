@@ -42,7 +42,7 @@ namespace libcomm
 
 class cvqkd_protocol
 
-    : public qkd_protocol<gaussian_state, gaussian_state, double, libbase::vector>
+    : public qkd_protocol<gaussian_state, double, libbase::vector>
 {
 private:
     libbase::randgen rng; // used to randomly choose observables

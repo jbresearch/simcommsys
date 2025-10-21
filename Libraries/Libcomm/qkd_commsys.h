@@ -61,9 +61,6 @@ protected:
     std::shared_ptr<quantum_channel> bob_channel;
     std::shared_ptr<quantum_channel> alice_channel;
     std::shared_ptr<qkd_protocol<S, T, C>> protocol;
-
-    std::shared_ptr<source<S>> src;
-
     std::shared_ptr<source<S>> src;
 
     //! \brief How many quantum states in one frame
