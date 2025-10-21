@@ -21,6 +21,7 @@
 #include "qkd/quantum_channel/identity_quantum_channel.h"
 #include "qkd_commsys.h"
 #include "source/quantum_gaussian_source.h"
+#include "experiment/binomial/result_collector/qkd_commsys/cv_qkd_errors_hamming.h"
 
 #include "codec/ldpc.h"
 #include "gf.h"
@@ -213,13 +214,14 @@ direct_block_informed_embedder<double,vector,double>
 sign<double>
 )SS";
 
-    libcomm::qkd_commsys<libcomm::gaussian_state, double, libbase::vector> sys;
-    sys.serialize(cfg);
+    auto sys = std::make_shared<
+    libcomm::qkd_commsys<libcomm::gaussian_state, double, libbase::vector>>();
 
-    // Set seed for qkd_commsys object
-    libbase::randgen rng;
-    rng.seed(17); // vector s = 000 with k = 3
-    rng.seed(7);
+    sys->serialize(cfg);
+
+    // Create rng as a shared_ptr and set the seed.
+    auto rng = std::make_shared<libbase::randgen>();
+    rng->seed(7);
 
     /*
     With this seed:
@@ -247,23 +249,23 @@ sign<double>
     - decoded sequence s_hat = [1 1 1]
     */
 
-    sys.seedfrom(rng);
+    sys->seedfrom(*rng);
 
     const double VN = 1.041915; // Variance VN, the new CLI parameter.
     // If VA = 18.5, SNR_linear ~ 17.7558
 
     libbase::vector<double> cli;
-    cli.init(sys.get_num_params()); // should be 1 when Alice is identity , CLI
+    cli.init(sys->get_num_params()); // should be 1 when Alice is identity , CLI
                                     // channel parameters
     cli(0) = VN; // index 0 -> Bob's Variance VN to generate noise.
 
-    sys.set_parameters(cli);
+    sys->set_parameters(cli);
 
     // 4) Print System Parameters of the QKD Commsys Object
-    std::cout << "\n" << sys.description() << "\n\n";
+    std::cout << "\n" << sys->description() << "\n\n";
 
     // 5) Verify CLI parameters of Quantum Channel of Bob
-    auto back = sys.get_parameters();
+    auto back = sys->get_parameters();
 
     std::cout << "TESTGAUSSIANCVQKD:  (CLI parameter of Bob's Quantum Channel) "
                  "Variance VN = "
@@ -288,19 +290,24 @@ quantum_gaussian_source
 )SS";
 
     // Build source using the same pattern as gaussian_quantum_channel
-    std::shared_ptr<libcomm::source<libcomm::gaussian_state, libbase::vector>>
+    // std::shared_ptr<libcomm::source<libcomm::gaussian_state, libbase::vector>>
+    //     s_ptr;
+
+    std::shared_ptr<libcomm::source<libcomm::gaussian_state>>
         s_ptr;
+
     ss_src >> s_ptr;
     auto* src = dynamic_cast<libcomm::quantum_gaussian_source*>(s_ptr.get());
     BOOST_REQUIRE(src != nullptr);
 
     libbase::randgen r;
     r.seed(2602);
+    // r.seed(31);
     src->seedfrom(r);
 
     // Gets the number of coherent states generated for a single frame from the
     // qkd_commsys object.
-    int framesize = sys.input_block_size();
+    int framesize = sys->input_block_size();
     std::cout
         << "TESTGAUSSIANCVQKD:  Number of generated coherent states (Alice) = "
         << framesize << std::endl;
@@ -310,14 +317,29 @@ quantum_gaussian_source
     libbase::vector<libcomm::gaussian_state> source =
         src->generate_sequence(libbase::size_type<libbase::vector>(framesize));
 
-    //Sends source to qkd_commsys to be later used by the protocol. 
-    sys.set_src(s_ptr);
+    /* Sends source to qkd_commsys by creating a simulator, which calls sys->init() in its constructor.*/
+    // Define the template types for the simulator.
+    using S = libcomm::gaussian_state;
+    using T = double;
+    using R = libcomm::cv_qkd_errors_hamming;
+
+    auto sim = std::make_shared<libcomm::qkd_commsys_simulator<S, T, R>>(
+
+        // Upcast rng from shared_ptr<randgen> to shared_ptr<random>.
+        std::static_pointer_cast<libbase::random>(rng),
+
+        s_ptr,
+
+        sys
+    );
+
+    // At this point, sys->init() has been called and the system including the protocol is fully initialised.
 
     // Initialise final_key
     libbase::vector<bool> final_key;
 
     /* Calling fullcylce method from qkd_commsys.h for a single frame*/
-    auto [key_KA, key_KB] = sys.fullcycle(source);
+    auto [key_KA, key_KB] = sys->fullcycle(source);
 
     std::cout << "TESTGAUSSIANCVQKD:  Size of Final Secret Key KA: "
               << key_KA.size() << std::endl;
