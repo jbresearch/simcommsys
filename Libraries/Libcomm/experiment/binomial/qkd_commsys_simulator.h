@@ -67,6 +67,20 @@ protected:
 
 public:
     /*! \name Constructors / Destructors */
+
+    /* Constructor */
+    qkd_commsys_simulator(std::shared_ptr<libbase::random> rng_t,
+                        std::shared_ptr<source<S>> src_gen_t,
+                        std::shared_ptr<qkd_commsys<S, T, libbase::vector>> sys_t)
+        : experiment_binomial()
+        , src(src_gen_t)
+        , sys(sys_t)
+        , rng_(rng_t.get())
+    {
+        // Pass the pointer to the qkd_commsy_simulator object to the qkd_commsys system.
+        sys->init(this);
+    }
+
     /*!
      * \brief Copy constructor
      *
@@ -83,6 +97,7 @@ public:
     // @}
 
     qkd_commsys_simulator() {}
+
     virtual ~qkd_commsys_simulator() {}
     // @}
 
@@ -93,6 +108,9 @@ public:
         src->seedfrom(r);
         sys->seedfrom(r);
     }
+
+    // Gets the source generator
+    std::shared_ptr<source<S>> get_src_gen() { return src; }
 
     /*! \name Parametric interface */
     void set_parameters(const libbase::vector<double>& params) override
