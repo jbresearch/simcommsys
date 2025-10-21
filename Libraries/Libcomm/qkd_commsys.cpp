@@ -54,12 +54,13 @@ template <class S, class T, template <class> class C>
 std::pair<C<bool>, C<bool>>
 qkd_commsys<S, T, C>::fullcycle(C<S>& source)
 {
-    // ***** Note: In this case the source here is the libbase::vector of
-    // states e.g. coherent states if S=gaussian_State *****
+    /* Note: In this case the source here is the libbase::vector of states e.g. coherent states if S=gaussian_State */
     assertalways(source.size() == framesize);
 
-    // Note: Here I Changed the libbase::vector to an std::vector only for
-    // the observables stage
+    // Give the protocol access to the source sequence before transmission.
+    this->protocol->set_source_sequence(source);
+
+    // Note: Here I Changed the libbase::vector to an std::vector only for the observables stage
     std::vector<std::unique_ptr<observable<T>>> bob_observables =
         protocol->get_bob_observables(framesize);
 
@@ -87,9 +88,6 @@ qkd_commsys<S, T, C>::fullcycle(C<S>& source)
             bob_measurements(i) = source(i).measure(*bob_observables[i]);
         }
     }
-    // Pass source generator to get_VA for CV-QKD and initialises Bob's
-    // quantum channel.
-    protocol->init(*get_src(), bob_channel);
 
     // Perform post-processing to get the final secret keys.
     auto [secret_key_KA, secret_key_KB] = protocol->postprocess(
