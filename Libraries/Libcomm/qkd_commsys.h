@@ -71,6 +71,21 @@ public:
     qkd_commsys() {}
     // @}
 
+    // init method for qkd_commsys
+    template <class Simulator>
+    void init(Simulator* sim)
+    {
+        // Get source generator member of qkd_commsys
+        this->src = sim->get_src_gen();
+
+        assert(this->src && "Source generator not found in simulator.");
+        assert(this->protocol && "Protocol has not been set.");
+
+        // Call the protocol's init and pass the qkd_commsys 'this' pointer/ the qkd_commsys object.
+        this->protocol->init(this);
+    }
+
+
     /*! \name Communication System Setup */
     void seedfrom(libbase::random& r)
     {
@@ -130,10 +145,10 @@ public:
     }
     // @}
 
-    // gets src generator from qkd_commsys_simulator.
-    void set_src(std::shared_ptr<source<S>>& src) { this->src = src; }
+    // Getter for Bob's channel
+    std::shared_ptr<quantum_channel> get_bob_channel() { return bob_channel; }
 
-    // To use in qkd_commsys to get the src generator.
+    // Gets the source generator from qkd_commsys_simulator
     std::shared_ptr<source<S>> get_src() { return this->src; }
 
     // Getter to get the input bits from the codec from cvqkd_protocol.h.
