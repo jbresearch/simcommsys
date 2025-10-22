@@ -16,6 +16,8 @@ namespace libcomm
  *
  * This channel models a simple, basis-independent Quantum Bit Error Rate (QBER) for the BB84 protocol.
  * It passes this QBER to the observables, which then apply the noise during measurement.
+ *
+ * Reference: Thakur, V.S., Kumar, A., Magarini, M., Dev, K. and Dobre, O.A., 2025. Quantum Communication and Information Technologies: A Survey on Foundation, Error Correction, NISQ, and Networks. Authorea Preprints. Refer specifically to Section titled "A. Quantum Channel Models".
 */
 
 class depolarizing_quantum_channel : public quantum_channel
