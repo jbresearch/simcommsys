@@ -112,7 +112,7 @@ public:
     // Helper function only used for unit testing
     static std::unique_ptr<libbase::serializable> create(std::istream& sin)
     {
-        auto obj = std::make_unique<libcomm::gaussian_quantum_channel>();
+        auto obj = std::make_unique<gaussian_quantum_channel>();
         obj->serialize(sin);
         return obj;
     }
