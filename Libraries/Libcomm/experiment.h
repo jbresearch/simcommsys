@@ -100,11 +100,11 @@ public:
     virtual void sample(libbase::vector<double>& result) = 0;
     /*!
      * \brief The number of elements making up a sample
-     * \note This getter is likely to be redundant, as the value may be
-     * easily obtained from the size of result in sample()
-     * \todo Remove this method from interface.
+     * This getter is required by the results file writer, when writing the
+     * header, as a result vector is not yet available at that point. Otherwise,
+     * the value may be easily obtained from the size of the result in sample().
      */
-    virtual int count() const = 0;
+    virtual int result_count() const = 0;
     /*!
      * \brief Title/description of result at index 'i'
      */

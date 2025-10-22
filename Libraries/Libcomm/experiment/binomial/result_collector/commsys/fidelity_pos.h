@@ -53,11 +53,11 @@ public:
     void updateresults(libbase::vector<double>& result,
                        const libbase::vector<int>& act_drift,
                        const libbase::vector<int>& est_drift) const override;
-    /*! \copydoc experiment::count()
+    /*! \copydoc experiment::result_count()
      * For each iteration, we count the fidelity at codeword boundary positions.
      * \warning This assumes that the codec and modem output sizes are the same!
      */
-    int count() const override { return symbolsperframe + 1; }
+    int result_count() const override { return symbolsperframe + 1; }
     /*! \copydoc experiment::get_multiplicity()
      * Only one result can be incremented for every position.
      */
@@ -70,7 +70,7 @@ public:
      */
     std::string result_description(int i) const override
     {
-        assert(i >= 0 && i < count());
+        assert(i >= 0 && i < result_count());
         std::ostringstream sout;
         sout << "FID_" << i;
         return sout.str();

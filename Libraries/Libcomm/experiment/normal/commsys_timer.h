@@ -86,7 +86,7 @@ public:
         // Copy over timings as results
         result = libbase::vector<double>(timings);
     }
-    int count() const
+    int result_count() const override
     {
         const size_t N = timings.size();
         assert(N == names.size());

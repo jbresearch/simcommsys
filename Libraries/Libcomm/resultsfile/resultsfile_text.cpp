@@ -63,7 +63,7 @@ resultsfile_text::writeheader(std::ostream& sout) const
     for (int i = 1; i < n_params; i++) {
         sout << "\t" << "Par" << i;
     }
-    for (int i = 0; i < system->count(); i++) {
+    for (int i = 0; i < system->result_count(); i++) {
         sout << "\t" << system->result_description(i) << "\tTol";
     }
     sout << "\tSamples\tCPUtime" << std::endl;
@@ -112,7 +112,7 @@ resultsfile_text::writeresults(std::ostream& sout,
     params.serialize(sout, "\t");
 
     // print results and their tolerances
-    for (int i = 0; i < system->count(); i++) {
+    for (int i = 0; i < system->result_count(); i++) {
         sout << '\t' << result(i) << '\t' << errormargin(i);
     }
 

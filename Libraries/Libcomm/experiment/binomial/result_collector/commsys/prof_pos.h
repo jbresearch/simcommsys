@@ -43,10 +43,10 @@ public:
     void updateresults(libbase::vector<double>& result,
                        const libbase::vector<int>& source,
                        const libbase::vector<int>& decoded) const override;
-    /*! \copydoc experiment::count()
+    /*! \copydoc experiment::result_count()
      * We determine the (symbol) error rate for every frame position.
      */
-    int count() const override { return symbolsperblock; }
+    int result_count() const override { return symbolsperblock; }
     /*! \copydoc experiment::get_multiplicity()
      * Only one result can be incremented for every position.
      */
@@ -58,7 +58,7 @@ public:
      */
     std::string result_description(int i) const override
     {
-        assert(i >= 0 && i < count());
+        assert(i >= 0 && i < result_count());
         std::ostringstream sout;
         sout << "SER_" << i;
         return sout.str();

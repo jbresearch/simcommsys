@@ -150,26 +150,26 @@ public:
 
     // Experiment handling
     void sample(array1d_t& result) override;
-    int count() const
+    int result_count() const override
     {
         const fidelity_pos* rc_fidelity =
             dynamic_cast<const fidelity_pos*>(rc.get());
         if (analyze_decode_iters && !rc_fidelity)
-            return rc->count() * sys->num_iter();
+            return rc->result_count() * sys->num_iter();
         else
-            return rc->count();
+            return rc->result_count();
     }
     int get_multiplicity(int i) const
     {
-        assert(i >= 0 && i < count());
-        const int index = i % rc->count();
+        assert(i >= 0 && i < result_count());
+        const int index = i % rc->result_count();
         return rc->get_multiplicity(index);
     }
     std::string result_description(int i) const
     {
-        assert(i >= 0 && i < count());
-        const int iter = i / rc->count();
-        const int index = i % rc->count();
+        assert(i >= 0 && i < result_count());
+        const int iter = i / rc->result_count();
+        const int index = i % rc->result_count();
         std::ostringstream sout;
         sout << rc->result_description(index) << "_" << iter;
         return sout.str();

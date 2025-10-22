@@ -200,14 +200,14 @@ public:
 
     // Experiment handling
     void sample(libbase::vector<double>& result) override;
-    int count() const
+    int result_count() const override
     {
         // Get access to the results collector in codeword boundary analysis
         // mode
         const fidelity_pos* rc_fidelity =
             dynamic_cast<const fidelity_pos*>(this->rc.get());
         const int base_count =
-            (rc_fidelity) ? this->rc->count() : Base::count();
+            (rc_fidelity) ? this->rc->result_count() : Base::result_count();
         return base_count * getsys_stream().sys_iter();
     }
 

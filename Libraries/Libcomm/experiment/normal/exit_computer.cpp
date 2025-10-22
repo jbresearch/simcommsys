@@ -189,7 +189,7 @@ exit_computer<S>::compute_results(const array1i_t& x,
                                   const array1vd_t& pout,
                                   array1d_t& result) const
 {
-    assert(result.size() == count());
+    assert(result.size() == result_count());
     // Compute results
     result(0) = compute_mutual_information(x, pin);
     result(1) = compute_mutual_information(x, pout);
@@ -215,7 +215,7 @@ void
 exit_computer<S>::sample(array1d_t& result)
 {
     // Initialise result vector
-    result.init(count());
+    result.init(result_count());
 
     // Create source stream
     src.set_alphabet_size(sys->num_inputs());

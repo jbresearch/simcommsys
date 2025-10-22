@@ -223,7 +223,7 @@ main(int argc, char* argv[])
             // "t_decode_iter", we set result_descr_count["t_decode_iter"] = 4
             // Used when labelling results in the final output
             std::map<std::string, int> result_descr_count;
-            for (int j = 0; j < system->count(); j++) {
+            for (int j = 0; j < system->result_count(); j++) {
                 if (result_descr_count.count(system->result_description(j))) {
                     ++result_descr_count[system->result_description(j)];
                 } else {
@@ -258,7 +258,7 @@ main(int argc, char* argv[])
                 // keep track of how many results with a particular name we have
                 // seen so far
                 std::map<std::string, int> result_descr_curr_count;
-                for (int j = 0; j < system->count(); j++) {
+                for (int j = 0; j < system->result_count(); j++) {
                     // update result count
                     ++result_descr_curr_count[system->result_description(j)];
 
@@ -304,7 +304,7 @@ main(int argc, char* argv[])
                 // keep track of how many results with a particular name we have
                 // seen so far
                 std::map<std::string, int> result_descr_curr_count;
-                for (int j = 0; j < system->count(); j++) {
+                for (int j = 0; j < system->result_count(); j++) {
                     // update result count
                     ++result_descr_curr_count[system->result_description(j)];
 

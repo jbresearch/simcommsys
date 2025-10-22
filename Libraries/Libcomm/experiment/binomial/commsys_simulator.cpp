@@ -69,7 +69,7 @@ commsys_simulator<S>::sample(libbase::vector<double>& result)
     // Reset timers
     this->reset_timers();
     // Initialise result vector
-    result.init(count());
+    result.init(result_count());
     result = 0;
     // Get access to the results collector in codeword boundary analysis mode
     fidelity_pos* rc_fidelity = dynamic_cast<fidelity_pos*>(rc.get());
@@ -112,7 +112,7 @@ commsys_simulator<S>::sample(libbase::vector<double>& result)
         for (int curr_cdc_iter = 0; curr_cdc_iter < this->sys->num_iter();
              curr_cdc_iter++) {
             libbase::indirect_vector<double> result_segment =
-                result.segment(curr_cdc_iter * rc->count(), rc->count());
+                result.segment(curr_cdc_iter * rc->result_count(), rc->result_count());
             rc->updateresults(result_segment, source, decoded(curr_cdc_iter));
         }
 
@@ -138,7 +138,7 @@ commsys_simulator<S>::sample(libbase::vector<double>& result)
 
         if (!rc_fidelity) {
             libbase::indirect_vector<double> result_segment =
-                result.segment(0, rc->count());
+                result.segment(0, rc->result_count());
             rc->updateresults(result_segment, source, decoded);
 
         } else { // perform codeword boundary analysis if this is indicated

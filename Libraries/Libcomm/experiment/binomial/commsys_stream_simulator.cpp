@@ -175,7 +175,7 @@ commsys_stream_simulator<S, real>::sample(libbase::vector<double>& result)
     const array1s_t& received_segment = received.extract(0, length);
 
     // Initialise result vector
-    result.init(this->count());
+    result.init(this->result_count());
     result = 0;
     // Initialize extrinsic information vectors (modem + codec alphabets)
     array1vd_t ptable_ext_modem;
@@ -235,7 +235,7 @@ commsys_stream_simulator<S, real>::sample(libbase::vector<double>& result)
 #endif
             // accumulate results
             libbase::indirect_vector<double> result_segment =
-                result.segment(this->rc->count() * iter_modem, this->rc->count());
+                result.segment(this->rc->result_count() * iter_modem, this->rc->result_count());
             this->rc->updateresults(result_segment, act_drift, est_drift);
         }
 
@@ -259,9 +259,9 @@ commsys_stream_simulator<S, real>::sample(libbase::vector<double>& result)
             if (!rc_fidelity) {
                 libbase::indirect_vector<double> result_segment =
                     result.segment(
-                        this->rc->count() *
+                        this->rc->result_count() *
                             (iter_modem * sys_dec.num_iter() + iter_codec),
-                        this->rc->count());
+                        this->rc->result_count());
                 this->rc->updateresults(result_segment, source_this, decoded);
             }
         }

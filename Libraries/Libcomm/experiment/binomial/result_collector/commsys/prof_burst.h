@@ -45,7 +45,7 @@ public:
     void updateresults(libbase::vector<double>& result,
                        const libbase::vector<int>& source,
                        const libbase::vector<int>& decoded) const override;
-    /*! \copydoc experiment::count()
+    /*! \copydoc experiment::result_count()
      * We count respectively the number symbol errors:
      * - in the first frame symbol
      * - in subsequent symbols:
@@ -54,7 +54,7 @@ public:
      * - in the prior symbol (required when applying Bayes' rule
      * to the above two counts)
      */
-    int count() const override { return 4; }
+    int result_count() const override { return 4; }
     /*! \copydoc experiment::get_multiplicity()
      *
      * We count respectively the number symbol errors:
@@ -67,7 +67,7 @@ public:
      */
     int get_multiplicity(int i) const override
     {
-        assert(i >= 0 && i < count());
+        assert(i >= 0 && i < result_count());
         return (i == 0) ? 1 : symbolsperblock - 1;
     }
     /*! \copydoc experiment::result_description()
@@ -76,7 +76,7 @@ public:
      */
     std::string result_description(int i) const override
     {
-        assert(i >= 0 && i < count());
+        assert(i >= 0 && i < result_count());
         switch (i) {
         case 0:
             return "P[e0]";

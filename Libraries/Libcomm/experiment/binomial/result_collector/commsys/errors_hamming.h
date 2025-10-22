@@ -52,10 +52,10 @@ public:
     void updateresults(libbase::vector<double>& result,
                        const libbase::vector<int>& source,
                        const libbase::vector<int>& decoded) const override;
-    /*! \copydoc results_collector::count()
+    /*! \copydoc results_collector::result_count()
      * We count the number of symbol and frame errors
      */
-    int count() const override { return 2; }
+    int result_count() const override { return 2; }
     /*! \copydoc results_collector::get_multiplicity()
      *
      * Since results are organized as (symbol,frame) error count, the
@@ -64,7 +64,7 @@ public:
      */
     int get_multiplicity(int i) const override
     {
-        assert(i >= 0 && i < count());
+        assert(i >= 0 && i < result_count());
         switch (i) {
         case 0:
             return symbolsperblock;
@@ -74,7 +74,7 @@ public:
         // This should never happen
         std::ostringstream sout;
         sout << "Index " << i << " out of range. Valid range is [0,"
-             << count() - 1 << "].";
+             << result_count() - 1 << "].";
         throw std::out_of_range(sout.str());
     }
     /*! \copydoc results_collector::result_description()
@@ -84,7 +84,7 @@ public:
      */
     std::string result_description(int i) const override
     {
-        assert(i >= 0 && i < count());
+        assert(i >= 0 && i < result_count());
         switch (i) {
         case 0:
             return "SER";
@@ -94,7 +94,7 @@ public:
         // This should never happen
         std::ostringstream sout;
         sout << "Index " << i << " out of range. Valid range is [0,"
-             << count() - 1 << "].";
+             << result_count() - 1 << "].";
         throw std::out_of_range(sout.str());
     }
     // @}

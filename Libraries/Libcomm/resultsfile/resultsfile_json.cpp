@@ -169,7 +169,7 @@ resultsfile_json::writeresults(std::fstream& sout,
     // initialize data["results"]["param1 param2 ... paramN"] to {} and store a
     // handy reference to it.
     json& params_results = data["results"][params_str] = json();
-    for (int i = 0; i < system->count(); i++) {
+    for (int i = 0; i < system->result_count(); i++) {
         params_results[system->result_description(i)] = {
             {"value", result(i)}, {"errormargin", errormargin(i)}};
     }

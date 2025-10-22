@@ -152,7 +152,7 @@ public:
 
     // Experiment handling
     void sample(array1d_t& result);
-    int count() const
+    int result_count() const override
     {
         int result = 2; // default: mutual information at input+output
 
@@ -165,7 +165,7 @@ public:
     int get_multiplicity(int i) const { return 1; }
     std::string result_description(int i) const
     {
-        assert(i >= 0 && i < count());
+        assert(i >= 0 && i < result_count());
         switch (i) {
         case 0:
             return "I(input)";

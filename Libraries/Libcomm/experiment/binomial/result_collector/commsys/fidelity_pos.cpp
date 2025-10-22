@@ -47,7 +47,7 @@ fidelity_pos::updateresults(libbase::vector<double>& result,
                             const libbase::vector<int>& act_drift,
                             const libbase::vector<int>& est_drift) const
 {
-    const int N = count();
+    const int N = result_count();
     assert(result.size() == N);
     assert(act_drift.size() == N);
     assert(est_drift.size() == N);

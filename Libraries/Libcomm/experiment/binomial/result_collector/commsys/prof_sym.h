@@ -50,11 +50,11 @@ public:
     void updateresults(libbase::vector<double>& result,
                        const libbase::vector<int>& source,
                        const libbase::vector<int>& decoded) const override;
-    /*! \copydoc experiment::count()
+    /*! \copydoc experiment::result_count()
      * We count the number of symbol errors for every input alphabet symbol
      * value.
      */
-    int count() const override { return alphabetsize; }
+    int result_count() const override { return alphabetsize; }
     /*! \copydoc experiment::get_multiplicity()
      * A total equal to the number of symbols/frame may be incremented
      * in every sample.
@@ -67,7 +67,7 @@ public:
      */
     std::string result_description(int i) const override
     {
-        assert(i >= 0 && i < count());
+        assert(i >= 0 && i < result_count());
         std::ostringstream sout;
         sout << "SER_" << i;
         return sout.str();

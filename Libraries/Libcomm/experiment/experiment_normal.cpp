@@ -72,12 +72,12 @@ experiment_normal::accumulate_state(const libbase::vector<double>& state)
 void
 experiment_normal::get_state(libbase::vector<double>& state) const
 {
-    assert(count() == sum.size());
-    assert(count() == sumsq.size());
-    state.init(2 * count());
-    for (int i = 0; i < count(); i++) {
+    assert(result_count() == sum.size());
+    assert(result_count() == sumsq.size());
+    state.init(2 * result_count());
+    for (int i = 0; i < result_count(); i++) {
         state(i) = sum(i);
-        state(count() + i) = sumsq(i);
+        state(result_count() + i) = sumsq(i);
     }
 }
 
@@ -85,15 +85,15 @@ void
 experiment_normal::estimate(libbase::vector<double>& estimate,
                             libbase::vector<double>& stderror) const
 {
-    assert(count() == sum.size());
-    assert(count() == sumsq.size());
+    assert(result_count() == sum.size());
+    assert(result_count() == sumsq.size());
     // estimate is the mean value
     assert(get_samplecount() > 0);
     estimate = sum / double(get_samplecount());
     // standard error is sigma/sqrt(n)
-    stderror.init(count());
+    stderror.init(result_count());
     if (get_samplecount() > 1) {
-        for (int i = 0; i < count(); i++) {
+        for (int i = 0; i < result_count(); i++) {
             stderror(i) = sqrt((sumsq(i) / double(get_samplecount()) -
                                 estimate(i) * estimate(i)) /
                                double(get_samplecount() - 1));

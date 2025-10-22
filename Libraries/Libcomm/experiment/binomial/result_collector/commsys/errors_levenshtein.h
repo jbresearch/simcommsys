@@ -42,11 +42,11 @@ public:
     void updateresults(libbase::vector<double>& result,
                        const libbase::vector<int>& source,
                        const libbase::vector<int>& decoded) const override;
-    /*! \copydoc experiment::count()
+    /*! \copydoc experiment::result_count()
      * We count the number of symbol errors using Hamming and Levenshtein
      * metrics, as well as the number of frame errors.
      */
-    int count() const override { return 3; }
+    int result_count() const override { return 3; }
     /*! \copydoc experiment::get_multiplicity()
      *
      * Since results are organized as (symbol_hamming, symbol_levenshtein,frame)
@@ -58,7 +58,7 @@ public:
      */
     int get_multiplicity(int i) const override
     {
-        assert(i >= 0 && i < count());
+        assert(i >= 0 && i < result_count());
         switch (i) {
         case 0:
         case 1:
@@ -69,7 +69,7 @@ public:
         // This should never happen
         std::ostringstream sout;
         sout << "Index " << i << " out of range. Valid range is [0,"
-             << count() - 1 << "].";
+             << result_count() - 1 << "].";
         throw std::out_of_range(sout.str());
     }
 
@@ -81,7 +81,7 @@ public:
      */
     std::string result_description(int i) const override
     {
-        assert(i >= 0 && i < count());
+        assert(i >= 0 && i < result_count());
         switch (i) {
         case 0:
             return "SER";
@@ -93,7 +93,7 @@ public:
         // This should never happen
         std::ostringstream sout;
         sout << "Index " << i << " out of range. Valid range is [0,"
-             << count() - 1 << "].";
+             << result_count() - 1 << "].";
         throw std::out_of_range(sout.str());
     }
     // @}
