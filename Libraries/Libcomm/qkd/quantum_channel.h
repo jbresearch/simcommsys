@@ -39,8 +39,8 @@ class fake_momentum_observable;
 class fake_hadamard_observable;
 class fake_computational_observable;
 
-class spin_computational;
-class spin_hadamard;
+class computational_observable;
+class hadamard_observable;
 
 /*!
  * \brief   Common Base for Quantum channel.
@@ -85,8 +85,8 @@ public:
     }
 
 
-    virtual void transmit(spin_computational&) { failwith("Not implemented."); }
-    virtual void transmit(spin_hadamard&) { failwith("Not implemented."); }
+    virtual void transmit(computational_observable&) { failwith("Not implemented."); }
+    virtual void transmit(hadamard_observable&) { failwith("Not implemented."); }
     //! @}
 
     virtual double get_VA()
