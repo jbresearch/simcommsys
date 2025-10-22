@@ -22,8 +22,8 @@ public:
     void transmit(momentum_observable&) override {}
     void transmit(fake_position_observable&) override {}
     void transmit(fake_momentum_observable&) override {}
-    void transmit(spin_computational&) override {}
-    void transmit(spin_hadamard&) override {}
+    void transmit(computational_observable&) override {}
+    void transmit(hadamard_observable&) override {}
     //! @}
 
     void seedfrom(libbase::random& r) override {}
