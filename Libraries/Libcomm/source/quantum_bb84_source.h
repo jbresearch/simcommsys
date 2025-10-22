@@ -17,6 +17,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 #ifndef __quantum_bb84_source_h
@@ -43,6 +44,10 @@
  * generate_single(), it randomly chooses a bit (0 or 1) and a basis (Z or X),
  * and returns the corresponding qubit state. It internally stores both vectors
  * for later use.
+ *
+ * References:
+ * 1) Bennett, C.H. and Brassard, G., 2014. Quantum cryptography: Public key distribution and coin tossing. Theoretical computer science, 560, pp.7-11.
+ * 2) Nielsen, M.A. and Chuang, I.L., 2010. Quantum computation and quantum information. Cambridge university press. Refer specifically to Section 12.6.3 titled "Quantum key distribution".
  */
 
 namespace libcomm
@@ -53,7 +58,7 @@ private:
     libbase::randgen rng;
 
     // Vectors to store Alice's information
-    // TODO: To delete after testing is done. 
+    // TODO: To delete after testing is done.
     std::vector<bool> alice_bits; // vector a
     std::vector<bool> alice_bases; // vector b
 
@@ -93,7 +98,7 @@ public:
     }
 
     /* Getters for bit and basis vectors of Alice. These will only
-    be used for testing purposes. 
+    be used for testing purposes.
     TODO: They need to be deleted. */
     const std::vector<bool>& get_bits() const { return alice_bits; }
     const std::vector<bool>& get_bases() const { return alice_bases; }
@@ -108,7 +113,7 @@ public:
     std::string description() const;
 
     // static create method required by the serializer.
-    // TODO: To check if I need to delete this. 
+    // TODO: To check if I need to delete this.
     static std::unique_ptr<libbase::serializable> create(std::istream& sin)
     {
         auto obj = std::make_unique<quantum_bb84_source>();
