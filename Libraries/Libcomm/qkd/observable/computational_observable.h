@@ -49,21 +49,13 @@ class epr_beam;
 class computational_observable : public observable<bool>
 {
 private:
-
-    mutable libbase::randgen rng;
-
     // This member will store the noise parameter from the depolarizing quantum channel.
     double qber;
 
 public:
 
     // Constructor
-    computational_observable() : rng(), qber(0.0) {}
-
-    void seedfrom(libbase::random& r)
-    {
-        this->rng.seed(r.ival());
-    }
+    computational_observable() : qber(0.0) {}
 
     // Noise is added from the depolarising quantum channel from the transmit method.
     void set_qber(double qber_val) { qber = qber_val; }
