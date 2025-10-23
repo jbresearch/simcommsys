@@ -183,7 +183,7 @@ public:
                "is a fake Hadamard observable(from dvqkd_protocol.h): "
             << std::endl;
 
-        std::cout << bob_basis_vector << std::endl;
+        std::cout << alice_basis_vector << std::endl;
 
         return observables;
     }
