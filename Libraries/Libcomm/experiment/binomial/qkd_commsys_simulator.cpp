@@ -129,39 +129,34 @@ namespace libcomm
 #include <boost/preprocessor/stringize.hpp>
 
 // clang-format off
-#define STATE_SEQ (gaussian_state) (qubit)
-#define SCALAR_SEQ (double) (bool)
-#define COLLECTOR_TYPE_SEQ (cv_qkd_errors_hamming) (dv_qkd_errors_hamming)
+#define STATE_SEQ (gaussian_state)(qubit)
+#define SCALAR_SEQ (double)(bool)
+#define COLLECTOR_TYPE_SEQ (cv_qkd_errors_hamming)(dv_qkd_errors_hamming)
+// clang-format on
 
-/* Serialization string qkd_commsys_simulator<S, T, R>:
- * qkd_commsys_simulator<gaussian_state, double, cv_qkd_errors_hamming> where:
- *  S (type of quantum state) = gaussian_state ..
- *  T (type) = double, float, bool.
- *  R (results collector) = cv_qkd_errors_hamming
+/* Serialization string: qkd_commsys_simulator<S,T,R>
+ * where:
+ *      S = gaussian_state | qubit
+ *      T = double | bool
+ *      R = cv_qkd_errors_hamming | dv_qkd_errors_hamming
  */
 
-#define INSTANTIATE(r, args) \
-    template class qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>; \
-    template <> \
+#define INSTANTIATE(r, args)                                                           \
+    template class qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>;                     \
+    template <>                                                                        \
     const libbase::serializer qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::shelper( \
-        "experiment", \
-        "qkd_commsys_simulator<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0, args)) "," \
-        BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) "," \
-        BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2, args)) ">", \
-        qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::create);
-// clang-format on
+        "experiment",                                                                  \
+        "qkd_commsys_simulator<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2, args)) ">",          \
+                                                qkd_commsys_simulator<                 \
+                                                    BOOST_PP_SEQ_ENUM(                 \
+                                                        args)>::create);
 
 // BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
 //                               (STATE_SEQ)(SCALAR_SEQ)(COLLECTOR_TYPE_SEQ))
 
-// --- Manual instantiations of ONLY the valid combinations ---
+// Instantiate the serializers for the only valid combinations
 
-// CV-QKD combinations (gaussian_state goes with cv_qkd_errors_hamming)
-INSTANTIATE(0, (gaussian_state)(double)(cv_qkd_errors_hamming))
-INSTANTIATE(0, (gaussian_state)(bool)(cv_qkd_errors_hamming))
-
-// DV-QKD combinations (qubit goes with dv_qkd_errors_hamming)
-INSTANTIATE(0, (qubit)(double)(dv_qkd_errors_hamming))
-INSTANTIATE(0, (qubit)(bool)(dv_qkd_errors_hamming))
+INSTANTIATE(0, (gaussian_state)(double)(cv_qkd_errors_hamming)) // CV
+INSTANTIATE(0, (qubit)(bool)(dv_qkd_errors_hamming))            // DV
 
 } // namespace libcomm

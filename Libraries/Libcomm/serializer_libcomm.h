@@ -294,6 +294,7 @@ private:
     // QKD Channels
     gaussian_quantum_channel _gaussian_quantum_channel;
     identity_quantum_channel _identity_quantum_channel;
+    depolarizing_quantum_channel _depolarizing_quantum_channel;
 
     // QKD Protocols
     cvqkd_protocol _cvqkd_protocol;

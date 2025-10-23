@@ -54,13 +54,15 @@ template <class S, class T, template <class> class C>
 std::pair<C<bool>, C<bool>>
 qkd_commsys<S, T, C>::fullcycle(C<S>& source)
 {
-    /* Note: In this case the source here is the libbase::vector of states e.g. coherent states if S=gaussian_State */
+    /* Note: In this case the source here is the libbase::vector of states e.g.
+     * coherent states if S=gaussian_State */
     assertalways(source.size() == framesize);
 
     // Give the protocol access to the source sequence before transmission.
     this->protocol->set_source_sequence(source);
 
-    // Note: Here I Changed the libbase::vector to an std::vector only for the observables stage
+    // Note: Here I Changed the libbase::vector to an std::vector only for the
+    // observables stage
     std::vector<std::unique_ptr<observable<T>>> bob_observables =
         protocol->get_bob_observables(framesize);
 
@@ -89,11 +91,16 @@ qkd_commsys<S, T, C>::fullcycle(C<S>& source)
         }
     }
 
-    std::cout << "Printing measurement vectors of Alice and Bob (from qkd_commsys.cpp): " << std::endl;
+    std::cout << "Printing measurement vectors of Alice and Bob (from "
+                 "qkd_commsys.cpp): "
+              << std::endl;
 
-    std::cout << "Measurement vector of Alice without noise (from qkd_commsys.cpp): " << alice_measurements << std::endl;
+    std::cout
+        << "Measurement vector of Alice without noise (from qkd_commsys.cpp): "
+        << alice_measurements << std::endl;
 
-     std::cout << "Measurement vector of Bob with noise (from qkd_commsys.cpp): " << bob_measurements << std::endl;
+    std::cout << "Measurement vector of Bob with noise (from qkd_commsys.cpp): "
+              << bob_measurements << std::endl;
 
     // Perform post-processing to get the final secret keys.
     auto [secret_key_KA, secret_key_KB] = protocol->postprocess(
@@ -175,38 +182,32 @@ namespace libcomm
 using libbase::vector;
 
 // clang-format off
-#define STATE_SEQ (gaussian_state) (qubit)
-#define SCALAR_SEQ (double) (bool)
-#define CONTAINER_SEQ (vector) (vector)
-
-/* Serialization string (S, T, C); qkd_commsys<S, T, C> : qkd_commsys<gaussian_state, double,
- * libbase::vector> where: S = gaussian_state .. T = double, float C =
- * libbase::vector
- */
-
-#define INSTANTIATE(r, args) \
-    template class qkd_commsys<BOOST_PP_SEQ_ENUM(args)>; \
-    template <> \
-    const libbase::serializer qkd_commsys<BOOST_PP_SEQ_ENUM(args)>::shelper( \
-            "qkd_commsys", \
-            "qkd_commsys<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0, args)) "," \
-            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) "," \
-            BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2, args)) ">", \
-            qkd_commsys<BOOST_PP_SEQ_ENUM(args)>::create);
+#define STATE_SEQ (gaussian_state)(qubit)
+#define SCALAR_SEQ (double)(bool)
+#define CONTAINER_SEQ (vector)
 // clang-format on
+
+/* Serialization string: qkd_commsys<S,T,C>
+ * where:
+ *      S = gaussian_state | qubit
+ *      T = double | bool
+ *      C = vector
+ */
+#define INSTANTIATE(r, args)                                                   \
+    template class qkd_commsys<BOOST_PP_SEQ_ENUM(args)>;                       \
+    template <>                                                                \
+    const libbase::serializer qkd_commsys<BOOST_PP_SEQ_ENUM(args)>::shelper(   \
+        "qkd_commsys",                                                         \
+        "qkd_commsys<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2, args)) ">",  \
+                                                qkd_commsys<BOOST_PP_SEQ_ENUM( \
+                                                    args)>::create);
 
 // BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
 //                               (STATE_SEQ)(SCALAR_SEQ)(CONTAINER_SEQ))
 
-// Instantiate the serializers for only the 4 valid combinations
+// Instantiate the serializers for the only valid combinations
 
-// CV
-INSTANTIATE(0, (gaussian_state)(double)(libbase::vector))
-INSTANTIATE(0, (gaussian_state)(bool)(libbase::vector))
-
-// DV
-INSTANTIATE(0, (qubit)(double)(libbase::vector))
-INSTANTIATE(0, (qubit)(bool)(libbase::vector))
+INSTANTIATE(0, (gaussian_state)(double)(vector)) // CV
+INSTANTIATE(0, (qubit)(bool)(vector))            // DV
 
 } // namespace libcomm
-
