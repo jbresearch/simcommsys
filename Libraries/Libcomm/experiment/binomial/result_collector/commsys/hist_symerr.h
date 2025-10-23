@@ -48,10 +48,10 @@ public:
      * zero
      */
     int result_count() const override { return symbolsperblock + 1; }
-    /*! \copydoc experiment::get_multiplicity()
+    /*! \copydoc experiment::result_multiplicity()
      * Only one result can be incremented for every frame.
      */
-    int get_multiplicity(int i) const override { return 1; }
+    int result_multiplicity(int i) const override { return 1; }
     /*! \copydoc experiment::result_description()
      *
      * The description is a string ER_X, where 'X' is the symbol-error

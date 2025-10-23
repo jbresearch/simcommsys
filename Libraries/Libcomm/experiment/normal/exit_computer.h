@@ -162,7 +162,7 @@ public:
 
         return result;
     }
-    int get_multiplicity(int i) const { return 1; }
+    int result_multiplicity(int i) const { return 1; }
     std::string result_description(int i) const
     {
         assert(i >= 0 && i < result_count());

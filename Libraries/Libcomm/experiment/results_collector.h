@@ -63,8 +63,8 @@ public:
                                const T& decoded) const = 0;
     // \copydoc experiment::result_count()
     virtual int result_count() const = 0;
-    // \copydoc experiment::get_multiplicity()
-    virtual int get_multiplicity(int i) const = 0;
+    // \copydoc experiment::result_multiplicity()
+    virtual int result_multiplicity(int i) const = 0;
     // \copydoc experiment::result_description()
     virtual std::string result_description(int i) const = 0;
     // @}

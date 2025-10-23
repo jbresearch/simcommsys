@@ -110,6 +110,12 @@ public:
      */
     virtual std::string result_description(int i) const = 0;
     /*!
+     * \brief The number of elements/sample for result 'i'
+     * \param[in]  i  Result index
+     * \return        Population size per sample for given result index
+     */
+    virtual int result_multiplicity(int i) const = 0;
+    /*!
      * \brief Return the simulated event from the last sample
      * \return An experiment-specific description of the last event
      *
@@ -118,6 +124,18 @@ public:
      * for the current frame.
      */
     virtual libbase::vector<int> get_event() const = 0;
+    /*!
+     * \brief Get the complete state of accumulated results
+     * \param[out] state Vector set of accumulated results
+     */
+    virtual void get_state(libbase::vector<double>& state) const = 0;
+    /*!
+     * \brief Determine result estimate based on accumulated set
+     * \param[out] estimate Vector containing the set of estimates
+     * \param[out] stderror Vector containing the corresponding standard error
+     */
+    virtual void estimate(libbase::vector<double>& estimate,
+                          libbase::vector<double>& stderror) const = 0;
     // @}
 
     /*! \name Result accumulator interface */
@@ -150,18 +168,6 @@ public:
         accumulate_state(state);
     }
     /*!
-     * \brief Get the complete state of accumulated results
-     * \param[out] state Vector set of accumulated results
-     */
-    virtual void get_state(libbase::vector<double>& state) const = 0;
-    /*!
-     * \brief Determine result estimate based on accumulated set
-     * \param[out] estimate Vector containing the set of estimates
-     * \param[out] stderror Vector containing the corresponding standard error
-     */
-    virtual void estimate(libbase::vector<double>& estimate,
-                          libbase::vector<double>& stderror) const = 0;
-    /*!
      * \brief The number of samples taken to produce the result
      */
     uint64_t get_samplecount() const { return samplecount; }
@@ -170,14 +176,8 @@ public:
      */
     uint64_t get_samplecount(int i) const
     {
-        return get_samplecount() * get_multiplicity(i);
+        return get_samplecount() * result_multiplicity(i);
     }
-    /*!
-     * \brief The number of elements/sample for result 'i'
-     * \param[in]  i  Result index
-     * \return        Population size per sample for given result index
-     */
-    virtual int get_multiplicity(int i) const = 0;
     /*!
      * \brief Display accumulated results in human-readable form
      */

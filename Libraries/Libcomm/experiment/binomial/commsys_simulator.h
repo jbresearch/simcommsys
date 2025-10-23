@@ -159,11 +159,11 @@ public:
         else
             return rc->result_count();
     }
-    int get_multiplicity(int i) const
+    int result_multiplicity(int i) const
     {
         assert(i >= 0 && i < result_count());
         const int index = i % rc->result_count();
-        return rc->get_multiplicity(index);
+        return rc->result_multiplicity(index);
     }
     std::string result_description(int i) const
     {

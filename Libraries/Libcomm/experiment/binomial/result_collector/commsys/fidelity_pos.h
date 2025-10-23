@@ -58,10 +58,10 @@ public:
      * \warning This assumes that the codec and modem output sizes are the same!
      */
     int result_count() const override { return symbolsperframe + 1; }
-    /*! \copydoc experiment::get_multiplicity()
+    /*! \copydoc experiment::result_multiplicity()
      * Only one result can be incremented for every position.
      */
-    int get_multiplicity(int i) const override { return 1; }
+    int result_multiplicity(int i) const override { return 1; }
     /*! \copydoc experiment::result_description()
      *
      * The description is a string FID_X, where 'X' is the symbol position

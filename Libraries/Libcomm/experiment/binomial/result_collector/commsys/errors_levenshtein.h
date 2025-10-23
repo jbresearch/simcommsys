@@ -47,7 +47,7 @@ public:
      * metrics, as well as the number of frame errors.
      */
     int result_count() const override { return 3; }
-    /*! \copydoc experiment::get_multiplicity()
+    /*! \copydoc experiment::result_multiplicity()
      *
      * Since results are organized as (symbol_hamming, symbol_levenshtein,frame)
      * error count, the multiplicity is respectively the number of symbols
@@ -56,7 +56,7 @@ public:
      * \warning In the case of Levenshtein distance, it is not clear how the
      * multiplicity should be computed.
      */
-    int get_multiplicity(int i) const override
+    int result_multiplicity(int i) const override
     {
         assert(i >= 0 && i < result_count());
         switch (i) {

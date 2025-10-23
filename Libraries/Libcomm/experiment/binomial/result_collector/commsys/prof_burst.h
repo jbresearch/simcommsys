@@ -55,7 +55,7 @@ public:
      * to the above two counts)
      */
     int result_count() const override { return 4; }
-    /*! \copydoc experiment::get_multiplicity()
+    /*! \copydoc experiment::result_multiplicity()
      *
      * We count respectively the number symbol errors:
      * - in the first frame symbol (at most 1/frame)
@@ -65,7 +65,7 @@ public:
      * to the above two counts)
      * (last three above: at most #symbols/frame - 1)
      */
-    int get_multiplicity(int i) const override
+    int result_multiplicity(int i) const override
     {
         assert(i >= 0 && i < result_count());
         return (i == 0) ? 1 : symbolsperblock - 1;

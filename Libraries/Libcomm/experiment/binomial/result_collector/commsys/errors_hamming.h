@@ -52,17 +52,17 @@ public:
     void updateresults(libbase::vector<double>& result,
                        const libbase::vector<int>& source,
                        const libbase::vector<int>& decoded) const override;
-    /*! \copydoc results_collector::result_count()
+    /*! \copydoc experiment::result_count()
      * We count the number of symbol and frame errors
      */
     int result_count() const override { return 2; }
-    /*! \copydoc results_collector::get_multiplicity()
+    /*! \copydoc experiment::result_multiplicity()
      *
      * Since results are organized as (symbol,frame) error count, the
      * multiplicity is respectively the number of symbols and the number of
      * frames (=1) per sample.
      */
-    int get_multiplicity(int i) const override
+    int result_multiplicity(int i) const override
     {
         assert(i >= 0 && i < result_count());
         switch (i) {
@@ -77,7 +77,7 @@ public:
              << result_count() - 1 << "].";
         throw std::out_of_range(sout.str());
     }
-    /*! \copydoc results_collector::result_description()
+    /*! \copydoc experiment::result_description()
      *
      * The description is SER or FER to indicate symbol or frame error rate
      * respectively.

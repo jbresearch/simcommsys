@@ -55,11 +55,11 @@ public:
      * value.
      */
     int result_count() const override { return alphabetsize; }
-    /*! \copydoc experiment::get_multiplicity()
+    /*! \copydoc experiment::result_multiplicity()
      * A total equal to the number of symbols/frame may be incremented
      * in every sample.
      */
-    int get_multiplicity(int i) const override { return symbolsperblock; }
+    int result_multiplicity(int i) const override { return symbolsperblock; }
     /*! \copydoc experiment::result_description()
      *
      * The description is a string SER_X, where 'X' is the symbol value
