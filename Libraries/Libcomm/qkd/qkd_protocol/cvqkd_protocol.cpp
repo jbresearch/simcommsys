@@ -454,20 +454,12 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         // Generate Vector C from Bob's vector s.
         libbase::vector<int> encoded_int(get_codec_output_bits_n());
 
-        libbase::vector<int> bob_vector_int(bob_vector_s.size());
-        for (int i = 0; i < bob_vector_s.size(); ++i) {
-            bob_vector_int(i) = bob_vector_s(i);
-        }
+        libbase::vector<int> bob_vector_int(bob_vector_s);
 
         // Encodes Vector S of Bob to get Vector C.
         cdc->encode(bob_vector_int, encoded_int);
 
-        bob_vector_c.init(encoded_int.size());
-
-        // Obtains Bob'c vector C of bool type through conversion.
-        for (int i = 0; i < encoded_int.size(); ++i) {
-            bob_vector_c(i) = encoded_int(i);
-        }
+        bob_vector_c = encoded_int;
 
 #if DEBUG >= 1
         std::cerr << "CV_QKDPROTOCOL: bob_vector_c = " << bob_vector_c
