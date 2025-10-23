@@ -61,6 +61,9 @@ public:
     virtual void updateresults(libbase::vector<double>& result,
                                const T& source,
                                const T& decoded) const = 0;
+    // @}
+
+    /*! \name Implementation of experiment interface methods */
     // \copydoc experiment::result_count()
     virtual int result_count() const = 0;
     // \copydoc experiment::result_multiplicity()
