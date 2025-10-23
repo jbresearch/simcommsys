@@ -16,10 +16,12 @@ namespace libcomm
 #endif
 
 void
-cvqkd_protocol::init(qkd_commsys<gaussian_state, double, libbase::vector>* qkdcommsys)
+cvqkd_protocol::init(
+    qkd_commsys<gaussian_state, double, libbase::vector>* qkdcommsys)
 {
     // Get the source generator from qkd_commsys
-    std::shared_ptr<source<gaussian_state>> src_gen_base = qkdcommsys->get_src();
+    std::shared_ptr<source<gaussian_state>> src_gen_base =
+        qkdcommsys->get_src();
     assert(src_gen_base && "Commsys did not provide a source generator.");
 
     // Safely cast to the derived class we need
@@ -387,7 +389,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 
     // chi_be can never be negative
     if (chi_BE < 0) {
-        chi_BE = 0;  // chi can never be negative.
+        chi_BE = 0; // chi can never be negative.
     }
 
     /* TODO: To delete hard coded values. I am just doing this for debugging
@@ -648,16 +650,16 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     }
 
 #if DEBUG >= 1
-        std::cerr << "CV_QKDPROTOCOL: len_secret_key = " << len_secret_key
-                  << std::endl;
-        std::cerr << "CV_QKDPROTOCOL: final_secret_key_KA = "
-                  << final_secret_key_KA << std::endl;
-        std::cerr << "CV_QKDPROTOCOL: final_secret_key_KB = "
-                  << final_secret_key_KB << std::endl;
+    std::cerr << "CV_QKDPROTOCOL: len_secret_key = " << len_secret_key
+              << std::endl;
+    std::cerr << "CV_QKDPROTOCOL: final_secret_key_KA = " << final_secret_key_KA
+              << std::endl;
+    std::cerr << "CV_QKDPROTOCOL: final_secret_key_KB = " << final_secret_key_KB
+              << std::endl;
 #endif
 
-        // print final keys
-        return {std::move(final_secret_key_KA), std::move(final_secret_key_KB)};
+    // print final keys
+    return {std::move(final_secret_key_KA), std::move(final_secret_key_KB)};
 }
 
 // Returns description of the protocol

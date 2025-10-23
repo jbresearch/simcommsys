@@ -16,12 +16,12 @@
 
 #include "serializer_libcomm.h"
 
+#include "experiment/binomial/result_collector/qkd_commsys/cv_qkd_errors_hamming.h"
 #include "qkd/qkd_protocol/cvqkd_protocol.h"
 #include "qkd/quantum_channel/gaussian_quantum_channel.h"
 #include "qkd/quantum_channel/identity_quantum_channel.h"
 #include "qkd_commsys.h"
 #include "source/quantum_gaussian_source.h"
-#include "experiment/binomial/result_collector/qkd_commsys/cv_qkd_errors_hamming.h"
 
 #include "codec/ldpc.h"
 #include "gf.h"
@@ -214,14 +214,15 @@ direct_block_informed_embedder<double,vector,double>
 sign<double>
 )SS";
 
-    auto sys = std::make_shared<
-    libcomm::qkd_commsys<libcomm::gaussian_state, double, libbase::vector>>();
+    auto sys = std::make_shared<libcomm::qkd_commsys<libcomm::gaussian_state,
+                                                     double,
+                                                     libbase::vector>>();
 
     sys->serialize(cfg);
 
     // Create rng as a shared_ptr and set the seed.
     auto rng = std::make_shared<libbase::randgen>();
-    rng->seed(7);
+    rng->seed(8);
 
     /*
     With this seed:
@@ -256,7 +257,7 @@ sign<double>
 
     libbase::vector<double> cli;
     cli.init(sys->get_num_params()); // should be 1 when Alice is identity , CLI
-                                    // channel parameters
+                                     // channel parameters
     cli(0) = VN; // index 0 -> Bob's Variance VN to generate noise.
 
     sys->set_parameters(cli);
@@ -290,11 +291,11 @@ quantum_gaussian_source
 )SS";
 
     // Build source using the same pattern as gaussian_quantum_channel
-    // std::shared_ptr<libcomm::source<libcomm::gaussian_state, libbase::vector>>
+    // std::shared_ptr<libcomm::source<libcomm::gaussian_state,
+    // libbase::vector>>
     //     s_ptr;
 
-    std::shared_ptr<libcomm::source<libcomm::gaussian_state>>
-        s_ptr;
+    std::shared_ptr<libcomm::source<libcomm::gaussian_state>> s_ptr;
 
     ss_src >> s_ptr;
     auto* src = dynamic_cast<libcomm::quantum_gaussian_source*>(s_ptr.get());
@@ -317,23 +318,21 @@ quantum_gaussian_source
     libbase::vector<libcomm::gaussian_state> source =
         src->generate_sequence(libbase::size_type<libbase::vector>(framesize));
 
-    /* Sends source to qkd_commsys by creating a simulator, which calls sys->init() in its constructor.*/
+    /* Sends source to qkd_commsys by creating a simulator, which calls
+     * sys->init() in its constructor.*/
     // Define the template types for the simulator.
     using S = libcomm::gaussian_state;
     using T = double;
     using R = libcomm::cv_qkd_errors_hamming;
 
     auto sim = std::make_shared<libcomm::qkd_commsys_simulator<S, T, R>>(
-
         // Upcast rng from shared_ptr<randgen> to shared_ptr<random>.
         std::static_pointer_cast<libbase::random>(rng),
-
         s_ptr,
+        sys);
 
-        sys
-    );
-
-    // At this point, sys->init() has been called and the system including the protocol is fully initialised.
+    // At this point, sys->init() has been called and the system including the
+    // protocol is fully initialised.
 
     // Initialise final_key
     libbase::vector<bool> final_key;
