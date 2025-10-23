@@ -116,6 +116,7 @@ qkd_commsys_simulator<S, T, R>::serialize(std::istream& sin)
 } // namespace libcomm
 
 #include "result_collector/qkd_commsys/cv_qkd_errors_hamming.h"
+#include "result_collector/qkd_commsys/dv_qkd_errors_hamming.h"
 // #include "result_collector/commsys/errors_hamming.h"
 
 namespace libcomm
@@ -128,9 +129,9 @@ namespace libcomm
 #include <boost/preprocessor/stringize.hpp>
 
 // clang-format off
-#define STATE_SEQ (gaussian_state)
-#define SCALAR_SEQ (double)
-#define COLLECTOR_TYPE_SEQ (cv_qkd_errors_hamming)
+#define STATE_SEQ (gaussian_state) (qubit)
+#define SCALAR_SEQ (double) (bool)
+#define COLLECTOR_TYPE_SEQ (cv_qkd_errors_hamming) (dv_qkd_errors_hamming)
 
 /* Serialization string qkd_commsys_simulator<S, T, R>:
  * qkd_commsys_simulator<gaussian_state, double, cv_qkd_errors_hamming> where:
@@ -150,7 +151,17 @@ namespace libcomm
         qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::create);
 // clang-format on
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
-                              (STATE_SEQ)(SCALAR_SEQ)(COLLECTOR_TYPE_SEQ))
+// BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
+//                               (STATE_SEQ)(SCALAR_SEQ)(COLLECTOR_TYPE_SEQ))
+
+// --- Manual instantiations of ONLY the valid combinations ---
+
+// CV-QKD combinations (gaussian_state goes with cv_qkd_errors_hamming)
+INSTANTIATE(0, (gaussian_state)(double)(cv_qkd_errors_hamming))
+INSTANTIATE(0, (gaussian_state)(bool)(cv_qkd_errors_hamming))
+
+// DV-QKD combinations (qubit goes with dv_qkd_errors_hamming)
+INSTANTIATE(0, (qubit)(double)(dv_qkd_errors_hamming))
+INSTANTIATE(0, (qubit)(bool)(dv_qkd_errors_hamming))
 
 } // namespace libcomm
