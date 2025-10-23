@@ -2,10 +2,10 @@
  * \file
  *
  * Copyright (c) 2025 Aaron Abela
- * \brief Boost unit tests for the BB84 protocol which is a DV-QKD protocol.
+ * \brief Boost unit tests for the BB84 protocol with single polarization which is a DV-QKD protocol.
  */
 
-#define BOOST_TEST_MODULE GaussianSourceTest
+#define BOOST_TEST_MODULE BB84Test
 #include <boost/test/included/unit_test.hpp>
 
 #include <algorithm>
@@ -16,11 +16,14 @@
 
 #include "serializer_libcomm.h"
 
-#include "source/quantum_bb84_source.h"
-#include "qkd/quantum_state.h"
+#include "qkd/qkd_protocol/dvqkd_protocol.h"
+#include "qkd/quantum_channel/depolarizing_quantum_channel.h"
+#include "qkd/quantum_channel/identity_quantum_channel.h"
 #include "qkd_commsys.h"
+#include "source/quantum_bb84_source.h"
+#include "experiment/binomial/result_collector/qkd_commsys/dv_qkd_errors_hamming.h"
 
-// #include "codec/ldpc.h"
+#include "codec/ldpc.h"
 #include "gf.h"
 #include "random.h"
 #include "vector.h"
@@ -57,7 +60,7 @@ std::pair<bool, bool> get_alice_choice_from_qubit(const libcomm::qubit& q)
     std::complex<double> beta = q.get_comp_basis_1();
 
     // Now, compare against the 4 known noiseless states
-    // Based on the quantum_bb84_source.h, only the real parts need to be checked. 
+    // Based on the quantum_bb84_source.h, only the real parts need to be checked.
 
     // Case 1: State |0> (bit=0, basis=0)
     // alpha=1.0, beta=0.0
@@ -89,7 +92,6 @@ std::pair<bool, bool> get_alice_choice_from_qubit(const libcomm::qubit& q)
 }
 
 
-
 BOOST_AUTO_TEST_CASE(test_bb84_protocol)
 {
     // Make sure we instantiate everything
@@ -97,14 +99,96 @@ BOOST_AUTO_TEST_CASE(test_bb84_protocol)
 
     std::cout << "\n*****Boost Test Case *****\n";
 
+    std::cout << "Base classes:" << std::endl;
+    for (auto& s : libbase::serializer::get_base_classes())
+        std::cout << " - " << s << std::endl;
+    std::cout << "Derived classes for quantum_channel:" << std::endl;
+    for (auto& s : libbase::serializer::get_derived_classes("quantum_channel"))
+        std::cout << " - " << s << std::endl;
+
+
+std::stringstream cfg;
+    cfg << R"SS(
+# Version
+1
+# Frame size (# of quantum states in a frame)
+14
+## Alice's channel
+identity_quantum_channel
+## Bob's channel
+depolarizing_quantum_channel
+## Postprocessing protocol
+dvqkd_protocol
+# Codec
+ldpc<gf2,double>
+# Version
+5
+# SPA type (trad|gdl)
+gdl
+# Number of iterations
+50
+# Clipping method
+zero
+# Value of almostzero
+1e-100
+# Reduce generator matrix to REF? (true|false)
+1
+# Length (n)
+7
+# Dimension (m)
+7
+# Max column weight
+3
+# Max row weight
+3
+# Non-zero values (ones|random|provided)
+ones
+# Column weight vector
+7
+3 3 3 3 3 3 3
+# Row weight vector
+7
+3 3 3 3 3 3 3
+# Non zero positions per col
+3
+1 5 7
+3
+1 2 6
+3
+2 3 7
+3
+1 3 4
+3
+2 4 5
+3
+3 5 6
+3
+4 6 7
+)SS";
+
+    auto sys = std::make_shared<
+    libcomm::qkd_commsys<libcomm::qubit, bool, libbase::vector>>();
+
+    sys->serialize(cfg);
+
+    // Create rng as a shared_ptr and set the seed.
+    auto rng = std::make_shared<libbase::randgen>();
+    rng->seed(7);
+
+
     // Create BB84 Source Generator.
     std::stringstream ss_src;
     ss_src << R"SS(
 quantum_bb84_source
 )SS";
 
-    // Number of qubits generated for a single frame
-    int framesize = 10;
+    // Gets the number of coherent states generated for a single frame from the
+    // qkd_commsys object.
+    int framesize = sys->input_block_size();
+    std::cout
+        << "TESTGAUSSIANCVQKD:  Number of generated coherent states (Alice) = "
+        << framesize << std::endl;
+
 
     // Build source.
     std::shared_ptr<libcomm::source<libcomm::qubit, libbase::vector>>
@@ -121,6 +205,23 @@ quantum_bb84_source
     libbase::vector<libcomm::qubit> source =
         src->generate_sequence(libbase::size_type<libbase::vector>(framesize));
 
+    /* Sends source to qkd_commsys by creating a simulator, which calls sys->init() in its constructor.*/
+    // Define the template types for the simulator.
+    using S = libcomm::qubit;
+    using T = bool;
+    using R = libcomm::dv_qkd_errors_hamming;
+
+    auto sim = std::make_shared<libcomm::qkd_commsys_simulator<S, T, R>>(
+
+        // Upcast rng from shared_ptr<randgen> to shared_ptr<random>.
+        std::static_pointer_cast<libbase::random>(rng),
+
+        s_ptr,
+
+        sys
+    );
+
+
     // Get vector a of Alice which is the vector of bits.
     std::vector<bool> vector_a(framesize);
 
@@ -132,22 +233,7 @@ quantum_bb84_source
     vector_b = src->get_bases();
 
     // In your test case:
-    std::cout << "These vectors are just being printed for testing purpose: " << std::endl;
+    std::cout << "Verification of basis and bits vectors of Alice: " << std::endl;
     print_std_vector("Print bits vector of Alice = ", vector_a);
     print_std_vector("Print bases vector of Alice = ", vector_b);
-
-
-    // Get measurement value/bit of Alice and the basis vector for a single qubit.
-    std::cout << "***** Verification *****" << std::endl;
-    std::cout << "Verifying that the bit value and basis value for the first generated qubit is correct: " << std::endl; 
-
-    std::pair<bool, bool> deduced = get_alice_choice_from_qubit(source(0));
-    bool deduced_bit = deduced.first;
-    bool deduced_basis = deduced.second;
-
-    std::cout << "The deduced bit for quantum state 1 = " << deduced_bit << std::endl;
-    std::cout << "The deduced basis for quantum state 1 = " << deduced_basis << std::endl;
-
-    
-
 }
