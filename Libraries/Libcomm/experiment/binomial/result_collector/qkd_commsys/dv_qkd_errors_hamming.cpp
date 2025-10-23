@@ -1,0 +1,54 @@
+/*!
+ * \file
+ *
+ * Copyright (c) 2025 Aaron Abela.
+ *
+ * This file is part of SimCommSys.
+ *
+ * SimCommSys is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SimCommSys is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "dv_qkd_errors_hamming.h"
+#include "fsm.h"
+#include "hamming.h"
+#include "itfunc.h"
+
+namespace libcomm
+{
+
+/*!
+ * \brief Update result set
+ * \param[out] result   Vector containing the set of results to be updated
+ * \param[in]  source   Source data sequence
+ * \param[in]  decoded  Decoded data sequence
+ *
+ * Results are organized as (symbol,frame, SKR) error count. Eventually these
+ * will be divided by the respective multiplicity to get the average error
+ * rates.
+ */
+void
+dv_qkd_errors_hamming::updateresults(libbase::vector<double>& result,
+                                     libbase::vector<qubit> source,
+                                     libbase::vector<bool>& key_KA,
+                                     libbase::vector<bool>& key_KB) const
+{
+    result(0) += key_KA.size(); // SKR = sum(len(KA)) / sum(len(source))
+
+    int symerrors = libbase::hamming(key_KA, key_KB);
+    result(1) += symerrors; // SER = sum(hamming(KA,KB)) / sum(len(KA))
+    result(2) +=
+        symerrors ? 1 : 0; // FER = sum(hamming(KA,KB)>0) / sum(samples)
+}
+
+} // namespace libcomm
