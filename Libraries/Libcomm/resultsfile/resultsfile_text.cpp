@@ -226,15 +226,14 @@ resultsfile_text::writeresultsandstate(std::fstream& file,
     checkformodifications(file);
     writeheaderifneeded(file);
     writeresults(file, result, errormargin);
-    if (!interim)
-        // update write-position so we don't overwrite these results on next
-        // run.
-        fileptr = file.tellp();
     if (savestate)
         writestate(file);
-    if (!interim)
+    if (!interim) {
+        // update position so we don't overwrite these results on next run
+        fileptr = file.tellp();
         // truncate to remove extra content related to state
         this->truncate(fileptr);
+    }
 }
 
 /*! \brief Set up the results file and look for a state
