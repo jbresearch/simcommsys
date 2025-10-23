@@ -51,7 +51,7 @@ resultsfile_text::writeheader(std::ostream& sout) const
 
     /// Print results header
     // We must account for multiple params
-    int n_params = system->get_parameters().size();
+    const int n_params = system->get_parameters().size();
     assertalways(n_params > 0);
     // if there is only one param, print old header with Par
     if (n_params == 1) {
@@ -61,10 +61,12 @@ resultsfile_text::writeheader(std::ostream& sout) const
     }
     // print rest of params after first one
     for (int i = 1; i < n_params; i++) {
-        sout << "\t" << "Par" << i;
+        sout << "\t" << "Par" << i + 1;
     }
+    // print header for each result and its tolerance
     for (int i = 0; i < system->result_count(); i++) {
-        sout << "\t" << system->result_description(i) << "\tTol";
+        sout << "\t" << system->result_description(i) << "\t"
+             << system->result_description(i) << "_Tol";
     }
     sout << "\tSamples\tCPUtime" << std::endl;
     libbase::trace << "DEBUG (resultsfile_text): position after = "
@@ -106,11 +108,13 @@ resultsfile_text::writeresults(std::ostream& sout,
     // Write current estimates to file
     libbase::trace << "DEBUG (resultsfile_text): position before = "
                    << sout.tellp() << std::endl;
-    // print all the param values
-    libbase::vector<double> params = system->get_parameters();
+    // print all the param values (cannot use serialize, to avoid final eol)
+    const libbase::vector<double> params = system->get_parameters();
     assertalways(params.size() > 0);
-    params.serialize(sout, "\t");
-
+    sout << params(0);
+    for (int i = 1; i < params.size(); i++) {
+        sout << '\t' << params(i);
+    }
     // print results and their tolerances
     for (int i = 0; i < system->result_count(); i++) {
         sout << '\t' << result(i) << '\t' << errormargin(i);
