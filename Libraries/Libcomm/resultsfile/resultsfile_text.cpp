@@ -137,12 +137,8 @@ resultsfile_text::writestate(std::ostream& sout) const
     libbase::vector<double> state;
     system->get_state(state);
     sout << "## System: " << simulator->get_sysdigest() << std::endl;
-    sout << "## Parameters: ";
-    // serialize parameters vector differently than usual, so that it takes one
-    // line
-    libbase::vector<double> params = system->get_parameters();
-    params.serialize(sout, " ");
-    sout << std::endl;
+    sout << "## Parameters: " << system->get_parameters().size() << '\t';
+    system->get_parameters().serialize(sout, "\t");
     sout << "## Samples: " << simulator->get_samplecount() << std::endl;
     sout << "## State: " << state.size() << '\t';
     state.serialize(sout, "\t");
@@ -168,14 +164,14 @@ resultsfile_text::lookforstate(std::fstream& sin)
         std::string s;
         getline(sin, s);
 
-        if (s.substr(0, 10) == "## System:") {
-            digest = s.substr(10);
-        } else if (s.substr(0, 14) == "## Parameters:") {
-            std::istringstream(s.substr(13)) >> parameters;
-        } else if (s.substr(0, 11) == "## Samples:") {
-            std::istringstream(s.substr(11)) >> samplecount;
-        } else if (s.substr(0, 9) == "## State:") {
-            std::istringstream(s.substr(9)) >> state;
+        if (s.substr(0, 11) == "## System: ") {
+            digest = s.substr(11);
+        } else if (s.substr(0, 15) == "## Parameters: ") {
+            std::istringstream(s.substr(15)) >> parameters;
+        } else if (s.substr(0, 12) == "## Samples: ") {
+            std::istringstream(s.substr(12)) >> samplecount;
+        } else if (s.substr(0, 10) == "## State: ") {
+            std::istringstream(s.substr(10)) >> state;
         }
     }
     // reset file
