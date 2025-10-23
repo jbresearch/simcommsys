@@ -37,8 +37,9 @@ namespace libcomm
 class experiment_binomial : public experiment
 {
     /*! \name Internal variables */
-    libbase::vector<double> sum; //!< Vector of result sums
-                                 // @}
+    libbase::vector<double> sum;   //!< Vector of result sums
+    libbase::vector<double> count; //!< Vector of result counts
+    // @}
 
 protected:
     // Accumulator functions

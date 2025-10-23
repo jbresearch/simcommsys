@@ -67,13 +67,12 @@ experiment_binomial::estimate(libbase::vector<double>& estimate,
     estimate.init(result_count());
     stderror.init(result_count());
     // compute results
-    assert(get_samplecount() > 0);
     for (int i = 0; i < result_count(); i++) {
+        assert(count(i) > 0);
         // estimate is the proportion
-        estimate(i) = sum(i) / double(get_samplecount(i));
+        estimate(i) = sum(i) / count(i);
         // standard error is sqrt(p(1-p)/n)
-        stderror(i) = sqrt((estimate(i) * (1 - estimate(i))) /
-                           double(get_samplecount(i)));
+        stderror(i) = sqrt((estimate(i) * (1 - estimate(i))) / count(i));
     }
 }
 

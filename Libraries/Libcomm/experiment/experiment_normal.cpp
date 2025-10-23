@@ -88,15 +88,15 @@ experiment_normal::estimate(libbase::vector<double>& estimate,
     assert(result_count() == sum.size());
     assert(result_count() == sumsq.size());
     // estimate is the mean value
-    assert(get_samplecount() > 0);
-    estimate = sum / double(get_samplecount());
+    const double count = get_samplecount();
+    assert(count > 0);
+    estimate = sum / count;
     // standard error is sigma/sqrt(n)
     stderror.init(result_count());
-    if (get_samplecount() > 1) {
+    if (count > 1) {
         for (int i = 0; i < result_count(); i++) {
-            stderror(i) = sqrt((sumsq(i) / double(get_samplecount()) -
-                                estimate(i) * estimate(i)) /
-                               double(get_samplecount() - 1));
+            stderror(i) = sqrt((sumsq(i) / count - estimate(i) * estimate(i)) /
+                               (count - 1));
         }
     } else {
         stderror = std::numeric_limits<double>::max();

@@ -33,6 +33,9 @@ namespace libcomm
  *
  * Implements the accumulator functions required by the experiment class,
  * moved from previous implementation in montecarlo.
+ *
+ * \todo Keep track of separate counts for each result, as in
+ * experiment_binomial
  */
 
 class experiment_normal : public experiment

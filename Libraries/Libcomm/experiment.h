@@ -54,8 +54,9 @@ protected:
      * \param[in,out] a Accumulator vector
      * \param[in] b Vector to be added to accumulator
      */
-    static void safe_accumulate(libbase::vector<double>& a,
-                                const libbase::vector<double>& b)
+    template <class T>
+    static void safe_accumulate(libbase::vector<T>& a,
+                                const libbase::vector<T>& b)
     {
         if (a.size() == 0) {
             a = b;
