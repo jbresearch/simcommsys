@@ -37,7 +37,7 @@ using libbase::vector;
 /*! \brief Update \ref filedigest
  */
 void
-resultsfile::finishwithfile(std::fstream& file)
+resultsfile::update_digest(std::fstream& file)
 {
     // update the filedigest
     file.seekg(0);
@@ -115,8 +115,7 @@ resultsfile::setupfile()
     // look for saved-state
     lookforstate(file);
     // update digest
-    file.seekg(0);
-    filedigest.process(file);
+    update_digest(file);
     // start timer for interim results writing
     t.start();
     // update flags
@@ -142,7 +141,7 @@ resultsfile::writeinterimresults(libbase::vector<double>& result,
     std::fstream file(fname.c_str());
     assertalways(file.good());
     writeresultsandstate(file, result, errormargin, true, true);
-    finishwithfile(file);
+    update_digest(file);
     // restart timer
     t.start();
 }
@@ -164,7 +163,7 @@ resultsfile::writefinalresults(libbase::vector<double>& result,
     std::fstream file(fname.c_str());
     assertalways(file.good());
     writeresultsandstate(file, result, errormargin, savestate, false);
-    finishwithfile(file);
+    update_digest(file);
     // stop timer and clear setup flag (in preparation for next simulation run)
     t.stop();
     filesetup = false;

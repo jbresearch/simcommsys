@@ -87,7 +87,7 @@ protected:
     const std::string& get_fname() const { return fname; }
 
     /*! \name Results file helper functions */
-    void finishwithfile(std::fstream& file);
+    void update_digest(std::fstream& file);
     void truncate(std::streampos length) const;
     bool wasmodified(std::fstream& file);
     virtual void lookforstate(std::fstream& sin) = 0;
