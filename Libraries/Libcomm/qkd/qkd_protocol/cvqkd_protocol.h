@@ -11,7 +11,6 @@
 #define CVQKD_PROTOCOL_H
 
 #include "commsys.h"
-
 #include "channel.h"
 #include "channel/awgn1d.h"
 #include "codec.h"
@@ -28,7 +27,6 @@
 #include "qkd/privacy_amplification.h"
 #include "qkd/privacy_amplification/pa_standard_toeplitz.h"
 #include "qkd/qkd_protocol.h"
-#include "qkd/quantum_state.h"
 #include "qkd/quantum_state.h"
 #include "random.h"
 #include "serializer.h"

@@ -1,9 +1,5 @@
 #include "cvqkd_protocol.h"
 #include "codec/ldpc.h"
-#include "gf.h"
-#include "source/quantum_gaussian_source.h"
-#include <cmath>
-#include "source/quantum_gaussian_source.h"
 #include <cmath>
 #include <sstream>
 
@@ -22,19 +18,19 @@ namespace libcomm
 void
 cvqkd_protocol::init(qkd_commsys<gaussian_state, double, libbase::vector>* qkdcommsys)
 {
-    // 1. Get the source generator from commsys
+    // Get the source generator from qkd_commsys
     std::shared_ptr<source<gaussian_state>> src_gen_base = qkdcommsys->get_src();
     assert(src_gen_base && "Commsys did not provide a source generator.");
 
     // Safely cast to the derived class we need
     auto& src_gen = dynamic_cast<quantum_gaussian_source&>(*src_gen_base);
 
-    // 2. Get modulation variance from the source
+    // Get modulation variance from the source
     m_modulation_variance = src_gen.get_VA();
 
-    // 3. Get Bob's quantum channel from commsys
+    // Get Bob's quantum channel from qkd_commsys
     this->m_bob_channel = qkdcommsys->get_bob_channel();
-    assert(this->m_bob_channel && "Commsys did not provide Bob's channel.");
+    assert(this->m_bob_channel && "qkd_commsys did not provide Bob's channel.");
 }
 
 // Split fn to be used for parameter estimation and post-processing.
