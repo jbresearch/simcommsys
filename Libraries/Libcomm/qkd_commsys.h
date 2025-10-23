@@ -32,6 +32,7 @@
 #include "source.h"
 #include "source.h"
 #include "source/quantum_gaussian_source.h"
+#include "source/quantum_bb84_source.h"
 #include "vector.h"
 
 #include <iostream>

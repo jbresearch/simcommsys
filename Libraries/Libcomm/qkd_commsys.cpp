@@ -89,6 +89,12 @@ qkd_commsys<S, T, C>::fullcycle(C<S>& source)
         }
     }
 
+    std::cout << "Printing measurement vectors of Alice and Bob (from qkd_commsys.cpp): " << std::endl;
+
+    std::cout << "Measurement vector of Alice without noise (from qkd_commsys.cpp): " << alice_measurements << std::endl;
+
+     std::cout << "Measurement vector of Bob with noise (from qkd_commsys.cpp): " << bob_measurements << std::endl;
+
     // Perform post-processing to get the final secret keys.
     auto [secret_key_KA, secret_key_KB] = protocol->postprocess(
         std::move(alice_measurements), std::move(bob_measurements));
@@ -169,9 +175,9 @@ namespace libcomm
 using libbase::vector;
 
 // clang-format off
-#define STATE_SEQ (gaussian_state)
-#define SCALAR_SEQ (double)
-#define CONTAINER_SEQ (vector)
+#define STATE_SEQ (gaussian_state) (qubit)
+#define SCALAR_SEQ (double) (bool)
+#define CONTAINER_SEQ (vector) (vector)
 
 /* Serialization string (S, T, C); qkd_commsys<S, T, C> : qkd_commsys<gaussian_state, double,
  * libbase::vector> where: S = gaussian_state .. T = double, float C =
@@ -189,8 +195,18 @@ using libbase::vector;
             qkd_commsys<BOOST_PP_SEQ_ENUM(args)>::create);
 // clang-format on
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
-                              (STATE_SEQ)(SCALAR_SEQ)(CONTAINER_SEQ))
+// BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
+//                               (STATE_SEQ)(SCALAR_SEQ)(CONTAINER_SEQ))
+
+// Instantiate the serializers for only the 4 valid combinations
+
+// CV
+INSTANTIATE(0, (gaussian_state)(double)(libbase::vector))
+INSTANTIATE(0, (gaussian_state)(bool)(libbase::vector))
+
+// DV
+INSTANTIATE(0, (qubit)(double)(libbase::vector))
+INSTANTIATE(0, (qubit)(bool)(libbase::vector))
 
 } // namespace libcomm
 
