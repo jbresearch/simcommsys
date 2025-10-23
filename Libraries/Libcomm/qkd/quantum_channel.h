@@ -89,12 +89,6 @@ public:
     virtual void transmit(hadamard_observable&) { failwith("Not implemented."); }
     //! @}
 
-    virtual double get_VA()
-    {
-        failwith("Not implemented.");
-        return 0;
-    }
-
     virtual void seedfrom(libbase::random& r) = 0;
     virtual ~quantum_channel() {}
 

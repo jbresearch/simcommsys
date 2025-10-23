@@ -68,8 +68,6 @@ public:
     //! sequence
     void seedfrom(libbase::random& r) override { gen.seed(r.ival()); }
 
-    double get_VA() override { return VA; }
-
     // Applies Gaussian noise to momentum and position observable
     void transmit(position_observable& observable) override
     {
