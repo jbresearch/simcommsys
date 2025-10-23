@@ -146,9 +146,11 @@
 // QKD Channels
 #include "qkd/quantum_channel/gaussian_quantum_channel.h"
 #include "qkd/quantum_channel/identity_quantum_channel.h"
+#include "qkd/quantum_channel/depolarizing_quantum_channel.h"
 
 // QKD Protocols
 #include "qkd/qkd_protocol/cvqkd_protocol.h"
+#include "qkd/qkd_protocol/dvqkd_protocol.h"
 
 // QKD Embedders
 #include "informed_embedder/direct_block_informed_embedder.h"
@@ -165,6 +167,7 @@
 
 // QKD Results Collectors
 #include "experiment/binomial/result_collector/qkd_commsys/cv_qkd_errors_hamming.h"
+#include "experiment/binomial/result_collector/qkd_commsys/dv_qkd_errors_hamming.h"
 
 // *** Other includes ***
 #include <iostream>
@@ -291,8 +294,10 @@ private:
     // QKD Channels
     gaussian_quantum_channel _gaussian_quantum_channel;
     identity_quantum_channel _identity_quantum_channel;
+
     // QKD Protocols
     cvqkd_protocol _cvqkd_protocol;
+    dvqkd_protocol _dvqkd_protocol;
     // QKD embedders
     direct_block_informed_embedder<double, libbase::vector, double> _direct_block_informed_embedder;
     sign<double> _sign;
