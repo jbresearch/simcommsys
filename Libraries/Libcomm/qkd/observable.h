@@ -23,7 +23,7 @@
 #define __qkd_observable_h
 
 #include "assertalways.h"
-// #include "qkd/quantum_channel.h"
+#include "randgen.h"
 
 namespace libcomm
 {
@@ -54,7 +54,19 @@ class entangled_qubit_pair;
 template <typename T>
 class observable
 {
+protected:
+    /*!
+     * \brief random generator available to subclasses
+     * \note This field is static so that there is only one RNG for the entire
+     * class
+     */
+    inline static libbase::randgen rng;
+
 public:
+    //! \name Initialisation interface for RNG
+    static void seedfrom(libbase::random& r) { rng.seed(r.ival()); }
+    //! @}
+
     //! \name Visitor interface methods for regular (non-entangled) states
     virtual T measure(qubit&) const
     {

@@ -35,7 +35,6 @@
 #include "qkd/observable.h"
 #include "qkd/quantum_channel.h"
 #include "qkd/quantum_state.h"
-#include "random.h"
 #include <cmath>
 #include <complex>
 #include <stdexcept>
@@ -49,20 +48,12 @@ class epr_beam;
 class hadamard_observable : public observable<bool>
 {
 private:
-    // 'mutable' is correct! It allows 'measure' to be const.
-    mutable libbase::randgen rng;
-
     // This member will store the noise parameter from the depolarizing quantum channel.
     double qber;
 
 public:
     // Constructor
-    hadamard_observable() : rng(), qber(0.0) {}
-
-    void seedfrom(libbase::random& r)
-    {
-        this->rng.seed(r.ival());
-    }
+    hadamard_observable() : qber(0.0) {}
 
     // Noise is added from the depolarising quantum channel from the transmit method.
     void set_qber(double qber_val) { qber = qber_val; }

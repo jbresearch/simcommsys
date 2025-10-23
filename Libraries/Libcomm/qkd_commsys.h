@@ -93,6 +93,7 @@ public:
         this->alice_channel->seedfrom(r);
         this->bob_channel->seedfrom(r);
         this->protocol->seedfrom(r);
+        observable<T>::seedfrom(r);
     }
     // @}
 
