@@ -173,13 +173,6 @@ public:
      */
     uint64_t get_samplecount() const { return samplecount; }
     /*!
-     * \brief The number of samples taken to produce result 'i'
-     */
-    uint64_t get_samplecount(int i) const
-    {
-        return get_samplecount() * result_multiplicity(i);
-    }
-    /*!
      * \brief Display accumulated results in human-readable form
      */
     void

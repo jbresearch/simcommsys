@@ -382,15 +382,18 @@ montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
                     break;
                 }
                 case mode_accumulated_result: {
-                    // determine the absolute accumulated result
-                    vector<double> result_acc = result;
-                    for (int i = 0; i < result_acc.size(); i++) {
-                        result_acc(i) *= system->get_samplecount(i);
-                    }
-                    // check if this is more than threshold
-                    if (result_acc.min() >= threshold) {
-                        converged = true;
-                    }
+                    // TODO: re-implement or remove, now that get_samplecount(i)
+                    // no longer exists
+
+                    // // determine the absolute accumulated result
+                    // vector<double> result_acc = result;
+                    // for (int i = 0; i < result_acc.size(); i++) {
+                    //     result_acc(i) *= system->get_samplecount(i);
+                    // }
+                    // // check if this is more than threshold
+                    // if (result_acc.min() >= threshold) {
+                    //     converged = true;
+                    // }
                     break;
                 }
                 default:
