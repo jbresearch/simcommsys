@@ -26,15 +26,18 @@
 namespace libcomm
 {
 
-template <class S, class T, class R>
+template <class S, class T>
 void
-qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
+qkd_commsys_simulator<S, T>::sample(libbase::vector<double>& sample_result,
+                             libbase::vector<uint64_t>& sample_count)
 {
-    // Reset timers
+      // Reset timers
     this->reset_timers();
-    // Initialise result vector
-    result.init(count());
-    result = 0;
+    // Initialise sample result and count vectors
+    sample_result.init(result_count());
+    sample_count.init(result_count());
+    sample_result = 0;
+    sample_count = 0;
 
     // Gets the number of coherent states generated for a single frame from the
     // qkd_commsys object.
@@ -48,34 +51,40 @@ qkd_commsys_simulator<S, T, R>::sample(array1d_t& result)
     // Both final keys are of libbase::vector<bool> type.
     auto [key_KA, key_KB] = sys->fullcycle(source);
 
-    libbase::indirect_vector<double> result_segment =
-        result.segment(0, R::count());
+    libbase::indirect_vector<double> sample_result_segment =
+        sample_result.segment(0, rc->result_count());
+    libbase::indirect_vector<uint64_t> sample_count_segment =
+        sample_count.segment(0, rc->result_count());
 
     // CV collector
-    R::updateresults(result_segment, source, key_KA, key_KB);
+    rc->compute_result_and_accumulate(sample_result_segment, sample_count_segment, key_KA, key_KB);
 }
 
-template <class S, class T, class R>
+template <class S, class T>
 std::string
-qkd_commsys_simulator<S, T, R>::description() const
+qkd_commsys_simulator<S, T>::description() const
 {
     std::ostringstream sout;
     sout << "QKD Simulator for ";
     sout << sys->description();
     sout << ", ";
     sout << src->description();
+    sout << ", collecting ";
+    sout << rc->description();
     return sout.str();
 }
 
 // object serialization - saving
 
-template <class S, class T, class R>
+template <class S, class T>
 std::ostream&
-qkd_commsys_simulator<S, T, R>::serialize(std::ostream& sout) const
+qkd_commsys_simulator<S, T>::serialize(std::ostream& sout) const
 {
     // format version
     sout << "# Version" << std::endl;
     sout << 1 << std::endl;
+    sout << "# Results collector" << std::endl;
+    sout << rc;
     sout << "# Source generator" << std::endl;
     sout << src;
     sout << "# Communication system" << std::endl;
@@ -90,9 +99,9 @@ qkd_commsys_simulator<S, T, R>::serialize(std::ostream& sout) const
  *
  * \version 1 Added version numbering; added split channel model
  */
-template <class S, class T, class R>
+template <class S, class T>
 std::istream&
-qkd_commsys_simulator<S, T, R>::serialize(std::istream& sin)
+qkd_commsys_simulator<S, T>::serialize(std::istream& sin)
 {
     assertalways(sin.good());
 
@@ -108,6 +117,7 @@ qkd_commsys_simulator<S, T, R>::serialize(std::istream& sin)
 
     sin >> libbase::eatcomments >> src >> libbase::verify;
     sin >> libbase::eatcomments >> sys >> libbase::verify;
+    sin >> libbase::eatcomments >> rc >> libbase::verify;
 
     assertalways(sin.good());
     return sin;
@@ -131,14 +141,12 @@ namespace libcomm
 // clang-format off
 #define STATE_SEQ (gaussian_state)(qubit)
 #define SCALAR_SEQ (double)(bool)
-#define COLLECTOR_TYPE_SEQ (cv_qkd_errors_hamming)(dv_qkd_errors_hamming)
 // clang-format on
 
-/* Serialization string: qkd_commsys_simulator<S,T,R>
+/* Serialization string: qkd_commsys_simulator<S,T>
  * where:
  *      S = gaussian_state | qubit
  *      T = double | bool
- *      R = cv_qkd_errors_hamming | dv_qkd_errors_hamming
  */
 
 #define INSTANTIATE(r, args)                                                           \
@@ -146,7 +154,7 @@ namespace libcomm
     template <>                                                                        \
     const libbase::serializer qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::shelper( \
         "experiment",                                                                  \
-        "qkd_commsys_simulator<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(2, args)) ">",          \
+        "qkd_commsys_simulator<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) ">",          \
                                                 qkd_commsys_simulator<                 \
                                                     BOOST_PP_SEQ_ENUM(                 \
                                                         args)>::create);
@@ -156,7 +164,7 @@ namespace libcomm
 
 // Instantiate the serializers for the only valid combinations
 
-INSTANTIATE(0, (gaussian_state)(double)(cv_qkd_errors_hamming)) // CV
-INSTANTIATE(0, (qubit)(bool)(dv_qkd_errors_hamming))            // DV
+INSTANTIATE(0, (gaussian_state)(double)) // CV
+INSTANTIATE(0, (qubit)(bool))            // DV
 
 } // namespace libcomm

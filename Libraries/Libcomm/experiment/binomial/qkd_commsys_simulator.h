@@ -1,7 +1,7 @@
 /*!
  * \file
  *
- * Copyright (c) 2025 Mark Mizzi
+ * Copyright (c) 2025 Mark Mizzi, Aaron Abela
  *
  * This file is part of SimCommSys.
  *
@@ -22,23 +22,38 @@
 #ifndef __qkd_commsys_simulator_h
 #define __qkd_commsys_simulator_h
 
+#include "assertalways.h"
 #include "experiment/experiment_binomial.h"
+#include "experiment/results_collector.h"
 #include "qkd_commsys.h"
 #include "randgen.h"
+#include "serializer.h"
 #include "source.h"
 #include "vector.h"
 #include <sstream>
+#include <stdexcept>
 
 namespace libcomm
 {
 
 /*!
  * \brief   QKD Communication Systems Simulator.
- * \author  Mark Mizzi
+ * \author  Mark Mizzi, Aaron Abela
  */
 
-template <class S, class T, class R>
-class qkd_commsys_simulator : public experiment_binomial, public R
+class qkd_commsys_simulator_base : public experiment_binomial
+{
+public:
+    // Interface for Results Collector
+    typedef enum {
+        SOURCE_LENGTH,
+        SECRET_KEY_LENGTH,
+        ALPHABET_SIZE
+    } index_t;
+};
+
+template <class S, class T>
+class qkd_commsys_simulator : public qkd_commsys_simulator_base
 {
 public:
     /*! \name Type definitions */
@@ -57,6 +72,7 @@ protected:
 
     std::shared_ptr<source<S>> src;         //!< Source data sequence generator
     std::shared_ptr<qkd_commsys<S, T>> sys; //!< Communication systems
+    std::shared_ptr<results_collector<libbase::vector<bool>>> rc; //!< Results collector
     // @}
     /*! \name Internal state */
     array1i_t last_event;
@@ -65,6 +81,22 @@ protected:
         nullptr; // non-owning: set in seedfrom(), reused in sample()
     // @}
 
+    // Interface for Results Collector
+    std::any get_value(const int index) const override
+    {
+        switch (index) {
+        case SOURCE_LENGTH:
+            return int(sys->input_block_size()); // Equivalent to the framesize serialized in qkd_commsys.cpp
+        case SECRET_KEY_LENGTH:
+            return int(sys->get_protocol()->calculate_finite_size_effects_secret_key_length()); // Length of the final secret key.
+        case ALPHABET_SIZE:
+            return int(2);
+        }
+        // this should never happen
+        throw std::out_of_range("Unknown parameter index " +
+                                std::to_string(index));
+    }
+
 public:
     /*! \name Constructors / Destructors */
 
@@ -72,7 +104,7 @@ public:
     qkd_commsys_simulator(std::shared_ptr<libbase::random> rng_t,
                         std::shared_ptr<source<S>> src_gen_t,
                         std::shared_ptr<qkd_commsys<S, T, libbase::vector>> sys_t)
-        : experiment_binomial()
+        : qkd_commsys_simulator_base()
         , src(src_gen_t)
         , sys(sys_t)
         , rng_(rng_t.get())
@@ -86,8 +118,8 @@ public:
      *
      * Initializes system with bound objects cloned from supplied system.
      */
-    qkd_commsys_simulator(const qkd_commsys_simulator<S, T, R>& c)
-        : experiment_binomial(c), R(c), rng_(c.rng_)
+    qkd_commsys_simulator(const qkd_commsys_simulator<S, T>& c)
+        : qkd_commsys_simulator_base(c), rng_(c.rng_)
     {
         if (c.src)
             src = std::dynamic_pointer_cast<source<S>>(c.src->clone());
@@ -127,21 +159,18 @@ public:
     // @}
 
     // Experiment handling
-    void sample(array1d_t& result) override;
-    int count() const { return R::count(); }
-    int get_multiplicity(int i) const
+    void sample(libbase::vector<double>& sample_result,
+                libbase::vector<uint64_t>& sample_count) override;
+
+    int result_count() const override { return rc->result_count(); }
+
+    std::string result_description(int i) const override
     {
-        assert(i >= 0 && i < count());
-        const int index = i % R::count();
-        return R::get_multiplicity(index);
-    }
-    std::string result_description(int i) const
-    {
-        assert(i >= 0 && i < count());
-        const int iter = i / R::count();
-        const int index = i % R::count();
+        assert(i >= 0 && i < result_count());
+        const int iter = i / rc->result_count();
+        const int index = i % rc->result_count();
         std::ostringstream sout;
-        sout << R::result_description(index) << "_" << iter;
+        sout << rc->result_description(index) << "_" << iter;
         return sout.str();
     }
     array1i_t get_event() const { return last_event; }
@@ -151,6 +180,8 @@ public:
     int get_codec_input_bits_k() { return sys->get_codec_input_bits_k(); }
 
     /*! \name Component object handles */
+     //! Get communication system
+    const std::shared_ptr<qkd_commsys<S, T>> getsystem() const { return sys; }
     //! Clear list of timers
     void reset_timers() { sys->reset_timers(); }
     //! Get the list of timings taken
@@ -159,16 +190,8 @@ public:
     std::vector<std::string> get_names() const { return sys->get_names(); }
     // @}
 
-    // Required as they need to override the virtual methods found in
-    // cv_qkd_errors_hamming.h.
-    // TODO: Might have to remove these depending on the final results collector
-    // I will implement.
-    int get_symbolsperblock() const override { return sys->input_block_size(); }
-
-    int get_alphabetsize() const override { return 2; }
-
     // Description
-    std::string description() const;
+    std::string description() const override;
 
     // Serialization Support
     DECLARE_SERIALIZER(qkd_commsys_simulator)
