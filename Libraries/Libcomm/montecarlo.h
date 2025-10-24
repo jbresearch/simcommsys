@@ -90,9 +90,9 @@ private:
      */
     void sampleandaccumulate()
     {
-        libbase::vector<double> result;
-        system->sample(result);
-        system->accumulate_result(result);
+        libbase::vector<double> sample_result;
+        system->sample(sample_result);
+        system->accumulate_result(sample_result);
     }
     void updateresults(libbase::vector<double>& result,
                        libbase::vector<double>& errormargin) const;

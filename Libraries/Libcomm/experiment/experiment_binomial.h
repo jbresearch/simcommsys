@@ -44,7 +44,7 @@ class experiment_binomial : public experiment
 protected:
     // Accumulator functions
     void derived_reset() override;
-    void derived_accumulate_result(const libbase::vector<double>& result) override;
+    void derived_accumulate_result(const libbase::vector<double>& sample_result) override;
     void derived_accumulate_state(const libbase::vector<double>& state) override;
     // @}
 

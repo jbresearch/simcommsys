@@ -36,11 +36,11 @@ experiment_binomial::derived_reset()
 }
 
 void
-experiment_binomial::derived_accumulate_result(const libbase::vector<double>& result)
+experiment_binomial::derived_accumulate_result(const libbase::vector<double>& sample_result)
 {
-    assert(result.size() > 0);
+    assert(sample_result.size() > 0);
     // accumulate results
-    safe_accumulate(sum, result);
+    safe_accumulate(sum, sample_result);
 }
 
 void

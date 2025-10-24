@@ -48,14 +48,14 @@ experiment_normal::derived_reset()
 }
 
 void
-experiment_normal::derived_accumulate_result(const libbase::vector<double>& result)
+experiment_normal::derived_accumulate_result(const libbase::vector<double>& sample_result)
 {
-    assert(result.size() > 0);
+    assert(sample_result.size() > 0);
     // accumulate results
-    libbase::vector<double> sample = result;
-    safe_accumulate(sum, sample);
-    sample.apply(square);
-    safe_accumulate(sumsq, sample);
+    libbase::vector<double> sample_result_copy = sample_result;
+    safe_accumulate(sum, sample_result_copy);
+    sample_result_copy.apply(square);
+    safe_accumulate(sumsq, sample_result_copy);
 }
 
 void

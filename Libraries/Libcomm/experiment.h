@@ -73,9 +73,9 @@ protected:
     virtual void derived_reset() = 0;
     /*!
      * \brief Add the given sample results to the accumulated set
-     * \param[in] result   Vector containing a set of results
+     * \param[in] sample_result   Vector containing a set of results
      */
-    virtual void derived_accumulate_result(const libbase::vector<double>& result) = 0;
+    virtual void derived_accumulate_result(const libbase::vector<double>& sample_result) = 0;
     /*!
      * \brief Add the complete state of results to the accumulated set
      * \param[in] state Vector set of accumulated results
@@ -144,12 +144,12 @@ public:
     }
     /*!
      * \brief Add the given sample results to the accumulated set
-     * \param[in] result   Vector containing a set of results
+     * \param[in] sample_result   Vector containing a set of results
      */
-    void accumulate_result(const libbase::vector<double>& result)
+    void accumulate_result(const libbase::vector<double>& sample_result)
     {
         samplecount++;
-        derived_accumulate_result(result);
+        derived_accumulate_result(sample_result);
     }
     /*!
      * \brief Add the complete state of results to the accumulated set
