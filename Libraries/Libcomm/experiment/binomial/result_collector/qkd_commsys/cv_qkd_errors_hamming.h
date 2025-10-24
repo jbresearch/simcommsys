@@ -67,20 +67,20 @@ public:
      * multiplicity is respectively the number of symbols and the number of
      * frames (=1) per sample.
      */
-    int get_multiplicity(int i) const
+    int get_multiplicity(int i) const // This is what you divide with.
     {
         return (i == 0) ? get_symbolsperblock() : 1;
         assert(i >= 0 && i < count());
         switch (i) {
         case 0: // SKR
-            return get_symbolsperblock();
+            return get_symbolsperblock(); // This has to be the len(source).
         case 1: // SER
             // TODO: this is incorrect, what we need here is sum(len(KA))
             // only solution is to change the experiment interface where
             // estimate is calculated
-            return get_symbolsperblock();
+            return get_symbolsperblock(); // This has to be len(KA).
         case 2: // FER
-            return 1;
+            return 1; // This remains 1 for FER.
         }
         // this should never happen
         return 0;
