@@ -23,6 +23,7 @@
 #define __cv_qkd_errors_hamming_h
 
 #include "config.h"
+#include "experiment/results_collector.h"
 #include "source/quantum_gaussian_source.h"
 #include "vector.h"
 #include <string>
@@ -37,62 +38,48 @@ namespace libcomm
  * Implements standard error rate calculators and SKR for CV-QKD
  * with Gaussian modulated coherent states.
  */
-class cv_qkd_errors_hamming
+class cv_qkd_errors_hamming :  public results_collector<typename libbase::vector<bool>>
 {
 protected:
     /*! \name System Interface */
-    //! The number of information symbols per block
-    virtual int get_symbolsperblock() const = 0;
-    //! The information symbol alphabet size
-    virtual int get_alphabetsize() const = 0;
-    // @}
+    int source_length = 0; // Framesize
+    int secret_key_length = 0;
 public:
     virtual ~cv_qkd_errors_hamming() {}
+
     /*! \name Public interface */
-    void updateresults(libbase::vector<double>& result,
+    void init(const queryable& system) override;
+
+    void compute_result_and_accumulate(libbase::vector<double>& accumulated_result,
+                                  libbase::vector<uint64_t>& accumulated_count,
+                                  const libbase::vector<bool>& source,
+                                  const libbase::vector<bool>& decoded) const override
+    {
+        // Does nothing
+    }
+    void compute_result_and_accumulate(libbase::vector<double>& accumulated_result,
+                       libbase::vector<uint64_t>& accumulated_count,
                        libbase::vector<gaussian_state> source,
                        libbase::vector<bool>& key_KA,
                        libbase::vector<bool>& key_KB) const;
+
     /*! \copydoc experiment::count()
      * We count the number of symbol, frame errors and secret key rate for
      * CV-QKD.
      */
-    int count() const
+    int result_count() const
     {
         return 3;
     } // Accounts for the current results in updateresults().
-    /*! \copydoc experiment::get_multiplicity()
-     *
-     * Since results are organized as (symbol,frame) error count, the
-     * multiplicity is respectively the number of symbols and the number of
-     * frames (=1) per sample.
-     */
-    int get_multiplicity(int i) const // This is what you divide with.
-    {
-        return (i == 0) ? get_symbolsperblock() : 1;
-        assert(i >= 0 && i < count());
-        switch (i) {
-        case 0: // SKR
-            return get_symbolsperblock(); // This has to be the len(source).
-        case 1: // SER
-            // TODO: this is incorrect, what we need here is sum(len(KA))
-            // only solution is to change the experiment interface where
-            // estimate is calculated
-            return get_symbolsperblock(); // This has to be len(KA).
-        case 2: // FER
-            return 1; // This remains 1 for FER.
-        }
-        // this should never happen
-        return 0;
-    }
+
     /*! \copydoc experiment::result_description()
      *
      * The description is a string which indicates symbol or
      * frame error rates or SKR.
      */
-    std::string result_description(int i) const
+    std::string result_description(int i) const override
     {
-        assert(i >= 0 && i < count());
+        assert(i >= 0 && i < result_count());
         switch (i) {
         case 0:
             return "SKR";
@@ -101,10 +88,22 @@ public:
         case 2:
             return "FER";
         }
-        // this should never happen
-        return "";
+        // This should never happen
+        std::ostringstream sout;
+        sout << "Index " << i << " out of range. Valid range is [0,"
+             << result_count() - 1 << "].";
+        throw std::out_of_range(sout.str());
     }
     // @}
+
+    // Description
+    std::string description() const override
+    {
+        return "Secret Key Rate and Symbol/Frame Error Rates";
+    }
+
+    // Serialization Support
+    DECLARE_SERIALIZER(cv_qkd_errors_hamming)
 };
 
 } // namespace libcomm

@@ -20,6 +20,7 @@
  */
 
 #include "cv_qkd_errors_hamming.h"
+#include "experiment/binomial/qkd_commsys_simulator.h"
 #include "fsm.h"
 #include "hamming.h"
 #include "itfunc.h"
@@ -27,28 +28,62 @@
 namespace libcomm
 {
 
+void
+cv_qkd_errors_hamming::init(const queryable& system)
+{
+    source_length = std::any_cast<int>(
+        system.get_value(qkd_commsys_simulator_base::SOURCE_LENGTH));
+
+    secret_key_length = std::any_cast<int>(
+        system.get_value(qkd_commsys_simulator_base::SECRET_KEY_LENGTH));
+
+    // alphabet_size = std::any_cast<int>(
+    //     system.get_value(qkd_commsys_simulator_base::ALPHABET_SIZE));
+}
+
 /*!
- * \brief Update result set
- * \param[out] result   Vector containing the set of results to be updated
- * \param[in]  source   Source data sequence
- * \param[in]  decoded  Decoded data sequence
+* \copydoc results_collector::compute_result_and_accumulate()
  *
- * Results are organized as (symbol,frame, SKR) error count. Eventually these
- * will be divided by the respective multiplicity to get the average error
+ * Results are organized as (SKR,symbol,frame) error count. Eventually these
+ * will be divided by the respective counts to get the average error
  * rates.
  */
 void
-cv_qkd_errors_hamming::updateresults(libbase::vector<double>& result,
+cv_qkd_errors_hamming::compute_result_and_accumulate(libbase::vector<double>& accumulated_result,
+                                     libbase::vector<uint64_t>& accumulated_count,
                                      libbase::vector<gaussian_state> source,
                                      libbase::vector<bool>& key_KA,
                                      libbase::vector<bool>& key_KB) const
 {
-    result(0) += key_KA.size(); // SKR = sum(len(KA)) / sum(len(source))
-
+    assert(source.size() == source_length);
+    assert(key_KA.size() == secret_key_length);
+    accumulated_result(0) += key_KA.size(); // SKR = sum(len(KA)) / sum(len(source))
+    accumulated_count(0) += source_length;
+    // Count errors
     int symerrors = libbase::hamming(key_KA, key_KB);
-    result(1) += symerrors; // SER = sum(hamming(KA,KB)) / sum(len(KA))
-    result(2) +=
+    accumulated_result(1) += symerrors; // SER = sum(hamming(KA,KB)) / sum(len(KA))
+    accumulated_count(1) += secret_key_length;
+    accumulated_result(2) +=
         symerrors ? 1 : 0; // FER = sum(hamming(KA,KB)>0) / sum(samples)
+    accumulated_count(2) += 1;
+}
+
+// Serialisation interface
+
+const libbase::serializer cv_qkd_errors_hamming::shelper("results_collector",
+                                                  "cv_qkd_errors_hamming",
+                                                  cv_qkd_errors_hamming::create);
+
+std::ostream&
+cv_qkd_errors_hamming::serialize(std::ostream& sout) const
+{
+    return sout;
+}
+
+std::istream&
+cv_qkd_errors_hamming::serialize(std::istream& sin)
+{
+    return sin;
 }
 
 } // namespace libcomm
