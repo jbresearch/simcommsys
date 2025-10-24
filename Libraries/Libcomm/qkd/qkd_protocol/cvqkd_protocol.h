@@ -193,7 +193,7 @@ public:
     double compute_beta_mdr(double code_rate);
 
     // Equations related to length of final secret key.
-    const int calculate_finite_size_effects_secret_key_length();
+    const int calculate_finite_size_effects_secret_key_length() override;
 
     // Helper functions related to the codec.
     int get_codec_input_bits_k() const override
