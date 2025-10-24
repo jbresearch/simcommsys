@@ -48,7 +48,7 @@ experiment_normal::derived_reset()
 }
 
 void
-experiment_normal::derived_accumulate(const libbase::vector<double>& result)
+experiment_normal::derived_accumulate_result(const libbase::vector<double>& result)
 {
     assert(result.size() > 0);
     // accumulate results
@@ -59,7 +59,7 @@ experiment_normal::derived_accumulate(const libbase::vector<double>& result)
 }
 
 void
-experiment_normal::accumulate_state(const libbase::vector<double>& state)
+experiment_normal::derived_accumulate_state(const libbase::vector<double>& state)
 {
     assert(state.size() > 0);
     // divide state into constituent components and accumulate

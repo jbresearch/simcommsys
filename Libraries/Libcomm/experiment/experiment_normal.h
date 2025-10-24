@@ -47,16 +47,16 @@ class experiment_normal : public experiment
 
 protected:
     // Accumulator functions
-    void derived_reset();
-    void derived_accumulate(const libbase::vector<double>& result);
-    void accumulate_state(const libbase::vector<double>& state);
+    void derived_reset() override;
+    void derived_accumulate_result(const libbase::vector<double>& result) override;
+    void derived_accumulate_state(const libbase::vector<double>& state) override;
     // @}
 
 public:
     // Accumulator functions
-    void get_state(libbase::vector<double>& state) const;
+    void get_state(libbase::vector<double>& state) const override;
     void estimate(libbase::vector<double>& estimate,
-                  libbase::vector<double>& stderror) const;
+                  libbase::vector<double>& stderror) const override;
 };
 
 } // namespace libcomm

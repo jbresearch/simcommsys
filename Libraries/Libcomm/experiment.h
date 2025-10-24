@@ -75,12 +75,12 @@ protected:
      * \brief Add the given sample results to the accumulated set
      * \param[in] result   Vector containing a set of results
      */
-    virtual void derived_accumulate(const libbase::vector<double>& result) = 0;
+    virtual void derived_accumulate_result(const libbase::vector<double>& result) = 0;
     /*!
      * \brief Add the complete state of results to the accumulated set
      * \param[in] state Vector set of accumulated results
      */
-    virtual void accumulate_state(const libbase::vector<double>& state) = 0;
+    virtual void derived_accumulate_state(const libbase::vector<double>& state) = 0;
     // @}
 
 public:
@@ -152,10 +152,10 @@ public:
      * \brief Add the given sample results to the accumulated set
      * \param[in] result   Vector containing a set of results
      */
-    void accumulate(const libbase::vector<double>& result)
+    void accumulate_result(const libbase::vector<double>& result)
     {
         samplecount++;
-        derived_accumulate(result);
+        derived_accumulate_result(result);
     }
     /*!
      * \brief Add the complete state of results to the accumulated set
@@ -166,7 +166,7 @@ public:
                           const libbase::vector<double>& state)
     {
         this->samplecount += samplecount;
-        accumulate_state(state);
+        derived_accumulate_state(state);
     }
     /*!
      * \brief The number of samples taken to produce the result

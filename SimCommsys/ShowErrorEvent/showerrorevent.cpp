@@ -158,7 +158,7 @@ main(int argc, char* argv[])
     do {
         cerr << "Simulating sample " << system->get_samplecount() << std::endl;
         system->sample(result);
-        system->accumulate(result);
+        system->accumulate_result(result);
         if (showall) {
             cerr << "Event for sample " << system->get_samplecount() << ":"
                  << std::endl;

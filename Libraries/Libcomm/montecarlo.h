@@ -92,7 +92,7 @@ private:
     {
         libbase::vector<double> result;
         system->sample(result);
-        system->accumulate(result);
+        system->accumulate_result(result);
     }
     void updateresults(libbase::vector<double>& result,
                        libbase::vector<double>& errormargin) const;

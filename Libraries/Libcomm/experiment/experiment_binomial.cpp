@@ -36,7 +36,7 @@ experiment_binomial::derived_reset()
 }
 
 void
-experiment_binomial::derived_accumulate(const libbase::vector<double>& result)
+experiment_binomial::derived_accumulate_result(const libbase::vector<double>& result)
 {
     assert(result.size() > 0);
     // accumulate results
@@ -44,7 +44,7 @@ experiment_binomial::derived_accumulate(const libbase::vector<double>& result)
 }
 
 void
-experiment_binomial::accumulate_state(const libbase::vector<double>& state)
+experiment_binomial::derived_accumulate_state(const libbase::vector<double>& state)
 {
     assert(state.size() > 0);
     // accumulate results from saved state
