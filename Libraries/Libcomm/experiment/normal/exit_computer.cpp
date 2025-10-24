@@ -212,10 +212,10 @@ exit_computer<S>::compute_results(const array1i_t& x,
  */
 template <class S>
 void
-exit_computer<S>::sample(array1d_t& result)
+exit_computer<S>::sample(array1d_t& sample_result)
 {
-    // Initialise result vector
-    result.init(result_count());
+    // Initialise sample_result vector
+    sample_result.init(result_count());
 
     // Create source stream
     src.set_alphabet_size(sys->num_inputs());
@@ -261,7 +261,7 @@ exit_computer<S>::sample(array1d_t& result)
         libbase::normalize_results(ri, ri);
 
         // compute results
-        compute_results(source, priors_source, ri, result);
+        compute_results(source, priors_source, ri, sample_result);
     } break;
 
     case exit_serial_codec: {
@@ -286,7 +286,7 @@ exit_computer<S>::sample(array1d_t& result)
         libbase::normalize_results(ro, ro);
 
         // compute results
-        compute_results(encoded, priors_encoded, ro, result);
+        compute_results(encoded, priors_encoded, ro, sample_result);
     } break;
 
     case exit_serial_modem: {
@@ -319,7 +319,7 @@ exit_computer<S>::sample(array1d_t& result)
         }
 
         // compute results
-        compute_results(mapped, priors_mapped, ptable_mapped, result);
+        compute_results(mapped, priors_mapped, ptable_mapped, sample_result);
     } break;
 
     case exit_serial_mapped_codec: {
@@ -349,7 +349,7 @@ exit_computer<S>::sample(array1d_t& result)
         libbase::normalize_results(ro_modem, ro_modem);
 
         // compute results
-        compute_results(mapped, priors_mapped, ro_modem, result);
+        compute_results(mapped, priors_mapped, ro_modem, sample_result);
     } break;
 
     default:

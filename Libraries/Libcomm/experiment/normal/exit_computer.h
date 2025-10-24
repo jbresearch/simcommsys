@@ -151,16 +151,16 @@ public:
     }
 
     // Experiment handling
-    void sample(array1d_t& result);
+    void sample(array1d_t& sample_result) override;
     int result_count() const override
     {
-        int result = 2; // default: mutual information at input+output
+        int count = 2; // default: mutual information at input+output
 
         if (compute_llr_statistics) {
-            result += 8; // sigma+mu for each of 0+1 at input+output
+            count += 8; // sigma+mu for each of 0+1 at input+output
         }
 
-        return result;
+        return count;
     }
     std::string result_description(int i) const
     {

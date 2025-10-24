@@ -72,7 +72,7 @@ public:
     }
 
     // Experiment handling
-    void sample(libbase::vector<double>& result)
+    void sample(libbase::vector<double>& sample_result) override
     {
         // Run the system simulation
         libbase::vector<double> temp;
@@ -84,7 +84,7 @@ public:
         std::clog << "Timings: " << libbase::vector<std::string>(names);
 #endif
         // Copy over timings as results
-        result = libbase::vector<double>(timings);
+        sample_result = libbase::vector<double>(timings);
     }
     int result_count() const override
     {

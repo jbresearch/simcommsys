@@ -154,17 +154,17 @@ main(int argc, char* argv[])
     cout << std::endl;
 
     // Simulate, waiting for an error event
-    libbase::vector<double> result;
+    libbase::vector<double> sample_result;
     do {
         cerr << "Simulating sample " << system->get_samplecount() << std::endl;
-        system->sample(result);
-        system->accumulate_result(result);
+        system->sample(sample_result);
+        system->accumulate_result(sample_result);
         if (showall) {
             cerr << "Event for sample " << system->get_samplecount() << ":"
                  << std::endl;
             display_event(system);
         }
-    } while (result.min() == 0);
+    } while (sample_result.min() == 0);
     cerr << "Event found after " << system->get_samplecount() << " samples"
          << std::endl;
 

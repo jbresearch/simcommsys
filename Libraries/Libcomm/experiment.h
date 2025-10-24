@@ -96,9 +96,9 @@ public:
     /*! \name Experiment handling */
     /*!
      * \brief Perform the experiment and return a single sample
-     * \param[out] result   The set of results for the experiment
+     * \param[out] sample_result   The set of results for the experiment
      */
-    virtual void sample(libbase::vector<double>& result) = 0;
+    virtual void sample(libbase::vector<double>& sample_result) = 0;
     /*!
      * \brief The number of elements making up a sample
      * This getter is required by the results file writer, when writing the

@@ -149,7 +149,7 @@ public:
     }
 
     // Experiment handling
-    void sample(array1d_t& result) override;
+    void sample(array1d_t& sample_result) override;
     int result_count() const override
     {
         const fidelity_pos* rc_fidelity =

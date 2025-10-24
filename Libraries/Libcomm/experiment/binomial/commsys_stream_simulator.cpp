@@ -42,18 +42,18 @@ namespace libcomm
 
 /*!
  * \brief Perform a complete encode->transmit->receive cycle
- * \param[out] result   Vector containing the set of results to be updated
+ * \param[out] sample_result   Vector containing the set of results to be updated
  *
  * Results are organized according to the collector used, as a function of
  * the iteration count.
  *
- * \note The results collector assumes that the result vector is an accumulator,
- * so that every call adds to the existing result. This explains the need to
- * initialize the result vector to zero.
+ * \note The results collector assumes that the sample_result vector is an accumulator,
+ * so that every call adds to the existing sample_result. This explains the need to
+ * initialize the sample_result vector to zero.
  */
 template <class S, class real>
 void
-commsys_stream_simulator<S, real>::sample(libbase::vector<double>& result)
+commsys_stream_simulator<S, real>::sample(libbase::vector<double>& sample_result)
 {
     // Commsys stream files should have analyze_decode_iters set to true.
     assertalways(this->analyze_decode_iters);
@@ -174,9 +174,9 @@ commsys_stream_simulator<S, real>::sample(libbase::vector<double>& result)
     // Shorthand for current segment in received sequences
     const array1s_t& received_segment = received.extract(0, length);
 
-    // Initialise result vector
-    result.init(this->result_count());
-    result = 0;
+    // Initialise sample_result vector
+    sample_result.init(this->result_count());
+    sample_result = 0;
     // Initialize extrinsic information vectors (modem + codec alphabets)
     array1vd_t ptable_ext_modem;
     array1vd_t ptable_ext_codec;
@@ -235,7 +235,7 @@ commsys_stream_simulator<S, real>::sample(libbase::vector<double>& result)
 #endif
             // accumulate results
             libbase::indirect_vector<double> result_segment =
-                result.segment(this->rc->result_count() * iter_modem, this->rc->result_count());
+                sample_result.segment(this->rc->result_count() * iter_modem, this->rc->result_count());
             this->rc->updateresults(result_segment, act_drift, est_drift);
         }
 
@@ -258,7 +258,7 @@ commsys_stream_simulator<S, real>::sample(libbase::vector<double>& result)
             // Update results if necessary
             if (!rc_fidelity) {
                 libbase::indirect_vector<double> result_segment =
-                    result.segment(
+                    sample_result.segment(
                         this->rc->result_count() *
                             (iter_modem * sys_dec.num_iter() + iter_codec),
                         this->rc->result_count());
