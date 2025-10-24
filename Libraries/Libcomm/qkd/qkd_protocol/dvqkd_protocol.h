@@ -211,6 +211,8 @@ public:
     // Helper function to Get codec.
     std::shared_ptr<codec<libbase::vector>> get_codec() const { return cdc; }
 
+    const int calculate_finite_size_effects_secret_key_length() override;
+
     // Returns final secret keys KA and KB.
     std::pair<libbase::vector<bool>, libbase::vector<bool>>
     postprocess(libbase::vector<bool>&& alice_measurements,
