@@ -283,6 +283,8 @@ private:
     exit_computer<bool> _exit_computer;
     // Results Collectors
     errors_hamming _errors_hamming;
+    cv_qkd_errors_hamming _cv_qkd_errors_hamming;
+    dv_qkd_errors_hamming _dv_qkd_errors_hamming;
     errors_levenshtein _errors_levenshtein;
     fidelity_pos _fidelity_pos;
     hist_symerr _hist_symerr;
@@ -308,7 +310,7 @@ private:
     // QKD Systems
     qkd_commsys<gaussian_state, double, libbase::vector> _qkd_commsys;
     // QKD Experiments
-    qkd_commsys_simulator<gaussian_state, double, cv_qkd_errors_hamming>
+    qkd_commsys_simulator<gaussian_state, double>
         _qkd_commsys_simulator;
 
 public:
