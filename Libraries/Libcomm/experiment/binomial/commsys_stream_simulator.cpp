@@ -236,7 +236,7 @@ commsys_stream_simulator<S, real>::sample(libbase::vector<double>& sample_result
             // accumulate results
             libbase::indirect_vector<double> result_segment =
                 sample_result.segment(this->rc->result_count() * iter_modem, this->rc->result_count());
-            this->rc->updateresults(result_segment, act_drift, est_drift);
+            this->rc->compute_result_and_accumulate(result_segment, act_drift, est_drift);
         }
 
         // ** Outer code (codec class) **
@@ -262,7 +262,7 @@ commsys_stream_simulator<S, real>::sample(libbase::vector<double>& sample_result
                         this->rc->result_count() *
                             (iter_modem * sys_dec.num_iter() + iter_codec),
                         this->rc->result_count());
-                this->rc->updateresults(result_segment, source_this, decoded);
+                this->rc->compute_result_and_accumulate(result_segment, source_this, decoded);
             }
         }
         // Normalize posterior information

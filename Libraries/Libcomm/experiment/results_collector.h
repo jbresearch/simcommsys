@@ -23,9 +23,9 @@
 #define __results_collector_h
 
 #include "config.h"
+#include "queryable.h"
 #include "serializer.h"
 #include "vector.h"
-#include "queryable.h"
 #include <string>
 
 namespace libcomm
@@ -58,9 +58,9 @@ public:
      * Compute the necessary statistics and update the supplied accumulated
      * results vector accordingly.
      */
-    virtual void updateresults(libbase::vector<double>& result,
-                               const T& source,
-                               const T& decoded) const = 0;
+    virtual void compute_result_and_accumulate(libbase::vector<double>& result,
+                                               const T& source,
+                                               const T& decoded) const = 0;
     // @}
 
     /*! \name Implementation of experiment interface methods */

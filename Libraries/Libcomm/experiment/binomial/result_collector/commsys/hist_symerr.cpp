@@ -29,7 +29,7 @@ namespace libcomm
 // commsys functions
 
 void
-hist_symerr::updateresults(libbase::vector<double>& result,
+hist_symerr::compute_result_and_accumulate(libbase::vector<double>& result,
                            const libbase::vector<int>& source,
                            const libbase::vector<int>& decoded) const
 {

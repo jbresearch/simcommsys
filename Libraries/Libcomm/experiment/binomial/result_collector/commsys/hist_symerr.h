@@ -40,7 +40,7 @@ class hist_symerr : public errors_hamming
 {
 public:
     /*! \name Results collector interface */
-    void updateresults(libbase::vector<double>& result,
+    void compute_result_and_accumulate(libbase::vector<double>& result,
                        const libbase::vector<int>& source,
                        const libbase::vector<int>& decoded) const override;
     /*! \copydoc experiment::result_count()

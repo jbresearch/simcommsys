@@ -43,7 +43,7 @@ fidelity_pos::init(const queryable& system)
  * divided by the respective multiplicity to get the average error rates.
  */
 void
-fidelity_pos::updateresults(libbase::vector<double>& result,
+fidelity_pos::compute_result_and_accumulate(libbase::vector<double>& result,
                             const libbase::vector<int>& act_drift,
                             const libbase::vector<int>& est_drift) const
 {

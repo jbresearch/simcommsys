@@ -27,7 +27,7 @@ namespace libcomm
 {
 
 /*!
- * \copydoc results_collector::updateresults()
+ * \copydoc results_collector::compute_result_and_accumulate()
  * \param[out] result   Vector containing the set of results to be updated
  * \param[in]  source   Source data sequence
  * \param[in]  decoded  Decoded data sequence
@@ -38,7 +38,7 @@ namespace libcomm
  * average error rates.
  */
 void
-errors_levenshtein::updateresults(libbase::vector<double>& result,
+errors_levenshtein::compute_result_and_accumulate(libbase::vector<double>& result,
                                   const libbase::vector<int>& source,
                                   const libbase::vector<int>& decoded) const
 {

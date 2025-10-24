@@ -40,7 +40,7 @@ prof_sym::init(const queryable& system)
 }
 
 void
-prof_sym::updateresults(libbase::vector<double>& result,
+prof_sym::compute_result_and_accumulate(libbase::vector<double>& result,
                         const libbase::vector<int>& source,
                         const libbase::vector<int>& decoded) const
 {

@@ -29,7 +29,7 @@ namespace libcomm
 // commsys functions
 
 void
-prof_pos::updateresults(libbase::vector<double>& result,
+prof_pos::compute_result_and_accumulate(libbase::vector<double>& result,
                         const libbase::vector<int>& source,
                         const libbase::vector<int>& decoded) const
 {

@@ -34,7 +34,7 @@ errors_hamming::init(const queryable& system)
 }
 
 /*!
- * \copydoc results_collector::updateresults()
+ * \copydoc results_collector::compute_result_and_accumulate()
  * \param[out] result   Vector containing the set of results to be updated
  * \param[in]  source   Source data sequence
  * \param[in]  decoded  Decoded data sequence
@@ -43,7 +43,7 @@ errors_hamming::init(const queryable& system)
  * divided by the respective multiplicity to get the average error rates.
  */
 void
-errors_hamming::updateresults(libbase::vector<double>& result,
+errors_hamming::compute_result_and_accumulate(libbase::vector<double>& result,
                               const libbase::vector<int>& source,
                               const libbase::vector<int>& decoded) const
 {

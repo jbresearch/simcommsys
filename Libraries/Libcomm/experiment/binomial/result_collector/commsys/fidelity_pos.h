@@ -50,7 +50,7 @@ public:
     virtual ~fidelity_pos() {}
     /*! \name Results collector interface */
     void init(const queryable& system) override;
-    void updateresults(libbase::vector<double>& result,
+    void compute_result_and_accumulate(libbase::vector<double>& result,
                        const libbase::vector<int>& act_drift,
                        const libbase::vector<int>& est_drift) const override;
     /*! \copydoc experiment::result_count()

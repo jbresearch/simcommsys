@@ -47,7 +47,7 @@ public:
     prof_sym() : alphabetsize(0) {}
     /*! \name Results collector interface */
     void init(const queryable& system) override;
-    void updateresults(libbase::vector<double>& result,
+    void compute_result_and_accumulate(libbase::vector<double>& result,
                        const libbase::vector<int>& source,
                        const libbase::vector<int>& decoded) const override;
     /*! \copydoc experiment::result_count()
