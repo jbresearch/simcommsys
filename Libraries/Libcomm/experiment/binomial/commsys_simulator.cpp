@@ -111,9 +111,9 @@ commsys_simulator<S>::sample(libbase::vector<double>& sample_result)
         // collect results for each iteration
         for (int curr_cdc_iter = 0; curr_cdc_iter < this->sys->num_iter();
              curr_cdc_iter++) {
-            libbase::indirect_vector<double> result_segment =
+            libbase::indirect_vector<double> sample_result_segment =
                 sample_result.segment(curr_cdc_iter * rc->result_count(), rc->result_count());
-            rc->compute_result_and_accumulate(result_segment, source, decoded(curr_cdc_iter));
+            rc->compute_result_and_accumulate(sample_result_segment, source, decoded(curr_cdc_iter));
         }
 
         // Keep record of what we last simulated
@@ -137,9 +137,9 @@ commsys_simulator<S>::sample(libbase::vector<double>& sample_result)
 #endif
 
         if (!rc_fidelity) {
-            libbase::indirect_vector<double> result_segment =
+            libbase::indirect_vector<double> sample_result_segment =
                 sample_result.segment(0, rc->result_count());
-            rc->compute_result_and_accumulate(result_segment, source, decoded);
+            rc->compute_result_and_accumulate(sample_result_segment, source, decoded);
 
         } else { // perform codeword boundary analysis if this is indicated
 
