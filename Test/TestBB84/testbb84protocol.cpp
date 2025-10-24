@@ -16,7 +16,7 @@
 #include <vector>
 
 #include "serializer_libcomm.h"
-
+#include "experiment/results_collector.h"
 #include "experiment/binomial/result_collector/qkd_commsys/dv_qkd_errors_hamming.h"
 #include "qkd/qkd_protocol/dvqkd_protocol.h"
 #include "qkd/quantum_channel/depolarizing_quantum_channel.h"
@@ -235,9 +235,9 @@ quantum_bb84_source
     // Define the template types for the simulator.
     using S = libcomm::qubit;
     using T = bool;
-    using R = libcomm::dv_qkd_errors_hamming;
+    // using R = libcomm::dv_qkd_errors_hamming;
 
-    auto sim = std::make_shared<libcomm::qkd_commsys_simulator<S, T, R>>(
+    auto sim = std::make_shared<libcomm::qkd_commsys_simulator<S, T>>(
         // Upcast rng from shared_ptr<randgen> to shared_ptr<random>.
         std::static_pointer_cast<libbase::random>(rng),
         s_ptr,

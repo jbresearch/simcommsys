@@ -16,6 +16,7 @@
 
 #include "serializer_libcomm.h"
 
+#include "experiment/results_collector.h"
 #include "experiment/binomial/result_collector/qkd_commsys/cv_qkd_errors_hamming.h"
 #include "qkd/qkd_protocol/cvqkd_protocol.h"
 #include "qkd/quantum_channel/gaussian_quantum_channel.h"
@@ -323,9 +324,9 @@ quantum_gaussian_source
     // Define the template types for the simulator.
     using S = libcomm::gaussian_state;
     using T = double;
-    using R = libcomm::cv_qkd_errors_hamming;
+    // using R = libcomm::cv_qkd_errors_hamming;
 
-    auto sim = std::make_shared<libcomm::qkd_commsys_simulator<S, T, R>>(
+    auto sim = std::make_shared<libcomm::qkd_commsys_simulator<S, T>>(
         // Upcast rng from shared_ptr<randgen> to shared_ptr<random>.
         std::static_pointer_cast<libbase::random>(rng),
         s_ptr,
