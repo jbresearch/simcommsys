@@ -44,7 +44,7 @@ namespace libcomm
 
 /*!
  * \brief   Common Base for QKD System.
- * \author  Mark Mizzi
+ * \author  Mark Mizzi, Aaron Abela
  */
 
 template <class S, class T, template <class> class C = libbase::vector>
@@ -96,6 +96,12 @@ public:
         observable<T>::seedfrom(r);
     }
     // @}
+
+    // Getter to get protocol. This is only used in the get_values(const int index) method in qkd_commsys_simulator.h to get the length of the final secret key.
+    std::shared_ptr<qkd_protocol<S, T, C>> get_protocol() const
+    {
+        return protocol;
+    }
 
     /*! \name Parametric interface */
     void set_parameters(const libbase::vector<double>& x) override
