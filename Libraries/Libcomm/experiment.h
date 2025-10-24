@@ -111,12 +111,6 @@ public:
      */
     virtual std::string result_description(int i) const = 0;
     /*!
-     * \brief The number of elements/sample for result 'i'
-     * \param[in]  i  Result index
-     * \return        Population size per sample for given result index
-     */
-    virtual int result_multiplicity(int i) const = 0;
-    /*!
      * \brief Return the simulated event from the last sample
      * \return An experiment-specific description of the last event
      *

@@ -159,12 +159,6 @@ public:
         else
             return rc->result_count();
     }
-    int result_multiplicity(int i) const
-    {
-        assert(i >= 0 && i < result_count());
-        const int index = i % rc->result_count();
-        return rc->result_multiplicity(index);
-    }
     std::string result_description(int i) const override
     {
         assert(i >= 0 && i < result_count());

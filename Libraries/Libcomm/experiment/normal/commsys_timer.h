@@ -93,7 +93,6 @@ public:
         assert(N > 0);
         return N;
     }
-    int result_multiplicity(int i) const { return 1; }
     std::string result_description(int i) const
     {
         assert(i >= 0 && i < int(names.size()));
