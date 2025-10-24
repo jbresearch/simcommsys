@@ -134,6 +134,15 @@ dvqkd_protocol::split(libbase::vector<bool>& alice_measurements,
     return {X_PE, Y_PE, X_raw, Y_raw};
 }
 
+const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
+{
+    const int secret_key_length = 0;
+
+    /* Still to add and implement the equation that calculates the length of the final secret key. */
+
+    return secret_key_length;
+}
+
 
 // Returns final secret keys KA and KB.
 std::pair<libbase::vector<bool>, libbase::vector<bool>>
