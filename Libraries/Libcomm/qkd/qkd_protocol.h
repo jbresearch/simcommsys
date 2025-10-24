@@ -102,6 +102,8 @@ public:
     postprocess(libbase::vector<T>&& alice_measurements,
                 libbase::vector<T>&& bob_measurements) = 0;
 
+    virtual const int calculate_finite_size_effects_secret_key_length() = 0;
+
     virtual void seedfrom(libbase::random& r) = 0;
 
     virtual std::string description() const = 0;
