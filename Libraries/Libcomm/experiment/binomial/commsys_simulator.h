@@ -165,7 +165,7 @@ public:
         const int index = i % rc->result_count();
         return rc->result_multiplicity(index);
     }
-    std::string result_description(int i) const
+    std::string result_description(int i) const override
     {
         assert(i >= 0 && i < result_count());
         const int iter = i / rc->result_count();
@@ -174,7 +174,7 @@ public:
         sout << rc->result_description(index) << "_" << iter;
         return sout.str();
     }
-    array1i_t get_event() const { return last_event; }
+    array1i_t get_event() const override { return last_event; }
 
     /*! \name Component object handles */
     //! Get communication system
