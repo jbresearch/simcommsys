@@ -54,20 +54,24 @@ public:
     virtual void init(const queryable& system) = 0;
     /*!
      * \brief Update accumulated results
+     * \param[out] accumulated_result   The set of accumulated results
+     * \param[out] accumulated_count   The set of accumulated counts
+     * \param[in]  source   Source data sequence
+     * \param[in]  decoded  Decoded data sequence
      *
      * Compute the necessary statistics and update the supplied accumulated
      * results vector accordingly.
      */
-    virtual void compute_result_and_accumulate(libbase::vector<double>& result,
-                                               const T& source,
-                                               const T& decoded) const = 0;
+    virtual void
+    compute_result_and_accumulate(libbase::vector<double>& accumulated_result,
+                                  libbase::vector<uint64_t>& accumulated_count,
+                                  const T& source,
+                                  const T& decoded) const = 0;
     // @}
 
     /*! \name Implementation of experiment interface methods */
     // \copydoc experiment::result_count()
     virtual int result_count() const = 0;
-    // \copydoc experiment::result_multiplicity()
-    virtual int result_multiplicity(int i) const = 0;
     // \copydoc experiment::result_description()
     virtual std::string result_description(int i) const = 0;
     // @}

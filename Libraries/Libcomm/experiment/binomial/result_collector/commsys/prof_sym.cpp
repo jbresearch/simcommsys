@@ -40,9 +40,11 @@ prof_sym::init(const queryable& system)
 }
 
 void
-prof_sym::compute_result_and_accumulate(libbase::vector<double>& result,
-                        const libbase::vector<int>& source,
-                        const libbase::vector<int>& decoded) const
+prof_sym::compute_result_and_accumulate(
+    libbase::vector<double>& accumulated_result,
+    libbase::vector<uint64_t>& accumulated_count,
+    const libbase::vector<int>& source,
+    const libbase::vector<int>& decoded) const
 {
     assert(source.size() == symbolsperblock);
     assert(decoded.size() == symbolsperblock);
@@ -50,9 +52,11 @@ prof_sym::compute_result_and_accumulate(libbase::vector<double>& result,
     for (int t = 0; t < symbolsperblock; t++) {
         assert(source(t) != fsm::tail);
         if (source(t) != decoded(t)) {
-            result(source(t))++;
+            accumulated_result(source(t))++;
         }
     }
+    // Update the cumulative maximum count
+    accumulated_count += symbolsperblock;
 }
 
 // Serialisation interface

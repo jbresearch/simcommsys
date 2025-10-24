@@ -53,24 +53,27 @@ namespace libcomm
 
 /*!
  * \brief Perform a complete encode->transmit->receive cycle
- * \param[out] sample_result   Vector containing the set of results to be updated
+ * \copydoc experiment::sample()
  *
  * Results are organized according to the collector used, as a function of
  * the iteration count.
  *
- * \note The results collector assumes that the sample_result vector is an accumulator,
- * so that every call adds to the existing sample_result. This explains the need to
- * initialize the sample_result vector to zero.
+ * \note The results collector assumes that the sample_result vector is an
+ * accumulator, so that every call adds to the existing sample_result. This
+ * explains the need to initialize the sample_result vector to zero.
  */
 template <class S>
 void
-commsys_simulator<S>::sample(libbase::vector<double>& sample_result)
+commsys_simulator<S>::sample(libbase::vector<double>& sample_result,
+                             libbase::vector<uint64_t>& sample_count)
 {
     // Reset timers
     this->reset_timers();
-    // Initialise sample_result vector
+    // Initialise sample result and count vectors
     sample_result.init(result_count());
+    sample_count.init(result_count());
     sample_result = 0;
+    sample_count = 0;
     // Get access to the results collector in codeword boundary analysis mode
     fidelity_pos* rc_fidelity = dynamic_cast<fidelity_pos*>(rc.get());
 
@@ -112,8 +115,15 @@ commsys_simulator<S>::sample(libbase::vector<double>& sample_result)
         for (int curr_cdc_iter = 0; curr_cdc_iter < this->sys->num_iter();
              curr_cdc_iter++) {
             libbase::indirect_vector<double> sample_result_segment =
-                sample_result.segment(curr_cdc_iter * rc->result_count(), rc->result_count());
-            rc->compute_result_and_accumulate(sample_result_segment, source, decoded(curr_cdc_iter));
+                sample_result.segment(curr_cdc_iter * rc->result_count(),
+                                      rc->result_count());
+            libbase::indirect_vector<uint64_t> sample_count_segment =
+                sample_count.segment(curr_cdc_iter * rc->result_count(),
+                                     rc->result_count());
+            rc->compute_result_and_accumulate(sample_result_segment,
+                                              sample_count_segment,
+                                              source,
+                                              decoded(curr_cdc_iter));
         }
 
         // Keep record of what we last simulated
@@ -139,7 +149,10 @@ commsys_simulator<S>::sample(libbase::vector<double>& sample_result)
         if (!rc_fidelity) {
             libbase::indirect_vector<double> sample_result_segment =
                 sample_result.segment(0, rc->result_count());
-            rc->compute_result_and_accumulate(sample_result_segment, source, decoded);
+            libbase::indirect_vector<uint64_t> sample_count_segment =
+                sample_count.segment(0, rc->result_count());
+            rc->compute_result_and_accumulate(
+                sample_result_segment, sample_count_segment, source, decoded);
 
         } else { // perform codeword boundary analysis if this is indicated
 
@@ -177,7 +190,8 @@ commsys_simulator<S>::sample(libbase::vector<double>& sample_result)
                       << est_drift << std::endl;
 #endif
             // accumulate results
-            rc->compute_result_and_accumulate(sample_result, act_drift, est_drift);
+            rc->compute_result_and_accumulate(
+                sample_result, sample_count, act_drift, est_drift);
         }
 
         // Keep record of what we last simulated

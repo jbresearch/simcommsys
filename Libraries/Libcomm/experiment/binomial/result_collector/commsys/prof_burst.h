@@ -42,9 +42,11 @@ class prof_burst : public errors_hamming
 {
 public:
     /*! \name Results collector interface */
-    void compute_result_and_accumulate(libbase::vector<double>& result,
-                       const libbase::vector<int>& source,
-                       const libbase::vector<int>& decoded) const override;
+    void compute_result_and_accumulate(
+        libbase::vector<double>& accumulated_result,
+        libbase::vector<uint64_t>& accumulated_count,
+        const libbase::vector<int>& source,
+        const libbase::vector<int>& decoded) const override;
     /*! \copydoc experiment::result_count()
      * We count respectively the number symbol errors:
      * - in the first frame symbol
@@ -55,21 +57,6 @@ public:
      * to the above two counts)
      */
     int result_count() const override { return 4; }
-    /*! \copydoc experiment::result_multiplicity()
-     *
-     * We count respectively the number symbol errors:
-     * - in the first frame symbol (at most 1/frame)
-     * - in subsequent symbols, if the prior symbol was correct
-     * - in subsequent symbols, if the prior symbol was in error
-     * - in the prior symbol (required when applying Bayes' rule
-     * to the above two counts)
-     * (last three above: at most #symbols/frame - 1)
-     */
-    int result_multiplicity(int i) const override
-    {
-        assert(i >= 0 && i < result_count());
-        return (i == 0) ? 1 : symbolsperblock - 1;
-    }
     /*! \copydoc experiment::result_description()
      *
      * The description is a string indicating the probability represented.

@@ -41,15 +41,19 @@ namespace libcomm
 class experiment_normal : public experiment
 {
     /*! \name Internal variables */
-    libbase::vector<double> sum;   //!< Vector of result sums
-    libbase::vector<double> sumsq; //!< Vector of result sum-of-squares
-                                   // @}
+    libbase::vector<double> sum;     //!< Vector of result sums
+    libbase::vector<double> sumsq;   //!< Vector of result sum-of-squares
+    libbase::vector<uint64_t> count; //!< Vector of result counts
+    // @}
 
 protected:
     // Accumulator functions
     void derived_reset() override;
-    void derived_accumulate_result(const libbase::vector<double>& sample_result) override;
-    void derived_accumulate_state(const libbase::vector<double>& state) override;
+    void derived_accumulate_result(
+        const libbase::vector<double>& sample_result,
+        const libbase::vector<uint64_t>& sample_count) override;
+    void
+    derived_accumulate_state(const libbase::vector<double>& state) override;
     // @}
 
 public:

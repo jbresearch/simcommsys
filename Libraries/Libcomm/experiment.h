@@ -40,12 +40,14 @@ namespace libcomm
  * \author  Johann Briffa
  */
 
-class experiment : public parametric, public queryable, public libbase::serializable
+class experiment : public parametric,
+                   public queryable,
+                   public libbase::serializable
 {
 private:
     /*! \name Internal variables */
     uint64_t samplecount; //!< Number of samples accumulated
-                                 // @}
+                          // @}
 
 protected:
     /*! \name Helpers for derived classes */
@@ -74,13 +76,19 @@ protected:
     /*!
      * \brief Add the given sample results to the accumulated set
      * \param[in] sample_result   Vector containing a set of results
+     * \param[in] sample_count    Vector containing a set of counts
      */
-    virtual void derived_accumulate_result(const libbase::vector<double>& sample_result) = 0;
+    virtual void derived_accumulate_result(
+        const libbase::vector<double>& sample_result,
+        const libbase::vector<uint64_t>& sample_count) = 0;
     /*!
      * \brief Add the complete state of results to the accumulated set
      * \param[in] state Vector set of accumulated results
+     * 
+     * TODO: modify this to include a vector of counts as well
      */
-    virtual void derived_accumulate_state(const libbase::vector<double>& state) = 0;
+    virtual void
+    derived_accumulate_state(const libbase::vector<double>& state) = 0;
     // @}
 
 public:
@@ -97,8 +105,10 @@ public:
     /*!
      * \brief Perform the experiment and return a single sample
      * \param[out] sample_result   The set of results for the experiment
+     * \param[out] sample_count    The set of counts for the experiment
      */
-    virtual void sample(libbase::vector<double>& sample_result) = 0;
+    virtual void sample(libbase::vector<double>& sample_result,
+                        libbase::vector<uint64_t>& sample_count) = 0;
     /*!
      * \brief The number of elements making up a sample
      * This getter is required by the results file writer, when writing the
@@ -145,11 +155,13 @@ public:
     /*!
      * \brief Add the given sample results to the accumulated set
      * \param[in] sample_result   Vector containing a set of results
+     * \param[in] sample_count    Vector containing a set of counts
      */
-    void accumulate_result(const libbase::vector<double>& sample_result)
+    void accumulate_result(const libbase::vector<double>& sample_result,
+                           const libbase::vector<uint64_t>& sample_count)
     {
         samplecount++;
-        derived_accumulate_result(sample_result);
+        derived_accumulate_result(sample_result, sample_count);
     }
     /*!
      * \brief Add the complete state of results to the accumulated set
@@ -169,10 +181,9 @@ public:
     /*!
      * \brief Display accumulated results in human-readable form
      */
-    void
-    prettyprint_results(std::ostream& sout,
-                        const libbase::vector<double>& result,
-                        const libbase::vector<double>& errormargin) const;
+    void prettyprint_results(std::ostream& sout,
+                             const libbase::vector<double>& result,
+                             const libbase::vector<double>& errormargin) const;
     // @}
 
     /*! \name Description */

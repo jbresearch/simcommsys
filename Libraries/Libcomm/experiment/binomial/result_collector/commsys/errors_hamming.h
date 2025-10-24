@@ -49,34 +49,15 @@ public:
     virtual ~errors_hamming() {}
     /*! \name Results collector interface */
     void init(const queryable& system) override;
-    void compute_result_and_accumulate(libbase::vector<double>& result,
-                       const libbase::vector<int>& source,
-                       const libbase::vector<int>& decoded) const override;
+    void compute_result_and_accumulate(
+        libbase::vector<double>& accumulated_result,
+        libbase::vector<uint64_t>& accumulated_count,
+        const libbase::vector<int>& source,
+        const libbase::vector<int>& decoded) const override;
     /*! \copydoc experiment::result_count()
      * We count the number of symbol and frame errors
      */
     int result_count() const override { return 2; }
-    /*! \copydoc experiment::result_multiplicity()
-     *
-     * Since results are organized as (symbol,frame) error count, the
-     * multiplicity is respectively the number of symbols and the number of
-     * frames (=1) per sample.
-     */
-    int result_multiplicity(int i) const override
-    {
-        assert(i >= 0 && i < result_count());
-        switch (i) {
-        case 0:
-            return symbolsperblock;
-        case 1:
-            return 1;
-        }
-        // This should never happen
-        std::ostringstream sout;
-        sout << "Index " << i << " out of range. Valid range is [0,"
-             << result_count() - 1 << "].";
-        throw std::out_of_range(sout.str());
-    }
     /*! \copydoc experiment::result_description()
      *
      * The description is SER or FER to indicate symbol or frame error rate

@@ -47,19 +47,16 @@ public:
     prof_sym() : alphabetsize(0) {}
     /*! \name Results collector interface */
     void init(const queryable& system) override;
-    void compute_result_and_accumulate(libbase::vector<double>& result,
-                       const libbase::vector<int>& source,
-                       const libbase::vector<int>& decoded) const override;
+    void compute_result_and_accumulate(
+        libbase::vector<double>& accumulated_result,
+        libbase::vector<uint64_t>& accumulated_count,
+        const libbase::vector<int>& source,
+        const libbase::vector<int>& decoded) const override;
     /*! \copydoc experiment::result_count()
      * We count the number of symbol errors for every input alphabet symbol
      * value.
      */
     int result_count() const override { return alphabetsize; }
-    /*! \copydoc experiment::result_multiplicity()
-     * A total equal to the number of symbols/frame may be incremented
-     * in every sample.
-     */
-    int result_multiplicity(int i) const override { return symbolsperblock; }
     /*! \copydoc experiment::result_description()
      *
      * The description is a string SER_X, where 'X' is the symbol value

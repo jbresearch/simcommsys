@@ -155,10 +155,11 @@ main(int argc, char* argv[])
 
     // Simulate, waiting for an error event
     libbase::vector<double> sample_result;
+    libbase::vector<uint64_t> sample_count;
     do {
         cerr << "Simulating sample " << system->get_samplecount() << std::endl;
-        system->sample(sample_result);
-        system->accumulate_result(sample_result);
+        system->sample(sample_result, sample_count);
+        system->accumulate_result(sample_result, sample_count);
         if (showall) {
             cerr << "Event for sample " << system->get_samplecount() << ":"
                  << std::endl;

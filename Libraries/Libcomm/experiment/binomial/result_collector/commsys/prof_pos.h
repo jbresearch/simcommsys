@@ -40,17 +40,15 @@ class prof_pos : public errors_hamming
 {
 public:
     /*! \name Results collector interface */
-    void compute_result_and_accumulate(libbase::vector<double>& result,
-                       const libbase::vector<int>& source,
-                       const libbase::vector<int>& decoded) const override;
+    void compute_result_and_accumulate(
+        libbase::vector<double>& accumulated_result,
+        libbase::vector<uint64_t>& accumulated_count,
+        const libbase::vector<int>& source,
+        const libbase::vector<int>& decoded) const override;
     /*! \copydoc experiment::result_count()
      * We determine the (symbol) error rate for every frame position.
      */
     int result_count() const override { return symbolsperblock; }
-    /*! \copydoc experiment::result_multiplicity()
-     * Only one result can be incremented for every position.
-     */
-    int result_multiplicity(int i) const override { return 1; }
     /*! \copydoc experiment::result_description()
      *
      * The description is a string SER_X, where 'X' is the symbol position

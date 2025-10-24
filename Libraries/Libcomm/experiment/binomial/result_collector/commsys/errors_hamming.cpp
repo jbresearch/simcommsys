@@ -35,25 +35,26 @@ errors_hamming::init(const queryable& system)
 
 /*!
  * \copydoc results_collector::compute_result_and_accumulate()
- * \param[out] result   Vector containing the set of results to be updated
- * \param[in]  source   Source data sequence
- * \param[in]  decoded  Decoded data sequence
  *
  * Results are organized as (symbol,frame) error count. Eventually these will be
- * divided by the respective multiplicity to get the average error rates.
+ * divided by the respective counts to get the average error rates.
  */
 void
-errors_hamming::compute_result_and_accumulate(libbase::vector<double>& result,
-                              const libbase::vector<int>& source,
-                              const libbase::vector<int>& decoded) const
+errors_hamming::compute_result_and_accumulate(
+    libbase::vector<double>& accumulated_result,
+    libbase::vector<uint64_t>& accumulated_count,
+    const libbase::vector<int>& source,
+    const libbase::vector<int>& decoded) const
 {
     assert(source.size() == symbolsperblock);
     assert(decoded.size() == symbolsperblock);
     // Count errors
-    int symerrors = libbase::hamming(source, decoded);
-    // Estimate the SER, FER
-    result(0) += symerrors;
-    result(1) += symerrors ? 1 : 0;
+    int hd = libbase::hamming(source, decoded);
+    // Accumulate the SER, FER
+    accumulated_result(0) += hd;
+    accumulated_count(0) += symbolsperblock;
+    accumulated_result(1) += hd ? 1 : 0;
+    accumulated_count(1) += 1;
 }
 
 // Serialisation interface

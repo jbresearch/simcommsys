@@ -50,18 +50,16 @@ public:
     virtual ~fidelity_pos() {}
     /*! \name Results collector interface */
     void init(const queryable& system) override;
-    void compute_result_and_accumulate(libbase::vector<double>& result,
-                       const libbase::vector<int>& act_drift,
-                       const libbase::vector<int>& est_drift) const override;
+    void compute_result_and_accumulate(
+        libbase::vector<double>& accumulated_result,
+        libbase::vector<uint64_t>& accumulated_count,
+        const libbase::vector<int>& act_drift,
+        const libbase::vector<int>& est_drift) const override;
     /*! \copydoc experiment::result_count()
      * For each iteration, we count the fidelity at codeword boundary positions.
      * \warning This assumes that the codec and modem output sizes are the same!
      */
     int result_count() const override { return symbolsperframe + 1; }
-    /*! \copydoc experiment::result_multiplicity()
-     * Only one result can be incremented for every position.
-     */
-    int result_multiplicity(int i) const override { return 1; }
     /*! \copydoc experiment::result_description()
      *
      * The description is a string FID_X, where 'X' is the symbol position
@@ -77,7 +75,7 @@ public:
     }
     // @}
 
-        // Description
+    // Description
     std::string description() const override
     {
         return "Codeword Boundary Fidelity";

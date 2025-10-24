@@ -29,9 +29,11 @@ namespace libcomm
 // commsys functions
 
 void
-prof_burst::compute_result_and_accumulate(libbase::vector<double>& result,
-                          const libbase::vector<int>& source,
-                          const libbase::vector<int>& decoded) const
+prof_burst::compute_result_and_accumulate(
+    libbase::vector<double>& accumulated_result,
+    libbase::vector<uint64_t>& accumulated_count,
+    const libbase::vector<int>& source,
+    const libbase::vector<int>& decoded) const
 {
     assert(source.size() == symbolsperblock);
     assert(decoded.size() == symbolsperblock);
@@ -39,24 +41,33 @@ prof_burst::compute_result_and_accumulate(libbase::vector<double>& result,
     // Check the first symbol first
     assert(source(0) != fsm::tail);
     if (source(0) != decoded(0)) {
-        result(0)++;
+        accumulated_result(0)++;
     }
+    // Accumulate count in the first frame symbol (at most 1/frame)
+    accumulated_count(0)++;
 
     // For each remaining symbol
     for (int t = 1; t < symbolsperblock; t++) {
+        // Symbol errors in the prior symbol (required when applying Bayes' rule
+        // to the above two counts)
         if (source(t - 1) != decoded(t - 1)) {
-            result(3)++;
+            accumulated_result(3)++;
         }
+        // Accumulate count (at most #symbols/frame - 1/frame)
+        accumulated_count(3) += symbolsperblock - 1;
 
         assert(source(t) != fsm::tail);
         if (source(t) != decoded(t)) {
-            // Keep separate counts, depending on whether the previous symbol
-            // was in error
+            // Keep separate counts for errors in subsequent symbols, depending
+            // on whether the previous symbol was in error
             if (source(t - 1) != decoded(t - 1)) {
-                result(2)++;
+                accumulated_result(2)++;
             } else {
-                result(1)++;
+                accumulated_result(1)++;
             }
+        // Accumulate count (at most #symbols/frame - 1/frame)
+        accumulated_count(1) += symbolsperblock - 1;
+        accumulated_count(2) += symbolsperblock - 1;
         }
     }
 }

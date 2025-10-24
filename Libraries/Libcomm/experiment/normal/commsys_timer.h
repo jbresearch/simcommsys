@@ -72,11 +72,13 @@ public:
     }
 
     // Experiment handling
-    void sample(libbase::vector<double>& sample_result) override
+    void sample(libbase::vector<double>& sample_result,
+                libbase::vector<uint64_t>& sample_count) override
     {
         // Run the system simulation
-        libbase::vector<double> temp;
-        simulator.sample(temp);
+        libbase::vector<double> temp_result;
+        libbase::vector<uint64_t> temp_count;
+        simulator.sample(temp_result, temp_count);
         // Collect timings
         timings = simulator.get_timings();
         names = simulator.get_names();
@@ -85,6 +87,7 @@ public:
 #endif
         // Copy over timings as results
         sample_result = libbase::vector<double>(timings);
+        // TODO: decide if we need to do anything with the count
     }
     int result_count() const override
     {

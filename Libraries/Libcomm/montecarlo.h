@@ -91,8 +91,9 @@ private:
     void sampleandaccumulate()
     {
         libbase::vector<double> sample_result;
-        system->sample(sample_result);
-        system->accumulate_result(sample_result);
+        libbase::vector<uint64_t> sample_count;
+        system->sample(sample_result, sample_count);
+        system->accumulate_result(sample_result, sample_count);
     }
     void compute_estimate(libbase::vector<double>& result,
                        libbase::vector<double>& errormargin) const;

@@ -212,10 +212,12 @@ exit_computer<S>::compute_results(const array1i_t& x,
  */
 template <class S>
 void
-exit_computer<S>::sample(array1d_t& sample_result)
+exit_computer<S>::sample(libbase::vector<double>& sample_result,
+                         libbase::vector<uint64_t>& sample_count)
 {
     // Initialise sample_result vector
     sample_result.init(result_count());
+    // TODO: determine whether we need to keep track of counts
 
     // Create source stream
     src.set_alphabet_size(sys->num_inputs());

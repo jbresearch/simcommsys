@@ -29,13 +29,16 @@ namespace libcomm
 // commsys functions
 
 void
-hist_symerr::compute_result_and_accumulate(libbase::vector<double>& result,
-                           const libbase::vector<int>& source,
-                           const libbase::vector<int>& decoded) const
+hist_symerr::compute_result_and_accumulate(
+    libbase::vector<double>& accumulated_result,
+    libbase::vector<uint64_t>& accumulated_count,
+    const libbase::vector<int>& source,
+    const libbase::vector<int>& decoded) const
 {
     int symerrors = libbase::hamming(source, decoded);
     // Update the count for that number of symbol errors (may be zero)
-    result(symerrors)++;
+    accumulated_result(symerrors)++;
+    accumulated_count += 1;
 }
 
 // Serialisation interface

@@ -29,9 +29,11 @@ namespace libcomm
 // commsys functions
 
 void
-prof_pos::compute_result_and_accumulate(libbase::vector<double>& result,
-                        const libbase::vector<int>& source,
-                        const libbase::vector<int>& decoded) const
+prof_pos::compute_result_and_accumulate(
+    libbase::vector<double>& accumulated_result,
+    libbase::vector<uint64_t>& accumulated_count,
+    const libbase::vector<int>& source,
+    const libbase::vector<int>& decoded) const
 {
     // Update the count for every symbol in error
     assert(source.size() == symbolsperblock);
@@ -39,9 +41,11 @@ prof_pos::compute_result_and_accumulate(libbase::vector<double>& result,
     for (int t = 0; t < symbolsperblock; t++) {
         assert(source(t) != fsm::tail);
         if (source(t) != decoded(t)) {
-            result(t)++;
+            accumulated_result(t)++;
         }
     }
+    // Update the cumulative maximum count
+    accumulated_count += 1;
 }
 
 // Serialisation interface

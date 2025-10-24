@@ -40,18 +40,16 @@ class hist_symerr : public errors_hamming
 {
 public:
     /*! \name Results collector interface */
-    void compute_result_and_accumulate(libbase::vector<double>& result,
-                       const libbase::vector<int>& source,
-                       const libbase::vector<int>& decoded) const override;
+    void compute_result_and_accumulate(
+        libbase::vector<double>& accumulated_result,
+        libbase::vector<uint64_t>& accumulated_count,
+        const libbase::vector<int>& source,
+        const libbase::vector<int>& decoded) const override;
     /*! \copydoc experiment::result_count()
      * We count the frequency of each possible symbol-error count, including
      * zero
      */
     int result_count() const override { return symbolsperblock + 1; }
-    /*! \copydoc experiment::result_multiplicity()
-     * Only one result can be incremented for every frame.
-     */
-    int result_multiplicity(int i) const override { return 1; }
     /*! \copydoc experiment::result_description()
      *
      * The description is a string ER_X, where 'X' is the symbol-error
@@ -74,7 +72,6 @@ public:
 
     // Serialization Support
     DECLARE_SERIALIZER(hist_symerr)
-
 };
 
 } // namespace libcomm

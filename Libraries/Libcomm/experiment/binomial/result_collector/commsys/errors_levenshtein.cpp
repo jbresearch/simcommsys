@@ -28,27 +28,29 @@ namespace libcomm
 
 /*!
  * \copydoc results_collector::compute_result_and_accumulate()
- * \param[out] result   Vector containing the set of results to be updated
- * \param[in]  source   Source data sequence
- * \param[in]  decoded  Decoded data sequence
  *
  * Results are organized as (symbol_hamming, symbol_levenshtein,frame)
  * error count, repeated for every iteration that needs to be performed.
- * Eventually these will be divided by the respective multiplicity to get the
+ * Eventually these will be divided by the respective count to get the
  * average error rates.
  */
 void
-errors_levenshtein::compute_result_and_accumulate(libbase::vector<double>& result,
-                                  const libbase::vector<int>& source,
-                                  const libbase::vector<int>& decoded) const
+errors_levenshtein::compute_result_and_accumulate(
+    libbase::vector<double>& accumulated_result,
+    libbase::vector<uint64_t>& accumulated_count,
+    const libbase::vector<int>& source,
+    const libbase::vector<int>& decoded) const
 {
     // Count errors
     const int hd = libbase::hamming(source, decoded);
     const int ld = libbase::levenshtein(source, decoded);
     // Estimate the SER, LD, FER
-    result(0) += hd;
-    result(1) += ld;
-    result(2) += hd ? 1 : 0;
+    accumulated_result(0) += hd;
+    accumulated_count(0) += symbolsperblock;
+    accumulated_result(1) += ld;
+    accumulated_count(1) += symbolsperblock;
+    accumulated_result(2) += hd ? 1 : 0;
+    accumulated_count(2) += 1;
 }
 
 // Serialisation interface

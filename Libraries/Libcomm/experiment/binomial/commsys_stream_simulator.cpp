@@ -42,18 +42,20 @@ namespace libcomm
 
 /*!
  * \brief Perform a complete encode->transmit->receive cycle
- * \param[out] sample_result   Vector containing the set of results to be updated
+ * \copydoc experiment::sample()
  *
  * Results are organized according to the collector used, as a function of
  * the iteration count.
  *
- * \note The results collector assumes that the sample_result vector is an accumulator,
- * so that every call adds to the existing sample_result. This explains the need to
- * initialize the sample_result vector to zero.
+ * \note The results collector assumes that the sample_result vector is an
+ * accumulator, so that every call adds to the existing sample_result. This
+ * explains the need to initialize the sample_result vector to zero.
  */
 template <class S, class real>
 void
-commsys_stream_simulator<S, real>::sample(libbase::vector<double>& sample_result)
+commsys_stream_simulator<S, real>::sample(
+    libbase::vector<double>& sample_result,
+    libbase::vector<uint64_t>& sample_count)
 {
     // Commsys stream files should have analyze_decode_iters set to true.
     assertalways(this->analyze_decode_iters);
@@ -174,9 +176,11 @@ commsys_stream_simulator<S, real>::sample(libbase::vector<double>& sample_result
     // Shorthand for current segment in received sequences
     const array1s_t& received_segment = received.extract(0, length);
 
-    // Initialise sample_result vector
+    // Initialise sample result and count vectors
     sample_result.init(this->result_count());
+    sample_count.init(this->result_count());
     sample_result = 0;
+    sample_count = 0;
     // Initialize extrinsic information vectors (modem + codec alphabets)
     array1vd_t ptable_ext_modem;
     array1vd_t ptable_ext_codec;
@@ -234,9 +238,16 @@ commsys_stream_simulator<S, real>::sample(libbase::vector<double>& sample_result
                       << est_drift << std::endl;
 #endif
             // accumulate results
-            libbase::indirect_vector<double> result_segment =
-                sample_result.segment(this->rc->result_count() * iter_modem, this->rc->result_count());
-            this->rc->compute_result_and_accumulate(result_segment, act_drift, est_drift);
+            libbase::indirect_vector<double> sample_result_segment =
+                sample_result.segment(this->rc->result_count() * iter_modem,
+                                      this->rc->result_count());
+            libbase::indirect_vector<uint64_t> sample_count_segment =
+                sample_count.segment(this->rc->result_count() * iter_modem,
+                                     this->rc->result_count());
+            this->rc->compute_result_and_accumulate(sample_result_segment,
+                                                    sample_count_segment,
+                                                    act_drift,
+                                                    est_drift);
         }
 
         // ** Outer code (codec class) **
@@ -257,12 +268,20 @@ commsys_stream_simulator<S, real>::sample(libbase::vector<double>& sample_result
             hd_functor(ri_codec, decoded);
             // Update results if necessary
             if (!rc_fidelity) {
-                libbase::indirect_vector<double> result_segment =
+                libbase::indirect_vector<double> sample_result_segment =
                     sample_result.segment(
                         this->rc->result_count() *
                             (iter_modem * sys_dec.num_iter() + iter_codec),
                         this->rc->result_count());
-                this->rc->compute_result_and_accumulate(result_segment, source_this, decoded);
+                libbase::indirect_vector<uint64_t> sample_count_segment =
+                    sample_count.segment(
+                        this->rc->result_count() *
+                            (iter_modem * sys_dec.num_iter() + iter_codec),
+                        this->rc->result_count());
+                this->rc->compute_result_and_accumulate(sample_result_segment,
+                                                        sample_count_segment,
+                                                        source_this,
+                                                        decoded);
             }
         }
         // Normalize posterior information
@@ -505,7 +524,6 @@ BOOST_PP_SEQ_FOR_EACH(USING_GF, x, GF_TYPE_SEQ)
             commsys_stream_simulator<BOOST_PP_SEQ_ENUM(args)>::create);
 // clang-format on
 
-BOOST_PP_SEQ_FOR_EACH_PRODUCT(
-    INSTANTIATE, (SYMBOL_TYPE_SEQ)(REAL_TYPE_SEQ))
+BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE, (SYMBOL_TYPE_SEQ)(REAL_TYPE_SEQ))
 
 } // namespace libcomm

@@ -43,17 +43,20 @@ fidelity_pos::init(const queryable& system)
  * divided by the respective multiplicity to get the average error rates.
  */
 void
-fidelity_pos::compute_result_and_accumulate(libbase::vector<double>& result,
-                            const libbase::vector<int>& act_drift,
-                            const libbase::vector<int>& est_drift) const
+fidelity_pos::compute_result_and_accumulate(
+    libbase::vector<double>& accumulated_result,
+    libbase::vector<uint64_t>& accumulated_count,
+    const libbase::vector<int>& act_drift,
+    const libbase::vector<int>& est_drift) const
 {
     const int N = result_count();
-    assert(result.size() == N);
+    assert(accumulated_result.size() == N);
     assert(act_drift.size() == N);
     assert(est_drift.size() == N);
     // Accumulate fidelity errors
     for (int t = 0; t < N; t++) {
-        result(t) += (act_drift(t) == est_drift(t)) ? 1 : 0;
+        accumulated_result(t) += (act_drift(t) == est_drift(t)) ? 1 : 0;
+        accumulated_count(t) += 1;
     }
 }
 

@@ -149,7 +149,8 @@ public:
     }
 
     // Experiment handling
-    void sample(array1d_t& sample_result) override;
+    void sample(libbase::vector<double>& sample_result,
+                libbase::vector<uint64_t>& sample_count) override;
     int result_count() const override
     {
         const fidelity_pos* rc_fidelity =
