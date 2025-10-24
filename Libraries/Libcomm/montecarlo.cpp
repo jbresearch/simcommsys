@@ -94,7 +94,7 @@ montecarlo::slave_work(void)
 
     // print something to inform the user of our progress
     vector<double> result, errormargin;
-    updateresults(result, errormargin);
+    compute_estimate(result, errormargin);
     display(result, errormargin);
 }
 
@@ -164,7 +164,7 @@ montecarlo::display(const libbase::vector<double>& result,
  * interval)
  */
 void
-montecarlo::updateresults(vector<double>& result,
+montecarlo::compute_estimate(vector<double>& result,
                           vector<double>& errormargin) const
 {
     const double cfactor = libbase::Qinv((1.0 - confidence) / 2.0);
@@ -361,7 +361,7 @@ montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
         }
         // if we did get any results, update the statistics
         if (results_available) {
-            updateresults(result, errormargin);
+            compute_estimate(result, errormargin);
             // if we have done enough samples, check accuracy reached
             if (system->get_samplecount() >= uint64_t(min_samples)) {
                 switch (mode) {

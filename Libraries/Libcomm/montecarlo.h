@@ -94,7 +94,7 @@ private:
         system->sample(sample_result);
         system->accumulate_result(sample_result);
     }
-    void updateresults(libbase::vector<double>& result,
+    void compute_estimate(libbase::vector<double>& result,
                        libbase::vector<double>& errormargin) const;
     void initslave(std::shared_ptr<libbase::socket> s,
                    std::string systemstring);
