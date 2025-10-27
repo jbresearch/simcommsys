@@ -103,90 +103,11 @@ public:
     // Note: here I replaced libbase::vector with the std::vector only for the
     // observables. Returns the observables of Bob
     std::vector<std::unique_ptr<observable<bool>>>
-    get_bob_observables(int framesize) override
-    {
-        std::vector<std::unique_ptr<observable<bool>>> observables;
-        observables.reserve(framesize);
-
-        bob_basis_vector.init(framesize);
-
-        for (int i = 0; i < framesize; ++i) {
-            if (rng.ival(2) == 0) {
-                observables.push_back(
-                    std::make_unique<computational_observable>());
-                bob_basis_vector(i) = 0;
-            } else {
-                observables.push_back(std::make_unique<hadamard_observable>());
-                bob_basis_vector(i) = 1;
-            }
-        }
-
-        std::cout << "Printing basis vector b' of Bob (from dvqkd_protocol.h): "
-                  << std::endl;
-
-        std::cout << "If b'(i) = 0 it is a Computational observable otherwise "
-                     "it is a Hadamard observable(from dvqkd_protocol.h): "
-                  << std::endl;
-
-        std::cout << bob_basis_vector << std::endl;
-        return observables;
-    }
+    get_bob_observables(int framesize) override;
 
     // Returns the observables of Alice
     std::vector<std::unique_ptr<observable<bool>>>
-    get_alice_observables(int framesize) override
-    {
-        std::vector<std::unique_ptr<observable<bool>>> observables;
-        observables.reserve(framesize);
-
-        alice_basis_vector.init(framesize); // vector b (basis)
-        alice_bit_vector.init(framesize);   // vector a (bit)
-
-        // Ensure the source sequence has been set by set_source_sequence()
-        assert(m_source_sequence &&
-               "Source sequence was not set in dvqkd_protocol");
-        assert(m_source_sequence->size() == framesize &&
-               "Source sequence size mismatch");
-
-        // --- THIS IS THE NEW LOGIC ---
-        for (int i = 0; i < framesize; ++i) {
-
-            // Get the qubit from the stored sequence
-            const qubit& q = (*m_source_sequence)(i);
-
-            // Reverse-engineer the bit and basis from the qubit state
-            std::pair<bool, bool> alice_choice = get_alice_choice_from_qubit(q);
-
-            bool bit = alice_choice.first;
-            bool basis = alice_choice.second;
-
-            // Store them in the protocol's member vectors
-            alice_bit_vector(i) = bit;     // This is Alice's bit vector a
-            alice_basis_vector(i) = basis; // This is Alice's basis vector b
-
-            // Create the corresponding fake observable for Alice
-            if (basis == 0) { // Z-basis (Computational)
-                observables.push_back(
-                    std::make_unique<fake_computational_observable>());
-            } else { // X-basis (Hadamard)
-                observables.push_back(
-                    std::make_unique<fake_hadamard_observable>());
-            }
-        }
-
-        std::cout
-            << "Printing basis vector b of Alice (from dvqkd_protocol.h): "
-            << std::endl;
-
-        std::cout
-            << "If b(i) = 0 it is a fake Computational observable otherwise it "
-               "is a fake Hadamard observable(from dvqkd_protocol.h): "
-            << std::endl;
-
-        std::cout << alice_basis_vector << std::endl;
-
-        return observables;
-    }
+    get_alice_observables(int framesize) override;
 
     // Split fn to be used for parameter estimation and post-processing which
     // returns: X_PE, Y_PE, X_raw and Y_raw
