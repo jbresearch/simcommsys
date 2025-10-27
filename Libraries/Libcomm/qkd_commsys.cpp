@@ -91,16 +91,17 @@ qkd_commsys<S, T, C>::fullcycle(C<S>& source)
         }
     }
 
-    std::cout << "Printing measurement vectors of Alice and Bob (from "
-                 "qkd_commsys.cpp): "
-              << std::endl;
+    // Verify CLI parameters of Quantum Channel of Bob
+    auto channel_parameters = get_parameters();
 
-    std::cout
-        << "Measurement vector of Alice without noise (from qkd_commsys.cpp): "
-        << alice_measurements << std::endl;
-
-    std::cout << "Measurement vector of Bob with noise (from qkd_commsys.cpp): "
-              << bob_measurements << std::endl;
+#if DEBUG >= 1
+        std::cout << "DV_QKDPROTOCOL: **** MEASUREMENT **** " << std::endl;
+        std::cout << "DV_QKDPROTOCOL: Alice Measurements without noise: " << alice_measurements
+                  << std::endl;
+        std::cout << "DV_QKDPROTOCOL: QBER for Bob's Measurements = " << channel_parameters(0) << std::endl;
+        std::cout << "DV_QKDPROTOCOL: Bob Measurements: " << bob_measurements
+                  << std::endl;
+#endif
 
     // Perform post-processing to get the final secret keys.
     auto [secret_key_KA, secret_key_KB] = protocol->postprocess(
