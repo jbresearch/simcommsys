@@ -705,6 +705,11 @@ cvqkd_protocol::serialize(std::istream& sin)
     sin >> libbase::eatcomments >> cdc >> libbase::verify;
     sin >> libbase::eatcomments >> embedder >> libbase::verify;
 
+    // check that all assumptions hold
+    assertalways(alphabet_size == 2); // we only support binary for now
+    assertalways(cdc->num_inputs() == alphabet_size); // codec input has to be binary
+    assertalways(cdc->num_outputs() == embedder->num_symbols()); // codec output has to match embedder input
+
     return sin;
 }
 

@@ -342,6 +342,10 @@ dvqkd_protocol::serialize(std::istream& sin)
     assertalways(sin.good());
     sin >> libbase::eatcomments >> cdc >> libbase::verify;
 
+    // check that all assumptions hold
+    assertalways(cdc->num_inputs() == 2); // input has to be binary
+    assertalways(cdc->num_outputs() == 2); // output has to be binary
+
     return sin;
 }
 
