@@ -65,8 +65,6 @@ private:
     // Vector s from Bob from qkd_commsys
     libbase::vector<bool> bob_vector_s;
 
-    // Vector C from Bob to be used only within the post-processing method.
-    libbase::vector<bool> bob_vector_c;
 
     double beta_mdr;         // Reconciliation Efficiency for MDR.
     double SNR_linear = 0.0; // Retrieved from bob's quantum channel.

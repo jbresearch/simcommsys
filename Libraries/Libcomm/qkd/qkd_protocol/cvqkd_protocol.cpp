@@ -461,7 +461,8 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         // Encodes Vector S of Bob to get Vector C.
         cdc->encode(bob_vector_int, encoded_int);
 
-        bob_vector_c = encoded_int;
+        // Convert vector<int> to vector<bool>
+        const libbase::vector<bool> bob_vector_c(encoded_int);
 
 #if DEBUG >= 1
         std::cerr << "CV_QKDPROTOCOL: bob_vector_c = " << bob_vector_c
