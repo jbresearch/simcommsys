@@ -30,7 +30,7 @@
 #define LDPC_H_
 
 #include "alist.h"
-#include "codec.h"
+#include "codec_coset.h"
 #include "config.h"
 #include "matrix.h"
 #include "sumprodalg/sum_prod_alg_inf.h"
@@ -52,11 +52,11 @@ namespace libcomm
  */
 
 template <class GF_q, class real = double>
-class ldpc : public codec<libbase::vector, double>
+class ldpc : public codec_coset<libbase::vector, double>
 {
 private:
     // Shorthand for class hierarchy
-    typedef codec<libbase::vector, double> Base;
+    typedef codec_coset<libbase::vector, double> Base;
 
 public:
     /*! \name Type definitions */
@@ -95,7 +95,7 @@ protected:
      * This function should be called before the first decode iteration
      * for each block.
      */
-    void do_init_decoder(const array1vdbl_t& ptable) override;
+    void do_init_decoder(const array1vdbl_t& ptable, const libbase::vector<int>& syndrome) override;
 
 public:
     /*! \brief default constructor
@@ -156,6 +156,8 @@ public:
         this->add_timers(*this->spa_alg);
         this->spa_alg->reset_timers();
     }
+
+    void calculate_syndrome(const C<int>& codeword, C<int>& syndrome) override;
 
     /*
      * some more necessary functions for the codec interface
