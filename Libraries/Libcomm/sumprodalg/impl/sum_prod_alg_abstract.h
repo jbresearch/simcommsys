@@ -31,6 +31,13 @@
 #include "vector.h"
 #include <limits>
 
+// Determine debug level:
+// 1 - Normal debug output only
+#ifndef NDEBUG
+#    undef DEBUG
+#    define DEBUG 1
+#endif
+
 namespace libcomm
 {
 
@@ -124,6 +131,24 @@ public:
             }
         }
     }
+
+    void set_syndrome(const libbase::vector<GF_q>& syndrome) override
+    {
+        if (this->syndrome.size() != syndrome.size()) {
+            std::stringstream err_msg;
+            err_msg << "Syndrome size mismatch. Expected: "
+                    << this->syndrome.size() << "Received: " << syndrome.size();
+            throw std::invalid_argument(err_msg.str());
+        }
+
+        this->syndrome.copyfrom(syndrome);
+
+#if DEBUG >= 1
+        libbase::trace << "sum_prod_alg::set_syndrome: " << this->syndrome;
+#endif
+    }
+
+    const libbase::vector<GF_q>& get_syndrome() override { return syndrome; }
 
     void seedfrom(libbase::random& r)
     {
@@ -229,6 +254,9 @@ protected:
      * implementation of \c spa_init(). Not the most maintanable setup.
      */
     bool decode_success = false;
+
+     //! The syndrome used by the SPA algorithm
+    libbase::vector<GF_q> syndrome;
 };
 
 } // namespace libcomm
