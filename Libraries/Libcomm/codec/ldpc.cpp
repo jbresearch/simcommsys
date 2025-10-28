@@ -123,14 +123,31 @@ ldpc<GF_q, real>::init_gen_matrix()
 
 template <class GF_q, class real>
 void
-ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable, const libbase::vector<int>& syndrome)
+ldpc<GF_q, real>::do_encode(const libbase::vector<int>& source,
+                            libbase::vector<int>& encoded)
 {
+    libbase::linear_code_utils<GF_q>::encode_cw(
+        this->gen_matrix, source, encoded);
 
-    // Set the Syndrome in the spa_gdl algorithm.
-    // Here I need to add set_syndrome. But first I need to implement it within "sum_prod_alg_inf.h" and "sump_prod_alg_gdl.h/cpp"
+#if DEBUG >= 2
+    this->received_word_hd = encoded;
+    //  extract the info symbols from the codeword word and compare them to the
+    //  original
+    for (int loop_i = 0; loop_i < this->dim_k; loop_i++) {
+        assertalways(source(loop_i) == encoded(this->info_symb_pos(loop_i)));
+    }
+#endif
+#if DEBUG >= 2
+    libbase::trace << "The encoded word is:" << std::endl;
+    encoded.serialize(libbase::trace, " ");
+    libbase::trace << std::endl;
+#endif
+}
 
-    // this->spa_alg->set_syndrome(syndrome);
-
+template <class GF_q, class real>
+void
+ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable)
+{
     this->current_iteration = 0;
 
 #if DEBUG >= 2
@@ -158,39 +175,52 @@ ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable, const libbase::vec
     this->spa_alg->spa_init(this->received_probs);
 }
 
+
 template <class GF_q, class real>
 void
-ldpc<GF_q, real>::do_encode(const libbase::vector<int>& source,
-                            libbase::vector<int>& encoded)
+ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable, const libbase::vector<int>& syndrome)
 {
-    libbase::linear_code_utils<GF_q>::encode_cw(
-        this->gen_matrix, source, encoded);
-
-#if DEBUG >= 2
-    this->received_word_hd = encoded;
-    //  extract the info symbols from the codeword word and compare them to the
-    //  original
-    for (int loop_i = 0; loop_i < this->dim_k; loop_i++) {
-        assertalways(source(loop_i) == encoded(this->info_symb_pos(loop_i)));
+    // This is the implementation for the codec_coset class.
+    if (0 == syndrome.size()) {
+        throw std::runtime_error("ldpc::do_init_decoder - "
+                                 "'do_init_decoder' called with no set "
+                                 "syndrome");
     }
-#endif
-#if DEBUG >= 2
-    libbase::trace << "The encoded word is:" << std::endl;
-    encoded.serialize(libbase::trace, " ");
-    libbase::trace << std::endl;
-#endif
+
+    // Call the base implementation (the one without syndrome)
+    this->do_init_decoder(ptable);
+
+    // Convert the int syndrome to a GF_q syndrome
+    libbase::vector<GF_q> syndrome_gfq(syndrome.size());
+    for (int i = 0; i < syndrome.size(); i++) {
+        syndrome_gfq(i) = GF_q(syndrome(i));
+    }
+
+    // Set the GF_q syndrome in the spa algorithm
+    this->spa_alg->set_syndrome(syndrome_gfq);
 }
+
 
 template <class GF_q, class real>
 void
 ldpc<GF_q, real>::calculate_syndrome(const libbase::vector<int>& codeword, libbase::vector<int>& syndrome)
 {
-    auto syndrome = libbase::vector<GF_q>;
+    // Convert the codeword from int to GF_Q type.
+    libbase::vector<GF_q> temp_codeword_gfq(codeword.size());
+    for (int i = 0; i < codeword.size(); i++) {
+        temp_codeword_gfq(i) = GF_q(codeword(i));
+    }
 
+    libbase::vector<GF_q> temp_syndrome_gfq;
+
+    // Compute the syndrome into the temporary vector using the GF_q syndrome.
     libbase::linear_code_utils<GF_q, double>::compute_syndrome(
-        this->get_pchk_matrix(), codeword, syndrome);
+                this->pchk_matrix, temp_codeword_gfq, temp_syndrome_gfq);
 
-    return syndrome;
+    syndrome.init(temp_syndrome_gfq.size());
+    for (int i = 0; i < temp_syndrome_gfq.size(); i++) {
+        syndrome(i) = static_cast<int>(temp_syndrome_gfq(i));
+    }
 }
 
 template <class GF_q, class real>
