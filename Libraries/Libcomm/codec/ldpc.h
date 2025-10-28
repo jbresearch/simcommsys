@@ -95,6 +95,9 @@ protected:
      * This function should be called before the first decode iteration
      * for each block.
      */
+    void do_init_decoder(const array1vdbl_t& ptable) override;
+
+
     void do_init_decoder(const array1vdbl_t& ptable, const libbase::vector<int>& syndrome) override;
 
 public:
