@@ -108,6 +108,20 @@ public:
     //! Seeds any random generators from a pseudo-random sequence
     virtual void seedfrom(libbase::random& r) {}
 
+    /*!
+     * \brief Set the syndrome value used by the Sum Product algorithm.
+     *
+     * \param syndrome The syndrome.
+     */
+    virtual void set_syndrome(const libbase::vector<GF_q>& syndrome) = 0;
+
+    /*!
+     * \brief Retrieve the syndrome used by the Sum Product algorithm.
+     *
+     * \return const libbase::vector<GF_q>& The syndrome.
+     */
+    virtual const libbase::vector<GF_q>& get_syndrome() = 0;
+
 protected:
     /*! \name Clipping parameters with default values.`
      */
