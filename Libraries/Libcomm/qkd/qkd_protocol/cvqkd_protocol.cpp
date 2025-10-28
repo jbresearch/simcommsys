@@ -455,12 +455,11 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 
         // Generate Vector C from Bob's vector s.
         libbase::vector<int> encoded_int(get_codec_output_bits_n());
-
+        // Convert vector<bool> to vector<int>
         libbase::vector<int> bob_vector_int(bob_vector_s);
 
         // Encodes Vector S of Bob to get Vector C.
         cdc->encode(bob_vector_int, encoded_int);
-
         // Convert vector<int> to vector<bool>
         const libbase::vector<bool> bob_vector_c(encoded_int);
 
@@ -474,12 +473,8 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         // The direct_block_informed_embedder uses the embed method from the
         // base class block_informed_embedder.h.
 
-        // Data to embed which is encoded bit vector C, converted from bool to
-        // int.
-        libbase::vector<int> data_to_embed(bob_vector_c.size());
-        for (int i = 0; i < bob_vector_c.size(); ++i) {
-            data_to_embed(i) = bob_vector_c(i);
-        }
+        // Convert vector<bool> to vector<int>
+        const libbase::vector<int> data_to_embed(bob_vector_c);
 
         // Vector M which stores the modulated signal.
         libbase::vector<double> vector_M;
