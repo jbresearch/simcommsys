@@ -157,7 +157,7 @@ public:
         this->spa_alg->reset_timers();
     }
 
-    void calculate_syndrome(const C<int>& codeword, C<int>& syndrome) override;
+    void calculate_syndrome(const libbase::vector<int>& codeword, libbase::vector<int>& syndrome) override;
 
     /*
      * some more necessary functions for the codec interface

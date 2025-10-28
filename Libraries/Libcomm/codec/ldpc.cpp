@@ -123,8 +123,13 @@ ldpc<GF_q, real>::init_gen_matrix()
 
 template <class GF_q, class real>
 void
-ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable)
+ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable, const libbase::vector<int>& syndrome)
 {
+
+    // Set the Syndrome in the spa_gdl algorithm.
+    // Here I need to add set_syndrome. But first I need to implement it within "sum_prod_alg_inf.h" and "sump_prod_alg_gdl.h/cpp"
+
+    // this->spa_alg->set_syndrome(syndrome);
 
     this->current_iteration = 0;
 
@@ -174,6 +179,18 @@ ldpc<GF_q, real>::do_encode(const libbase::vector<int>& source,
     encoded.serialize(libbase::trace, " ");
     libbase::trace << std::endl;
 #endif
+}
+
+template <class GF_q, class real>
+void
+ldpc<GF_q, real>::calculate_syndrome(const libbase::vector<int>& codeword, libbase::vector<int>& syndrome)
+{
+    auto syndrome = libbase::vector<GF_q>;
+
+    libbase::linear_code_utils<GF_q, double>::compute_syndrome(
+        this->get_pchk_matrix(), codeword, syndrome);
+
+    return syndrome;
 }
 
 template <class GF_q, class real>
