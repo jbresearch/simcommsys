@@ -134,12 +134,7 @@ public:
 
     void set_syndrome(const libbase::vector<GF_q>& syndrome) override
     {
-        if (this->syndrome.size() != syndrome.size()) {
-            std::stringstream err_msg;
-            err_msg << "Syndrome size mismatch. Expected: "
-                    << this->syndrome.size() << "Received: " << syndrome.size();
-            throw std::invalid_argument(err_msg.str());
-        }
+        assert(syndrome.size() == this->dim_m || syndrome.size() == 0);
 
         this->syndrome.copyfrom(syndrome);
 
