@@ -251,14 +251,12 @@ sum_prod_alg_gdl<GF_q, real>::compute_r_mn(int pos_m, int loop_n)
     for (int pos_e = 0; pos_e < num_of_elements; pos_e++) {
         // perms(h_m_n)(loop)=GF_q(h_m_n)*GF_q(loop) - a look-up is quicker than
         // a computation (I hope)
-
-        GF_q syndrome_val(0); // Default syndrome is 0
+        GF_q index = this->perms(h_m_n)(pos_e);
+        // Cater for non-zero syndrome
         if (this->syndrome.size() > 0) {
-            syndrome_val = this->syndrome(pos_m);
+            index += this->syndrome(pos_m);
         }
-        // Addition caters for non-zero syndrome
-        this->marginal_probs(pos_m, pos_n).r_mxn(pos_e) =
-            q_nm_conv_prod(this->perms(h_m_n)(pos_e)) + syndrome_val;
+        this->marginal_probs(pos_m, pos_n).r_mxn(pos_e) = q_nm_conv_prod(index);
     }
 }
 
