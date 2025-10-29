@@ -168,10 +168,7 @@ ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable, const libbase::vec
     this->do_init_decoder(ptable);
 
     // Convert the int syndrome to a GF_q syndrome
-    libbase::vector<GF_q> syndrome_gfq(syndrome.size());
-    for (int i = 0; i < syndrome.size(); i++) {
-        syndrome_gfq(i) = GF_q(syndrome(i));
-    }
+    const libbase::vector<GF_q> syndrome_gfq(syndrome);
 
     // Set the GF_q syndrome in the spa algorithm
     this->spa_alg->set_syndrome(syndrome_gfq);
@@ -183,20 +180,16 @@ void
 ldpc<GF_q, real>::calculate_syndrome(const libbase::vector<int>& codeword, libbase::vector<int>& syndrome)
 {
     // Convert the codeword from int to GF_Q type.
-    libbase::vector<GF_q> temp_codeword_gfq(codeword.size());
-    for (int i = 0; i < codeword.size(); i++) {
-        temp_codeword_gfq(i) = GF_q(codeword(i));
-    }
-
-    libbase::vector<GF_q> temp_syndrome_gfq;
+    const libbase::vector<GF_q> temp_codeword_gfq(codeword);
 
     // Compute the syndrome into the temporary vector using the GF_q syndrome.
+    libbase::vector<GF_q> temp_syndrome_gfq;
     libbase::linear_code_utils<GF_q, double>::compute_syndrome(
                 this->pchk_matrix, temp_codeword_gfq, temp_syndrome_gfq);
 
-    syndrome.init(temp_syndrome_gfq.size());
-    for (int i = 0; i < temp_syndrome_gfq.size(); i++) {
-        syndrome(i) = static_cast<int>(temp_syndrome_gfq(i));
+    // Convert the syndrome from GF_Q to int
+    syndrome = temp_syndrome_gfq;
+}
 
 template <class GF_q, class real>
 void
