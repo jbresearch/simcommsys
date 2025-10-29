@@ -10,16 +10,15 @@
 #ifndef CVQKD_PROTOCOL_H
 #define CVQKD_PROTOCOL_H
 
-#include "commsys.h"
 #include "channel.h"
 #include "channel/awgn1d.h"
 #include "codec.h"
+#include "commsys.h"
 #include "crc/crc32.h"
 #include "gf.h"
 #include "hamming.h"
 #include "informed_embedder/direct_block_informed_embedder.h"
 #include "informed_embedder/sign.h"
-#include "qkd_commsys.h"
 #include "qkd/observable/fake_momentum_observable.h"
 #include "qkd/observable/fake_position_observable.h"
 #include "qkd/observable/momentum_observable.h"
@@ -28,6 +27,7 @@
 #include "qkd/privacy_amplification/pa_standard_toeplitz.h"
 #include "qkd/qkd_protocol.h"
 #include "qkd/quantum_state.h"
+#include "qkd_commsys.h"
 #include "random.h"
 #include "serializer.h"
 #include "source/quantum_gaussian_source.h"
@@ -57,7 +57,7 @@ private:
     double I_AB = 0.0;      // Mutual Information between Alice and Bob.
     double chi_BE = 0.0;    // Holevo Bound between Bob and Eve for RR.
     bool MI_Check = false;  // MI check that verifies if I_AB > X_B?
-    bool H_check = false;    // Hash check that verifies if hash_hs == hash_hsat?
+    bool H_check = false;   // Hash check that verifies if hash_hs == hash_hsat?
     int len_secret_key = 0; // Length of final secret key
     int n_samples = 0;      // Number of samples after parameter estimation.
                             // Equivalent to same n of LDPC codec.
@@ -83,10 +83,9 @@ protected:
     pa_standard_toeplitz<bool> pa_system;
 
 public:
-
     // Init method for CV-qkd protocol
-    void init(qkd_commsys<gaussian_state, double, libbase::vector>* qkdcommsys) override;
-
+    void init(qkd_commsys<gaussian_state, double, libbase::vector>* qkdcommsys)
+        override;
 
     void seedfrom(libbase::random& rng) override
     {
@@ -96,7 +95,8 @@ public:
         pa_system.seedfrom(rng);
     }
 
-    // Note: here I replaced libbase::vector with the std::vector only for the observables. Returns the observables of Bob
+    // Note: here I replaced libbase::vector with the std::vector only for the
+    // observables. Returns the observables of Bob
     std::vector<std::unique_ptr<observable<double>>>
     get_bob_observables(int framesize) override
     {
