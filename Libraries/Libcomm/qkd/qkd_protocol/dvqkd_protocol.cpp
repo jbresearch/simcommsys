@@ -347,7 +347,6 @@ dvqkd_protocol::serialize(std::istream& sin)
     // get format version
     int version;
     sin >> libbase::eatcomments >> version;
-
     sin >> libbase::eatcomments >> cdc >> libbase::verify;
     // check that all assumptions hold
     assertalways(cdc->num_inputs() == 2); // input has to be binary

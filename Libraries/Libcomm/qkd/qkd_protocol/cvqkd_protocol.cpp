@@ -700,7 +700,6 @@ cvqkd_protocol::serialize(std::istream& sin)
     // get format version
     int version;
     sin >> libbase::eatcomments >> version;
-
     sin >> libbase::eatcomments >> N_0 >> libbase::verify;
     sin >> libbase::eatcomments >> v_el >> libbase::verify;
     sin >> libbase::eatcomments >> detector_efficiency >> libbase::verify;

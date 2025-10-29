@@ -96,8 +96,9 @@ protected:
      * for each block.
      */
     void do_init_decoder(const array1vdbl_t& ptable) override;
-
-
+    /*!
+     * \copydoc codec_coset::do_init_decoder()
+     */
     void do_init_decoder(const array1vdbl_t& ptable, const libbase::vector<int>& syndrome) override;
 
 public:
@@ -159,7 +160,9 @@ public:
         this->add_timers(*this->spa_alg);
         this->spa_alg->reset_timers();
     }
-
+    /*!
+     * \copydoc codec_coset::calculate_syndrome()
+     */
     void calculate_syndrome(const libbase::vector<int>& codeword, libbase::vector<int>& syndrome) override;
 
     /*
