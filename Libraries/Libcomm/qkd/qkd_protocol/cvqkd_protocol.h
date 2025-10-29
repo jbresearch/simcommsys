@@ -12,7 +12,7 @@
 
 #include "channel.h"
 #include "channel/awgn1d.h"
-#include "codec.h"
+#include "codec/codec_coset.h"
 #include "commsys.h"
 #include "crc/crc32.h"
 #include "gf.h"
@@ -65,7 +65,6 @@ private:
     // Vector s from Bob from qkd_commsys
     libbase::vector<bool> bob_vector_s;
 
-
     double beta_mdr;         // Reconciliation Efficiency for MDR.
     double SNR_linear = 0.0; // Retrieved from bob's quantum channel.
 
@@ -73,7 +72,7 @@ private:
     int alphabet_size;
 
 protected:
-    std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
+    std::shared_ptr<codec_coset<libbase::vector>> cdc; //!< Error-control codec
     std::shared_ptr<block_informed_embedder<double, libbase::vector, double>>
         embedder; // Embedder
     std::shared_ptr<channel<double>>

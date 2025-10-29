@@ -705,7 +705,11 @@ cvqkd_protocol::serialize(std::istream& sin)
     sin >> libbase::eatcomments >> detector_efficiency >> libbase::verify;
     sin >> libbase::eatcomments >> smoothing_parameter >> libbase::verify;
     sin >> libbase::eatcomments >> alphabet_size >> libbase::verify;
-    sin >> libbase::eatcomments >> cdc >> libbase::verify;
+    // we have to serialise this as a codec object, then do a dynamic conversion
+    std::shared_ptr<codec<libbase::vector>> _cdc;
+    sin >> libbase::eatcomments >> _cdc >> libbase::verify;
+    cdc = std::dynamic_pointer_cast<codec_coset<libbase::vector>>(_cdc);
+    assert(cdc);
     sin >> libbase::eatcomments >> embedder >> libbase::verify;
 
     // check that all assumptions hold
