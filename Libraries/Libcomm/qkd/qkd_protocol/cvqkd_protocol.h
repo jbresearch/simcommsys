@@ -204,9 +204,6 @@ public:
         return cdc->output_block_size();
     }
 
-    // Helper function to Get codec.
-    std::shared_ptr<codec<libbase::vector>> get_codec() const { return cdc; }
-
     // Returns final secret keys KA and KB.
     std::pair<libbase::vector<bool>, libbase::vector<bool>>
     postprocess(libbase::vector<double>&& alice_measurements,

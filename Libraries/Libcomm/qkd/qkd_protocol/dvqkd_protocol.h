@@ -129,9 +129,6 @@ public:
         return cdc->output_block_size();
     }
 
-    // Helper function to Get codec.
-    std::shared_ptr<codec<libbase::vector>> get_codec() const { return cdc; }
-
     const int calculate_finite_size_effects_secret_key_length() override;
 
     // Returns final secret keys KA and KB.

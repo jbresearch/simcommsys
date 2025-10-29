@@ -92,8 +92,6 @@ public:
     // Pass source generator to get VA for CV_QKD.
 
     /* Helper functions related to codec.*/
-    virtual std::shared_ptr<codec<libbase::vector>> get_codec() const = 0;
-
     virtual int get_codec_input_bits_k() const = 0;
     virtual int get_codec_output_bits_n() const = 0;
 
