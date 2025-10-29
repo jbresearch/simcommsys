@@ -148,8 +148,6 @@ public:
 #endif
     }
 
-    const libbase::vector<GF_q>& get_syndrome() override { return syndrome; }
-
     void seedfrom(libbase::random& r)
     {
         // Call base method first
