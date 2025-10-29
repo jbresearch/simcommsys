@@ -330,6 +330,9 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
 std::ostream&
 dvqkd_protocol::serialize(std::ostream& sout) const
 {
+    // format version
+    sout << "# Version" << std::endl;
+    sout << 1 << std::endl;
     sout << "# Codec" << std::endl;
     sout << cdc << std::endl;
     return sout;
@@ -340,8 +343,12 @@ std::istream&
 dvqkd_protocol::serialize(std::istream& sin)
 {
     assertalways(sin.good());
-    sin >> libbase::eatcomments >> cdc >> libbase::verify;
 
+    // get format version
+    int version;
+    sin >> libbase::eatcomments >> version;
+
+    sin >> libbase::eatcomments >> cdc >> libbase::verify;
     // check that all assumptions hold
     assertalways(cdc->num_inputs() == 2); // input has to be binary
     assertalways(cdc->num_outputs() == 2); // output has to be binary

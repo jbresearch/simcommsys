@@ -62,6 +62,8 @@ identity_quantum_channel
 depolarizing_quantum_channel
 ## Postprocessing protocol
 dvqkd_protocol
+# Version
+1
 # Codec
 ldpc<gf2,double>
 # Version
