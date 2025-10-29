@@ -155,6 +155,8 @@ gaussian_quantum_channel
 0.302
 ## Postprocessing protocol
 cvqkd_protocol
+# Version
+1
 # Shot Noise Variance N_0
 1
 # Electric Noise v_el

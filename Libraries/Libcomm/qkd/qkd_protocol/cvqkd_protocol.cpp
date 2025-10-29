@@ -669,6 +669,9 @@ cvqkd_protocol::description() const
 std::ostream&
 cvqkd_protocol::serialize(std::ostream& sout) const
 {
+    // format version
+    sout << "# Version" << std::endl;
+    sout << 1 << std::endl;
     sout << "# Shot Noise Variance N_0" << std::endl;
     sout << N_0 << std::endl;
     sout << "# Electric Noise v_el" << std::endl;
@@ -693,6 +696,11 @@ std::istream&
 cvqkd_protocol::serialize(std::istream& sin)
 {
     assertalways(sin.good());
+
+    // get format version
+    int version;
+    sin >> libbase::eatcomments >> version;
+
     sin >> libbase::eatcomments >> N_0 >> libbase::verify;
     sin >> libbase::eatcomments >> v_el >> libbase::verify;
     sin >> libbase::eatcomments >> detector_efficiency >> libbase::verify;
