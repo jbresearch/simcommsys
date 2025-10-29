@@ -48,6 +48,8 @@ public:
 
 protected:
     /*! \name Interface with derived classes */
+    // Inherit receiver translation process from base class
+    using Base::do_init_decoder;
     //! \copydoc init_decoder()
     virtual void do_init_decoder(const C<array1d_t>& ptable,
                                  const C<int>& syndrome) = 0;
