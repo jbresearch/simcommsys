@@ -123,29 +123,6 @@ ldpc<GF_q, real>::init_gen_matrix()
 
 template <class GF_q, class real>
 void
-ldpc<GF_q, real>::do_encode(const libbase::vector<int>& source,
-                            libbase::vector<int>& encoded)
-{
-    libbase::linear_code_utils<GF_q>::encode_cw(
-        this->gen_matrix, source, encoded);
-
-#if DEBUG >= 2
-    this->received_word_hd = encoded;
-    //  extract the info symbols from the codeword word and compare them to the
-    //  original
-    for (int loop_i = 0; loop_i < this->dim_k; loop_i++) {
-        assertalways(source(loop_i) == encoded(this->info_symb_pos(loop_i)));
-    }
-#endif
-#if DEBUG >= 2
-    libbase::trace << "The encoded word is:" << std::endl;
-    encoded.serialize(libbase::trace, " ");
-    libbase::trace << std::endl;
-#endif
-}
-
-template <class GF_q, class real>
-void
 ldpc<GF_q, real>::do_init_decoder(const array1vdbl_t& ptable)
 {
     this->current_iteration = 0;
@@ -220,7 +197,28 @@ ldpc<GF_q, real>::calculate_syndrome(const libbase::vector<int>& codeword, libba
     syndrome.init(temp_syndrome_gfq.size());
     for (int i = 0; i < temp_syndrome_gfq.size(); i++) {
         syndrome(i) = static_cast<int>(temp_syndrome_gfq(i));
+
+template <class GF_q, class real>
+void
+ldpc<GF_q, real>::do_encode(const libbase::vector<int>& source,
+                            libbase::vector<int>& encoded)
+{
+    libbase::linear_code_utils<GF_q>::encode_cw(
+        this->gen_matrix, source, encoded);
+
+#if DEBUG >= 2
+    this->received_word_hd = encoded;
+    //  extract the info symbols from the codeword word and compare them to the
+    //  original
+    for (int loop_i = 0; loop_i < this->dim_k; loop_i++) {
+        assertalways(source(loop_i) == encoded(this->info_symb_pos(loop_i)));
     }
+#endif
+#if DEBUG >= 2
+    libbase::trace << "The encoded word is:" << std::endl;
+    encoded.serialize(libbase::trace, " ");
+    libbase::trace << std::endl;
+#endif
 }
 
 template <class GF_q, class real>
