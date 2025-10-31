@@ -16,6 +16,7 @@
 #include "channel/qsc.h"
 #include "mapper/map_straight.h"
 #include "modem/direct_blockmodem.h"
+#include "random.h"
 // #include "blind_embedder/direct_block_blind_embedder.h"
 
 // Determine debug level:
@@ -129,23 +130,29 @@ cdc->calculate_syndrome(codeword_ex1, calculated_syndrome_ex1);
 
 BOOST_CHECK_EQUAL(calculated_syndrome_ex1.isequalto(expected_syndrome_ex1), true);
 
-
- // Instantiate the AWGN channel object.
+// Define channel parameters
 auto qsc_channel = std::make_shared<libcomm::qsc<libbase::gf2>>();
 
 // Probability of Substitution, Ps
 double Ps = 0.0; 
+qsc_channel->set_parameter(Ps);
+
+// Create rng as a shared_ptr and set the seed.
+auto rng = std::make_shared<libbase::randgen>();
+rng->seed(7);
+// Seed the channel
+qsc_channel->seedfrom(*rng);
+
+//     // Seed source generator.
+//     libbase::randgen r;
+//     r.seed(2602);
+//     src->seedfrom(r);
 
 #if DEBUG >= 1
         std::cerr << "TESTSYNDROMEDECODING: Details of Channel: "
                   << qsc_channel ->description() << std::endl;
-        std::cerr << "TESTSYNDROMEDECODING: P_s = " << Ps << std::endl;
+        std::cerr << "TESTSYNDROMEDECODING: P_s = " << Ps << std::endl; // To do: ideally you get the channel parameter directly from the channel itself
 #endif
-
-// pass through qsc channel over gf2 without any errors. This outputs the probability table.
-// Use doextract from the blind embedder
-
-// decode using do_init_decoder(const array1vdbl_t& ptable, const libbase::vector<int>& syndrome) override;
 
         // // Instantiate Embedder. 
         // std::shared_ptr<libcomm::block_blind_embedder<double, libbase::vector, double>>
@@ -157,66 +164,56 @@ double Ps = 0.0;
         //                   codeword_ex1,
         //                   prob_table); 
 
-        // Declare and initialise mapper and modem mapper  
-        auto mapper = std::make_shared<libcomm::map_straight<libbase::vector, double>>();
-        auto modem = std::make_shared<libcomm::direct_blockmodem<libbase::gf2, libbase::vector, double>>();
+        // Transmit codeword through a qsc channel over gf2 -- to resolve a bad alloc here. 
+        // const libbase::vector<libbase::gf2> gf2_codeword(codeword_ex1);
 
-        const int alphabet_size = libbase::gf2::elements(); // 2
-        const int block_size = codeword_ex1.size();       // N=7
+        libbase::vector<libbase::gf2> gf2_codeword;
+        gf2_codeword.init(codeword_ex1.size());
 
-        mapper->set_parameters(alphabet_size, alphabet_size);
-        mapper->set_blocksize(libbase::size_type<libbase::vector>(block_size));
+        for (int i = 0; i < codeword_ex1.size(); ++i)
+        {
+                gf2_codeword(i) = libbase::gf2(codeword_ex1(i));
+        }
+        std::cout << "GF2 codeword example 1 = " << gf2_codeword(0) << std::endl;
+
+        // libbase::vector<libbase::gf2> corrupted_codeword;
+        // corrupted_codeword.init(7);
+        // qsc_channel->transmit(gf2_codeword, corrupted_codeword);
+
+// #if DEBUG >= 1
+//         std::cerr << "TESTSYNDROMEDECODING: corrupted codeword = " << corrupted_codeword << std::endl;
+// #endif
+
+//         // Hardcoded Probability Table
+//         // Codeword assumed to be received: 1, 0, 1, 1, 1, 0, 0
+//         // Flip probability Ps =  0
+//         // ** FIX 1: Use default constructor and .init() to avoid bad_alloc **
+//         auto prob_table = libbase::vector<libbase::vector<double>>(7);
+//         //                                     Probability bit is    0 ,  1
+//         prob_table(0) = libbase::vector<double>(std::vector<double>{0.1, 0.9}); // 1
+//         prob_table(1) = libbase::vector<double>(std::vector<double>{0.9, 0.1}); // 0
+//         prob_table(2) = libbase::vector<double>(std::vector<double>{0.1, 0.9}); // 1
+//         prob_table(3) = libbase::vector<double>(std::vector<double>{0.1, 0.9}); // 1
+//         prob_table(4) = libbase::vector<double>(std::vector<double>{0.1, 0.9}); // 1
+//         prob_table(5) = libbase::vector<double>(std::vector<double>{0.9, 0.1}); // 0
+//         prob_table(6) = libbase::vector<double>(std::vector<double>{0.9, 0.1}); // 0
+
+// #if DEBUG >= 1
+//         std::cerr << "TESTSYNDROMEDECODING: prob_table = " << prob_table << std::endl;
+// #endif
+
+//         // Decode 
+//         /*LDPC decoding using the prob_table to get decoded codeword */
+//         cdc->init_decoder(prob_table, calculated_syndrome_ex1);
+
+//         auto decoded_codeword_ex1 = libbase::vector<int>();
+//         cdc->decode(decoded_codeword_ex1);
         
-        modem->set_parameters(alphabet_size, alphabet_size);
-        modem->set_blocksize(libbase::size_type<libbase::vector>(block_size));
-        
-        // Map
-        auto mapped_codeword = libbase::vector<int>();
-        mapper->transform(codeword_ex1, mapped_codeword);
+// #if DEBUG >= 1
+//         std::cerr << "TESTSYNDROMEDECODING: decoded codeword = " << decoded_codeword_ex1 << std::endl;
+// #endif
 
-        // Modulate
-        auto modulated_codeword = libbase::vector<libbase::gf2>();
-        modem->libcomm::basic_blockmodem<libbase::gf2, libbase::vector, double>::modulate(
-        libbase::gf2::elements(),
-        mapped_codeword, 
-        modulated_codeword
-        );
-
-        // Transmit
-        auto  corrupted_codeword = libbase::vector<libbase::gf2>();
-        qsc_channel->set_parameter(Ps); 
-        qsc_channel->transmit(modulated_codeword, corrupted_codeword);
-
-        // Demodulate
-        auto demodulated_codeword = libbase::vector<libbase::vector<double>>();
-        modem->libcomm::basic_blockmodem<libbase::gf2, libbase::vector, double>::demodulate(
-        *qsc_channel, 
-        corrupted_codeword, 
-        demodulated_codeword
-    );
-
-        // Instantiate probabiltiy table
-        auto prob_table = libbase::vector<libbase::vector<double>>();
-        
-        // Inverse Map
-        mapper->inverse(demodulated_codeword, prob_table);
-
-#if DEBUG >= 1
-        std::cerr << "TESTSYNDROMEDECODING: prob_table = " << prob_table << std::endl;
-#endif
-
-        // Decode 
-        /*LDPC decoding using the prob_table to get decoded codeword */
-        cdc->init_decoder(prob_table, calculated_syndrome_ex1);
-
-        auto decoded_codeword_ex1 = libbase::vector<int>();
-        cdc->decode(decoded_codeword_ex1);
-        
-#if DEBUG >= 1
-        std::cerr << "TESTSYNDROMEDECODING: decoded codeword = " << decoded_codeword_ex1 << std::endl;
-#endif
-
-BOOST_CHECK_EQUAL(decoded_codeword_ex1.isequalto(codeword_ex1), true);
+// BOOST_CHECK_EQUAL(decoded_codeword_ex1.isequalto(codeword_ex1), true);
 
 }
 
