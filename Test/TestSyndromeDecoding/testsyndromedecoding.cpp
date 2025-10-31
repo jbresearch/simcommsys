@@ -113,6 +113,9 @@ cdc->serialize(cfg);
 */
 
 auto codeword_ex1 = libbase::vector<int>(std::vector<int>{1, 0, 1, 1, 1, 0, 0});
+
+std::cout << "Print first element of int codeword_ex1 = " << codeword_ex1(0) << std::endl;   
+
 const auto expected_syndrome_ex1 = libbase::vector<int>(std::vector<int>{0, 0, 0, 0, 0, 0, 0});
 
 libbase::vector<int> calculated_syndrome_ex1;
@@ -164,43 +167,51 @@ qsc_channel->seedfrom(*rng);
         //                   codeword_ex1,
         //                   prob_table); 
 
+        /* CAUSING A BAD ALOC
         // Transmit codeword through a qsc channel over gf2 -- to resolve a bad alloc here. 
         // const libbase::vector<libbase::gf2> gf2_codeword(codeword_ex1);
 
         libbase::vector<libbase::gf2> gf2_codeword;
-        gf2_codeword.init(codeword_ex1.size());
+        gf2_codeword.init(7);
 
         for (int i = 0; i < codeword_ex1.size(); ++i)
         {
                 gf2_codeword(i) = libbase::gf2(codeword_ex1(i));
         }
         std::cout << "GF2 codeword example 1 = " << gf2_codeword(0) << std::endl;
+         */
 
         // libbase::vector<libbase::gf2> corrupted_codeword;
         // corrupted_codeword.init(7);
-        // qsc_channel->transmit(gf2_codeword, corrupted_codeword);
+        // qsc_channel->transmit(gf2_codeword, corrupted_codeword)
+
+        // LINE 190 is: ALSO NOT WORKING
+        libbase::vector<libbase::gf2> gf2_codeword(std::vector<libbase::gf2>{1, 0, 1, 1, 1, 0, 0});
+
+        std::cout << "Print GF2 codeword which is supposed to be the int version = " << gf2_codeword << std::endl; 
+   
+        // qsc_channel->transmit(gf2_codeword, corrupted_codeword)
 
 // #if DEBUG >= 1
 //         std::cerr << "TESTSYNDROMEDECODING: corrupted codeword = " << corrupted_codeword << std::endl;
 // #endif
 
-//         // Hardcoded Probability Table
-//         // Codeword assumed to be received: 1, 0, 1, 1, 1, 0, 0
-//         // Flip probability Ps =  0
-//         // ** FIX 1: Use default constructor and .init() to avoid bad_alloc **
-//         auto prob_table = libbase::vector<libbase::vector<double>>(7);
-//         //                                     Probability bit is    0 ,  1
-//         prob_table(0) = libbase::vector<double>(std::vector<double>{0.1, 0.9}); // 1
-//         prob_table(1) = libbase::vector<double>(std::vector<double>{0.9, 0.1}); // 0
-//         prob_table(2) = libbase::vector<double>(std::vector<double>{0.1, 0.9}); // 1
-//         prob_table(3) = libbase::vector<double>(std::vector<double>{0.1, 0.9}); // 1
-//         prob_table(4) = libbase::vector<double>(std::vector<double>{0.1, 0.9}); // 1
-//         prob_table(5) = libbase::vector<double>(std::vector<double>{0.9, 0.1}); // 0
-//         prob_table(6) = libbase::vector<double>(std::vector<double>{0.9, 0.1}); // 0
+        // Hardcoded Probability Table
+        // Codeword assumed to be received: 1, 0, 1, 1, 1, 0, 0
+        // Flip probability Ps =  0
+        auto prob_table = libbase::vector<libbase::vector<double>>(7);
+        //                                     Probability bit is    0 ,  1
+        prob_table(0) = libbase::vector<double>(std::vector<double>{0.1, 0.9}); // 1
+        prob_table(1) = libbase::vector<double>(std::vector<double>{0.9, 0.1}); // 0
+        prob_table(2) = libbase::vector<double>(std::vector<double>{0.1, 0.9}); // 1
+        prob_table(3) = libbase::vector<double>(std::vector<double>{0.1, 0.9}); // 1
+        prob_table(4) = libbase::vector<double>(std::vector<double>{0.1, 0.9}); // 1
+        prob_table(5) = libbase::vector<double>(std::vector<double>{0.9, 0.1}); // 0
+        prob_table(6) = libbase::vector<double>(std::vector<double>{0.9, 0.1}); // 0
 
-// #if DEBUG >= 1
-//         std::cerr << "TESTSYNDROMEDECODING: prob_table = " << prob_table << std::endl;
-// #endif
+#if DEBUG >= 1
+        std::cerr << "TESTSYNDROMEDECODING: prob_table = " << prob_table << std::endl;
+#endif
 
 //         // Decode 
 //         /*LDPC decoding using the prob_table to get decoded codeword */
