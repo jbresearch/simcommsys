@@ -6,7 +6,7 @@
  * is a DV-QKD protocol.
  */
 
-#define BOOST_TEST_MODULE BB84Test
+#define BOOST_TEST_MODULE TestSyndromeAddition
 #include <boost/test/included/unit_test.hpp>
 
 #include "serializer_libcomm.h"
@@ -25,6 +25,15 @@
 #   undef DEBUG
 #   define DEBUG 1
 #endif
+
+template <class GFVec>
+void
+print_gf_vector_as_ints(const GFVec& v)
+{
+    for (int i = 0; i < v.size(); ++i)
+        std::cout << int(v(i));
+    std::cout << "\n";
+}
 
 // For Boost Test 1 
 // Step 1: Serialize a codec of LDPC type with the respective matrix I will use.
@@ -101,7 +110,6 @@ auto cdc = std::make_shared<
 
 cdc->serialize(cfg);
 
-
 #if DEBUG >= 1
     std::cout << "TESTSYNDROMEDECODING: Codec Details: " << cdc->description()
               << std::endl;
@@ -130,15 +138,6 @@ codeword_ex1(4) = 1;
 codeword_ex1(5) = 0;
 codeword_ex1(6) = 0;  
 
-
-// std::cout << "Print first element of int codeword_ex1 = " << codeword_ex1(0) << std::endl;   
-// auto alphabet_size = libbase::gf2;
-// const libbase::vector<alphabet_size> gf2_codeword(codeword_ex1);
-
-// std::cout << "Converting from int to gf codeword example 1 = " << 
-
-// std::cout << "COnvert a single bit to gf2: " << libbase::gf2(codeword_ex1(0)) << std::endl; 
-
 const auto expected_syndrome_ex1 = libbase::vector<int>(std::vector<int>{0, 0, 0, 0, 0, 0, 0});
 
 libbase::vector<int> calculated_syndrome_ex1;
@@ -156,70 +155,7 @@ cdc->calculate_syndrome(codeword_ex1, calculated_syndrome_ex1);
 
 BOOST_CHECK_EQUAL(calculated_syndrome_ex1.isequalto(expected_syndrome_ex1), true);
 
-// // Define channel parameters
-// auto qsc_channel = std::make_shared<libcomm::qsc<libbase::gf2>>();
-
-// // Probability of Substitution, Ps
-// double Ps = 0.0; 
-// qsc_channel->set_parameter(Ps);
-
-// // Create rng as a shared_ptr and set the seed.
-// auto rng = std::make_shared<libbase::randgen>();
-// rng->seed(7);
-// // Seed the channel
-// qsc_channel->seedfrom(*rng);
-
-// //     // Seed source generator.
-// //     libbase::randgen r;
-// //     r.seed(2602);
-// //     src->seedfrom(r);
-
-// #if DEBUG >= 1
-//         std::cerr << "TESTSYNDROMEDECODING: Details of Channel: "
-//                   << qsc_channel ->description() << std::endl;
-//         std::cerr << "TESTSYNDROMEDECODING: P_s = " << Ps << std::endl; // To do: ideally you get the channel parameter directly from the channel itself
-// #endif
-
-//         // // Instantiate Embedder. 
-//         // std::shared_ptr<libcomm::block_blind_embedder<double, libbase::vector, double>>
-//         // embedder; // Embedder
-
-//         // // Perform Demodulation to get Probability Table.
-//         // // codeword_ex1 has no errors, pass directly 
-//         // embedder->extract(*demodulation_channel,
-//         //                   codeword_ex1,
-//         //                   prob_table); 
-
-//         /* CAUSING A BAD ALOC
-//         // Transmit codeword through a qsc channel over gf2 -- to resolve a bad alloc here. 
-//         // const libbase::vector<libbase::gf2> gf2_codeword(codeword_ex1);
-
-//         libbase::vector<libbase::gf2> gf2_codeword;
-//         gf2_codeword.init(7);
-
-//         for (int i = 0; i < codeword_ex1.size(); ++i)
-//         {
-//                 gf2_codeword(i) = libbase::gf2(codeword_ex1(i));
-//         }
-//         std::cout << "GF2 codeword example 1 = " << gf2_codeword(0) << std::endl;
-//          */
-
-//         // libbase::vector<libbase::gf2> corrupted_codeword;
-//         // corrupted_codeword.init(7);
-//         // qsc_channel->transmit(gf2_codeword, corrupted_codeword)
-
-//         // LINE 190 is: ALSO NOT WORKING
-//         libbase::vector<libbase::gf2> gf2_codeword(std::vector<libbase::gf2>{1, 0, 1, 1, 1, 0, 0});
-
-//         std::cout << "Print GF2 codeword which is supposed to be the int version = " << gf2_codeword << std::endl; 
-   
-//         // qsc_channel->transmit(gf2_codeword, corrupted_codeword)
-
-// // #if DEBUG >= 1
-// //         std::cerr << "TESTSYNDROMEDECODING: corrupted codeword = " << corrupted_codeword << std::endl;
-// // #endif
-
-        // Hardcoded Probability Table
+        // Probability Table
         // Codeword assumed to be received: 1, 0, 1, 1, 1, 0, 0
         // Flip probability Ps =  0
         auto prob_table = libbase::vector<libbase::vector<double>>(7);
@@ -257,7 +193,7 @@ BOOST_AUTO_TEST_CASE(test_syndrome_decoding_with_errors)
     // Make sure we instantiate everything
     const libcomm::serializer_libcomm my_serializer_libcomm;
 
-    std::cout << "Boost Test 1: Testing Syndrome Decoding for GF2 with 2 Errors" << std::endl;
+    std::cout << "Boost Test 2: Testing Syndrome Decoding for GF2 with 2 Errors" << std::endl;
 
     std::stringstream cfg;
     cfg << R"SS(
@@ -352,15 +288,6 @@ cdc->serialize(cfg);
     // Use push_back to be 100% safe
     auto prob_table = libbase::vector<libbase::vector<double>>(7);
 
-//     // Build table for corrupted word r = [1, 1, 1, 1, 0, 0, 0]
-//     prob_table.push_back(prob_recv_1); // index 0: Received 1
-//     prob_table.push_back(prob_recv_1); // index 1: Received 1
-//     prob_table.push_back(prob_recv_1); // index 2: Received 1
-//     prob_table.push_back(prob_recv_1); // index 3: Received 1
-//     prob_table.push_back(prob_recv_0); // index 4: Received 0
-//     prob_table.push_back(prob_recv_0); // index 5: Received 0
-//     prob_table.push_back(prob_recv_0); // index 6: Received 0
-
     // Build table for corrupted word r = [1, 1, 1, 1, 0, 0, 0]
     prob_table(0) = libbase::vector<double>(prob_recv_1); // 1
     prob_table(1) = libbase::vector<double>(prob_recv_1); // 1
@@ -395,7 +322,7 @@ cdc->serialize(cfg);
 BOOST_AUTO_TEST_CASE(test_syndrome_decoding_with_a_single_error)
 {
     const libcomm::serializer_libcomm my_serializer_libcomm;
-    std::cout << "Boost Test 1: Testing Syndrome Decoding for GF2 with 1 Error" << std::endl;
+    std::cout << "Boost Test 3: Testing Syndrome Decoding for GF2 with 1 Error" << std::endl;
 
     std::stringstream cfg;
     cfg << R"SS(
@@ -508,4 +435,60 @@ ones
 
     // 4. Verify that the decoder recovered the original message
     BOOST_CHECK_EQUAL(decoded_message_u.isequalto(original_message_u), true);
+    std::cout << std::endl;
+}
+
+BOOST_AUTO_TEST_CASE(corrupt_codeword_gf2)
+{
+    std::cout << "Boost Test 4: Corrupt GF2 codeword using a QSC Channel" << std::endl; 
+
+    libbase::vector<libbase::gf2> codeword_gf2;
+    codeword_gf2.init(7);
+    
+    codeword_gf2(0) = 0;
+    codeword_gf2(1) = 1;
+    codeword_gf2(2) = 0;
+    codeword_gf2(3) = 0;
+    codeword_gf2(4) = 0;
+    codeword_gf2(5) = 1;
+    codeword_gf2(6) = 0;
+
+    std::cout << "GF2 codeword before adding noise: " << std::endl; 
+    print_gf_vector_as_ints(codeword_gf2);
+
+    // Define channel parameters
+    auto qsc_channel = std::make_shared<libcomm::qsc<libbase::gf2>>();
+
+    // Probability of Substitution, Ps
+    double Ps = 0.2; 
+    qsc_channel->set_parameter(Ps);
+
+    // Create rng as a shared_ptr and set the seed.
+    auto rng = std::make_shared<libbase::randgen>();
+    rng->seed(7);
+    // Seed the channel
+    qsc_channel->seedfrom(*rng);
+
+#if DEBUG >= 1
+    std::cerr << "TESTSYNDROMEDECODING: Details of QSC Channel: "
+                  << qsc_channel ->description() << std::endl;
+    std::cerr << "TESTSYNDROMEDECODING: P_s = " << Ps << std::endl; // To do: ideally you get the channel parameter directly from the channel itself
+#endif
+
+    libbase::vector<libbase::gf2> corrupted_codeword;
+    corrupted_codeword.init(7);
+    qsc_channel->transmit(codeword_gf2, corrupted_codeword);
+
+    std::cout << "Corrupted GF2 codeword:  " << std::endl; 
+    print_gf_vector_as_ints(corrupted_codeword);
+
+//         // Instantiate Embedder. 
+// std::shared_ptr<libcomm::block_blind_embedder<double, libbase::vector, double>>
+// embedder; // Embedder
+
+// // Perform Demodulation to get Probability Table.
+// // codeword_ex1 has no errors, pass directly 
+// embedder->extract(*demodulation_channel,
+//                   codeword_ex1,
+//                   prob_table); 
 }
