@@ -2,8 +2,21 @@
  * \file
  *
  * Copyright (c) 2025 Aaron Abela
- * \brief Boost unit tests for the BB84 protocol with single polarization which
- * is a DV-QKD protocol.
+ *
+ * This file is part of SimCommSys.
+ *
+ * SimCommSys is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SimCommSys is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #define BOOST_TEST_MODULE TestSyndromeAddition
@@ -18,6 +31,12 @@
 #include "modem/direct_blockmodem.h"
 #include "random.h"
 // #include "blind_embedder/direct_block_blind_embedder.h"
+
+/*!
+ * \brief Boost unit tests to test out syndrome calculations and syndrome decoding. 
+ * This will later be used in the BB84 protocol implementation. 
+ */
+
 
 // Determine debug level:
 // 1 - Normal debug output only
