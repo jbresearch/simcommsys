@@ -461,16 +461,18 @@ BOOST_AUTO_TEST_CASE(corrupt_codeword_gf2)
 {
     std::cout << "Boost Test 4: Corrupt GF2 codeword using a QSC Channel" << std::endl; 
 
-    libbase::vector<libbase::gf2> codeword_gf2;
-    codeword_gf2.init(7);
-    
-    codeword_gf2(0) = 0;
-    codeword_gf2(1) = 1;
-    codeword_gf2(2) = 0;
-    codeword_gf2(3) = 0;
-    codeword_gf2(4) = 0;
-    codeword_gf2(5) = 1;
-    codeword_gf2(6) = 0;
+    libbase::vector<int> codeword_ex1;
+    codeword_ex1.init(7); 
+    codeword_ex1(0) = 1; 
+    codeword_ex1(1) = 0;
+    codeword_ex1(2) = 1; 
+    codeword_ex1(3) = 1;
+    codeword_ex1(4) = 1;  
+    codeword_ex1(5) = 0;
+    codeword_ex1(6) = 0;  
+
+    // Convert codeword_ex1 from int to gf2
+    libbase::vector<libbase::gf2> codeword_gf2 (codeword_ex1);
 
     std::cout << "GF2 codeword before adding noise: " << std::endl; 
     print_gf_vector_as_ints(codeword_gf2);
@@ -479,7 +481,7 @@ BOOST_AUTO_TEST_CASE(corrupt_codeword_gf2)
     auto qsc_channel = std::make_shared<libcomm::qsc<libbase::gf2>>();
 
     // Probability of Substitution, Ps
-    double Ps = 0.2; 
+    double Ps = 0.5; 
     qsc_channel->set_parameter(Ps);
 
     // Create rng as a shared_ptr and set the seed.
@@ -510,4 +512,5 @@ BOOST_AUTO_TEST_CASE(corrupt_codeword_gf2)
 // embedder->extract(*demodulation_channel,
 //                   codeword_ex1,
 //                   prob_table); 
+
 }
