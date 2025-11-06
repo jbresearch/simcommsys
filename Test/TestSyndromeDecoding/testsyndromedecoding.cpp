@@ -452,161 +452,306 @@ std::cout << "TESTSYNDROMEDECODING: Modem Details: " << mdm->description() << st
 #endif
 }
 
-/* Next test to add:
-Test 2a: 
-- Randomly generate a codeword (not the message vector).
-- Calculate the syndrome based on this codeword without noise.
-- Decode codeword without any noise to get the decoded message.
+/* * This single test case combines the logic from your two 'gf2_random_codeword' tests.
+ *
+ * Part 1 (Test 2a): Generates a random codeword, calculates its syndrome,
+ * and decodes it with NO noise.
+ *
+ * Part 2 (Test 2b): Reuses the *same* codeword and syndrome from Part 1,
+ * passes the codeword through a noisy channel, and decodes
+ * it using the original syndrome.
+ *
+ * Finally, it compares the two decoded messages.
+ */
+BOOST_AUTO_TEST_CASE(gf2_random_codeword_comparison)
+{
+    const libcomm::serializer_libcomm my_serializer_libcomm;
+    std::cout << "Boost Test 2a/2b - Generate random GF2 codeword and syndrome decode (no-noise vs. noise) " << std::endl; 
 
-Test 2b: 
-- Pass random codeword through a qsc channel. 
-- Modulate 
-- Demodulate codeword
-- Decoding codeword using original calculated syndrome.
-- Compare decoded message to the decoded message of test 3a. 
-
-Test 3: Repeat test 3 for GFQ e.g. GF16 
-*/
-
-// BOOST_AUTO_TEST_CASE(gf2_victor_with_errors)
-// {
-//     const libcomm::serializer_libcomm my_serializer_libcomm;
-//     // std::cout << "Randomly generate a codeword and calculate syndrome over GF2" << std::endl; 
-
-//     auto cdc = create_ldpc_codec_gf2();
+    auto cdc = create_ldpc_codec_gf2();
     
-// #if DEBUG >= 1
-//     std::cout << "TESTSYNDROMEDECODING: Codec Details: " << cdc->description() << std::endl;
-// #endif
+#if DEBUG >= 1
+    std::cout << "TESTSYNDROMEDECODING: Codec Details: " << cdc->description() << std::endl;
+#endif
 
-//     // Create and seed the random generator
-//     libbase::randgen rng;
-//     const int seed_number = 12345;
-//     rng.seed(seed_number);
+    // Create and seed the random generator
+    libbase::randgen rng;
+    const int seed_number = 12345;
+    rng.seed(seed_number);
 
-//     // Alphabet size 
-//     // const int q = 2;  
-
-//     /* Test 1 - Generates a codeword by encoding a message of size k, Syndrome will be all zeros. 
-//     // Define your desired message length    */
-//     const int k = cdc->input_block_size();
-
-//     // libbase::vector<int> original_message = generate_random_message<int>(k, q, rng);
-//     // print_message("Random message = ", original_message);
-
-//     // Known test from Victor's notes, u = [101], v = [1, 0, 1, 1, 1, 0, 0] - Test 2
-//     libbase::vector<int> original_message;
-//     original_message.init(k); 
-//     original_message(0) = 1; 
-//     original_message(1) = 0;
-//     original_message(2) = 1; 
-
-//     // Encode message to get codeword
-//     const int n = cdc->output_block_size();
-//     libbase::vector<int> generated_codeword(n);
-//     cdc->encode(original_message, generated_codeword);
-//     print_message("Generated codeword = ", generated_codeword);
-
-//     // // Randomly generate a codeword of size n - Test 3 
-//     // const int n = cdc->output_block_size();
-//     // libbase::vector<int> generated_codeword(n);
-//     // generated_codeword = generate_codeword<int>(n, q, rng);
-//     // print_message("Generated codeword = ", generated_codeword);
-
-//     // Calculate syndrome of generated codeword which will be sent over CC
-//     libbase::vector<int> calculated_syndrome(n);
-//     cdc->calculate_syndrome(generated_codeword, calculated_syndrome);
-//     print_message("Generated syndrome = ", calculated_syndrome);
-// // -----------------------------------------------------------------------------
-//     /* Still need to figure out why syndrome is of size n not of size m.  
-//     */
+    // Alphabet size 
+    const int q = 2;
+    const int n = cdc->output_block_size();
     
-//     /* Modulate codeword */
-//     auto mdm = create_modem_gf2();
+    // --- These are the variables you want to share ---
+    libbase::vector<int> generated_codeword(n);
+    libbase::vector<int> calculated_syndrome(n); // Note: Your comment about n vs m is valid. Syndrome size is typically n-k, but codec_coset seems to use n.
+    auto decoded_message_u_no_error = libbase::vector<int>(cdc->input_block_size());
+    // ------------------------------------------------
 
-// #if DEBUG >= 1
-// std::cout << "TESTSYNDROMEDECODING: Modem Details: " << mdm->description() << std::endl;
-// #endif
+    // Create modem and channel (we'll reconfigure the channel for Part 2)
+    auto mdm = create_modem_gf2();
+    mdm->set_blocksize(libbase::size_type<libbase::vector>(n));
+    const int M = mdm->num_symbols();
 
-//     mdm->set_blocksize(libbase::size_type<libbase::vector>(n));
+    auto qsc_channel = std::make_shared<libcomm::qsc<libbase::gf2>>();
 
-//     const int M = mdm->num_symbols(); 
-//     std::cout << "Size M = " << M << std::endl;
 
-//     // 1. Create and initialize the output vector
-//     libbase::vector<libbase::gf2> modulated_codeword(7);
+    // ####################################################################
+    // ## PART 1: No Errors (Your 'gf2_random_codeword_without_errors')
+    // ####################################################################
+    std::cout << "\n--- PART 1: No Noise Test ---" << std::endl;
 
-//     // 2. Call modulate with the 3 required arguments:
-//     //    (int symbol_count, vector<int>& input, vector<gf2>& output)
-//     mdm->modulate(M, generated_codeword, modulated_codeword); 
+    // Randomly generate a codeword of size n
+    generated_codeword = generate_codeword<int>(n, q, rng);
+    print_message("Generated codeword = ", generated_codeword);
 
-// #if DEBUG >= 1
-//     std::cout << "TESTSYNDROMEDECODING: Modulated codeword: " << std::endl;
-//     // Assuming you have a print_message for gf2 or similar
-//     print_gf_vector_as_ints(modulated_codeword); 
-// #endif
+    // Calculate syndrome of generated codeword
+    cdc->calculate_syndrome(generated_codeword, calculated_syndrome);
+    print_message("Generated syndrome = ", calculated_syndrome);
 
-//     /* Transmit codeword through a QSC channel */
-//     // Define channel parameters
-//     auto qsc_channel = std::make_shared<libcomm::qsc<libbase::gf2>>();
+    // Modulate codeword
+    libbase::vector<libbase::gf2> modulated_codeword_p1(n);
+    mdm->modulate(M, generated_codeword, modulated_codeword_p1); 
 
-//     // Probability of Substitution, Ps
-//     double Ps = 0.1; 
-//     qsc_channel->set_parameter(Ps);
+    // Transmit codeword through a QSC channel with Ps = 0.0
+    double Ps_no_error = 0.0; 
+    qsc_channel->set_parameter(Ps_no_error);
+    qsc_channel->seedfrom(rng); // Re-seed for deterministic test
 
-//     // Seed the channel
-//     qsc_channel->seedfrom(rng);
+    libbase::vector<libbase::gf2> received_codeword_p1(n);
+    qsc_channel->transmit(modulated_codeword_p1, received_codeword_p1);
+    std::cout << "Received GF2 codeword (P_s=0.0): "; 
+    print_gf_vector_as_ints(received_codeword_p1);
+ 
+    // Demodulate
+    auto prob_table_p1 = libbase::vector<libbase::vector<double>>(n);
+    mdm->demodulate(*qsc_channel, received_codeword_p1, prob_table_p1);
 
-// #if DEBUG >= 1
-//     std::cerr << "TESTSYNDROMEDECODING: Details of QSC Channel: "
-//                   << qsc_channel ->description() << std::endl;
-//     std::cerr << "TESTSYNDROMEDECODING: P_s = " << Ps << std::endl; // To do: ideally you get the channel parameter directly from the channel itself
-// #endif
+    // Seed and decode
+    cdc->seedfrom(rng); // Re-seed for deterministic test
+    cdc->init_decoder(prob_table_p1, calculated_syndrome);
+    cdc->decode(decoded_message_u_no_error);
 
-//     libbase::vector<libbase::gf2> received_codeword(7);
-//     qsc_channel->transmit(modulated_codeword, received_codeword);
+#if DEBUG >= 1
+    std::cout << "TESTSYNDROMEDECODING: Decoded message u (no error): "
+              << decoded_message_u_no_error << std::endl;
+#endif
 
-//     std::cout << "Received GF2 codeword:  " << std::endl; 
-//     print_gf_vector_as_ints(received_codeword);
-  
-//     // Initialise probability table.
-//     auto prob_table = libbase::vector<libbase::vector<double>>(n);
+    // ####################################################################
+    // ## PART 2: With Errors (Your 'gf2_random_codeword_with_errors')
+    // ####################################################################
+    std::cout << "\n--- PART 2: With Noise Test ---" << std::endl;
 
-//     /* Demodulate the received codeword */
-//     mdm->demodulate(*qsc_channel, received_codeword, prob_table);
+    // We REUSE 'generated_codeword' and 'calculated_syndrome' from Part 1.
+    print_message("Reusing generated codeword = ", generated_codeword);
+    print_message("Reusing calculated syndrome = ", calculated_syndrome);
 
-// #if DEBUG >= 1
-//     std::cout << "TESTSYNDROMEDECODING: Probability Table: "
-//                   << prob_table << std::endl;
-// #endif
+    // Modulate codeword (same as before)
+    libbase::vector<libbase::gf2> modulated_codeword_p2(n);
+    mdm->modulate(M, generated_codeword, modulated_codeword_p2); 
 
-//     // Seed the codec
-//     cdc->seedfrom(rng);
+#if DEBUG >= 1
+    std::cout << "TESTSYNDROMEDECODING: Modulated codeword (for noisy channel): " << std::endl;
+    print_gf_vector_as_ints(modulated_codeword_p2); 
+#endif
 
-//     /* Decode the demodulated codeword to get the message using the original syndrome*/
-//     cdc->init_decoder(prob_table, calculated_syndrome);
+    // Transmit codeword through a QSC channel with Ps = 0.1
+    double Ps_with_error = 0.1; 
+    qsc_channel->set_parameter(Ps_with_error);
+    qsc_channel->seedfrom(rng); // Re-seed for deterministic test
 
-//     auto decoded_message_u = libbase::vector<int>(cdc->input_block_size());
-//     cdc->decode(decoded_message_u);
+#if DEBUG >= 1
+    std::cerr << "TESTSYNDROMEDECODING: Details of QSC Channel: "
+              << qsc_channel ->description() << std::endl;
+    std::cerr << "TESTSYNDROMEDECODING: P_s = " << Ps_with_error << std::endl;
+#endif
 
-// #if DEBUG >= 1
-//     std::cout << "TESTSYNDROMEDECODING: Decoded message u: "
-//                   << decoded_message_u << std::endl;
-// #endif
+    libbase::vector<libbase::gf2> received_codeword_p2(n);
+    qsc_channel->transmit(modulated_codeword_p2, received_codeword_p2);
 
-//     /* Validation of result */
-//     libbase::vector<int> validation_codeword(n);
-//     cdc->encode(decoded_message_u, validation_codeword);
-//     print_message("Validation codeword = ", validation_codeword);
+    std::cout << "Received GF2 codeword (P_s=0.1): "; 
+    print_gf_vector_as_ints(received_codeword_p2);
+ 
+    // Demodulate
+    auto prob_table_p2 = libbase::vector<libbase::vector<double>>(n);
+    mdm->demodulate(*qsc_channel, received_codeword_p2, prob_table_p2);
 
-//     // Compute number of errors using hamming distance
-//     int num_errors =  libbase::hamming(original_message, decoded_message_u);
+#if DEBUG >= 1
+    std::cout << "TESTSYNDROMEDECODING: Probability Table (noisy): "
+              << prob_table_p2 << std::endl;
+#endif
+
+    // Seed and decode
+    cdc->seedfrom(rng); // Re-seed for deterministic test
     
-// #if DEBUG >= 1
-//     std::cout << "TESTSYNDROMEDECODING: Validating Result " << std::endl;
-//     std::cout << "TESTSYNDROMEDECODING: Encode decoded message: " << validation_codeword << std::endl;
-//     std::cout << "TESTSYNDROMEDECODING: Number of errors between original and decoded messages: " << num_errors <<  std::endl;
-// #endif
+    // Key Step: Use the prob_table from the noisy channel, but the
+    // syndrome calculated from the *original* noiseless codeword.
+    cdc->init_decoder(prob_table_p2, calculated_syndrome);
 
-// }
+    auto decoded_message_u_with_error = libbase::vector<int>(cdc->input_block_size());
+    cdc->decode(decoded_message_u_with_error);
 
+#if DEBUG >= 1
+    std::cout << "TESTSYNDROMEDECODING: Decoded message u (with error): "
+              << decoded_message_u_with_error << std::endl;
+#endif
+
+    // ####################################################################
+    // ## PART 3: Comparison
+    // ####################################################################
+    std::cout << "\n--- PART 3: Comparison ---" << std::endl;
+    
+    // Compute number of errors between the two decoded messages
+    int num_errors = libbase::hamming(decoded_message_u_no_error, decoded_message_u_with_error);
+    
+#if DEBUG >= 1
+    std::cout << "TESTSYNDROMEDECODING: Validating Result " << std::endl;
+    std::cout << "TESTSYNDROMEDECODING: Decoded message (no error): " << decoded_message_u_no_error << std::endl;
+    std::cout << "TESTSYNDROMEDECODING: Decoded message (with error): " << decoded_message_u_with_error << std::endl;
+    std::cout << "TESTSYNDROMEDECODING: Number of errors between decoded messages: " << num_errors << std::endl;
+#endif
+
+    // Add a Boost check to make the test pass or fail
+    // In this case, with a seed and Ps=0.1, it's possible the decoder
+    // *fails* to correct the error, so the messages might be different.
+    // Or, it might succeed, and they'll be the same.
+    // For this seed (12345), let's see what happens.
+    //
+    // Received (Ps=0.0): 1010100
+    // Received (Ps=0.1): 1010110  <- Error at index 5
+    //
+    // If the decoder is working, it should correct this error, and
+    // num_errors should be 0.
+    
+    BOOST_CHECK_EQUAL(num_errors, 0); // Assert that the syndrome decoding successfully corrected the channel errors.
+}
+
+/* * This test case runs the entire simulation in a loop 100 times, 
+ * using a different seed for each run.
+ *
+ * It counts the number of times the decoder SUCCEEDS (correctly
+ * decodes the message despite noise) and the number of times it
+ * FAILS (the noise causes a decoding error).
+ */
+BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
+{
+    const libcomm::serializer_libcomm my_serializer_libcomm;
+    std::cout << "Boost Test 3 - Looping syndrome decode 100 times" << std::endl; 
+
+    auto cdc = create_ldpc_codec_gf2();
+    auto mdm = create_modem_gf2();
+    auto qsc_channel = std::make_shared<libcomm::qsc<libbase::gf2>>();
+
+    // Create and seed the random generator
+    libbase::randgen rng;
+    const int base_seed_number = 12345; // Starting seed
+
+    // Alphabet size 
+    const int q = 2;
+    const int n = cdc->output_block_size();
+    
+    mdm->set_blocksize(libbase::size_type<libbase::vector>(n));
+    const int M = mdm->num_symbols();
+
+    int num_successes = 0;
+    int num_failures = 0;
+    const int TOTAL_RUNS = 100;
+
+    for (int i = 0; i < TOTAL_RUNS; ++i) 
+    {
+        // --- Each loop gets a new, unique seed ---
+        const int current_seed = base_seed_number + i;
+        rng.seed(current_seed);
+        
+        // --- THIS IS THE LINE I ADDED ---
+        std::cout << "\n--- RUN " << i << " (Seed: " << current_seed << ") ---" << std::endl;
+
+        // --- These are the variables for this loop iteration ---
+        libbase::vector<int> generated_codeword(n);
+        libbase::vector<int> calculated_syndrome(n);
+        auto decoded_message_u_no_error = libbase::vector<int>(cdc->input_block_size());
+        auto decoded_message_u_with_error = libbase::vector<int>(cdc->input_block_size());
+
+        // ####################################################################
+        // ## PART 1: No Errors (Establish Ground Truth)
+        // ####################################################################
+        
+        generated_codeword = generate_codeword<int>(n, q, rng);
+        cdc->calculate_syndrome(generated_codeword, calculated_syndrome);
+
+        // Modulate -> Channel (Ps=0) -> Demodulate
+        libbase::vector<libbase::gf2> modulated_codeword_p1(n);
+        mdm->modulate(M, generated_codeword, modulated_codeword_p1); 
+        
+        qsc_channel->set_parameter(0.0);
+        qsc_channel->seedfrom(rng);
+        
+        libbase::vector<libbase::gf2> received_codeword_p1(n);
+        qsc_channel->transmit(modulated_codeword_p1, received_codeword_p1);
+    
+        auto prob_table_p1 = libbase::vector<libbase::vector<double>>(n);
+        mdm->demodulate(*qsc_channel, received_codeword_p1, prob_table_p1);
+
+        // Decode
+        cdc->seedfrom(rng);
+        cdc->init_decoder(prob_table_p1, calculated_syndrome);
+        cdc->decode(decoded_message_u_no_error);
+        
+        print_message("Part 1: Decoded message (no error) = ", decoded_message_u_no_error);
+
+
+        // ####################################################################
+        // ## PART 2: With Errors (Run Noisy Test)
+        // ####################################################################
+
+        // Modulate -> Channel (Ps=0.1) -> Demodulate
+        libbase::vector<libbase::gf2> modulated_codeword_p2(n);
+        mdm->modulate(M, generated_codeword, modulated_codeword_p2); 
+
+        double Ps_with_error = 0.1; 
+        qsc_channel->set_parameter(Ps_with_error);
+        qsc_channel->seedfrom(rng);
+
+        libbase::vector<libbase::gf2> received_codeword_p2(n);
+        qsc_channel->transmit(modulated_codeword_p2, received_codeword_p2);
+
+        auto prob_table_p2 = libbase::vector<libbase::vector<double>>(n);
+        mdm->demodulate(*qsc_channel, received_codeword_p2, prob_table_p2);
+    
+        // Decode (using original syndrome)
+        cdc->seedfrom(rng);
+        cdc->init_decoder(prob_table_p2, calculated_syndrome);
+        cdc->decode(decoded_message_u_with_error);
+
+        print_message("Part 2: Decoded message (with error) = ", decoded_message_u_with_error);
+
+        // ####################################################################
+        // ## PART 3: Comparison
+        // ####################################################################
+        int num_errors = libbase::hamming(decoded_message_u_no_error, decoded_message_u_with_error);
+        
+        if (num_errors == 0) {
+            std::cout << ">>> RESULT: SUCCESS (Messages match)" << std::endl;
+            num_successes++;
+        } else {
+            std::cout << ">>> RESULT: FAILURE (Errors: " << num_errors << ")" << std::endl;
+            num_failures++;
+        }
+    }
+
+    // ####################################################################
+    // ## FINAL RESULTS
+    // ####################################################################
+    std::cout << "\n\n--- FINAL SIMULATION RESULTS ---" << std::endl;
+    std::cout << "Total Runs:  " << TOTAL_RUNS << std::endl;
+    std::cout << "Successes:   " << num_successes << std::endl;
+    std::cout << "Failures:    " << num_failures << std::endl;
+    
+    // This is the new "test". We check that our simulation ran 
+    // and that we got a mix of successes and failures, 
+    // which proves the whole system is working.
+    BOOST_CHECK_EQUAL(num_successes + num_failures, TOTAL_RUNS);
+    BOOST_CHECK(num_successes > 0); // Check that the decoder *can* succeed
+    BOOST_CHECK(num_failures > 0);  // Check that the channel *does* cause errors
+}
