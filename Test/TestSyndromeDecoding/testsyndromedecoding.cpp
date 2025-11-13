@@ -1040,7 +1040,9 @@ BOOST_AUTO_TEST_CASE(gf64_random_codeword_loop)
         const int current_seed = base_seed_number + i;
         rng.seed(current_seed);
         
+#if DEBUG >= 2
         std::cout << "\n--- RUN " << i << " (Seed: " << current_seed << ") ---" << std::endl;
+#endif
 
         // --- These are the variables for this loop iteration ---
         libbase::vector<int> generated_codeword(n);
@@ -1073,7 +1075,7 @@ BOOST_AUTO_TEST_CASE(gf64_random_codeword_loop)
         cdc->init_decoder(prob_table_p1, calculated_syndrome);
         cdc->decode(decoded_message_u_no_error);
 
-#if DEBUG >= 1
+#if DEBUG >= 2
     std::cout << "TESTSYNDROMEDECODING: Decoded message u (no error): "
               << decoded_message_u_no_error << std::endl;
 #endif
@@ -1090,7 +1092,7 @@ BOOST_AUTO_TEST_CASE(gf64_random_codeword_loop)
         double Ps_with_error = 0.05; // 5% noise 
         // double Ps_with_error = 0.02; // 2% noise 
 
-#if DEBUG >= 1
+#if DEBUG >= 2
     std::cout << "TESTSYNDROMEDECODING: Ps = "
               << Ps_with_error << std::endl;
 #endif
@@ -1110,7 +1112,7 @@ BOOST_AUTO_TEST_CASE(gf64_random_codeword_loop)
         cdc->init_decoder(prob_table_p2, calculated_syndrome);
         cdc->decode(decoded_message_u_with_error);
 
-#if DEBUG >= 1
+#if DEBUG >= 2
     std::cout << "TESTSYNDROMEDECODING: Decoded message (with error): "
               << decoded_message_u_with_error << std::endl;
 #endif
@@ -1121,10 +1123,14 @@ BOOST_AUTO_TEST_CASE(gf64_random_codeword_loop)
         int num_errors = libbase::hamming(decoded_message_u_no_error, decoded_message_u_with_error);
         
         if (num_errors == 0) {
+#if DEBUG >= 2
             std::cout << ">>> RESULT: SUCCESS (Messages match)" << std::endl;
+#endif
             num_successes++;
         } else {
+#if DEBUG >= 2
             std::cout << ">>> RESULT: FAILURE (Errors: " << num_errors << ")" << std::endl;
+#endif
             num_failures++;
         }
     }
