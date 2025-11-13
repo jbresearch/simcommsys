@@ -42,6 +42,7 @@
 
 // Determine debug level:
 // 1 - Normal debug output only
+// 2 - Print intermediate outputs within loop
 #ifndef NDEBUG
 #   undef DEBUG
 #   define DEBUG 1
@@ -334,11 +335,6 @@ BOOST_AUTO_TEST_CASE(gf2_victor_example_no_errors)
     cdc->encode(original_message, generated_codeword);
     print_message("Generated codeword = ", generated_codeword);
 
-    // Calculate syndrome of generated codeword which will be sent over c. channel
-    libbase::vector<int> calculated_syndrome;
-    cdc->calculate_syndrome(generated_codeword, calculated_syndrome);
-    print_message("Generated syndrome = ", calculated_syndrome);
-
     /* Modulate codeword */
     auto mdm = create_modem_gf2();
 
@@ -401,7 +397,7 @@ std::cout << "TESTSYNDROMEDECODING: Modem Details: " << mdm->description() << st
     cdc->seedfrom(rng);
 
     /* Decode the demodulated codeword to get the message using the original syndrome*/
-    cdc->init_decoder(prob_table, calculated_syndrome);
+    cdc->init_decoder(prob_table);
 
     auto decoded_message_u = libbase::vector<int>(cdc->input_block_size());
     cdc->decode(decoded_message_u);
@@ -759,16 +755,18 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
 
     int num_successes = 0;
     int num_failures = 0;
-    const int TOTAL_RUNS = 20;
+    const int TOTAL_RUNS = 100;
 
     for (int i = 0; i < TOTAL_RUNS; ++i) 
     {
         // --- Each loop gets a new, unique seed ---
         const int current_seed = base_seed_number + i;
         rng.seed(current_seed);
-        
-        std::cout << "\n--- RUN " << i << " (Seed: " << current_seed << ") ---" << std::endl;
 
+#if DEBUG >= 2
+    std::cout << "\n--- RUN " << i << " (Seed: " << current_seed << ") ---" << std::endl;
+#endif
+        
         // --- These are the variables for this loop iteration ---
         libbase::vector<int> generated_codeword(n);
         libbase::vector<int> calculated_syndrome;
@@ -800,7 +798,7 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
         cdc->init_decoder(prob_table_p1, calculated_syndrome);
         cdc->decode(decoded_message_u_no_error);
 
-#if DEBUG >= 1
+#if DEBUG >= 2
     std::cout << "TESTSYNDROMEDECODING: Decoded message u (no error): "
               << decoded_message_u_no_error << std::endl;
 #endif
@@ -818,7 +816,7 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
         // double Ps_with_error = 0.02; // 2% noise 
         // double Ps_with_error = 0.01; // 1% noise 
 
-#if DEBUG >= 1
+#if DEBUG >= 2
     std::cout << "TESTSYNDROMEDECODING: Ps = "
               << Ps_with_error << std::endl;
 #endif
@@ -838,7 +836,7 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
         cdc->init_decoder(prob_table_p2, calculated_syndrome);
         cdc->decode(decoded_message_u_with_error);
 
-#if DEBUG >= 1
+#if DEBUG >= 2
     std::cout << "TESTSYNDROMEDECODING: Decoded message (with error): "
               << decoded_message_u_with_error << std::endl;
 #endif
@@ -846,15 +844,20 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
         // ####################################################################
         // ## PART 3: Comparison
         // ####################################################################
-        int num_errors = libbase::hamming(decoded_message_u_no_error, decoded_message_u_with_error);
         
+        int num_errors = libbase::hamming(decoded_message_u_no_error, decoded_message_u_with_error);
+
         if (num_errors == 0) {
-            std::cout << ">>> RESULT: SUCCESS (Messages match)" << std::endl;
-            num_successes++;
-        } else {
-            std::cout << ">>> RESULT: FAILURE (Errors: " << num_errors << ")" << std::endl;
-            num_failures++;
-        }
+#if DEBUG >= 2
+                std::cout << ">>> RESULT: SUCCESS (Messages match)" << std::endl;
+#endif
+                num_successes++;
+            } else {
+#if DEBUG >= 2
+                std::cout << ">>> RESULT: FAILURE (Errors: " << num_errors << ")" << std::endl;
+#endif
+                num_failures++;
+            }
     }
 
     // ####################################################################

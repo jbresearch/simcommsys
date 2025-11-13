@@ -33,6 +33,7 @@
 
 // Determine debug level:
 // 1 - Normal debug output only
+// 2 - Show set_syndrome
 #ifndef NDEBUG
 #    undef DEBUG
 #    define DEBUG 1
@@ -138,7 +139,7 @@ public:
 
         this->syndrome.copyfrom(syndrome);
 
-#if DEBUG >= 1
+#if DEBUG >= 2
         libbase::trace << "sum_prod_alg::set_syndrome: " << this->syndrome;
 #endif
     }
