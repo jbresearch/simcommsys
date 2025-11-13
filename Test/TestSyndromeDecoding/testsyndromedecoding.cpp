@@ -749,7 +749,15 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
     // Alphabet size 
     const int q = 2;
     const int n = cdc->output_block_size();
-    
+
+    // Probability of substitution 
+    double Ps_with_error = 0.1; // 10% errors
+
+#if DEBUG >= 2
+    std::cout << "TESTSYNDROMEDECODING: Ps = "
+              << Ps_with_error << std::endl;
+#endif
+
     mdm->set_blocksize(libbase::size_type<libbase::vector>(n));
     const int M = mdm->num_symbols();
 
@@ -810,16 +818,6 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
         // Modulate -> Channel (Ps=0.1) -> Demodulate
         libbase::vector<libbase::gf2> modulated_codeword_p2(n);
         mdm->modulate(M, generated_codeword, modulated_codeword_p2); 
-
-        double Ps_with_error = 0.1; // 10% errors
-        // double Ps_with_error = 0.05; // 5% noise 
-        // double Ps_with_error = 0.02; // 2% noise 
-        // double Ps_with_error = 0.01; // 1% noise 
-
-#if DEBUG >= 2
-    std::cout << "TESTSYNDROMEDECODING: Ps = "
-              << Ps_with_error << std::endl;
-#endif
 
         qsc_channel->set_parameter(Ps_with_error);
         qsc_channel->seedfrom(rng);
@@ -1026,13 +1024,21 @@ BOOST_AUTO_TEST_CASE(gf64_random_codeword_loop)
     const int q = 64;
     const int n = cdc->output_block_size();
     // const int k = cdc->input_block_size();
+
+    // Probability of Error
+    double Ps_with_error = 0.1/6; // 5% noise 
+
+#if DEBUG >= 1
+    std::cout << "TESTSYNDROMEDECODING: Ps = "
+              << Ps_with_error << std::endl;
+#endif
     
     mdm->set_blocksize(libbase::size_type<libbase::vector>(n));
     const int M = mdm->num_symbols();
 
     int num_successes = 0;
     int num_failures = 0;
-    const int TOTAL_RUNS = 20;
+    const int TOTAL_RUNS = 100;
 
     for (int i = 0; i < TOTAL_RUNS; ++i) 
     {
@@ -1087,15 +1093,6 @@ BOOST_AUTO_TEST_CASE(gf64_random_codeword_loop)
         // Modulate -> Channel (Ps=0.1) -> Demodulate
         libbase::vector<libbase::gf64> modulated_codeword_p2(n);
         mdm->modulate(M, generated_codeword, modulated_codeword_p2); 
-
-        // double Ps_with_error = 0.1; // 10% noise 
-        double Ps_with_error = 0.05; // 5% noise 
-        // double Ps_with_error = 0.02; // 2% noise 
-
-#if DEBUG >= 2
-    std::cout << "TESTSYNDROMEDECODING: Ps = "
-              << Ps_with_error << std::endl;
-#endif
 
         qsc_channel->set_parameter(Ps_with_error);
         qsc_channel->seedfrom(rng);
