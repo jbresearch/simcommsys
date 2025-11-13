@@ -96,34 +96,34 @@ zero
 # Length (n)
 7
 # Dimension (m)
-7
+4
 # Max column weight
 3
 # Max row weight
-3
+4
 # Non-zero values (ones|random|provided)
 ones
 # Column weight vector
 7
-3 3 3 3 3 3 3
+3 3 3 1 1 1 1
 # Row weight vector
-7
-3 3 3 3 3 3 3
+4
+3 3 4 3
 # Non zero positions per col
-3
-1 5 7
-3
-1 2 6
-3
-2 3 7
 3
 1 3 4
 3
-2 4 5
+1 2 3
 3
-3 5 6
+2 3 4
+1
+1
+1
+2
+1 
 3
-4 6 7
+1
+4
 )SS";
 
     auto cdc = std::make_shared<libcomm::ldpc<libbase::gf2, double>>();
