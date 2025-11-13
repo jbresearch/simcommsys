@@ -844,7 +844,7 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
         // ####################################################################
         // ## PART 3: Comparison
         // ####################################################################
-        
+
         int num_errors = libbase::hamming(decoded_message_u_no_error, decoded_message_u_with_error);
 
         if (num_errors == 0) {
@@ -915,11 +915,6 @@ BOOST_AUTO_TEST_CASE(gf64_encoded_codeword_comparison)
     std::cout << "TESTSYNDROMEDECODING: Generated codeword: " << generated_codeword << std::endl;
 #endif
 
-    // Calculate syndrome of generated codeword which will be sent over CC
-    libbase::vector<int> calculated_syndrome; // Size of n-k 
-    cdc->calculate_syndrome(generated_codeword, calculated_syndrome);
-    print_message("Generated syndrome = ", calculated_syndrome);
-
     /* Modulate codeword */
     auto mdm = create_modem_gf64();
 
@@ -983,8 +978,8 @@ std::cout << "TESTSYNDROMEDECODING: Modem Details: " << mdm->description() << st
     // Seed the codec
     cdc->seedfrom(rng);
 
-    /* Decode the demodulated codeword to get the message using the original syndrome*/
-    cdc->init_decoder(prob_table, calculated_syndrome);
+    /* Decode the demodulated codeword to get the message using the original zero syndrome*/
+    cdc->init_decoder(prob_table);
 
     auto decoded_message_u = libbase::vector<int>(cdc->input_block_size());
     cdc->decode(decoded_message_u);
