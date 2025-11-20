@@ -466,14 +466,6 @@ BOOST_AUTO_TEST_CASE(gf2_victor_with_errors)
 std::cout << "TESTSYNDROMEDECODING: Generate codeword: " << generated_codeword << std::endl;
 #endif
 
-    // Calculate syndrome of generated codeword which will be sent over CC
-    libbase::vector<int> calculated_syndrome;
-    cdc->calculate_syndrome(generated_codeword, calculated_syndrome);
-
-#if DEBUG >= 1
-std::cout << "TESTSYNDROMEDECODING: Generated syndrome: " << calculated_syndrome << std::endl;
-#endif
-
     /* Modulate codeword */
 
     // Create modem 
@@ -536,8 +528,8 @@ std::cout << "TESTSYNDROMEDECODING: Modem Details: " << mdm->description() << st
     // Seed the codec
     cdc->seedfrom(rng);
 
-    /* Decode the demodulated codeword to get the message using the original syndrome*/
-    cdc->init_decoder(prob_table, calculated_syndrome);
+    /* Decode the demodulated codeword to get the decoded message using an all zero syndrome*/
+    cdc->init_decoder(prob_table);
 
     auto decoded_message_u = libbase::vector<int>(cdc->input_block_size());
     cdc->decode(decoded_message_u);
@@ -557,7 +549,7 @@ std::cout << "TESTSYNDROMEDECODING: Modem Details: " << mdm->description() << st
     // Check that the decoded and original messages are the same 
     BOOST_CHECK_EQUAL(num_errors, 0); 
 }
-    
+
 BOOST_AUTO_TEST_CASE(gf2_random_codeword_comparison)
 {
 /* * This single test case combines the logic from the two 'gf2_random_codeword' tests.
@@ -735,7 +727,7 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_comparison)
 BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
 {
     const libcomm::serializer_libcomm my_serializer_libcomm;
-    std::cout << std::endl << "******* Boost Test 3 - Looping syndrome decode n times over GF2 *******" << std::endl; 
+    std::cout << std::endl << "******* Boost Test 3 - Looping non-zero syndrome decode n times over GF2 *******" << std::endl; 
 
     auto cdc = create_ldpc_codec_gf2();
     auto mdm = create_modem_gf2();
