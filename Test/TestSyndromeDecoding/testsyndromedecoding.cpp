@@ -289,6 +289,34 @@ libbase::vector<T> generate_codeword(int n, uint32_t m, libbase::randgen& rng)
     return codeword;
 }
 
+// ===========================================================================
+//  TEST FIXTURE (This replaces creating RNG in every test)
+// ===========================================================================
+
+struct SimulationFixture {
+    libbase::randgen rng;
+
+    SimulationFixture() {
+        // Set the seed ONCE here. 
+        // This executes before the test suite starts.
+        const int GLOBAL_SEED = 12345;
+        rng.seed(GLOBAL_SEED);
+        std::cout << ">>> Global RNG initialized with seed: " << GLOBAL_SEED << " <<<" << std::endl;
+    }
+
+    ~SimulationFixture() {
+        // Cleanup if necessary (not needed for randgen)
+    }
+};
+
+// ===========================================================================
+//  TEST SUITE
+// ===========================================================================
+
+// This macro wraps all tests below in the SimulationFixture context.
+// "rng" is now directly available in every test case.
+BOOST_FIXTURE_TEST_SUITE(SyndromeTests, SimulationFixture)
+
 BOOST_AUTO_TEST_CASE(gf2_victor_example_no_errors)
 {
     /* Test 1a - Generates a codeword by encoding a message of size k.
@@ -304,18 +332,12 @@ BOOST_AUTO_TEST_CASE(gf2_victor_example_no_errors)
 
     // Create LDPC codec over GF2 
     auto cdc = create_ldpc_codec_gf2();
+    const int k = cdc->input_block_size();
+    const int n = cdc->output_block_size();
     
 #if DEBUG >= 1
     std::cout << "TESTSYNDROMEDECODING: Codec Details: " << cdc->description() << std::endl;
 #endif
-
-    // Create and seed the random generator
-    libbase::randgen rng;
-    const int seed_number = 12345;
-    rng.seed(seed_number);
-   
-
-    const int k = cdc->input_block_size();
 
     /* Known test from Victor's notes, u = [101], v = [1, 0, 1, 1, 1, 0, 0]
     without errors */
@@ -323,17 +345,19 @@ BOOST_AUTO_TEST_CASE(gf2_victor_example_no_errors)
     original_message.init(k); 
     original_message(0) = 1; 
     original_message(1) = 0;
-    original_message(2) = 1; 
+    original_message(2) = 1;
 
 #if DEBUG >= 1
     std::cout << "TESTSYNDROMEDECODING: Original Message: " << original_message << std::endl;
 #endif
 
     // Encode message to get codeword
-    const int n = cdc->output_block_size();
     libbase::vector<int> generated_codeword(n);
     cdc->encode(original_message, generated_codeword);
-    print_message("Generated codeword = ", generated_codeword);
+
+#if DEBUG >= 1
+    std::cout << "TESTSYNDROMEDECODING: Generated codeword: " << generated_codeword << std::endl;
+#endif
 
     /* Modulate codeword */
     auto mdm = create_modem_gf2();
@@ -343,7 +367,6 @@ std::cout << "TESTSYNDROMEDECODING: Modem Details: " << mdm->description() << st
 #endif
 
     mdm->set_blocksize(libbase::size_type<libbase::vector>(n));
-
     const int M = mdm->num_symbols(); 
     std::cout << "Size M = " << M << std::endl;
 
@@ -368,6 +391,7 @@ std::cout << "TESTSYNDROMEDECODING: Modem Details: " << mdm->description() << st
     qsc_channel->set_parameter(Ps);
 
     // Seed the channel
+    // Pass the Global RNG from Fixture
     qsc_channel->seedfrom(rng);
 
 #if DEBUG >= 1
@@ -376,7 +400,7 @@ std::cout << "TESTSYNDROMEDECODING: Modem Details: " << mdm->description() << st
     std::cerr << "TESTSYNDROMEDECODING: P_s = " << Ps << std::endl; // To do: ideally you get the channel parameter directly from the channel itself
 #endif
 
-    libbase::vector<libbase::gf2> received_codeword(7);
+    libbase::vector<libbase::gf2> received_codeword(n);
     qsc_channel->transmit(modulated_codeword, received_codeword);
 
     std::cout << "Received GF2 codeword:  " << std::endl; 
@@ -394,6 +418,7 @@ std::cout << "TESTSYNDROMEDECODING: Modem Details: " << mdm->description() << st
 #endif
 
     // Seed the codec
+    // Pass the Global RNG from Fixture
     cdc->seedfrom(rng);
 
     /* Decode the demodulated codeword to get the message using the original syndrome*/
@@ -434,17 +459,12 @@ BOOST_AUTO_TEST_CASE(gf2_victor_with_errors)
 
     // Create codec
     auto cdc = create_ldpc_codec_gf2();
+    const int k = cdc->input_block_size();
+    const int n = cdc->output_block_size();
     
 #if DEBUG >= 1
     std::cout << "TESTSYNDROMEDECODING: Codec Details: " << cdc->description() << std::endl;
 #endif
-
-    // Create and seed the random generator
-    libbase::randgen rng;
-    const int seed_number = 12345;
-    rng.seed(seed_number);
-
-    const int k = cdc->input_block_size();
 
     // Known test from Victor's notes, u = [101], v = [1, 0, 1, 1, 1, 0, 0]
     libbase::vector<int> original_message;
@@ -458,12 +478,11 @@ BOOST_AUTO_TEST_CASE(gf2_victor_with_errors)
 #endif
 
     // Encode message to get codeword
-    const int n = cdc->output_block_size();
     libbase::vector<int> generated_codeword(n);
     cdc->encode(original_message, generated_codeword);
 
 #if DEBUG >= 1
-std::cout << "TESTSYNDROMEDECODING: Generate codeword: " << generated_codeword << std::endl;
+std::cout << "TESTSYNDROMEDECODING: Generated codeword: " << generated_codeword << std::endl;
 #endif
 
     /* Modulate codeword */
@@ -509,7 +528,7 @@ std::cout << "TESTSYNDROMEDECODING: Modem Details: " << mdm->description() << st
     std::cerr << "TESTSYNDROMEDECODING: P_s = " << Ps << std::endl; 
 #endif
 
-    libbase::vector<libbase::gf2> received_codeword(7);
+    libbase::vector<libbase::gf2> received_codeword(n);
     qsc_channel->transmit(modulated_codeword, received_codeword);
     std::cout << "Received Corrupted GF2 codeword:  " << std::endl; 
     print_gf_vector_as_ints(received_codeword);
@@ -526,6 +545,7 @@ std::cout << "TESTSYNDROMEDECODING: Modem Details: " << mdm->description() << st
 #endif
 
     // Seed the codec
+    // Pass Global RNG
     cdc->seedfrom(rng);
 
     /* Decode the demodulated codeword to get the decoded message using an all zero syndrome*/
@@ -568,20 +588,14 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_comparison)
     std::cout << std::endl << "******* Boost Test 2a/2b - Generate random GF2 codeword and syndrome decode (no-noise vs. noise) *******" << std::endl; 
 
     auto cdc = create_ldpc_codec_gf2();
+    // Alphabet size 
+    const int q = 2;
+    const int n = cdc->output_block_size();
     
 #if DEBUG >= 1
     std::cout << "TESTSYNDROMEDECODING: Codec Details: " << cdc->description() << std::endl;
 #endif
 
-    // Create and seed the random generator
-    libbase::randgen rng;
-    const int seed_number = 12345;
-    rng.seed(seed_number);
-
-    // Alphabet size 
-    const int q = 2;
-    const int n = cdc->output_block_size();
-    
     // These are the variables that will be shared
     libbase::vector<int> generated_codeword(n);
     libbase::vector<int> calculated_syndrome; 
@@ -619,6 +633,7 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_comparison)
     // Transmit codeword through a QSC channel with Ps = 0.0
     double Ps_no_error = 0.0; 
     qsc_channel->set_parameter(Ps_no_error);
+    // Pass Global RNG
     qsc_channel->seedfrom(rng); 
 
     libbase::vector<libbase::gf2> received_codeword_p1(n);
@@ -633,7 +648,8 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_comparison)
     mdm->demodulate(*qsc_channel, received_codeword_p1, prob_table_p1);
 
     // Seed and decode
-    cdc->seedfrom(rng); // Re-seed for deterministic test
+    // Pass Global RNG
+    cdc->seedfrom(rng); 
     cdc->init_decoder(prob_table_p1, calculated_syndrome);
     cdc->decode(decoded_message_u_no_error);
 
@@ -732,12 +748,7 @@ BOOST_AUTO_TEST_CASE(gf2_random_message_zero_syndrome_loop)
     auto cdc = create_ldpc_codec_gf2();
     auto mdm = create_modem_gf2();
     auto qsc_channel = std::make_shared<libcomm::qsc<libbase::gf2>>();
-
-    // Create and seed the random generator
-    libbase::randgen rng;
-    // Starting seed
-    const int base_seed_number = 12345; 
-
+    
     // Alphabet size 
     const int q = 2;
     const int n = cdc->output_block_size();
@@ -760,12 +771,8 @@ BOOST_AUTO_TEST_CASE(gf2_random_message_zero_syndrome_loop)
 
     for (int i = 0; i < TOTAL_RUNS; ++i) 
     {
-        // --- Each loop gets a new, unique seed ---
-        const int current_seed = base_seed_number + i;
-        rng.seed(current_seed);
-
 #if DEBUG >= 2
-    std::cout << "\n--- RUN " << i << " (Seed: " << current_seed << ") ---" << std::endl;
+    std::cout << "\n--- RUN " << i << std::endl;
 #endif
 
         // Size of original message/information bits
@@ -796,6 +803,7 @@ BOOST_AUTO_TEST_CASE(gf2_random_message_zero_syndrome_loop)
         mdm->modulate(M, generated_codeword, modulated_codeword_p2); 
 
         qsc_channel->set_parameter(Ps_with_error);
+        // Pass GLOBAL seed 
         qsc_channel->seedfrom(rng);
 
         // corrupted codeword 
@@ -806,6 +814,7 @@ BOOST_AUTO_TEST_CASE(gf2_random_message_zero_syndrome_loop)
         mdm->demodulate(*qsc_channel, received_codeword_p2, prob_table_p2);
     
         // Decode (using default zero syndrome decoding)
+        // Pass GLOBAL seed 
         cdc->seedfrom(rng);
         cdc->init_decoder(prob_table_p2);
         cdc->decode(decoded_message);
@@ -862,12 +871,6 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
     auto cdc = create_ldpc_codec_gf2();
     auto mdm = create_modem_gf2();
     auto qsc_channel = std::make_shared<libcomm::qsc<libbase::gf2>>();
-
-    // Create and seed the random generator
-    libbase::randgen rng;
-    // Starting seed
-    const int base_seed_number = 12345; 
-
     // Alphabet size 
     const int q = 2;
     const int n = cdc->output_block_size();
@@ -890,12 +893,9 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
 
     for (int i = 0; i < TOTAL_RUNS; ++i) 
     {
-        // --- Each loop gets a new, unique seed ---
-        const int current_seed = base_seed_number + i;
-        rng.seed(current_seed);
-
+        // Loop uses the global stream of random numbers.
 #if DEBUG >= 2
-    std::cout << "\n--- RUN " << i << " (Seed: " << current_seed << ") ---" << std::endl;
+    std::cout << "\n--- RUN " << i << std::endl;
 #endif
         
         // --- These are the variables for this loop iteration ---
@@ -916,6 +916,7 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
         mdm->modulate(M, generated_codeword, modulated_codeword_p1); 
         
         qsc_channel->set_parameter(0.0);
+        // Pass GLOBAL seed 
         qsc_channel->seedfrom(rng);
         
         libbase::vector<libbase::gf2> received_codeword_p1(n);
@@ -925,6 +926,7 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
         mdm->demodulate(*qsc_channel, received_codeword_p1, prob_table_p1);
 
         // Decode
+        // Pass GLOBAL seed 
         cdc->seedfrom(rng);
         cdc->init_decoder(prob_table_p1, calculated_syndrome);
         cdc->decode(decoded_message_u_no_error);
@@ -1005,14 +1007,8 @@ BOOST_AUTO_TEST_CASE(gf64_encoded_codeword_comparison)
     std::cout << "TESTSYNDROMEDECODING: Codec Details: " << cdc->description() << std::endl;
 #endif
 
-    // Create and seed the random generator
-    libbase::randgen rng;
-    const int seed_number = 12345;
-    rng.seed(seed_number);
-
     // Alphabet size 
-    const int q = 64;
-    
+    const int q = 64;   
     // Size of original message/information bits
     const int k = cdc->input_block_size();
     // Size of encode message/codeword
@@ -1069,6 +1065,7 @@ std::cout << "TESTSYNDROMEDECODING: Modem Details: " << mdm->description() << st
     qsc_channel->set_parameter(Ps);
 
     // Seed the channel
+    // Pass GLOBAL seed 
     qsc_channel->seedfrom(rng);
 
 #if DEBUG >= 1
@@ -1097,6 +1094,7 @@ std::cout << "TESTSYNDROMEDECODING: Modem Details: " << mdm->description() << st
 // #endif
 
     // Seed the codec
+    // Pass GLOBAL seed 
     cdc->seedfrom(rng);
 
     /* Decode the demodulated codeword to get the message using the original zero syndrome*/
@@ -1138,18 +1136,13 @@ BOOST_AUTO_TEST_CASE(gf4_random_message_zero_syndrome_loop)
     auto mdm = create_modem_gf64();
     auto qsc_channel = std::make_shared<libcomm::qsc<libbase::gf64>>();
 
-   // Create and seed the random generator
-    libbase::randgen rng;
-    // Starting seed
-    const int base_seed_number = 12345; 
-
     // Alphabet size 
     const int q = 64;
     const int n = cdc->output_block_size();
 
     // Probability of substitution 
     // double Ps_with_error = 0.05; // 5% errors
-    double Ps_with_error = 0.02; // 2% errors
+    double Ps_with_error = 0.1/6; // 1.67%  noise 
 
 #if DEBUG >= 1
     std::cout << "TESTSYNDROMEDECODING: Ps = "
@@ -1165,10 +1158,7 @@ BOOST_AUTO_TEST_CASE(gf4_random_message_zero_syndrome_loop)
 
     for (int i = 0; i < TOTAL_RUNS; ++i) 
     {
-        // --- Each loop gets a new, unique seed ---
-        const int current_seed = base_seed_number + i;
-        rng.seed(current_seed);
-
+        // Loop uses the global stream of random numbers.
 #if DEBUG >= 2
     std::cout << "\n--- RUN " << i << " (Seed: " << current_seed << ") ---" << std::endl;
 #endif
@@ -1201,7 +1191,7 @@ BOOST_AUTO_TEST_CASE(gf4_random_message_zero_syndrome_loop)
         mdm->modulate(M, generated_codeword, modulated_codeword_p2); 
 
         qsc_channel->set_parameter(Ps_with_error);
-        qsc_channel->seedfrom(rng);
+        qsc_channel->seedfrom(rng); // Pass the GLOBAL seed
 
         // corrupted codeword 
         libbase::vector<libbase::gf64> received_codeword_p2(n); 
@@ -1211,7 +1201,7 @@ BOOST_AUTO_TEST_CASE(gf4_random_message_zero_syndrome_loop)
         mdm->demodulate(*qsc_channel, received_codeword_p2, prob_table_p2);
     
         // Decode (using original syndrome)
-        cdc->seedfrom(rng);
+        cdc->seedfrom(rng); // Pass the GLOBAL seed 
         cdc->init_decoder(prob_table_p2);
         cdc->decode(decoded_message);
 
@@ -1268,12 +1258,6 @@ BOOST_AUTO_TEST_CASE(gf64_random_codeword_loop)
     auto cdc = create_ldpc_codec_gf64();
     auto mdm = create_modem_gf64();
     auto qsc_channel = std::make_shared<libcomm::qsc<libbase::gf64>>();
-
-    // Create and seed the random generator
-    libbase::randgen rng;
-    // Starting seed
-    const int base_seed_number = 12345; 
-
     // Alphabet size 
     const int q = 64;
     const int n = cdc->output_block_size();
@@ -1292,14 +1276,11 @@ BOOST_AUTO_TEST_CASE(gf64_random_codeword_loop)
 
     int num_successes = 0;
     int num_failures = 0;
-    const int TOTAL_RUNS = 100;  // 100 
+    const int TOTAL_RUNS = 100;  
 
     for (int i = 0; i < TOTAL_RUNS; ++i) 
     {
-        // --- Each loop gets a new, unique seed ---
-        const int current_seed = base_seed_number + i;
-        rng.seed(current_seed);
-        
+        // Loop uses the global stream of random numbers.  
 #if DEBUG >= 2
         std::cout << "\n--- RUN " << i << " (Seed: " << current_seed << ") ---" << std::endl;
 #endif
@@ -1322,7 +1303,7 @@ BOOST_AUTO_TEST_CASE(gf64_random_codeword_loop)
         mdm->modulate(M, generated_codeword, modulated_codeword_p1); 
         
         qsc_channel->set_parameter(0.0);
-        qsc_channel->seedfrom(rng);
+        qsc_channel->seedfrom(rng); // Pass the GLOBAL seed 
         
         libbase::vector<libbase::gf64> received_codeword_p1(n);
         qsc_channel->transmit(modulated_codeword_p1, received_codeword_p1);
@@ -1331,7 +1312,7 @@ BOOST_AUTO_TEST_CASE(gf64_random_codeword_loop)
         mdm->demodulate(*qsc_channel, received_codeword_p1, prob_table_p1);
 
         // Decode
-        cdc->seedfrom(rng);
+        cdc->seedfrom(rng); // Pass the GLOBAL seed
         cdc->init_decoder(prob_table_p1, calculated_syndrome);
         cdc->decode(decoded_message_u_no_error);
 
@@ -1349,7 +1330,7 @@ BOOST_AUTO_TEST_CASE(gf64_random_codeword_loop)
         mdm->modulate(M, generated_codeword, modulated_codeword_p2); 
 
         qsc_channel->set_parameter(Ps_with_error);
-        qsc_channel->seedfrom(rng);
+        qsc_channel->seedfrom(rng); // Pss the GLOBAL seed
 
         // corrupted codeword 
         libbase::vector<libbase::gf64> received_codeword_p2(n); 
@@ -1359,7 +1340,7 @@ BOOST_AUTO_TEST_CASE(gf64_random_codeword_loop)
         mdm->demodulate(*qsc_channel, received_codeword_p2, prob_table_p2);
     
         // Decode (using original syndrome)
-        cdc->seedfrom(rng);
+        cdc->seedfrom(rng); // Pass the GLOBAL SEED
         cdc->init_decoder(prob_table_p2, calculated_syndrome);
         cdc->decode(decoded_message_u_with_error);
 
@@ -1398,3 +1379,5 @@ BOOST_AUTO_TEST_CASE(gf64_random_codeword_loop)
     BOOST_CHECK(num_successes > 0); // Check that the decoder *can* succeed
     BOOST_CHECK(num_failures > 0);  // Check that the channel *does* cause errors
 }
+
+BOOST_AUTO_TEST_SUITE_END()
