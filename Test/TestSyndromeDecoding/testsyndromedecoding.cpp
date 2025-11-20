@@ -724,10 +724,10 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_comparison)
  * decodes the message despite noise) and the number of times it
  * FAILS (the noise causes a decoding error).
  */
-BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
+BOOST_AUTO_TEST_CASE(gf2_random_message_zero_syndrome_loop)
 {
     const libcomm::serializer_libcomm my_serializer_libcomm;
-    std::cout << std::endl << "******* Boost Test 3 - Looping non-zero syndrome decode n times over GF2 *******" << std::endl; 
+    std::cout << std::endl << "******* Boost Test 3a - Looping using zero syndrome decoding n times over GF2 *******" << std::endl; 
 
     auto cdc = create_ldpc_codec_gf2();
     auto mdm = create_modem_gf2();
@@ -743,9 +743,10 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
     const int n = cdc->output_block_size();
 
     // Probability of substitution 
-    double Ps_with_error = 0.1; // 10% errors
+    // double Ps_with_error = 0.05; // 5% errors
+    double Ps_with_error = 0.02; // 2% errors
 
-#if DEBUG >= 2
+#if DEBUG >= 1
     std::cout << "TESTSYNDROMEDECODING: Ps = "
               << Ps_with_error << std::endl;
 #endif
@@ -755,7 +756,137 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
 
     int num_successes = 0;
     int num_failures = 0;
-    const int TOTAL_RUNS = 100;
+    const int TOTAL_RUNS = 100; 
+
+    for (int i = 0; i < TOTAL_RUNS; ++i) 
+    {
+        // --- Each loop gets a new, unique seed ---
+        const int current_seed = base_seed_number + i;
+        rng.seed(current_seed);
+
+#if DEBUG >= 2
+    std::cout << "\n--- RUN " << i << " (Seed: " << current_seed << ") ---" << std::endl;
+#endif
+
+        // Size of original message/information bits
+        const int k = cdc->input_block_size();
+        libbase::vector<int> original_message(k);
+        libbase::vector<int> decoded_message(k);
+        libbase::vector<int> generated_codeword(n);
+
+        // Randomly generate message u with size k
+        original_message = generate_random_message<int>(k, q, rng); 
+
+        // Encode message to get error free codeword
+        cdc->encode(original_message, generated_codeword);
+
+#if DEBUG >= 2
+    std::cout << "TESTSYNDROMEDECODING: original message: "
+              << original_message << std::endl;
+    std::cout << "TESTSYNDROMEDECODING: generated codeword: "
+              << generated_codeword << std::endl;
+#endif
+
+        // ####################################################################
+        // Adding noise to the generated codeword
+        // ####################################################################
+
+        // Modulate -> Channel (Ps=0.1) -> Demodulate
+        libbase::vector<libbase::gf2> modulated_codeword_p2(n);
+        mdm->modulate(M, generated_codeword, modulated_codeword_p2); 
+
+        qsc_channel->set_parameter(Ps_with_error);
+        qsc_channel->seedfrom(rng);
+
+        // corrupted codeword 
+        libbase::vector<libbase::gf2> received_codeword_p2(n); 
+        qsc_channel->transmit(modulated_codeword_p2, received_codeword_p2);
+
+        auto prob_table_p2 = libbase::vector<libbase::vector<double>>(n);
+        mdm->demodulate(*qsc_channel, received_codeword_p2, prob_table_p2);
+    
+        // Decode (using default zero syndrome decoding)
+        cdc->seedfrom(rng);
+        cdc->init_decoder(prob_table_p2);
+        cdc->decode(decoded_message);
+
+#if DEBUG >= 2
+    std::cout << "TESTSYNDROMEDECODING: Decoded message: "
+              << decoded_message_u_with_error << std::endl;
+#endif
+
+        // ####################################################################
+        // ## PART 3: Comparison
+        // ####################################################################
+
+        int num_errors = libbase::hamming(original_message, decoded_message);
+
+        if (num_errors == 0) {
+#if DEBUG >= 2
+                std::cout << ">>> RESULT: SUCCESS (Messages match)" << std::endl;
+#endif
+                num_successes++;
+            } else {
+#if DEBUG >= 2
+                std::cout << ">>> RESULT: FAILURE (Errors: " << num_errors << ")" << std::endl;
+#endif
+                num_failures++;
+            }
+    }
+
+    // ####################################################################
+    // ## FINAL RESULTS
+    // ####################################################################
+    std::cout << std::endl << std::endl << "--- FINAL SIMULATION RESULTS ---" << std::endl;
+    std::cout << "Total Runs:  " << TOTAL_RUNS << std::endl;
+    std::cout << "Successes:   " << num_successes << std::endl;
+    std::cout << "Failures:    " << num_failures << std::endl;
+    
+    BOOST_CHECK_EQUAL(num_successes + num_failures, TOTAL_RUNS);
+    BOOST_CHECK(num_successes > 0); // Check that the decoder *can* succeed
+    BOOST_CHECK(num_failures > 0);  // Check that the channel *does* cause errors
+}
+
+/* * This test case runs the entire simulation in a loop 100 times, 
+ * using a different seed for each run.
+ *
+ * It counts the number of times the decoder SUCCEEDS (correctly
+ * decodes the message despite noise) and the number of times it
+ * FAILS (the noise causes a decoding error).
+ */
+BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
+{
+    const libcomm::serializer_libcomm my_serializer_libcomm;
+    std::cout << std::endl << "******* Boost Test 3b - Looping non-zero syndrome decode n times over GF2 *******" << std::endl; 
+
+    auto cdc = create_ldpc_codec_gf2();
+    auto mdm = create_modem_gf2();
+    auto qsc_channel = std::make_shared<libcomm::qsc<libbase::gf2>>();
+
+    // Create and seed the random generator
+    libbase::randgen rng;
+    // Starting seed
+    const int base_seed_number = 12345; 
+
+    // Alphabet size 
+    const int q = 2;
+    const int n = cdc->output_block_size();
+
+    // Probability of substitution 
+    // double Ps_with_error = 0.05; // 5% errors
+    double Ps_with_error = 0.02; // 2% errors
+
+#if DEBUG >= 1
+    std::cout << "TESTSYNDROMEDECODING: Ps = "
+              << Ps_with_error << std::endl;
+#endif
+
+    mdm->set_blocksize(libbase::size_type<libbase::vector>(n));
+    const int M = mdm->num_symbols();
+
+    int num_successes = 0;
+    int num_failures = 0;
+    const int TOTAL_RUNS = 100; 
 
     for (int i = 0; i < TOTAL_RUNS; ++i) 
     {
@@ -1030,7 +1161,7 @@ BOOST_AUTO_TEST_CASE(gf64_random_codeword_loop)
 
     int num_successes = 0;
     int num_failures = 0;
-    const int TOTAL_RUNS = 100;
+    const int TOTAL_RUNS = 100;  // 100 
 
     for (int i = 0; i < TOTAL_RUNS; ++i) 
     {
