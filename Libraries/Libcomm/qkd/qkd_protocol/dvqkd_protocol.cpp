@@ -242,12 +242,9 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     // Set a default length of 0. This is updated upon success.
     len_secret_key = 0;
 
-    /* Sifting Step
-
-    In this step we need to discard the bits where the basis vectors of Alice (vector b) and Bob (vector b') do not match.
-
-    Step 1 - Get and store the indices of the elements of the basis vectors that won't match.
-    */
+    /* Sifting Step */
+    // In this step we need to discard the bits where the basis vectors of Alice (vector b) and Bob (vector b') do not match.
+    // Step 1 - Get and store the indices of the elements of the basis vectors that won't match.
 
     std::vector<int> diff_indices;
 
@@ -306,21 +303,29 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     std::cerr << "DV_QKDPROTOCOL: Sifted Bob Key = " << sifted_bob_key << std::endl;
 #endif
 
+    
+    // Calculating N_PE: the number of samples used for parameter estimation.
+    // N_PE = N (number of generated states) - n (size of codeword of the
+    // codec)
+    N_PE = alice_measurements.size() - get_codec_output_bits_n();
 
-    // // Calculating N_PE: the number of samples used for parameter estimation.
-    // // N_PE = N (number of generated states) - n (size of codeword of the
-    // // codec)
-    // N_PE = alice_measurements.size() - get_codec_output_bits_n();
+    // Perform split for parameter estimation.
+    auto [X_PE, Y_PE, X_raw, Y_raw] =
+        split(alice_measurements, bob_measurements);
 
 #if DEBUG >= 1
-        std::cerr << "DV_QKDPROTOCOL: len_secret_key = " << len_secret_key
+        std::cout << "---- Perform Split -----" << std::endl;
+        std::cout << "DV_QKDPROTOCOL: size of measurement vectors = " << alice_measurements.size() << bob_measurements.size()
                   << std::endl;
-        std::cerr << "DV_QKDPROTOCOL: final_secret_key_KA = "
-                  << final_secret_key_KA << std::endl;
-        std::cerr << "DV_QKDPROTOCOL: final_secret_key_KB = "
-                  << final_secret_key_KB << std::endl;
+        std::cout << "DV_QKDPROTOCOL: Y_PE = "
+                  << Y_PE << std::endl;
+        std::cout << "DV_QKDPROTOCOL: Y_raw = "
+                  << Y_raw << std::endl;
+        std::cout << "DV_QKDPROTOCOL: X_PE = "
+                  << X_PE << std::endl;
+        std::cout << "DV_QKDPROTOCOL: X_raw = "
+                  << X_raw << std::endl;
 #endif
-
         // print final keys
         return {std::move(final_secret_key_KA), std::move(final_secret_key_KB)};
 }

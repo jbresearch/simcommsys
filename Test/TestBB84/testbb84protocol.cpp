@@ -187,7 +187,7 @@ quantum_bb84_source
     std::cout << "TESTBB84: Size of Final Secret Key KA: " << key_KA.size()
               << std::endl;
     std::cout << "TESTBB84: Final Secret Key KA: " << key_KA << std::endl;
-    std::cout << "TESTBB84: Final Secret Key KBN: " << key_KB << std::endl;
+    std::cout << "TESTBB84: Final Secret Key KB: " << key_KB << std::endl;
 
 
 #if DEBUG >= 1
@@ -204,7 +204,6 @@ quantum_bb84_source
     std::cout << "TESTBB84:  bits vector of Alice = " << vector_a << std::endl;
     std::cout << "TESTBB84:  bases vector of Alice = " << vector_b << std::endl;
 #endif
-
 
 } // end of Boost test
 
