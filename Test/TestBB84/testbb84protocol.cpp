@@ -189,8 +189,7 @@ quantum_bb84_source
     std::cout << "TESTBB84: Final Secret Key KA: " << key_KA << std::endl;
     std::cout << "TESTBB84: Final Secret Key KB: " << key_KB << std::endl;
 
-
-#if DEBUG >= 1
+#if DEBUG >= 2
     /* TODO: Still to move this part in a separate test file. */
     // Get vector a of Alice which is the vector of bits.
     std::vector<bool> vector_a(framesize);
