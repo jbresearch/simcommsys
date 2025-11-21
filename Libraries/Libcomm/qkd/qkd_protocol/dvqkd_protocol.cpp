@@ -229,7 +229,6 @@ const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     return secret_key_length;
 }
 
-
 // Returns final secret keys KA and KB.
 std::pair<libbase::vector<bool>, libbase::vector<bool>>
 dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
@@ -307,16 +306,15 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     // Calculating N_PE: the number of samples used for parameter estimation.
     // N_PE = N (number of generated states) - n (size of codeword of the
     // codec)
-    N_PE = alice_measurements.size() - get_codec_output_bits_n();
+    N_PE = sifted_alice_key.size() - get_codec_output_bits_n();
 
     // Perform split for parameter estimation.
     auto [X_PE, Y_PE, X_raw, Y_raw] =
-        split(alice_measurements, bob_measurements);
+        split(sifted_alice_key, sifted_bob_key);
 
 #if DEBUG >= 1
         std::cout << "---- Perform Split -----" << std::endl;
-        std::cout << "DV_QKDPROTOCOL: size of measurement vectors = " << alice_measurements.size() << bob_measurements.size()
-                  << std::endl;
+        std::cout << "DV_QKDPROTOCOL: size of N_PE = " << N_PE << std::endl;
         std::cout << "DV_QKDPROTOCOL: Y_PE = "
                   << Y_PE << std::endl;
         std::cout << "DV_QKDPROTOCOL: Y_raw = "
@@ -326,8 +324,12 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
         std::cout << "DV_QKDPROTOCOL: X_raw = "
                   << X_raw << std::endl;
 #endif
-        // print final keys
-        return {std::move(final_secret_key_KA), std::move(final_secret_key_KB)};
+
+    // Perform Parameter Estimation 
+
+
+    // print final keys
+    return {std::move(final_secret_key_KA), std::move(final_secret_key_KB)};
 }
 
 
