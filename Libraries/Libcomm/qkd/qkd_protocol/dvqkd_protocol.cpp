@@ -220,6 +220,26 @@ dvqkd_protocol::split(libbase::vector<bool>& alice_measurements,
     return {X_PE, Y_PE, X_raw, Y_raw};
 }
 
+double  // Should return QBER and length l of the final secret key 
+dvqkd_protocol::parameter_estimation(
+    const libbase::vector<bool>& X_PE, const libbase::vector<bool>& Y_PE)
+{
+    double QBER;
+
+    // Calculate the QBER between vectors X_PE of Alice and Y_PE of Bob
+    /*
+    Reference of Equation used is pg. 110 from the book of Ramona Wolf.
+    Book is titled "Quantum Key Distribution: An Introduction With Exercises"
+    Equation Number: (4.29)
+
+    Error Rate = (1/N) [KA ⊕ KB] where N is the size of elements in X_PE and Y_PE
+    */
+
+    QBER = (1.0/static_cast<double> (Y_PE.size())) * libbase::hamming(X_PE,Y_PE);
+    
+    return QBER;
+} 
+
 const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
 {
     const int secret_key_length = 0;
@@ -302,7 +322,6 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     std::cerr << "DV_QKDPROTOCOL: Sifted Bob Key = " << sifted_bob_key << std::endl;
 #endif
 
-    
     // Calculating N_PE: the number of samples used for parameter estimation.
     // N_PE = N (number of generated states) - n (size of codeword of the
     // codec)
@@ -325,8 +344,15 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
                   << X_raw << std::endl;
 #endif
 
-    // Perform Parameter Estimation 
+    // Aborts of sizes of sifted keys are not equal
+    assert(sifted_alice_key.size() == sifted_bob_key.size());
+    
+    // Perform Parameter Estimation
+    QBER = parameter_estimation(X_PE, Y_PE); 
 
+#if DEBUG >= 1
+        std::cout << "DV_QKDPROTOCOL: Estimated QBER = " << QBER << std::endl;
+#endif
 
     // print final keys
     return {std::move(final_secret_key_KA), std::move(final_secret_key_KB)};

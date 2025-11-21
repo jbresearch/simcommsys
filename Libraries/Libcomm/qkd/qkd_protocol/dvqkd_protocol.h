@@ -74,6 +74,8 @@ private:
     bool H_check = false;   // Hash check that verifies if hash_hs == hash_hsat?
     int len_secret_key = 0; // Length of final secret key
 
+    double QBER; 
+
 protected:
     std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
 
@@ -128,6 +130,9 @@ public:
     {
         return cdc->output_block_size();
     }
+
+    double parameter_estimation(
+    const libbase::vector<bool>& X_PE, const libbase::vector<bool>& Y_PE);
 
     const int calculate_finite_size_effects_secret_key_length() override;
 
