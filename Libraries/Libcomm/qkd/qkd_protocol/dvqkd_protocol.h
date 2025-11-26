@@ -131,6 +131,8 @@ public:
         return cdc->output_block_size();
     }
 
+    double binary_entropy(double p);
+
     double parameter_estimation(
     const libbase::vector<bool>& X_PE, const libbase::vector<bool>& Y_PE);
 

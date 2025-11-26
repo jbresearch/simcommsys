@@ -1,7 +1,9 @@
 #include "dvqkd_protocol.h"
 #include "codec/ldpc.h"
-#include <cmath>
 #include <sstream>
+#include <iostream>
+#include <cmath>    
+#include <limits>  
 
 using libbase::serializer;
 
@@ -13,7 +15,7 @@ namespace libcomm
 // 1 - Normal debug output only
 #ifndef NDEBUG
 #    undef DEBUG
-#    define DEBUG 1
+#    define DEBUG 2
 #endif
 
 // Returns description of the protocol
@@ -207,18 +209,37 @@ dvqkd_protocol::split(libbase::vector<bool>& alice_measurements,
     }
 
 #if DEBUG >= 1
-    std::cerr << "DV_QKDPROTOCOL: alice_measurements = " << alice_measurements
+    std::cout << "DV_QKDPROTOCOL: alice_measurements = " << alice_measurements
               << std::endl;
-    std::cerr << "DV_QKDPROTOCOL: bob_measurements = " << bob_measurements
+    std::cout << "DV_QKDPROTOCOL: bob_measurements = " << bob_measurements
               << std::endl;
-    std::cerr << "DV_QKDPROTOCOL: X_PE = " << X_PE << std::endl;
-    std::cerr << "DV_QKDPROTOCOL: Y_PE = " << Y_PE << std::endl;
-    std::cerr << "DV_QKDPROTOCOL: X_raw = " << X_raw << std::endl;
-    std::cerr << "DV_QKDPROTOCOL: Y_raw = " << Y_raw << std::endl;
+    std::cout << "DV_QKDPROTOCOL: X_PE = " << X_PE << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Y_PE = " << Y_PE << std::endl;
+    std::cout << "DV_QKDPROTOCOL: X_raw = " << X_raw << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Y_raw = " << Y_raw << std::endl;
 #endif
 
     return {X_PE, Y_PE, X_raw, Y_raw};
 }
+
+/*! \brief Method to calculate the binary entropy function */
+double dvqkd_protocol::binary_entropy(double p) {
+    // Probability must be between 0 and 1
+    if (p < 0.0 || p > 1.0) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+
+    // Handle Edge Cases: 0 and 1
+    // log2(0) is -inf, which results in NaN when multiplied by 0.
+    // Mathematically, the limit of p*log(p) as p->0 is 0.
+    if (p == 0.0 || p == 1.0) {
+        return 0.0;
+    }
+
+    // Calculate Entropy (in bits)
+    return -p * std::log2(p) - (1.0 - p) * std::log2(1.0 - p);
+}
+
 
 double  // Should return QBER and length l of the final secret key 
 dvqkd_protocol::parameter_estimation(
@@ -236,7 +257,9 @@ dvqkd_protocol::parameter_estimation(
     */
 
     QBER = (1.0/static_cast<double> (Y_PE.size())) * libbase::hamming(X_PE,Y_PE);
-    
+
+    // Calculate the final length of the secret l with finite size effects
+        
     return QBER;
 } 
 
