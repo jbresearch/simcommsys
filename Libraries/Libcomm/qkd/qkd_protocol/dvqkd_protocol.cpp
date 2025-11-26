@@ -174,10 +174,20 @@ dvqkd_protocol::get_bob_observables(int framesize)
 
 
 // Split fn to be used for parameter estimation and post-processing.
-std::tuple<libbase::vector<bool>, // X_PE for Alice
-           libbase::vector<bool>, // Y_PE for Bob
-           libbase::vector<bool>, // Alice's raw key
-           libbase::vector<bool>> // Bob's raw key
+// std::tuple<libbase::vector<bool>, // X_PE for Alice
+//            libbase::vector<bool>, // Y_PE for Bob
+//            libbase::vector<bool>, // 
+//            libbase::vector<bool>> // Bob's raw key
+
+
+/*! \brief Performs split for parameter estimation 
+ *
+ * @param X_PE  A bool vector which holds the measurement values for PE for Alice 
+ * @param X_raw Alice's raw key. It holds the remaining measurement values. 
+ * @param Y_PE  A bool vector which holds the measurement values for PE for Bob 
+ * @param Y_raw Bob's raw key. It holds the remaining measurement values. 
+ */
+void
 dvqkd_protocol::split(libbase::vector<bool>& alice_measurements,
                       libbase::vector<bool>& bob_measurements)
 {
@@ -188,7 +198,6 @@ dvqkd_protocol::split(libbase::vector<bool>& alice_measurements,
 
     const int N = alice_measurements.size();
 
-    libbase::vector<bool> X_PE, Y_PE, X_raw, Y_raw;
     X_PE.init(N_PE);
     Y_PE.init(N_PE);
     X_raw.init(N - N_PE);
@@ -218,8 +227,7 @@ dvqkd_protocol::split(libbase::vector<bool>& alice_measurements,
     std::cout << "DV_QKDPROTOCOL: X_raw = " << X_raw << std::endl;
     std::cout << "DV_QKDPROTOCOL: Y_raw = " << Y_raw << std::endl;
 #endif
-
-    return {X_PE, Y_PE, X_raw, Y_raw};
+    // return {X_PE, Y_PE, X_raw, Y_raw};
 }
 
 /*! \brief Method to calculate the binary entropy function */
@@ -240,37 +248,119 @@ double dvqkd_protocol::binary_entropy(double p) {
     return -p * std::log2(p) - (1.0 - p) * std::log2(1.0 - p);
 }
 
+/*! \brief Calculates the Finite-Key Secure Length (Equation 2 from Tomamichel et al., 2012)
+ *
+ * @param n_d        Length of the raw key. This is the length of vectors X and Y after PE. 
+ * @param k_d        Length of the parameter estimation bits (Z-basis)
+ * @param Q_tol      The maximum tolerated QBER (typically around 7%)
+ * @param leak_EC    Bits revealed during error correction (syndrome length)
+ * @param eps_sec    Security parameter (e.g., 1e-10)
+ * @param eps_cor    Correctness parameter (e.g., 1e-15)
+ * @param q          Source quality factor (default 1.0 for perfect qubits)
+ * @return           Final secure key length 'l' (floored to 0 if negative)
+ */
 
-double  // Should return QBER and length l of the final secret key 
+const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length() 
+{
+     /*
+    References for the equation to claculate the length of the secret key:
+    1. Eq (5.108), Ramona Wolf, "Quantum Key Distribution..."
+    2. Eq (2), Tomamichel et al., Nature Comms 3.1 (2012)
+    */
+
+    #if DEBUG >= 1
+       std::cout <<  "DV_QKDPROTOCOL: eps_cor = " << eps_cor << std::endl; 
+        std::cout << "DV_QKDPROTOCOL: eps_sec = " << eps_sec << std::endl;
+    #endif
+
+    double n_d = static_cast<double>(X_raw.size()); // excludes bits used for PE.
+    double k_d = static_cast<double>(N_PE);
+    int q = 1; 
+    int leak_EC = get_codec_output_bits_n() - get_codec_input_bits_k(); // size of syndrome
+
+    #if DEBUG >= 1
+       std::cout << "DV_QKDPROTOCOL: Length of raw key n_d = " << n_d << std::endl; 
+       std::cout << "DV_QKDPROTOCOL: Length of PE bits k_d = " << k_d << std::endl;
+       std::cout << "DV_QKDPROTOCOL: Leak_EC = " << leak_EC << std::endl;
+    #endif
+
+    // Calculate statistical fluctuation term 'mu'
+    // Formula: mu = sqrt( ((n+k)/(n*k)) * ((k+1)/k) * ln(2/eps_sec) )
+    double term1 = (n_d + k_d) / (n_d * k_d);
+    double term2 = (k_d + 1.0) / k_d;
+    double term3 = std::log(2.0 / eps_sec);
+    
+    double mu = std::sqrt(term1 * term2 * term3);
+
+    // Calculate the "worst-case" error rate
+    double Q_tol = 0.07; // Assuming Q_tol is 7% which is tighter than the 10%. 
+    double Q_worst_case = Q_tol + mu;
+
+    // QBER is calculated in the parameter estimation method. 
+    // Checks that it is not >= the maximum tolerable qber 
+    if (QBER >= Q_worst_case) {
+        return 0.0;
+    }
+
+    #if DEBUG >= 1
+       std::cout << "DV_QKDPROTOCOL: mu  = " << mu << std::endl; 
+       std::cout << "DV_QKDPROTOCOL: Q_worst_case = " << k_d << std::endl;
+    #endif
+
+    // Calculate the correction term (Delta)
+    // Formula: log2( 2 / (eps_cor * eps_sec^2) )
+    double delta = std::log2(2.0 / (eps_cor * std::pow(eps_sec, 2)));
+
+    // Calculate final length 'l'
+    // Formula: l = n * [ q - h(Q_tol + mu) ] - leak_EC - delta
+    double privacy_amplification_term = binary_entropy(Q_worst_case);
+    
+    /* Note: 
+    Finite-key analysis requires n and k to be in the order of 10^4 to 10^5 to produce a positive key length. 
+    With single-digit inputs, the uncertainty is too high to guarantee any secrecy.
+    */
+
+    double l = n_d * (q - privacy_amplification_term) - static_cast<double>(leak_EC) - delta;
+
+    // Return 0 if the result is negative
+    return static_cast<int>(std::floor(std::max(0.0, l))); 
+}
+
+void
 dvqkd_protocol::parameter_estimation(
     const libbase::vector<bool>& X_PE, const libbase::vector<bool>& Y_PE)
 {
-    double QBER;
-
-    // Calculate the QBER between vectors X_PE of Alice and Y_PE of Bob
     /*
-    Reference of Equation used is pg. 110 from the book of Ramona Wolf.
+    References to calculate the QBER:
+    Reference 1 of Equation used is pg. 110 from the book of Ramona Wolf.
     Book is titled "Quantum Key Distribution: An Introduction With Exercises"
     Equation Number: (4.29)
 
-    Error Rate = (1/N) [KA ⊕ KB] where N is the size of elements in X_PE and Y_PE
+    Reference 2 for QBER equation:
+    Box 1: Protocol Definition under section Parameter Estimation from the paper titled:
+    "Tomamichel, Marco, et al. "Tight finite-key analysis for quantum cryptography." Nature communications 3.1 (2012): 634."
     */
 
+    // Calculate the QBER between vectors X_PE of Alice and Y_PE of Bob
     QBER = (1.0/static_cast<double> (Y_PE.size())) * libbase::hamming(X_PE,Y_PE);
 
     // Calculate the final length of the secret l with finite size effects
-        
-    return QBER;
+    // len_secret_key = calculate_secure_key_length(X_raw.size(), X_PE.size(), Q_tol, syndrome_size);
+    // len_secret_key = calculate_secure_key_length(100000, 50000, Q_tol, 50000); // Answer l = 4045 
+#if DEBUG >= 1
+    std::cout << "Calculating the secret key length:"  << std::endl;
+#endif
+
+    len_secret_key = calculate_finite_size_effects_secret_key_length(); 
+    
+#if DEBUG >= 2
+    std::cout << "DV_QKDPROTOCOL: QBER = " << QBER
+              << std::endl;
+    std::cout << "DV_QKDPROTOCOL: len_secret_key = " << len_secret_key
+              << std::endl;
+#endif
 } 
 
-const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
-{
-    const int secret_key_length = 0;
-
-    /* Still to add and implement the equation that calculates the length of the final secret key. */
-
-    return secret_key_length;
-}
 
 // Returns final secret keys KA and KB.
 std::pair<libbase::vector<bool>, libbase::vector<bool>>
@@ -351,30 +441,40 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     N_PE = sifted_alice_key.size() - get_codec_output_bits_n();
 
     // Perform split for parameter estimation.
-    auto [X_PE, Y_PE, X_raw, Y_raw] =
-        split(sifted_alice_key, sifted_bob_key);
+    split(sifted_alice_key, sifted_bob_key);
 
 #if DEBUG >= 1
         std::cout << "---- Perform Split -----" << std::endl;
         std::cout << "DV_QKDPROTOCOL: size of N_PE = " << N_PE << std::endl;
         std::cout << "DV_QKDPROTOCOL: Y_PE = "
                   << Y_PE << std::endl;
+        std::cout << "DV_QKDPROTOCOL: size of Y_PE = "
+                  << Y_PE.size() << std::endl; // to delete
         std::cout << "DV_QKDPROTOCOL: Y_raw = "
                   << Y_raw << std::endl;
+        std::cout << "DV_QKDPROTOCOL: size of Y_raw = "
+                  << Y_raw.size() << std::endl; // to delete
         std::cout << "DV_QKDPROTOCOL: X_PE = "
                   << X_PE << std::endl;
+        std::cout << "DV_QKDPROTOCOL: size of X_PE = "
+                  << X_PE.size() << std::endl; // to delete
         std::cout << "DV_QKDPROTOCOL: X_raw = "
                   << X_raw << std::endl;
+        std::cout << "DV_QKDPROTOCOL: size of X_raw = "
+                  << X_raw.size() << std::endl; // to delete
+
 #endif
 
     // Aborts of sizes of sifted keys are not equal
     assert(sifted_alice_key.size() == sifted_bob_key.size());
     
     // Perform Parameter Estimation
-    QBER = parameter_estimation(X_PE, Y_PE); 
+    parameter_estimation(X_PE, Y_PE); 
 
 #if DEBUG >= 1
         std::cout << "DV_QKDPROTOCOL: Estimated QBER = " << QBER << std::endl;
+        std::cout << "DV_QKDPROTOCOL: Secret Key Length l = " << len_secret_key << std::endl;
+
 #endif
 
     // print final keys
@@ -391,6 +491,11 @@ dvqkd_protocol::serialize(std::ostream& sout) const
     sout << 1 << std::endl;
     sout << "# Codec" << std::endl;
     sout << cdc << std::endl;
+    sout << "# Security parameter eps_sec" << std::endl;
+    sout << eps_sec << std::endl;
+    sout << "# Correctness parameter eps_cor" << std::endl;
+    sout << eps_cor << std::endl;
+
     return sout;
 }
 
@@ -404,6 +509,8 @@ dvqkd_protocol::serialize(std::istream& sin)
     int version;
     sin >> libbase::eatcomments >> version;
     sin >> libbase::eatcomments >> cdc >> libbase::verify;
+    sin >> libbase::eatcomments >> eps_sec >> libbase::verify;
+    sin >> libbase::eatcomments >> eps_cor >> libbase::verify;
     // check that all assumptions hold
     assertalways(cdc->num_inputs() == 2); // input has to be binary
     assertalways(cdc->num_outputs() == 2); // output has to be binary

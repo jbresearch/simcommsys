@@ -63,18 +63,27 @@ private:
     libbase::vector<bool> alice_basis_vector; // vector b
     libbase::vector<bool> alice_bit_vector;   // vector a
 
+    libbase::vector<bool> X_raw;
+    libbase::vector<bool> X_PE;
+    libbase::vector<bool> Y_raw;
+    libbase::vector<bool> Y_PE;
+
+
     std::shared_ptr<quantum_channel> m_bob_channel;
 
     // ADD THIS: Pointer to the source sequence from qkd_commsys fullcycle
     const libbase::vector<qubit>* m_source_sequence = nullptr;
 
     int N_PE; // Number of samples used for parameter estimation.
+    int leak_EC; //  Bits revealed during error correction (syndrome length)
 
     bool MI_Check = false;  // MI check that verifies if I_AB > X_B?
     bool H_check = false;   // Hash check that verifies if hash_hs == hash_hsat?
     int len_secret_key = 0; // Length of final secret key
 
-    double QBER; 
+    double QBER; // Estimate QBER between X_PE and Y_PE 
+    double eps_sec; // Security parameter (e.g., 1e-10)
+    double eps_cor; // Correctness parameter (e.g., 1e-15) 
 
 protected:
     std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
@@ -113,12 +122,9 @@ public:
 
     // Split fn to be used for parameter estimation and post-processing which
     // returns: X_PE, Y_PE, X_raw and Y_raw
-    std::tuple<libbase::vector<bool>,
-               libbase::vector<bool>,
-               libbase::vector<bool>,
-               libbase::vector<bool>>
+    void 
     split(libbase::vector<bool>& measurements_alice,
-          libbase::vector<bool>& measurements_bob) override;
+          libbase::vector<bool>& measurements_bob);
 
     // Helper functions related to the codec.
     int get_codec_input_bits_k() const override
@@ -133,7 +139,8 @@ public:
 
     double binary_entropy(double p);
 
-    double parameter_estimation(
+    // Calculates the QBER and length l 
+    void parameter_estimation(
     const libbase::vector<bool>& X_PE, const libbase::vector<bool>& Y_PE);
 
     const int calculate_finite_size_effects_secret_key_length() override;
