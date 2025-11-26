@@ -81,14 +81,6 @@ public:
     virtual std::vector<std::unique_ptr<observable<T>>>
     get_bob_observables(int) = 0;
 
-    // Split fn to be used for parameter estimation and post-processing.
-    virtual std::tuple<libbase::vector<T>,
-                       libbase::vector<T>,
-                       libbase::vector<T>,
-                       libbase::vector<T>>
-    split(libbase::vector<T>& measurements_alice,
-          libbase::vector<T>& measurements_bob) = 0;
-
     // Pass source generator to get VA for CV_QKD.
 
     /* Helper functions related to codec.*/
