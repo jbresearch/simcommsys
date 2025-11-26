@@ -23,12 +23,12 @@
 #define SUM_PROD_ALG_GDL_CUDA_H_
 
 #include "../sum_prod_alg_inf.h"
-#include "hard_decision.h"
 #include "alist.h"
 #include "cuda/device_ptr.h"
 #include "cuda/matrix.h"
 #include "cuda/stream.h"
 #include "cuda/vector.h"
+#include "hard_decision.h"
 #include "matrix.h"
 #include "random.h"
 #include "vector.h"
@@ -81,6 +81,11 @@ public:
     void decode(libbase::vector<GF_q>& received_word, int max_iters) override;
 
     void seedfrom(libbase::random& r) override;
+
+    void set_syndrome(const libbase::vector<GF_q>& syndrome) override
+    {
+        this->device_syndrome = syndrome;
+    }
 
 private:
     /*! \name State variables */

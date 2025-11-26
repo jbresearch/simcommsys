@@ -48,7 +48,8 @@ namespace libcomm
 #endif
 
 template <class GF_q, class real>
-const int sum_prod_alg_gdl_cuda<GF_q, real>::warp_size = cuda::cudaGetWarpSize();
+const int sum_prod_alg_gdl_cuda<GF_q, real>::warp_size =
+    cuda::cudaGetWarpSize();
 
 template <class GF_q, class real>
 __global__ void
@@ -109,14 +110,15 @@ hadamard_transform(real*& buf, real*& swapbuf)
 template <class GF_q, class real>
 __device__
 void
-permute_divide(real*& buf, real*& swapbuf, GF_q h_m_n)
+permute_divide(real*& buf, real*& swapbuf, GF_q h_m_n, int extra_offset)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
     int pos_e = idx % GF_q::elements();
 
     int offset = threadIdx.x & ~(GF_q::elements() - 1);
-    swapbuf[threadIdx.x] = buf[offset + h_m_n * GF_q(pos_e)];
+    swapbuf[threadIdx.x] = buf[offset + h_m_n * GF_q(pos_e) + extra_offset];
+
     ::cuda::swap(swapbuf, buf);
 }
 
@@ -514,6 +516,7 @@ compute_r_mn_kern(
     ::cuda::matrix_reference<real, false> device_qmn_conv,
     ::cuda::vector_reference<int> device_pchk_row_non_zeros,
     ::cuda::vector_reference<GF_q> device_pchk_non_zeros_val,
+    ::cuda::vector_reference<GF_q> device_syndrome,
     int clipping_method,
     real almostzero)
 {
@@ -569,7 +572,12 @@ compute_r_mn_kern(
 
         GF_q h_m_n = device_pchk_non_zeros_val(q_mn_idx);
         hadamard_transform<GF_q, real>(buf, swapbuf);
-        permute_divide<GF_q, real>(buf, swapbuf, h_m_n);
+
+        int extra_offset = 0;
+        if (device_syndrome.size() > 0) {
+            extra_offset = static_cast<int>(device_syndrome(pos_m));
+        }
+        permute_divide<GF_q, real>(buf, swapbuf, h_m_n, extra_offset);
         __syncthreads();
 
         // normalize and clip the r_nm
@@ -613,6 +621,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::compute_r_mn()
             ::cuda::matrix_reference<real, false>(device_qmn_conv),
             ::cuda::vector_reference<int>(device_pchk_row_non_zeros),
             ::cuda::vector_reference<GF_q>(device_pchk_non_zeros_val),
+            ::cuda::vector_reference<GF_q>(device_syndrome),
             this->clipping_method,
             this->almostzero);
     cudaSafeCall(cudaGetLastError());
