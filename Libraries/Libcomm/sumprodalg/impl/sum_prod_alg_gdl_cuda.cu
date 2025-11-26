@@ -273,7 +273,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::sum_prod_alg_gdl_cuda(
     device_out_probs.init(n, num_of_elements);
 
     device_received_word.init(n);
-    device_syndrome.init(m);
+    device_decoded_syndrome.init(m);
 }
 
 template <class real>
@@ -860,9 +860,9 @@ compute_syndrome_kern(
     ::cuda::matrix_reference<int, false> device_pchk_row_non_zeros_pos,
     ::cuda::matrix_reference<GF_q, false> device_pchk_row_non_zeros_val,
     ::cuda::vector_reference<GF_q> device_received_word,
-    ::cuda::vector_reference<GF_q> device_syndrome)
+    ::cuda::vector_reference<GF_q> device_decoded_syndrome)
 {
-    int m = device_syndrome.size();
+    int m = device_decoded_syndrome.size();
     int pos_m = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (pos_m < m) {
@@ -874,22 +874,26 @@ compute_syndrome_kern(
                     device_received_word(pos_n);
         }
 
-        device_syndrome(pos_m) = synd;
+        device_decoded_syndrome(pos_m) = synd;
     }
 }
 
 template <class GF_q, class real>
 __global__ void
-check_syndrome_kern(::cuda::vector_reference<GF_q> device_syndrome,
+check_syndrome_kern(::cuda::vector_reference<GF_q> device_decoded_syndrome,
+                    ::cuda::vector_reference<GF_q> device_syndrome,
                     bool* decode_success)
 {
-    int m = device_syndrome.size();
+    int m = device_decoded_syndrome.size();
     int pos_m = blockIdx.x * blockDim.x + threadIdx.x;
     if (pos_m < m) {
-        bool success = !(bool)device_syndrome(pos_m);
-        if (!success) {
+        bool success;
+        if (device_syndrome.size() > 0)
+            success = device_syndrome(pos_m) == device_decoded_syndrome(pos_m);
+        else
+            success = !(bool)device_decoded_syndrome(pos_m);
+        if (!success)
             *decode_success = false;
-        }
     }
 }
 
@@ -944,7 +948,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration()
         this->device_pchk_row_non_zeros_pos,
         this->device_pchk_row_non_zeros_val,
         this->device_received_word,
-        this->device_syndrome);
+        this->device_decoded_syndrome);
     cudaSafeCall(cudaGetLastError());
 
     this->add_or_accumulate_timer(t_compute_syndrome);
@@ -954,7 +958,9 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration()
     ::cuda::cudaSafeMemset(
         this->device_decode_success.get(), true, sizeof(bool));
     check_syndrome_kern<GF_q, real><<<ROUND_UP_DIV(m, blockdim), blockdim>>>(
-        this->device_syndrome, this->device_decode_success.get());
+        this->device_decoded_syndrome,
+        this->device_syndrome,
+        this->device_decode_success.get());
     cudaSafeCall(cudaGetLastError());
 
     this->add_or_accumulate_timer(t_check_syndrome);

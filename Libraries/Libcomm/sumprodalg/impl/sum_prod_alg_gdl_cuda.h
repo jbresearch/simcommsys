@@ -171,9 +171,11 @@ private:
 
     /*! \brief Stores the received codeword according to decoder. */
     ::cuda::vector<GF_q> device_received_word;
+    /*! \brief Used when decoding with non-zero syndrome, e.g. in DV-QKD. */
+    ::cuda::vector<GF_q> device_syndrome;
     /*! \brief Used when computing syndrome to check if an iteration has yielded
      * valid codeword or not. */
-    ::cuda::vector<GF_q> device_syndrome;
+    ::cuda::vector<GF_q> device_decoded_syndrome;
 
     /*! \brief Set to true when iteration yields a valid codeword, false
      * otherwise. */
