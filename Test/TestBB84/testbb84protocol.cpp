@@ -109,6 +109,10 @@ ones
 3 5 6
 3
 4 6 7
+# Security parameter eps_sec
+1e-10
+# Correctness parameter eps_cor
+1e-15
 )SS";
 
     auto sys = std::make_shared<
