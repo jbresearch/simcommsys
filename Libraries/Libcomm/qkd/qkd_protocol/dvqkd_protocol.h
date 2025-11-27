@@ -34,6 +34,7 @@
 #include "channel.h"
 #include "codec/codec_coset.h"
 #include "codec/ldpc.h"
+#include "modem.h"
 #include "commsys.h"
 #include "crc/crc32.h"
 #include "gf.h"
@@ -65,9 +66,9 @@ private:
     libbase::vector<bool> alice_basis_vector; // vector b
     libbase::vector<bool> alice_bit_vector;   // vector a
 
-    libbase::vector<bool> X_raw;
+    libbase::vector<bool> X;
     libbase::vector<bool> X_PE;
-    libbase::vector<bool> Y_raw;
+    libbase::vector<bool> Y;
     libbase::vector<bool> Y_PE;
 
 
@@ -89,6 +90,7 @@ private:
 
 protected:
     std::shared_ptr<codec_coset<libbase::vector>> cdc; //!< Error-control codec
+    std::shared_ptr<blockmodem<libbase::gf2>> mdm; // modem
 
     //  Privacy Amplification System using the standard Toeplitz matrix
     pa_standard_toeplitz<bool> pa_system;

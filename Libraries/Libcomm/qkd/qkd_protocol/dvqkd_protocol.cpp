@@ -182,9 +182,9 @@ dvqkd_protocol::get_bob_observables(int framesize)
 /*! \brief Performs split for parameter estimation 
  *
  * @param X_PE  A bool vector which holds the measurement values for PE for Alice 
- * @param X_raw Alice's raw key. It holds the remaining measurement values. 
+ * @param X Alice's key. It holds the remaining measurement values after sifting excluding PE. 
  * @param Y_PE  A bool vector which holds the measurement values for PE for Bob 
- * @param Y_raw Bob's raw key. It holds the remaining measurement values. 
+ * @param Y Bob's key with errros. It holds the remaining measurement values after sifting excluding PE. 
  */
 void
 dvqkd_protocol::split(libbase::vector<bool>& alice_measurements,
@@ -199,8 +199,8 @@ dvqkd_protocol::split(libbase::vector<bool>& alice_measurements,
 
     X_PE.init(N_PE);
     Y_PE.init(N_PE);
-    X_raw.init(N - N_PE);
-    Y_raw.init(N - N_PE);
+    X.init(N - N_PE);
+    Y.init(N - N_PE);
 
     // First N_PE -> PE
     for (int i = 0; i < N_PE; ++i) {
@@ -210,23 +210,11 @@ dvqkd_protocol::split(libbase::vector<bool>& alice_measurements,
 
     for (int i = N_PE; i < N; ++i) {
         const int j = i - N_PE;
-        X_raw(j) = alice_measurements(
+        X(j) = alice_measurements(
             i); // Unnormalised key of Alice to be used for post-processing
-        Y_raw(j) = bob_measurements(
+        Y(j) = bob_measurements(
             i); // Unnormalised key of Bob to be used for post-processing
     }
-
-#if DEBUG >= 1
-    std::cout << "DV_QKDPROTOCOL: alice_measurements = " << alice_measurements
-              << std::endl;
-    std::cout << "DV_QKDPROTOCOL: bob_measurements = " << bob_measurements
-              << std::endl;
-    std::cout << "DV_QKDPROTOCOL: X_PE = " << X_PE << std::endl;
-    std::cout << "DV_QKDPROTOCOL: Y_PE = " << Y_PE << std::endl;
-    std::cout << "DV_QKDPROTOCOL: X_raw = " << X_raw << std::endl;
-    std::cout << "DV_QKDPROTOCOL: Y_raw = " << Y_raw << std::endl;
-#endif
-    // return {X_PE, Y_PE, X_raw, Y_raw};
 }
 
 /*! \brief Method to calculate the binary entropy function */
@@ -272,7 +260,7 @@ const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
         std::cout << "DV_QKDPROTOCOL: eps_sec = " << eps_sec << std::endl;
     #endif
 
-    double n_d = static_cast<double>(X_raw.size()); // excludes bits used for PE.
+    double n_d = static_cast<double>(X.size()); // excludes bits used for PE.
     double k_d = static_cast<double>(N_PE);
     int q = 1; 
     int leak_EC = get_codec_output_bits_n() - get_codec_input_bits_k(); // size of syndrome
@@ -475,10 +463,10 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     assert(sifted_idx == n_sifted);
 
 #if DEBUG >= 1
-    std::cerr << "DV_QKDPROTOCOL: Original measurement vector size = " << n_original << std::endl;
-    std::cerr << "DV_QKDPROTOCOL: Size of sifted keys = " << n_sifted << std::endl;
-    std::cerr << "DV_QKDPROTOCOL: Sifted Alice Key = " << sifted_alice_key << std::endl;
-    std::cerr << "DV_QKDPROTOCOL: Sifted Bob Key = " << sifted_bob_key << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Original measurement vector size = " << n_original << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Size of sifted keys = " << n_sifted << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Sifted Alice Key = " << sifted_alice_key << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Sifted Bob Key = " << sifted_bob_key << std::endl;
 #endif
 
     // Calculating N_PE: the number of samples used for parameter estimation.
@@ -496,18 +484,18 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
                   << Y_PE << std::endl;
         std::cout << "DV_QKDPROTOCOL: size of Y_PE = "
                   << Y_PE.size() << std::endl; // to delete
-        std::cout << "DV_QKDPROTOCOL: Y_raw = "
-                  << Y_raw << std::endl;
-        std::cout << "DV_QKDPROTOCOL: size of Y_raw = "
-                  << Y_raw.size() << std::endl; // to delete
+        std::cout << "DV_QKDPROTOCOL: Y = "
+                  << Y << std::endl;
+        std::cout << "DV_QKDPROTOCOL: size of Y = "
+                  << Y.size() << std::endl; // to delete
         std::cout << "DV_QKDPROTOCOL: X_PE = "
                   << X_PE << std::endl;
         std::cout << "DV_QKDPROTOCOL: size of X_PE = "
                   << X_PE.size() << std::endl; // to delete
-        std::cout << "DV_QKDPROTOCOL: X_raw = "
-                  << X_raw << std::endl;
-        std::cout << "DV_QKDPROTOCOL: size of X_raw = "
-                  << X_raw.size() << std::endl; // to delete
+        std::cout << "DV_QKDPROTOCOL: X = "
+                  << X << std::endl;
+        std::cout << "DV_QKDPROTOCOL: size of X = "
+                  << X.size() << std::endl; // to delete
 
 #endif
 
@@ -541,14 +529,14 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     if (m == 0) m = 1; 
 
     // Alice's side convert bits -> symbols
-    libbase::vector<int> X_raw_int = pack_bits_to_symbols(X_raw, m);
+    libbase::vector<int> X_int = pack_bits_to_symbols(X, m);
 
     // (Alice) Calculate the syndrome of X_raw_int
-    libbase::vector<int> calculated_syndrome(X_raw_int.size());
-    cdc->calculate_syndrome(X_raw_int, calculated_syndrome); 
+    libbase::vector<int> calculated_syndrome(X_int.size());
+    cdc->calculate_syndrome(X_int, calculated_syndrome); 
 
 #if DEBUG >= 1
-        std::cout << "DV_QKDPROTOCOL: Alice's Inverse Mapped vector = " << X_raw_int << std::endl;
+        std::cout << "DV_QKDPROTOCOL: Alice's Inverse Mapped vector = " << X_int << std::endl;
         std::cout << "DV_QKDPROTOCOL: Alice's Calculated Syndrome = " << calculated_syndrome << std::endl;
 #endif
 
