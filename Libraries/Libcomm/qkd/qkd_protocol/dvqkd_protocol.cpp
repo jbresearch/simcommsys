@@ -542,9 +542,14 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
 
     // Alice's side convert bits -> symbols
     libbase::vector<int> X_raw_int = pack_bits_to_symbols(X_raw, m);
-    
+
+    // (Alice) Calculate the syndrome of X_raw_int
+    libbase::vector<int> calculated_syndrome(X_raw_int.size());
+    cdc->calculate_syndrome(X_raw_int, calculated_syndrome); 
+
 #if DEBUG >= 1
         std::cout << "DV_QKDPROTOCOL: Alice's Inverse Mapped vector = " << X_raw_int << std::endl;
+        std::cout << "DV_QKDPROTOCOL: Alice's Calculated Syndrome = " << calculated_syndrome << std::endl;
 #endif
 
     // print final keys
@@ -578,7 +583,22 @@ dvqkd_protocol::serialize(std::istream& sin)
     // get format version
     int version;
     sin >> libbase::eatcomments >> version;
-    sin >> libbase::eatcomments >> cdc >> libbase::verify;
+
+    // Temporary pointer to the BASE class (codec)
+    //  The factory knows how to load "ldpc<...>" into a codec pointer.
+    std::shared_ptr<libcomm::codec<libbase::vector, double>> temp_cdc;
+
+    // Load into the temp pointer
+    sin >> libbase::eatcomments >> temp_cdc >> libbase::verify;
+
+    // Dynamic cast to the specific derived type (codec_coset) required by dvqkd_protocol.h
+    this->cdc = std::dynamic_pointer_cast<codec_coset<libbase::vector, double>>(temp_cdc);
+
+    // Verify casting was successful
+    if (!this->cdc) {
+        throw libbase::load_error("Loaded codec is not compatible with codec_coset!");
+    }
+
     sin >> libbase::eatcomments >> eps_sec >> libbase::verify;
     sin >> libbase::eatcomments >> eps_cor >> libbase::verify;
     // check that all assumptions hold
