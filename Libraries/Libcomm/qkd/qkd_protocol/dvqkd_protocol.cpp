@@ -1,5 +1,4 @@
 #include "dvqkd_protocol.h"
-#include "codec/ldpc.h"
 #include <sstream>
 #include <iostream>
 #include <cmath>    
@@ -361,6 +360,53 @@ dvqkd_protocol::parameter_estimation(
 #endif
 } 
 
+/*!
+ * \brief Packs a stream of raw bits into integer symbols.
+ *
+ * This function is used to bridge the gap between a binary QKD key and a 
+ * Non-Binary Codec (e.g., GF(16)). It groups 'm' consecutive bits into 
+ * a single integer symbol.
+ *
+ * \param[in] bits  The raw boolean vector from the QKD sifting process (e.g., X_raw).
+ * \param[in] m     The number of bits per symbol (e.g., 4 for GF(16)). 
+ * If m <= 1, the function acts as a simple cast from bool to int.
+ *
+ * \return A vector of integers where each element represents a symbol 
+ * formed by 'm' bits. The size will be floor(bits.size() / m).
+ *
+ * \note This function assumes MSB-first packing (Big Endian). 
+ * Example (m=4): Bits [1, 0, 0, 1] becomes Integer 9.
+ */
+libbase::vector<int> 
+dvqkd_protocol::pack_bits_to_symbols(const libbase::vector<bool>& bits, int m) 
+{
+    // Safety check: if m is less than 1 (e.g., binary), treat as 1
+    if (m < 1) m = 1;
+
+    // Calculate number of symbols
+    // Any "leftover" bits at the end of the stream that don't fill a full symbol are dropped.
+    int num_symbols = bits.size() / m;
+    
+    libbase::vector<int> symbols;
+    symbols.init(num_symbols);
+
+    for (int i = 0; i < num_symbols; ++i) { 
+        int value = 0;
+        for (int b = 0; b < m; ++b) {
+            // Pack MSB first: The first bit in the chunk goes to the highest position.
+            // Example for m=4: 
+            // b=0 (1st bit) -> shifted left by 3
+            // b=3 (4th bit) -> shifted left by 0
+            if (bits(i * m + b)) {
+                // Shift 1 bit to the left start with the MSB and XOR with the value 
+                value |= (1 << (m - 1 - b));
+            }
+        }
+        symbols(i) = value;
+    }
+
+    return symbols;
+}
 
 // Returns final secret keys KA and KB.
 std::pair<libbase::vector<bool>, libbase::vector<bool>>
@@ -474,7 +520,31 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
 #if DEBUG >= 1
         std::cout << "DV_QKDPROTOCOL: Estimated QBER = " << QBER << std::endl;
         std::cout << "DV_QKDPROTOCOL: Secret Key Length l = " << len_secret_key << std::endl;
+#endif
 
+    /* (Alice) (Inverse Mapping) 
+    Convert X_raw to binary or non-binary to be able to calculate the syndrome
+    Convert libbase::vector<bool> -> libbase::vector<int> */
+
+    // Get the alphabet size from the loaded codec (e.g., 2 for binary, 16 for GF16)
+    int q = cdc->num_outputs(); 
+    
+    // Calculate log2(q) to get m (bits per symbol)
+    // Examples: q=2 -> m=1, q=4 -> m=2, q=16 -> m=4
+    int m = 0;
+    if (q > 0) {
+        int temp = q;
+        while (temp >>= 1) m++;
+    }
+
+    // Safety fallback for binary or uninitialized codec
+    if (m == 0) m = 1; 
+
+    // Alice's side convert bits -> symbols
+    libbase::vector<int> X_raw_int = pack_bits_to_symbols(X_raw, m);
+    
+#if DEBUG >= 1
+        std::cout << "DV_QKDPROTOCOL: Alice's Inverse Mapped vector = " << X_raw_int << std::endl;
 #endif
 
     // print final keys

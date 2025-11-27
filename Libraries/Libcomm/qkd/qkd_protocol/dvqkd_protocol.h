@@ -32,6 +32,7 @@
 #define DVQKD_PROTOCOL_H
 
 #include "channel.h"
+#include "codec/ldpc.h"
 #include "commsys.h"
 #include "crc/crc32.h"
 #include "gf.h"
@@ -144,6 +145,8 @@ public:
     const libbase::vector<bool>& X_PE, const libbase::vector<bool>& Y_PE);
 
     const int calculate_finite_size_effects_secret_key_length() override;
+
+    libbase::vector<int> pack_bits_to_symbols(const libbase::vector<bool>& bits, int m);
 
     // Returns final secret keys KA and KB.
     std::pair<libbase::vector<bool>, libbase::vector<bool>>
