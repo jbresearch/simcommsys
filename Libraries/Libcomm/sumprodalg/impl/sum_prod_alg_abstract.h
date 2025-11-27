@@ -137,7 +137,7 @@ public:
     {
         assert(syndrome.size() == this->dim_m || syndrome.size() == 0);
 
-        this->syndrome.copyfrom(syndrome);
+        this->syndrome = syndrome;
 
 #if DEBUG >= 2
         libbase::trace << "sum_prod_alg::set_syndrome: " << this->syndrome;
