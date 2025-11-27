@@ -1139,8 +1139,7 @@ BOOST_AUTO_TEST_CASE(gf4_random_message_zero_syndrome_loop)
     const int n = cdc->output_block_size();
 
     // Probability of substitution 
-    // double Ps_with_error = 0.05; // 5% errors
-    double Ps_with_error = 0.1/6; // 1.67%  noise 
+    double Ps_with_error = 0.2;
 
 #if DEBUG >= 1
     std::cout << "TESTSYNDROMEDECODING: Ps = "
@@ -1262,7 +1261,7 @@ BOOST_AUTO_TEST_CASE(gf64_random_codeword_loop)
     // const int k = cdc->input_block_size();
 
     // Probability of Error
-    double Ps_with_error = 0.1/6; // 5% noise 
+    double Ps_with_error = 0.2;
 
 #if DEBUG >= 1
     std::cout << "TESTSYNDROMEDECODING: Ps = "
