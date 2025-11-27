@@ -187,9 +187,11 @@ protected:
                 pos_n = N_m(loop_n);
                 tmp_val += N_m_vals(loop_n) * received_word(pos_n);
             }
-            if (tmp_val != GF_q(0)) {
-                // the syndrome is non-zero
-                dec_success = false;
+            // check if the syndrome matches the expected value at this position
+            if (syndrome.size() > 0) {
+                dec_success = tmp_val == syndrome(pos_m);
+            } else {
+                dec_success = tmp_val == GF_q(0);
             }
         }
 
