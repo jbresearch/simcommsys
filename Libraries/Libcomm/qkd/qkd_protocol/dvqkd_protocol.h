@@ -32,6 +32,7 @@
 #define DVQKD_PROTOCOL_H
 
 #include "channel.h"
+#include "codec/codec_coset.h"
 #include "codec/ldpc.h"
 #include "commsys.h"
 #include "crc/crc32.h"
@@ -87,7 +88,7 @@ private:
     double eps_cor; // Correctness parameter (e.g., 1e-15) 
 
 protected:
-    std::shared_ptr<codec<libbase::vector>> cdc; //!< Error-control codec
+    std::shared_ptr<codec_coset<libbase::vector>> cdc; //!< Error-control codec
 
     //  Privacy Amplification System using the standard Toeplitz matrix
     pa_standard_toeplitz<bool> pa_system;

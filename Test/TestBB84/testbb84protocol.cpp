@@ -23,6 +23,7 @@
 #include "qkd/quantum_channel/identity_quantum_channel.h"
 #include "qkd_commsys.h"
 #include "source/quantum_bb84_source.h"
+#include "codec/codec_coset.h" 
 #include "codec/ldpc.h"
 #include "gf.h"
 #include "random.h"
