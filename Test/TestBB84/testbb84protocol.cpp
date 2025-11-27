@@ -23,7 +23,6 @@
 #include "qkd/quantum_channel/identity_quantum_channel.h"
 #include "qkd_commsys.h"
 #include "source/quantum_bb84_source.h"
-
 #include "codec/ldpc.h"
 #include "gf.h"
 #include "random.h"
@@ -40,7 +39,6 @@ BOOST_AUTO_TEST_CASE(test_bb84_protocol)
 {
     // Make sure we instantiate everything
     const libcomm::serializer_libcomm my_serializer_libcomm;
-
     std::cout << "\n*****Boost Test Case *****\n";
 
     std::cout << "Base classes:" << std::endl;
@@ -48,6 +46,11 @@ BOOST_AUTO_TEST_CASE(test_bb84_protocol)
         std::cout << " - " << s << std::endl;
     std::cout << "Derived classes for quantum_channel:" << std::endl;
     for (auto& s : libbase::serializer::get_derived_classes("quantum_channel"))
+        std::cout << " - " << s << std::endl;
+
+    // Add this to testbb84protocol.cpp temporarily
+    std::cout << "Derived classes for codec:" << std::endl;
+    for (auto& s : libbase::serializer::get_derived_classes("codec"))
         std::cout << " - " << s << std::endl;
 
     std::stringstream cfg;
