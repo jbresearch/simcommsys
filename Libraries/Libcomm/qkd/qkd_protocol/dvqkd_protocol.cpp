@@ -472,7 +472,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     // Calculating N_PE: the number of samples used for parameter estimation.
     // N_PE = N (number of generated states) - n (size of codeword of the
     // codec)
-    N_PE = sifted_alice_key.size() - get_codec_output_bits_n();
+    N_PE = sifted_alice_key.size() - get_codec_output_bits_n(); // to uncomment
 
     // Perform split for parameter estimation.
     split(sifted_alice_key, sifted_bob_key);
@@ -540,6 +540,69 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
         std::cout << "DV_QKDPROTOCOL: Alice's Calculated Syndrome = " << calculated_syndrome << std::endl;
 #endif
 
+    // (Bob) Convert vector Y from libbase::vector<int> to libbase::vector<gf2>
+    // Convert vector<int> to vector<bool>
+    const libbase::vector<libbase::gf2> Y_gf2(Y);
+
+#if DEBUG >= 1
+    std::cout << "DV_QKDPROTOCOL: Y converted to GF2 "<< std::endl;
+    print_gf_vector_as_ints(Y_gf2);
+#endif
+
+    // Set Ps of the qsc channel which is the estimated QBER from PE
+    /******* TO REMOVE QBER2 ---this is just a hack because framesize of 
+     * N_PE is too small for now, so the QBER is being skewed. 
+     */
+    double QBER2 = 1/7; // Actual error was 0.17.
+
+#if DEBUG >= 1
+    std::cout << "DV_QKDPROTOCOL: QBER2 (has to be deleted) = " << QBER2 << std::endl;
+#endif
+
+    // demodulation_channel->set_parameter(QBER);
+    demodulation_channel->set_parameter(QBER2); // To delete
+
+#if DEBUG >= 1
+    std::cout << "DV_QKDPROTOCOL: Description of Demodulation Channel" << demodulation_channel->description() << std::endl;
+#endif
+
+    // Initialise probability table.
+    auto prob_table = libbase::vector<libbase::vector<double>>(Y_gf2.size());
+
+#if DEBUG >= 1
+    std::cout << "DV_QKDPROTOCOL: Modem Description: " << mdm->description() << std::endl;
+#endif
+
+    // Setting block size of modem
+    mdm->set_blocksize(libbase::size_type<libbase::vector>(Y_gf2.size()));
+
+    /* (Bob) Demodulate the received codeword to get the required probability table*/
+    mdm->demodulate(*demodulation_channel, Y_gf2, prob_table);
+
+#if DEBUG >= 1
+    std::cout << "TESTSYNDROMEDECODING: Probability Table: "
+                  << prob_table << std::endl;
+#endif
+
+    // (Bob) Inverse Map. 
+    // To add a serialized parameter. 
+    // For binary this is a "map_straight"
+    // For converting from binary to non-binary this is a "map_dividing"
+
+    // (Bob) Syndrome Decode
+//         // Seed and decode
+//     // Pass Global RNG
+//     cdc->seedfrom(rng); 
+//     cdc->init_decoder(prob_table_p1, calculated_syndrome);
+//     cdc->decode(decoded_message_u_no_error);
+
+// #if DEBUG >= 1
+//     std::cout << "TESTSYNDROMEDECODING: Decoded message u (no error): "
+//               << decoded_message_u_no_error << std::endl;
+// #endif
+
+    // encode again the decoded message to compare to X.  
+
     // print final keys
     return {std::move(final_secret_key_KA), std::move(final_secret_key_KB)};
 }
@@ -558,6 +621,8 @@ dvqkd_protocol::serialize(std::ostream& sout) const
     sout << eps_sec << std::endl;
     sout << "# Correctness parameter eps_cor" << std::endl;
     sout << eps_cor << std::endl;
+    sout << "# Modem" << std::endl;
+    sout << mdm << std::endl;
 
     return sout;
 }
@@ -587,8 +652,15 @@ dvqkd_protocol::serialize(std::istream& sin)
         throw libbase::load_error("Loaded codec is not compatible with codec_coset!");
     }
 
+    // Manually create the channel HERE (during loading) so it exists before seedfrom() is called.
+    if (!this->demodulation_channel) {
+        this->demodulation_channel = std::make_shared<libcomm::qsc<libbase::gf2>>();
+        this->demodulation_channel->set_parameter(0.0); // Default safe value
+    }
+
     sin >> libbase::eatcomments >> eps_sec >> libbase::verify;
     sin >> libbase::eatcomments >> eps_cor >> libbase::verify;
+    sin >> libbase::eatcomments >> mdm >> libbase::verify; 
     // check that all assumptions hold
     assertalways(cdc->num_inputs() == 2); // input has to be binary
     assertalways(cdc->num_outputs() == 2); // output has to be binary
