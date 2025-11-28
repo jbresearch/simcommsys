@@ -528,7 +528,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     // Safety fallback for binary or uninitialized codec
     if (m == 0) m = 1; 
 
-    // Alice's side convert bits -> symbols
+    // Alice's side convert bits (bool) -> symbols (int)
     libbase::vector<int> X_int = pack_bits_to_symbols(X, m);
 
     // (Alice) Calculate the syndrome of X_raw_int
@@ -553,7 +553,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     /******* TO REMOVE QBER2 ---this is just a hack because framesize of 
      * N_PE is too small for now, so the QBER is being skewed. 
      */
-    double QBER2 = 1/7; // Actual error was 0.17.
+    double QBER2 = 1.0/7.0; // Actual error was 0.17.
 
 #if DEBUG >= 1
     std::cout << "DV_QKDPROTOCOL: QBER2 (has to be deleted) = " << QBER2 << std::endl;
@@ -637,22 +637,16 @@ dvqkd_protocol::serialize(std::istream& sin)
     int version;
     sin >> libbase::eatcomments >> version;
 
-    // Temporary pointer to the BASE class (codec)
-    //  The factory knows how to load "ldpc<...>" into a codec pointer.
-    std::shared_ptr<libcomm::codec<libbase::vector, double>> temp_cdc;
-
-    // Load into the temp pointer
-    sin >> libbase::eatcomments >> temp_cdc >> libbase::verify;
-
-    // Dynamic cast to the specific derived type (codec_coset) required by dvqkd_protocol.h
-    this->cdc = std::dynamic_pointer_cast<codec_coset<libbase::vector, double>>(temp_cdc);
+    // we have to serialise this as a codec object, then do a dynamic conversion
+    std::shared_ptr<codec<libbase::vector>> _cdc;
+    sin >> libbase::eatcomments >> _cdc >> libbase::verify;
+    cdc = std::dynamic_pointer_cast<codec_coset<libbase::vector>>(_cdc);
+    assert(cdc);
 
     // Verify casting was successful
-    if (!this->cdc) {
-        throw libbase::load_error("Loaded codec is not compatible with codec_coset!");
-    }
+    assert(this->cdc && "Loaded codec is not compatible with codec_coset!");
 
-    // Manually create the channel HERE (during loading) so it exists before seedfrom() is called.
+    // Created channel so it exists before seedfrom() is called.
     if (!this->demodulation_channel) {
         this->demodulation_channel = std::make_shared<libcomm::qsc<libbase::gf2>>();
         this->demodulation_channel->set_parameter(0.0); // Default safe value
