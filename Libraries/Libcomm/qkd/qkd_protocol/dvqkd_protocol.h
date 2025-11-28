@@ -82,7 +82,6 @@ private:
     int N_PE; // Number of samples used for parameter estimation.
     int leak_EC; //  Bits revealed during error correction (syndrome length)
 
-    bool MI_Check = false;  // MI check that verifies if I_AB > X_B?
     bool H_check = false;   // Hash check that verifies if hash_hs == hash_hsat?
     int len_secret_key = 0; // Length of final secret key
 

@@ -332,6 +332,8 @@ dvqkd_protocol::parameter_estimation(
     len_secret_key = calculate_finite_size_effects_secret_key_length(); 
     
 #if DEBUG >= 2
+    std::cout << "DV_QKDPROTOCOL: Parameter Estimation Calculations" << QBER
+              << std::endl;
     std::cout << "DV_QKDPROTOCOL: QBER = " << QBER
               << std::endl;
     std::cout << "DV_QKDPROTOCOL: len_secret_key = " << len_secret_key
@@ -648,8 +650,8 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     std::uint32_t hash_Y_hat = crc32_ieee<>::compute(Y_hat);
 
 #if DEBUG >= 1
-    std::cout << "CV_QKDPROTOCOL: hash_X = " << hash_X << std::endl;
-    std::cout << "CV_QKDPROTOCOL: hash_Y_hat = " << hash_Y_hat
+    std::cout << "DV_QKDPROTOCOL: hash_X = " << hash_X << std::endl;
+    std::cout << "DV_QKDPROTOCOL: hash_Y_hat = " << hash_Y_hat
                 << std::endl;
 #endif
 
@@ -661,7 +663,12 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     std::cerr << "CV_QKDPROTOCOL: H_check = true" << std::endl;
 #endif
 
+    // length of secret key is calculated in parameter estimation step 
+    final_secret_key_KA.init(len_secret_key);
+    final_secret_key_KB.init(len_secret_key);
+
     // Continue with privacy amplification to get the final keys
+    
     }
     else
     {
@@ -671,7 +678,8 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
 #endif
 
     len_secret_key = 0; // Return null as final secret keys
-
+    final_secret_key_KA.init(len_secret_key);
+    final_secret_key_KB.init(len_secret_key);
     }
 
     return {std::move(final_secret_key_KA), std::move(final_secret_key_KB)};

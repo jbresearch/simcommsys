@@ -268,7 +268,7 @@ quantum_bb84_source
     auto [key_KA, key_KB] = sys->fullcycle(source);
     std::cout << "TESTBB84: Size of Final Secret Key KA: " << key_KA.size()
               << std::endl;
-    std::cout << "TESTBB84: Final Secret Key KA: " << key_KA << std::endl;
+    std::cout << "TESTBB84: Final Secret Key KA: " << key_KA; 
     std::cout << "TESTBB84: Final Secret Key KB: " << key_KB << std::endl;
 
 #if DEBUG >= 2
