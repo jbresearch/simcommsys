@@ -119,46 +119,46 @@ dvqkd_protocol::get_bob_observables(int framesize)
 }
 
 
-    // Returns the observables of Alice
-    std::vector<std::unique_ptr<observable<bool>>>
-    dvqkd_protocol::get_alice_observables(int framesize)
-    {
-        std::vector<std::unique_ptr<observable<bool>>> observables;
-        observables.reserve(framesize);
+// Returns the observables of Alice
+std::vector<std::unique_ptr<observable<bool>>>
+dvqkd_protocol::get_alice_observables(int framesize)
+{
+    std::vector<std::unique_ptr<observable<bool>>> observables;
+    observables.reserve(framesize);
 
-        alice_basis_vector.init(framesize); // vector b (basis)
-        alice_bit_vector.init(framesize);   // vector a (bit)
+    alice_basis_vector.init(framesize); // vector b (basis)
+    alice_bit_vector.init(framesize);   // vector a (bit)
 
-        // Ensure the source sequence has been set by set_source_sequence()
-        assert(m_source_sequence &&
-               "Source sequence was not set in dvqkd_protocol");
-        assert(m_source_sequence->size() == framesize &&
-               "Source sequence size mismatch");
+    // Ensure the source sequence has been set by set_source_sequence()
+    assert(m_source_sequence &&
+            "Source sequence was not set in dvqkd_protocol");
+    assert(m_source_sequence->size() == framesize &&
+            "Source sequence size mismatch");
 
-        for (int i = 0; i < framesize; ++i) {
+    for (int i = 0; i < framesize; ++i) {
 
-            // Get the qubit from the stored sequence
-            const qubit& q = (*m_source_sequence)(i);
+        // Get the qubit from the stored sequence
+        const qubit& q = (*m_source_sequence)(i);
 
-            // Reverse-engineer the bit and basis from the qubit state
-            std::pair<bool, bool> alice_choice = get_alice_choice_from_qubit(q);
+        // Reverse-engineer the bit and basis from the qubit state
+        std::pair<bool, bool> alice_choice = get_alice_choice_from_qubit(q);
 
-            bool bit = alice_choice.first;
-            bool basis = alice_choice.second;
+        bool bit = alice_choice.first;
+        bool basis = alice_choice.second;
 
-            // Store them in the protocol's member vectors
-            alice_bit_vector(i) = bit;     // This is Alice's bit vector a
-            alice_basis_vector(i) = basis; // This is Alice's basis vector b
+        // Store them in the protocol's member vectors
+        alice_bit_vector(i) = bit;     // This is Alice's bit vector a
+        alice_basis_vector(i) = basis; // This is Alice's basis vector b
 
-            // Create the corresponding fake observable for Alice
-            if (basis == 0) { // Z-basis (Computational)
-                observables.push_back(
-                    std::make_unique<fake_computational_observable>());
-            } else { // X-basis (Hadamard)
-                observables.push_back(
-                    std::make_unique<fake_hadamard_observable>());
-            }
+        // Create the corresponding fake observable for Alice
+        if (basis == 0) { // Z-basis (Computational)
+            observables.push_back(
+                std::make_unique<fake_computational_observable>());
+        } else { // X-basis (Hadamard)
+            observables.push_back(
+                std::make_unique<fake_hadamard_observable>());
         }
+    }
 
 
 #if DEBUG >= 1
@@ -169,15 +169,6 @@ dvqkd_protocol::get_bob_observables(int framesize)
 
         return observables;
     }
-
-
-
-// Split fn to be used for parameter estimation and post-processing.
-// std::tuple<libbase::vector<bool>, // X_PE for Alice
-//            libbase::vector<bool>, // Y_PE for Bob
-//            libbase::vector<bool>, // 
-//            libbase::vector<bool>> // Bob's raw key
-
 
 /*! \brief Performs split for parameter estimation 
  *
@@ -410,7 +401,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
 
     /* Sifting Step */
     // In this step we need to discard the bits where the basis vectors of Alice (vector b) and Bob (vector b') do not match.
-    // Step 1 - Get and store the indices of the elements of the basis vectors that won't match.
+    // Get and store the indices of the elements of the basis vectors that won't match.
 
     std::vector<int> diff_indices;
 
@@ -642,14 +633,47 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     cdc->decode(decoded_alice_k_message);
 
 #if DEBUG >= 1
-    std::cout << "DV_QKDPROTOCOL: Verifying decoded messages: "
+    std::cout << "DV_QKDPROTOCOL: Verifying decoded message: "
               << decoded_alice_k_message << std::endl;
     std::cout << "DV_QKDPROTOCOL: Decoded Alice message u of size k (no error): "
               << decoded_alice_k_message << std::endl;
 #endif
     /******  END OF VERIFICATION ******/
 
-    // print final keys
+    // Convert vector Y_hat_int to bool
+    const libbase::vector<bool> Y_hat(Y_hat_int);
+
+    /* Calculating Hashing for Vectors s and s_hat */
+    std::uint32_t hash_X = crc32_ieee<>::compute(X);
+    std::uint32_t hash_Y_hat = crc32_ieee<>::compute(Y_hat);
+
+#if DEBUG >= 1
+    std::cout << "CV_QKDPROTOCOL: hash_X = " << hash_X << std::endl;
+    std::cout << "CV_QKDPROTOCOL: hash_Y_hat = " << hash_Y_hat
+                << std::endl;
+#endif
+
+    H_check = (hash_X == hash_Y_hat);
+
+    if (H_check) {
+
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL: H_check = true" << std::endl;
+#endif
+
+    // Continue with privacy amplification to get the final keys
+    }
+    else
+    {
+
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL: H_check = false" << std::endl;
+#endif
+
+    len_secret_key = 0; // Return null as final secret keys
+
+    }
+
     return {std::move(final_secret_key_KA), std::move(final_secret_key_KB)};
 }
 
