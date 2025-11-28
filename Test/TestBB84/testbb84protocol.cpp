@@ -186,6 +186,8 @@ ones
 1e-10
 # Correctness parameter eps_cor
 1e-15
+# Alphabet size
+2
 # Modem
 direct_blockmodem<gf2,vector,double>
 # Mapper

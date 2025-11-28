@@ -332,7 +332,7 @@ dvqkd_protocol::parameter_estimation(
     len_secret_key = calculate_finite_size_effects_secret_key_length(); 
     
 #if DEBUG >= 2
-    std::cout << "DV_QKDPROTOCOL: Parameter Estimation Calculations" << QBER
+    std::cout << "DV_QKDPROTOCOL: Parameter Estimation Calculations" 
               << std::endl;
     std::cout << "DV_QKDPROTOCOL: QBER = " << QBER
               << std::endl;
@@ -616,7 +616,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     /******  VERIFICATION (to delete) ******/ 
     // Modulate codeword
     libbase::vector<libbase::gf2> modulated_codeword_p1(X_int.size());
-    mdm->modulate(2, X_int, modulated_codeword_p1); 
+    mdm->modulate(alphabet_size, X_int, modulated_codeword_p1); 
 
     // Transmit codeword through a QSC channel with Ps = 0.0
     double Ps_no_error = 0.0; 
@@ -635,8 +635,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     cdc->decode(decoded_alice_k_message);
 
 #if DEBUG >= 1
-    std::cout << "DV_QKDPROTOCOL: Verifying decoded message: "
-              << decoded_alice_k_message << std::endl;
+    std::cout << "*** DV_QKDPROTOCOL: Verifying decoded message ***" << std::endl;
     std::cout << "DV_QKDPROTOCOL: Decoded Alice message u of size k (no error): "
               << decoded_alice_k_message << std::endl;
 #endif
@@ -667,8 +666,40 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     final_secret_key_KA.init(len_secret_key);
     final_secret_key_KB.init(len_secret_key);
 
-    // Continue with privacy amplification to get the final keys
-    
+    // If l>0, continue with privacy amplification to get the final keys
+    if (len_secret_key > 0) {
+            // Perform Privacy Amplification:
+            // * alphabet size of 2
+            // * length of final key after doing PA.
+            // * length of pre-hashed key which in this case is the size of
+            // vectors s and s_hat.
+            pa_system.init(
+                len_secret_key, X.size(), alphabet_size);
+
+            int starting_vector_len =
+                pa_system.generate_starting_vector_length();
+
+#if DEBUG >= 1
+                std::cerr << "CV_QKDPROTOCOL: PA system = "
+                          << pa_system.description() << std::endl;
+#endif
+
+            // Generate starting vector.
+            libbase::vector<bool> starting_vector =
+                pa_system.generate_starting_vector(starting_vector_len, alphabet_size);
+
+            // Generate Standard Toeplitz matrix.
+            libbase::matrix<bool> standard_toeplitz_matrix =
+                pa_system.generate_toeplitz_matrix(starting_vector);
+
+            // Generates KB of Bob.
+            final_secret_key_KB = pa_system.compute_hashed_key(
+                standard_toeplitz_matrix, Y_hat);
+
+            // Generates KA of Alice.
+            final_secret_key_KA = pa_system.compute_hashed_key(
+                standard_toeplitz_matrix, X);
+                        }
     }
     else
     {
@@ -698,6 +729,8 @@ dvqkd_protocol::serialize(std::ostream& sout) const
     sout << eps_sec << std::endl;
     sout << "# Correctness parameter eps_cor" << std::endl;
     sout << eps_cor << std::endl;
+    sout << "# Alphabet size" << std::endl;
+    sout << alphabet_size << std::endl;
     sout << "# Modem" << std::endl;
     sout << mdm << std::endl;
     sout << "# Mapper" << std::endl;
@@ -733,6 +766,7 @@ dvqkd_protocol::serialize(std::istream& sin)
 
     sin >> libbase::eatcomments >> eps_sec >> libbase::verify;
     sin >> libbase::eatcomments >> eps_cor >> libbase::verify;
+    sin >> libbase::eatcomments >> alphabet_size >> libbase::verify;
     sin >> libbase::eatcomments >> mdm >> libbase::verify; 
     sin >> libbase::eatcomments >> map >> libbase::verify; 
     // check that all assumptions hold
