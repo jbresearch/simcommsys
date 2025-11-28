@@ -36,6 +36,7 @@
 #include "codec/codec_coset.h"
 #include "codec/ldpc.h"
 #include "modem.h"
+#include "mapper.h"
 #include "commsys.h"
 #include "crc/crc32.h"
 #include "gf.h"
@@ -93,6 +94,7 @@ protected:
     std::shared_ptr<codec_coset<libbase::vector>> cdc; //!< Error-control codec
     std::shared_ptr<blockmodem<libbase::gf2>> mdm; // modem
     std::shared_ptr<channel<libbase::gf2>> demodulation_channel;
+    std::shared_ptr<mapper<libbase::vector>> map; // mapper 
 
     //  Privacy Amplification System using the standard Toeplitz matrix
     pa_standard_toeplitz<bool> pa_system;

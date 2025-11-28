@@ -588,9 +588,16 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     // To add a serialized parameter. 
     // For binary this is a "map_straight"
     // For converting from binary to non-binary this is a "map_dividing"
+    auto ptable_encoded = libbase::vector<libbase::vector<double>>();
+    map->inverse(prob_table, ptable_encoded);
+
+#if DEBUG >= 1
+    std::cout << "TESTSYNDROMEDECODING: Probability Encoded obtained from Inverse Mapping: "
+                  << ptable_encoded << std::endl;
+#endif
 
     // (Bob) Syndrome Decode
-//         // Seed and decode
+//         // Seed and decodes
 //     // Pass Global RNG
 //     cdc->seedfrom(rng); 
 //     cdc->init_decoder(prob_table_p1, calculated_syndrome);
@@ -623,6 +630,8 @@ dvqkd_protocol::serialize(std::ostream& sout) const
     sout << eps_cor << std::endl;
     sout << "# Modem" << std::endl;
     sout << mdm << std::endl;
+    sout << "# Mapper" << std::endl;
+    sout << map << std::endl;
 
     return sout;
 }
@@ -655,6 +664,7 @@ dvqkd_protocol::serialize(std::istream& sin)
     sin >> libbase::eatcomments >> eps_sec >> libbase::verify;
     sin >> libbase::eatcomments >> eps_cor >> libbase::verify;
     sin >> libbase::eatcomments >> mdm >> libbase::verify; 
+    sin >> libbase::eatcomments >> map >> libbase::verify; 
     // check that all assumptions hold
     assertalways(cdc->num_inputs() == 2); // input has to be binary
     assertalways(cdc->num_outputs() == 2); // output has to be binary

@@ -119,6 +119,8 @@ ones
 1e-15
 # Modem
 direct_blockmodem<gf2,vector,double>
+# Mapper
+map_straight<vector,double>
 )SS";
 
     auto sys = std::make_shared<
