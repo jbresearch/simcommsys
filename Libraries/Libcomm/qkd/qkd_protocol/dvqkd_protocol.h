@@ -32,6 +32,7 @@
 #define DVQKD_PROTOCOL_H
 
 #include "channel.h"
+#include "channel/qsc.h"
 #include "codec/codec_coset.h"
 #include "codec/ldpc.h"
 #include "modem.h"
@@ -91,6 +92,7 @@ private:
 protected:
     std::shared_ptr<codec_coset<libbase::vector>> cdc; //!< Error-control codec
     std::shared_ptr<blockmodem<libbase::gf2>> mdm; // modem
+    std::shared_ptr<channel<libbase::gf2>> demodulation_channel;
 
     //  Privacy Amplification System using the standard Toeplitz matrix
     pa_standard_toeplitz<bool> pa_system;
@@ -108,6 +110,7 @@ public:
         if (cdc)
             cdc->seedfrom(rng);
         pa_system.seedfrom(rng);
+        demodulation_channel->seedfrom(rng);
     }
 
     void
@@ -150,6 +153,14 @@ public:
     const int calculate_finite_size_effects_secret_key_length() override;
 
     libbase::vector<int> pack_bits_to_symbols(const libbase::vector<bool>& bits, int m);
+
+    template <class GFVec>
+    void print_gf_vector_as_ints(const GFVec& v)
+    {
+        for (int i = 0; i < v.size(); ++i)
+            std::cout << int(v(i)) << "\t";
+        std::cout << std::endl;
+    }
 
     // Returns final secret keys KA and KB.
     std::pair<libbase::vector<bool>, libbase::vector<bool>>
