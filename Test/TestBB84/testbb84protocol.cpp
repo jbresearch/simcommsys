@@ -49,10 +49,10 @@ BOOST_AUTO_TEST_CASE(test_bb84_protocol)
     for (auto& s : libbase::serializer::get_derived_classes("quantum_channel"))
         std::cout << " - " << s << std::endl;
 
-    // Add this to testbb84protocol.cpp temporarily
-    std::cout << "Derived classes for codec:" << std::endl;
-    for (auto& s : libbase::serializer::get_derived_classes("codec"))
-        std::cout << " - " << s << std::endl;
+    // // Add this to testbb84protocol.cpp temporarily
+    // std::cout << "Derived classes for codec:" << std::endl;
+    // for (auto& s : libbase::serializer::get_derived_classes("codec"))
+    //     std::cout << " - " << s << std::endl;
 
     std::stringstream cfg;
     cfg << R"SS(
@@ -117,6 +117,8 @@ ones
 1e-10
 # Correctness parameter eps_cor
 1e-15
+# Modem
+direct_blockmodem<gf2,vector,double>
 )SS";
 
     auto sys = std::make_shared<
@@ -130,7 +132,8 @@ ones
     sys->seedfrom(*rng);
 
     // Setting and getting CLI Parameter
-    const double qber = 0.5; //0.00; //0.06; // QBER, the new CLI parameter in percentage.
+    // const double qber = 0.5; //0.00; //0.06; // QBER, the new CLI parameter in percentage.
+    const double qber = 0.18; 
     libbase::vector<double> cli;
     cli.init(sys->get_num_params()); // should be 1 when Alice is identity , CLI
                                      // channel parameters
