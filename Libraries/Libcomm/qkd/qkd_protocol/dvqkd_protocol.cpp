@@ -532,7 +532,8 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     libbase::vector<int> X_int = pack_bits_to_symbols(X, m);
 
     // (Alice) Calculate the syndrome of X_raw_int
-    libbase::vector<int> calculated_syndrome(X_int.size());
+    // libbase::vector<int> calculated_syndrome(X_int.size());
+    libbase::vector<int> calculated_syndrome(cdc->output_block_size() - cdc->input_block_size());
     cdc->calculate_syndrome(X_int, calculated_syndrome); 
 
 #if DEBUG >= 1
@@ -576,11 +577,12 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     // Setting block size of modem
     mdm->set_blocksize(libbase::size_type<libbase::vector>(Y_gf2.size()));
 
-    /* (Bob) Demodulate the received codeword to get the required probability table*/
+    /* (Bob) Demodulate the received codeword to get the required probability table
+    Format of Table: P(bit 0), P(bit 1)*/
     mdm->demodulate(*demodulation_channel, Y_gf2, prob_table);
 
 #if DEBUG >= 1
-    std::cout << "TESTSYNDROMEDECODING: Probability Table: "
+    std::cout << "DV_QKDPROTOCOL: Probability Table: "
                   << prob_table << std::endl;
 #endif
 
@@ -588,32 +590,68 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     // To add a serialized parameter. 
     // For binary this is a "map_straight"
     // For converting from binary to non-binary this is a "map_dividing"
-    auto ptable_encoded = libbase::vector<libbase::vector<double>>();
-    map->inverse(prob_table, ptable_encoded);
+    auto prob_table_encoded = libbase::vector<libbase::vector<double>>();
+    map->inverse(prob_table, prob_table_encoded);
 
 #if DEBUG >= 1
-    std::cout << "TESTSYNDROMEDECODING: Probability Encoded obtained from Inverse Mapping: "
-                  << ptable_encoded << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Probability Encoded obtained from Inverse Mapping: "
+                  << prob_table_encoded << std::endl;
 #endif
 
-    // (Bob) Syndrome Decode
-//         // Seed and decodes
-//     // Pass Global RNG
-//     cdc->seedfrom(rng); 
-//     cdc->init_decoder(prob_table_p1, calculated_syndrome);
-//     cdc->decode(decoded_message_u_no_error);
+    auto decoded_bob_k_message = libbase::vector<int>(cdc->input_block_size());
+    // (Bob) Perform Syndrome Decoding
+    cdc->init_decoder(prob_table_encoded, calculated_syndrome);
+    cdc->decode(decoded_bob_k_message);
 
-// #if DEBUG >= 1
-//     std::cout << "TESTSYNDROMEDECODING: Decoded message u (no error): "
-//               << decoded_message_u_no_error << std::endl;
-// #endif
+#if DEBUG >= 1
+    std::cout << "DV_QKDPROTOCOL: Bob's Decoded message k: "
+              << decoded_bob_k_message << std::endl;
+#endif
 
-    // encode again the decoded message to compare to X.  
+    // Encode decoded Bob's k decoded message to get Y_hat to then compare to X
+    libbase::vector<int> Y_hat_int(Y_gf2.size());
+    cdc->encode(decoded_bob_k_message, Y_hat_int);
+
+#if DEBUG >= 1
+    std::cout << "DV_QKDPROTOCOL: Bob's Y_hat_int: "
+              << Y_hat_int << std::endl;
+#endif
+
+    // To double check with Johann on this:
+    // TO VERIFY YOU HAVE TO ALSO DECODE X AND ENCODE IT AGAIN? 
+
+    /******  VERIFICATION (to delete) ******/ 
+    // Modulate codeword
+    libbase::vector<libbase::gf2> modulated_codeword_p1(X_int.size());
+    mdm->modulate(2, X_int, modulated_codeword_p1); 
+
+    // Transmit codeword through a QSC channel with Ps = 0.0
+    double Ps_no_error = 0.0; 
+    demodulation_channel->set_parameter(Ps_no_error);
+
+    libbase::vector<libbase::gf2> received_codeword_p1(X_int.size());
+    demodulation_channel->transmit(modulated_codeword_p1, received_codeword_p1);
+
+    // Demodulate
+    auto prob_table_p1_X_int = libbase::vector<libbase::vector<double>>(X_int.size());
+    mdm->demodulate(*demodulation_channel, received_codeword_p1, prob_table_p1_X_int);
+
+    auto decoded_alice_k_message = libbase::vector<int>(cdc->input_block_size());
+    cdc->seedfrom(rng); 
+    cdc->init_decoder(prob_table_p1_X_int, calculated_syndrome);
+    cdc->decode(decoded_alice_k_message);
+
+#if DEBUG >= 1
+    std::cout << "DV_QKDPROTOCOL: Verifying decoded messages: "
+              << decoded_alice_k_message << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Decoded Alice message u of size k (no error): "
+              << decoded_alice_k_message << std::endl;
+#endif
+    /******  END OF VERIFICATION ******/
 
     // print final keys
     return {std::move(final_secret_key_KA), std::move(final_secret_key_KB)};
 }
-
 
 //! Serialize protocol
 std::ostream&
