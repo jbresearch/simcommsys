@@ -260,7 +260,7 @@ const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     int leak_EC = get_codec_output_bits_n() - get_codec_input_bits_k(); // size of syndrome
 
     #if DEBUG >= 1
-       std::cout << "DV_QKDPROTOCOL: Length of raw key n_d = " << n_d << std::endl; 
+       std::cout << "DV_QKDPROTOCOL: Length of key after split and PE n_d = " << n_d << std::endl; 
        std::cout << "DV_QKDPROTOCOL: Length of PE bits k_d = " << k_d << std::endl;
        std::cout << "DV_QKDPROTOCOL: Leak_EC = " << leak_EC << std::endl;
     #endif
@@ -282,7 +282,7 @@ const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     double Q_worst_case = Q_tol + mu;
 
     /* QBER is calculated in the parameter estimation method. 
-    Checks that it is not >= the maximum tolerable qber. */  
+    // Checks that it is not >= the maximum tolerable qber. */  
     if (QBER >= Q_worst_case) {
         return 0.0; // Returns a final length of 0
     }
@@ -299,6 +299,10 @@ const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     // Calculate final length 'l'
     // Formula: l = n * [ q - h(Q_tol + mu) ] - leak_EC - delta
     double privacy_amplification_term = binary_entropy(Q_worst_case);
+
+    #if DEBUG >= 1
+       std::cout << "DV_QKDPROTOCOL: Result of Binary Entropy fn = " << privacy_amplification_term << std::endl; 
+    #endif
     
     /* Note: 
     Finite-key analysis requires n and k to be in the order of 10^4 to 10^5 to produce a positive key length. 
