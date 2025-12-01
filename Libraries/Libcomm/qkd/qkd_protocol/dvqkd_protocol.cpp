@@ -129,7 +129,10 @@ dvqkd_protocol::get_alice_observables(int framesize)
     alice_basis_vector.init(framesize); // vector b (basis)
     alice_bit_vector.init(framesize);   // vector a (bit)
 
-    // Ensure the source sequence has been set by set_source_sequence()
+    /* Ensure the source sequence has been set by set_source_sequence().
+    set_source_sequence() is called in the fullcycle method found in
+    qkd_commsys.cpp
+    */
     assert(m_source_sequence &&
             "Source sequence was not set in dvqkd_protocol");
     assert(m_source_sequence->size() == framesize &&
@@ -304,6 +307,16 @@ const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     return static_cast<int>(std::floor(std::max(0.0, l))); 
 }
 
+/*! \brief Estimates the channel error rate (QBER) and calculates the final secure key length.
+ *
+ * This method compares the subsets of bits reserved for Parameter Estimation (PE)
+ * from Alice and Bob to calculate the Quantum Bit Error Rate (QBER). Based on this
+ * QBER and finite-size security bounds, it computes the available length for the
+ * final secret key.
+ *
+ * @param X_PE Alice's bit vector reserved for parameter estimation.
+ * @param Y_PE Bob's bit vector reserved for parameter estimation.
+ */
 void
 dvqkd_protocol::parameter_estimation(
     const libbase::vector<bool>& X_PE, const libbase::vector<bool>& Y_PE)
@@ -320,7 +333,7 @@ dvqkd_protocol::parameter_estimation(
     */
 
     // Calculate the QBER between vectors X_PE of Alice and Y_PE of Bob
-    QBER = (1.0/static_cast<double> (Y_PE.size())) * libbase::hamming(X_PE,Y_PE);
+    QBER = (1.0/static_cast<double> (X_PE.size())) * libbase::hamming(X_PE,Y_PE);
 
     // Calculate the final length of the secret l with finite size effects
     // len_secret_key = calculate_secure_key_length(X_raw.size(), X_PE.size(), Q_tol, syndrome_size);
@@ -407,6 +420,9 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
 
     std::vector<int> diff_indices;
 
+    /* alice_basis_vector is assigned in get_alice_observables method.
+     Similarly for Bob, bob_basis_vector is assigned in get_bob_observables method.  
+    */
     if (bob_basis_vector.size() != alice_basis_vector.size()) {
         std::cerr << "Vectors are not the same size, so all indices beyond the smaller size will be different." << std::endl;
     } else {
@@ -446,7 +462,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
             // Exclude index. Move to the next index in diff_indices.
             diff_idx++;
         } else {
-            // Index's basis matched. Keep the measurement.
+            // If the index's basis matched, keep the measurement.
             sifted_alice_key(sifted_idx) = alice_measurements(i);
             sifted_bob_key(sifted_idx) = bob_measurements(i);
             sifted_idx++;
@@ -462,10 +478,9 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     std::cout << "DV_QKDPROTOCOL: Sifted Bob Key = " << sifted_bob_key << std::endl;
 #endif
 
-    // Calculating N_PE: the number of samples used for parameter estimation.
-    // N_PE = N (number of generated states) - n (size of codeword of the
-    // codec)
-    N_PE = sifted_alice_key.size() - get_codec_output_bits_n(); // to uncomment
+    /* Calculating N_PE: the number of samples used for parameter estimation.
+    N_PE = Size of sifted key - n (size of codeword of the codec) */
+    N_PE = sifted_alice_key.size() - get_codec_output_bits_n(); 
 
     // Perform split for parameter estimation.
     split(sifted_alice_key, sifted_bob_key);
@@ -631,6 +646,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
 
     auto decoded_alice_k_message = libbase::vector<int>(cdc->input_block_size());
     cdc->seedfrom(rng); 
+
     cdc->init_decoder(prob_table_p1_X_int, calculated_syndrome);
     cdc->decode(decoded_alice_k_message);
 
