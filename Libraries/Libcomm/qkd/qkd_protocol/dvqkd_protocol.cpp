@@ -231,12 +231,12 @@ double dvqkd_protocol::binary_entropy(double p) {
 
 /*! \brief Calculates the Finite-Key Secure Length (Equation 2 from Tomamichel et al., 2012)
  *
- * @param n_d        Length of the raw key. This is the length of vectors X and Y after PE. 
- * @param k_d        Length of the parameter estimation bits (Z-basis)
+ * @param n_d        Length of the keys after performing the split. This is the length of vectors X and Y after PE. 
+ * @param k_d        Length of the parameter estimation bits. 
  * @param Q_tol      The maximum tolerated QBER (typically around 7%)
  * @param leak_EC    Bits revealed during error correction (syndrome length)
- * @param eps_sec    Security parameter (e.g., 1e-10)
- * @param eps_cor    Correctness parameter (e.g., 1e-15)
+ * @param eps_sec    Security parameter (e.g., 1e-10). Smoothing parameter that ensures composable security. 
+ * @param eps_cor    Correctness parameter (e.g., 1e-15). Likelihood that even after EC, the two keys still differ.
  * @param q          Source quality factor (default 1.0 for perfect qubits)
  * @return           Final secure key length 'l' (floored to 0 if negative)
  */
@@ -265,8 +265,12 @@ const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
        std::cout << "DV_QKDPROTOCOL: Leak_EC = " << leak_EC << std::endl;
     #endif
 
-    // Calculate statistical fluctuation term 'mu'
-    // Formula: mu = sqrt( ((n+k)/(n*k)) * ((k+1)/k) * ln(2/eps_sec) )
+    /* Calculate statistical fluctuation term 'mu'
+    Formula: mu = sqrt( ((n+k)/(n*k)) * ((k+1)/k) * ln(2/eps_sec) )
+    mu refers to the statistical correction factor; when one calculates the QBER for P.E.
+    since one uses a finite size for X_PE and Y_PE, the mu is that margin of error.
+    */
+
     double term1 = (n_d + k_d) / (n_d * k_d);
     double term2 = (k_d + 1.0) / k_d;
     double term3 = std::log(2.0 / eps_sec);
@@ -277,10 +281,10 @@ const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     double Q_tol = 0.07; // Assuming Q_tol is 7% which is tighter than the 10%. 
     double Q_worst_case = Q_tol + mu;
 
-    // QBER is calculated in the parameter estimation method. 
-    // Checks that it is not >= the maximum tolerable qber 
+    /* QBER is calculated in the parameter estimation method. 
+    Checks that it is not >= the maximum tolerable qber. */  
     if (QBER >= Q_worst_case) {
-        return 0.0;
+        return 0.0; // Returns a final length of 0
     }
 
     #if DEBUG >= 1
