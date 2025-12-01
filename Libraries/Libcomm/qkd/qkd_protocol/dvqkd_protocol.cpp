@@ -385,8 +385,8 @@ dvqkd_protocol::pack_bits_to_symbols(const libbase::vector<bool>& bits, int m)
     // Safety check: if m is less than 1 (e.g., binary), treat as 1
     if (m < 1) m = 1;
 
-    // Calculate number of symbols
-    // Any "leftover" bits at the end of the stream that don't fill a full symbol are dropped.
+    /* Calculate number of symbols
+    Any "leftover" bits at the end of the stream that don't fill a full symbol are dropped.*/
     int num_symbols = bits.size() / m;
     
     libbase::vector<int> symbols;
@@ -395,10 +395,11 @@ dvqkd_protocol::pack_bits_to_symbols(const libbase::vector<bool>& bits, int m)
     for (int i = 0; i < num_symbols; ++i) { 
         int value = 0;
         for (int b = 0; b < m; ++b) {
-            // Pack MSB first: The first bit in the chunk goes to the highest position.
-            // Example for m=4: 
-            // b=0 (1st bit) -> shifted left by 3
-            // b=3 (4th bit) -> shifted left by 0
+            /* Pack MSB first: The first bit in the chunk goes to the highest position.
+            Example for m=4: 
+             b=0 (1st bit) -> shifted left by 3
+             b=3 (4th bit) -> shifted left by 0
+            */
             if (bits(i * m + b)) {
                 // Shift 1 bit to the left start with the MSB and XOR with the value 
                 value |= (1 << (m - 1 - b));
@@ -518,7 +519,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     // Aborts of sizes of sifted keys are not equal
     assert(sifted_alice_key.size() == sifted_bob_key.size());
     
-    // Perform Parameter Estimation
+    // Perform Parameter Estimation to calculate the QBER and l 
     parameter_estimation(X_PE, Y_PE); 
 
 #if DEBUG >= 1
@@ -530,7 +531,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     Convert X_raw to binary or non-binary to be able to calculate the syndrome
     Convert libbase::vector<bool> -> libbase::vector<int> */
 
-    // Get the alphabet size from the loaded codec (e.g., 2 for binary, 16 for GF16)
+    // Get the alphabet size from the loaded codec (e.g., 2 for GF2, 16 for GF16)
     int q = cdc->num_outputs(); 
     
     // Calculate log2(q) to get m (bits per symbol)
@@ -547,8 +548,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     // Alice's side convert bits (bool) -> symbols (int)
     libbase::vector<int> X_int = pack_bits_to_symbols(X, m);
 
-    // (Alice) Calculate the syndrome of X_raw_int
-    // libbase::vector<int> calculated_syndrome(X_int.size());
+    //(Alice) Calculate the syndrome of X of size (n-k)
     libbase::vector<int> calculated_syndrome(cdc->output_block_size() - cdc->input_block_size());
     cdc->calculate_syndrome(X_int, calculated_syndrome); 
 
@@ -577,7 +577,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
 #endif
 
     // demodulation_channel->set_parameter(QBER);
-    demodulation_channel->set_parameter(QBER2); // To delete
+    demodulation_channel->set_parameter(QBER2); // To delete and revert to QBER
 
 #if DEBUG >= 1
     std::cout << "DV_QKDPROTOCOL: Description of Demodulation Channel" << demodulation_channel->description() << std::endl;
@@ -594,7 +594,10 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     mdm->set_blocksize(libbase::size_type<libbase::vector>(Y_gf2.size()));
 
     /* (Bob) Demodulate the received codeword to get the required probability table
-    Format of Table: P(bit 0), P(bit 1)*/
+    Format of Table: P(bit 0), P(bit 1).
+    Demodulation channel is a qsc channel which is initialised in serialize sin
+    This was required due to RNG intialisation in the seedfrom fn found in dvqkd_protocol.h
+    */
     mdm->demodulate(*demodulation_channel, Y_gf2, prob_table);
 
 #if DEBUG >= 1
@@ -602,10 +605,10 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
                   << prob_table << std::endl;
 #endif
 
-    // (Bob) Inverse Map. 
-    // To add a serialized parameter. 
-    // For binary this is a "map_straight"
-    // For converting from binary to non-binary this is a "map_dividing"
+    /* (Bob) Inverse Map. 
+    For binary this is a "map_straight"
+    For converting from binary to non-binary this is a "map_dividing"
+    */
     auto prob_table_encoded = libbase::vector<libbase::vector<double>>();
     map->inverse(prob_table, prob_table_encoded);
 
@@ -648,7 +651,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     libbase::vector<libbase::gf2> received_codeword_p1(X_int.size());
     demodulation_channel->transmit(modulated_codeword_p1, received_codeword_p1);
 
-    // Demodulate
+    // Demodulate (Error free) 
     auto prob_table_p1_X_int = libbase::vector<libbase::vector<double>>(X_int.size());
     mdm->demodulate(*demodulation_channel, received_codeword_p1, prob_table_p1_X_int);
 
@@ -692,11 +695,12 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
 
     // If l>0, continue with privacy amplification to get the final keys
     if (len_secret_key > 0) {
-            // Perform Privacy Amplification:
-            // * alphabet size of 2
-            // * length of final key after doing PA.
-            // * length of pre-hashed key which in this case is the size of
-            // vectors s and s_hat.
+            /* Perform Privacy Amplification:
+            param1: alphabet size of 2
+            param2: length of final key after doing PA.
+            param3: length of pre-hashed key which in this case is the size of
+            vectors s and s_hat.
+            */
             pa_system.init(
                 len_secret_key, X.size(), alphabet_size);
 
