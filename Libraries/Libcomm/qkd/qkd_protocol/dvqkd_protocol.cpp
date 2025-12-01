@@ -190,6 +190,7 @@ dvqkd_protocol::split(libbase::vector<bool>& alice_measurements,
     assert(N_PE > 0 && "N_PE must be > 0.");
 
     const int N = alice_measurements.size();
+    assert(N==bob_measurements.size());
 
     X_PE.init(N_PE);
     Y_PE.init(N_PE);
