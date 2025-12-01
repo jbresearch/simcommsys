@@ -48,81 +48,7 @@ BOOST_AUTO_TEST_CASE(test_bb84_protocol)
     std::cout << "Derived classes for quantum_channel:" << std::endl;
     for (auto& s : libbase::serializer::get_derived_classes("quantum_channel"))
         std::cout << " - " << s << std::endl;
-
-    // // Add this to testbb84protocol.cpp temporarily
-    // std::cout << "Derived classes for codec:" << std::endl;
-    // for (auto& s : libbase::serializer::get_derived_classes("codec"))
-    //     std::cout << " - " << s << std::endl;
-
-//     std::stringstream cfg;
-//     cfg << R"SS(
-// # Version
-// 1
-// # Frame size (# of quantum states in a frame)
-// 14
-// ## Alice's channel
-// identity_quantum_channel
-// ## Bob's channel
-// depolarizing_quantum_channel
-// ## Postprocessing protocol
-// dvqkd_protocol
-// # Version
-// 1
-// # Codec
-// ldpc<gf2,double>
-// # Version
-// 5
-// # SPA type (trad|gdl)
-// gdl
-// # Number of iterations
-// 50
-// # Clipping method
-// zero
-// # Value of almostzero
-// 1e-100
-// # Reduce generator matrix to REF? (true|false)
-// 1
-// # Length (n)
-// 7
-// # Dimension (m)
-// 7
-// # Max column weight
-// 3
-// # Max row weight
-// 3
-// # Non-zero values (ones|random|provided)
-// ones
-// # Column weight vector
-// 7
-// 3 3 3 3 3 3 3
-// # Row weight vector
-// 7
-// 3 3 3 3 3 3 3
-// # Non zero positions per col
-// 3
-// 1 5 7
-// 3
-// 1 2 6
-// 3
-// 2 3 7
-// 3
-// 1 3 4
-// 3
-// 2 4 5
-// 3
-// 3 5 6
-// 3
-// 4 6 7
-// # Security parameter eps_sec
-// 1e-10
-// # Correctness parameter eps_cor
-// 1e-15
-// # Modem
-// direct_blockmodem<gf2,vector,double>
-// # Mapper
-// map_straight<vector,double>
-// )SS";
-
+        
 std::stringstream cfg;
     cfg << R"SS(
 # Version
@@ -182,6 +108,10 @@ ones
 3
 1
 4
+# N_PE
+3
+# Q_tol error rate
+0.07
 # Security parameter eps_sec
 1e-10
 # Correctness parameter eps_cor

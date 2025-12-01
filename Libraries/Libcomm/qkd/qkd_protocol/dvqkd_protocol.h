@@ -80,6 +80,7 @@ private:
     const libbase::vector<qubit>* m_source_sequence = nullptr;
 
     int N_PE; // Number of samples used for parameter estimation.
+    double Q_tol; // 'Worst' case error rate
     int leak_EC; //  Bits revealed during error correction (syndrome length)
     int alphabet_size; // Used for demodulation and privacy amplification 
 

@@ -276,10 +276,7 @@ const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     double term2 = (k_d + 1.0) / k_d;
     double term3 = std::log(2.0 / eps_sec);
     
-    double mu = std::sqrt(term1 * term2 * term3);
-
-    // Calculate the "worst-case" error rate
-    double Q_tol = 0.07; // Assuming Q_tol is 7% which is tighter than the 10%. 
+    double mu = std::sqrt(term1 * term2 * term3); 
     double Q_worst_case = Q_tol + mu;
 
     /* QBER is calculated in the parameter estimation method. 
@@ -488,9 +485,11 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     std::cout << "DV_QKDPROTOCOL: Sifted Bob Key = " << sifted_bob_key << std::endl;
 #endif
 
-    /* Calculating N_PE: the number of samples used for parameter estimation.
-    N_PE = Size of sifted key - n (size of codeword of the codec) */
-    N_PE = sifted_alice_key.size() - get_codec_output_bits_n(); 
+    /* Checking N_PE: the number of samples used for parameter estimation.
+       N_PE should equal: Size of sifted key - n
+    */
+    assert(N_PE == sifted_alice_key.size() - get_codec_output_bits_n()
+        && "N_PE does not match sifted key size minus n");
 
     // Perform split for parameter estimation.
     split(sifted_alice_key, sifted_bob_key);
@@ -754,6 +753,10 @@ dvqkd_protocol::serialize(std::ostream& sout) const
     sout << 1 << std::endl;
     sout << "# Codec" << std::endl;
     sout << cdc << std::endl;
+    sout << "# N_PE" << std::endl;
+    sout << N_PE << std::endl;
+    sout << "# Q_tol error rate" << std::endl;
+    sout << Q_tol << std::endl; 
     sout << "# Security parameter eps_sec" << std::endl;
     sout << eps_sec << std::endl;
     sout << "# Correctness parameter eps_cor" << std::endl;
@@ -787,12 +790,15 @@ dvqkd_protocol::serialize(std::istream& sin)
     // Verify casting was successful
     assert(this->cdc && "Loaded codec is not compatible with codec_coset!");
 
+
     // Created channel so it exists before seedfrom() is called.
     if (!this->demodulation_channel) {
         this->demodulation_channel = std::make_shared<libcomm::qsc<libbase::gf2>>();
         this->demodulation_channel->set_parameter(0.0); // Default safe value
     }
 
+    sin >> libbase::eatcomments >> N_PE >> libbase::verify;
+    sin >> libbase::eatcomments >> Q_tol >> libbase::verify;
     sin >> libbase::eatcomments >> eps_sec >> libbase::verify;
     sin >> libbase::eatcomments >> eps_cor >> libbase::verify;
     sin >> libbase::eatcomments >> alphabet_size >> libbase::verify;
