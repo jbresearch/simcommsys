@@ -50,11 +50,11 @@ cvqkd_protocol::split(libbase::vector<double>& alice_measurements,
 
     const int N = alice_measurements.size();
 
-    libbase::vector<double> X_PE, Y_PE, X_raw, Y_raw;
+    libbase::vector<double> X_PE, Y_PE, X, Y;
     X_PE.init(N_PE);
     Y_PE.init(N_PE);
-    X_raw.init(N - N_PE);
-    Y_raw.init(N - N_PE);
+    X.init(N - N_PE);
+    Y.init(N - N_PE);
 
     // First N_PE -> PE
     for (int i = 0; i < N_PE; ++i) {
@@ -64,9 +64,9 @@ cvqkd_protocol::split(libbase::vector<double>& alice_measurements,
 
     for (int i = N_PE; i < N; ++i) {
         const int j = i - N_PE;
-        X_raw(j) = alice_measurements(
+        X(j) = alice_measurements(
             i); // Unnormalised key of Alice to be used for post-processing
-        Y_raw(j) = bob_measurements(
+        Y(j) = bob_measurements(
             i); // Unnormalised key of Bob to be used for post-processing
     }
 
@@ -77,11 +77,11 @@ cvqkd_protocol::split(libbase::vector<double>& alice_measurements,
               << std::endl;
     std::cerr << "CV_QKDPROTOCOL: X_PE = " << X_PE << std::endl;
     std::cerr << "CV_QKDPROTOCOL: Y_PE = " << Y_PE << std::endl;
-    std::cerr << "CV_QKDPROTOCOL: X_raw = " << X_raw << std::endl;
-    std::cerr << "CV_QKDPROTOCOL: Y_raw = " << Y_raw << std::endl;
+    std::cerr << "CV_QKDPROTOCOL: X = " << X << std::endl;
+    std::cerr << "CV_QKDPROTOCOL: Y = " << Y << std::endl;
 #endif
 
-    return {X_PE, Y_PE, X_raw, Y_raw};
+    return {X_PE, Y_PE, X, Y};
 }
 
 std::tuple<double, double, double>
@@ -354,14 +354,14 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 #endif
 
     // Perform split for parameter estimation.
-    auto [X_PE, Y_PE, X_raw, Y_raw] =
+    auto [X_PE, Y_PE, X, Y] =
         split(alice_measurements, bob_measurements);
 
 #if DEBUG >= 1
     std::cerr << "CV_QKDPROTOCOL:  Size of X_PE and Y_PE = " << X_PE.size()
               << "\t" << Y_PE.size() << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  Size of X_raw and Y_raw = " << X_raw.size()
-              << "\t" << Y_raw.size() << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  Size of X and Y = " << X.size()
+              << "\t" << Y.size() << std::endl;
 #endif
 
     // Calculate parameter estimation using optical fiber.
@@ -445,9 +445,9 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         }
 
 #if DEBUG >= 1
-        std::cerr << "CV_QKDPROTOCOL: alice X_raw measurements = " << X_raw
+        std::cerr << "CV_QKDPROTOCOL: (Alice) X = " << X
                   << std::endl;
-        std::cerr << "CV_QKDPROTOCOL: bob Y_raw measurements = " << Y_raw
+        std::cerr << "CV_QKDPROTOCOL: (Bob) Y  = " << Y
                   << std::endl;
         std::cerr << "CV_QKDPROTOCOL: bob_vector_s = " << bob_vector_s
                   << std::endl;
@@ -480,10 +480,10 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         libbase::vector<double> vector_M;
         vector_M.init(cdc->output_block_size());
 
-        embedder->set_blocksize(Y_raw.size()); // Y_raw are bob_measurements
-                                               // after parameter estimation.
+        // Y are bobs measurements excluding those used for parameter estimation
+        embedder->set_blocksize(Y.size()); 
 
-        embedder->embed(alphabet_size, data_to_embed, Y_raw, vector_M);
+        embedder->embed(alphabet_size, data_to_embed, Y, vector_M);
 
 #if DEBUG >= 1
         std::cerr << "CV_QKDPROTOCOL: vector_M = " << vector_M << std::endl;
@@ -513,8 +513,8 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         // Perform Demodulation to get Probability Table.
         embedder->extract(*demodulation_channel,
                           vector_M,
-                          X_raw,
-                          prob_table); // X_raw are alice_measurement after
+                          X,
+                          prob_table); // X are alice_measurement after
                                        // parameter estimation.
 
 #if DEBUG >= 1
