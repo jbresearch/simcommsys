@@ -904,7 +904,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration()
     // block size for any kernels called within this function
     int blockdim = warp_size;
     int n = this->device_received_word.size();
-    int m = this->device_syndrome.size();
+    int m = this->device_decoded_syndrome.size();
     int num_of_elements = GF_q::elements();
 
     bool success;
