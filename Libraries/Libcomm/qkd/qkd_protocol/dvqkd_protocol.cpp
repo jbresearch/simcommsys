@@ -258,7 +258,7 @@ const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     double n_d = static_cast<double>(X.size()); // excludes bits used for PE.
     double k_d = static_cast<double>(N_PE);
     int q = 1; 
-    int leak_EC = get_codec_output_bits_n() - get_codec_input_bits_k(); // size of syndrome
+    int leak_EC = cdc->output_block_size() - cdc->input_block_size(); // size of syndrome m=n-k
 
     #if DEBUG >= 1
        std::cout << "DV_QKDPROTOCOL: Length of key after split and PE n_d = " << n_d << std::endl; 
@@ -488,7 +488,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     /* Checking N_PE: the number of samples used for parameter estimation.
        N_PE should equal: Size of sifted key - n
     */
-    assert(N_PE == sifted_alice_key.size() - get_codec_output_bits_n()
+    assert(N_PE == sifted_alice_key.size() - cdc->output_block_size()
         && "N_PE does not match sifted key size minus n");
 
     // Perform split for parameter estimation.

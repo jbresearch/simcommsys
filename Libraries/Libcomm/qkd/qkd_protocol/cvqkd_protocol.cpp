@@ -286,7 +286,7 @@ cvqkd_protocol::calculate_finite_size_effects_secret_key_length()
      * distribution. Phys. Rev. A, 81(6), 062343.
      */
 
-    n_samples = get_codec_output_bits_n();
+    n_samples = cdc->output_block_size();
 
     assert(n_samples > 0);
     assert(smoothing_parameter > 0);
@@ -345,7 +345,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     // Calculating N_PE: the number of samples used for parameter estimation.
     // N_PE = N (number of generated states) - n (size of codeword of the
     // codec)
-    N_PE = alice_measurements.size() - get_codec_output_bits_n();
+    N_PE = alice_measurements.size() - cdc->output_block_size();
 
 #if DEBUG >= 1
     std::cerr
@@ -439,8 +439,8 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 #endif
 
         // Initialise and generate Bob's vector s which has size k.
-        bob_vector_s.init(get_codec_input_bits_k());
-        for (int i = 0; i < get_codec_input_bits_k(); ++i) {
+        bob_vector_s.init(cdc->input_block_size());
+        for (int i = 0; i < cdc->input_block_size(); ++i) {
             bob_vector_s(i) = (rng.ival(2) != 0);
         }
 
@@ -453,8 +453,8 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
                   << std::endl;
 #endif
 
-        // Generate Vector C from Bob's vector s.
-        libbase::vector<int> encoded_int(get_codec_output_bits_n());
+        // Generate Vector C of size n from Bob's vector s.
+        libbase::vector<int> encoded_int(cdc->output_block_size());
         // Convert vector<bool> to vector<int>
         libbase::vector<int> bob_vector_int(bob_vector_s);
 
@@ -476,9 +476,9 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         // Convert vector<bool> to vector<int>
         const libbase::vector<int> data_to_embed(bob_vector_c);
 
-        // Vector M which stores the modulated signal.
+        // Vector M of size n which stores the modulated signal.
         libbase::vector<double> vector_M;
-        vector_M.init(get_codec_output_bits_n());
+        vector_M.init(cdc->output_block_size());
 
         embedder->set_blocksize(Y_raw.size()); // Y_raw are bob_measurements
                                                // after parameter estimation.
@@ -532,7 +532,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 #endif
 
         // Copy decoded bits to vector s_hat  of Alice which is of bool type.
-        libbase::vector<bool> vector_s_hat(get_codec_input_bits_k());
+        libbase::vector<bool> vector_s_hat(cdc->input_block_size());
 
         for (int i = 0; i < decoded.size(); ++i) {
             vector_s_hat(i) = decoded(i);
@@ -595,9 +595,9 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
                 // * alphabet size of 2
                 // * length of final key after doing PA.
                 // * length of pre-hashed key which in this case is the size of
-                // vectors s and s_hat.
+                // vectors s and s_hat of size k.
                 pa_system.init(
-                    len_secret_key, get_codec_input_bits_k(), alphabet_size);
+                    len_secret_key, cdc->input_block_size(), alphabet_size);
 
                 int starting_vector_len =
                     pa_system.generate_starting_vector_length();

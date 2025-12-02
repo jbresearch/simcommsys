@@ -80,13 +80,7 @@ public:
 
     virtual std::vector<std::unique_ptr<observable<T>>>
     get_bob_observables(int) = 0;
-
-    // Pass source generator to get VA for CV_QKD.
-
-    /* Helper functions related to codec.*/
-    virtual int get_codec_input_bits_k() const = 0;
-    virtual int get_codec_output_bits_n() const = 0;
-
+    
     // Returns final secret keys KA and KB.
     virtual std::pair<C<bool>, C<bool>>
     postprocess(libbase::vector<T>&& alice_measurements,

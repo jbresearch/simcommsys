@@ -135,18 +135,7 @@ public:
     void 
     split(libbase::vector<bool>& measurements_alice,
           libbase::vector<bool>& measurements_bob);
-
-    // Helper functions related to the codec.
-    int get_codec_input_bits_k() const override
-    {
-        return cdc->input_block_size();
-    }
-
-    int get_codec_output_bits_n() const override
-    {
-        return cdc->output_block_size();
-    }
-
+          
     double binary_entropy(double p);
 
     // Calculates the QBER and length l 

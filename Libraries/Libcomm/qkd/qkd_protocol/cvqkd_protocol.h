@@ -192,17 +192,6 @@ public:
     // Equations related to length of final secret key.
     const int calculate_finite_size_effects_secret_key_length() override;
 
-    // Helper functions related to the codec.
-    int get_codec_input_bits_k() const override
-    {
-        return cdc->input_block_size();
-    }
-
-    int get_codec_output_bits_n() const override
-    {
-        return cdc->output_block_size();
-    }
-
     // Returns final secret keys KA and KB.
     std::pair<libbase::vector<bool>, libbase::vector<bool>>
     postprocess(libbase::vector<double>&& alice_measurements,
