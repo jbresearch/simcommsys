@@ -110,6 +110,8 @@ ones
 4
 # N_PE
 3
+# QBER from parameter estimation?
+0
 # Q_tol error rate
 0.07
 # Security parameter eps_sec

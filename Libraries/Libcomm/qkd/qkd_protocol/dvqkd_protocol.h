@@ -89,6 +89,7 @@ private:
     int len_secret_key = 0; // Length of final secret key
 
     double QBER; // Estimate QBER between X_PE and Y_PE 
+    bool switch_QBER; //!< True for caculating QBER from parameter estimation. 
     double eps_sec; // Security parameter (e.g., 1e-10)
     double eps_cor; // Correctness parameter (e.g., 1e-15) 
 

@@ -341,15 +341,10 @@ dvqkd_protocol::parameter_estimation(
     // Calculate the final length of the secret l with finite size effects
     // len_secret_key = calculate_secure_key_length(X_raw.size(), X_PE.size(), Q_tol, syndrome_size);
     // len_secret_key = calculate_secure_key_length(100000, 50000, Q_tol, 50000); // Answer l = 4045 
-#if DEBUG >= 1
-    std::cout << "Calculating the secret key length:"  << std::endl;
-#endif
     this->len_secret_key = calculate_finite_size_effects_secret_key_length(); 
     
 #if DEBUG >= 2
-    std::cout << "DV_QKDPROTOCOL: Parameter Estimation Calculations" 
-              << std::endl;
-    std::cout << "DV_QKDPROTOCOL: QBER = " << this->QBER
+    std::cout << "DV_QKDPROTOCOL: Calculating length from parameter estimation:" 
               << std::endl;
     std::cout << "DV_QKDPROTOCOL: len_secret_key = " << this->len_secret_key
               << std::endl;
@@ -521,15 +516,36 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     std::tie(this->QBER, this->len_secret_key) = parameter_estimation(X_PE, Y_PE); 
 
 #if DEBUG >= 1
-        std::cout << "DV_QKDPROTOCOL: Estimated QBER from parameter estimation = " << this->QBER << std::endl;
         std::cout << "DV_QKDPROTOCOL: Secret Key Length l = " << this->len_secret_key << std::endl;
 #endif
 
+    /*  QBER Switch 
+        If switch_QBER == true,
+        QBER is calculated from parameter estimation. This is the default.
+        
+        If switch_QBER == false, 
+        QBER is taken directly from Bob's quantum channel. 
+    */
+#if DEBUG >= 1
+    std::cout << "DV_QKDPROTOCOL: Is QBER calculated from parameter estimation?: " << switch_QBER << std::endl;
+#endif
+
+    if(switch_QBER==false)
+    {
+        // Get QBER directly from the quantum channel
+        libbase::vector<double> bob_channel_parameters = m_bob_channel->get_parameters();
+        this->QBER = bob_channel_parameters(0);
+    }
+
     // Checks that it is not >= the maximum tolerable qber. */  
-    if (QBER >= Q_worst_case) {
+    if (this->QBER >= Q_worst_case) {
          this->len_secret_key = 0; // length is 0
     }
-    
+
+#if DEBUG >= 1
+    std::cout << "DV_QKDPROTOCOL: Value of QBER = " << this->QBER << std::endl;
+#endif
+
     /* (Alice) (Inverse Mapping) 
     Convert X_raw to binary or non-binary to be able to calculate the syndrome
     Convert libbase::vector<bool> -> libbase::vector<int> */
@@ -570,17 +586,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
 #endif
 
     // Set Ps of the qsc channel which is the estimated QBER from PE
-    /******* TO REMOVE QBER2 ---this is just a hack because framesize of 
-     * N_PE is too small for now, so the QBER is being skewed. 
-     */
-    double QBER2 = 1.0/7.0; // Actual error was 0.17.
-
-#if DEBUG >= 1
-    std::cout << "DV_QKDPROTOCOL: QBER2 (has to be deleted) = " << QBER2 << std::endl;
-#endif
-
-    // demodulation_channel->set_parameter(QBER);
-    demodulation_channel->set_parameter(QBER2); // To delete and revert to QBER
+    demodulation_channel->set_parameter(this->QBER); 
 
 #if DEBUG >= 1
     std::cout << "DV_QKDPROTOCOL: Description of Demodulation Channel" << demodulation_channel->description() << std::endl;
@@ -648,8 +654,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     mdm->modulate(alphabet_size, X_int, modulated_codeword_p1); 
 
     // Transmit codeword through a QSC channel with Ps = 0.0
-    double Ps_no_error = 0.0; 
-    demodulation_channel->set_parameter(Ps_no_error);
+    demodulation_channel->set_parameter(0.0);
 
     libbase::vector<libbase::gf2> received_codeword_p1(X_int.size());
     demodulation_channel->transmit(modulated_codeword_p1, received_codeword_p1);
@@ -758,6 +763,8 @@ dvqkd_protocol::serialize(std::ostream& sout) const
     sout << cdc << std::endl;
     sout << "# N_PE" << std::endl;
     sout << N_PE << std::endl;
+    sout << "# QBER from parameter estimation?" << std::endl;
+    sout << int(switch_QBER) << std::endl;
     sout << "# Q_tol error rate" << std::endl;
     sout << Q_tol << std::endl; 
     sout << "# Security parameter eps_sec" << std::endl;
@@ -801,6 +808,7 @@ dvqkd_protocol::serialize(std::istream& sin)
     }
 
     sin >> libbase::eatcomments >> N_PE >> libbase::verify;
+    sin >> libbase::eatcomments >> switch_QBER >> libbase::verify;
     sin >> libbase::eatcomments >> Q_tol >> libbase::verify;
     sin >> libbase::eatcomments >> eps_sec >> libbase::verify;
     sin >> libbase::eatcomments >> eps_cor >> libbase::verify;
