@@ -158,10 +158,7 @@ public:
 
     // Gets the source generator from qkd_commsys_simulator
     std::shared_ptr<source<S>> get_src() { return this->src; }
-
-    // Getter to get the input bits from the codec from cvqkd_protocol.h.
-    int get_codec_input_bits_k() { return protocol->get_codec_input_bits_k(); }
-
+    
     /*! \name Communication System Interface */
     std::pair<C<bool>, C<bool>> fullcycle(C<S>& source);
 

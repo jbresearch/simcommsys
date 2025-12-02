@@ -174,11 +174,7 @@ public:
         return sout.str();
     }
     array1i_t get_event() const { return last_event; }
-
-    //  Getter to get the input bits from qkd_commsys.h which gets the inputs
-    //  bits from the codec of the cvqkd_protocol.h.
-    int get_codec_input_bits_k() { return sys->get_codec_input_bits_k(); }
-
+    
     /*! \name Component object handles */
      //! Get communication system
     const std::shared_ptr<qkd_commsys<S, T>> getsystem() const { return sys; }
