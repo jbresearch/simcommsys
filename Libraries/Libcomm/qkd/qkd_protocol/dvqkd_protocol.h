@@ -139,7 +139,8 @@ public:
     double binary_entropy(double p);
 
     // Calculates the QBER and length l 
-    void parameter_estimation(
+    std::pair<double, int>
+    parameter_estimation(
     const libbase::vector<bool>& X_PE, const libbase::vector<bool>& Y_PE);
 
     const int calculate_finite_size_effects_secret_key_length() override;

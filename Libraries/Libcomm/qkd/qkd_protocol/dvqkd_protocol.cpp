@@ -319,11 +319,14 @@ const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
  * from Alice and Bob to calculate the Quantum Bit Error Rate (QBER). Based on this
  * QBER and finite-size security bounds, it computes the available length for the
  * final secret key.
+ * 
+ * Returns:
+ * QBER and length of secret key
  *
  * @param X_PE Alice's bit vector reserved for parameter estimation.
  * @param Y_PE Bob's bit vector reserved for parameter estimation.
  */
-void
+std::pair<double, int>
 dvqkd_protocol::parameter_estimation(
     const libbase::vector<bool>& X_PE, const libbase::vector<bool>& Y_PE)
 {
@@ -339,7 +342,7 @@ dvqkd_protocol::parameter_estimation(
     */
 
     // Calculate the QBER between vectors X_PE of Alice and Y_PE of Bob
-    QBER = (1.0/static_cast<double> (X_PE.size())) * libbase::hamming(X_PE,Y_PE);
+    this->QBER = (1.0/static_cast<double> (X_PE.size())) * libbase::hamming(X_PE,Y_PE);
 
     // Calculate the final length of the secret l with finite size effects
     // len_secret_key = calculate_secure_key_length(X_raw.size(), X_PE.size(), Q_tol, syndrome_size);
@@ -347,17 +350,17 @@ dvqkd_protocol::parameter_estimation(
 #if DEBUG >= 1
     std::cout << "Calculating the secret key length:"  << std::endl;
 #endif
-
-    len_secret_key = calculate_finite_size_effects_secret_key_length(); 
+    this->len_secret_key = calculate_finite_size_effects_secret_key_length(); 
     
 #if DEBUG >= 2
     std::cout << "DV_QKDPROTOCOL: Parameter Estimation Calculations" 
               << std::endl;
-    std::cout << "DV_QKDPROTOCOL: QBER = " << QBER
+    std::cout << "DV_QKDPROTOCOL: QBER = " << this->QBER
               << std::endl;
-    std::cout << "DV_QKDPROTOCOL: len_secret_key = " << len_secret_key
+    std::cout << "DV_QKDPROTOCOL: len_secret_key = " << this->len_secret_key
               << std::endl;
 #endif
+    return {this->QBER, this->len_secret_key};
 } 
 
 /*!
@@ -486,7 +489,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
 #endif
 
     /* Checking N_PE: the number of samples used for parameter estimation.
-       N_PE should equal: Size of sifted key - n
+       N_PE should equal to size of sifted key - n
     */
     assert(N_PE == sifted_alice_key.size() - cdc->output_block_size()
         && "N_PE does not match sifted key size minus n");
@@ -519,12 +522,13 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     // Aborts of sizes of sifted keys are not equal
     assert(sifted_alice_key.size() == sifted_bob_key.size());
     
-    // Perform Parameter Estimation to calculate the QBER and l 
-    parameter_estimation(X_PE, Y_PE); 
+    /* Perform Parameter Estimation to calculate the QBER and l*/
+    // Assign values to the Class members  
+    std::tie(this->QBER, this->len_secret_key) = parameter_estimation(X_PE, Y_PE); 
 
 #if DEBUG >= 1
-        std::cout << "DV_QKDPROTOCOL: Estimated QBER = " << QBER << std::endl;
-        std::cout << "DV_QKDPROTOCOL: Secret Key Length l = " << len_secret_key << std::endl;
+        std::cout << "DV_QKDPROTOCOL: Estimated QBER = " << this->QBER << std::endl;
+        std::cout << "DV_QKDPROTOCOL: Secret Key Length l = " << this->len_secret_key << std::endl;
 #endif
 
     /* (Alice) (Inverse Mapping) 
