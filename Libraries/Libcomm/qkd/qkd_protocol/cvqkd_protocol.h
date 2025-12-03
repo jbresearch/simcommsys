@@ -1,3 +1,4 @@
+
 /*!
  * \brief CV-QKD Protocol
  * \author Aaron Abela
@@ -153,8 +154,16 @@ public:
     parameter_estimation_optical_fiber(const libbase::vector<double>& X_PE,
                                        const libbase::vector<double>& Y_PE);
 
+    // Parameter Estimation for the GG02 protocol based on Ryan's equations
+    std::tuple<double, double, double>
+    parameter_estimation(const libbase::vector<double>& X_PE,
+                                       const libbase::vector<double>& Y_PE);
+     
     // Mutual Information for the GG02 protocol.
     double calculate_mutual_information(double chi_total_hat);
+
+    // Mutual Information for the GG02 protocol based on SNR only. 
+    double calculate_mutual_information(double SNR_linear);
 
     // Helper functions used to calculate the Holevo Bound.
     // G(x) from Eq. (2.54). sTILL TO ADD REFERENCE

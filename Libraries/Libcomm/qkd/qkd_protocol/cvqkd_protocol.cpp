@@ -151,6 +151,103 @@ cvqkd_protocol::parameter_estimation_optical_fiber(
     return {T_hat, Epsilon_hat, chi_total_hat};
 }
 
+/**
+ * @brief Estimates CV-QKD channel parameters using Covariance Matrix analysis.
+ *
+ * This function computes the statistical moments of the Alice (X) and Bob (Y) 
+ * sequences to derive the channel characteristics. It assumes a linear channel 
+ * model: Y = alpha * X + Z, where Z is the total noise (shot noise + excess noise).
+ *
+ * The estimation calculates:
+ * 1. Variance of Alice's modulation (VA).
+ * 2. Fading Channel coefficient (alpha), derived from Cov(X,Y).
+ * 3. Total Noise Variance (VN), derived from Var(Y) and alpha.
+ *
+ * @note means_x and means_y are not 0 
+ *
+ * @param X_PE Input vector representing Alice's modulation values (Gaussian) used only for parameter estimation.
+ * @param Y_PE Input vector representing Bob's measured values used only for parameter estimation.
+ * @return std::tuple<double, double, double> containing:
+ * - VA_hat: Estimated variance of Alice's signal.
+ * - alpha_hat: Estimated channel gain/coupling coefficient.
+ * - VN_hat: Estimated total noise variance.
+ */
+std::tuple<double, double, double>
+cvqkd_protocol::parameter_estimation(
+    const libbase::vector<double>& X_PE, const libbase::vector<double>& Y_PE)
+{
+    /**
+     * Reference for parameter estimation equations:
+     * Equations of Covariance matrix were computed by Ryan Debono sent by email on 27/11/2025. 
+     * - Recall that the covariance matrix is defined with the following format: 
+     * | a c |
+     * | c b |
+     * where a = VA, b = (alpha)^2(VA) + VN, c = (alpha)(VA)
+     * a is calculated from the variance of X_PE (Alice)
+     * b is calculated from the variance of Y_PE (Bob)
+     * c is calculated from the covariance of X_PE (Alice) and Y_PE (Bob) 
+     */
+
+    assert(X_PE.size() == Y_PE.size() && "X_PE and Y_PE must have same size.");
+
+    const int m = X_PE.size();
+    assert(m > 0 && "sample size m must be > 0.");
+
+    // --- Step 1: Accumulate sums for Means and Moments ---
+    long double sum_x = 0.0;
+    long double sum_y = 0.0;
+    long double sum_xx = 0.0;
+    long double sum_yy = 0.0;
+    long double sum_xy = 0.0;
+
+    for (int i = 0; i < m; ++i) {
+        double x = X_PE(i);
+        double y = Y_PE(i);
+        
+        sum_x += x;
+        sum_y += y;
+        sum_xx += x * x;
+        sum_yy += y * y;
+        sum_xy += x * y;
+    }
+
+    // Calculate Means 
+    double mean_x = sum_x / m; // to check if these gave to be zero 
+    double mean_y = sum_y / m;
+
+    // Calculate Variances (a, b) and Covariance (c) 
+    // Using population variance (1/m) or sample variance (1/m-1). 
+    // In QKD (large m), 1/m is standard.
+    
+    // a = Var(X) = E[X^2] - (E[X])^2
+    double var_x = (sum_xx / m) - (mean_x * mean_x); 
+    
+    // b = Var(Y) = E[Y^2] - (E[Y])^2
+    double var_y = (sum_yy / m) - (mean_y * mean_y);
+    
+    // c = Cov(X,Y) = E[XY] - E[X]E[Y]
+    double cov_xy = (sum_xy / m) - (mean_x * mean_y);
+
+    /* Map to Protocol Parameters to calculate VA_hat, alpha_hat and VN_hat */
+
+    // a == VA_hat is calculated from variance of X_PE
+    double VA_hat = var_x;
+
+    // c == (alpha_hat)(VA_hat) -> alpha_hat = c / VA_hat
+    double alpha_hat = 0.0;
+    if (VA_hat > 1e-12) { // Protection against division by zero
+        alpha_hat = cov_xy / VA_hat;
+    }
+
+    // b == (alpha_hat)^2(VA_hat) + VN_hat -> VN_hat = b - (alpha_hat^2 * VA_hat)
+    double VN_hat = var_y - (alpha_hat * alpha_hat * VA_hat);
+
+    // Sanity check: Noise variance shouldn't be negative due to precision errors
+    if (VN_hat < 0) VN_hat = 0.0;
+
+    return {VA_hat, alpha_hat, VN_hat};
+}
+
 // Mutual Information for the GG02 protocol
 double
 cvqkd_protocol::calculate_mutual_information(double chi_total_hat)
@@ -176,6 +273,45 @@ cvqkd_protocol::calculate_mutual_information(double chi_total_hat)
 
     return I_AB;
 }
+
+/**
+ * @brief Calculates the Mutual Information (I_AB) between Alice and Bob based on SNR only.
+ *
+ * It uses the Shannon-Hartley theorem adapted for the AWGN channel in the GG02 protocol.
+ *
+ * Mathematical Model:
+ * I_AB = 0.5 * log2(1 + SNR)
+ *
+ * Where SNR is typically defined as: SNR_linear = (alpha)^2 (VA) / VN
+ * - alpha: Variance of Alice's modulation.
+ * - VA: modulation variance of Alice.
+ * - VN: noise variance. 
+ *
+ * @references
+ * [1] Villaseñor, Eduardo, et al. "Atmospheric effects on satellite-to-ground 
+ * quantum key distribution using coherent states." GLOBECOM 2020.
+ * [2] Ryan's equations. Definition of SNR is based on his equation
+ * @param SNR in linear not in dB.  
+ * @return double The mutual information in bits per pulse.
+ */
+double
+cvqkd_protocol::calculate_mutual_information(double SNR_linear)
+{
+    /* References: 
+    [1] Ryan's equations.
+    [2] Villaseñor, Eduardo, et al. "Atmospheric effects on satellite-to-ground quantum key distribution using coherent states." 
+    GLOBECOM 2020-2020 IEEE Global Communications Conference. IEEE, 2020.
+
+    Where equation to calculate I_AB = 0.5 * log_2(1 + SNR)
+    SNR is linear.  
+    */
+
+    I_AB = 0.5 * std::log2(1 + SNR_linear); // In bits/pulse
+    // I_AB_kbps = I_AB * repetition_rate;
+
+    return I_AB; 
+}
+
 
 // Holevo Bound for the GG02 protocol
 double
