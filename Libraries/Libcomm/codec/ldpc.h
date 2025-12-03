@@ -26,8 +26,8 @@
  *      Author: swesemeyer
  */
 
-#ifndef LDPC_H_
-#define LDPC_H_
+#ifndef __ldpc_h
+#define __ldpc_h
 
 #include "alist.h"
 #include "codec_coset.h"
@@ -299,4 +299,4 @@ private:
 
 } // namespace libcomm
 
-#endif /* LDPC_H_ */
+#endif /* __ldpc_h */
