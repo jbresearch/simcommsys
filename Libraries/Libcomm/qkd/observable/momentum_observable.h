@@ -24,33 +24,30 @@ class momentum_observable : public observable<double>
 {
 private:
     double noise;
-    double transmittance;
-    double detector_eff;
+    double alpha; // fading coefficient 
 
 public:
-    momentum_observable() : noise(0.0), transmittance(0.0), detector_eff(0.0) {}
+    momentum_observable() : noise(0.0), alpha(0.0) {}
     explicit momentum_observable(double noise_val)
-        : noise(noise_val), transmittance(0.0), detector_eff(0.0)
+        : noise(noise_val), alpha(0.0)
     {
     }
+
+    /* The noise and alpha are all parameters coming from the gaussian quantum channel. 
+    The noise is a CLI parameter of the gaussian quantum channel whereas alpha is a 
+    serialized parameter of the gaussian quantum channel.
+    */
 
     void set_noise(double noise_val) { noise = noise_val; }
 
     double get_noise() const { return noise; }
 
-    void set_transmittance(double transmittance_val)
+    void set_alpha(double alpha_val)
     {
-        transmittance = transmittance_val;
+        alpha = alpha_val;
     }
 
-    double get_transmittance() const { return transmittance; }
-
-    void set_detector_eff(double detector_eff_val)
-    {
-        detector_eff = detector_eff_val;
-    }
-
-    double get_detector_eff() const { return detector_eff; }
+    double get_alpha() const { return alpha; }
 
     double measure(gaussian_state& state) const override
     {
@@ -58,7 +55,7 @@ public:
         // // For the case 1: S_B\ =\ \sqrt\etaT\left(S_A\ \ +\ \ S_N\right):
 
         const double X = state.get_p();
-        const double g = std::sqrt(transmittance * detector_eff);
+        const double g = alpha;
         const double gX = g * X;
         const double n = noise;
         const double result = gX + n;
