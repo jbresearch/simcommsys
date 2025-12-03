@@ -26,38 +26,30 @@ class position_observable : public observable<double>
 {
 private:
     double noise;
-    double transmittance; // Transmittance T
-    double detector_eff;  // Homodyne detector efficiency, eta
+    double alpha; // fading coefficient 
 
 public:
-    position_observable() : noise(0.0), transmittance(0.0), detector_eff(0.0) {}
+    position_observable() : noise(0.0), alpha(0.0) {}
     explicit position_observable(double noise_val)
-        : noise(noise_val), transmittance(0), detector_eff(0.0)
+        : noise(noise_val), alpha(0.0)
     {
     }
 
-    // The noise, transmittance and detector efficiency are all parameters
-    // coming from the gaussian quantum channel. The noise is a CLI parameter of
-    // the gaussian quantum channel whereas the transmittance and detector
-    // efficiency are serialized parameters.
-
+    /* The noise and alpha are all parameters coming from the gaussian quantum channel. 
+    The noise is a CLI parameter of the gaussian quantum channel whereas alpha is a 
+    serialized parameter of the gaussian quantum channel.
+    */
+   
     void set_noise(double noise_val) { noise = noise_val; }
 
     double get_noise() const { return noise; }
 
-    void set_transmittance(double transmittance_val)
+    void set_alpha(double alpha_val)
     {
-        transmittance = transmittance_val;
+        alpha = alpha_val;
     }
 
-    double get_transmittance() const { return transmittance; }
-
-    void set_detector_eff(double detector_eff_val)
-    {
-        detector_eff = detector_eff_val;
-    }
-
-    double get_detector_eff() const { return detector_eff; }
+    double get_alpha() const { return alpha; }
 
     // Method that does the measurement on a gaussian coherent state
     double measure(gaussian_state& state) const override
@@ -66,7 +58,7 @@ public:
         // // For the case 1: S_B\ =\ \sqrt\etaT\left(S_A\ \ +\ \ S_N\right):
 
         const double X = state.get_q();
-        const double g = std::sqrt(transmittance * detector_eff);
+        const double g = alpha;
         const double gX = g * X;
         const double n = noise; // Noise is being set in the transmit method of
                                 // the gaussian quantum channel.
