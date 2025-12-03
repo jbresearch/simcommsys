@@ -103,25 +103,21 @@ public:
 
 protected:
     /*!
-     * \brief Decoding process
-     * \param[out] decoded Most likely sequence of information symbols
+     * \brief Decoding process for a single iteration
+     * \param[out] decoded Most likely sequence of information symbols after a
+     * single iteration
      *
      * \note Observe that this output necessarily constitutes a hard decision.
-     *
-     * \note Each call to decode will perform a single iteration (with respect
-     * to num_iter).
      */
     virtual void decode_iter(C<int>& decoded) = 0;
 
 public:
     /*!
-     * \brief Decoding process
-     * \param[out] decoded Most likely sequence of information symbols
+     * \brief Decoding process (after all iterations)
+     * \param[out] decoded Most likely sequence of information symbols after all
+     * iterations
      *
      * \note Observe that this output necessarily constitutes a hard decision.
-     *
-     * \note Each call to decode performs full decoding, rather than just a
-     * single iteration.
      */
     virtual void decode(C<int>& decoded)
     {
@@ -130,14 +126,11 @@ public:
             this->decode_iter(decoded);
     }
     /*!
-     * \brief Decoding process
+     * \brief Decoding process (for all iterations)
      * \param[out] decoded Most likely sequence of information symbols at each
      * iteration of decoding
      *
      * \note Observe that this output necessarily constitutes a hard decision.
-     *
-     * \note Each call to decode performs full decoding, rather than just a
-     * single iteration.
      */
     void decode(libbase::vector<C<int>>& decoded)
     {
