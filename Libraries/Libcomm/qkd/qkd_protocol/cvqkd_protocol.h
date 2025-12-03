@@ -164,7 +164,7 @@ public:
 
     // Mutual Information for the GG02 protocol based on SNR only. 
     double calculate_mutual_information(double SNR_linear);
-
+    
     // Helper functions used to calculate the Holevo Bound.
     // G(x) from Eq. (2.54). sTILL TO ADD REFERENCE
     inline double bosonic_entropy_G(double x)
@@ -181,6 +181,11 @@ public:
     double calculate_holevo_bound(double T_hat,
                                   double Epsilon_hat,
                                   double X_total_hat);
+
+    // Method to calculate the Holevo Bound for the GG02 protocol based on Ryan's derived equations. 
+    double calculate_holevo_bound(double VA_hat,
+                                       double alpha_hat,
+                                       double VN_hat);                           
 
     double calculate_shannon_capacity_awgn()
     { // bits/use to be used to compute Beta for MDR.
