@@ -557,10 +557,11 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     // Calculating N_PE: the number of samples used for parameter estimation.
     // N_PE = N (number of generated states) - n (size of codeword of the
     // codec)
-    N_PE = alice_measurements.size() - cdc->output_block_size();
+    assert(N_PE == alice_measurements.size() - cdc->output_block_size() && "N_PE does not match sifted key size minus n");
+
 
 #if DEBUG >= 1
-    std::cerr
+    std::cout 
         << "CV_QKDPROTOCOL: Number of states used for Parameter Estimation = "
         << N_PE << std::endl;
 #endif
@@ -888,6 +889,8 @@ cvqkd_protocol::serialize(std::ostream& sout) const
     sout << N_0 << std::endl;
     sout << "# Electric Noise v_el" << std::endl;
     sout << v_el << std::endl;
+    sout << "# N_PE" << std::endl; // # used for parameter estimation
+    sout << N_PE << std::endl; 
     // Smoothing parameter bar epsilon which is used to calculate the final
     // length of the secret key.
     sout << "# Smoothing Parameter" << std::endl;
@@ -912,6 +915,7 @@ cvqkd_protocol::serialize(std::istream& sin)
     sin >> libbase::eatcomments >> version;
     sin >> libbase::eatcomments >> N_0 >> libbase::verify;
     sin >> libbase::eatcomments >> v_el >> libbase::verify;
+    sin >> libbase::eatcomments >> N_PE >> libbase::verify;
     sin >> libbase::eatcomments >> smoothing_parameter >> libbase::verify;
     sin >> libbase::eatcomments >> alphabet_size >> libbase::verify;
     // we have to serialise this as a codec object, then do a dynamic conversion

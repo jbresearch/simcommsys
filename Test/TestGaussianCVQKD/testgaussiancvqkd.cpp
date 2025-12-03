@@ -159,6 +159,8 @@ cvqkd_protocol
 1
 # Electric Noise v_el
 0.041
+# N_PE
+7
 # Smoothing Parameter
 1e-4
 # Alphabet size
