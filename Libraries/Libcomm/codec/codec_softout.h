@@ -72,10 +72,18 @@ public:
     }
     void decode_message_iter(C<int>& decoded) override
     {
-        libbase::cputimer t("t_decode_iter");
+        libbase::cputimer t("t_decode_message_iter");
         C<array1d_t> ri;
         this->softdecode_iter(ri);
         hd_functor(ri, decoded);
+        this->add_timer(t);
+    }
+    void decode_codeword_iter(C<int>& decoded) override
+    {
+        libbase::cputimer t("t_decode_codeword_iter");
+        C<array1d_t> ri, ro;
+        this->softdecode_iter(ri, ro);
+        hd_functor(ro, decoded);
         this->add_timer(t);
     }
     // Inherit receiver translation process from base class

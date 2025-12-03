@@ -139,6 +139,39 @@ public:
         this->spa_alg->reset_timers();
     }
 
+    void decode_codeword_iter(libbase::vector<int>& decoded) override
+    {
+        libbase::vector<GF_q> received_word;
+        this->spa_alg->spa_iteration(received_word);
+
+        // convert the received codeword
+        decoded = received_word;
+
+        // add all granular timers from sum_prod_alg.
+        this->add_or_accumulate_timers(*this->spa_alg);
+        this->spa_alg->reset_timers();
+    }
+
+    void decode_codeword(libbase::vector<int>& decoded) override
+    {
+        libbase::cputimer t("t_decode");
+
+        libbase::vector<GF_q> received_word;
+        this->spa_alg->spa_iteration_seq(received_word, this->num_iter());
+
+        this->add_timer(t);
+
+        libbase::cputimer t_extract_info("t__ldpc__extract_info");
+        // convert the received codeword
+        decoded = received_word;
+        this->add_timer(t_extract_info);
+
+        this->add_timer(this->spa_alg->get_iters(), "num_iters");
+        // add all granular timers from sum_prod_alg.
+        this->add_timers(*this->spa_alg);
+        this->spa_alg->reset_timers();
+    }
+
     void decode(libbase::vector<int>& decoded) override
     {
         libbase::cputimer t("t_decode");

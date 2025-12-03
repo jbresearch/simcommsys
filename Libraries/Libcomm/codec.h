@@ -111,7 +111,29 @@ protected:
      */
     virtual void decode_message_iter(C<int>& decoded) = 0;
 
+    /*!
+     * \brief Decoding process for a single iteration
+     * \param[out] decoded Most likely sequence of codeword symbols after a
+     * single iteration
+     *
+     * \note Observe that this output necessarily constitutes a hard decision.
+     */
+    virtual void decode_codeword_iter(C<int>& decoded) = 0;
+
 public:
+    /*!
+     * \brief Decoding process (after all iterations)
+     * \param[out] decoded Most likely sequence of codeword symbols after all
+     * iterations
+     *
+     * \note Observe that this output necessarily constitutes a hard decision.
+     */
+    virtual void decode_codeword(C<int>& decoded)
+    {
+        for (int curr_cdc_iter = 0; curr_cdc_iter < this->num_iter();
+             curr_cdc_iter++)
+            this->decode_codeword_iter(decoded);
+    }
     /*!
      * \brief Decoding process (after all iterations)
      * \param[out] decoded Most likely sequence of information symbols after all

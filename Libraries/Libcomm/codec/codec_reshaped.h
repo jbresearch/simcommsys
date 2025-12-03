@@ -91,6 +91,18 @@ public:
         base.decode_message_iter(decoded_v);
         decoded = decoded_v;
     }
+    void decode_codeword_iter(libbase::matrix<int>& decoded) override
+    {
+        libbase::vector<int> decoded_v;
+        base.decode_codeword_iter(decoded_v);
+        decoded = decoded_v;
+    }
+    void decode_codeword(libbase::matrix<int>& decoded) override
+    {
+        libbase::vector<int> decoded_v;
+        base.decode_codeword(decoded_v);
+        decoded = decoded_v;
+    }
     void decode(libbase::matrix<int>& decoded) override
     {
         libbase::vector<int> decoded_v;
