@@ -124,7 +124,7 @@ public:
         this->spa_alg->seedfrom(r);
     }
 
-    void decode_iter(libbase::vector<int>& decoded) override
+    void decode_message_iter(libbase::vector<int>& decoded) override
     {
         libbase::vector<GF_q> received_word;
         this->spa_alg->spa_iteration(received_word);

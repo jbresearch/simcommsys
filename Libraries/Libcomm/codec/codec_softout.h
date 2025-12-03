@@ -70,7 +70,7 @@ public:
         // Seed hard-decision box
         hd_functor.seedfrom(r);
     }
-    void decode_iter(C<int>& decoded)
+    void decode_message_iter(C<int>& decoded) override
     {
         libbase::cputimer t("t_decode_iter");
         C<array1d_t> ri;

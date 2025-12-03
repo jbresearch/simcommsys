@@ -109,7 +109,7 @@ protected:
      *
      * \note Observe that this output necessarily constitutes a hard decision.
      */
-    virtual void decode_iter(C<int>& decoded) = 0;
+    virtual void decode_message_iter(C<int>& decoded) = 0;
 
 public:
     /*!
@@ -123,7 +123,7 @@ public:
     {
         for (int curr_cdc_iter = 0; curr_cdc_iter < this->num_iter();
              curr_cdc_iter++)
-            this->decode_iter(decoded);
+            this->decode_message_iter(decoded);
     }
     /*!
      * \brief Decoding process (for all iterations)
@@ -137,7 +137,7 @@ public:
         decoded.init(this->num_iter());
         for (int curr_cdc_iter = 0; curr_cdc_iter < this->num_iter();
              curr_cdc_iter++)
-            this->decode_iter(decoded(curr_cdc_iter));
+            this->decode_message_iter(decoded(curr_cdc_iter));
     }
     // @}
 
