@@ -61,6 +61,7 @@ public:
     {
         failwith("Not implemented.");
     }
+    
     virtual void transmit(momentum_observable&)
     {
         failwith("Not implemented.");
@@ -84,10 +85,19 @@ public:
         failwith("Not implemented.");
     }
 
-
     virtual void transmit(computational_observable&) { failwith("Not implemented."); }
     virtual void transmit(hadamard_observable&) { failwith("Not implemented."); }
     //! @}
+
+    // New virtual function to get the fading coefficient (alpha)
+    virtual double get_alpha() const
+    {
+        /* Default implementation: indicates not implemented or returns a safe default.
+        For a general channel, this might be 1.0 (no fading) or assert/throw.
+        We will default to a 1.0 (no fading) for robustness in a general channel, 
+        but the Gaussian channel for the GG02 protocol will override this */
+        return 1.0; 
+    }
 
     virtual void seedfrom(libbase::random& r) = 0;
     virtual ~quantum_channel() {}

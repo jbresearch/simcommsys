@@ -100,6 +100,12 @@ public:
     } // returns the number of CLI parameters
     // @}
 
+    // Overrides the base class method to return the specific fading coefficient alpha. 
+    double get_alpha() const override
+    {
+        return noise_alpha; 
+    } 
+
     // Description - Returns a short string describing the channel
     std::string description() const override;
 
