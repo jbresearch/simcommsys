@@ -1003,7 +1003,7 @@ sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration(
 
 template <class GF_q, class real>
 void
-sum_prod_alg_gdl_cuda<GF_q, real>::decode(libbase::vector<GF_q>& received_word,
+sum_prod_alg_gdl_cuda<GF_q, real>::spa_iteration_seq(libbase::vector<GF_q>& received_word,
                                           int max_iters)
 {
     bool codeword_found;

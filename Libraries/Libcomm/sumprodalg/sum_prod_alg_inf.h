@@ -61,7 +61,7 @@ public:
     virtual void spa_iteration(libbase::vector<GF_q>& received_word) = 0;
     /*! \brief Perform entire decoding process.
      */
-    virtual void decode(libbase::vector<GF_q>& received_word,
+    virtual void spa_iteration_seq(libbase::vector<GF_q>& received_word,
                         int max_iters) = 0;
     /*! \brief return the type of SPA used
      *

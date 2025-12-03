@@ -144,7 +144,7 @@ public:
         libbase::cputimer t("t_decode");
 
         libbase::vector<GF_q> received_word;
-        this->spa_alg->decode(received_word, this->num_iter());
+        this->spa_alg->spa_iteration_seq(received_word, this->num_iter());
 
         this->add_timer(t);
 

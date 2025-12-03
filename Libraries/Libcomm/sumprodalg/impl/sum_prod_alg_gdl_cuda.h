@@ -78,7 +78,7 @@ public:
     int get_iters() override { return this->num_iters; }
 
     void spa_iteration(libbase::vector<GF_q>& received_word) override;
-    void decode(libbase::vector<GF_q>& received_word, int max_iters) override;
+    void spa_iteration_seq(libbase::vector<GF_q>& received_word, int max_iters) override;
 
     void seedfrom(libbase::random& r) override;
 

@@ -105,7 +105,7 @@ public:
     void spa_iteration(libbase::vector<GF_q>& received_word) override;
     /*! \brief Perform entire decoding process.
      */
-    void decode(libbase::vector<GF_q>& received_word, int max_iters) override
+    void spa_iteration_seq(libbase::vector<GF_q>& received_word, int max_iters) override
     {
         for (; this->num_iters < max_iters; this->num_iters++) {
             this->spa_iteration(received_word);
