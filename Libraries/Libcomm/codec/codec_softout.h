@@ -110,18 +110,12 @@ public:
     /*!
      * \brief Decoding process for a single iteration
      * \param[out] ri Likelihood table for input symbols at every timestep
-     *
-     * \note Each call to decode will perform a single iteration (with respect
-     * to num_iter).
      */
     virtual void softdecode_iter(C<array1d_t>& ri) = 0;
     /*!
      * \brief Decoding process for a single iteration
      * \param[out] ri Likelihood table for input symbols at every timestep
      * \param[out] ro Likelihood table for output symbols at every timestep
-     *
-     * \note Each call to decode will perform a single iteration (with respect
-     * to num_iter).
      */
     virtual void softdecode_iter(C<array1d_t>& ri, C<array1d_t>& ro) = 0;
     // @}
