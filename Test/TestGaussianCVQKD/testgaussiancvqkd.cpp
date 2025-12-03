@@ -147,12 +147,10 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
 identity_quantum_channel
 ## Bob's channel
 gaussian_quantum_channel
-# Homodyne Detector Efficiency
-0.606
 # Mean of the Gaussian Quantum Channel
 0.0
-# Transmittance T of the Gaussian Quantum Channel
-0.302
+# Fading Coefficient alpha
+1.0
 ## Postprocessing protocol
 cvqkd_protocol
 # Version

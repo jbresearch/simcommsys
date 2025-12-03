@@ -23,11 +23,10 @@ class gaussian_quantum_channel : public quantum_channel
 {
 
 private:
-    double noise_transmittance; // Transmittance
-    double noise_detector_eff;  // homodyne detector efficiency
     double SNR; // Only CLI parameter of the quantum channel (linear not dB)
     double VA; // Modulation variance of Alice that will be set by a qkd_commsys
                // object.
+    double noise_alpha; // fading coefficient. 
     double VN; // variance VN to generate the noisy coherent states.
     double noise_mean; // Chosen mean of the ND to generate the noise. This is a
                        // serialized parameter.
@@ -51,16 +50,14 @@ protected:
         std::normal_distribution<double> dist(noise_mean, noise_stddev);
         const double noise = dist(gen);
         observable.set_noise(noise);
-        observable.set_transmittance(
-            noise_transmittance);                        // Serialized parameter
-        observable.set_detector_eff(noise_detector_eff); // Serialized parameter
+        observable.set_alpha(noise_alpha); 
     }
 
 public:
     //! Constructor
     gaussian_quantum_channel()
-        : noise_transmittance(0.0), noise_detector_eff(0.0), SNR(0.0), VA(0.0),
-          VN(0.0), noise_mean(0.0), gen()
+        : SNR(0.0), VA(0.0), noise_alpha(0.0), 
+        VN(0.0), noise_mean(0.0), gen()
     {
     }
 
