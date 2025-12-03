@@ -629,7 +629,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     auto decoded_bob_k_message = libbase::vector<int>(cdc->input_block_size());
     // (Bob) Perform Syndrome Decoding
     cdc->init_decoder(prob_table_encoded, calculated_syndrome);
-    cdc->decode(decoded_bob_k_message);
+    cdc->decode_message(decoded_bob_k_message);
 
 #if DEBUG >= 1
     std::cout << "DV_QKDPROTOCOL: Bob's Decoded message k: "
@@ -667,7 +667,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     cdc->seedfrom(rng); 
 
     cdc->init_decoder(prob_table_p1_X_int, calculated_syndrome);
-    cdc->decode(decoded_alice_k_message);
+    cdc->decode_message(decoded_alice_k_message);
 
 #if DEBUG >= 1
     std::cout << "*** DV_QKDPROTOCOL: Verifying decoded message ***" << std::endl;

@@ -172,7 +172,7 @@ public:
         this->spa_alg->reset_timers();
     }
 
-    void decode(libbase::vector<int>& decoded) override
+    void decode_message(libbase::vector<int>& decoded) override
     {
         libbase::cputimer t("t_decode");
 

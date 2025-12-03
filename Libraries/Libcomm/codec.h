@@ -141,7 +141,7 @@ public:
      *
      * \note Observe that this output necessarily constitutes a hard decision.
      */
-    virtual void decode(C<int>& decoded)
+    virtual void decode_message(C<int>& decoded)
     {
         for (int curr_cdc_iter = 0; curr_cdc_iter < this->num_iter();
              curr_cdc_iter++)
@@ -154,7 +154,7 @@ public:
      *
      * \note Observe that this output necessarily constitutes a hard decision.
      */
-    void decode(libbase::vector<C<int>>& decoded)
+    void decode_message(libbase::vector<C<int>>& decoded)
     {
         decoded.init(this->num_iter());
         for (int curr_cdc_iter = 0; curr_cdc_iter < this->num_iter();

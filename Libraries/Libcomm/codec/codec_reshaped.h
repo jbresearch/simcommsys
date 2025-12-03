@@ -103,10 +103,10 @@ public:
         base.decode_codeword(decoded_v);
         decoded = decoded_v;
     }
-    void decode(libbase::matrix<int>& decoded) override
+    void decode_message(libbase::matrix<int>& decoded) override
     {
         libbase::vector<int> decoded_v;
-        base.decode(decoded_v);
+        base.decode_message(decoded_v);
         decoded = decoded_v;
     }
 

@@ -231,7 +231,7 @@ public:
     void softdecode_iter(array1vd_t& ri) override;
     void softdecode_iter(array1vd_t& ri, array1vd_t& ro) override;
     // (necessary because inheriting methods from templated base)
-    using Base::decode;
+    using Base::decode_message;
 
     // Codec information functions - fundamental
     libbase::size_type<libbase::vector> input_block_size() const

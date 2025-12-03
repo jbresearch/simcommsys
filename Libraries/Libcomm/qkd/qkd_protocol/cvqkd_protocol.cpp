@@ -525,7 +525,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         cdc->init_decoder(prob_table);
 
         auto decoded = libbase::vector<int>();
-        cdc->decode(decoded);
+        cdc->decode_message(decoded);
 
 #if DEBUG >= 1
         std::cerr << "CV_QKDPROTOCOL: decoded = " << decoded << std::endl;

@@ -425,7 +425,7 @@ std::cout << "TESTSYNDROMEDECODING: Modem Details: " << mdm->description() << st
     cdc->init_decoder(prob_table);
 
     auto decoded_message_u = libbase::vector<int>(cdc->input_block_size());
-    cdc->decode(decoded_message_u);
+    cdc->decode_message(decoded_message_u);
 
 #if DEBUG >= 1
     std::cout << "TESTSYNDROMEDECODING: Decoded message u: "
@@ -552,7 +552,7 @@ std::cout << "TESTSYNDROMEDECODING: Modem Details: " << mdm->description() << st
     cdc->init_decoder(prob_table);
 
     auto decoded_message_u = libbase::vector<int>(cdc->input_block_size());
-    cdc->decode(decoded_message_u);
+    cdc->decode_message(decoded_message_u);
 
 #if DEBUG >= 1
     std::cout << "TESTSYNDROMEDECODING: Decoded message u: "
@@ -820,7 +820,7 @@ BOOST_AUTO_TEST_CASE(gf2_random_message_zero_syndrome_loop)
         // Pass GLOBAL seed 
         cdc->seedfrom(rng);
         cdc->init_decoder(prob_table_p2);
-        cdc->decode(decoded_message);
+        cdc->decode_message(decoded_message);
 
 #if DEBUG >= 2
     std::cout << "TESTSYNDROMEDECODING: Decoded message: "
@@ -931,7 +931,7 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
         // Pass GLOBAL seed 
         cdc->seedfrom(rng);
         cdc->init_decoder(prob_table_p1, calculated_syndrome);
-        cdc->decode(decoded_message_u_no_error);
+        cdc->decode_message(decoded_message_u_no_error);
 
 #if DEBUG >= 2
     std::cout << "TESTSYNDROMEDECODING: Decoded message u (no error): "
@@ -959,7 +959,7 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_loop)
         // Decode (using original syndrome)
         cdc->seedfrom(rng);
         cdc->init_decoder(prob_table_p2, calculated_syndrome);
-        cdc->decode(decoded_message_u_with_error);
+        cdc->decode_message(decoded_message_u_with_error);
 
 #if DEBUG >= 2
     std::cout << "TESTSYNDROMEDECODING: Decoded message (with error): "
@@ -1103,7 +1103,7 @@ std::cout << "TESTSYNDROMEDECODING: Modem Details: " << mdm->description() << st
     cdc->init_decoder(prob_table);
 
     auto decoded_message_u = libbase::vector<int>(cdc->input_block_size());
-    cdc->decode(decoded_message_u);
+    cdc->decode_message(decoded_message_u);
 
 #if DEBUG >= 1
     std::cout << "TESTSYNDROMEDECODING: Decoded message u: "
@@ -1204,7 +1204,7 @@ BOOST_AUTO_TEST_CASE(gf4_random_message_zero_syndrome_loop)
         // Decode (using original syndrome)
         cdc->seedfrom(rng); // Pass the GLOBAL seed 
         cdc->init_decoder(prob_table_p2);
-        cdc->decode(decoded_message);
+        cdc->decode_message(decoded_message);
 
 #if DEBUG >= 2
     std::cout << "TESTSYNDROMEDECODING: Original message: "
@@ -1315,7 +1315,7 @@ BOOST_AUTO_TEST_CASE(gf64_random_codeword_loop)
         // Decode
         cdc->seedfrom(rng); // Pass the GLOBAL seed
         cdc->init_decoder(prob_table_p1, calculated_syndrome);
-        cdc->decode(decoded_message_u_no_error);
+        cdc->decode_message(decoded_message_u_no_error);
 
 #if DEBUG >= 2
     std::cout << "TESTSYNDROMEDECODING: Decoded message u (no error): "
@@ -1343,7 +1343,7 @@ BOOST_AUTO_TEST_CASE(gf64_random_codeword_loop)
         // Decode (using original syndrome)
         cdc->seedfrom(rng); // Pass the GLOBAL SEED
         cdc->init_decoder(prob_table_p2, calculated_syndrome);
-        cdc->decode(decoded_message_u_with_error);
+        cdc->decode_message(decoded_message_u_with_error);
 
 #if DEBUG >= 2
     std::cout << "TESTSYNDROMEDECODING: Decoded message (with error): "
