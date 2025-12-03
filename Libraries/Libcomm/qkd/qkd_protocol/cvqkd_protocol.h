@@ -160,9 +160,6 @@ public:
     parameter_estimation(const libbase::vector<double>& X_PE,
                                        const libbase::vector<double>& Y_PE);
      
-    // Mutual Information for the GG02 protocol.
-    double calculate_mutual_information(double chi_total_hat);
-
     // Mutual Information for the GG02 protocol based on SNR only. 
     double calculate_mutual_information(double SNR_linear);
     
@@ -177,12 +174,7 @@ public:
 
     // Safe sqrt: clamp tiny negative values due to round-off
     inline double safe_sqrt(double x) { return std::sqrt(x < 0.0 ? 0.0 : x); }
-
-    // Holevo Bound calculation for the GG02 protocol.
-    double calculate_holevo_bound(double T_hat,
-                                  double Epsilon_hat,
-                                  double X_total_hat);
-
+    
     // Method to calculate the Holevo Bound for the GG02 protocol based on Ryan's derived equations. 
     double calculate_holevo_bound(double VA_hat,
                                        double alpha_hat,
