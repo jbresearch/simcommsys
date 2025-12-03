@@ -599,8 +599,9 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_comparison)
     // These are the variables that will be shared
     libbase::vector<int> generated_codeword(n);
     libbase::vector<int> calculated_syndrome; 
+    // TODO: check if the following comment still applies
     // Note: Syndrome size is typically m = n-k, but codec_coset seems to use n.
-    auto decoded_message_u_no_error = libbase::vector<int>(cdc->input_block_size());
+    libbase::vector<int> decoded_codeword_no_error;
 
     // Create modem and channel
     auto mdm = create_modem_gf2();
@@ -651,11 +652,11 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_comparison)
     // Pass Global RNG
     cdc->seedfrom(rng); 
     cdc->init_decoder(prob_table_p1, calculated_syndrome);
-    cdc->decode(decoded_message_u_no_error);
+    cdc->decode_codeword(decoded_codeword_no_error);
 
 #if DEBUG >= 1
-    std::cout << "TESTSYNDROMEDECODING: Decoded message u (no error): "
-              << decoded_message_u_no_error << std::endl;
+    std::cout << "TESTSYNDROMEDECODING: Decoded codeword (no error): "
+              << decoded_codeword_no_error << std::endl;
 #endif
 
     // ####################################################################
@@ -706,12 +707,12 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_comparison)
     // syndrome calculated from the *original* noiseless codeword.
     cdc->init_decoder(prob_table_p2, calculated_syndrome);
 
-    auto decoded_message_u_with_error = libbase::vector<int>(cdc->input_block_size());
-    cdc->decode(decoded_message_u_with_error);
+    libbase::vector<int> decoded_codeword_with_error;
+    cdc->decode_codeword(decoded_codeword_with_error);
 
 #if DEBUG >= 1
-    std::cout << "TESTSYNDROMEDECODING: Decoded message u (with error): "
-              << decoded_message_u_with_error << std::endl;
+    std::cout << "TESTSYNDROMEDECODING: Decoded codeword (with error): "
+              << decoded_codeword_with_error << std::endl;
 #endif
 
     // ####################################################################
@@ -719,18 +720,21 @@ BOOST_AUTO_TEST_CASE(gf2_random_codeword_comparison)
     // ####################################################################
     std::cout << "\n--- PART 3: Comparison ---" << std::endl;
     
-    // Compute number of errors between the two decoded messages
-    int num_errors = libbase::hamming(decoded_message_u_no_error, decoded_message_u_with_error);
+    // Compute number of decoding errors
+    int num_errors_a = libbase::hamming(generated_codeword, decoded_codeword_no_error);
+    int num_errors_b = libbase::hamming(generated_codeword, decoded_codeword_with_error);
     
 #if DEBUG >= 1
     std::cout << "TESTSYNDROMEDECODING: Validating Result " << std::endl;
-    std::cout << "TESTSYNDROMEDECODING: Decoded message (no error): " << decoded_message_u_no_error << std::endl;
-    std::cout << "TESTSYNDROMEDECODING: Decoded message (with error): " << decoded_message_u_with_error << std::endl;
-    std::cout << "TESTSYNDROMEDECODING: Number of errors between decoded messages: " << num_errors << std::endl;
+    std::cout << "TESTSYNDROMEDECODING: Decoded codeword (no error): " << decoded_codeword_no_error << std::endl;
+    std::cout << "TESTSYNDROMEDECODING: Decoded codeword (with error): " << decoded_codeword_with_error << std::endl;
+    std::cout << "TESTSYNDROMEDECODING: Number of decoding errors (no error): " << num_errors_a << std::endl;
+    std::cout << "TESTSYNDROMEDECODING: Number of decoding errors (with errors): " << num_errors_b << std::endl;
 #endif 
 
     // Assert that the syndrome decoding successfully corrected the channel errors.
-    BOOST_CHECK_EQUAL(num_errors, 0); 
+    BOOST_CHECK_EQUAL(num_errors_a, 0); 
+    BOOST_CHECK_EQUAL(num_errors_b, 0); 
 }
 
 /* * This test case runs the entire simulation in a loop 100 times, 
