@@ -49,11 +49,11 @@ private:
     std::shared_ptr<quantum_channel> m_bob_channel;
 
     int framesize = 0; // Number of generated coherent states per frame.
-    int N_PE;          // Number of samples used for parameter estimation.
+    int N_PE;          // Number of samples used for parameter estimation
     int N_0;           // shot noise
     double v_el;       // electric noise
-    double detector_efficiency;
     double m_modulation_variance = 0.0;
+    double alpha; // fading coefficient 
     double smoothing_parameter;
     double I_AB = 0.0;      // Mutual Information between Alice and Bob.
     double chi_BE = 0.0;    // Holevo Bound between Bob and Eve for RR.

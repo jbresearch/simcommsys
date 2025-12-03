@@ -106,6 +106,7 @@ cvqkd_protocol::parameter_estimation_optical_fiber(
     double T_hat = 0.0;
     double Epsilon_hat = 0.0;
     double chi_total_hat = 0.0;
+    double detector_efficiency = 0.6; // Previously this was a serialized parameter. 
 
     // Calculating t_hat (eq. (3)) where t = √ηT ∈ R
     double s_xx = 0.0;      // Σ x_i^2
@@ -887,8 +888,6 @@ cvqkd_protocol::serialize(std::ostream& sout) const
     sout << N_0 << std::endl;
     sout << "# Electric Noise v_el" << std::endl;
     sout << v_el << std::endl;
-    sout << "# Detector Efficiency eta" << std::endl;
-    sout << detector_efficiency << std::endl;
     // Smoothing parameter bar epsilon which is used to calculate the final
     // length of the secret key.
     sout << "# Smoothing Parameter" << std::endl;
@@ -913,7 +912,6 @@ cvqkd_protocol::serialize(std::istream& sin)
     sin >> libbase::eatcomments >> version;
     sin >> libbase::eatcomments >> N_0 >> libbase::verify;
     sin >> libbase::eatcomments >> v_el >> libbase::verify;
-    sin >> libbase::eatcomments >> detector_efficiency >> libbase::verify;
     sin >> libbase::eatcomments >> smoothing_parameter >> libbase::verify;
     sin >> libbase::eatcomments >> alphabet_size >> libbase::verify;
     // we have to serialise this as a codec object, then do a dynamic conversion

@@ -159,8 +159,6 @@ cvqkd_protocol
 1
 # Electric Noise v_el
 0.041
-# Detector Efficiency eta
-0.606
 # Smoothing Parameter
 1e-4
 # Alphabet size
