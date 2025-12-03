@@ -110,14 +110,16 @@ hadamard_transform(real*& buf, real*& swapbuf)
 template <class GF_q, class real>
 __device__
 void
-permute_divide(real*& buf, real*& swapbuf, GF_q h_m_n, int extra_offset)
+permute_divide(real*& buf, real*& swapbuf, GF_q h_m_n, GF_q extra_offset)
 {
     int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
     int pos_e = idx % GF_q::elements();
 
     int offset = threadIdx.x & ~(GF_q::elements() - 1);
-    swapbuf[threadIdx.x] = buf[offset + h_m_n * GF_q(pos_e) + extra_offset];
+    offset += h_m_n * GF_q(pos_e) + extra_offset;
+
+    swapbuf[threadIdx.x] = buf[offset];
 
     ::cuda::swap(swapbuf, buf);
 }
@@ -573,9 +575,9 @@ compute_r_mn_kern(
         GF_q h_m_n = device_pchk_non_zeros_val(q_mn_idx);
         hadamard_transform<GF_q, real>(buf, swapbuf);
 
-        int extra_offset = 0;
+        GF_q extra_offset = 0;
         if (device_syndrome.size() > 0) {
-            extra_offset = static_cast<int>(device_syndrome(pos_m));
+            extra_offset = device_syndrome(pos_m);
         }
         permute_divide<GF_q, real>(buf, swapbuf, h_m_n, extra_offset);
         __syncthreads();
