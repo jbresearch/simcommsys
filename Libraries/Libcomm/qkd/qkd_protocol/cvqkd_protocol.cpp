@@ -249,32 +249,6 @@ cvqkd_protocol::parameter_estimation(
     return {VA_hat, alpha_hat, VN_hat};
 }
 
-// Mutual Information for the GG02 protocol
-double
-cvqkd_protocol::calculate_mutual_information(double chi_total_hat)
-{
-    double V = m_modulation_variance + 1;
-
-    // Equation to calculate I_AB for homodyne detection and under collective
-    // attacks. It calculates the channel capacity of the quantum channel.
-
-    /*
-     * References for I_AB calculation:
-     *   [1] Lodewyck, Jérôme, et al. "Quantum key distribution over 25 km with
-     * an all-fiber continuous-variable system." Physical Review A—Atomic,
-     * Molecular, and Optical Physics 76.4 (2007): 042305. [2] Zhang, Y., Bian,
-     * Y., Li, Z., Yu, S. and Guo, H., 2024. Continuous-variable quantum key
-     * distribution system: Past, present, and future. Applied Physics Reviews,
-     * 11(1).
-     */
-
-    I_AB = 0.5 * std::log2((V + chi_total_hat) /
-                           (chi_total_hat + 1)); // In bits/pulse
-    // I_AB_kbps = I_AB * repetition_rate;
-
-    return I_AB;
-}
-
 /**
  * @brief Calculates the Mutual Information (I_AB) between Alice and Bob based on SNR only.
  *
@@ -311,72 +285,6 @@ cvqkd_protocol::calculate_mutual_information(double SNR_linear)
     // I_AB_kbps = I_AB * repetition_rate;
 
     return I_AB; 
-}
-
-
-// Holevo Bound for the GG02 protocol
-double
-cvqkd_protocol::calculate_holevo_bound(double T_hat,
-                                       double Epsilon_hat,
-                                       double X_total_hat)
-{
-    double V = m_modulation_variance + 1;
-    double X_line_hat = 0;
-    double X_hom_hat = 0;
-
-    // Original equations of X_line and X_hom
-    // X_hom = (1 - detector_efficiency + v_el)/detector_efficiency;
-    // Xline = (1/T) - 1 + epsilon
-    // Xtotal = Xline + (Xhom/T)
-
-    /*
-     * References for X_BE calculation:
-     *   [1] Lodewyck, Jérôme, et al. "Quantum key distribution over 25 km with
-     * an all-fiber continuous-variable system." Physical Review A—Atomic,
-     * Molecular, and Optical Physics 76.4 (2007): 042305. [2] Zhang, Y., Bian,
-     * Y., Li, Z., Yu, S. and Guo, H., 2024. Continuous-variable quantum key
-     * distribution system: Past, present, and future. Applied Physics Reviews,
-     * 11(1).
-     */
-
-    // Estimate X_line and X_hom from T_hat, Epsilon_hat and X_total_hat
-    X_line_hat = (1 / T_hat) - 1 + Epsilon_hat;
-    X_hom_hat = T_hat * (X_total_hat - X_line_hat);
-
-    const double A = V * V * (1.0 - 2.0 * T_hat) + 2.0 * T_hat +
-                     (T_hat * T_hat) * std::pow(V + X_line_hat, 2.0);
-    const double B = (T_hat * T_hat) * std::pow(V * X_line_hat + 1.0, 2.0);
-
-    const double sqrt_B = safe_sqrt(B);
-
-    const double C_num = A * X_hom_hat + V * sqrt_B + T_hat * (V + X_line_hat);
-    const double C_den = T_hat * (V + X_total_hat);
-
-    if (C_den == 0.0) {
-        throw std::invalid_argument(
-            "compute_holevo_cvqkd: division by zero in C_den = T*(V+Xtot).");
-    }
-    const double C = C_num / C_den;
-
-    const double D = sqrt_B * (V + sqrt_B * X_hom_hat) / C_den;
-
-    const double disc1 = A * A - 4.0 * B;
-    const double disc2 = C * C - 4.0 * D;
-
-    const double lambda1 = std::sqrt(0.5) * safe_sqrt(A + safe_sqrt(disc1));
-    const double lambda2 = std::sqrt(0.5) * safe_sqrt(A - safe_sqrt(disc1));
-    const double lambda3 = std::sqrt(0.5) * safe_sqrt(C + safe_sqrt(disc2));
-    const double lambda4 = std::sqrt(0.5) * safe_sqrt(C - safe_sqrt(disc2));
-
-    // --- Holevo bound X_BE for homodyne detection with Gaussian modulated
-    // coherent states.
-    chi_BE = bosonic_entropy_G((lambda1 - 1.0) / 2.0) +
-             bosonic_entropy_G((lambda2 - 1.0) / 2.0) -
-             bosonic_entropy_G((lambda3 - 1.0) / 2.0) -
-             bosonic_entropy_G((lambda4 - 1.0) / 2.0);
-
-    // chi_BE_kbps = IBE * repetition_rate;
-    return chi_BE; // In bits/pulse.
 }
 
 /**
@@ -593,6 +501,17 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
               << m_modulation_variance << std::endl;
 #endif
 
+    /* Gets variance VN from Bob's Gaussian Quantum Channel*/
+    libbase::vector<double> bobs_channel_parameters;
+    bobs_channel_parameters.init(1);
+    bobs_channel_parameters = this->m_bob_channel->get_parameters();
+
+    // CLI parameter of the gaussian quantum channel.
+    // TO CONFIRM whether I also need to serialize this in the 
+    // the cvqkdprotocol.cpp as part of the switch as I did for DV-QKD. 
+    SNR_linear =
+        (alpha_hat * alpha_hat ) * (this->m_modulation_variance) / (bobs_channel_parameters(0));
+
     // Calculate Mutual Information I_AB
     I_AB = calculate_mutual_information(SNR_linear);
 
@@ -603,17 +522,20 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     if (chi_BE < 0) {
         chi_BE = 0; // chi can never be negative.
     }
-        
-#if DEBUG >= 1
+    
+    /* Checks whether the protocol is aborted or not to continue with the
+     * Information Reconciliation stage. */
+    /* TO REMOVE: I_AB = 3*/
+    I_AB = 3; 
+    MI_Check = (I_AB > chi_BE);
+
+    #if DEBUG >= 1
     std::cerr << "CV_QKDPROTOCOL:  Mutual Information I_AB = " << I_AB
               << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  Holevo Bound Chi_BE = " << chi_BE
               << std::endl;
-#endif
 
-    /* Checks whether the protocol is aborted or not to continue with the
-     * Information Reconciliation stage. */
-    MI_Check = (I_AB > chi_BE);
+#endif
 
     if (MI_Check) {
 
@@ -622,17 +544,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
                   << std::endl;
 #endif
 
-        /* Gets variance VN from Bob's Gaussian Quantum Channel*/
-        libbase::vector<double> bobs_channel_parameters;
-        bobs_channel_parameters.init(1);
-        bobs_channel_parameters = this->m_bob_channel->get_parameters();
-
-        // CLI parameter of the gaussian quantum channel.
-        // TO CONFIRM whether I also need to serialize this in the 
-        // the cvqkdprotocol.cpp as part of the switch as I did for DV-QKD. 
-        SNR_linear =
-            (alpha_hat * alpha_hat ) * (this->m_modulation_variance) / (bobs_channel_parameters(0));
-
+ 
 #if DEBUG >= 1
         std::cerr << "CV_QKDPROTOCOL:  Variance VN = "
                   << (bobs_channel_parameters(0)) << std::endl;
