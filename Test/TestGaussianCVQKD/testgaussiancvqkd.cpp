@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
 # Version
 1
 # Frame size (# of quantum states in a frame)
-20
+100000
 ## Alice's channel
 identity_quantum_channel
 ## Bob's channel
@@ -150,7 +150,7 @@ gaussian_quantum_channel
 # Mean of the Gaussian Quantum Channel
 0.0
 # Fading Coefficient alpha
-0.9
+0.34641
 ## Postprocessing protocol
 cvqkd_protocol
 # Version
@@ -160,7 +160,7 @@ cvqkd_protocol
 # Electric Noise v_el
 0.041
 # N_PE
-13
+99993
 # Smoothing Parameter
 1e-4
 # Alphabet size
@@ -253,7 +253,7 @@ sign<double>
 
     sys->seedfrom(*rng);
 
-    const double VN = 1.041915; // Variance VN, the new CLI parameter.
+    const double VN = 0.0004302606584964948; //1.041915; // Variance VN, the new CLI parameter.
     // If VA = 18.5, SNR_linear ~ 17.7558
 
     libbase::vector<double> cli;
@@ -273,18 +273,39 @@ sign<double>
                  "Variance VN = "
               << VN << std::endl;
 
-    // 6) Create Gaussian Quantum Source
+// Test case for optical fiber with the below parameters: 
+// 1.041915; // Variance VN, the new CLI parameter.
+// If VA = 18.5, SNR_linear ~ 17.7558 
+// 6) Create Gaussian Quantum Source
+//     std::stringstream ss_src;
+//     ss_src << R"SS(
+// quantum_gaussian_source
+// # Mean of Q_Mean
+// 0.0
+// # Stddev of Q_Mean
+// 4.30116
+// # Mean of P_Mean
+// 0.0
+// # Stddev of P_Mean
+// 4.30116
+// # Stddev of Q
+// 1.0
+// # Stddev of P
+// 1.0
+// )SS";
+
+
     std::stringstream ss_src;
     ss_src << R"SS(
 quantum_gaussian_source
 # Mean of Q_Mean
 0.0
 # Stddev of Q_Mean
-4.30116
+0.3162
 # Mean of P_Mean
 0.0
 # Stddev of P_Mean
-4.30116
+0.3162
 # Stddev of Q
 1.0
 # Stddev of P
