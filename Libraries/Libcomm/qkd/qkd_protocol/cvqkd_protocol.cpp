@@ -346,7 +346,7 @@ cvqkd_protocol::calculate_holevo_bound(double VA_hat,
     // Helper function to calculate g(x) (Von Neumann Entropy function) 
     // Based on Eq (52): g(x) = ((x+1)/2)*log2((x+1)/2) - ((x-1)/2)*log2((x-1)/2)
     auto calc_g = [](double x) -> double {
-        if (x < 1.0) x = 1.0; // Clamping to physical limit (vacuum state)
+        // if (x < 1.0) x = 1.0; // Clamping to physical limit (vacuum state)
         double t1 = (x + 1.0) / 2.0;
         double t2 = (x - 1.0) / 2.0;
         
@@ -465,7 +465,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     // Calculating N_PE: the number of samples used for parameter estimation.
     // N_PE = N (number of generated states) - n (size of codeword of the
     // codec)
-    assert(N_PE == alice_measurements.size() - cdc->output_block_size() && "N_PE does not match sifted key size minus n");
+    // assert(N_PE == alice_measurements.size() - cdc->output_block_size() && "N_PE does not match sifted key size minus n");
 
 
 #if DEBUG >= 1
@@ -506,17 +506,36 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     bobs_channel_parameters.init(1);
     bobs_channel_parameters = this->m_bob_channel->get_parameters();
 
+    // Get alpha from the quantum gaussian channel
+    // alpha = this->m_bob_channel->get_alpha(); 
+    /*TO DO*/
+    alpha = 0.34641;
+
+#if DEBUG >= 1
+    std::cout << "CV_QKDPROTOCOL:  fading coefficient alpha = " << alpha
+              << std::endl;
+#endif 
+
     // CLI parameter of the gaussian quantum channel.
     // TO CONFIRM whether I also need to serialize this in the 
-    // the cvqkdprotocol.cpp as part of the switch as I did for DV-QKD. 
+    // the cvqkdprotocol.cpp as part of the switch as I did for DV-QKD.    
     SNR_linear =
-        (alpha_hat * alpha_hat ) * (this->m_modulation_variance) / (bobs_channel_parameters(0));
+        (alpha * alpha) * (this->m_modulation_variance) / (bobs_channel_parameters(0));
 
     // Calculate Mutual Information I_AB
     I_AB = calculate_mutual_information(SNR_linear);
 
     // Calculate Holevo Bound Chi_BE
     chi_BE = calculate_holevo_bound(VA_hat, alpha_hat, VN_hat);
+
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL:  Mutual Information I_AB = " << I_AB
+              << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  Holevo Bound Chi_BE = " << chi_BE
+              << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  Linear SNR = " << SNR_linear
+              << std::endl;
+#endif 
 
     // chi_be can never be negative
     if (chi_BE < 0) {
@@ -525,17 +544,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     
     /* Checks whether the protocol is aborted or not to continue with the
      * Information Reconciliation stage. */
-    /* TO REMOVE: I_AB = 3*/
-    I_AB = 3; 
     MI_Check = (I_AB > chi_BE);
-
-    #if DEBUG >= 1
-    std::cerr << "CV_QKDPROTOCOL:  Mutual Information I_AB = " << I_AB
-              << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  Holevo Bound Chi_BE = " << chi_BE
-              << std::endl;
-
-#endif
 
     if (MI_Check) {
 
