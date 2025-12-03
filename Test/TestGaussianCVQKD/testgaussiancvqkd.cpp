@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE(test_qkd_commsys_object_up_until_measurement)
 # Version
 1
 # Frame size (# of quantum states in a frame)
-14
+20
 ## Alice's channel
 identity_quantum_channel
 ## Bob's channel
@@ -150,7 +150,7 @@ gaussian_quantum_channel
 # Mean of the Gaussian Quantum Channel
 0.0
 # Fading Coefficient alpha
-1.0
+0.9
 ## Postprocessing protocol
 cvqkd_protocol
 # Version
@@ -160,7 +160,7 @@ cvqkd_protocol
 # Electric Noise v_el
 0.041
 # N_PE
-7
+13
 # Smoothing Parameter
 1e-4
 # Alphabet size
