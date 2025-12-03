@@ -155,6 +155,7 @@ public:
                                        const libbase::vector<double>& Y_PE);
 
     // Parameter Estimation for the GG02 protocol based on Ryan's equations
+    // returns VA_hat, alpha_hat and VN_hat
     std::tuple<double, double, double>
     parameter_estimation(const libbase::vector<double>& X_PE,
                                        const libbase::vector<double>& Y_PE);

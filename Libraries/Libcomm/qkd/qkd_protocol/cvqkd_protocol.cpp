@@ -577,15 +577,14 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
               << "\t" << Y.size() << std::endl;
 #endif
 
-    // Calculate parameter estimation using optical fiber.
-    auto [T_hat, Epsilon_hat, chi_total_hat] =
-        parameter_estimation_optical_fiber(X_PE, Y_PE);
+    // Calculate parameter estimation using Ryan's derived equations. 
+    auto [VA_hat, alpha_hat, VN_hat] =
+        parameter_estimation(X_PE, Y_PE);
 
 #if DEBUG >= 1
-    std::cerr << "CV_QKDPROTOCOL:  T_hat = " << T_hat << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  Epsilon_hat = " << Epsilon_hat << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  chi_total_hat = " << chi_total_hat
-              << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  VA_hat = " << VA_hat << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  alpha_hat = " << alpha_hat << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  VN_hat = " << VN_hat << std::endl;
 #endif
 
 // Gets modulation V_A after initialise method is called in qkd commsys.h
@@ -595,28 +594,16 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 #endif
 
     // Calculate Mutual Information I_AB
-    I_AB = calculate_mutual_information(chi_total_hat);
+    I_AB = calculate_mutual_information(SNR_linear);
 
     // Calculate Holevo Bound Chi_BE
-    chi_BE = calculate_holevo_bound(T_hat, Epsilon_hat, chi_total_hat);
+    chi_BE = calculate_holevo_bound(VA_hat, alpha_hat, VN_hat);
 
     // chi_be can never be negative
     if (chi_BE < 0) {
         chi_BE = 0; // chi can never be negative.
     }
-
-    /* TODO: To delete hard coded values. I am just doing this for debugging
-    purposes since the framesize I started with was small/
-
-    // Checking for MI_check = False
-    I_AB = 1.04;
-    chi_BE = 0.82;
-
-    // Checking for MI_check = False
-    I_AB = 0.5;
-    chi_BE = 0.82;
-    */
-
+        
 #if DEBUG >= 1
     std::cerr << "CV_QKDPROTOCOL:  Mutual Information I_AB = " << I_AB
               << std::endl;
@@ -641,8 +628,10 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         bobs_channel_parameters = this->m_bob_channel->get_parameters();
 
         // CLI parameter of the gaussian quantum channel.
+        // TO CONFIRM whether I also need to serialize this in the 
+        // the cvqkdprotocol.cpp as part of the switch as I did for DV-QKD. 
         SNR_linear =
-            (this->m_modulation_variance) / (bobs_channel_parameters(0));
+            (alpha_hat * alpha_hat ) * (this->m_modulation_variance) / (bobs_channel_parameters(0));
 
 #if DEBUG >= 1
         std::cerr << "CV_QKDPROTOCOL:  Variance VN = "
