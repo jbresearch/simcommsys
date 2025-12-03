@@ -378,6 +378,81 @@ cvqkd_protocol::calculate_holevo_bound(double T_hat,
     return chi_BE; // In bits/pulse.
 }
 
+/**
+ * @brief Calculates the Holevo Bound (Chi_BE) using Ryan's derived equations.
+ *
+ * This function computes the maximum information available to Eve (Holevo quantity)
+ * based on the symplectic eigenvalues of the covariance matrices.
+ *
+ * References:
+ * [1] "Alternate Derivations.pdf", Section 3.1 Symplectic Eigenvalues and 3.2 Holevo Quantity.
+ *
+ * @param VA_hat The variance of Alice's modulation (a = sigma_X^2)[cite: eq. (48)].
+ * @param alpha_hat The channel fading coefficient (alpha)[cite: eq. (24)].
+ * @param VN_hat The noise variance (sigma_N^2)[cite: eq. (24)].
+ * @return double The Holevo bound (bits/pulse).
+ */
+double
+cvqkd_protocol::calculate_holevo_bound(double VA_hat,
+                                       double alpha_hat,
+                                       double VN_hat)
+{
+    // Ensure positive values for log calculations
+    if (VA_hat <= 0 || VN_hat <= 0) return 0.0;
+
+    // Map inputs to Covariance Matrix Parameters (Eq 37 - 40) ---
+    // According to the PDF, the covariance parameters are derived as follows:
+    // a = sigma_X^2 = VA
+    const double a = VA_hat;
+    
+    // b = alpha^2 * sigma_X^2 + sigma_N^2
+    const double b = (alpha_hat * alpha_hat * VA_hat) + VN_hat; 
+    
+    // c = alpha * sigma_X^2
+    const double c = alpha_hat * VA_hat; 
+
+    // Calculate Symplectic Eigenvalues lambda_1 and lambda_2 using equations (47) and (48)
+    // z = sqrt((a + b)^2 - 4c^2)
+    double term_z = std::sqrt(std::pow(a + b, 2) - 4.0 * c * c);
+
+    // Lambda_1 (Eq 47, Eq 41)
+    // Eq 47 is the expanded form of: 1/2 * (z + (b - a))
+    const double lambda1 = 0.5 * (term_z + (b - a)); 
+
+    // Lambda_2 (Eq 48, Eq 42)
+    // Eq 48 is the expanded form of: 1/2 * (z - (b - a))
+    const double lambda2 = 0.5 * (term_z - (b - a)); 
+
+    // Lambda_3 (Eq 45)
+    // Equation (45): lambda_3 = sqrt( a * (a - c^2/b) )
+    assert(b > 1e-12 && "Division by zero: Variance b cannot be zero.");
+
+    double term_inner = a - ((c * c) / b);
+
+    // Sanity check: Inner term must be non-negative for sqrt
+    if (term_inner < 0.0) term_inner = 0.0; 
+
+    const double lambda3 = std::sqrt(a * term_inner);
+
+    // Helper function to calculate g(x) (Von Neumann Entropy function) 
+    // Based on Eq (52): g(x) = ((x+1)/2)*log2((x+1)/2) - ((x-1)/2)*log2((x-1)/2)
+    auto calc_g = [](double x) -> double {
+        if (x < 1.0) x = 1.0; // Clamping to physical limit (vacuum state)
+        double t1 = (x + 1.0) / 2.0;
+        double t2 = (x - 1.0) / 2.0;
+        
+        double term1 = t1 * std::log2(t1);
+        double term2 = (t2 > 0) ? (t2 * std::log2(t2)) : 0.0; // Handle limit x->1
+        
+        return term1 - term2; 
+    };
+
+    //  Calculate Holevo Quantity chi_BE (Eq 53)
+    // chi = g(lambda1) + g(lambda2) - g(lambda3)
+    double chi_BE = calc_g(lambda1) + calc_g(lambda2) - calc_g(lambda3); 
+    return chi_BE; // In bits/pulse
+}
+
 double
 cvqkd_protocol::compute_beta_mdr(double code_rate)
 {
