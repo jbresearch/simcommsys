@@ -520,8 +520,8 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
 #endif
 
     /*  QBER Switch 
-        If estimate_parameters == true,
-        QBER is calculated from parameter estimation. This is the default.
+        If estimate_parameters == true (default),
+        QBER is calculated from parameter estimation. 
         
         If estimate_parameters == false, 
         QBER is taken directly from Bob's quantum channel. 
@@ -532,9 +532,11 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
 
     if (!estimate_parameters)
     {
-        // Get QBER directly from the quantum channel
-        libbase::vector<double> bob_channel_parameters = m_bob_channel->get_parameters();
-        this->QBER = bob_channel_parameters(0);
+        /* Get QBER directly from the depolarizing quantum channel 
+           rather than using the get_parameters() from m_bob_channel.
+             libbase::vector<double> bob_channel_parameters = m_bob_channel->get_parameters()
+        */
+        this->QBER = m_bob_channel->get_qber();
     }
 
     // Checks that it is not >= the maximum tolerable qber. */  
