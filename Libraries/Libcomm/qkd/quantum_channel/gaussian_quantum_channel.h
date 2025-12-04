@@ -106,6 +106,12 @@ public:
         return noise_alpha; 
     } 
 
+    // Overrides the base class method to return the variance VN. 
+    double get_VN() const override
+    {
+        return VN;
+    }
+
     // Description - Returns a short string describing the channel
     std::string description() const override;
 
