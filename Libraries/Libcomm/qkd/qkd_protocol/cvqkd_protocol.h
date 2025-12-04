@@ -52,11 +52,19 @@ private:
     int N_PE;          // Number of samples used for parameter estimation
     int N_0;           // shot noise
     double v_el;       // electric noise
+    
+    double VA_hat = 0.0;
     double m_modulation_variance = 0.0;
+
+    double alpha_hat;
     double alpha; // fading coefficient 
-    double smoothing_parameter;
+
+    double VN_hat; 
+
+    double smoothing_parameter; //!< True for calculating V_A, V_N and alpha from parameter estimation.
     double I_AB = 0.0;      // Mutual Information between Alice and Bob.
     double chi_BE = 0.0;    // Holevo Bound between Bob and Eve for RR.
+    bool estimate_parameters; // 
     bool MI_Check = false;  // MI check that verifies if I_AB > X_B?
     bool H_check = false;   // Hash check that verifies if hash_hs == hash_hsat?
     int len_secret_key = 0; // Length of final secret key
@@ -149,14 +157,14 @@ public:
           libbase::vector<double>& measurements_bob);
 
     // Parameter Estimation for the GG02 protocol using Optical Fiber which
-    // returns: T_hat, Epsilon_hat, chi_total_hat
+    // returns T_hat, Epsilon_hat, chi_total_hat
     std::tuple<double, double, double>
     parameter_estimation_optical_fiber(const libbase::vector<double>& X_PE,
                                        const libbase::vector<double>& Y_PE);
 
     // Parameter Estimation for the GG02 protocol based on Ryan's equations
-    // returns VA_hat, alpha_hat and VN_hat
-    std::tuple<double, double, double>
+    // Calculates VA_hat, alpha_hat and VN_hat
+    void
     parameter_estimation(const libbase::vector<double>& X_PE,
                                        const libbase::vector<double>& Y_PE);
      

@@ -168,12 +168,11 @@ cvqkd_protocol::parameter_estimation_optical_fiber(
  *
  * @param X_PE Input vector representing Alice's modulation values (Gaussian) used only for parameter estimation.
  * @param Y_PE Input vector representing Bob's measured values used only for parameter estimation.
- * @return std::tuple<double, double, double> containing:
  * - VA_hat: Estimated variance of Alice's signal.
  * - alpha_hat: Estimated channel gain/coupling coefficient.
  * - VN_hat: Estimated total noise variance.
  */
-std::tuple<double, double, double>
+void
 cvqkd_protocol::parameter_estimation(
     const libbase::vector<double>& X_PE, const libbase::vector<double>& Y_PE)
 {
@@ -232,21 +231,19 @@ cvqkd_protocol::parameter_estimation(
     /* Map to Protocol Parameters to calculate VA_hat, alpha_hat and VN_hat */
 
     // a == VA_hat is calculated from variance of X_PE
-    double VA_hat = var_x;
+    VA_hat = var_x;
 
     // c == (alpha_hat)(VA_hat) -> alpha_hat = c / VA_hat
-    double alpha_hat = 0.0;
+    alpha_hat = 0.0;
     if (VA_hat > 1e-12) { // Protection against division by zero
         alpha_hat = cov_xy / VA_hat;
     }
 
     // b == (alpha_hat)^2(VA_hat) + VN_hat -> VN_hat = b - (alpha_hat^2 * VA_hat)
-    double VN_hat = var_y - (alpha_hat * alpha_hat * VA_hat);
+    VN_hat = var_y - (alpha_hat * alpha_hat * VA_hat);
 
     // Sanity check: Noise variance shouldn't be negative due to precision errors
     if (VN_hat < 0) VN_hat = 0.0;
-
-    return {VA_hat, alpha_hat, VN_hat};
 }
 
 /**
@@ -493,8 +490,21 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
               << "\t" << Y.size() << std::endl << std::endl;
 #endif
 
-    // Calculate parameter estimation using Ryan's derived equations. 
-    auto [VA_hat, alpha_hat, VN_hat] =
+#if DEBUG >= 1
+    std::cout << "CV_QKDPROTOCOL: Are VA_hat, VN_hat, alpha_hat calculated from parameter estimation?: " << estimate_parameters << std::endl;
+#endif
+
+    /*  Estimate Parameters 
+        If estimate_parameters == true (default),
+        VA_hat, VN_hat and alpha_hat are calculated from parameter estimation. 
+        
+        If estimate_parameters == false, 
+        VA_hat, VN_hat and alpha_hat are taken directly from Bob's quantum channel. 
+    */
+
+    if(estimate_parameters)
+    {
+        // Calculate parameters from parameter estimation using Ryan's derived equations. 
         parameter_estimation(X_PE, Y_PE);
 
 #if DEBUG >= 1
@@ -503,6 +513,21 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     std::cerr << "CV_QKDPROTOCOL:  alpha_hat = " << alpha_hat << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  VN_hat = " << VN_hat << std::endl << std::endl;
 #endif
+    }
+    else
+    {
+        // Get the parameters directly from the objects.
+        VA_hat = m_modulation_variance; 
+        alpha_hat = m_bob_channel->get_alpha();
+        VN_hat = m_bob_channel->get_VN();
+        
+#if DEBUG >= 1
+    std::cout << "Parameters are taken directly from objects: " << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  VA_hat = " << VA_hat << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  alpha_hat = " << alpha_hat << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  VN_hat = " << VN_hat << std::endl << std::endl;
+#endif
+    }
 
     /* Gets variance VN from Bob's Gaussian Quantum Channel*/
     libbase::vector<double> bobs_channel_parameters;
@@ -547,7 +572,6 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
               << std::endl;
 #endif 
 
-    
     /* Checks whether the protocol is aborted or not to continue with the
      * Information Reconciliation stage. */
     MI_Check = (I_AB > chi_BE);
@@ -559,7 +583,6 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
                   << std::endl;
 #endif
 
- 
 #if DEBUG >= 1
         std::cerr << "CV_QKDPROTOCOL:  Variance VN = "
                   << (bobs_channel_parameters(0)) << std::endl;
@@ -800,6 +823,8 @@ cvqkd_protocol::serialize(std::ostream& sout) const
     sout << v_el << std::endl;
     sout << "# N_PE" << std::endl; // # used for parameter estimation
     sout << N_PE << std::endl; 
+    sout << "# VA, VN, alpha from parameter estimation?" << std::endl;
+    sout << int(estimate_parameters) << std::endl;
     // Smoothing parameter bar epsilon which is used to calculate the final
     // length of the secret key.
     sout << "# Smoothing Parameter" << std::endl;
@@ -825,6 +850,7 @@ cvqkd_protocol::serialize(std::istream& sin)
     sin >> libbase::eatcomments >> N_0 >> libbase::verify;
     sin >> libbase::eatcomments >> v_el >> libbase::verify;
     sin >> libbase::eatcomments >> N_PE >> libbase::verify;
+    sin >> libbase::eatcomments >> estimate_parameters >> libbase::verify;
     sin >> libbase::eatcomments >> smoothing_parameter >> libbase::verify;
     sin >> libbase::eatcomments >> alphabet_size >> libbase::verify;
     // we have to serialise this as a codec object, then do a dynamic conversion
