@@ -519,7 +519,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
         std::cout << "DV_QKDPROTOCOL: Secret Key Length l = " << this->len_secret_key << std::endl;
 #endif
 
-    /*  QBER Switch 
+    /*  Estimate Parameters 
         If estimate_parameters == true (default),
         QBER is calculated from parameter estimation. 
         
@@ -551,6 +551,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     /* (Alice) (Inverse Mapping) 
     Convert X_raw to binary or non-binary to be able to calculate the syndrome
     Convert libbase::vector<bool> -> libbase::vector<int> */
+    
 
     // Get the alphabet size from the loaded codec (e.g., 2 for GF2, 16 for GF16)
     int q = cdc->num_outputs(); 
