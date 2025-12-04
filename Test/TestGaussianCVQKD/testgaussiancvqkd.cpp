@@ -161,6 +161,8 @@ cvqkd_protocol
 0.041
 # N_PE
 99993
+# VA, VN, alpha from parameter estimation?
+1
 # Smoothing Parameter
 1e-4
 # Alphabet size
