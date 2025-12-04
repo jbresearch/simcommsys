@@ -155,10 +155,6 @@ gaussian_quantum_channel
 cvqkd_protocol
 # Version
 1
-# Shot Noise Variance N_0
-1
-# Electric Noise v_el
-0.041
 # N_PE
 99993
 # VA, VN, alpha from parameter estimation?

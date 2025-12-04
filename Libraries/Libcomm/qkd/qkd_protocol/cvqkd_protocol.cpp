@@ -84,74 +84,6 @@ cvqkd_protocol::split(libbase::vector<double>& alice_measurements,
     return {X_PE, Y_PE, X, Y};
 }
 
-std::tuple<double, double, double>
-cvqkd_protocol::parameter_estimation_optical_fiber(
-    const libbase::vector<double>& X_PE, const libbase::vector<double>& Y_PE)
-{
-
-    /**
-     * Reference for parameter estimation equations:
-     *   Chai, Geng, et al. "Parameter estimation of atmospheric
-     * continuous-variable quantum key distribution." Physical Review A, 99(3),
-     * 032326 (2019), Section A.
-     */
-
-    assert(X_PE.size() == Y_PE.size() && "X_PE and Y_PE must have same size.");
-
-    const int m = X_PE.size();
-    assert(m > 0 && "sample size m must be > 0.");
-    assert(N_0 > 0 && "shot noise N_0 must be > 0.");
-    assert(v_el > 0 && "electric noise v_el must be > 0.");
-
-    double T_hat = 0.0;
-    double Epsilon_hat = 0.0;
-    double chi_total_hat = 0.0;
-    double detector_efficiency = 0.6; // Previously this was a serialized parameter. 
-
-    // Calculating t_hat (eq. (3)) where t = √ηT ∈ R
-    double s_xx = 0.0;      // Σ x_i^2
-    long double s_xy = 0.0; // Σ x_i y_i
-    for (int i = 0; i < m; ++i) {
-        const long double x = X_PE(i);
-        const long double y = Y_PE(i);
-        s_xx += x * x;
-        s_xy += x * y;
-    }
-
-    // If all x_i are zero, t̂ is undefined.
-    assert(s_xx > 0.0L && "PE eq: sum of x_i^2 is zero; t_hat undefined.");
-    double t_hat = s_xy / s_xx;
-
-    double sse = 0.0; // Σ (y_i − t̂ x_i)²
-    for (int i = 0; i < m; ++i) {
-        const long double resid = (Y_PE(i)) - t_hat * (X_PE(i));
-        sse += resid * resid;
-    }
-
-    // Calculating sigma^2_hat which is an estimate of variance V_N
-    double sigma2_hat = sse / m; // MLE (1/m)
-
-    // Calculating sigma^2_0 which is σ^2_0 = N_0(1 + v_el)
-    double sigma2_0 = N_0 * (1 + v_el);
-
-    // Calculating estimate of epsilon: Epsilon_hat (eq. (5))
-    Epsilon_hat = (sigma2_hat - sigma2_0) / (t_hat * N_0);
-
-    if (Epsilon_hat < 0) {
-        Epsilon_hat = 0; // Epsilon_hat cannot be negative.
-    }
-
-    // Calculating estimate of transmittance: T_hat (eq. (5))
-    // Note: I still need to add, v_el, N_0 and det_ff as serialized parameters
-    // to the cv-qkd protocol for parameter estimation.
-    T_hat = (t_hat * t_hat / detector_efficiency);
-
-    // Calculating estimate for x_total_hat
-    chi_total_hat = ((sigma2_hat) / (t_hat * t_hat)) - 1;
-
-    return {T_hat, Epsilon_hat, chi_total_hat};
-}
-
 /**
  * @brief Estimates CV-QKD channel parameters using Covariance Matrix analysis.
  *
@@ -817,17 +749,12 @@ cvqkd_protocol::serialize(std::ostream& sout) const
     // format version
     sout << "# Version" << std::endl;
     sout << 1 << std::endl;
-    sout << "# Shot Noise Variance N_0" << std::endl;
-    sout << N_0 << std::endl;
-    sout << "# Electric Noise v_el" << std::endl;
-    sout << v_el << std::endl;
     sout << "# N_PE" << std::endl; // # used for parameter estimation
     sout << N_PE << std::endl; 
     sout << "# VA, VN, alpha from parameter estimation?" << std::endl;
     sout << int(estimate_parameters) << std::endl;
-    // Smoothing parameter bar epsilon which is used to calculate the final
+    sout << "# Smoothing Parameter" << std::endl;  // Smoothing parameter bar epsilon is used to calculate the final
     // length of the secret key.
-    sout << "# Smoothing Parameter" << std::endl;
     sout << smoothing_parameter << std::endl;
     sout << "# Alphabet size" << std::endl;
     sout << alphabet_size << std::endl;
@@ -847,8 +774,6 @@ cvqkd_protocol::serialize(std::istream& sin)
     // get format version
     int version;
     sin >> libbase::eatcomments >> version;
-    sin >> libbase::eatcomments >> N_0 >> libbase::verify;
-    sin >> libbase::eatcomments >> v_el >> libbase::verify;
     sin >> libbase::eatcomments >> N_PE >> libbase::verify;
     sin >> libbase::eatcomments >> estimate_parameters >> libbase::verify;
     sin >> libbase::eatcomments >> smoothing_parameter >> libbase::verify;

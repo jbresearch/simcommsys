@@ -50,15 +50,11 @@ private:
 
     int framesize = 0; // Number of generated coherent states per frame.
     int N_PE;          // Number of samples used for parameter estimation
-    int N_0;           // shot noise
-    double v_el;       // electric noise
-    
+
     double VA_hat = 0.0;
     double m_modulation_variance = 0.0;
-
     double alpha_hat;
     double alpha; // fading coefficient 
-
     double VN_hat; 
 
     double smoothing_parameter; //!< True for calculating V_A, V_N and alpha from parameter estimation.
@@ -155,13 +151,7 @@ public:
                libbase::vector<double>>
     split(libbase::vector<double>& measurements_alice,
           libbase::vector<double>& measurements_bob);
-
-    // Parameter Estimation for the GG02 protocol using Optical Fiber which
-    // returns T_hat, Epsilon_hat, chi_total_hat
-    std::tuple<double, double, double>
-    parameter_estimation_optical_fiber(const libbase::vector<double>& X_PE,
-                                       const libbase::vector<double>& Y_PE);
-
+    
     // Parameter Estimation for the GG02 protocol based on Ryan's equations
     // Calculates VA_hat, alpha_hat and VN_hat
     void
