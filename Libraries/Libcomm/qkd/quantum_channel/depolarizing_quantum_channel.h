@@ -72,6 +72,11 @@ public:
     } // returns the number of CLI parameters
     // @}
 
+    double get_qber() const override
+    {
+        return qber;
+    }
+
     // Description - Returns a short string describing the channel
     std::string description() const override;
 

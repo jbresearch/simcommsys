@@ -89,7 +89,7 @@ public:
     virtual void transmit(hadamard_observable&) { failwith("Not implemented."); }
     //! @}
 
-    // New virtual function to get the fading coefficient (alpha)
+    // New virtual method to get the fading coefficient (alpha) for GG02 with GM coherent states
     virtual double get_alpha() const
     {
         /* Default implementation: indicates not implemented or returns a safe default.
@@ -97,6 +97,12 @@ public:
         We will default to a 1.0 (no fading) for robustness in a general channel, 
         but the Gaussian channel for the GG02 protocol will override this */
         return 1.0; 
+    }
+
+    // New virtual method to get the QBER from a depolarized quantum channel for the BB84. 
+    virtual double get_qber() const
+    {
+        return 0; 
     }
 
     virtual void seedfrom(libbase::random& r) = 0;
