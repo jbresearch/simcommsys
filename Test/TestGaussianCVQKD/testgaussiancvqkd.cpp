@@ -251,8 +251,18 @@ sign<double>
 
     sys->seedfrom(*rng);
 
-    const double VN = 0.0004302606584964948; //1.041915; // Variance VN, the new CLI parameter.
+    // const double VN = 0.0004302606584964948; //1.041915; // Variance VN, the new CLI parameter.
     // If VA = 18.5, SNR_linear ~ 17.7558
+
+    /* Test Cases using the data from the csv file: qudice_atmospheric_results1 
+    // SNR_linear = 2.80E-05, elevation angle = 0.344387634 degrees
+    // const double VN = 77072.88; 
+
+    // SNR_linear = 1.335929371, SNR_dB = 1.25783498,  elevation angle = 40.34405295 degrees
+    // const double VN = 1.61685; 
+    */ 
+    // SNR_linear = 3.104172843 , SNR_dB = 4.919458951,  elevation angle = 89.66604521 degrees
+    const double VN = 0.6958369;
 
     libbase::vector<double> cli;
     cli.init(sys->get_num_params()); // should be 1 when Alice is identity , CLI
@@ -299,11 +309,11 @@ quantum_gaussian_source
 # Mean of Q_Mean
 0.0
 # Stddev of Q_Mean
-0.3162
+4.30116
 # Mean of P_Mean
 0.0
 # Stddev of P_Mean
-0.3162
+4.30116
 # Stddev of Q
 1.0
 # Stddev of P
