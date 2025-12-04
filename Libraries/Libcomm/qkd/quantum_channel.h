@@ -96,11 +96,19 @@ public:
         For a general channel, this might be 1.0 (no fading) or assert/throw.
         We will default to a 1.0 (no fading) for robustness in a general channel, 
         but the Gaussian channel for the GG02 protocol will override this */
+        failwith("Not implemented.");
         return 1.0; 
     }
 
     // New virtual method to get the QBER from a depolarized quantum channel for the BB84. 
     virtual double get_qber() const
+    {
+        failwith("Not implemented.");
+        return 0; 
+    }
+
+    // New virtual method to get the NV from a gaussian quantum channel. 
+    virtual double get_VN() const
     {
         return 0; 
     }
