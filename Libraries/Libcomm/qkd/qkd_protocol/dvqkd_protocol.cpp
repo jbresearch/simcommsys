@@ -520,17 +520,17 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
 #endif
 
     /*  QBER Switch 
-        If switch_QBER == true,
+        If estimate_parameters == true,
         QBER is calculated from parameter estimation. This is the default.
         
-        If switch_QBER == false, 
+        If estimate_parameters == false, 
         QBER is taken directly from Bob's quantum channel. 
     */
 #if DEBUG >= 1
-    std::cout << "DV_QKDPROTOCOL: Is QBER calculated from parameter estimation?: " << switch_QBER << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Is QBER calculated from parameter estimation?: " << estimate_parameters << std::endl;
 #endif
 
-    if(switch_QBER==false)
+    if(estimate_parameters==false)
     {
         // Get QBER directly from the quantum channel
         libbase::vector<double> bob_channel_parameters = m_bob_channel->get_parameters();
@@ -764,7 +764,7 @@ dvqkd_protocol::serialize(std::ostream& sout) const
     sout << "# N_PE" << std::endl;
     sout << N_PE << std::endl;
     sout << "# QBER from parameter estimation?" << std::endl;
-    sout << int(switch_QBER) << std::endl;
+    sout << int(estimate_parameters) << std::endl;
     sout << "# Q_tol error rate" << std::endl;
     sout << Q_tol << std::endl; 
     sout << "# Security parameter eps_sec" << std::endl;
@@ -808,7 +808,7 @@ dvqkd_protocol::serialize(std::istream& sin)
     }
 
     sin >> libbase::eatcomments >> N_PE >> libbase::verify;
-    sin >> libbase::eatcomments >> switch_QBER >> libbase::verify;
+    sin >> libbase::eatcomments >> estimate_parameters >> libbase::verify;
     sin >> libbase::eatcomments >> Q_tol >> libbase::verify;
     sin >> libbase::eatcomments >> eps_sec >> libbase::verify;
     sin >> libbase::eatcomments >> eps_cor >> libbase::verify;
