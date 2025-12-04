@@ -530,7 +530,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     std::cout << "DV_QKDPROTOCOL: Is QBER calculated from parameter estimation?: " << estimate_parameters << std::endl;
 #endif
 
-    if(estimate_parameters==false)
+    if (!estimate_parameters)
     {
         // Get QBER directly from the quantum channel
         libbase::vector<double> bob_channel_parameters = m_bob_channel->get_parameters();
