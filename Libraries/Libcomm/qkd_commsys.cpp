@@ -1,7 +1,7 @@
 /*!
  * \file
  *
- * Copyright (c) 2010 Johann A. Briffa
+* Copyright (c) 2025 Mark Mizzi, Aaron Abela
  *
  * This file is part of SimCommSys.
  *
@@ -95,11 +95,11 @@ qkd_commsys<S, T, C>::fullcycle(C<S>& source)
     auto channel_parameters = get_parameters();
 
 #if DEBUG >= 1
-        std::cout << "DV_QKDPROTOCOL: **** MEASUREMENT **** " << std::endl;
-        std::cout << "DV_QKDPROTOCOL: Alice Measurements without noise: " << alice_measurements
+        std::cout << "QKDPROTOCOL: **** MEASUREMENT **** " << std::endl;
+        std::cout << "QKDPROTOCOL: Alice Measurements without noise: " << alice_measurements
                   << std::endl;
-        std::cout << "DV_QKDPROTOCOL: QBER for Bob's Measurements = " << channel_parameters(0) << std::endl;
-        std::cout << "DV_QKDPROTOCOL: Bob Measurements: " << bob_measurements
+        std::cout << "QKDPROTOCOL: Channel Parameter for Bob's Measurements = " << channel_parameters(0) << std::endl;
+        std::cout << "QKDPROTOCOL: Bob Measurements: " << bob_measurements
                   << std::endl;
 #endif
 
@@ -109,6 +109,84 @@ qkd_commsys<S, T, C>::fullcycle(C<S>& source)
 
     return {std::move(secret_key_KA), std::move(secret_key_KB)};
 }
+// @}
+
+/*! \name Communication System Interface */
+//! Perform complete transmission of one frame
+// Only used to get cv-qkd results. TO DELETE. 
+template <class S, class T, template <class> class C>
+std::tuple<bool, double, double, double, double, double, double, int>
+qkd_commsys<S, T, C>::fullcyclecvqkdresults(C<S>& source)
+{
+    /* Note: In this case the source here is the libbase::vector of states e.g.
+     * coherent states if S=gaussian_State */
+    assertalways(source.size() == framesize);
+
+    // Give the protocol access to the source sequence before transmission.
+    this->protocol->set_source_sequence(source);
+
+    // Note: Here I Changed the libbase::vector to an std::vector only for the
+    // observables stage
+    std::vector<std::unique_ptr<observable<T>>> bob_observables =
+        protocol->get_bob_observables(framesize);
+
+    std::vector<std::unique_ptr<observable<T>>> alice_observables =
+        protocol->get_alice_observables(framesize);
+
+    // Create and allocate vectors for measurements on Bob and Alice's end
+    libbase::vector<T> alice_measurements;
+    libbase::vector<T> bob_measurements;
+
+    alice_measurements.init(framesize);
+    bob_measurements.init(framesize);
+
+    for (int i = 0; i < framesize; i++) {
+        // Quantum channel transmission
+        alice_observables[i]->transmit(*this->alice_channel);
+        bob_observables[i]->transmit(*this->bob_channel);
+
+        // Measurement of quantum states
+        if constexpr (S::is_entangled) {
+            alice_measurements(i) = source(i).measure(*alice_observables[i], 0);
+            bob_measurements(i) = source(i).measure(*bob_observables[i], 1);
+        } else {
+            alice_measurements(i) = source(i).measure(*alice_observables[i]);
+            bob_measurements(i) = source(i).measure(*bob_observables[i]);
+        }
+    }
+
+    // Verify CLI parameters of Quantum Channel of Bob
+    auto channel_parameters = get_parameters();
+
+#if DEBUG >= 1
+        std::cout << "FULLCYCLE CV-QKD Results: " << std::endl;
+        std::cout << "QKDPROTOCOL: Alice Measurements without noise: " << alice_measurements
+                  << std::endl;
+        std::cout << "QKDPROTOCOL: QBER for Bob's Measurements = " << channel_parameters(0) << std::endl;
+        std::cout << "QKDPROTOCOL: Bob Measurements: " << bob_measurements
+                  << std::endl;
+#endif
+
+    // This allows the code to compile even for the T=bool instantiation
+    libbase::vector<double> alice_doubles;
+    libbase::vector<double> bob_doubles;
+    
+    alice_doubles.init(framesize);
+    bob_doubles.init(framesize);
+
+    for(int k=0; k<framesize; ++k) {
+        alice_doubles(k) = static_cast<double>(alice_measurements(k));
+        bob_doubles(k) = static_cast<double>(bob_measurements(k));
+    }
+
+    // Perform post-prcessing to get the final secret keys.
+    // We pass the converted doubles, not the original T vectors.
+    auto [MI_Check, I_AB, chi_BE, VA_hat, VN, VN_hat, alpha_hat, len_secret_key] = protocol->postprocesscv(
+        std::move(alice_doubles), std::move(bob_doubles));
+        
+    // return 8 parameters to do tests for multiple SNRs or VNs
+    return std::make_tuple(MI_Check, I_AB, chi_BE, VA_hat, VN, VN_hat, alpha_hat, len_secret_key);
+    }
 // @}
 
 // object serialization - saving

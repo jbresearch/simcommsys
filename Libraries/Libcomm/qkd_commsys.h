@@ -38,6 +38,7 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
+#include <tuple>
 
 namespace libcomm
 {
@@ -161,6 +162,11 @@ public:
     
     /*! \name Communication System Interface */
     std::pair<C<bool>, C<bool>> fullcycle(C<S>& source);
+
+    /*! \name Communication System Interface to extract results for the GG02 protocol
+    To delete later:*/
+    std::tuple<bool, double, double, double, double, double, double, int>
+    fullcyclecvqkdresults(C<S>& source);
 
     //! Clear list of timers
     void reset_timers()

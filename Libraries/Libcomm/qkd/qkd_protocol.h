@@ -86,6 +86,16 @@ public:
     postprocess(libbase::vector<T>&& alice_measurements,
                 libbase::vector<T>&& bob_measurements) = 0;
 
+    /* Extra virtual method that is required to get results for CV-QKD
+     for different SNRs or VNs to delete. */
+    virtual std::tuple<bool, double, double, double, double, double, double, int>
+    postprocesscv(libbase::vector<double>&& alice_measurements,
+                                libbase::vector<double>&& bob_measurements)
+    {
+        failwith("Not implemented.");
+        return {false, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0};
+    };
+
     virtual const int calculate_finite_size_effects_secret_key_length() = 0;
 
     virtual void seedfrom(libbase::random& r) = 0;

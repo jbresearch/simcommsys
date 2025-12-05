@@ -203,6 +203,11 @@ public:
     postprocess(libbase::vector<double>&& alice_measurements,
                 libbase::vector<double>&& bob_measurements) override;
 
+    /* Extended post-processing function which is only required to 
+    return more parameters for the case of CV-QKD. */
+    std::tuple<bool, double, double, double, double, double, double, int>
+    postprocesscv(libbase::vector<double>&& alice_measurements,
+                                libbase::vector<double>&& bob_measurements) override;
     // Description function
     std::string description() const override;
 
