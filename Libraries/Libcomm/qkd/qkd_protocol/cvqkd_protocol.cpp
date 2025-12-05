@@ -469,19 +469,23 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     // Get alpha from the quantum gaussian channel of Bob
     alpha = this->m_bob_channel->get_alpha(); 
 
+    // CLI Parameter Variance VN from Bob's quantum channel
+    VN = m_bob_channel->get_VN();
+
 #if DEBUG >= 1
     std::cout << "Parameters directly from objects: " << std::endl;
     std::cout << "CV_QKDPROTOCOL:  modulation variance V_A = "
               << m_modulation_variance << std::endl;
+    std::cout << "CV_QKDPROTOCOL:  noise variance V_N = "
+              << VN << std::endl;
     std::cout << "CV_QKDPROTOCOL:  Fading Coefficient alpha = " << alpha
               << std::endl;
 #endif 
-
     // CLI parameter of the gaussian quantum channel.
     // TO CONFIRM whether I also need to serialize this in the 
     // the cvqkdprotocol.cpp as part of the switch as I did for DV-QKD.    
     SNR_linear =
-        (alpha * alpha) * (this->m_modulation_variance) / (bobs_channel_parameters(0));
+        (alpha * alpha) * (this->m_modulation_variance) / (VN);
 
     // Convert SNR to dB
     double SNR_dB = 10.0 * std::log10(SNR_linear);
