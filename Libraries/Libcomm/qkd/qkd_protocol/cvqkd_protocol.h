@@ -55,6 +55,7 @@ private:
     double m_modulation_variance = 0.0;
     double alpha_hat;
     double alpha; // fading coefficient 
+    double VN; // noise variance VN
     double VN_hat; 
 
     double smoothing_parameter; //!< True for calculating V_A, V_N and alpha from parameter estimation.
