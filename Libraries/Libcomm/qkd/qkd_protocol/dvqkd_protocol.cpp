@@ -475,6 +475,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     std::cout << "DV_QKDPROTOCOL: Size of sifted keys = " << n_sifted << std::endl;
     std::cout << "DV_QKDPROTOCOL: Sifted Alice Key = " << sifted_alice_key << std::endl;
     std::cout << "DV_QKDPROTOCOL: Sifted Bob Key = " << sifted_bob_key << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Size of Sifted Bob Key - output block size of codec = " << sifted_alice_key.size() - cdc->output_block_size() << std::endl; 
 #endif
 
     /* Checking N_PE: the number of samples used for parameter estimation.
@@ -571,7 +572,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     libbase::vector<int> X_int = pack_bits_to_symbols(X, m);
 
     //(Alice) Calculate the syndrome of X of size (n-k)
-    libbase::vector<int> calculated_syndrome(cdc->output_block_size() - cdc->input_block_size());
+    libbase::vector<int> calculated_syndrome;
     cdc->calculate_syndrome(X_int, calculated_syndrome); 
 
 #if DEBUG >= 1
@@ -629,64 +630,29 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
                   << prob_table_encoded << std::endl;
 #endif
 
-    auto decoded_bob_k_message = libbase::vector<int>(cdc->input_block_size());
+    // Initialise Y_hat_int
+    libbase::vector<int> Y_hat_int; 
+
     // (Bob) Perform Syndrome Decoding
     cdc->init_decoder(prob_table_encoded, calculated_syndrome);
-    cdc->decode_message(decoded_bob_k_message);
+    cdc->decode_codeword(Y_hat_int);
 
 #if DEBUG >= 1
-    std::cout << "DV_QKDPROTOCOL: Bob's Decoded message k: "
-              << decoded_bob_k_message << std::endl;
+     
 #endif
-
-    // Encode decoded Bob's k decoded message to get Y_hat to then compare to X
-    libbase::vector<int> Y_hat_int(Y_gf2.size());
-    cdc->encode(decoded_bob_k_message, Y_hat_int);
-
-#if DEBUG >= 1
-    std::cout << "DV_QKDPROTOCOL: Bob's Y_hat_int: "
-              << Y_hat_int << std::endl;
-#endif
-
-    // To double check with Johann on this:
-    // TO VERIFY YOU HAVE TO ALSO DECODE X AND ENCODE IT AGAIN? 
-
-    /******  VERIFICATION (to delete) ******/ 
-    // Modulate codeword
-    libbase::vector<libbase::gf2> modulated_codeword_p1(X_int.size());
-    mdm->modulate(alphabet_size, X_int, modulated_codeword_p1); 
-
-    // Transmit codeword through a QSC channel with Ps = 0.0
-    demodulation_channel->set_parameter(0.0);
-
-    libbase::vector<libbase::gf2> received_codeword_p1(X_int.size());
-    demodulation_channel->transmit(modulated_codeword_p1, received_codeword_p1);
-
-    // Demodulate (Error free) 
-    auto prob_table_p1_X_int = libbase::vector<libbase::vector<double>>(X_int.size());
-    mdm->demodulate(*demodulation_channel, received_codeword_p1, prob_table_p1_X_int);
-
-    auto decoded_alice_k_message = libbase::vector<int>(cdc->input_block_size());
-    cdc->seedfrom(rng); 
-
-    cdc->init_decoder(prob_table_p1_X_int, calculated_syndrome);
-    cdc->decode_message(decoded_alice_k_message);
-
-#if DEBUG >= 1
-    std::cout << "*** DV_QKDPROTOCOL: Verifying decoded message ***" << std::endl;
-    std::cout << "DV_QKDPROTOCOL: Decoded Alice message u of size k (no error): "
-              << decoded_alice_k_message << std::endl;
-#endif
-    /******  END OF VERIFICATION ******/
 
     // Convert vector Y_hat_int to bool
     const libbase::vector<bool> Y_hat(Y_hat_int);
 
-    /* Calculating Hashing for Vectors s and s_hat */
+    /* Calculate Hash value for vectors X and Y_hat respectively */
     std::uint32_t hash_X = crc32_ieee<>::compute(X);
     std::uint32_t hash_Y_hat = crc32_ieee<>::compute(Y_hat);
 
 #if DEBUG >= 1
+    std::cout << "DV_QKDPROTOCOL: Bob's decoded message Y_hat_int: "
+              << Y_hat_int << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Alice's (error free) message X_int: "
+              << X_int << std::endl << std::endl;
     std::cout << "DV_QKDPROTOCOL: hash_X = " << hash_X << std::endl;
     std::cout << "DV_QKDPROTOCOL: hash_Y_hat = " << hash_Y_hat
                 << std::endl;
@@ -703,14 +669,14 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     // length of secret key is calculated in parameter estimation step 
     final_secret_key_KA.init(len_secret_key);
     final_secret_key_KB.init(len_secret_key);
-
+    
     // If l>0, continue with privacy amplification to get the final keys
     if (len_secret_key > 0) {
             /* Perform Privacy Amplification:
             param1: alphabet size of 2
             param2: length of final key after doing PA.
             param3: length of pre-hashed key which in this case is the size of
-            vectors s and s_hat.
+            vectors X and Y_hat. 
             */
             pa_system.init(
                 len_secret_key, X.size(), alphabet_size);
