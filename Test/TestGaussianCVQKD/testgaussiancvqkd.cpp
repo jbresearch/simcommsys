@@ -633,8 +633,30 @@ BOOST_AUTO_TEST_CASE(test_cvqkd_batch_processing_from_csv)
 {
     std::cout << "\n***** Starting Batch CSV Processing *****\n";
 
-    // Define the CSV File Path
-    const std::string csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/qudice_atmospheric_alpha_0.34641_results.csv";    
+    // Define File Paths
+    // Input File (Read from Test_Data)
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/fog_cirrus_alpha_0_34641.csv";
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/clear_thin_cirrus_alpha_0_34641.csv";
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/fog_thin_cirrus_alpha_0_34641.csv";
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/clear_cirrus_alpha_0_34641.csv";
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/snow_thin_cirrus_alpha_0_34641.csv";
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/rain_cirrus_alpha_0_34641.csv";
+    const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/snow_cirrus_alpha_0_34641.csv"; 
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/rain_thin_cirrus_alpha_0_34641.csv";
+
+
+    // Output File (Write to Results folder)
+    // const std::string output_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/fog_cirrus_alpha_0_34641_results.csv";
+    // const std::string output_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/clear_thin_cirrus_alpha_0_34641_results.csv";
+    // const std::string output_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/fog_thin_cirrus_alpha_0_34641_results.csv";
+    // const std::string output_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/clear_cirrus_alpha_0_34641_results.csv";
+    // const std::string output_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/snow_thin_cirrus_alpha_0_34641_results.csv";
+    // const std::string output_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/rain_cirrus_alpha_0_34641_results.csv";
+    const std::string output_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/snow_cirrus_alpha_0_34641_results.csv"; 
+    // const std::string output_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/rain_thin_cirrus_alpha_0_34641_results.csv";
+
+    
+    
     std::stringstream cfg;
 
     /* QKD Commsys Serialisation */
@@ -756,9 +778,9 @@ quantum_gaussian_source
         sys);
     
     /* Read original CSV file */
-    std::ifstream file_in(csv_filename);
+    std::ifstream file_in(input_csv_filename);
     if (!file_in.is_open()) {
-        BOOST_FAIL("Could not open CSV file: " + csv_filename);
+        BOOST_FAIL("Could not open input CSV file: " + input_csv_filename);
     }
 
     std::vector<std::vector<std::string>> csv_data;
@@ -772,15 +794,6 @@ quantum_gaussian_source
     file_in.close();
 
     /* Process Rows and Run Simulation */
-    
-    // Column Indices based on your image:
-    // alpha_hat is index 7
-    // VA_hat is index 10
-    // VN is index 11 (Input)
-    // VN_hat is index 12
-    // I_AB is index 13
-    // chi_BE is index 14
-    // MI_Check is index 15
     
     const int IDX_ALPHA_HAT = 7;
     const int IDX_VA_HAT = 10;
@@ -803,7 +816,7 @@ quantum_gaussian_source
 
             // Generate unmeasured sequence of states
             int framesize = sys->input_block_size();
-            std::cout << "Generating source sequence of size " << framesize << "..." << std::endl;
+            // std::cout << "Generating source sequence of size " << framesize << "..." << std::endl;
             libbase::vector<libcomm::gaussian_state> source = 
             src->generate_sequence(libbase::size_type<libbase::vector>(framesize));
 
@@ -845,11 +858,11 @@ quantum_gaussian_source
         }
     }
 
-    /* UPDATE CSV FILE */
+    /* SAVE TO OUTPUT CSV FILE */
   
-    std::ofstream file_out(csv_filename); // Overwrite mode
+    std::ofstream file_out(output_csv_filename); // Writes to new file
     if (!file_out.is_open()) {
-        BOOST_FAIL("Could not open CSV file for writing: " + csv_filename);
+        BOOST_FAIL("Could not open output CSV file for writing: " + output_csv_filename);
     }
 
     for (const auto& row : csv_data) {
@@ -861,5 +874,5 @@ quantum_gaussian_source
     }
     file_out.close();
 
-    std::cout << "Batch processing complete. Results saved to " << csv_filename << std::endl;
+    std::cout << "Batch processing complete. Results saved to " << output_csv_filename << std::endl;
 }
