@@ -75,6 +75,7 @@ public:
         If the number is less than |α|^2, return 0 (i.e., collapse to |0⟩); else, return 1 (collapse to |1⟩).
         This follows the Born rule in simulation form.*/
 
+        
         bool ideal_result;
         if (rng.fval_halfopen() < prob_0) {
             ideal_result = false; // Ideal result is 0
@@ -82,10 +83,25 @@ public:
             ideal_result = true;  // Ideal result is 1
         }
 
+        // -------------------------------------------------------------------
+        // Apply Channel Noise (Binary Symmetric Channel Model)
+        // -------------------------------------------------------------------
+        /*
+         * SimCommSys models the quantum channel noise phenomenologically using 
+         * a Binary Symmetric Channel (BSC) applied post-measurement.
+         * * Instead of evolving the density matrix (Depolarizing Channel), we 
+         * apply a probabilistic bit-flip to the classical measurement result.
+         * * qber (Quantum Bit Error Rate) acts as the crossover probability 'epsilon':
+         * - If rng < qber: An error occurs (Bit Flip: 0->1 or 1->0).
+         * - If rng >= qber: The result remains correct.
+         * * Note: A qber of 0.5 represents maximum entropy (random guessing),
+         * whereas a qber of 1.0 represents a deterministic inversion (NOT gate).
+         */
+
         // Apply Channel Noise (QBER)
         // Get a new random number to check for a bit-flip error.
         if (rng.fval_halfopen() < qber) {
-            return !ideal_result; // A bit-flip error occurs
+            return !ideal_result; // A bit-flip error occurs, BIT FLIP (0->1 or 1->0)
         } else {
             return ideal_result;  // No error
         }

@@ -246,8 +246,10 @@ const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
 {
      /*
     References for the equation to claculate the length of the secret key:
-    1. Eq (5.108), Ramona Wolf, "Quantum Key Distribution..."
-    2. Eq (2), Tomamichel et al., Nature Comms 3.1 (2012)
+    1. Eq (5.108), Wolf, R., 2021. Quantum key distribution protocols. In Quantum Key Distribution: 
+    An Introduction with Exercises (pp. 91-116). Cham: Springer International Publishing.
+    2. Eq (2), Tomamichel, M., Lim, C.C.W., Gisin, N. and Renner, R., 2012. Tight finite-key analysis for 
+    quantum cryptography. Nature communications, 3(1), p.634.
     */
 
     #if DEBUG >= 1
