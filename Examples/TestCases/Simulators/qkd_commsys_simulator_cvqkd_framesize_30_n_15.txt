@@ -1,0 +1,109 @@
+qkd_commsys_simulator<gaussian_state,double>
+# Version
+1
+# Results collector
+qkd_errors_hamming
+# Source generator
+quantum_gaussian_source
+# Mean of Q_Mean
+0.0
+# Stddev of Q_Mean
+4.30116
+# Mean of P_Mean
+0.0
+# Stddev of P_Mean
+4.30116
+# Stddev of Q
+1.0
+# Stddev of P
+1.0
+# Communication system
+qkd_commsys<gaussian_state,double,vector>
+# Version
+1
+# Frame size (# of quantum states in a frame)
+30
+## Alice's channel
+identity_quantum_channel
+## Bob's channel
+gaussian_quantum_channel
+# Mean of the Gaussian Quantum Channel
+0.0
+# Fading Coefficient alpha
+0.34641
+## Postprocessing protocol
+cvqkd_protocol
+# Version
+1
+# N_PE
+15
+# VA, VN, alpha from parameter estimation?
+1
+# Smoothing Parameter
+1e-4
+# Alphabet size
+2
+# Codec
+ldpc<gf2,double>
+# Version
+5
+# SPA type (trad|gdl)
+gdl
+# Number of iterations
+100
+# Clipping method
+zero
+# Value of almostzero
+1e-100
+# Reduce generator matrix to REF? (true|false)
+0
+# Length (n)
+15
+# Dimension (m)
+10
+# Max column weight
+2
+# Max row weight
+3
+# Non-zero values (ones|random|provided)
+ones
+# Column weight vector
+15
+2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+# Row weight vector
+10
+3 3 3 3 3 3 3 3 3 3
+# Non zero positions per col
+2
+1 2
+2
+2 3
+2
+3 4
+2
+4 5
+2
+1 5
+2
+1 6
+2
+2 8
+2
+3 10
+2
+4 7
+2
+5 9
+2
+6 7
+2
+7 8
+2
+8 9
+2
+9 10
+2
+6 10
+# Embedder
+direct_block_informed_embedder<double,vector,double>
+sign<double>
