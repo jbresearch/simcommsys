@@ -55,11 +55,14 @@ gf<m, poly>::init(const std::string s)
 // Conversion operations
 
 template <uint32_t m, uint32_t poly>
-gf<m, poly>::operator std::string() const
+gf<m, poly>::
+operator std::string() const
 {
     std::string sTemp;
-    for (uint32_t i = m - 1; i >= 0; i--) {
+    for (uint32_t i = m - 1;; i--) {
         sTemp += '0' + ((value >> i) & 1);
+        if (i == 0)
+            break;
     }
     return sTemp;
 }
