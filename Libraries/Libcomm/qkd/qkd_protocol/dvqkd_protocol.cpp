@@ -483,8 +483,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     /* Checking N_PE: the number of samples used for parameter estimation.
        N_PE should equal to size of sifted key - n
     */
-    assert(N_PE == sifted_alice_key.size() - cdc->output_block_size()
-        && "N_PE does not match sifted key size minus n");
+    N_PE = sifted_alice_key.size() - cdc->output_block_size();
 
     // Perform split for parameter estimation.
     split(sifted_alice_key, sifted_bob_key);
@@ -732,8 +731,6 @@ dvqkd_protocol::serialize(std::ostream& sout) const
     sout << 1 << std::endl;
     sout << "# Codec" << std::endl;
     sout << cdc << std::endl;
-    sout << "# N_PE" << std::endl;
-    sout << N_PE << std::endl;
     sout << "# QBER from parameter estimation?" << std::endl;
     sout << int(estimate_parameters) << std::endl;
     sout << "# Q_tol error rate" << std::endl;
@@ -778,7 +775,6 @@ dvqkd_protocol::serialize(std::istream& sin)
         this->demodulation_channel->set_parameter(0.0); // Default safe value
     }
 
-    sin >> libbase::eatcomments >> N_PE >> libbase::verify;
     sin >> libbase::eatcomments >> estimate_parameters >> libbase::verify;
     sin >> libbase::eatcomments >> Q_tol >> libbase::verify;
     sin >> libbase::eatcomments >> eps_sec >> libbase::verify;
