@@ -110,9 +110,9 @@ qkd_commsys_simulator<S, T>::serialize(std::istream& sin)
         sin.clear();
     }
 
+    sin >> libbase::eatcomments >> rc >> libbase::verify;
     sin >> libbase::eatcomments >> src >> libbase::verify;
     sin >> libbase::eatcomments >> sys >> libbase::verify;
-    sin >> libbase::eatcomments >> rc >> libbase::verify;
 
     assertalways(sin.good());
     return sin;
