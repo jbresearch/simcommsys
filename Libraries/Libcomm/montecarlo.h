@@ -177,7 +177,7 @@ public:
     //! Set system initialization seed
     void set_seed(uint32_t seed)
     {
-        if (results_file->isinitialized()) {
+        if (results_file && results_file->isinitialized()) {
             std::cerr << "WARNING (montecarlo): seed value unused in "
                          "master-slave system"
                       << std::endl;
