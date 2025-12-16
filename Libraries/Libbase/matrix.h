@@ -252,12 +252,7 @@ public:
     // @}
 
     /*! \name Serialization */
-    void serialize(std::ostream& sout) const;
-    void serialize(std::ostream& sout, std::string spacer) const
-    {
-        serialize(sout);
-        sout << spacer;
-    }
+    void serialize(std::ostream& sout, std::string spacer = "\t") const;
     void serialize(std::istream& sin);
     // @}
 
@@ -680,13 +675,15 @@ matrix<T>::droprows(int j)
  */
 template <class T>
 inline void
-matrix<T>::serialize(std::ostream& sout) const
+matrix<T>::serialize(std::ostream& sout, std::string spacer) const
 {
     for (int i = 0; i < m_size.rows(); i++) {
-        sout << m_data[i][0];
+        if (m_size.cols() > 0) {
+            sout << m_data[i][0];
+        }
 
         for (int j = 1; j < m_size.cols(); j++) {
-            sout << "\t" << m_data[i][j];
+            sout << spacer << m_data[i][j];
         }
 
         sout << std::endl;
@@ -1836,7 +1833,8 @@ masked_matrix<T>::operator=(const T x)
 // convert to a vector
 
 template <class T>
-inline masked_matrix<T>::operator vector<T>() const
+inline masked_matrix<T>::
+operator vector<T>() const
 {
     vector<T> v(size());
     int k = 0;
