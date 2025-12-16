@@ -345,6 +345,10 @@ cvqkd_protocol::calculate_finite_size_effects_secret_key_length()
 
     n_samples = cdc->output_block_size();
 
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL:  CODEC Description: " << cdc->description() << std::endl;
+#endif
+
     assert(n_samples > 0);
     assert(smoothing_parameter > 0);
 

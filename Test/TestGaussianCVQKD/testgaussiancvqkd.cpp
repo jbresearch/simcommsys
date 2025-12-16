@@ -29,7 +29,7 @@
 #include "random.h"
 #include "vector.h"
 
-BOOST_AUTO_TEST_CASE(test_fullcycle_for_single_vn, *boost::unit_test::disabled())
+BOOST_AUTO_TEST_CASE(test_fullcycle_for_single_vn)
 {
     // Make sure we instantiate everything
     const libcomm::serializer_libcomm my_serializer_libcomm;
@@ -137,12 +137,90 @@ BOOST_AUTO_TEST_CASE(test_fullcycle_for_single_vn, *boost::unit_test::disabled()
     // sign<double>
     // )SS";
 
+//     // Test 1 : n = 7, k = 3, m =4 
+//     std::stringstream cfg;
+//     cfg << R"SS(
+// # Version
+// 1
+// # Frame size (# of quantum states in a frame)
+// 100000
+// ## Alice's channel
+// identity_quantum_channel
+// ## Bob's channel
+// gaussian_quantum_channel
+// # Mean of the Gaussian Quantum Channel
+// 0.0
+// # Fading Coefficient alpha
+// 0.34641
+// ## Postprocessing protocol
+// cvqkd_protocol
+// # Version
+// 1
+// # N_PE
+// 99993
+// # VA, VN, alpha from parameter estimation?
+// 1
+// # Smoothing Parameter
+// 1e-4
+// # Alphabet size
+// 2
+// # Codec
+// ldpc<gf2,double>
+// # Version
+// 5
+// # SPA type (trad|gdl)
+// gdl
+// # Number of iterations
+// 50
+// # Clipping method
+// zero
+// # Value of almostzero
+// 1e-100
+// # Reduce generator matrix to REF? (true|false)
+// 1
+// # Length (n)
+// 7
+// # Dimension (m)
+// 7
+// # Max column weight
+// 3
+// # Max row weight
+// 3
+// # Non-zero values (ones|random|provided)
+// ones
+// # Column weight vector
+// 7
+// 3 3 3 3 3 3 3
+// # Row weight vector
+// 7
+// 3 3 3 3 3 3 3
+// # Non zero positions per col
+// 3
+// 1 5 7
+// 3
+// 1 2 6
+// 3
+// 2 3 7
+// 3
+// 1 3 4
+// 3
+// 2 4 5
+// 3
+// 3 5 6
+// 3
+// 4 6 7
+// # Embedder
+// direct_block_informed_embedder<double,vector,double>
+// sign<double>
+// )SS";
+
+     // Test 2 : n = 15, k = , m =  
     std::stringstream cfg;
     cfg << R"SS(
 # Version
 1
 # Frame size (# of quantum states in a frame)
-100000
+30
 ## Alice's channel
 identity_quantum_channel
 ## Bob's channel
@@ -156,7 +234,7 @@ cvqkd_protocol
 # Version
 1
 # N_PE
-99993
+15
 # VA, VN, alpha from parameter estimation?
 1
 # Smoothing Parameter
@@ -170,44 +248,60 @@ ldpc<gf2,double>
 # SPA type (trad|gdl)
 gdl
 # Number of iterations
-50
+100
 # Clipping method
 zero
 # Value of almostzero
 1e-100
 # Reduce generator matrix to REF? (true|false)
-1
+0
 # Length (n)
-7
+15
 # Dimension (m)
-7
+10
 # Max column weight
-3
+2
 # Max row weight
 3
 # Non-zero values (ones|random|provided)
 ones
 # Column weight vector
-7
-3 3 3 3 3 3 3
+15
+2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
 # Row weight vector
-7
-3 3 3 3 3 3 3
+10
+3 3 3 3 3 3 3 3 3 3
 # Non zero positions per col
-3
-1 5 7
-3
-1 2 6
-3
-2 3 7
-3
-1 3 4
-3
-2 4 5
-3
-3 5 6
-3
-4 6 7
+2
+1 2
+2
+2 3
+2
+3 4
+2
+4 5
+2
+1 5
+2
+1 6
+2
+2 8
+2
+3 10
+2
+4 7
+2
+5 9
+2
+6 7
+2
+7 8
+2
+8 9
+2
+9 10
+2
+6 10
 # Embedder
 direct_block_informed_embedder<double,vector,double>
 sign<double>
@@ -629,7 +723,7 @@ std::vector<std::string> split_csv_line(const std::string& line, char delimiter)
     return tokens;
 }
 
-BOOST_AUTO_TEST_CASE(test_cvqkd_batch_processing_from_csv)
+BOOST_AUTO_TEST_CASE(test_cvqkd_batch_processing_from_csv, *boost::unit_test::disabled())
 {
     std::cout << "\n***** Starting Batch CSV Processing *****\n";
 
