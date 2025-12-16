@@ -45,11 +45,7 @@ class qkd_commsys_simulator_base : public experiment_binomial
 {
 public:
     // Interface for Results Collector
-    typedef enum {
-        SOURCE_LENGTH,
-        SECRET_KEY_LENGTH,
-        ALPHABET_SIZE
-    } index_t;
+    typedef enum { SOURCE_LENGTH, SECRET_KEY_LENGTH, ALPHABET_SIZE } index_t;
 };
 
 template <class S, class T>
@@ -72,7 +68,8 @@ protected:
 
     std::shared_ptr<source<S>> src;         //!< Source data sequence generator
     std::shared_ptr<qkd_commsys<S, T>> sys; //!< Communication systems
-    std::shared_ptr<results_collector<libbase::vector<bool>>> rc; //!< Results collector
+    std::shared_ptr<results_collector<libbase::vector<bool>>>
+        rc; //!< Results collector
     // @}
     /*! \name Internal state */
     array1i_t last_event;
@@ -86,9 +83,12 @@ protected:
     {
         switch (index) {
         case SOURCE_LENGTH:
-            return int(sys->input_block_size()); // Equivalent to the framesize serialized in qkd_commsys.cpp
+            // Equivalent to the framesize serialized in qkd_commsys.cpp
+            return int(sys->input_block_size());
         case SECRET_KEY_LENGTH:
-            return int(sys->get_protocol()->calculate_finite_size_effects_secret_key_length()); // Length of the final secret key.
+            // Length of the final secret key.
+            return int(sys->get_protocol()
+                           ->calculate_finite_size_effects_secret_key_length());
         case ALPHABET_SIZE:
             return int(2);
         }
@@ -101,15 +101,15 @@ public:
     /*! \name Constructors / Destructors */
 
     /* Constructor */
-    qkd_commsys_simulator(std::shared_ptr<libbase::random> rng_t,
-                        std::shared_ptr<source<S>> src_gen_t,
-                        std::shared_ptr<qkd_commsys<S, T, libbase::vector>> sys_t)
-        : qkd_commsys_simulator_base()
-        , src(src_gen_t)
-        , sys(sys_t)
-        , rng_(rng_t.get())
+    qkd_commsys_simulator(
+        std::shared_ptr<libbase::random> rng_t,
+        std::shared_ptr<source<S>> src_gen_t,
+        std::shared_ptr<qkd_commsys<S, T, libbase::vector>> sys_t)
+        : qkd_commsys_simulator_base(), src(src_gen_t), sys(sys_t),
+          rng_(rng_t.get())
     {
-        // Pass the pointer to the qkd_commsy_simulator object to the qkd_commsys system.
+        // Pass the pointer to the qkd_commsy_simulator object to the
+        // qkd_commsys system.
         sys->init(this);
     }
 
@@ -174,9 +174,9 @@ public:
         return sout.str();
     }
     array1i_t get_event() const { return last_event; }
-    
+
     /*! \name Component object handles */
-     //! Get communication system
+    //! Get communication system
     const std::shared_ptr<qkd_commsys<S, T>> getsystem() const { return sys; }
     //! Clear list of timers
     void reset_timers() { sys->reset_timers(); }

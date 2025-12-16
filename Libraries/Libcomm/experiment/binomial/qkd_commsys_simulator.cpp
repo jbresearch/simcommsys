@@ -51,13 +51,8 @@ qkd_commsys_simulator<S, T>::sample(libbase::vector<double>& sample_result,
     // Both final keys are of libbase::vector<bool> type.
     auto [key_KA, key_KB] = sys->fullcycle(source);
 
-    libbase::indirect_vector<double> sample_result_segment =
-        sample_result.segment(0, rc->result_count());
-    libbase::indirect_vector<uint64_t> sample_count_segment =
-        sample_count.segment(0, rc->result_count());
-
     // CV collector
-    rc->compute_result_and_accumulate(sample_result_segment, sample_count_segment, key_KA, key_KB);
+    rc->compute_result_and_accumulate(sample_result, sample_count, key_KA, key_KB);
 }
 
 template <class S, class T>
@@ -125,8 +120,7 @@ qkd_commsys_simulator<S, T>::serialize(std::istream& sin)
 
 } // namespace libcomm
 
-#include "result_collector/qkd_commsys/cv_qkd_errors_hamming.h"
-#include "result_collector/qkd_commsys/dv_qkd_errors_hamming.h"
+#include "result_collector/qkd_commsys/qkd_errors_hamming.h"
 // #include "result_collector/commsys/errors_hamming.h"
 
 namespace libcomm

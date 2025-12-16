@@ -166,8 +166,7 @@
 #include "experiment/binomial/qkd_commsys_simulator.h"
 
 // QKD Results Collectors
-#include "experiment/binomial/result_collector/qkd_commsys/cv_qkd_errors_hamming.h"
-#include "experiment/binomial/result_collector/qkd_commsys/dv_qkd_errors_hamming.h"
+#include "experiment/binomial/result_collector/qkd_commsys/qkd_errors_hamming.h"
 
 // *** Other includes ***
 #include <iostream>
@@ -283,8 +282,7 @@ private:
     exit_computer<bool> _exit_computer;
     // Results Collectors
     errors_hamming _errors_hamming;
-    cv_qkd_errors_hamming _cv_qkd_errors_hamming;
-    dv_qkd_errors_hamming _dv_qkd_errors_hamming;
+    qkd_errors_hamming _qkd_errors_hamming;
     errors_levenshtein _errors_levenshtein;
     fidelity_pos _fidelity_pos;
     hist_symerr _hist_symerr;

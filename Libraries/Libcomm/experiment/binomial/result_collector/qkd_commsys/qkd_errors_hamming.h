@@ -19,14 +19,14 @@
  * along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __cv_qkd_errors_hamming_h
-#define __cv_qkd_errors_hamming_h
+#ifndef __qkd_errors_hamming_h
+#define __qkd_errors_hamming_h
 
 #include "config.h"
 #include "experiment/results_collector.h"
-#include "source/quantum_gaussian_source.h"
 #include "vector.h"
 #include <string>
+#include <sstream>
 
 namespace libcomm
 {
@@ -38,30 +38,22 @@ namespace libcomm
  * Implements standard error rate calculators and SKR for CV-QKD
  * with Gaussian modulated coherent states.
  */
-class cv_qkd_errors_hamming :  public results_collector<typename libbase::vector<bool>>
+class qkd_errors_hamming :  public results_collector<typename libbase::vector<bool>>
 {
 protected:
     /*! \name System Interface */
     int source_length = 0; // Framesize
     int secret_key_length = 0;
 public:
-    virtual ~cv_qkd_errors_hamming() {}
+    virtual ~qkd_errors_hamming() {}
 
     /*! \name Public interface */
     void init(const queryable& system) override;
 
     void compute_result_and_accumulate(libbase::vector<double>& accumulated_result,
-                                  libbase::vector<uint64_t>& accumulated_count,
-                                  const libbase::vector<bool>& source,
-                                  const libbase::vector<bool>& decoded) const override
-    {
-        // Does nothing
-    }
-    void compute_result_and_accumulate(libbase::vector<double>& accumulated_result,
                        libbase::vector<uint64_t>& accumulated_count,
-                       libbase::vector<gaussian_state> source,
-                       libbase::vector<bool>& key_KA,
-                       libbase::vector<bool>& key_KB) const;
+                       const libbase::vector<bool>& key_KA,
+                       const libbase::vector<bool>& key_KB) const override;
 
     /*! \copydoc experiment::count()
      * We count the number of symbol, frame errors and secret key rate for
@@ -103,7 +95,7 @@ public:
     }
 
     // Serialization Support
-    DECLARE_SERIALIZER(cv_qkd_errors_hamming)
+    DECLARE_SERIALIZER(qkd_errors_hamming)
 };
 
 } // namespace libcomm
