@@ -75,10 +75,8 @@ qkd_errors_hamming::compute_result_and_accumulate(
 
 // Serialisation interface
 
-const libbase::serializer
-    qkd_errors_hamming::shelper("results_collector",
-                                   "qkd_errors_hamming",
-                                   qkd_errors_hamming::create);
+const libbase::serializer qkd_errors_hamming::shelper(
+    "results_collector", "qkd_errors_hamming", qkd_errors_hamming::create);
 
 std::ostream&
 qkd_errors_hamming::serialize(std::ostream& sout) const
