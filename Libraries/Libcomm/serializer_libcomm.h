@@ -291,6 +291,8 @@ private:
     prof_sym _prof_sym;
 
     // *** Quantum Communication ***
+    // QKD Sources
+    quantum_bb84_source _quantum_bb84_source;
     // QKD Channels
     gaussian_quantum_channel _gaussian_quantum_channel;
     identity_quantum_channel _identity_quantum_channel;
