@@ -277,17 +277,20 @@ const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     mu refers to the statistical correction factor; when one calculates the QBER for P.E.
     since one uses a finite size for X_PE and Y_PE, the mu is that margin of error.
     */
-    double term1 = (n_d + k_d) / (n_d * k_d);
-    double term2 = (k_d + 1.0) / k_d;
-    double term3 = std::log(2.0 / eps_sec);
+    const double term1 = (n_d + k_d) / (n_d * k_d);
+    const double term2 = (k_d + 1.0) / k_d;
+    const double term3 = std::log(2.0 / eps_sec);
     
     double mu = std::sqrt(term1 * term2 * term3); 
     Q_worst_case = Q_tol + mu;
 
     // QBER is calculated in the parameter estimation method  
     #if DEBUG >= 1
+       std::cout << "DV_QKDPROTOCOL: term1  = " << term1 << std::endl;
+       std::cout << "DV_QKDPROTOCOL: term2  = " << term2 << std::endl;
+       std::cout << "DV_QKDPROTOCOL: term3  = " << term3 << std::endl;
        std::cout << "DV_QKDPROTOCOL: mu  = " << mu << std::endl; 
-       std::cout << "DV_QKDPROTOCOL: Q_worst_case = " << k_d << std::endl;
+       std::cout << "DV_QKDPROTOCOL: Q_worst_case = " << Q_worst_case << std::endl;
     #endif
 
     // Calculate the correction term (Delta)
