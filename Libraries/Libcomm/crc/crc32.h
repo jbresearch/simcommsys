@@ -37,21 +37,21 @@ public:
     using base_t = crc_base<32, C>;
     using value_type = typename base_t::value_type;
 
-    /* References: [1]
-    https://boost.org.cpp.al/doc/libs/master/doc/html/crc/reference.html? [2]
-    https://www.ieee802.org/3/as/public/0503/3d0_1_CMP.pdf?
-
+    /* References: 
+    [1] https://boost.org.cpp.al/doc/libs/master/doc/html/crc/reference.html? 
+    [2] https://www.ieee802.org/3/as/public/0503/3d0_1_CMP.pdf?
+    [3] Koopman, P., 2002, June. 32-bit cyclic redundancy codes for internet applications. 
+    In Proceedings International Conference on Dependable Systems and Networks (pp. 459-468). IEEE.
     IEEE Standard CRC-32 (IEEE 802.3) polynomial: G(x) = x32 + x26 + x23 + x22 +
     x16 + x12 + x11 + x10 + x8 + x7 + x5 + x4 + x2 + x + 1
 
-    Compare obtained answers to this online calculator using CRC-32/MPEG-2:
-    https://crccalc.com/?crc=123456789&method=&datatype=ascii&outtype=hex*/
+    Compare obtained answers to this online calculator using the Python pip library called "crc" which can be found:
+    https://pypi.org/project/crc/
+    */
 
     crc32_ieee()
-        : base_t(0x04C11DB7u, 0xFFFFFFFFu, 0x00000000, false, false)
-    {} // CRC-32 MPE|G-2
-    // : base_t(0x04C11DB7u, 0xFFFFFFFFu, 0xFFFFFFFFu, false, false) {} // IEEE
-    // standard 802.3
+        : base_t(0x04C11DB7u, 0xFFFFFFFFu, 0xFFFFFFFFu, true, true) // IEEE 802.3 Ethernet standard
+    {} 
 
     // Static convenience (works with C<bool>, C<int>, ...)
     template <class T>
