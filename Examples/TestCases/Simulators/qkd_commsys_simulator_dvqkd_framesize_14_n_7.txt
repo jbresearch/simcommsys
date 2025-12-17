@@ -10,7 +10,7 @@ qkd_commsys<qubit,bool,vector>
 # Version
 1
 # Frame size (# of quantum states in a frame)
-14
+28
 ## Alice's channel
 identity_quantum_channel
 ## Bob's channel
