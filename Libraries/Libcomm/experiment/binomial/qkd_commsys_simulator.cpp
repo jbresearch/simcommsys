@@ -115,9 +115,11 @@ qkd_commsys_simulator<S, T>::serialize(std::istream& sin)
     sin >> libbase::eatcomments >> src >> libbase::verify;
     sin >> libbase::eatcomments >> sys >> libbase::verify;
 
-    // Pass the pointer to the qkd_commsy_simulator object to the
-    // qkd_commsys system.
+    // initialise components
+    // system needs to be initialised first, as the results collector will need
+    // to get some parameters from it
     sys->init(this);
+    rc->init(*this);
 
     assertalways(sin.good());
     return sin;
