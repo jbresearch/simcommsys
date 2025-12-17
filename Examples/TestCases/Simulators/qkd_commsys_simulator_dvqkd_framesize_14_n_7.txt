@@ -64,8 +64,6 @@ ones
 3
 1
 4
-# N_PE
-7
 # QBER from parameter estimation?
 0
 # Q_tol error rate
