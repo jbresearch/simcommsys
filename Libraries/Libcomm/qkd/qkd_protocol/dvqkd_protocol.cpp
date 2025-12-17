@@ -1,11 +1,10 @@
 #include "dvqkd_protocol.h"
-#include <sstream>
+#include <cmath>
 #include <iostream>
-#include <cmath>    
-#include <limits>  
+#include <limits>
+#include <sstream>
 
 using libbase::serializer;
-
 
 namespace libcomm
 {
@@ -28,14 +27,16 @@ void
 dvqkd_protocol::init(qkd_commsys<qubit, bool, libbase::vector>* qkdcommsys)
 {
     // // Get the source generator from commsys
-    // std::shared_ptr<source<gaussian_state>> src_gen_base = qkdcommsys->get_src();
-    // assert(src_gen_base && "Commsys did not provide a source generator.");
+    // std::shared_ptr<source<gaussian_state>> src_gen_base =
+    // qkdcommsys->get_src(); assert(src_gen_base && "Commsys did not provide a
+    // source generator.");
 
     // // Safely cast to the derived class we need
     // auto& src_gen = dynamic_cast<quantum_bb84_source&>(*src_gen_base);
 
 #if DEBUG >= 1
-    std::cout << "DV_QKDPROTOCOL: Initialisation (qkdcommsys=" << qkdcommsys <<  ")" << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Initialisation (qkdcommsys=" << qkdcommsys
+              << ")" << std::endl;
 #endif
 
     // Get Bob's quantum channel from qkd_commsys
@@ -44,7 +45,8 @@ dvqkd_protocol::init(qkd_commsys<qubit, bool, libbase::vector>* qkdcommsys)
 }
 
 void
-dvqkd_protocol::set_source_sequence(const libbase::vector<qubit>& source_sequence)
+dvqkd_protocol::set_source_sequence(
+    const libbase::vector<qubit>& source_sequence)
 {
     this->m_source_sequence = &source_sequence;
 }
@@ -60,29 +62,34 @@ dvqkd_protocol::get_alice_choice_from_qubit(const libcomm::qubit& q)
     std::complex<double> alpha = q.get_comp_basis_0();
     std::complex<double> beta = q.get_comp_basis_1();
 
-    // Based on the quantum_bb84_source.h, only the real parts need to be checked.
+    // Based on the quantum_bb84_source.h, only the real parts need to be
+    // checked.
 
     // Case 1: State |0> (bit=0, basis=0)
     // alpha=1.0, beta=0.0
-    if (std::abs(alpha.real() - 1.0) < epsilon && std::abs(beta.real()) < epsilon) {
+    if (std::abs(alpha.real() - 1.0) < epsilon &&
+        std::abs(beta.real()) < epsilon) {
         return {false, false}; // bit=0, basis=0 (Z)
     }
 
     // Case 2: State |1> (bit=1, basis=0)
     // alpha=0.0, beta=1.0
-    if (std::abs(alpha.real()) < epsilon && std::abs(beta.real() - 1.0) < epsilon) {
+    if (std::abs(alpha.real()) < epsilon &&
+        std::abs(beta.real() - 1.0) < epsilon) {
         return {true, false}; // bit=1, basis=0 (Z)
     }
 
     // Case 3: State |+> (bit=0, basis=1)
     // alpha=1/sqrt(2), beta=1/sqrt(2)
-    if (std::abs(alpha.real() - inv_sqrt2) < epsilon && std::abs(beta.real() - inv_sqrt2) < epsilon) {
+    if (std::abs(alpha.real() - inv_sqrt2) < epsilon &&
+        std::abs(beta.real() - inv_sqrt2) < epsilon) {
         return {false, true}; // bit=0, basis=1 (X)
     }
 
     // Case 4: State |-> (bit=1, basis=1)
     // alpha=1/sqrt(2), beta=-1/sqrt(2)
-    if (std::abs(alpha.real() - inv_sqrt2) < epsilon && std::abs(beta.real() + inv_sqrt2) < epsilon) {
+    if (std::abs(alpha.real() - inv_sqrt2) < epsilon &&
+        std::abs(beta.real() + inv_sqrt2) < epsilon) {
         return {true, true}; // bit=1, basis=1 (X)
     }
 
@@ -90,9 +97,8 @@ dvqkd_protocol::get_alice_choice_from_qubit(const libcomm::qubit& q)
     throw std::runtime_error("Unknown qubit state. Not a valid Alice state.");
 }
 
-
 // Note: here I replaced libbase::vector with the std::vector only for the
-    // observables. Returns the observables of Bob
+// observables. Returns the observables of Bob
 std::vector<std::unique_ptr<observable<bool>>>
 dvqkd_protocol::get_bob_observables(int framesize)
 {
@@ -103,8 +109,7 @@ dvqkd_protocol::get_bob_observables(int framesize)
 
     for (int i = 0; i < framesize; ++i) {
         if (rng.ival(2) == 0) {
-            observables.push_back(
-                std::make_unique<computational_observable>());
+            observables.push_back(std::make_unique<computational_observable>());
             bob_basis_vector(i) = 0;
         } else {
             observables.push_back(std::make_unique<hadamard_observable>());
@@ -113,15 +118,16 @@ dvqkd_protocol::get_bob_observables(int framesize)
     }
 
 #if DEBUG >= 1
-    std::cout << "DV_QKDPROTOCOL: Basis of Bob: " << bob_basis_vector << std::endl;
-    // std::cout << "DV_QKDPROTOCOL: If b'(i) = 0 it is a Computational observable otherwise it is a Hadamard observable. "
-                // << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Basis of Bob: " << bob_basis_vector
+              << std::endl;
+    // std::cout << "DV_QKDPROTOCOL: If b'(i) = 0 it is a Computational
+    // observable otherwise it is a Hadamard observable. "
+    // << std::endl;
 #endif
 
     std::cout << bob_basis_vector << std::endl;
     return observables;
 }
-
 
 // Returns the observables of Alice
 std::vector<std::unique_ptr<observable<bool>>>
@@ -138,9 +144,9 @@ dvqkd_protocol::get_alice_observables(int framesize)
     qkd_commsys.cpp
     */
     assert(m_source_sequence &&
-            "Source sequence was not set in dvqkd_protocol");
+           "Source sequence was not set in dvqkd_protocol");
     assert(m_source_sequence->size() == framesize &&
-            "Source sequence size mismatch");
+           "Source sequence size mismatch");
 
     for (int i = 0; i < framesize; ++i) {
 
@@ -162,27 +168,30 @@ dvqkd_protocol::get_alice_observables(int framesize)
             observables.push_back(
                 std::make_unique<fake_computational_observable>());
         } else { // X-basis (Hadamard)
-            observables.push_back(
-                std::make_unique<fake_hadamard_observable>());
+            observables.push_back(std::make_unique<fake_hadamard_observable>());
         }
     }
 
-
 #if DEBUG >= 1
-    std::cout << "DV_QKDPROTOCOL: Basis of Alice: " << alice_basis_vector << std::endl;
-    // std::cout << "DV_QKDPROTOCOL: If b(i) = 0 it is a fake Computational observable otherwise it is a fake Hadamard observable. "
+    std::cout << "DV_QKDPROTOCOL: Basis of Alice: " << alice_basis_vector
+              << std::endl;
+    // std::cout << "DV_QKDPROTOCOL: If b(i) = 0 it is a fake Computational
+    // observable otherwise it is a fake Hadamard observable. "
     //             << std::endl;
 #endif
 
-        return observables;
-    }
+    return observables;
+}
 
-/*! \brief Performs split for parameter estimation 
+/*! \brief Performs split for parameter estimation
  *
- * @param X_PE  A bool vector which holds the measurement values for PE for Alice 
- * @param X Alice's key. It holds the remaining measurement values after sifting excluding PE. 
- * @param Y_PE  A bool vector which holds the measurement values for PE for Bob 
- * @param Y Bob's key with errros. It holds the remaining measurement values after sifting excluding PE. 
+ * @param X_PE  A bool vector which holds the measurement values for PE for
+ * Alice
+ * @param X Alice's key. It holds the remaining measurement values after sifting
+ * excluding PE.
+ * @param Y_PE  A bool vector which holds the measurement values for PE for Bob
+ * @param Y Bob's key with errros. It holds the remaining measurement values
+ * after sifting excluding PE.
  */
 void
 dvqkd_protocol::split(libbase::vector<bool>& alice_measurements,
@@ -194,7 +203,7 @@ dvqkd_protocol::split(libbase::vector<bool>& alice_measurements,
     assert(N_PE > 0 && "N_PE must be > 0.");
 
     const int N = alice_measurements.size();
-    assert(N==bob_measurements.size());
+    assert(N == bob_measurements.size());
 
     X_PE.init(N_PE);
     Y_PE.init(N_PE);
@@ -217,7 +226,9 @@ dvqkd_protocol::split(libbase::vector<bool>& alice_measurements,
 }
 
 /*! \brief Method to calculate the binary entropy function */
-double dvqkd_protocol::binary_entropy(double p) {
+double
+dvqkd_protocol::binary_entropy(double p)
+{
     // Probability must be between 0 and 1
     if (p < 0.0 || p > 1.0) {
         return std::numeric_limits<double>::quiet_NaN();
@@ -234,64 +245,74 @@ double dvqkd_protocol::binary_entropy(double p) {
     return -p * std::log2(p) - (1.0 - p) * std::log2(1.0 - p);
 }
 
-/*! \brief Calculates the Finite-Key Secure Length (Equation 2 from Tomamichel et al., 2012)
+/*! \brief Calculates the Finite-Key Secure Length (Equation 2 from Tomamichel
+ * et al., 2012)
  *
- * @param n_d        Length of the keys after performing the split. This is the length of vectors X and Y after PE. 
- * @param k_d        Length of the parameter estimation bits. 
+ * @param n_d        Length of the keys after performing the split. This is the
+ * length of vectors X and Y after PE.
+ * @param k_d        Length of the parameter estimation bits.
  * @param Q_tol      The maximum tolerated QBER (typically around 7%)
  * @param leak_EC    Bits revealed during error correction (syndrome length)
- * @param eps_sec    Security parameter (e.g., 1e-10). Smoothing parameter that ensures composable security. 
- * @param eps_cor    Correctness parameter (e.g., 1e-15). Likelihood that even after EC, the two keys still differ.
+ * @param eps_sec    Security parameter (e.g., 1e-10). Smoothing parameter that
+ * ensures composable security.
+ * @param eps_cor    Correctness parameter (e.g., 1e-15). Likelihood that even
+ * after EC, the two keys still differ.
  * @param q          Source quality factor (default 1.0 for perfect qubits)
  * @return           Final secure key length 'l' (floored to 0 if negative)
  */
 
-const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length() 
+const int
+dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
 {
-     /*
-    References for the equation to claculate the length of the secret key:
-    1. Eq (5.108), Wolf, R., 2021. Quantum key distribution protocols. In Quantum Key Distribution: 
-    An Introduction with Exercises (pp. 91-116). Cham: Springer International Publishing.
-    2. Eq (2), Tomamichel, M., Lim, C.C.W., Gisin, N. and Renner, R., 2012. Tight finite-key analysis for 
-    quantum cryptography. Nature communications, 3(1), p.634.
-    */
+    /*
+   References for the equation to claculate the length of the secret key:
+   1. Eq (5.108), Wolf, R., 2021. Quantum key distribution protocols. In Quantum
+   Key Distribution: An Introduction with Exercises (pp. 91-116). Cham: Springer
+   International Publishing.
+   2. Eq (2), Tomamichel, M., Lim, C.C.W., Gisin, N. and Renner, R., 2012. Tight
+   finite-key analysis for quantum cryptography. Nature communications, 3(1),
+   p.634.
+   */
 
-    #if DEBUG >= 1
-       std::cout <<  "DV_QKDPROTOCOL: eps_cor = " << eps_cor << std::endl; 
-        std::cout << "DV_QKDPROTOCOL: eps_sec = " << eps_sec << std::endl;
-    #endif
+#if DEBUG >= 1
+    std::cout << "DV_QKDPROTOCOL: eps_cor = " << eps_cor << std::endl;
+    std::cout << "DV_QKDPROTOCOL: eps_sec = " << eps_sec << std::endl;
+#endif
 
     double n_d = static_cast<double>(X.size()); // excludes bits used for PE.
     double k_d = static_cast<double>(N_PE);
-    int q = 1; 
-    int leak_EC = cdc->output_block_size() - cdc->input_block_size(); // size of syndrome m=n-k
+    int q = 1;
+    int leak_EC = cdc->output_block_size() -
+                  cdc->input_block_size(); // size of syndrome m=n-k
 
-    #if DEBUG >= 1
-       std::cout << "DV_QKDPROTOCOL: Length of key after split and PE n_d = " << n_d << std::endl; 
-       std::cout << "DV_QKDPROTOCOL: Length of PE bits k_d = " << k_d << std::endl;
-       std::cout << "DV_QKDPROTOCOL: Leak_EC = " << leak_EC << std::endl;
-    #endif
+#if DEBUG >= 1
+    std::cout << "DV_QKDPROTOCOL: Length of key after split and PE n_d = "
+              << n_d << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Length of PE bits k_d = " << k_d << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Leak_EC = " << leak_EC << std::endl;
+#endif
 
     /* Calculate statistical fluctuation term 'mu'
     Formula: mu = sqrt( ((n+k)/(n*k)) * ((k+1)/k) * ln(2/eps_sec) )
-    mu refers to the statistical correction factor; when one calculates the QBER for P.E.
-    since one uses a finite size for X_PE and Y_PE, the mu is that margin of error.
+    mu refers to the statistical correction factor; when one calculates the QBER
+    for P.E. since one uses a finite size for X_PE and Y_PE, the mu is that
+    margin of error.
     */
     const double term1 = (n_d + k_d) / (n_d * k_d);
     const double term2 = (k_d + 1.0) / k_d;
     const double term3 = std::log(2.0 / eps_sec);
-    
-    double mu = std::sqrt(term1 * term2 * term3); 
+
+    double mu = std::sqrt(term1 * term2 * term3);
     Q_worst_case = Q_tol + mu;
 
-    // QBER is calculated in the parameter estimation method  
-    #if DEBUG >= 1
-       std::cout << "DV_QKDPROTOCOL: term1  = " << term1 << std::endl;
-       std::cout << "DV_QKDPROTOCOL: term2  = " << term2 << std::endl;
-       std::cout << "DV_QKDPROTOCOL: term3  = " << term3 << std::endl;
-       std::cout << "DV_QKDPROTOCOL: mu  = " << mu << std::endl; 
-       std::cout << "DV_QKDPROTOCOL: Q_worst_case = " << Q_worst_case << std::endl;
-    #endif
+// QBER is calculated in the parameter estimation method
+#if DEBUG >= 1
+    std::cout << "DV_QKDPROTOCOL: term1  = " << term1 << std::endl;
+    std::cout << "DV_QKDPROTOCOL: term2  = " << term2 << std::endl;
+    std::cout << "DV_QKDPROTOCOL: term3  = " << term3 << std::endl;
+    std::cout << "DV_QKDPROTOCOL: mu  = " << mu << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Q_worst_case = " << Q_worst_case << std::endl;
+#endif
 
     // Calculate the correction term (Delta)
     // Formula: log2( 2 / (eps_cor * eps_sec^2) )
@@ -301,28 +322,32 @@ const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     // Formula: l = n * [ q - h(Q_tol + mu) ] - leak_EC - delta
     double privacy_amplification_term = binary_entropy(Q_worst_case);
 
-    #if DEBUG >= 1
-       std::cout << "DV_QKDPROTOCOL: Result of Binary Entropy fn = " << privacy_amplification_term << std::endl; 
-    #endif
-    
-    /* Note: 
-    Finite-key analysis requires n and k to be in the order of 10^4 to 10^5 to produce a positive key length. 
-    With single-digit inputs, the uncertainty is too high to guarantee any secrecy.
+#if DEBUG >= 1
+    std::cout << "DV_QKDPROTOCOL: Result of Binary Entropy fn = "
+              << privacy_amplification_term << std::endl;
+#endif
+
+    /* Note:
+    Finite-key analysis requires n and k to be in the order of 10^4 to 10^5 to
+    produce a positive key length. With single-digit inputs, the uncertainty is
+    too high to guarantee any secrecy.
     */
 
-    double l = n_d * (q - privacy_amplification_term) - static_cast<double>(leak_EC) - delta;
+    double l = n_d * (q - privacy_amplification_term) -
+               static_cast<double>(leak_EC) - delta;
 
     // Return 0 if the result is negative
-    return static_cast<int>(std::floor(std::max(0.0, l))); 
+    return static_cast<int>(std::floor(std::max(0.0, l)));
 }
 
-/*! \brief Estimates the channel error rate (QBER) and calculates the final secure key length.
+/*! \brief Estimates the channel error rate (QBER) and calculates the final
+ * secure key length.
  *
- * This method compares the subsets of bits reserved for Parameter Estimation (PE)
- * from Alice and Bob to calculate the Quantum Bit Error Rate (QBER). Based on this
- * QBER and finite-size security bounds, it computes the available length for the
- * final secret key.
- * 
+ * This method compares the subsets of bits reserved for Parameter Estimation
+ * (PE) from Alice and Bob to calculate the Quantum Bit Error Rate (QBER). Based
+ * on this QBER and finite-size security bounds, it computes the available
+ * length for the final secret key.
+ *
  * Returns:
  * QBER and length of secret key
  *
@@ -330,8 +355,8 @@ const int dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
  * @param Y_PE Bob's bit vector reserved for parameter estimation.
  */
 std::pair<double, int>
-dvqkd_protocol::parameter_estimation(
-    const libbase::vector<bool>& X_PE, const libbase::vector<bool>& Y_PE)
+dvqkd_protocol::parameter_estimation(const libbase::vector<bool>& X_PE,
+                                     const libbase::vector<bool>& Y_PE)
 {
     /*
     References to calculate the QBER:
@@ -340,67 +365,74 @@ dvqkd_protocol::parameter_estimation(
     Equation Number: (4.29)
 
     Reference 2 for QBER equation:
-    Box 1: Protocol Definition under section Parameter Estimation from the paper titled:
-    "Tomamichel, Marco, et al. "Tight finite-key analysis for quantum cryptography." Nature communications 3.1 (2012): 634."
+    Box 1: Protocol Definition under section Parameter Estimation from the paper
+    titled: "Tomamichel, Marco, et al. "Tight finite-key analysis for quantum
+    cryptography." Nature communications 3.1 (2012): 634."
     */
 
     // Calculate the QBER between vectors X_PE of Alice and Y_PE of Bob
-    this->QBER = (1.0/static_cast<double> (X_PE.size())) * libbase::hamming(X_PE,Y_PE);
+    this->QBER =
+        (1.0 / static_cast<double>(X_PE.size())) * libbase::hamming(X_PE, Y_PE);
 
     // Calculate the final length of the secret l with finite size effects
-    // len_secret_key = calculate_secure_key_length(X_raw.size(), X_PE.size(), Q_tol, syndrome_size);
-    // len_secret_key = calculate_secure_key_length(100000, 50000, Q_tol, 50000); // Answer l = 4045 
-    this->len_secret_key = calculate_finite_size_effects_secret_key_length(); 
-    
+    // len_secret_key = calculate_secure_key_length(X_raw.size(), X_PE.size(),
+    // Q_tol, syndrome_size); len_secret_key =
+    // calculate_secure_key_length(100000, 50000, Q_tol, 50000); // Answer l =
+    // 4045
+    this->len_secret_key = calculate_finite_size_effects_secret_key_length();
+
 #if DEBUG >= 2
-    std::cout << "DV_QKDPROTOCOL: Calculating length from parameter estimation:" 
+    std::cout << "DV_QKDPROTOCOL: Calculating length from parameter estimation:"
               << std::endl;
     std::cout << "DV_QKDPROTOCOL: len_secret_key = " << this->len_secret_key
               << std::endl;
 #endif
     return {this->QBER, this->len_secret_key};
-} 
+}
 
 /*!
  * \brief Packs a stream of raw bits into integer symbols.
  *
- * This function is used to bridge the gap between a binary QKD key and a 
- * Non-Binary Codec (e.g., GF(16)). It groups 'm' consecutive bits into 
+ * This function is used to bridge the gap between a binary QKD key and a
+ * Non-Binary Codec (e.g., GF(16)). It groups 'm' consecutive bits into
  * a single integer symbol.
  *
- * \param[in] bits  The raw boolean vector from the QKD sifting process (e.g., X_raw).
- * \param[in] m     The number of bits per symbol (e.g., 4 for GF(16)). 
+ * \param[in] bits  The raw boolean vector from the QKD sifting process (e.g.,
+ * X_raw).
+ * \param[in] m     The number of bits per symbol (e.g., 4 for GF(16)).
  * If m <= 1, the function acts as a simple cast from bool to int.
  *
- * \return A vector of integers where each element represents a symbol 
+ * \return A vector of integers where each element represents a symbol
  * formed by 'm' bits. The size will be floor(bits.size() / m).
  *
- * \note This function assumes MSB-first packing (Big Endian). 
+ * \note This function assumes MSB-first packing (Big Endian).
  * Example (m=4): Bits [1, 0, 0, 1] becomes Integer 9.
  */
-libbase::vector<int> 
-dvqkd_protocol::pack_bits_to_symbols(const libbase::vector<bool>& bits, int m) 
+libbase::vector<int>
+dvqkd_protocol::pack_bits_to_symbols(const libbase::vector<bool>& bits, int m)
 {
     // Safety check: if m is less than 1 (e.g., binary), treat as 1
-    if (m < 1) m = 1;
+    if (m < 1)
+        m = 1;
 
     /* Calculate number of symbols
-    Any "leftover" bits at the end of the stream that don't fill a full symbol are dropped.*/
+    Any "leftover" bits at the end of the stream that don't fill a full symbol
+    are dropped.*/
     int num_symbols = bits.size() / m;
-    
+
     libbase::vector<int> symbols;
     symbols.init(num_symbols);
 
-    for (int i = 0; i < num_symbols; ++i) { 
+    for (int i = 0; i < num_symbols; ++i) {
         int value = 0;
         for (int b = 0; b < m; ++b) {
-            /* Pack MSB first: The first bit in the chunk goes to the highest position.
-            Example for m=4: 
-             b=0 (1st bit) -> shifted left by 3
-             b=3 (4th bit) -> shifted left by 0
+            /* Pack MSB first: The first bit in the chunk goes to the highest
+            position. Example for m=4: b=0 (1st bit) -> shifted left by 3 b=3
+            (4th bit) -> shifted left by 0
             */
             if (bits(i * m + b)) {
-                // Shift 1 bit to the left start with the MSB and XOR with the value 
+                // Shift 1 bit to the left start with the MSB and XOR with the
+                // value
                 value |= (1 << (m - 1 - b));
             }
         }
@@ -423,19 +455,24 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     len_secret_key = 0;
 
     /* Sifting Step */
-    // In this step we need to discard the bits where the basis vectors of Alice (vector b) and Bob (vector b') do not match.
-    // Get and store the indices of the elements of the basis vectors that won't match.
+    // In this step we need to discard the bits where the basis vectors of Alice
+    // (vector b) and Bob (vector b') do not match. Get and store the indices of
+    // the elements of the basis vectors that won't match.
 
     std::vector<int> diff_indices;
 
     /* alice_basis_vector is assigned in get_alice_observables method.
-     Similarly for Bob, bob_basis_vector is assigned in get_bob_observables method.  
+     Similarly for Bob, bob_basis_vector is assigned in get_bob_observables
+     method.
     */
     if (bob_basis_vector.size() != alice_basis_vector.size()) {
-        std::cerr << "Vectors are not the same size, so all indices beyond the smaller size will be different." << std::endl;
+        std::cerr << "Vectors are not the same size, so all indices beyond the "
+                     "smaller size will be different."
+                  << std::endl;
     } else {
         for (int i = 0; i < alice_basis_vector.size(); ++i) {
-            // Get and store the indices of the elements of the basis vectors that won't match.
+            // Get and store the indices of the elements of the basis vectors
+            // that won't match.
             if (alice_basis_vector(i) != bob_basis_vector(i)) {
                 diff_indices.push_back(i);
             }
@@ -443,9 +480,10 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     }
 
 #if DEBUG >= 1
-        std::cerr << "DV_QKDPROTOCOL: **** SIFTING PROCESS **** " << std::endl;
-        std::cerr << "DV_QKDPROTOCOL: Indices of Mismatch in the elements of the basis vectors = " << diff_indices
-                  << std::endl;
+    std::cerr << "DV_QKDPROTOCOL: **** SIFTING PROCESS **** " << std::endl;
+    std::cerr << "DV_QKDPROTOCOL: Indices of Mismatch in the elements of the "
+                 "basis vectors = "
+              << diff_indices << std::endl;
 #endif
 
     if (alice_measurements.size() != bob_measurements.size()) {
@@ -466,7 +504,8 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
 
     for (int i = 0; i < n_original; ++i) {
         // Check if the current index i is the next one to exclude.
-        if (diff_idx < (int)diff_indices.size() && diff_indices[diff_idx] == i) {
+        if (diff_idx < (int)diff_indices.size() &&
+            diff_indices[diff_idx] == i) {
             // Exclude index. Move to the next index in diff_indices.
             diff_idx++;
         } else {
@@ -480,11 +519,18 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     assert(sifted_idx == n_sifted);
 
 #if DEBUG >= 1
-    std::cout << "DV_QKDPROTOCOL: Original measurement vector size = " << n_original << std::endl;
-    std::cout << "DV_QKDPROTOCOL: Size of sifted keys = " << n_sifted << std::endl;
-    std::cout << "DV_QKDPROTOCOL: Sifted Alice Key = " << sifted_alice_key << std::endl;
-    std::cout << "DV_QKDPROTOCOL: Sifted Bob Key = " << sifted_bob_key << std::endl;
-    std::cout << "DV_QKDPROTOCOL: Size of Sifted Bob Key - output block size of codec = " << sifted_alice_key.size() - cdc->output_block_size() << std::endl; 
+    std::cout << "DV_QKDPROTOCOL: Original measurement vector size = "
+              << n_original << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Size of sifted keys = " << n_sifted
+              << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Sifted Alice Key = " << sifted_alice_key
+              << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Sifted Bob Key = " << sifted_bob_key
+              << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Size of Sifted Bob Key - output block size "
+                 "of codec = "
+              << sifted_alice_key.size() - cdc->output_block_size()
+              << std::endl;
 #endif
 
     /* Checking N_PE: the number of samples used for parameter estimation.
@@ -496,96 +542,100 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     split(sifted_alice_key, sifted_bob_key);
 
 #if DEBUG >= 1
-        std::cout << "---- Perform Split -----" << std::endl;
-        std::cout << "DV_QKDPROTOCOL: size of N_PE = " << N_PE << std::endl;
-        std::cout << "DV_QKDPROTOCOL: Y_PE = "
-                  << Y_PE << std::endl;
-        std::cout << "DV_QKDPROTOCOL: size of Y_PE = "
-                  << Y_PE.size() << std::endl; // to delete
-        std::cout << "DV_QKDPROTOCOL: Y = "
-                  << Y << std::endl;
-        std::cout << "DV_QKDPROTOCOL: size of Y = "
-                  << Y.size() << std::endl; // to delete
-        std::cout << "DV_QKDPROTOCOL: X_PE = "
-                  << X_PE << std::endl;
-        std::cout << "DV_QKDPROTOCOL: size of X_PE = "
-                  << X_PE.size() << std::endl; // to delete
-        std::cout << "DV_QKDPROTOCOL: X = "
-                  << X << std::endl;
-        std::cout << "DV_QKDPROTOCOL: size of X = "
-                  << X.size() << std::endl; // to delete
+    std::cout << "---- Perform Split -----" << std::endl;
+    std::cout << "DV_QKDPROTOCOL: size of N_PE = " << N_PE << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Y_PE = " << Y_PE << std::endl;
+    std::cout << "DV_QKDPROTOCOL: size of Y_PE = " << Y_PE.size()
+              << std::endl; // to delete
+    std::cout << "DV_QKDPROTOCOL: Y = " << Y << std::endl;
+    std::cout << "DV_QKDPROTOCOL: size of Y = " << Y.size()
+              << std::endl; // to delete
+    std::cout << "DV_QKDPROTOCOL: X_PE = " << X_PE << std::endl;
+    std::cout << "DV_QKDPROTOCOL: size of X_PE = " << X_PE.size()
+              << std::endl; // to delete
+    std::cout << "DV_QKDPROTOCOL: X = " << X << std::endl;
+    std::cout << "DV_QKDPROTOCOL: size of X = " << X.size()
+              << std::endl; // to delete
 
 #endif
 
     // Aborts of sizes of sifted keys are not equal
     assert(sifted_alice_key.size() == sifted_bob_key.size());
-    
+
     /* Perform Parameter Estimation to calculate the QBER and l*/
-    // Assign values to the Class members  
-    std::tie(this->QBER, this->len_secret_key) = parameter_estimation(X_PE, Y_PE); 
+    // Assign values to the Class members
+    std::tie(this->QBER, this->len_secret_key) =
+        parameter_estimation(X_PE, Y_PE);
 
 #if DEBUG >= 1
-        std::cout << "DV_QKDPROTOCOL: Secret Key Length l = " << this->len_secret_key << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Secret Key Length l = "
+              << this->len_secret_key << std::endl;
 #endif
 
-    /*  Estimate Parameters 
+    /*  Estimate Parameters
         If estimate_parameters == true (default),
-        QBER is calculated from parameter estimation. 
-        
-        If estimate_parameters == false, 
-        QBER is taken directly from Bob's quantum channel. 
+        QBER is calculated from parameter estimation.
+
+        If estimate_parameters == false,
+        QBER is taken directly from Bob's quantum channel.
     */
 #if DEBUG >= 1
-    std::cout << "DV_QKDPROTOCOL: Is QBER calculated from parameter estimation?: " << estimate_parameters << std::endl;
+    std::cout
+        << "DV_QKDPROTOCOL: Is QBER calculated from parameter estimation?: "
+        << estimate_parameters << std::endl;
 #endif
 
-    if (!estimate_parameters)
-    {
-        /* Get QBER directly from the depolarizing quantum channel 
+    if (!estimate_parameters) {
+        /* Get QBER directly from the depolarizing quantum channel
            rather than using the get_parameters() from m_bob_channel.
-             libbase::vector<double> bob_channel_parameters = m_bob_channel->get_parameters()
+             libbase::vector<double> bob_channel_parameters =
+           m_bob_channel->get_parameters()
         */
         this->QBER = m_bob_channel->get_qber();
     }
 
-    // Checks that it is not >= the maximum tolerable qber. */  
+    // Checks that it is not >= the maximum tolerable qber. */
     if (this->QBER >= Q_worst_case) {
-         this->len_secret_key = 0; // length is 0
+        this->len_secret_key = 0; // length is 0
     }
 
 #if DEBUG >= 1
     std::cout << "DV_QKDPROTOCOL: Value of QBER = " << this->QBER << std::endl;
 #endif
 
-    /* (Alice) (Inverse Mapping) 
+    /* (Alice) (Inverse Mapping)
     Convert X_raw to binary or non-binary to be able to calculate the syndrome
     Convert libbase::vector<bool> -> libbase::vector<int> */
-    
 
-    // Get the alphabet size from the loaded codec (e.g., 2 for GF2, 16 for GF16)
-    int q = cdc->num_outputs(); 
-    
+    // Get the alphabet size from the loaded codec (e.g., 2 for GF2, 16 for
+    // GF16)
+    int q = cdc->num_outputs();
+
     // Calculate log2(q) to get m (bits per symbol)
     // Examples: q=2 -> m=1, q=4 -> m=2, q=16 -> m=4
     int m = 0;
     if (q > 0) {
         int temp = q;
-        while (temp >>= 1) m++;
+        while (temp >>= 1)
+            m++;
     }
 
     // Safety fallback for binary or uninitialized codec
-    if (m == 0) m = 1; 
+    if (m == 0)
+        m = 1;
 
     // Alice's side convert bits (bool) -> symbols (int)
     libbase::vector<int> X_int = pack_bits_to_symbols(X, m);
 
     //(Alice) Calculate the syndrome of X of size (n-k)
     libbase::vector<int> calculated_syndrome;
-    cdc->calculate_syndrome(X_int, calculated_syndrome); 
+    cdc->calculate_syndrome(X_int, calculated_syndrome);
 
 #if DEBUG >= 1
-        std::cout << "DV_QKDPROTOCOL: Alice's Inverse Mapped vector = " << X_int << std::endl;
-        std::cout << "DV_QKDPROTOCOL: Alice's Calculated Syndrome = " << calculated_syndrome << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Alice's Inverse Mapped vector = " << X_int
+              << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Alice's Calculated Syndrome = "
+              << calculated_syndrome << std::endl;
 #endif
 
     // (Bob) Convert vector Y from libbase::vector<int> to libbase::vector<gf2>
@@ -593,40 +643,42 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     const libbase::vector<libbase::gf2> Y_gf2(Y);
 
 #if DEBUG >= 1
-    std::cout << "DV_QKDPROTOCOL: Y converted to GF2 "<< std::endl;
+    std::cout << "DV_QKDPROTOCOL: Y converted to GF2 " << std::endl;
     print_gf_vector_as_ints(Y_gf2);
 #endif
 
     // Set Ps of the qsc channel which is the estimated QBER from PE
-    demodulation_channel->set_parameter(this->QBER); 
+    demodulation_channel->set_parameter(this->QBER);
 
 #if DEBUG >= 1
-    std::cout << "DV_QKDPROTOCOL: Description of Demodulation Channel" << demodulation_channel->description() << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Description of Demodulation Channel"
+              << demodulation_channel->description() << std::endl;
 #endif
 
     // Initialise probability table.
     auto prob_table = libbase::vector<libbase::vector<double>>(Y_gf2.size());
 
 #if DEBUG >= 1
-    std::cout << "DV_QKDPROTOCOL: Modem Description: " << mdm->description() << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Modem Description: " << mdm->description()
+              << std::endl;
 #endif
 
     // Setting block size of modem
     mdm->set_blocksize(libbase::size_type<libbase::vector>(Y_gf2.size()));
 
-    /* (Bob) Demodulate the received codeword to get the required probability table
-    Format of Table: P(bit 0), P(bit 1).
-    Demodulation channel is a qsc channel which is initialised in serialize sin
-    This was required due to RNG intialisation in the seedfrom fn found in dvqkd_protocol.h
+    /* (Bob) Demodulate the received codeword to get the required probability
+    table Format of Table: P(bit 0), P(bit 1). Demodulation channel is a qsc
+    channel which is initialised in serialize sin This was required due to RNG
+    intialisation in the seedfrom fn found in dvqkd_protocol.h
     */
     mdm->demodulate(*demodulation_channel, Y_gf2, prob_table);
 
 #if DEBUG >= 1
-    std::cout << "DV_QKDPROTOCOL: Probability Table: "
-                  << prob_table << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Probability Table: " << prob_table
+              << std::endl;
 #endif
 
-    /* (Bob) Inverse Map. 
+    /* (Bob) Inverse Map.
     For binary this is a "map_straight"
     For converting from binary to non-binary this is a "map_dividing"
     */
@@ -634,19 +686,20 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     map->inverse(prob_table, prob_table_encoded);
 
 #if DEBUG >= 1
-    std::cout << "DV_QKDPROTOCOL: Probability Encoded obtained from Inverse Mapping: "
-                  << prob_table_encoded << std::endl;
+    std::cout
+        << "DV_QKDPROTOCOL: Probability Encoded obtained from Inverse Mapping: "
+        << prob_table_encoded << std::endl;
 #endif
 
     // Initialise Y_hat_int
-    libbase::vector<int> Y_hat_int; 
+    libbase::vector<int> Y_hat_int;
 
     // (Bob) Perform Syndrome Decoding
     cdc->init_decoder(prob_table_encoded, calculated_syndrome);
     cdc->decode_codeword(Y_hat_int);
 
 #if DEBUG >= 1
-     
+
 #endif
 
     // Convert vector Y_hat_int to bool
@@ -659,11 +712,11 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
 #if DEBUG >= 1
     std::cout << "DV_QKDPROTOCOL: Bob's decoded message Y_hat_int: "
               << Y_hat_int << std::endl;
-    std::cout << "DV_QKDPROTOCOL: Alice's (error free) message X_int: "
-              << X_int << std::endl << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Alice's (error free) message X_int: " << X_int
+              << std::endl
+              << std::endl;
     std::cout << "DV_QKDPROTOCOL: hash_X = " << hash_X << std::endl;
-    std::cout << "DV_QKDPROTOCOL: hash_Y_hat = " << hash_Y_hat
-                << std::endl;
+    std::cout << "DV_QKDPROTOCOL: hash_Y_hat = " << hash_Y_hat << std::endl;
 #endif
 
     H_check = (hash_X == hash_Y_hat);
@@ -671,59 +724,64 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     if (H_check) {
 
 #if DEBUG >= 1
-    std::cerr << "CV_QKDPROTOCOL: H_check = true" << std::endl;
+        std::cerr << "CV_QKDPROTOCOL: H_check = true" << std::endl;
 #endif
 
-    // length of secret key is calculated in parameter estimation step 
-    final_secret_key_KA.init(len_secret_key);
-    final_secret_key_KB.init(len_secret_key);
-    
-    // If l>0, continue with privacy amplification to get the final keys
-    if (len_secret_key > 0) {
+        // length of secret key is calculated in parameter estimation step
+        final_secret_key_KA.init(len_secret_key);
+        final_secret_key_KB.init(len_secret_key);
+
+        // If l>0, continue with privacy amplification to get the final keys
+        if (len_secret_key > 0) {
             /* Perform Privacy Amplification:
             param1: alphabet size of 2
             param2: length of final key after doing PA.
             param3: length of pre-hashed key which in this case is the size of
-            vectors X and Y_hat. 
+            vectors X and Y_hat.
             */
-            pa_system.init(
-                len_secret_key, X.size(), alphabet_size);
+            pa_system.init(len_secret_key, X.size(), alphabet_size);
 
             int starting_vector_len =
                 pa_system.generate_starting_vector_length();
 
 #if DEBUG >= 1
-                std::cerr << "CV_QKDPROTOCOL: PA system = "
-                          << pa_system.description() << std::endl;
+            std::cerr << "CV_QKDPROTOCOL: PA system = "
+                      << pa_system.description() << std::endl;
 #endif
 
             // Generate starting vector.
             libbase::vector<bool> starting_vector =
-                pa_system.generate_starting_vector(starting_vector_len, alphabet_size);
+                pa_system.generate_starting_vector(starting_vector_len,
+                                                   alphabet_size);
 
             // Generate Standard Toeplitz matrix.
             libbase::matrix<bool> standard_toeplitz_matrix =
                 pa_system.generate_toeplitz_matrix(starting_vector);
 
             // Generates KB of Bob.
-            final_secret_key_KB = pa_system.compute_hashed_key(
-                standard_toeplitz_matrix, Y_hat);
+            final_secret_key_KB =
+                pa_system.compute_hashed_key(standard_toeplitz_matrix, Y_hat);
 
             // Generates KA of Alice.
-            final_secret_key_KA = pa_system.compute_hashed_key(
-                standard_toeplitz_matrix, X);
-                        }
-    }
-    else
-    {
+            final_secret_key_KA =
+                pa_system.compute_hashed_key(standard_toeplitz_matrix, X);
+        }
 
 #if DEBUG >= 1
-    std::cerr << "CV_QKDPROTOCOL: H_check = false" << std::endl;
+        std::cerr << "CV_QKDPROTOCOL: final_secret_key_KA = "
+                  << final_secret_key_KA << std::endl;
+        std::cerr << "CV_QKDPROTOCOL: final_secret_key_KB = "
+                  << final_secret_key_KB << std::endl;
+#endif
+    } else {
+
+#if DEBUG >= 1
+        std::cerr << "CV_QKDPROTOCOL: H_check = false" << std::endl;
 #endif
 
-    len_secret_key = 0; // Return null as final secret keys
-    final_secret_key_KA.init(len_secret_key);
-    final_secret_key_KB.init(len_secret_key);
+        len_secret_key = 0; // Return null as final secret keys
+        final_secret_key_KA.init(len_secret_key);
+        final_secret_key_KB.init(len_secret_key);
     }
 
     return {std::move(final_secret_key_KA), std::move(final_secret_key_KB)};
@@ -741,7 +799,7 @@ dvqkd_protocol::serialize(std::ostream& sout) const
     sout << "# QBER from parameter estimation?" << std::endl;
     sout << int(estimate_parameters) << std::endl;
     sout << "# Q_tol error rate" << std::endl;
-    sout << Q_tol << std::endl; 
+    sout << Q_tol << std::endl;
     sout << "# Security parameter eps_sec" << std::endl;
     sout << eps_sec << std::endl;
     sout << "# Correctness parameter eps_cor" << std::endl;
@@ -775,10 +833,10 @@ dvqkd_protocol::serialize(std::istream& sin)
     // Verify casting was successful
     assert(this->cdc && "Loaded codec is not compatible with codec_coset!");
 
-
     // Created channel so it exists before seedfrom() is called.
     if (!this->demodulation_channel) {
-        this->demodulation_channel = std::make_shared<libcomm::qsc<libbase::gf2>>();
+        this->demodulation_channel =
+            std::make_shared<libcomm::qsc<libbase::gf2>>();
         this->demodulation_channel->set_parameter(0.0); // Default safe value
     }
 
@@ -787,10 +845,10 @@ dvqkd_protocol::serialize(std::istream& sin)
     sin >> libbase::eatcomments >> eps_sec >> libbase::verify;
     sin >> libbase::eatcomments >> eps_cor >> libbase::verify;
     sin >> libbase::eatcomments >> alphabet_size >> libbase::verify;
-    sin >> libbase::eatcomments >> mdm >> libbase::verify; 
-    sin >> libbase::eatcomments >> map >> libbase::verify; 
+    sin >> libbase::eatcomments >> mdm >> libbase::verify;
+    sin >> libbase::eatcomments >> map >> libbase::verify;
     // check that all assumptions hold
-    assertalways(cdc->num_inputs() == 2); // input has to be binary
+    assertalways(cdc->num_inputs() == 2);  // input has to be binary
     assertalways(cdc->num_outputs() == 2); // output has to be binary
 
     return sin;
@@ -799,7 +857,5 @@ dvqkd_protocol::serialize(std::istream& sin)
 const serializer dvqkd_protocol::shelper("qkd_protocol",
                                          "dvqkd_protocol",
                                          dvqkd_protocol::create);
-
-
 
 } // namespace libcomm
