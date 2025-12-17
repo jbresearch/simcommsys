@@ -34,6 +34,10 @@ dvqkd_protocol::init(qkd_commsys<qubit, bool, libbase::vector>* qkdcommsys)
     // // Safely cast to the derived class we need
     // auto& src_gen = dynamic_cast<quantum_bb84_source&>(*src_gen_base);
 
+#if DEBUG >= 1
+    std::cout << "DV_QKDPROTOCOL: Initialisation (qkdcommsys=" << qkdcommsys <<  ")" << std::endl;
+#endif
+
     // Get Bob's quantum channel from qkd_commsys
     this->m_bob_channel = qkdcommsys->get_bob_channel();
     assert(this->m_bob_channel && "qkd_commsys did not provide Bob's channel.");

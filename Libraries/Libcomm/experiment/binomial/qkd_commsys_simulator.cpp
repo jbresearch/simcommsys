@@ -29,9 +29,9 @@ namespace libcomm
 template <class S, class T>
 void
 qkd_commsys_simulator<S, T>::sample(libbase::vector<double>& sample_result,
-                             libbase::vector<uint64_t>& sample_count)
+                                    libbase::vector<uint64_t>& sample_count)
 {
-      // Reset timers
+    // Reset timers
     this->reset_timers();
     // Initialise sample result and count vectors
     sample_result.init(result_count());
@@ -52,7 +52,8 @@ qkd_commsys_simulator<S, T>::sample(libbase::vector<double>& sample_result,
     auto [key_KA, key_KB] = sys->fullcycle(source);
 
     // CV collector
-    rc->compute_result_and_accumulate(sample_result, sample_count, key_KA, key_KB);
+    rc->compute_result_and_accumulate(
+        sample_result, sample_count, key_KA, key_KB);
 }
 
 template <class S, class T>
@@ -114,6 +115,10 @@ qkd_commsys_simulator<S, T>::serialize(std::istream& sin)
     sin >> libbase::eatcomments >> src >> libbase::verify;
     sin >> libbase::eatcomments >> sys >> libbase::verify;
 
+    // Pass the pointer to the qkd_commsy_simulator object to the
+    // qkd_commsys system.
+    sys->init(this);
+
     assertalways(sin.good());
     return sin;
 }
@@ -143,14 +148,15 @@ namespace libcomm
  *      T = double | bool
  */
 
-#define INSTANTIATE(r, args)                                                           \
-    template class qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>;                     \
-    template <>                                                                        \
-    const libbase::serializer qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::shelper( \
-        "experiment",                                                                  \
-        "qkd_commsys_simulator<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) ">",          \
-                                                qkd_commsys_simulator<                 \
-                                                    BOOST_PP_SEQ_ENUM(                 \
+#define INSTANTIATE(r, args)                                                   \
+    template class qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>;             \
+    template <>                                                                \
+    const libbase::serializer                                                  \
+        qkd_commsys_simulator<BOOST_PP_SEQ_ENUM(args)>::shelper(               \
+            "experiment",                                                      \
+            "qkd_commsys_simulator<" BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(0, args)) "," BOOST_PP_STRINGIZE(BOOST_PP_SEQ_ELEM(1, args)) ">",  \
+                                                qkd_commsys_simulator<         \
+                                                    BOOST_PP_SEQ_ENUM(         \
                                                         args)>::create);
 
 // BOOST_PP_SEQ_FOR_EACH_PRODUCT(INSTANTIATE,
