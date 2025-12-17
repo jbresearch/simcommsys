@@ -68,15 +68,32 @@ public:
     // calculator.
     void process_bit(bool b) { crc_.process_bit(b ? 1u : 0u); }
 
-    // Per sequence.
+    // Per sequence
     template <class T>
     void process_bits(const C<T>& bits01)
     {
-        static_assert(std::is_integral<T>::value,
-                      "Element type must be integral (e.g., bool, int).");
+        static_assert(std::is_integral<T>::value, "Type must be integral");
+
         const std::size_t n = bits01.size();
-        for (std::size_t i = 0; i < n; ++i) {
-            process_bit(bits01(i) != 0);
+        
+        // Process data in 8-bit chunks (Bytes)
+        for (std::size_t i = 0; i < n; i += 8) {
+            unsigned char byte = 0;
+
+            // Pack 8 bits from the vector into a single byte
+            // We pack MSB-first to match how Python/Humans read "1011..."
+            for (int b = 0; b < 8; ++b) {
+                if (i + b < n) {
+                    if (bits01(i + b) != 0) {
+                        byte |= (1 << (7 - b)); // Set bit (7 down to 0)
+                    }
+                }
+            }
+
+            // Feed the full byte to Boost. 
+            // Because we set 'Reflect Input = true', Boost will automatically
+            // process this byte LSB-first (Standard Ethernet behavior).
+            crc_.process_byte(byte);
         }
     }
 
