@@ -15,9 +15,12 @@
 
 #include "crc/crc32.h"
 
+/* Compare obtained answers to this Python implementation:
+ * https://pypi.org/project/crc/ */
+
 BOOST_AUTO_TEST_CASE(test_crc32_libcomm_implementation)
 {
-    std::cout << "\n*****Boost Test Case *****\n";
+    std::cout << "\n*****Boost Test Case 1 - 32 bit *****\n";
     std::cout << "\nTesting CRC32 Libcomm \n";
 
     // Build one vector (use (i) indexing for libbase::vector)
@@ -57,6 +60,7 @@ BOOST_AUTO_TEST_CASE(test_crc32_libcomm_implementation)
 
     // One-shot CRC32
     std::uint32_t crc_hash = libcomm::crc32_ieee<>::compute(v);
+    std::cout << "Pre-hashed Key = " << v << std::endl; 
     std::cout << "Hash value of CRC32 = " << crc_hash << std::endl;
 
     // Log as 8-digit uppercase hex
@@ -69,12 +73,70 @@ BOOST_AUTO_TEST_CASE(test_crc32_libcomm_implementation)
     BOOST_CHECK(crc_hash != 0u);
 }
 
-/* Compare obtained answers to this online calculator:
- * https://crccalc.com/?crc=123456789&method=&datatype=ascii&outtype=hex*/
-
 BOOST_AUTO_TEST_CASE(testing_crc32_serialization)
 {
-    std::cout << "\n*****Boost Test Case *****\n";
+    std::cout << "\n*****Boost Test Case 2 - 16 bit *****\n";
+    std::cout << "\nTesting CRC32 Libcomm Serialization \n";
+
+    // Create via the registry
+    auto obj = libbase::serializer::call("crc", "crc_32");
+    BOOST_REQUIRE_MESSAGE(bool(obj), "serializer::call returned null");
+
+    // Should report its registered name
+    BOOST_CHECK_EQUAL(obj->name(), "crc_32");
+
+    // It should actually be crc32_ieee<libbase::vector>
+    auto* typed =
+        dynamic_cast<libcomm::crc32_ieee<libbase::vector>*>(obj.get());
+    BOOST_REQUIRE_MESSAGE(typed != nullptr,
+                          "Dynamic cast to crc32_ieee<libbase::vector> failed");
+
+    // Do one simple CRC to prove functionality.
+    libbase::vector<bool> v(16);
+    // 1 0 1 0 1 0 1 0  1 1 0 0 1 1 0 0
+
+    v(0) = 1;
+    v(1) = 0;
+    v(2) = 1;
+    v(3) = 1;
+    v(4) = 0;
+    v(5) = 1;
+    v(6) = 0;
+    v(7) = 1;
+    v(8) = 1;
+    v(9) = 0;
+    v(10) = 1;
+    v(11) = 1;
+    v(12) = 0;
+    v(13) = 1;
+    v(14) = 0;
+    v(15) = 1;
+
+    /* In decimal this is equal to B5 and the CRC result (using CRC-32 MPEG2
+    with: Check: 0x0376E6E7	Poly: 0x04C11DB7	Init: 0xFFFFFFFF	RefIn: false
+    RefOut: false	XorOut: 0x00000000)
+
+    To verify that the result is correct compare to:
+    https://crccalc.com/?crc=B4&method=CRC-32/MPEG-2&datatype=hex&outtype=dec
+
+    In decimal the answer should be: 3841153441
+
+    */
+
+    std::uint32_t crc = typed->compute(v);
+
+    std::cout << "Pre-hashed Key = " << v << std::endl; 
+    std::cout << "CRC32 Hash value = " << crc << std::endl;
+
+    BOOST_CHECK(crc != 0u);
+}
+
+/* Compare obtained answers to this online calculator:
+ * https://pypi.org/project/crc/ */
+
+BOOST_AUTO_TEST_CASE(testing_crc32_serialization_16bit)
+{
+    std::cout << "\n*****Boost Test Case 3 - 8 bit *****\n";
     std::cout << "\nTesting CRC32 Libcomm Serialization \n";
 
     // Create via the registry
@@ -92,6 +154,7 @@ BOOST_AUTO_TEST_CASE(testing_crc32_serialization)
 
     // Do one simple CRC to prove functionality.
     libbase::vector<bool> v(8);
+    // 10110101
 
     v(0) = 1;
     v(1) = 0;
@@ -101,7 +164,7 @@ BOOST_AUTO_TEST_CASE(testing_crc32_serialization)
     v(5) = 1;
     v(6) = 0;
     v(7) = 1;
-
+  
     /* In decimal this is equal to B5 and the CRC result (using CRC-32 MPEG2
     with: Check: 0x0376E6E7	Poly: 0x04C11DB7	Init: 0xFFFFFFFF	RefIn: false
     RefOut: false	XorOut: 0x00000000)
@@ -115,6 +178,7 @@ BOOST_AUTO_TEST_CASE(testing_crc32_serialization)
 
     std::uint32_t crc = typed->compute(v);
 
+    std::cout << "Pre-hashed Key = " << v << std::endl; 
     std::cout << "CRC32 Hash value = " << crc << std::endl;
 
     BOOST_CHECK(crc != 0u);
