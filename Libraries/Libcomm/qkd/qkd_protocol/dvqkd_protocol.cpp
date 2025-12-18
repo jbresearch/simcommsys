@@ -38,9 +38,6 @@ dvqkd_protocol::init(qkd_commsys<qubit, bool, libbase::vector>* qkdcommsys)
 
     // Get size of framesize for a single frame. Sizes of measurement vectors before sifting are equal to the framesize. 
     this->m_framesize = qkdcommsys->input_block_size();
-
-
-
 }
 
 void
@@ -192,35 +189,35 @@ dvqkd_protocol::get_alice_observables(int framesize)
  * @param Y Bob's key with errros. It holds the remaining measurement values
  * after sifting excluding PE.
  */
+
 void
 dvqkd_protocol::split(libbase::vector<bool>& alice_measurements,
-                      libbase::vector<bool>& bob_measurements)
+          libbase::vector<bool>& bob_measurements, 
+          libbase::vector<bool>& X, 
+          libbase::vector<bool>& Y,
+          libbase::vector<bool>& X_PE, 
+          libbase::vector<bool>& Y_PE)
 {
     assert(alice_measurements.size() == bob_measurements.size() &&
            "Alice and Bob's measurement vector sizes are not equal.");
+    assert(X.size() == Y.size() &&
+           "X and Y vector sizes are not equal.");
+    assert(X_PE.size() == Y_PE.size() &&
+           "X_PE and Y_PE vector sizes are not equal.");
 
-    assert(N_PE > 0 && "N_PE must be > 0.");
-
-    const int N = alice_measurements.size();
-    assert(N == bob_measurements.size());
-
-    X_PE.init(N_PE);
-    Y_PE.init(N_PE);
-    X.init(N - N_PE);
-    Y.init(N - N_PE);
-
-    // First N_PE -> PE
-    for (int i = 0; i < N_PE; ++i) {
+    // X_PE.size() and Y_PE.size() = N_PE
+    for (int i = 0; i < X_PE.size(); ++i) {
         X_PE(i) = alice_measurements(i);
         Y_PE(i) = bob_measurements(i);
     }
 
-    for (int i = N_PE; i < N; ++i) {
-        const int j = i - N_PE;
-        X(j) = alice_measurements(
-            i); // Unnormalised key of Alice to be used for post-processing
-        Y(j) = bob_measurements(
-            i); // Unnormalised key of Bob to be used for post-processing
+    const int N = alice_measurements.size();
+
+    for (int i = X_PE.size(); i < N; ++i) {
+        const int j = i - X_PE.size();
+        // Keys to be used for post-processing  
+        X(j) = alice_measurements(i); 
+        Y(j) = bob_measurements(i);
     }
 }
 
@@ -281,8 +278,8 @@ dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     // n_d is equivalent to the size of vectors X and Y which are equivalent to the size of a single codeword n. 
     double n_d = static_cast<double>(cdc->output_block_size());
 
-    // k_d is equivalent to N_PE.
-    // size of N_PE ~ len(frame)/2 - codeword size n 
+    // k_d is an approximation of N_PE
+    // size of N_PE_Approximate ~ len(frame)/2 - codeword size n 
     double k_d = static_cast<double>((m_framesize/2.0)) - static_cast<double>(cdc->output_block_size());
     
     int q = 1; // 1 only for a pure state
@@ -540,10 +537,20 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     /* Checking N_PE: the number of samples used for parameter estimation.
        N_PE should equal to size of sifted key - n
     */
-    N_PE = sifted_alice_key.size() - cdc->output_block_size();
+    const int N_PE = sifted_alice_key.size() - cdc->output_block_size();
+    assert(N_PE > 0 && "N_PE must be > 0.");
+    libbase::vector<bool> X_PE(N_PE);
+    libbase::vector<bool> Y_PE(N_PE);
+
+    assert(sifted_alice_key.size() == sifted_bob_key.size());
+    // sifted_alice_key.size() - N_PE == size of codeword n
+    libbase::vector<bool> X(sifted_alice_key.size()-N_PE);
+    libbase::vector<bool> Y(sifted_alice_key.size()-N_PE);
+    assert(X.size() == Y.size());
+    assert(X.size() == cdc->output_block_size());
 
     // Perform split for parameter estimation.
-    split(sifted_alice_key, sifted_bob_key);
+    split(sifted_alice_key, sifted_bob_key, X, Y, X_PE, Y_PE);
 
 #if DEBUG >= 1
     std::cout << "---- Perform Split -----" << std::endl;

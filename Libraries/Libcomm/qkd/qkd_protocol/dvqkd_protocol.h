@@ -67,19 +67,12 @@ private:
     libbase::vector<bool> bob_basis_vector;   // vector b'
     libbase::vector<bool> alice_basis_vector; // vector b
     libbase::vector<bool> alice_bit_vector;   // vector a
-
-    libbase::vector<bool> X;
-    libbase::vector<bool> X_PE;
-    libbase::vector<bool> Y;
-    libbase::vector<bool> Y_PE;
-
     std::shared_ptr<quantum_channel> m_bob_channel;
 
     // ADD THIS: Pointer to the source sequence from qkd_commsys fullcycle
     const libbase::vector<qubit>* m_source_sequence = nullptr;
 
     int m_framesize; // Number of generated qubits for a single frame. 
-    int N_PE; // Number of samples used for parameter estimation.
     double Q_tol; // Maximum tolerated QBER
     double Q_worst_case; // 'Worst' case error rate
     int leak_EC; //  Bits revealed during error correction (syndrome length)
@@ -135,8 +128,12 @@ public:
     // Split fn to be used for parameter estimation and post-processing which
     // returns: X_PE, Y_PE, X_raw and Y_raw
     void 
-    split(libbase::vector<bool>& measurements_alice,
-          libbase::vector<bool>& measurements_bob);
+    split(libbase::vector<bool>& alice_measurements,
+          libbase::vector<bool>& bob_measurements, 
+          libbase::vector<bool>& X, 
+          libbase::vector<bool>& Y,
+          libbase::vector<bool>& X_PE, 
+          libbase::vector<bool>& Y_PE);
           
     double binary_entropy(double p);
 
