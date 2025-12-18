@@ -191,8 +191,8 @@ dvqkd_protocol::get_alice_observables(int framesize)
  */
 
 void
-dvqkd_protocol::split(libbase::vector<bool>& alice_measurements,
-          libbase::vector<bool>& bob_measurements, 
+dvqkd_protocol::split(const libbase::vector<bool>& alice_measurements,
+          const libbase::vector<bool>& bob_measurements, 
           libbase::vector<bool>& X, 
           libbase::vector<bool>& Y,
           libbase::vector<bool>& X_PE, 

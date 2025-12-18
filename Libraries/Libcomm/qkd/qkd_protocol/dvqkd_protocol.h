@@ -128,8 +128,8 @@ public:
     // Split fn to be used for parameter estimation and post-processing which
     // returns: X_PE, Y_PE, X_raw and Y_raw
     void 
-    split(libbase::vector<bool>& alice_measurements,
-          libbase::vector<bool>& bob_measurements, 
+    split(const libbase::vector<bool>& alice_measurements,
+          const libbase::vector<bool>& bob_measurements, 
           libbase::vector<bool>& X, 
           libbase::vector<bool>& Y,
           libbase::vector<bool>& X_PE, 
