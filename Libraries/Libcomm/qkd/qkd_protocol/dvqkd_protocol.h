@@ -73,12 +73,12 @@ private:
     libbase::vector<bool> Y;
     libbase::vector<bool> Y_PE;
 
-
     std::shared_ptr<quantum_channel> m_bob_channel;
 
     // ADD THIS: Pointer to the source sequence from qkd_commsys fullcycle
     const libbase::vector<qubit>* m_source_sequence = nullptr;
 
+    int m_framesize; // Number of generated qubits for a single frame. 
     int N_PE; // Number of samples used for parameter estimation.
     double Q_tol; // Maximum tolerated QBER
     double Q_worst_case; // 'Worst' case error rate

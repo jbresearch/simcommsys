@@ -26,13 +26,6 @@ dvqkd_protocol::description() const
 void
 dvqkd_protocol::init(qkd_commsys<qubit, bool, libbase::vector>* qkdcommsys)
 {
-    // // Get the source generator from commsys
-    // std::shared_ptr<source<gaussian_state>> src_gen_base =
-    // qkdcommsys->get_src(); assert(src_gen_base && "Commsys did not provide a
-    // source generator.");
-
-    // // Safely cast to the derived class we need
-    // auto& src_gen = dynamic_cast<quantum_bb84_source&>(*src_gen_base);
 
 #if DEBUG >= 1
     std::cout << "DV_QKDPROTOCOL: Initialisation (qkdcommsys=" << qkdcommsys
@@ -42,6 +35,12 @@ dvqkd_protocol::init(qkd_commsys<qubit, bool, libbase::vector>* qkdcommsys)
     // Get Bob's quantum channel from qkd_commsys
     this->m_bob_channel = qkdcommsys->get_bob_channel();
     assert(this->m_bob_channel && "qkd_commsys did not provide Bob's channel.");
+
+    // Get size of framesize for a single frame. Sizes of measurement vectors before sifting are equal to the framesize. 
+    this->m_framesize = qkdcommsys->input_block_size();
+
+
+
 }
 
 void
@@ -279,16 +278,21 @@ dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     std::cout << "DV_QKDPROTOCOL: eps_sec = " << eps_sec << std::endl;
 #endif
 
-    double n_d = static_cast<double>(X.size()); // excludes bits used for PE.
-    double k_d = static_cast<double>(N_PE);
-    int q = 1;
-    int leak_EC = cdc->output_block_size() -
-                  cdc->input_block_size(); // size of syndrome m=n-k
+    // n_d is equivalent to the size of vectors X and Y which are equivalent to the size of a single codeword n. 
+    double n_d = static_cast<double>(cdc->output_block_size());
 
+    // k_d is equivalent to N_PE.
+    // size of N_PE ~ len(frame)/2 - codeword size n 
+    double k_d = static_cast<double>((m_framesize/2.0)) - static_cast<double>(cdc->output_block_size());
+    
+    int q = 1; // 1 only for a pure state
+    // size of syndrome m=n-k. This only apples for a systematic code. 
+    int leak_EC = cdc->output_block_size() -
+                  cdc->input_block_size();
 #if DEBUG >= 1
-    std::cout << "DV_QKDPROTOCOL: Length of key after split and PE n_d = "
+    std::cout << "DV_QKDPROTOCOL: Length of key after split and PE: n_d = "
               << n_d << std::endl;
-    std::cout << "DV_QKDPROTOCOL: Length of PE bits k_d = " << k_d << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Length of PE bits: k_d = " << k_d << std::endl;
     std::cout << "DV_QKDPROTOCOL: Leak_EC = " << leak_EC << std::endl;
 #endif
 
