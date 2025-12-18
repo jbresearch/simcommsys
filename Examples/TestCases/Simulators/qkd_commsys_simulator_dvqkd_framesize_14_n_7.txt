@@ -67,7 +67,7 @@ ones
 # QBER from parameter estimation?
 0
 # Q_tol error rate
-0.465977
+0.524254
 # Security parameter eps_sec
 1
 # Correctness parameter eps_cor
