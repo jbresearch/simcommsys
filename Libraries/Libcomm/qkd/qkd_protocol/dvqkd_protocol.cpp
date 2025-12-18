@@ -200,10 +200,15 @@ dvqkd_protocol::split(const libbase::vector<bool>& alice_measurements,
 {
     assert(alice_measurements.size() == bob_measurements.size() &&
            "Alice and Bob's measurement vector sizes are not equal.");
-    assert(X.size() == Y.size() &&
-           "X and Y vector sizes are not equal.");
-    assert(X_PE.size() == Y_PE.size() &&
-           "X_PE and Y_PE vector sizes are not equal.");
+
+    const int N_PE = alice_measurements.size() - cdc->output_block_size();
+    assert(N_PE > 0 && "N_PE must be > 0.");
+    X_PE.init(N_PE);
+    Y_PE.init(N_PE);
+
+    // sifted_alice_key.size() - N_PE == size of codeword n
+    X.init(cdc->output_block_size());
+    Y.init(cdc->output_block_size());
 
     // X_PE.size() and Y_PE.size() = N_PE
     for (int i = 0; i < X_PE.size(); ++i) {
@@ -219,6 +224,15 @@ dvqkd_protocol::split(const libbase::vector<bool>& alice_measurements,
         X(j) = alice_measurements(i); 
         Y(j) = bob_measurements(i);
     }
+
+#if DEBUG >= 1
+    std::cout << "---- Perform Split -----" << std::endl;
+    std::cout << "DV_QKDPROTOCOL: size of N_PE = " << N_PE << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Y_PE = " << Y_PE << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Y = " << Y << std::endl;
+    std::cout << "DV_QKDPROTOCOL: X_PE = " << X_PE << std::endl;
+    std::cout << "DV_QKDPROTOCOL: X = " << X << std::endl;
+#endif
 }
 
 /*! \brief Method to calculate the binary entropy function */
@@ -534,41 +548,13 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
               << std::endl;
 #endif
 
-    /* Checking N_PE: the number of samples used for parameter estimation.
-       N_PE should equal to size of sifted key - n
-    */
-    const int N_PE = sifted_alice_key.size() - cdc->output_block_size();
-    assert(N_PE > 0 && "N_PE must be > 0.");
-    libbase::vector<bool> X_PE(N_PE);
-    libbase::vector<bool> Y_PE(N_PE);
-
     assert(sifted_alice_key.size() == sifted_bob_key.size());
     // sifted_alice_key.size() - N_PE == size of codeword n
-    libbase::vector<bool> X(sifted_alice_key.size()-N_PE);
-    libbase::vector<bool> Y(sifted_alice_key.size()-N_PE);
-    assert(X.size() == Y.size());
-    assert(X.size() == cdc->output_block_size());
+    libbase::vector<bool> X, Y;
+    libbase::vector<bool> X_PE, Y_PE;
 
     // Perform split for parameter estimation.
     split(sifted_alice_key, sifted_bob_key, X, Y, X_PE, Y_PE);
-
-#if DEBUG >= 1
-    std::cout << "---- Perform Split -----" << std::endl;
-    std::cout << "DV_QKDPROTOCOL: size of N_PE = " << N_PE << std::endl;
-    std::cout << "DV_QKDPROTOCOL: Y_PE = " << Y_PE << std::endl;
-    std::cout << "DV_QKDPROTOCOL: size of Y_PE = " << Y_PE.size()
-              << std::endl; // to delete
-    std::cout << "DV_QKDPROTOCOL: Y = " << Y << std::endl;
-    std::cout << "DV_QKDPROTOCOL: size of Y = " << Y.size()
-              << std::endl; // to delete
-    std::cout << "DV_QKDPROTOCOL: X_PE = " << X_PE << std::endl;
-    std::cout << "DV_QKDPROTOCOL: size of X_PE = " << X_PE.size()
-              << std::endl; // to delete
-    std::cout << "DV_QKDPROTOCOL: X = " << X << std::endl;
-    std::cout << "DV_QKDPROTOCOL: size of X = " << X.size()
-              << std::endl; // to delete
-
-#endif
 
     // Aborts of sizes of sifted keys are not equal
     assert(sifted_alice_key.size() == sifted_bob_key.size());
