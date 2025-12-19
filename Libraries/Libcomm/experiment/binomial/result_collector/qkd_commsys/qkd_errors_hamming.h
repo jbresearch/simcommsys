@@ -61,7 +61,7 @@ public:
      */
     int result_count() const
     {
-        return 4;
+        return 5;
     } // Accounts for the current results in updateresults().
 
     /*! \copydoc experiment::result_description()
@@ -78,8 +78,10 @@ public:
         case 1:
             return "AKR";
         case 2:
-            return "SER";
+            return "AKL";
         case 3:
+            return "SER";
+        case 4:
             return "FER";
         }
         // This should never happen
