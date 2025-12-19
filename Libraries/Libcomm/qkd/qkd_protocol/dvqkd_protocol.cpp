@@ -345,7 +345,7 @@ dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     // Calculate final length 'l'
     // Formula: l = n * [ q - h(Q_tol + mu) ] - leak_EC - delta
     const double ell = n_d * (q - privacy_amplification_term) -
-               static_cast<double>(leak_EC) - delta;
+                       static_cast<double>(leak_EC) - delta;
 
     /* Note:
     Finite-key analysis requires n and k to be in the order of 10^4 to 10^5 to
@@ -766,12 +766,6 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
                 pa_system.compute_hashed_key(standard_toeplitz_matrix, X);
         }
 
-#if DEBUG >= 1
-        std::cerr << "DV_QKDPROTOCOL: final_secret_key_KA = "
-                  << final_secret_key_KA << std::endl;
-        std::cerr << "DV_QKDPROTOCOL: final_secret_key_KB = "
-                  << final_secret_key_KB << std::endl;
-#endif
     } else {
 
 #if DEBUG >= 1
@@ -782,6 +776,13 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
         final_secret_key_KA.init(len_secret_key);
         final_secret_key_KB.init(len_secret_key);
     }
+
+#if DEBUG >= 1
+    std::cerr << "DV_QKDPROTOCOL: final_secret_key_KA = " << final_secret_key_KA
+              << std::endl;
+    std::cerr << "DV_QKDPROTOCOL: final_secret_key_KB = " << final_secret_key_KB
+              << std::endl;
+#endif
 
     return {std::move(final_secret_key_KA), std::move(final_secret_key_KB)};
 }
