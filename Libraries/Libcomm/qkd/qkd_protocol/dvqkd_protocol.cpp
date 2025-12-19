@@ -720,7 +720,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
     if (H_check) {
 
 #if DEBUG >= 1
-        std::cerr << "CV_QKDPROTOCOL: H_check = true" << std::endl;
+        std::cerr << "DV_QKDPROTOCOL: H_check = true" << std::endl;
 #endif
 
         // length of secret key is calculated in parameter estimation step
@@ -741,7 +741,7 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
                 pa_system.generate_starting_vector_length();
 
 #if DEBUG >= 1
-            std::cerr << "CV_QKDPROTOCOL: PA system = "
+            std::cerr << "DV_QKDPROTOCOL: PA system = "
                       << pa_system.description() << std::endl;
 #endif
 
@@ -764,15 +764,15 @@ dvqkd_protocol::postprocess(libbase::vector<bool>&& alice_measurements,
         }
 
 #if DEBUG >= 1
-        std::cerr << "CV_QKDPROTOCOL: final_secret_key_KA = "
+        std::cerr << "DV_QKDPROTOCOL: final_secret_key_KA = "
                   << final_secret_key_KA << std::endl;
-        std::cerr << "CV_QKDPROTOCOL: final_secret_key_KB = "
+        std::cerr << "DV_QKDPROTOCOL: final_secret_key_KB = "
                   << final_secret_key_KB << std::endl;
 #endif
     } else {
 
 #if DEBUG >= 1
-        std::cerr << "CV_QKDPROTOCOL: H_check = false" << std::endl;
+        std::cerr << "DV_QKDPROTOCOL: H_check = false" << std::endl;
 #endif
 
         len_secret_key = 0; // Return null as final secret keys
