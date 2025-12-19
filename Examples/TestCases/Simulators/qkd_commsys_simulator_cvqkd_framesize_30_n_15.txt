@@ -38,9 +38,9 @@ cvqkd_protocol
 # N_PE
 15
 # VA, VN, alpha from parameter estimation?
-1
+0
 # Smoothing Parameter
-1e-4
+2
 # Alphabet size
 2
 # Codec
