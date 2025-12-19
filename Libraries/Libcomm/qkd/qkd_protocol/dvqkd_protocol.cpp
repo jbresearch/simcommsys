@@ -36,7 +36,7 @@ dvqkd_protocol::init(qkd_commsys<qubit, bool, libbase::vector>* qkdcommsys)
     this->m_bob_channel = qkdcommsys->get_bob_channel();
     assert(this->m_bob_channel && "qkd_commsys did not provide Bob's channel.");
 
-    // Get size of framesize for a single frame. Sizes of measurement vectors before sifting are equal to the framesize. 
+    // Get size of framesize for a single frame. Sizes of measurement vectors before sifting are equal to the framesize.
     this->m_framesize = qkdcommsys->input_block_size();
 }
 
@@ -121,7 +121,6 @@ dvqkd_protocol::get_bob_observables(int framesize)
     // << std::endl;
 #endif
 
-    std::cout << bob_basis_vector << std::endl;
     return observables;
 }
 
@@ -192,10 +191,10 @@ dvqkd_protocol::get_alice_observables(int framesize)
 
 void
 dvqkd_protocol::split(const libbase::vector<bool>& alice_measurements,
-          const libbase::vector<bool>& bob_measurements, 
-          libbase::vector<bool>& X, 
+          const libbase::vector<bool>& bob_measurements,
+          libbase::vector<bool>& X,
           libbase::vector<bool>& Y,
-          libbase::vector<bool>& X_PE, 
+          libbase::vector<bool>& X_PE,
           libbase::vector<bool>& Y_PE)
 {
     assert(alice_measurements.size() == bob_measurements.size() &&
@@ -220,8 +219,8 @@ dvqkd_protocol::split(const libbase::vector<bool>& alice_measurements,
 
     for (int i = X_PE.size(); i < N; ++i) {
         const int j = i - X_PE.size();
-        // Keys to be used for post-processing  
-        X(j) = alice_measurements(i); 
+        // Keys to be used for post-processing
+        X(j) = alice_measurements(i);
         Y(j) = bob_measurements(i);
     }
 
@@ -289,15 +288,15 @@ dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     std::cout << "DV_QKDPROTOCOL: eps_sec = " << eps_sec << std::endl;
 #endif
 
-    // n_d is equivalent to the size of vectors X and Y which are equivalent to the size of a single codeword n. 
+    // n_d is equivalent to the size of vectors X and Y which are equivalent to the size of a single codeword n.
     double n_d = static_cast<double>(cdc->output_block_size());
 
     // k_d is an approximation of N_PE
-    // size of N_PE_Approximate ~ len(frame)/2 - codeword size n 
+    // size of N_PE_Approximate ~ len(frame)/2 - codeword size n
     double k_d = static_cast<double>((m_framesize/2.0)) - static_cast<double>(cdc->output_block_size());
-    
+
     int q = 1; // 1 only for a pure state
-    // size of syndrome m=n-k. This only apples for a systematic code. 
+    // size of syndrome m=n-k. This only apples for a systematic code.
     int leak_EC = cdc->output_block_size() -
                   cdc->input_block_size();
 #if DEBUG >= 1
