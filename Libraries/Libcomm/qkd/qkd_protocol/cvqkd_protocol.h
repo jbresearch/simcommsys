@@ -181,7 +181,7 @@ public:
 
     double calculate_shannon_capacity_awgn()
     { // bits/use to be used to compute Beta for MDR.
-        return 0.5 * std::log2(1.0 + SNR_linear);
+        return 0.5 * std::log2(1.0 + this->SNR_linear);
     }
 
     // Calculates the L2 norm.

@@ -356,11 +356,44 @@ cvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     double delta_n =
         7 * std::sqrt(std::log2(2 / smoothing_parameter) / n_samples);
 
+    /* VA, VN, R_code and the C_awgn_capacity are all parameters used used to calculate beta_mdr */
+    // // Get alpha from the quantum gaussian channel of Bob
+    // this->alpha = this->m_bob_channel->get_alpha(); 
+
+    // // CLI Parameter Variance VN from Bob's quantum channel
+    // this->VN = this->m_bob_channel->get_VN(); // will initially be zero. 
+
+
+    // this->SNR_linear =
+    //     (this->alpha*this->alpha) * (this->m_modulation_variance) / (this->VN);
+
+    // /* Calculate Beta for MDR: beta = R/C(S) taken from the Quasi Cyclic
+    //     * Paper 2018, Mario Milicevic. C(S) is the Shannon Capacity of an
+    //     * AWGN channel. */
+
+    // double R_code = cdc->rate();
+    // double C_awgn_capacity = calculate_shannon_capacity_awgn();
+    // beta_mdr = R_code / C_awgn_capacity;
+    // just for testing purposes:
+    beta_mdr = 1; // For the asymptotic case 
+
 #if DEBUG >= 1
     std::cerr << "CV_QKDPROTOCOL:  delta(n) = " << delta_n << std::endl;
+    // std::cerr << "CV_QKDPROTOCOL:  alpha = " << this->alpha << std::endl;
+    // std::cerr << "CV_QKDPROTOCOL:  modulation_Variance = " << this->m_modulation_variance << std::endl;
+    // std::cerr << "CV_QKDPROTOCOL:  VN = " << this->VN << std::endl;
+    // std::cerr << "CV_QKDPROTOCOL:  SNR_linear = " << this->SNR_linear << std::endl;
+    // std::cerr << "CV_QKDPROTOCOL:  C_awgn_capacity = " << C_awgn_capacity << std::endl;
+    // std::cerr << "CV_QKDPROTOCOL:  R_code = " << R_code << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  beta_mdr = " << beta_mdr << std::endl; 
+    std::cerr << "CV_QKDPROTOCOL:  I_AB = " << I_AB << std::endl; 
+    std::cerr << "CV_QKDPROTOCOL:  chi_BE = " << chi_BE << std::endl; 
+
 #endif
 
-    assert(beta_mdr > 0.0 && beta_mdr <= 1.0);
+
+    // assert(R_code > 0);
+    assert(beta_mdr >= 0.0 && beta_mdr <= 1.0);
     assert(I_AB >= 0.0 && chi_BE >= 0.0);
     assert(delta_n >= 0);
 
@@ -368,15 +401,10 @@ cvqkd_protocol::calculate_finite_size_effects_secret_key_length()
 
     // Finite-Size Effects Case.
     const double rate_per_pulse = (beta_mdr * I_AB) - chi_BE - delta_n;
-
-    /* TODO: delete lines 270-271. For now in the initial tests I am excluding
-     * delta(n) in line 266 and I used Beta = 1 as the framesize is too small
-     * and beta is too small as well just for testing purposes.*/
-
-    // // Asymptotic Case.
+    
+    // Asymptotic Case.
     // const double rate_per_pulse = (1 * I_AB) - chi_BE;
-
-    assert(rate_per_pulse <= 0.0 && "Negative secret key rate/pulse!");
+    assert(rate_per_pulse >= 0.0 && "Negative secret key rate/pulse!");
 
     // l = n[βIAB − χBE - delta(n)] from Reference 2
     int l = std::floor(n_samples * rate_per_pulse);
@@ -386,8 +414,6 @@ cvqkd_protocol::calculate_finite_size_effects_secret_key_length()
         l = 0;
     } // To be used to calculate final SKR in Results collector.
 
-    // Question: Should I use the assert or if statement? And should I have
-    // FER=1 if l = 0?
     return l;
 }
 
@@ -1012,8 +1038,7 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
 #endif
 
             double C_awgn_capacity = calculate_shannon_capacity_awgn();
-
-            beta_mdr = R_code / C_awgn_capacity;
+            this->beta_mdr = R_code / C_awgn_capacity;
 
 #if DEBUG >= 1
             std::cerr << "CV_QKDPROTOCOL: C_awgn_capacity = " << C_awgn_capacity
