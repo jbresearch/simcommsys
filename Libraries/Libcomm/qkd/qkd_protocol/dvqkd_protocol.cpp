@@ -36,7 +36,8 @@ dvqkd_protocol::init(qkd_commsys<qubit, bool, libbase::vector>* qkdcommsys)
     this->m_bob_channel = qkdcommsys->get_bob_channel();
     assert(this->m_bob_channel && "qkd_commsys did not provide Bob's channel.");
 
-    // Get size of framesize for a single frame. Sizes of measurement vectors before sifting are equal to the framesize.
+    // Get size of framesize for a single frame. Sizes of measurement vectors
+    // before sifting are equal to the framesize.
     this->m_framesize = qkdcommsys->input_block_size();
 }
 
@@ -191,11 +192,11 @@ dvqkd_protocol::get_alice_observables(int framesize)
 
 void
 dvqkd_protocol::split(const libbase::vector<bool>& alice_measurements,
-          const libbase::vector<bool>& bob_measurements,
-          libbase::vector<bool>& X,
-          libbase::vector<bool>& Y,
-          libbase::vector<bool>& X_PE,
-          libbase::vector<bool>& Y_PE)
+                      const libbase::vector<bool>& bob_measurements,
+                      libbase::vector<bool>& X,
+                      libbase::vector<bool>& Y,
+                      libbase::vector<bool>& X_PE,
+                      libbase::vector<bool>& Y_PE)
 {
     assert(alice_measurements.size() == bob_measurements.size() &&
            "Alice and Bob's measurement vector sizes are not equal.");
@@ -288,21 +289,23 @@ dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     std::cout << "DV_QKDPROTOCOL: eps_sec = " << eps_sec << std::endl;
 #endif
 
-    // n_d is equivalent to the size of vectors X and Y which are equivalent to the size of a single codeword n.
-    double n_d = static_cast<double>(cdc->output_block_size());
+    // n_d is equivalent to the size of vectors X and Y which are equivalent to
+    // the size of a single codeword n.
+    const double n_d = static_cast<double>(cdc->output_block_size());
 
     // k_d is an approximation of N_PE
     // size of N_PE_Approximate ~ len(frame)/2 - codeword size n
-    double k_d = static_cast<double>((m_framesize/2.0)) - static_cast<double>(cdc->output_block_size());
+    const double k_d = static_cast<double>(m_framesize / 2.0) - n_d;
 
-    int q = 1; // 1 only for a pure state
+    const int q = 1; // 1 only for a pure state
     // size of syndrome m=n-k. This only apples for a systematic code.
-    int leak_EC = cdc->output_block_size() -
-                  cdc->input_block_size();
+    const int leak_EC = cdc->output_block_size() - cdc->input_block_size();
+
 #if DEBUG >= 1
     std::cout << "DV_QKDPROTOCOL: Length of key after split and PE: n_d = "
               << n_d << std::endl;
-    std::cout << "DV_QKDPROTOCOL: Length of PE bits: k_d = " << k_d << std::endl;
+    std::cout << "DV_QKDPROTOCOL: Length of PE bits: k_d = " << k_d
+              << std::endl;
     std::cout << "DV_QKDPROTOCOL: Leak_EC = " << leak_EC << std::endl;
 #endif
 
@@ -315,8 +318,7 @@ dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     const double term1 = (n_d + k_d) / (n_d * k_d);
     const double term2 = (k_d + 1.0) / k_d;
     const double term3 = std::log(2.0 / eps_sec);
-
-    double mu = std::sqrt(term1 * term2 * term3);
+    const double mu = std::sqrt(term1 * term2 * term3);
     Q_worst_case = Q_tol + mu;
 
 // QBER is calculated in the parameter estimation method
@@ -330,16 +332,20 @@ dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
 
     // Calculate the correction term (Delta)
     // Formula: log2( 2 / (eps_cor * eps_sec^2) )
-    double delta = std::log2(2.0 / (eps_cor * std::pow(eps_sec, 2)));
+    const double delta = std::log(2.0 / (eps_cor * std::pow(eps_sec, 2)));
 
-    // Calculate final length 'l'
-    // Formula: l = n * [ q - h(Q_tol + mu) ] - leak_EC - delta
-    double privacy_amplification_term = binary_entropy(Q_worst_case);
+    // Calculate the privacy amplification term h(Q_tol + mu)
+    const double privacy_amplification_term = binary_entropy(Q_worst_case);
 
 #if DEBUG >= 1
     std::cout << "DV_QKDPROTOCOL: Result of Binary Entropy fn = "
               << privacy_amplification_term << std::endl;
 #endif
+
+    // Calculate final length 'l'
+    // Formula: l = n * [ q - h(Q_tol + mu) ] - leak_EC - delta
+    const double ell = n_d * (q - privacy_amplification_term) -
+               static_cast<double>(leak_EC) - delta;
 
     /* Note:
     Finite-key analysis requires n and k to be in the order of 10^4 to 10^5 to
@@ -347,11 +353,8 @@ dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
     too high to guarantee any secrecy.
     */
 
-    double l = n_d * (q - privacy_amplification_term) -
-               static_cast<double>(leak_EC) - delta;
-
     // Return 0 if the result is negative
-    return static_cast<int>(std::floor(std::max(0.0, l)));
+    return static_cast<int>(std::floor(std::max(0.0, ell)));
 }
 
 /*! \brief Estimates the channel error rate (QBER) and calculates the final
