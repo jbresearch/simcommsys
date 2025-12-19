@@ -42,8 +42,8 @@ class qkd_errors_hamming :  public results_collector<typename libbase::vector<bo
 {
 protected:
     /*! \name System Interface */
-    int source_length = 0; // Framesize
-    int secret_key_length = 0;
+    int source_length = 0; //<! Number of generated qubits per frame
+    int secret_key_length = 0; //<! Calculated length of secret key from parameter estimation
 public:
     virtual ~qkd_errors_hamming() {}
 
