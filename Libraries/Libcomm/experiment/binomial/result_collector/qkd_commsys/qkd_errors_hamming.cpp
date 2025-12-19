@@ -64,6 +64,7 @@ qkd_errors_hamming::compute_result_and_accumulate(
     if (key_KA.size() == 0) {
         return;
     }
+    assert(key_KA.size() == secret_key_length);
     const int symerrors = libbase::hamming(key_KA, key_KB);
     // SER = sum(hamming(KA,KB)) / sum(len(KA))
     accumulated_result(1) += symerrors;
