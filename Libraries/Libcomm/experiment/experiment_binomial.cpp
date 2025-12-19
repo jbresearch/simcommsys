@@ -33,6 +33,9 @@ experiment_binomial::derived_reset()
     if (sum.size() > 0) {
         sum = 0;
     }
+    if (count.size() > 0) {
+        count = 0;
+    }
 }
 
 void
@@ -73,8 +76,9 @@ experiment_binomial::estimate(libbase::vector<double>& estimate,
     // compute results
     for (int i = 0; i < result_count(); i++) {
 #ifdef DEBUG
-        if(count(i) == 0) {
-            std::cout << "experiment_binomial: count(" << i << ") = " << count(i) << std::endl;
+        if (count(i) == 0) {
+            std::cout << "experiment_binomial: count(" << i
+                      << ") = " << count(i) << std::endl;
         }
 #endif
         // estimate is the proportion
