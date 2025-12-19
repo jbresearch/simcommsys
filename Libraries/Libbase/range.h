@@ -221,8 +221,7 @@ public:
      */
     iterator end() { return iterator(*this, this->stop); }
 
-    /*! \brief Parse range from input stream.auto
-auto
+    /*! \brief Parse range from input stream.
      */
     friend std::istream& operator>>(std::istream& is, range& r)
     {
