@@ -60,6 +60,9 @@ qkd_errors_hamming::compute_result_and_accumulate(
     // SKR = sum(len(KA)) / sum(len(source))
     accumulated_result(0) += key_KA.size();
     accumulated_count(0) += source_length;
+    // AKR = sum(len(KA)>0) / sum(samples)
+    accumulated_result(1) += key_KA.size() ? 1 : 0;
+    accumulated_count(1) += 1;
     // Count errors, if we actually have a non-zero length key
     if (key_KA.size() == 0) {
         return;
@@ -67,11 +70,11 @@ qkd_errors_hamming::compute_result_and_accumulate(
     assert(key_KA.size() == secret_key_length);
     const int symerrors = libbase::hamming(key_KA, key_KB);
     // SER = sum(hamming(KA,KB)) / sum(len(KA))
-    accumulated_result(1) += symerrors;
-    accumulated_count(1) += secret_key_length;
+    accumulated_result(2) += symerrors;
+    accumulated_count(2) += secret_key_length;
     // FER = sum(hamming(KA,KB)>0) / sum(samples)
-    accumulated_result(2) += symerrors ? 1 : 0;
-    accumulated_count(2) += 1;
+    accumulated_result(3) += symerrors ? 1 : 0;
+    accumulated_count(3) += 1;
 }
 
 // Serialisation interface
