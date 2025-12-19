@@ -355,6 +355,7 @@ public:
         rgit = --ranges.end();
         for (; itit != iterators.rend(); --rgit, ++itit) {
             *itit = rgit->end();
+            ++(*itit);
         }
 
         return *this;
