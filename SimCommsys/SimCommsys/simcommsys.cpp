@@ -243,9 +243,7 @@ main(int argc, char* argv[])
 
                 cerr << "[" << params_count << "/" << params_total_count
                      << "] Simulating system at parameters = ";
-                for (int i = 0; i < params.size(); i++)
-                    cerr << params(i) << ", ";
-                cerr << std::endl;
+                params.serialize(cerr, ", ");
                 libbase::vector<double> estimate, errormargin;
                 estimator.estimate(estimate, errormargin);
 
