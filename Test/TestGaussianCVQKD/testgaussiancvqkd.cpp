@@ -970,3 +970,247 @@ quantum_gaussian_source
 
     std::cout << "Batch processing complete. Results saved to " << output_csv_filename << std::endl;
 }
+
+BOOST_AUTO_TEST_CASE(test_cvqkd_batch_processing_from_csv_signal_gated,  *boost::unit_test::disabled())
+{
+    std::cout << "\n***** Starting Batch CSV Processing *****\n";
+
+    // Define File Paths
+    // Input File (Read from Test_Data)
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/Test_Data_Signal_Gated/fog_thin_cirrus_rep_rate_200_snr_window_03_ns.csv";
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/Test_Data_Signal_Gated/snow_cirrus_rep_rate_200_snr_window_03_ns.csv";
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/Test_Data_Signal_Gated/snow_thin_cirrus_rep_rate_200_snr_window_03_ns.csv";
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/Test_Data_Signal_Gated/clear_rep_rate_200_snr_window_03_ns.csv";
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/Test_Data_Signal_Gated/rain_thin_cirrus_rep_rate_200_snr_window_03_ns.csv";
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/Test_Data_Signal_Gated/rain_cirrus_rep_rate_200_snr_window_03_ns.csv";
+    const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/Test_Data_Signal_Gated/fog_cirrus_rep_rate_200_snr_window_03_ns.csv";
+
+
+    // Output File (Write to Results folder)
+    // const std::string output_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Results_signal_gated/fog_thin_cirrus_rep_rate_200_snr_window_03_ns_results.csv";
+    // const std::string output_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Results_signal_gated/snow_cirrus_rep_rate_200_snr_window_03_ns_results.csv";
+    // const std::string output_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Results_signal_gated/snow_thin_cirrus_rep_rate_200_snr_window_03_ns_results.csv";
+    // const std::string output_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Results_signal_gated/clear_rep_rate_200_snr_window_03_ns_results.csv";
+    // const std::string output_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Results_signal_gated/rain_thin_cirrus_rep_rate_200_snr_window_03_ns_results.csv";
+    // const std::string output_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Results_signal_gated/rain_cirrus_rep_rate_200_snr_window_03_ns_results.csv";
+    const std::string output_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Results_signal_gated/fog_thin_cirrus_rep_rate_200_snr_window_03_ns_results.csv";
+
+
+    std::stringstream cfg;
+    /* QKD Commsys Serialisation */
+    cfg << R"SS(
+# Version
+1
+# Frame size (# of quantum states in a frame)
+100000
+## Alice's channel
+identity_quantum_channel
+## Bob's channel
+gaussian_quantum_channel
+# Mean of the Gaussian Quantum Channel
+0.0
+# Fading Coefficient alpha
+0.34641
+## Postprocessing protocol
+cvqkd_protocol
+# Version
+1
+# N_PE
+99993
+# VA, VN, alpha from parameter estimation?
+1
+# Smoothing Parameter
+1e-4
+# Alphabet size
+2
+# Codec
+ldpc<gf2,double>
+# Version
+5
+# SPA type (trad|gdl)
+gdl
+# Number of iterations
+50
+# Clipping method
+zero
+# Value of almostzero
+1e-100
+# Reduce generator matrix to REF? (true|false)
+1
+# Length (n)
+7
+# Dimension (m)
+7
+# Max column weight
+3
+# Max row weight
+3
+# Non-zero values (ones|random|provided)
+ones
+# Column weight vector
+7
+3 3 3 3 3 3 3
+# Row weight vector
+7
+3 3 3 3 3 3 3
+# Non zero positions per col
+3
+1 5 7
+3
+1 2 6
+3
+2 3 7
+3
+1 3 4
+3
+2 4 5
+3
+3 5 6
+3
+4 6 7
+# Embedder
+direct_block_informed_embedder<double,vector,double>
+sign<double>
+)SS";
+
+    auto sys = std::make_shared<libcomm::qkd_commsys<libcomm::gaussian_state,
+                                                     double,
+                                                     libbase::vector>>();
+    sys->serialize(cfg);
+
+    // Setup RNG and Source
+    auto rng = std::make_shared<libbase::randgen>();
+    rng->seed(8);
+    sys->seedfrom(*rng);
+
+    std::stringstream ss_src;
+    ss_src << R"SS(
+quantum_gaussian_source
+# Mean of Q_Mean
+0.0
+# Stddev of Q_Mean
+4.30116
+# Mean of P_Mean
+0.0
+# Stddev of P_Mean
+4.30116
+# Stddev of Q
+1.0
+# Stddev of P
+1.0
+)SS";
+
+    std::shared_ptr<libcomm::source<libcomm::gaussian_state>> s_ptr;
+    ss_src >> s_ptr;
+    auto* src = dynamic_cast<libcomm::quantum_gaussian_source*>(s_ptr.get());
+
+    libbase::randgen r_src;
+
+    // Initialise qkd_simulator
+    using S = libcomm::gaussian_state;
+    using T = double;
+
+    auto sim = std::make_shared<libcomm::qkd_commsys_simulator<S, T>>(
+        std::static_pointer_cast<libbase::random>(rng),
+        s_ptr,
+        sys);
+    
+    /* Read original CSV file */
+    std::ifstream file_in(input_csv_filename);
+    if (!file_in.is_open()) {
+        BOOST_FAIL("Could not open input CSV file: " + input_csv_filename);
+    }
+
+    std::vector<std::vector<std::string>> csv_data;
+    std::string line;
+    
+    // Read all lines
+    while (std::getline(file_in, line)) {
+        if (!line.empty() && line.back() == '\r') line.pop_back(); // Handle Windows line endings
+        csv_data.push_back(split_csv_line(line, ','));
+    }
+    file_in.close();
+
+    /* Process Rows and Run Simulation */
+    
+    const int IDX_ALPHA_HAT = 7;
+    const int IDX_VA_HAT = 10;
+    const int IDX_VN = 11;
+    const int IDX_VN_HAT = 12;
+    const int IDX_I_AB = 13;
+    const int IDX_CHI_BE = 14;
+    const int IDX_MI_CHECK = 15;
+
+    std::cout << "Processing " << csv_data.size() - 1 << " rows..." << std::endl;
+
+    // Start from i = 1 to skip header
+    for (size_t i = 1; i < csv_data.size(); ++i) {
+        try {
+
+            // Reset the seed to ensure Alice generates the exact same sequence 
+            // every time. This isolates the effect of changing VN.
+            r_src.seed(2602);
+            src->seedfrom(r_src);
+
+            // Generate unmeasured sequence of states
+            int framesize = sys->input_block_size();
+            // std::cout << "Generating source sequence of size " << framesize << "..." << std::endl;
+            libbase::vector<libcomm::gaussian_state> source = 
+            src->generate_sequence(libbase::size_type<libbase::vector>(framesize));
+
+            // Get VN from CSV
+            std::string vn_str = csv_data[i][IDX_VN];
+            if (vn_str.empty()) continue; // Skip empty lines
+            
+            double current_vn = std::stod(vn_str);
+
+            // Update channel parameter
+            libbase::vector<double> cli;
+            cli.init(sys->get_num_params());
+            cli(0) = current_vn; 
+            sys->set_parameters(cli);
+
+            // Run Simulation
+            auto [MI_Check, I_AB, chi_BE, VA_hat, VN_res, VN_hat, alpha_hat, len_key] = 
+                sys->fullcyclecvqkdresults(source);
+
+            // Update CSV Data in memory
+            // Ensure vector is large enough (handle trailing empty commas)
+            if (csv_data[i].size() <= IDX_MI_CHECK) {
+                csv_data[i].resize(IDX_MI_CHECK + 1);
+            }
+
+            csv_data[i][IDX_ALPHA_HAT] = std::to_string(alpha_hat);
+            csv_data[i][IDX_VA_HAT] = std::to_string(VA_hat);
+            csv_data[i][IDX_VN_HAT] = std::to_string(VN_hat);
+            csv_data[i][IDX_I_AB] = std::to_string(I_AB);
+            csv_data[i][IDX_CHI_BE] = std::to_string(chi_BE);
+            csv_data[i][IDX_MI_CHECK] = std::to_string(MI_Check);
+
+            std::cout << "Row " << i << ": VN =" << current_vn 
+                                << " -> alpha_hat =" << alpha_hat 
+                                << " -> I_AB =" << I_AB << std::endl;
+
+        } catch (const std::exception& e) {
+            std::cerr << "Error processing row " << i << ": " << e.what() << std::endl;
+        }
+    }
+
+    /* SAVE TO OUTPUT CSV FILE */
+  
+    std::ofstream file_out(output_csv_filename); // Writes to new file
+    if (!file_out.is_open()) {
+        BOOST_FAIL("Could not open output CSV file for writing: " + output_csv_filename);
+    }
+
+    for (const auto& row : csv_data) {
+        for (size_t j = 0; j < row.size(); ++j) {
+            file_out << row[j];
+            if (j < row.size() - 1) file_out << ",";
+        }
+        file_out << "\n";
+    }
+    file_out.close();
+
+    std::cout << "Batch processing complete. Results saved to " << output_csv_filename << std::endl;
+}
