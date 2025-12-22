@@ -27,12 +27,14 @@ cvqkd_protocol::init(
     // Safely cast to the derived class we need
     auto& src_gen = dynamic_cast<quantum_gaussian_source&>(*src_gen_base);
 
-    // Get modulation variance from the source
-    m_modulation_variance = src_gen.get_VA();
+    // Get modulation variance VA from the source
+    this->m_modulation_variance = src_gen.get_VA();
 
     // Get Bob's quantum channel from qkd_commsys
     this->m_bob_channel = qkdcommsys->get_bob_channel();
     assert(this->m_bob_channel && "qkd_commsys did not provide Bob's channel.");
+ 
+
 }
 
 // Split fn to be used for parameter estimation and post-processing.
@@ -301,22 +303,6 @@ cvqkd_protocol::calculate_holevo_bound(double VA_hat,
     return chi_BE; // In bits/pulse
 }
 
-double
-cvqkd_protocol::compute_beta_mdr(double code_rate)
-{
-    // beta is the reconciliation efficiency for MDR
-    assert(code_rate >= 0.0);
-    const double C = calculate_shannon_capacity_awgn();
-    assert(C > 0.0 && "Capacity is zero (SNR too low) — cannot compute beta");
-
-    const double beta = code_rate / C;
-
-    assert(beta > 1 && "beta = R/C exceeded 1.0 — code rate above capacity or "
-                       "wrong capacity model.");
-
-    return beta;
-}
-
 const int
 cvqkd_protocol::calculate_secret_key_length()
 {
@@ -364,7 +350,8 @@ cvqkd_protocol::calculate_secret_key_length()
     double I_AB = 0.5 * std::log2(1.0 + snr_linear);
     double chi_BE = calculate_holevo_bound(VA, alpha, VN);
 
-    // Calculate Beta for MDR
+     /* Calculate Beta for MDR: beta = R/C(S) taken from the Quasi Cyclic
+      * Paper 2018, Mario Milicevic. C(S) is the Shannon Capacity of an AWGN channel. */
     double R_code = cdc->rate(); // code rate of LDPC code 
     double C_awgn = 0.5 * std::log2(1.0 + snr_linear); // Capacity of AWGN channel 
     double beta = (C_awgn > 0) ? (R_code / C_awgn) : 0;
@@ -373,41 +360,18 @@ cvqkd_protocol::calculate_secret_key_length()
     double delta_n =
         7 * std::sqrt(std::log2(2 / smoothing_parameter) / n_samples);
 
-    /* VA, VN, R_code and the C_awgn_capacity are all parameters used used to calculate beta_mdr */
-    // // Get alpha from the quantum gaussian channel of Bob
-    // this->alpha = this->m_bob_channel->get_alpha(); 
-
-    // // CLI Parameter Variance VN from Bob's quantum channel
-    // this->VN = this->m_bob_channel->get_VN(); // will initially be zero. 
-
-
-    // this->SNR_linear =
-    //     (this->alpha*this->alpha) * (this->m_modulation_variance) / (this->VN);
-
-    // /* Calculate Beta for MDR: beta = R/C(S) taken from the Quasi Cyclic
-    //     * Paper 2018, Mario Milicevic. C(S) is the Shannon Capacity of an
-    //     * AWGN channel. */
-
-    // double R_code = cdc->rate();
-    // double C_awgn_capacity = calculate_shannon_capacity_awgn();
-    // beta_mdr = R_code / C_awgn_capacity;
-    // just for testing purposes:
-    beta_mdr = 1; // For the asymptotic case 
-
 #if DEBUG >= 1
     std::cerr << "CV_QKDPROTOCOL:  delta(n) = " << delta_n << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  alpha = " << alpha << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  modulation_Variance = " << this->m_modulation_variance << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  VN = " << VN << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  modulation variance VA = " << this->m_modulation_variance << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  noise variance VN = " << VN << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  SNR_linear = " << snr_linear << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  C_awgn_capacity = " << C_awgn << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  Rate R of LDPC code = " << R_code << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  Reconciliation Efficiency Beta = " << beta << std::endl; 
     std::cerr << "CV_QKDPROTOCOL:  I_AB = " << I_AB << std::endl; 
     std::cerr << "CV_QKDPROTOCOL:  chi_BE = " << chi_BE << std::endl; 
-
 #endif
-
 
     // assert(R_code > 0);
     assert(beta >= 0.0 && beta <= 1.0);
@@ -549,15 +513,6 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
                   << std::endl;
 #endif
 
-#if DEBUG >= 1
-        std::cerr << "CV_QKDPROTOCOL:  Variance VN = "
-                  << (bobs_channel_parameters(0)) << std::endl;
-        std::cerr << "CV_QKDPROTOCOL:  SNR_linear = " << SNR_linear
-                  << std::endl;
-        std::cerr << "CV_QKDPROTOCOL:  SNR_dB = " << SNR_dB
-                  << std::endl << std::endl;
-#endif
-
         // Initialise and generate Bob's vector s which has size k.
         bob_vector_s.init(cdc->input_block_size());
         for (int i = 0; i < cdc->input_block_size(); ++i) {
@@ -682,7 +637,6 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 #if DEBUG >= 1
             std::cerr << "CV_QKDPROTOCOL: len_secret_key = " << this->len_secret_key
                       << std::endl;
-            std::cerr << "CV_QKDPROTOCOL: beta_mdr = " << beta_mdr << std::endl;
 #endif
 
             if (this->len_secret_key > 0) {
@@ -773,7 +727,6 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
     // codec)
     assert(N_PE == alice_measurements.size() - cdc->output_block_size() && "N_PE does not match sifted key size minus n");
 
-
 #if DEBUG >= 1
     std::cout 
         << "Length of Secret Key = " << this->len_secret_key << std::endl; 
@@ -808,6 +761,7 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
     double VA_hat, VN_hat, alpha_hat;
     if(estimate_parameters)
     {
+        
         // Calculate parameters from parameter estimation using Ryan's derived equations. 
         std::tie(VA_hat, VN_hat, alpha_hat) = parameter_estimation(X_PE, Y_PE);
 
@@ -833,26 +787,6 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
 #endif
     }
 
-    /* Gets variance VN from Bob's Gaussian Quantum Channel*/
-    libbase::vector<double> bobs_channel_parameters;
-    bobs_channel_parameters.init(1);
-    bobs_channel_parameters = this->m_bob_channel->get_parameters();
-
-    // Get alpha from the quantum gaussian channel of Bob
-    alpha = this->m_bob_channel->get_alpha(); 
-
-    // CLI Parameter Variance VN from Bob's quantum channel
-    VN = m_bob_channel->get_VN();
-
-#if DEBUG >= 1
-    std::cout << "Parameters directly from objects: " << std::endl;
-    std::cout << "CV_QKDPROTOCOL:  modulation variance V_A = "
-              << m_modulation_variance << std::endl;
-    std::cout << "CV_QKDPROTOCOL:  noise variance V_N = "
-              << VN << std::endl;
-    std::cout << "CV_QKDPROTOCOL:  Fading Coefficient alpha = " << alpha
-              << std::endl;
-#endif 
     // CLI parameter of the gaussian quantum channel.
     // TO CONFIRM whether I also need to serialize this in the 
     // the cvqkdprotocol.cpp as part of the switch as I did for DV-QKD.    
@@ -893,15 +827,6 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
 #if DEBUG >= 1
         std::cerr << "CV_QKDPROTOCOL:  Mutual Information Check MI_Check = true"
                   << std::endl;
-#endif
-
-#if DEBUG >= 1
-        std::cerr << "CV_QKDPROTOCOL:  Variance VN = "
-                  << (bobs_channel_parameters(0)) << std::endl;
-        std::cerr << "CV_QKDPROTOCOL:  SNR_linear = " << SNR_linear
-                  << std::endl;
-        std::cerr << "CV_QKDPROTOCOL:  SNR_dB = " << SNR_dB
-                  << std::endl << std::endl;
 #endif
 
         // Initialise and generate Bob's vector s which has size k.
@@ -1034,7 +959,6 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
 #if DEBUG >= 1
             std::cerr << "CV_QKDPROTOCOL: len_secret_key = " << this->len_secret_key
                       << std::endl;
-            std::cerr << "CV_QKDPROTOCOL: beta_mdr = " << beta_mdr << std::endl;
 #endif
 
             if (this->len_secret_key > 0) {
