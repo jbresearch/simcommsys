@@ -352,6 +352,21 @@ cvqkd_protocol::calculate_secret_key_length()
     assert(n_samples > 0);
     assert(smoothing_parameter > 0);
 
+    // Fetch current state directly from objects. 
+    double VA = m_modulation_variance; 
+    // fading coeffiecient alpha
+    double alpha = m_bob_channel->get_alpha(); 
+    double VN = m_bob_channel->get_VN(); 
+    double snr_linear = (alpha*alpha*VA)/VN;
+    // Mutual Information and Holevo Bound
+    double I_AB = 0.5 * std::log2(1.0 + snr_linear);
+    double chi_BE = calculate_holevo_bound(VA, alpha, VN);
+
+    // Calculate Beta for MDR
+    double R_code = cdc->rate(); // code rate of LDPC code 
+    double C_awgn = 0.5 * std::log2(1.0 + snr_linear); // Capacity of AWGN channel 
+    double beta = (C_awgn > 0) ? (R_code / C_awgn) : 0;
+
     // Equation (32) from Reference 2
     double delta_n =
         7 * std::sqrt(std::log2(2 / smoothing_parameter) / n_samples);
@@ -379,13 +394,13 @@ cvqkd_protocol::calculate_secret_key_length()
 
 #if DEBUG >= 1
     std::cerr << "CV_QKDPROTOCOL:  delta(n) = " << delta_n << std::endl;
-    // std::cerr << "CV_QKDPROTOCOL:  alpha = " << this->alpha << std::endl;
-    // std::cerr << "CV_QKDPROTOCOL:  modulation_Variance = " << this->m_modulation_variance << std::endl;
-    // std::cerr << "CV_QKDPROTOCOL:  VN = " << this->VN << std::endl;
-    // std::cerr << "CV_QKDPROTOCOL:  SNR_linear = " << this->SNR_linear << std::endl;
-    // std::cerr << "CV_QKDPROTOCOL:  C_awgn_capacity = " << C_awgn_capacity << std::endl;
-    // std::cerr << "CV_QKDPROTOCOL:  R_code = " << R_code << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  beta_mdr = " << beta_mdr << std::endl; 
+    std::cerr << "CV_QKDPROTOCOL:  alpha = " << alpha << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  modulation_Variance = " << this->m_modulation_variance << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  VN = " << VN << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  SNR_linear = " << snr_linear << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  C_awgn_capacity = " << C_awgn << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  Rate R of LDPC code = " << R_code << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  Reconciliation Efficiency Beta = " << beta << std::endl; 
     std::cerr << "CV_QKDPROTOCOL:  I_AB = " << I_AB << std::endl; 
     std::cerr << "CV_QKDPROTOCOL:  chi_BE = " << chi_BE << std::endl; 
 
@@ -393,14 +408,14 @@ cvqkd_protocol::calculate_secret_key_length()
 
 
     // assert(R_code > 0);
-    assert(beta_mdr >= 0.0 && beta_mdr <= 1.0);
+    assert(beta >= 0.0 && beta <= 1.0);
     assert(I_AB >= 0.0 && chi_BE >= 0.0);
     assert(delta_n >= 0);
 
     // Equation from reference 2
 
     // Finite-Size Effects Case.
-    const double rate_per_pulse = (beta_mdr * I_AB) - chi_BE - delta_n;
+    const double rate_per_pulse = (beta * I_AB) - chi_BE - delta_n;
     
     // Asymptotic Case.
     // const double rate_per_pulse = (1 * I_AB) - chi_BE;
