@@ -212,7 +212,7 @@ cvqkd_protocol::calculate_mutual_information(double SNR_linear)
     SNR is linear.  
     */
 
-    I_AB = 0.5 * std::log2(1 + SNR_linear); // In bits/pulse
+    double I_AB = 0.5 * std::log2(1 + SNR_linear); // In bits/pulse
     // I_AB_kbps = I_AB * repetition_rate;
 
     return I_AB; 
@@ -538,7 +538,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     double SNR_dB = 10.0 * std::log10(SNR_linear);
 
     // Calculate Mutual Information I_AB
-    I_AB = calculate_mutual_information(SNR_linear);
+    double I_AB = calculate_mutual_information(SNR_linear);
 
     // Calculate Holevo Bound Chi_BE
     chi_BE = calculate_holevo_bound(VA_hat, alpha_hat, VN_hat);
