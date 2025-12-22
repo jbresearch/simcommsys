@@ -482,10 +482,11 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         VA_hat, VN_hat and alpha_hat are taken directly from Bob's quantum channel. 
     */
 
+    double VA_hat, VN_hat, alpha_hat; 
     if(estimate_parameters)
     {
         // Calculate parameters from parameter estimation using Ryan's derived equations. 
-        auto [VA_hat, VN_hat, alpha_hat] = parameter_estimation(X_PE, Y_PE);
+         std::tie(VA_hat, VN_hat, alpha_hat) = parameter_estimation(X_PE, Y_PE);
 
 #if DEBUG >= 1
     std::cout << "Calculate Parameters from parameter estimation: " << std::endl;
@@ -497,9 +498,9 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     else
     {
         // Get the parameters directly from the objects.
-        double VA_hat = m_modulation_variance;
-        double alpha_hat = m_bob_channel->get_alpha();
-        double VN_hat = m_bob_channel->get_VN();
+        VA_hat = m_modulation_variance;
+        alpha_hat = m_bob_channel->get_alpha();
+        VN_hat = m_bob_channel->get_VN();
         
 #if DEBUG >= 1
     std::cout << "Parameters are taken directly from objects: " << std::endl;
@@ -508,57 +509,38 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     std::cerr << "CV_QKDPROTOCOL:  VN_hat = " << VN_hat << std::endl << std::endl;
 #endif
     }
-
-    /* Gets variance VN from Bob's Gaussian Quantum Channel*/
-    libbase::vector<double> bobs_channel_parameters;
-    bobs_channel_parameters.init(1);
-    bobs_channel_parameters = this->m_bob_channel->get_parameters();
-
-    // Get alpha from the quantum gaussian channel of Bob
-    alpha = this->m_bob_channel->get_alpha(); 
-
-    // CLI Parameter Variance VN from Bob's quantum channel
-    VN = m_bob_channel->get_VN();
-
-#if DEBUG >= 1
-    std::cout << "Parameters directly from objects: " << std::endl;
-    std::cout << "CV_QKDPROTOCOL:  modulation variance V_A = "
-              << m_modulation_variance << std::endl;
-    std::cout << "CV_QKDPROTOCOL:  noise variance V_N = "
-              << VN << std::endl;
-    std::cout << "CV_QKDPROTOCOL:  Fading Coefficient alpha = " << alpha
-              << std::endl;
-#endif 
-    // CLI parameter of the gaussian quantum channel.
-    // TO CONFIRM whether I also need to serialize this in the 
-    // the cvqkdprotocol.cpp as part of the switch as I did for DV-QKD.    
-    SNR_linear =
-        (alpha * alpha) * (this->m_modulation_variance) / (VN);
+ 
+    double SNR_linear_hat =
+        (alpha_hat * alpha_hat) * (VA_hat) / (VN_hat);
 
     // Convert SNR to dB
-    double SNR_dB = 10.0 * std::log10(SNR_linear);
+    double SNR_dB = 10.0 * std::log10(SNR_linear_hat);
 
     // Calculate Mutual Information I_AB
-    double I_AB = calculate_mutual_information(SNR_linear);
+    double I_AB_est = calculate_mutual_information(SNR_linear_hat);
 
     // Calculate Holevo Bound Chi_BE
-    chi_BE = calculate_holevo_bound(VA_hat, alpha_hat, VN_hat);
+    double chi_BE_est = calculate_holevo_bound(VA_hat, alpha_hat, VN_hat);
 
     // chi_be can never be negative
-    if (chi_BE < 0) {
-        chi_BE = 0; // chi can never be negative.
+    if (chi_BE_est < 0) {
+        chi_BE_est = 0; // chi can never be negative.
     }
 
 #if DEBUG >= 1
-    std::cerr << "CV_QKDPROTOCOL:  Mutual Information I_AB = " << I_AB
+    std::cerr << "CV_QKDPROTOCOL:  Estimated Mutual Information I_AB from PE = " << I_AB_est
               << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  Holevo Bound Chi_BE = " << chi_BE
+    std::cerr << "CV_QKDPROTOCOL:  Estimated Holevo Bound Chi_BE from PE = " << chi_BE_est
               << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  SNR_linear_hat = " << SNR_linear_hat
+                << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  SNR_dB = " << SNR_dB
+                << std::endl << std::endl;
 #endif 
 
     /* Checks whether the protocol is aborted or not to continue with the
      * Information Reconciliation stage. */
-    MI_Check = (I_AB > chi_BE);
+    MI_Check = (I_AB_est > chi_BE_est);
 
     if (MI_Check) {
 
