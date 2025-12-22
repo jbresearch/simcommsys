@@ -54,13 +54,9 @@ private:
     double VA_hat = 0.0;
     double m_modulation_variance = 0.0;
     double alpha_hat;
-    double alpha; // fading coefficient 
-    double VN; // noise variance VN
     double VN_hat; 
 
     double smoothing_parameter; //!< True for calculating V_A, V_N and alpha from parameter estimation.
-    double I_AB = 0.0;      // Mutual Information between Alice and Bob.
-    double chi_BE = 0.0;    // Holevo Bound between Bob and Eve for RR.
     bool estimate_parameters; // 
     bool MI_Check = false;  // MI check that verifies if I_AB > X_B?
     bool H_check = false;   // Hash check that verifies if hash_hs == hash_hsat?
@@ -70,9 +66,6 @@ private:
 
     // Vector s from Bob from qkd_commsys
     libbase::vector<bool> bob_vector_s;
-
-    double beta_mdr;         // Reconciliation Efficiency for MDR.
-    double SNR_linear = 0.0; // Retrieved from bob's quantum channel.
 
     // Alphabet size to be used in embedder for modem and privacy amplification.
     int alphabet_size;
@@ -178,12 +171,7 @@ public:
     double calculate_holevo_bound(double VA_hat,
                                        double alpha_hat,
                                        double VN_hat);                           
-
-    double calculate_shannon_capacity_awgn()
-    { // bits/use to be used to compute Beta for MDR.
-        return 0.5 * std::log2(1.0 + this->SNR_linear);
-    }
-
+                                       
     // Calculates the L2 norm.
     static double l2(const libbase::vector<double>& v)
     {
