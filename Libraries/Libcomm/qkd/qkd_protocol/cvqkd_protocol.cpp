@@ -673,11 +673,11 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
             std::cerr << "CV_QKDPROTOCOL: H_check = true" << std::endl;
 #endif
 
-            /* Calculate Beta for MDR: beta = R/C(S) taken from the Quasi Cyclic
-             * Paper 2018, Mario Milicevic. C(S) is the Shannon Capacity of an
-             * AWGN channel. */
-
-            double R_code = cdc->rate();
+            /* Calculate length l of final secret key directly from Parameter estimation
+            STILL TO THINK HOW WE WILL DO THIS to calculate the length of the secret key directly from the estimated values.
+            we also need to check if it is being done this way  
+            // To calculate l the following are needed: R_Code, C_awgn, SNR_linear, beta, I_AB and X_BE
+            // len_secret_key = calculate_secret_key_length(); */
 
 #if DEBUG >= 1
             std::cerr << "CV_QKDPROTOCOL: len_secret_key = " << this->len_secret_key
