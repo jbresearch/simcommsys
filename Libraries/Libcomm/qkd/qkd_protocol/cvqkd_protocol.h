@@ -50,8 +50,7 @@ private:
 
     int framesize = 0; // Number of generated coherent states per frame.
     int N_PE;          // Number of samples used for parameter estimation
-
-    double VA_hat = 0.0;
+    
     double m_modulation_variance = 0.0;
     double alpha_hat;
     double VN_hat; 
@@ -171,7 +170,7 @@ public:
     double calculate_holevo_bound(double VA_hat,
                                        double alpha_hat,
                                        double VN_hat);                           
-                                       
+
     // Calculates the L2 norm.
     static double l2(const libbase::vector<double>& v)
     {

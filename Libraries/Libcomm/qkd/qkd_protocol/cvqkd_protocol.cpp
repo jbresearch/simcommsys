@@ -163,7 +163,7 @@ cvqkd_protocol::parameter_estimation(
     /* Map to Protocol Parameters to calculate VA_hat, alpha_hat and VN_hat */
 
     // a == VA_hat is calculated from variance of X_PE
-    VA_hat = var_x;
+    double VA_hat = var_x;
 
     // c == (alpha_hat)(VA_hat) -> alpha_hat = c / VA_hat
     alpha_hat = 0.0;
@@ -494,7 +494,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     else
     {
         // Get the parameters directly from the objects.
-        VA_hat = m_modulation_variance; 
+        double VA_hat = m_modulation_variance;
         alpha_hat = m_bob_channel->get_alpha();
         VN_hat = m_bob_channel->get_VN();
         
