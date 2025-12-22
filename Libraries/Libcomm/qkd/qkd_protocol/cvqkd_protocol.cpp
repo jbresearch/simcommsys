@@ -675,7 +675,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         } else {
 
 #if DEBUG >= 1
-            std::cerr << "CV_QKDPROTOCOL: H_check = false" << H_check
+            std::cerr << "CV_QKDPROTOCOL: H_check = " << H_check
                       << std::endl;
 #endif
         }
@@ -941,7 +941,7 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
 
         if (H_check) {
 #if DEBUG >= 1
-            std::cerr << "CV_QKDPROTOCOL: H_check = true" << std::endl;
+            std::cerr << "CV_QKDPROTOCOL: H_check = " << H_check << std::endl;
 #endif
 
             /* Calculate Beta for MDR: beta = R/C(S) taken from the Quasi Cyclic
