@@ -104,7 +104,7 @@ cvqkd_protocol::split(libbase::vector<double>& alice_measurements,
  * - alpha_hat: Estimated channel gain/coupling coefficient.
  * - VN_hat: Estimated total noise variance.
  */
-void
+ std::tuple<double, double, double>
 cvqkd_protocol::parameter_estimation(
     const libbase::vector<double>& X_PE, const libbase::vector<double>& Y_PE)
 {
@@ -166,16 +166,18 @@ cvqkd_protocol::parameter_estimation(
     double VA_hat = var_x;
 
     // c == (alpha_hat)(VA_hat) -> alpha_hat = c / VA_hat
-    alpha_hat = 0.0;
+    double alpha_hat = 0.0;
     if (VA_hat > 1e-12) { // Protection against division by zero
         alpha_hat = cov_xy / VA_hat;
     }
 
+    double VN_hat = 0.0; 
     // b == (alpha_hat)^2(VA_hat) + VN_hat -> VN_hat = b - (alpha_hat^2 * VA_hat)
     VN_hat = var_y - (alpha_hat * alpha_hat * VA_hat);
 
     // Sanity check: Noise variance shouldn't be negative due to precision errors
     if (VN_hat < 0) VN_hat = 0.0;
+    return {VA_hat, VN_hat, alpha_hat};
 }
 
 /**
@@ -482,7 +484,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     if(estimate_parameters)
     {
         // Calculate parameters from parameter estimation using Ryan's derived equations. 
-        parameter_estimation(X_PE, Y_PE);
+        auto [VA_hat, VN_hat, alpha_hat] = parameter_estimation(X_PE, Y_PE);
 
 #if DEBUG >= 1
     std::cout << "Calculate Parameters from parameter estimation: " << std::endl;
@@ -495,8 +497,8 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     {
         // Get the parameters directly from the objects.
         double VA_hat = m_modulation_variance;
-        alpha_hat = m_bob_channel->get_alpha();
-        VN_hat = m_bob_channel->get_VN();
+        double alpha_hat = m_bob_channel->get_alpha();
+        double VN_hat = m_bob_channel->get_VN();
         
 #if DEBUG >= 1
     std::cout << "Parameters are taken directly from objects: " << std::endl;

@@ -50,11 +50,7 @@ private:
 
     int framesize = 0; // Number of generated coherent states per frame.
     int N_PE;          // Number of samples used for parameter estimation
-    
     double m_modulation_variance = 0.0;
-    double alpha_hat;
-    double VN_hat; 
-
     double smoothing_parameter; //!< True for calculating V_A, V_N and alpha from parameter estimation.
     bool estimate_parameters; // 
     bool MI_Check = false;  // MI check that verifies if I_AB > X_B?
@@ -147,7 +143,7 @@ public:
     
     // Parameter Estimation for the GG02 protocol based on Ryan's equations
     // Calculates VA_hat, alpha_hat and VN_hat
-    void
+    std::tuple<double, double, double>
     parameter_estimation(const libbase::vector<double>& X_PE,
                                        const libbase::vector<double>& Y_PE);
      
