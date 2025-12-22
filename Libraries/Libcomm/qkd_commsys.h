@@ -125,7 +125,9 @@ public:
 
         this->alice_channel->set_parameters(alice_channel_params);
         this->bob_channel->set_parameters(bob_channel_params);
+        this->protocol->init(this);  
     }
+    
     libbase::vector<double> get_parameters() const override
     {
         libbase::vector<double> params;
