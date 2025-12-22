@@ -88,7 +88,7 @@ protected:
         case SECRET_KEY_LENGTH:
             // Length of the final secret key.
             return int(sys->get_protocol()
-                           ->calculate_finite_size_effects_secret_key_length());
+                           ->calculate_secret_key_length());
         case ALPHABET_SIZE:
             return int(2);
         }

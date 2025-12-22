@@ -196,7 +196,7 @@ public:
     double compute_beta_mdr(double code_rate);
 
     // Equations related to length of final secret key.
-    const int calculate_finite_size_effects_secret_key_length() override;
+    const int calculate_secret_key_length() override;
 
     // Returns final secret keys KA and KB.
     std::pair<libbase::vector<bool>, libbase::vector<bool>>

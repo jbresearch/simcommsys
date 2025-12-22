@@ -316,7 +316,7 @@ cvqkd_protocol::compute_beta_mdr(double code_rate)
 }
 
 const int
-cvqkd_protocol::calculate_finite_size_effects_secret_key_length()
+cvqkd_protocol::calculate_secret_key_length()
 {
     /**
      * Finite-Size Secret Key Length Calculation (CV-QKD)
@@ -694,7 +694,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 #endif
 
             /* Calculate length l of final secret key */
-            len_secret_key = calculate_finite_size_effects_secret_key_length();
+            len_secret_key = calculate_secret_key_length();
 
 #if DEBUG >= 1
             std::cerr << "CV_QKDPROTOCOL: len_secret_key = " << len_secret_key
@@ -1047,7 +1047,7 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
 #endif
 
             /* Calculate length l of final secret key */
-            len_secret_key = calculate_finite_size_effects_secret_key_length();
+            len_secret_key = calculate_secret_key_length();
 
 #if DEBUG >= 1
             std::cerr << "CV_QKDPROTOCOL: len_secret_key = " << len_secret_key

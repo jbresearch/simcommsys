@@ -272,7 +272,7 @@ dvqkd_protocol::binary_entropy(double p)
  */
 
 const int
-dvqkd_protocol::calculate_finite_size_effects_secret_key_length()
+dvqkd_protocol::calculate_secret_key_length()
 {
     /*
    References for the equation to claculate the length of the secret key:
@@ -396,7 +396,7 @@ dvqkd_protocol::parameter_estimation(const libbase::vector<bool>& X_PE,
     // Q_tol, syndrome_size); len_secret_key =
     // calculate_secure_key_length(100000, 50000, Q_tol, 50000); // Answer l =
     // 4045
-    this->len_secret_key = calculate_finite_size_effects_secret_key_length();
+    this->len_secret_key = calculate_secret_key_length();
 
 #if DEBUG >= 2
     std::cout << "DV_QKDPROTOCOL: Calculating length from parameter estimation:"

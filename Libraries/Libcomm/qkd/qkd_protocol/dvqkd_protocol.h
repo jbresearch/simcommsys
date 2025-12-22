@@ -142,7 +142,7 @@ public:
     parameter_estimation(
     const libbase::vector<bool>& X_PE, const libbase::vector<bool>& Y_PE);
 
-    const int calculate_finite_size_effects_secret_key_length() override;
+    const int calculate_secret_key_length() override;
 
     libbase::vector<int> pack_bits_to_symbols(const libbase::vector<bool>& bits, int m);
 
