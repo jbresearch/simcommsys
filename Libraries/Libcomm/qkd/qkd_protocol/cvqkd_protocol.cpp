@@ -424,14 +424,14 @@ cvqkd_protocol::calculate_secret_key_length()
     assert(rate_per_pulse >= 0.0 && "Negative secret key rate/pulse!");
 
     // l = n[βIAB − χBE - delta(n)] from Reference 2
-    int l = std::floor(n_samples * rate_per_pulse);
+    this->len_secret_key = std::floor(n_samples * rate_per_pulse);
 
     // assert(l < 0 && "Computed length of secret key is negative!");
-    if (l < 0) {
-        l = 0;
+    if (this->len_secret_key < 0) {
+        this->len_secret_key = 0;
     } // To be used to calculate final SKR in Results collector.
 
-    return l;
+    return this->len_secret_key;
 }
 
 // Returns final secret keys KA and KB.
@@ -443,8 +443,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     libbase::vector<bool> final_secret_key_KA;
     libbase::vector<bool> final_secret_key_KB;
 
-    // Set a default length of 0. This is updated upon success.
-    len_secret_key = 0;
+    // len_secret key is already calculated beforehand as the results collector calls the method. 
 
     // Calculating N_PE: the number of samples used for parameter estimation.
     // N_PE = N (number of generated states) - n (size of codeword of the
@@ -453,6 +452,8 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 
 
 #if DEBUG >= 1
+    std::cout 
+        << "Length of Secret Key = " << this->len_secret_key << std::endl; 
     std::cout 
         << "CV_QKDPROTOCOL: Number of states used for Parameter Estimation = "
         << N_PE << std::endl;
@@ -697,35 +698,19 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
             double R_code = cdc->rate();
 
 #if DEBUG >= 1
-            std::cerr << "CV_QKDPROTOCOL: R_code = " << R_code << std::endl;
-#endif
-
-            double C_awgn_capacity = calculate_shannon_capacity_awgn();
-
-            beta_mdr = R_code / C_awgn_capacity;
-
-#if DEBUG >= 1
-            std::cerr << "CV_QKDPROTOCOL: C_awgn_capacity = " << C_awgn_capacity
+            std::cerr << "CV_QKDPROTOCOL: len_secret_key = " << this->len_secret_key
                       << std::endl;
             std::cerr << "CV_QKDPROTOCOL: beta_mdr = " << beta_mdr << std::endl;
 #endif
 
-            /* Calculate length l of final secret key */
-            len_secret_key = calculate_secret_key_length();
-
-#if DEBUG >= 1
-            std::cerr << "CV_QKDPROTOCOL: len_secret_key = " << len_secret_key
-                      << std::endl;
-#endif
-
-            if (len_secret_key > 0) {
+            if (this->len_secret_key > 0) {
                 // Perform Privacy Amplification:
                 // * alphabet size of 2
                 // * length of final key after doing PA.
                 // * length of pre-hashed key which in this case is the size of
                 // vectors s and s_hat of size k.
                 pa_system.init(
-                    len_secret_key, cdc->input_block_size(), alphabet_size);
+                    this->len_secret_key, cdc->input_block_size(), alphabet_size);
 
                 int starting_vector_len =
                     pa_system.generate_starting_vector_length();
@@ -768,13 +753,13 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 
     // If any check failed, len_secret_key will still be 0.
     // Initialize empty keys in that case.
-    if (len_secret_key == 0) {
+    if (this->len_secret_key == 0) {
         final_secret_key_KA.init(0);
         final_secret_key_KB.init(0);
     }
 
 #if DEBUG >= 1
-    std::cerr << "CV_QKDPROTOCOL: len_secret_key = " << len_secret_key
+    std::cerr << "CV_QKDPROTOCOL: len_secret_key = " << this->len_secret_key
               << std::endl;
     std::cerr << "CV_QKDPROTOCOL: final_secret_key_KA = " << final_secret_key_KA
               << std::endl;
