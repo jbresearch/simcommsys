@@ -148,6 +148,7 @@ public:
     void set_parameters(const libbase::vector<double>& params) override
     {
         sys->set_parameters(params);
+        rc->init(*this); // reinitialises results collector every time the parameters are changed. 
     }
 
     libbase::vector<double> get_parameters() const override
