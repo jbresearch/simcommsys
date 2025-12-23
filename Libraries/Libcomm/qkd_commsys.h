@@ -109,6 +109,8 @@ public:
     {
         assertalways(x.size() == this->get_num_params());
 
+        // TODO: refactor to extract corresponding ranges from vector
+
         libbase::vector<double> alice_channel_params;
         alice_channel_params.init(this->alice_channel->get_num_params());
         int i = 0;
@@ -125,9 +127,10 @@ public:
 
         this->alice_channel->set_parameters(alice_channel_params);
         this->bob_channel->set_parameters(bob_channel_params);
-        this->protocol->init(this);  
+
+        this->protocol->init(this);
     }
-    
+
     libbase::vector<double> get_parameters() const override
     {
         libbase::vector<double> params;
@@ -161,7 +164,7 @@ public:
 
     // Gets the source generator from qkd_commsys_simulator
     std::shared_ptr<source<S>> get_src() { return this->src; }
-    
+
     /*! \name Communication System Interface */
     std::pair<C<bool>, C<bool>> fullcycle(C<S>& source);
 

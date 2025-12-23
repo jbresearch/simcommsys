@@ -113,7 +113,7 @@ qkd_commsys<S, T, C>::fullcycle(C<S>& source)
 
 /*! \name Communication System Interface */
 //! Perform complete transmission of one frame
-// Only used to get cv-qkd results. TO DELETE. 
+// Only used to get cv-qkd results. TO DELETE.
 template <class S, class T, template <class> class C>
 std::tuple<bool, double, double, double, double, double, double, int>
 qkd_commsys<S, T, C>::fullcyclecvqkdresults(C<S>& source)
@@ -170,7 +170,7 @@ qkd_commsys<S, T, C>::fullcyclecvqkdresults(C<S>& source)
     // This allows the code to compile even for the T=bool instantiation
     libbase::vector<double> alice_doubles;
     libbase::vector<double> bob_doubles;
-    
+
     alice_doubles.init(framesize);
     bob_doubles.init(framesize);
 
@@ -183,7 +183,7 @@ qkd_commsys<S, T, C>::fullcyclecvqkdresults(C<S>& source)
     // We pass the converted doubles, not the original T vectors.
     auto [MI_Check, I_AB, chi_BE, VA_hat, VN, VN_hat, alpha_hat, len_secret_key] = protocol->postprocesscv(
         std::move(alice_doubles), std::move(bob_doubles));
-        
+
     // return 8 parameters to do tests for multiple SNRs or VNs
     return std::make_tuple(MI_Check, I_AB, chi_BE, VA_hat, VN, VN_hat, alpha_hat, len_secret_key);
     }
