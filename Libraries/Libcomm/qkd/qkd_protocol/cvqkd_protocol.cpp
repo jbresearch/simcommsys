@@ -20,21 +20,22 @@ cvqkd_protocol::init(
     qkd_commsys<gaussian_state, double, libbase::vector>* qkdcommsys)
 {
     // Get the source generator from qkd_commsys
-    std::shared_ptr<source<gaussian_state>> src_gen_base =
-        qkdcommsys->get_src();
+    const auto src_gen_base = qkdcommsys->get_src();
     assert(src_gen_base && "Commsys did not provide a source generator.");
 
     // Safely cast to the derived class we need
-    auto& src_gen = dynamic_cast<quantum_gaussian_source&>(*src_gen_base);
+    const auto& src_gen = dynamic_cast<quantum_gaussian_source&>(*src_gen_base);
 
     // Get modulation variance VA from the source
-    this->m_modulation_variance = src_gen.get_VA();
+    this->m_VA = src_gen.get_VA();
 
     // Get Bob's quantum channel from qkd_commsys
-    this->m_bob_channel = qkdcommsys->get_bob_channel();
-    assert(this->m_bob_channel && "qkd_commsys did not provide Bob's channel.");
- 
+    const auto bob_channel = qkdcommsys->get_bob_channel();
+    assert(bob_channel && "qkd_commsys did not provide Bob's channel.");
 
+    // Get the fading coefficient and noise variance from the receiver
+    this->m_alpha = bob_channel->get_alpha();
+    this->m_VN = bob_channel->get_VN();
 }
 
 // Split fn to be used for parameter estimation and post-processing.
@@ -89,8 +90,8 @@ cvqkd_protocol::split(libbase::vector<double>& alice_measurements,
 /**
  * @brief Estimates CV-QKD channel parameters using Covariance Matrix analysis.
  *
- * This function computes the statistical moments of the Alice (X) and Bob (Y) 
- * sequences to derive the channel characteristics. It assumes a linear channel 
+ * This function computes the statistical moments of the Alice (X) and Bob (Y)
+ * sequences to derive the channel characteristics. It assumes a linear channel
  * model: Y = alpha * X + Z, where Z is the total noise (shot noise + excess noise).
  *
  * The estimation calculates:
@@ -98,7 +99,7 @@ cvqkd_protocol::split(libbase::vector<double>& alice_measurements,
  * 2. Fading Channel coefficient (alpha), derived from Cov(X,Y).
  * 3. Total Noise Variance (VN), derived from Var(Y) and alpha.
  *
- * @note means_x and means_y are not 0 
+ * @note means_x and means_y are not 0
  *
  * @param X_PE Input vector representing Alice's modulation values (Gaussian) used only for parameter estimation.
  * @param Y_PE Input vector representing Bob's measured values used only for parameter estimation.
@@ -112,14 +113,14 @@ cvqkd_protocol::parameter_estimation(
 {
     /**
      * Reference for parameter estimation equations:
-     * Equations of Covariance matrix were computed by Ryan Debono sent by email on 27/11/2025. 
-     * - Recall that the covariance matrix is defined with the following format: 
+     * Equations of Covariance matrix were computed by Ryan Debono sent by email on 27/11/2025.
+     * - Recall that the covariance matrix is defined with the following format:
      * | a c |
      * | c b |
      * where a = VA, b = (alpha)^2(VA) + VN, c = (alpha)(VA)
      * a is calculated from the variance of X_PE (Alice)
      * b is calculated from the variance of Y_PE (Bob)
-     * c is calculated from the covariance of X_PE (Alice) and Y_PE (Bob) 
+     * c is calculated from the covariance of X_PE (Alice) and Y_PE (Bob)
      */
 
     assert(X_PE.size() == Y_PE.size() && "X_PE and Y_PE must have same size.");
@@ -137,7 +138,7 @@ cvqkd_protocol::parameter_estimation(
     for (int i = 0; i < m; ++i) {
         double x = X_PE(i);
         double y = Y_PE(i);
-        
+
         sum_x += x;
         sum_y += y;
         sum_xx += x * x;
@@ -145,20 +146,20 @@ cvqkd_protocol::parameter_estimation(
         sum_xy += x * y;
     }
 
-    // Calculate Means 
-    double mean_x = sum_x / m; // to check if these gave to be zero 
+    // Calculate Means
+    double mean_x = sum_x / m; // to check if these gave to be zero
     double mean_y = sum_y / m;
 
-    // Calculate Variances (a, b) and Covariance (c) 
-    // Using population variance (1/m) or sample variance (1/m-1). 
+    // Calculate Variances (a, b) and Covariance (c)
+    // Using population variance (1/m) or sample variance (1/m-1).
     // In QKD (large m), 1/m is standard.
-    
+
     // a = Var(X) = E[X^2] - (E[X])^2
-    double var_x = (sum_xx / m) - (mean_x * mean_x); 
-    
+    double var_x = (sum_xx / m) - (mean_x * mean_x);
+
     // b = Var(Y) = E[Y^2] - (E[Y])^2
     double var_y = (sum_yy / m) - (mean_y * mean_y);
-    
+
     // c = Cov(X,Y) = E[XY] - E[X]E[Y]
     double cov_xy = (sum_xy / m) - (mean_x * mean_y);
 
@@ -173,7 +174,7 @@ cvqkd_protocol::parameter_estimation(
         alpha_hat = cov_xy / VA_hat;
     }
 
-    double VN_hat = 0.0; 
+    double VN_hat = 0.0;
     // b == (alpha_hat)^2(VA_hat) + VN_hat -> VN_hat = b - (alpha_hat^2 * VA_hat)
     VN_hat = var_y - (alpha_hat * alpha_hat * VA_hat);
 
@@ -193,31 +194,31 @@ cvqkd_protocol::parameter_estimation(
  * Where SNR is typically defined as: SNR_linear = (alpha)^2 (VA) / VN
  * - alpha: Variance of Alice's modulation.
  * - VA: modulation variance of Alice.
- * - VN: noise variance. 
+ * - VN: noise variance.
  *
  * @references
- * [1] Villaseñor, Eduardo, et al. "Atmospheric effects on satellite-to-ground 
+ * [1] Villaseñor, Eduardo, et al. "Atmospheric effects on satellite-to-ground
  * quantum key distribution using coherent states." GLOBECOM 2020.
  * [2] Ryan's equations. Definition of SNR is based on his equation
- * @param SNR in linear not in dB.  
+ * @param SNR in linear not in dB.
  * @return double The mutual information in bits per pulse.
  */
 double
 cvqkd_protocol::calculate_mutual_information(double SNR_linear)
 {
-    /* References: 
+    /* References:
     [1] Ryan's equations.
-    [2] Villaseñor, Eduardo, et al. "Atmospheric effects on satellite-to-ground quantum key distribution using coherent states." 
+    [2] Villaseñor, Eduardo, et al. "Atmospheric effects on satellite-to-ground quantum key distribution using coherent states."
     GLOBECOM 2020-2020 IEEE Global Communications Conference. IEEE, 2020.
 
     Where equation to calculate I_AB = 0.5 * log_2(1 + SNR)
-    SNR is linear.  
+    SNR is linear.
     */
 
     double I_AB = 0.5 * std::log2(1 + SNR_linear); // In bits/pulse
     // I_AB_kbps = I_AB * repetition_rate;
 
-    return I_AB; 
+    return I_AB;
 }
 
 /**
@@ -246,12 +247,12 @@ cvqkd_protocol::calculate_holevo_bound(double VA_hat,
     // According to the PDF, the covariance parameters are derived as follows:
     // a = sigma_X^2 = VA
     const double a = VA_hat;
-    
+
     // b = alpha^2 * sigma_X^2 + sigma_N^2
-    const double b = (alpha_hat * alpha_hat * VA_hat) + VN_hat; 
-    
+    const double b = (alpha_hat * alpha_hat * VA_hat) + VN_hat;
+
     // c = alpha * sigma_X^2
-    const double c = alpha_hat * VA_hat; 
+    const double c = alpha_hat * VA_hat;
 
     // Calculate Symplectic Eigenvalues lambda_1 and lambda_2 using equations (47) and (48)
     // z = sqrt((a + b)^2 - 4c^2)
@@ -259,11 +260,11 @@ cvqkd_protocol::calculate_holevo_bound(double VA_hat,
 
     // Lambda_1 (Eq 47, Eq 41)
     // Eq 47 is the expanded form of: 1/2 * (z + (b - a))
-    const double lambda1 = 0.5 * (term_z + (b - a)); 
+    const double lambda1 = 0.5 * (term_z + (b - a));
 
     // Lambda_2 (Eq 48, Eq 42)
     // Eq 48 is the expanded form of: 1/2 * (z - (b - a))
-    const double lambda2 = 0.5 * (term_z - (b - a)); 
+    const double lambda2 = 0.5 * (term_z - (b - a));
 
     // Lambda_3 (Eq 45)
     // Equation (45): lambda_3 = sqrt( a * (a - c^2/b) )
@@ -272,20 +273,20 @@ cvqkd_protocol::calculate_holevo_bound(double VA_hat,
     double term_inner = a - ((c * c) / b);
 
     // Sanity check: Inner term must be non-negative for sqrt
-    if (term_inner < 0.0) term_inner = 0.0; 
+    if (term_inner < 0.0) term_inner = 0.0;
 
     const double lambda3 = std::sqrt(a * term_inner);
 
-    // Helper function to calculate g(x) (Von Neumann Entropy function) 
+    // Helper function to calculate g(x) (Von Neumann Entropy function)
     // Based on Eq (52): g(x) = ((x+1)/2)*log2((x+1)/2) - ((x-1)/2)*log2((x-1)/2)
     auto calc_g = [](double x) -> double {
         double t1 = (x + 1.0) / 2.0;
         double t2 = (x - 1.0) / 2.0;
-        
-        double term1 = t1 * std::log2(t1); // x should also be positive 
+
+        double term1 = t1 * std::log2(t1); // x should also be positive
         double term2 = (t2 > 0) ? (t2 * std::log2(t2)) : 0.0; // Handle limit x->1
-        
-        return term1 - term2; 
+
+        return term1 - term2;
     };
 
 #if DEBUG >= 1
@@ -293,13 +294,13 @@ cvqkd_protocol::calculate_holevo_bound(double VA_hat,
               << std::endl;
     std::cout << "CV_QKDPROTOCOL:  lambda2 = " << lambda2
               << std::endl;
-    std::cout << "CV_QKDPROTOCOL:  lambda3 = " << lambda3 
+    std::cout << "CV_QKDPROTOCOL:  lambda3 = " << lambda3
               << std::endl;
 #endif
 
     //  Calculate Holevo Quantity chi_BE (Eq 53)
     // chi = g(lambda1) + g(lambda2) - g(lambda3)
-    double chi_BE = calc_g(lambda1) + calc_g(lambda2) - calc_g(lambda3); 
+    double chi_BE = calc_g(lambda1) + calc_g(lambda2) - calc_g(lambda3);
     return chi_BE; // In bits/pulse
 }
 
@@ -340,20 +341,16 @@ cvqkd_protocol::calculate_secret_key_length()
     assert(n_samples > 0);
     assert(smoothing_parameter > 0);
 
-    // Fetch current state directly from objects. 
-    double VA = m_modulation_variance; 
-    // fading coeffiecient alpha
-    double alpha = m_bob_channel->get_alpha(); 
-    double VN = m_bob_channel->get_VN(); 
-    double snr_linear = (alpha*alpha*VA)/VN;
+    // calculate linear SNR
+    double snr_linear = (m_alpha*m_alpha*m_VA)/m_VN;
     // Mutual Information and Holevo Bound
     double I_AB = 0.5 * std::log2(1.0 + snr_linear);
-    double chi_BE = calculate_holevo_bound(VA, alpha, VN);
+    double chi_BE = calculate_holevo_bound(m_VA, m_alpha, m_VN);
 
      /* Calculate Beta for MDR: beta = R/C(S) taken from the Quasi Cyclic
       * Paper 2018, Mario Milicevic. C(S) is the Shannon Capacity of an AWGN channel. */
-    double R_code = cdc->rate(); // code rate of LDPC code 
-    double C_awgn = 0.5 * std::log2(1.0 + snr_linear); // Capacity of AWGN channel 
+    double R_code = cdc->rate(); // code rate of LDPC code
+    double C_awgn = 0.5 * std::log2(1.0 + snr_linear); // Capacity of AWGN channel
     double beta = (C_awgn > 0) ? (R_code / C_awgn) : 0;
 
     // Equation (32) from Reference 2
@@ -362,15 +359,15 @@ cvqkd_protocol::calculate_secret_key_length()
 
 #if DEBUG >= 1
     std::cerr << "CV_QKDPROTOCOL:  delta(n) = " << delta_n << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  alpha = " << alpha << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  modulation variance VA = " << this->m_modulation_variance << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  noise variance VN = " << VN << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  alpha = " << m_alpha << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  modulation variance VA = " << this->m_VA << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  noise variance VN = " << m_VN << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  SNR_linear = " << snr_linear << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  C_awgn_capacity = " << C_awgn << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  Rate R of LDPC code = " << R_code << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  Reconciliation Efficiency Beta = " << beta << std::endl; 
-    std::cerr << "CV_QKDPROTOCOL:  I_AB = " << I_AB << std::endl; 
-    std::cerr << "CV_QKDPROTOCOL:  chi_BE = " << chi_BE << std::endl; 
+    std::cerr << "CV_QKDPROTOCOL:  Reconciliation Efficiency Beta = " << beta << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  I_AB = " << I_AB << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  chi_BE = " << chi_BE << std::endl;
 #endif
 
     // assert(R_code > 0);
@@ -383,10 +380,10 @@ cvqkd_protocol::calculate_secret_key_length()
     // Finite-Size Effects Case.
     const double rate_per_pulse = (beta * I_AB) - chi_BE - delta_n;
 
-    
+
     // Asymptotic Case.
     // const double rate_per_pulse = (1 * I_AB) - chi_BE;
-    
+
     // l = n[βIAB − χBE - delta(n)] from Reference 2
     this->len_secret_key = std::floor(n_samples * rate_per_pulse);
 
@@ -411,7 +408,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     libbase::vector<bool> final_secret_key_KA;
     libbase::vector<bool> final_secret_key_KB;
 
-    // len_secret key is already calculated beforehand as the results collector calls the method. 
+    // len_secret key is already calculated beforehand as the results collector calls the method.
 
     // Calculating N_PE: the number of samples used for parameter estimation.
     // N_PE = N (number of generated states) - n (size of codeword of the
@@ -420,9 +417,9 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 
 
 #if DEBUG >= 1
-    std::cout 
-        << "Length of Secret Key = " << this->len_secret_key << std::endl; 
-    std::cout 
+    std::cout
+        << "Length of Secret Key = " << this->len_secret_key << std::endl;
+    std::cout
         << "CV_QKDPROTOCOL: Number of states used for Parameter Estimation = "
         << N_PE << std::endl;
 #endif
@@ -442,18 +439,18 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     std::cout << "CV_QKDPROTOCOL: Are VA_hat, VN_hat, alpha_hat calculated from parameter estimation?: " << estimate_parameters << std::endl;
 #endif
 
-    /*  Estimate Parameters 
+    /*  Estimate Parameters
         If estimate_parameters == true (default),
-        VA_hat, VN_hat and alpha_hat are calculated from parameter estimation. 
-        
-        If estimate_parameters == false, 
-        VA_hat, VN_hat and alpha_hat are taken directly from Bob's quantum channel. 
+        VA_hat, VN_hat and alpha_hat are calculated from parameter estimation.
+
+        If estimate_parameters == false,
+        VA_hat, VN_hat and alpha_hat are taken directly from Bob's quantum channel.
     */
 
-    double VA_hat, VN_hat, alpha_hat; 
+    double VA_hat, VN_hat, alpha_hat;
     if(estimate_parameters)
     {
-        // Calculate parameters from parameter estimation using Ryan's derived equations. 
+        // Calculate parameters from parameter estimation using Ryan's derived equations.
          std::tie(VA_hat, VN_hat, alpha_hat) = parameter_estimation(X_PE, Y_PE);
 
 #if DEBUG >= 1
@@ -466,10 +463,10 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     else
     {
         // Get the parameters directly from the objects.
-        VA_hat = m_modulation_variance;
-        alpha_hat = m_bob_channel->get_alpha();
-        VN_hat = m_bob_channel->get_VN();
-        
+        VA_hat = m_VA;
+        alpha_hat = m_alpha;
+        VN_hat = m_VN;
+
 #if DEBUG >= 1
     std::cout << "Parameters are taken directly from objects: " << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  VA_hat = " << VA_hat << std::endl;
@@ -477,7 +474,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     std::cerr << "CV_QKDPROTOCOL:  VN_hat = " << VN_hat << std::endl << std::endl;
 #endif
     }
- 
+
     double SNR_linear_hat =
         (alpha_hat * alpha_hat) * (VA_hat) / (VN_hat);
 
@@ -504,7 +501,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
                 << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  SNR_dB = " << SNR_dB
                 << std::endl << std::endl;
-#endif 
+#endif
 
     /* Checks whether the protocol is aborted or not to continue with the
      * Information Reconciliation stage. */
@@ -560,7 +557,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         vector_M.init(cdc->output_block_size());
 
         // Y are bobs measurements excluding those used for parameter estimation
-        embedder->set_blocksize(Y.size()); 
+        embedder->set_blocksize(Y.size());
 
         embedder->embed(alphabet_size, data_to_embed, Y, vector_M);
 
@@ -634,7 +631,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 
             /* Calculate length l of final secret key directly from Parameter estimation
             STILL TO THINK HOW WE WILL DO THIS to calculate the length of the secret key directly from the estimated values.
-            we also need to check if it is being done this way  
+            we also need to check if it is being done this way
             // To calculate l the following are needed: R_Code, C_awgn, SNR_linear, beta, I_AB and X_BE
             // len_secret_key = calculate_secret_key_length(); */
 
@@ -713,7 +710,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 
 /******** EXRA METHOD THAT WAS ONLY USED FOR THE ATMOSPHERIC MODELLING RESULTS.
  * to be eventually deleted or moved.*************************** *******/
-/* Extended post-processing function which is only required to 
+/* Extended post-processing function which is only required to
 return more parameters for the case of CV-QKD. */
 // Returns final secret keys KA and KB.
 std::tuple<bool, double, double, double, double, double, double, int>
@@ -724,7 +721,7 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
     libbase::vector<bool> final_secret_key_KA;
     libbase::vector<bool> final_secret_key_KB;
 
-    // Length of secret key is pre-calculated from call of results collector. 
+    // Length of secret key is pre-calculated from call of results collector.
 
     // Calculating N_PE: the number of samples used for parameter estimation.
     // N_PE = N (number of generated states) - n (size of codeword of the
@@ -732,9 +729,9 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
     assert(N_PE == alice_measurements.size() - cdc->output_block_size() && "N_PE does not match sifted key size minus n");
 
 #if DEBUG >= 1
-    std::cout 
-        << "Length of Secret Key = " << this->len_secret_key << std::endl; 
-    std::cout 
+    std::cout
+        << "Length of Secret Key = " << this->len_secret_key << std::endl;
+    std::cout
         << "CV_QKDPROTOCOL: Number of states used for Parameter Estimation = "
         << N_PE << std::endl;
 #endif
@@ -754,19 +751,19 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
     std::cout << "CV_QKDPROTOCOL: Are VA_hat, VN_hat, alpha_hat calculated from parameter estimation?: " << estimate_parameters << std::endl;
 #endif
 
-    /*  Estimate Parameters 
+    /*  Estimate Parameters
         If estimate_parameters == true (default),
-        VA_hat, VN_hat and alpha_hat are calculated from parameter estimation. 
-        
-        If estimate_parameters == false, 
-        VA_hat, VN_hat and alpha_hat are taken directly from Bob's quantum channel. 
+        VA_hat, VN_hat and alpha_hat are calculated from parameter estimation.
+
+        If estimate_parameters == false,
+        VA_hat, VN_hat and alpha_hat are taken directly from Bob's quantum channel.
     */
 
     double VA_hat, VN_hat, alpha_hat;
     if(estimate_parameters)
     {
-        
-        // Calculate parameters from parameter estimation using Ryan's derived equations. 
+
+        // Calculate parameters from parameter estimation using Ryan's derived equations.
         std::tie(VA_hat, VN_hat, alpha_hat) = parameter_estimation(X_PE, Y_PE);
 
 #if DEBUG >= 1
@@ -779,10 +776,10 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
     else
     {
         // Get the parameters directly from the objects.
-        VA_hat = m_modulation_variance; 
-        alpha_hat = m_bob_channel->get_alpha();
-        VN_hat = m_bob_channel->get_VN();
-        
+        VA_hat = m_VA;
+        alpha_hat = m_alpha;
+        VN_hat = m_VN;
+
 #if DEBUG >= 1
     std::cout << "Parameters are taken directly from objects: " << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  VA_hat = " << VA_hat << std::endl;
@@ -792,8 +789,8 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
     }
 
     // CLI parameter of the gaussian quantum channel.
-    // TO CONFIRM whether I also need to serialize this in the 
-    // the cvqkdprotocol.cpp as part of the switch as I did for DV-QKD.    
+    // TO CONFIRM whether I also need to serialize this in the
+    // the cvqkdprotocol.cpp as part of the switch as I did for DV-QKD.
     double SNR_linear_est =
         (alpha_hat * alpha_hat) * (VA_hat) / (VN_hat);
 
@@ -820,7 +817,7 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
                   << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  SNR_dB = " << SNR_dB
                   << std::endl << std::endl;
-#endif 
+#endif
 
     /* Checks whether the protocol is aborted or not to continue with the
      * Information Reconciliation stage. */
@@ -876,7 +873,7 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
         vector_M.init(cdc->output_block_size());
 
         // Y are bobs measurements excluding those used for parameter estimation
-        embedder->set_blocksize(Y.size()); 
+        embedder->set_blocksize(Y.size());
 
         embedder->embed(alphabet_size, data_to_embed, Y, vector_M);
 
@@ -949,7 +946,7 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
 #endif
             /* Calculate length l of final secret key directly from Parameter estimation
             STILL TO THINK HOW WE WILL DO THIS to calculate the length of the secret key directly from the estimated values.
-            we also need to check if it is being done this way  
+            we also need to check if it is being done this way
             // To calculate l the following are needed: R_Code, C_awgn, SNR_linear, beta, I_AB and X_BE
             // len_secret_key = calculate_secret_key_length(); */
 
@@ -1022,11 +1019,8 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
               << std::endl;
 #endif
 
-    // Noise variance VN directly calculated from the channel object. 
-    double VN = m_bob_channel->get_VN(); 
-
     // return 8 parameters to do tests for multiple SNRs or VNs
-    return {MI_Check, I_AB_est, chi_BE_est, VA_hat, VN, VN_hat, alpha_hat, this->len_secret_key};
+    return {MI_Check, I_AB_est, chi_BE_est, VA_hat, m_VN, VN_hat, alpha_hat, this->len_secret_key};
 }
 
 // Returns description of the protocol
@@ -1044,7 +1038,7 @@ cvqkd_protocol::serialize(std::ostream& sout) const
     sout << "# Version" << std::endl;
     sout << 1 << std::endl;
     sout << "# N_PE" << std::endl; // # used for parameter estimation
-    sout << N_PE << std::endl; 
+    sout << N_PE << std::endl;
     sout << "# VA, VN, alpha from parameter estimation?" << std::endl;
     sout << int(estimate_parameters) << std::endl;
     sout << "# Smoothing Parameter" << std::endl;  // Smoothing parameter bar epsilon is used to calculate the final

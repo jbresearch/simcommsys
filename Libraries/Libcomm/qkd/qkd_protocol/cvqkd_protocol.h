@@ -46,13 +46,14 @@ class cvqkd_protocol
 private:
     libbase::randgen rng; // used to randomly choose observables
     libbase::vector<int> decision_vector;
-    std::shared_ptr<quantum_channel> m_bob_channel;
 
     int framesize = 0; // Number of generated coherent states per frame.
     int N_PE;          // Number of samples used for parameter estimation
-    double m_modulation_variance = 0.0;
+    double m_VA = 0.0;
+    double m_VN = 0.0;
+    double m_alpha = 0.0;
     double smoothing_parameter; //!< True for calculating V_A, V_N and alpha from parameter estimation.
-    bool estimate_parameters; // 
+    bool estimate_parameters; //
     bool MI_Check = false;  // MI check that verifies if I_AB > X_B?
     bool H_check = false;   // Hash check that verifies if hash_hs == hash_hsat?
     int len_secret_key = 0; // Length of final secret key
@@ -140,16 +141,16 @@ public:
                libbase::vector<double>>
     split(libbase::vector<double>& measurements_alice,
           libbase::vector<double>& measurements_bob);
-    
+
     // Parameter Estimation for the GG02 protocol based on Ryan's equations
     // Calculates VA_hat, alpha_hat and VN_hat
     std::tuple<double, double, double>
     parameter_estimation(const libbase::vector<double>& X_PE,
                                        const libbase::vector<double>& Y_PE);
-     
-    // Mutual Information for the GG02 protocol based on SNR only. 
+
+    // Mutual Information for the GG02 protocol based on SNR only.
     double calculate_mutual_information(double SNR_linear);
-    
+
     // Helper functions used to calculate the Holevo Bound.
     // G(x) from Eq. (2.54). sTILL TO ADD REFERENCE
     inline double bosonic_entropy_G(double x)
@@ -161,11 +162,11 @@ public:
 
     // Safe sqrt: clamp tiny negative values due to round-off
     inline double safe_sqrt(double x) { return std::sqrt(x < 0.0 ? 0.0 : x); }
-    
-    // Method to calculate the Holevo Bound for the GG02 protocol based on Ryan's derived equations. 
+
+    // Method to calculate the Holevo Bound for the GG02 protocol based on Ryan's derived equations.
     double calculate_holevo_bound(double VA_hat,
                                        double alpha_hat,
-                                       double VN_hat);                           
+                                       double VN_hat);
 
     // Calculates the L2 norm.
     static double l2(const libbase::vector<double>& v)
@@ -186,7 +187,7 @@ public:
     postprocess(libbase::vector<double>&& alice_measurements,
                 libbase::vector<double>&& bob_measurements) override;
 
-    /* Extended post-processing function which is only required to 
+    /* Extended post-processing function which is only required to
     return more parameters for the case of CV-QKD. */
     std::tuple<bool, double, double, double, double, double, double, int>
     postprocesscv(libbase::vector<double>&& alice_measurements,
