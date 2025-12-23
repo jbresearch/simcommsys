@@ -382,13 +382,17 @@ cvqkd_protocol::calculate_secret_key_length()
 
     // Finite-Size Effects Case.
     const double rate_per_pulse = (beta * I_AB) - chi_BE - delta_n;
+
     
     // Asymptotic Case.
     // const double rate_per_pulse = (1 * I_AB) - chi_BE;
-    assert(rate_per_pulse >= 0.0 && "Negative secret key rate/pulse!");
-
+    
     // l = n[βIAB − χBE - delta(n)] from Reference 2
     this->len_secret_key = std::floor(n_samples * rate_per_pulse);
+
+#if DEBUG >= 1
+    std::cerr << "CV_QKDPROTOCOL:  Secret Key Length = " << this->len_secret_key << std::endl;
+#endif
 
     // assert(l < 0 && "Computed length of secret key is negative!");
     if (this->len_secret_key < 0) {
@@ -943,13 +947,6 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
 #if DEBUG >= 1
             std::cerr << "CV_QKDPROTOCOL: H_check = " << H_check << std::endl;
 #endif
-
-            /* Calculate Beta for MDR: beta = R/C(S) taken from the Quasi Cyclic
-             * Paper 2018, Mario Milicevic. C(S) is the Shannon Capacity of an
-             * AWGN channel. */
-
-            double R_code = cdc->rate();
-
             /* Calculate length l of final secret key directly from Parameter estimation
             STILL TO THINK HOW WE WILL DO THIS to calculate the length of the secret key directly from the estimated values.
             we also need to check if it is being done this way  
