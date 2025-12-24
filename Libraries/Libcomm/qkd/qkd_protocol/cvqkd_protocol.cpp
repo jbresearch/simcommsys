@@ -92,7 +92,8 @@ cvqkd_protocol::split(libbase::vector<double>& alice_measurements,
  *
  * This function computes the statistical moments of the Alice (X) and Bob (Y)
  * sequences to derive the channel characteristics. It assumes a linear channel
- * model: Y = alpha * X + Z, where Z is the total noise (shot noise + excess noise).
+ * model: Y = alpha * X + Z, where Z is the total noise (shot noise + excess
+ * noise).
  *
  * The estimation calculates:
  * 1. Variance of Alice's modulation (VA).
@@ -101,19 +102,22 @@ cvqkd_protocol::split(libbase::vector<double>& alice_measurements,
  *
  * @note means_x and means_y are not 0
  *
- * @param X_PE Input vector representing Alice's modulation values (Gaussian) used only for parameter estimation.
- * @param Y_PE Input vector representing Bob's measured values used only for parameter estimation.
+ * @param X_PE Input vector representing Alice's modulation values (Gaussian)
+ * used only for parameter estimation.
+ * @param Y_PE Input vector representing Bob's measured values used only for
+ * parameter estimation.
  * - VA_hat: Estimated variance of Alice's signal.
  * - alpha_hat: Estimated channel gain/coupling coefficient.
  * - VN_hat: Estimated total noise variance.
  */
- std::tuple<double, double, double>
-cvqkd_protocol::parameter_estimation(
-    const libbase::vector<double>& X_PE, const libbase::vector<double>& Y_PE)
+std::tuple<double, double, double>
+cvqkd_protocol::parameter_estimation(const libbase::vector<double>& X_PE,
+                                     const libbase::vector<double>& Y_PE)
 {
     /**
      * Reference for parameter estimation equations:
-     * Equations of Covariance matrix were computed by Ryan Debono sent by email on 27/11/2025.
+     * Equations of Covariance matrix were computed by Ryan Debono sent by email
+     * on 27/11/2025.
      * - Recall that the covariance matrix is defined with the following format:
      * | a c |
      * | c b |
@@ -175,18 +179,23 @@ cvqkd_protocol::parameter_estimation(
     }
 
     double VN_hat = 0.0;
-    // b == (alpha_hat)^2(VA_hat) + VN_hat -> VN_hat = b - (alpha_hat^2 * VA_hat)
+    // b == (alpha_hat)^2(VA_hat) + VN_hat -> VN_hat = b - (alpha_hat^2 *
+    // VA_hat)
     VN_hat = var_y - (alpha_hat * alpha_hat * VA_hat);
 
-    // Sanity check: Noise variance shouldn't be negative due to precision errors
-    if (VN_hat < 0) VN_hat = 0.0;
+    // Sanity check: Noise variance shouldn't be negative due to precision
+    // errors
+    if (VN_hat < 0)
+        VN_hat = 0.0;
     return {VA_hat, VN_hat, alpha_hat};
 }
 
 /**
- * @brief Calculates the Mutual Information (I_AB) between Alice and Bob based on SNR only.
+ * @brief Calculates the Mutual Information (I_AB) between Alice and Bob based
+ * on SNR only.
  *
- * It uses the Shannon-Hartley theorem adapted for the AWGN channel in the GG02 protocol.
+ * It uses the Shannon-Hartley theorem adapted for the AWGN channel in the GG02
+ * protocol.
  *
  * Mathematical Model:
  * I_AB = 0.5 * log2(1 + SNR)
@@ -208,8 +217,9 @@ cvqkd_protocol::calculate_mutual_information(double SNR_linear)
 {
     /* References:
     [1] Ryan's equations.
-    [2] Villaseñor, Eduardo, et al. "Atmospheric effects on satellite-to-ground quantum key distribution using coherent states."
-    GLOBECOM 2020-2020 IEEE Global Communications Conference. IEEE, 2020.
+    [2] Villaseñor, Eduardo, et al. "Atmospheric effects on satellite-to-ground
+    quantum key distribution using coherent states." GLOBECOM 2020-2020 IEEE
+    Global Communications Conference. IEEE, 2020.
 
     Where equation to calculate I_AB = 0.5 * log_2(1 + SNR)
     SNR is linear.
@@ -224,13 +234,15 @@ cvqkd_protocol::calculate_mutual_information(double SNR_linear)
 /**
  * @brief Calculates the Holevo Bound (Chi_BE) using Ryan's derived equations.
  *
- * This function computes the maximum information available to Eve (Holevo quantity)
- * based on the symplectic eigenvalues of the covariance matrices.
+ * This function computes the maximum information available to Eve (Holevo
+ * quantity) based on the symplectic eigenvalues of the covariance matrices.
  *
  * References:
- * [1] "Alternate Derivations.pdf", Section 3.1 Symplectic Eigenvalues and 3.2 Holevo Quantity.
+ * [1] "Alternate Derivations.pdf", Section 3.1 Symplectic Eigenvalues and 3.2
+ * Holevo Quantity.
  *
- * @param VA_hat The variance of Alice's modulation (a = sigma_X^2)[cite: eq. (48)].
+ * @param VA_hat The variance of Alice's modulation (a = sigma_X^2)[cite: eq.
+ * (48)].
  * @param alpha_hat The channel fading coefficient (alpha)[cite: eq. (24)].
  * @param VN_hat The noise variance (sigma_N^2)[cite: eq. (24)].
  * @return double The Holevo bound (bits/pulse).
@@ -241,7 +253,8 @@ cvqkd_protocol::calculate_holevo_bound(double VA_hat,
                                        double VN_hat)
 {
     // Ensure positive values for log calculations
-    if (VA_hat <= 0 || VN_hat <= 0) return 0.0;
+    if (VA_hat <= 0 || VN_hat <= 0)
+        return 0.0;
 
     // Map inputs to Covariance Matrix Parameters (Eq 37 - 40) ---
     // According to the PDF, the covariance parameters are derived as follows:
@@ -254,8 +267,8 @@ cvqkd_protocol::calculate_holevo_bound(double VA_hat,
     // c = alpha * sigma_X^2
     const double c = alpha_hat * VA_hat;
 
-    // Calculate Symplectic Eigenvalues lambda_1 and lambda_2 using equations (47) and (48)
-    // z = sqrt((a + b)^2 - 4c^2)
+    // Calculate Symplectic Eigenvalues lambda_1 and lambda_2 using equations
+    // (47) and (48) z = sqrt((a + b)^2 - 4c^2)
     double term_z = std::sqrt(std::pow(a + b, 2) - 4.0 * c * c);
 
     // Lambda_1 (Eq 47, Eq 41)
@@ -273,34 +286,40 @@ cvqkd_protocol::calculate_holevo_bound(double VA_hat,
     double term_inner = a - ((c * c) / b);
 
     // Sanity check: Inner term must be non-negative for sqrt
-    if (term_inner < 0.0) term_inner = 0.0;
+    if (term_inner < 0.0)
+        term_inner = 0.0;
 
     const double lambda3 = std::sqrt(a * term_inner);
 
     // Helper function to calculate g(x) (Von Neumann Entropy function)
-    // Based on Eq (52): g(x) = ((x+1)/2)*log2((x+1)/2) - ((x-1)/2)*log2((x-1)/2)
+    // Based on Eq (52): g(x) = ((x+1)/2)*log2((x+1)/2) -
+    // ((x-1)/2)*log2((x-1)/2)
     auto calc_g = [](double x) -> double {
         double t1 = (x + 1.0) / 2.0;
         double t2 = (x - 1.0) / 2.0;
 
         double term1 = t1 * std::log2(t1); // x should also be positive
-        double term2 = (t2 > 0) ? (t2 * std::log2(t2)) : 0.0; // Handle limit x->1
+        double term2 =
+            (t2 > 0) ? (t2 * std::log2(t2)) : 0.0; // Handle limit x->1
 
         return term1 - term2;
     };
 
 #if DEBUG >= 1
-    std::cout << "CV_QKDPROTOCOL:  lambda1 = " << lambda1
-              << std::endl;
-    std::cout << "CV_QKDPROTOCOL:  lambda2 = " << lambda2
-              << std::endl;
-    std::cout << "CV_QKDPROTOCOL:  lambda3 = " << lambda3
-              << std::endl;
+    std::cout << "CV_QKDPROTOCOL:  lambda1 = " << lambda1 << std::endl;
+    std::cout << "CV_QKDPROTOCOL:  lambda2 = " << lambda2 << std::endl;
+    std::cout << "CV_QKDPROTOCOL:  lambda3 = " << lambda3 << std::endl;
 #endif
 
     //  Calculate Holevo Quantity chi_BE (Eq 53)
     // chi = g(lambda1) + g(lambda2) - g(lambda3)
     double chi_BE = calc_g(lambda1) + calc_g(lambda2) - calc_g(lambda3);
+
+    // chi_be can never be negative
+    if (chi_BE < 0) {
+        chi_BE = 0; // chi can never be negative.
+    }
+
     return chi_BE; // In bits/pulse
 }
 
@@ -335,37 +354,43 @@ cvqkd_protocol::calculate_secret_key_length()
     n_samples = cdc->output_block_size();
 
 #if DEBUG >= 1
-    std::cerr << "CV_QKDPROTOCOL:  CODEC Description: " << cdc->description() << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  CODEC Description: " << cdc->description()
+              << std::endl;
 #endif
 
     assert(n_samples > 0);
     assert(smoothing_parameter > 0);
 
     // calculate linear SNR
-    double snr_linear = (m_alpha*m_alpha*m_VA)/m_VN;
+    const double snr_linear = (m_alpha * m_alpha * m_VA) / m_VN;
     // Mutual Information and Holevo Bound
-    double I_AB = 0.5 * std::log2(1.0 + snr_linear);
-    double chi_BE = calculate_holevo_bound(m_VA, m_alpha, m_VN);
+    const double I_AB = 0.5 * std::log2(1.0 + snr_linear);
+    const double chi_BE = calculate_holevo_bound(m_VA, m_alpha, m_VN);
 
-     /* Calculate Beta for MDR: beta = R/C(S) taken from the Quasi Cyclic
-      * Paper 2018, Mario Milicevic. C(S) is the Shannon Capacity of an AWGN channel. */
-    double R_code = cdc->rate(); // code rate of LDPC code
-    double C_awgn = 0.5 * std::log2(1.0 + snr_linear); // Capacity of AWGN channel
-    double beta = (C_awgn > 0) ? (R_code / C_awgn) : 0;
+    /* Calculate Beta for MDR: beta = R/C(S) taken from the Quasi Cyclic
+     * Paper 2018, Mario Milicevic. C(S) is the Shannon Capacity of an AWGN
+     * channel. */
+    const double R_code = cdc->rate(); // code rate of LDPC code
+    const double C_awgn =
+        0.5 * std::log2(1.0 + snr_linear); // Capacity of AWGN channel
+    const double beta = (C_awgn > 0) ? (R_code / C_awgn) : 0;
 
     // Equation (32) from Reference 2
-    double delta_n =
+    const double delta_n =
         7 * std::sqrt(std::log2(2 / smoothing_parameter) / n_samples);
 
 #if DEBUG >= 1
     std::cerr << "CV_QKDPROTOCOL:  delta(n) = " << delta_n << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  alpha = " << m_alpha << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  modulation variance VA = " << this->m_VA << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  modulation variance VA = " << this->m_VA
+              << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  noise variance VN = " << m_VN << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  SNR_linear = " << snr_linear << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  C_awgn_capacity = " << C_awgn << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  Rate R of LDPC code = " << R_code << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  Reconciliation Efficiency Beta = " << beta << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  Rate R of LDPC code = " << R_code
+              << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  Reconciliation Efficiency Beta = " << beta
+              << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  I_AB = " << I_AB << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  chi_BE = " << chi_BE << std::endl;
 #endif
@@ -380,7 +405,6 @@ cvqkd_protocol::calculate_secret_key_length()
     // Finite-Size Effects Case.
     const double rate_per_pulse = (beta * I_AB) - chi_BE - delta_n;
 
-
     // Asymptotic Case.
     // const double rate_per_pulse = (1 * I_AB) - chi_BE;
 
@@ -388,7 +412,8 @@ cvqkd_protocol::calculate_secret_key_length()
     this->len_secret_key = std::floor(n_samples * rate_per_pulse);
 
 #if DEBUG >= 1
-    std::cerr << "CV_QKDPROTOCOL:  Secret Key Length = " << this->len_secret_key << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  Secret Key Length = " << this->len_secret_key
+              << std::endl;
 #endif
 
     // assert(l < 0 && "Computed length of secret key is negative!");
@@ -408,35 +433,37 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
     libbase::vector<bool> final_secret_key_KA;
     libbase::vector<bool> final_secret_key_KB;
 
-    // len_secret key is already calculated beforehand as the results collector calls the method.
+    // len_secret key is already calculated beforehand as the results collector
+    // calls the method.
 
     // Calculating N_PE: the number of samples used for parameter estimation.
     // N_PE = N (number of generated states) - n (size of codeword of the
     // codec)
-    assert(N_PE == alice_measurements.size() - cdc->output_block_size() && "N_PE does not match sifted key size minus n");
-
+    assert(N_PE == alice_measurements.size() - cdc->output_block_size() &&
+           "N_PE does not match sifted key size minus n");
 
 #if DEBUG >= 1
-    std::cout
-        << "Length of Secret Key = " << this->len_secret_key << std::endl;
+    std::cout << "Length of Secret Key = " << this->len_secret_key << std::endl;
     std::cout
         << "CV_QKDPROTOCOL: Number of states used for Parameter Estimation = "
         << N_PE << std::endl;
 #endif
 
     // Perform split for parameter estimation.
-    auto [X_PE, Y_PE, X, Y] =
-        split(alice_measurements, bob_measurements);
+    auto [X_PE, Y_PE, X, Y] = split(alice_measurements, bob_measurements);
 
 #if DEBUG >= 1
     std::cerr << "CV_QKDPROTOCOL:  Size of X_PE and Y_PE = " << X_PE.size()
               << "\t" << Y_PE.size() << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  Size of X and Y = " << X.size()
-              << "\t" << Y.size() << std::endl << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  Size of X and Y = " << X.size() << "\t"
+              << Y.size() << std::endl
+              << std::endl;
 #endif
 
 #if DEBUG >= 1
-    std::cout << "CV_QKDPROTOCOL: Are VA_hat, VN_hat, alpha_hat calculated from parameter estimation?: " << estimate_parameters << std::endl;
+    std::cout << "CV_QKDPROTOCOL: Are VA_hat, VN_hat, alpha_hat calculated "
+                 "from parameter estimation?: "
+              << estimate_parameters << std::endl;
 #endif
 
     /*  Estimate Parameters
@@ -444,63 +471,55 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         VA_hat, VN_hat and alpha_hat are calculated from parameter estimation.
 
         If estimate_parameters == false,
-        VA_hat, VN_hat and alpha_hat are taken directly from Bob's quantum channel.
+        VA_hat, VN_hat and alpha_hat are taken directly from Bob's quantum
+       channel.
     */
 
     double VA_hat, VN_hat, alpha_hat;
-    if(estimate_parameters)
-    {
-        // Calculate parameters from parameter estimation using Ryan's derived equations.
-         std::tie(VA_hat, VN_hat, alpha_hat) = parameter_estimation(X_PE, Y_PE);
+    if (estimate_parameters) {
+        // Calculate parameters from parameter estimation using Ryan's derived
+        // equations.
+        std::tie(VA_hat, VN_hat, alpha_hat) = parameter_estimation(X_PE, Y_PE);
 
 #if DEBUG >= 1
-    std::cout << "Calculate Parameters from parameter estimation: " << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  VA_hat = " << VA_hat << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  alpha_hat = " << alpha_hat << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  VN_hat = " << VN_hat << std::endl << std::endl;
+        std::cout << "Calculate Parameters from parameter estimation: "
+                  << std::endl;
+        std::cerr << "CV_QKDPROTOCOL:  VA_hat = " << VA_hat << std::endl;
+        std::cerr << "CV_QKDPROTOCOL:  alpha_hat = " << alpha_hat << std::endl;
+        std::cerr << "CV_QKDPROTOCOL:  VN_hat = " << VN_hat << std::endl
+                  << std::endl;
 #endif
-    }
-    else
-    {
+    } else {
         // Get the parameters directly from the objects.
         VA_hat = m_VA;
         alpha_hat = m_alpha;
         VN_hat = m_VN;
 
 #if DEBUG >= 1
-    std::cout << "Parameters are taken directly from objects: " << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  VA_hat = " << VA_hat << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  alpha_hat = " << alpha_hat << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  VN_hat = " << VN_hat << std::endl << std::endl;
+        std::cout << "Parameters are taken directly from objects: "
+                  << std::endl;
+        std::cerr << "CV_QKDPROTOCOL:  VA_hat = " << VA_hat << std::endl;
+        std::cerr << "CV_QKDPROTOCOL:  alpha_hat = " << alpha_hat << std::endl;
+        std::cerr << "CV_QKDPROTOCOL:  VN_hat = " << VN_hat << std::endl
+                  << std::endl;
 #endif
     }
 
-    double SNR_linear_hat =
-        (alpha_hat * alpha_hat) * (VA_hat) / (VN_hat);
-
-    // Convert SNR to dB
-    double SNR_dB = 10.0 * std::log10(SNR_linear_hat);
+    const double SNR_linear_hat = (alpha_hat * alpha_hat) * (VA_hat) / (VN_hat);
 
     // Calculate Mutual Information I_AB
-    double I_AB_est = calculate_mutual_information(SNR_linear_hat);
+    const double I_AB_est = calculate_mutual_information(SNR_linear_hat);
 
     // Calculate Holevo Bound Chi_BE
-    double chi_BE_est = calculate_holevo_bound(VA_hat, alpha_hat, VN_hat);
-
-    // chi_be can never be negative
-    if (chi_BE_est < 0) {
-        chi_BE_est = 0; // chi can never be negative.
-    }
+    const double chi_BE_est = calculate_holevo_bound(VA_hat, alpha_hat, VN_hat);
 
 #if DEBUG >= 1
-    std::cerr << "CV_QKDPROTOCOL:  Estimated Mutual Information I_AB from PE = " << I_AB_est
-              << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  Estimated Holevo Bound Chi_BE from PE = " << chi_BE_est
-              << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  Estimated Mutual Information I_AB from PE = "
+              << I_AB_est << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  Estimated Holevo Bound Chi_BE from PE = "
+              << chi_BE_est << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  SNR_linear_hat = " << SNR_linear_hat
-                << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  SNR_dB = " << SNR_dB
-                << std::endl << std::endl;
+              << std::endl;
 #endif
 
     /* Checks whether the protocol is aborted or not to continue with the
@@ -521,10 +540,8 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         }
 
 #if DEBUG >= 1
-        std::cerr << "CV_QKDPROTOCOL: (Alice) X = " << X
-                  << std::endl;
-        std::cerr << "CV_QKDPROTOCOL: (Bob) Y  = " << Y
-                  << std::endl;
+        std::cerr << "CV_QKDPROTOCOL: (Alice) X = " << X << std::endl;
+        std::cerr << "CV_QKDPROTOCOL: (Bob) Y  = " << Y << std::endl;
         std::cerr << "CV_QKDPROTOCOL: bob_vector_s = " << bob_vector_s
                   << std::endl;
 #endif
@@ -576,7 +593,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 #endif
 
         // Set SNR_db in AWGN channel
-        demodulation_channel->set_parameter(SNR_dB);
+        demodulation_channel->set_parameter(VN_hat);
 
         // Instantiate Probability Table.
         libbase::vector<libbase::vector<double>> prob_table;
@@ -606,8 +623,8 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         }
 
 #if DEBUG >= 1
-        std::cerr << "CV_QKDPROTOCOL: (Alice) decoded vector_s_hat = " << vector_s_hat
-                  << std::endl;
+        std::cerr << "CV_QKDPROTOCOL: (Alice) decoded vector_s_hat = "
+                  << vector_s_hat << std::endl;
         std::cerr << "CV_QKDPROTOCOL: hamming(vectors s, s_hat) = "
                   << libbase::hamming(bob_vector_s, vector_s_hat) << std::endl;
 #endif
@@ -629,15 +646,17 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
             std::cerr << "CV_QKDPROTOCOL: H_check = true" << std::endl;
 #endif
 
-            /* Calculate length l of final secret key directly from Parameter estimation
-            STILL TO THINK HOW WE WILL DO THIS to calculate the length of the secret key directly from the estimated values.
-            we also need to check if it is being done this way
-            // To calculate l the following are needed: R_Code, C_awgn, SNR_linear, beta, I_AB and X_BE
+            /* Calculate length l of final secret key directly from Parameter
+            estimation STILL TO THINK HOW WE WILL DO THIS to calculate the
+            length of the secret key directly from the estimated values. we also
+            need to check if it is being done this way
+            // To calculate l the following are needed: R_Code, C_awgn,
+            SNR_linear, beta, I_AB and X_BE
             // len_secret_key = calculate_secret_key_length(); */
 
 #if DEBUG >= 1
-            std::cerr << "CV_QKDPROTOCOL: len_secret_key = " << this->len_secret_key
-                      << std::endl;
+            std::cerr << "CV_QKDPROTOCOL: len_secret_key = "
+                      << this->len_secret_key << std::endl;
 #endif
 
             if (this->len_secret_key > 0) {
@@ -646,8 +665,9 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
                 // * length of final key after doing PA.
                 // * length of pre-hashed key which in this case is the size of
                 // vectors s and s_hat of size k.
-                pa_system.init(
-                    this->len_secret_key, cdc->input_block_size(), alphabet_size);
+                pa_system.init(this->len_secret_key,
+                               cdc->input_block_size(),
+                               alphabet_size);
 
                 int starting_vector_len =
                     pa_system.generate_starting_vector_length();
@@ -676,8 +696,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         } else {
 
 #if DEBUG >= 1
-            std::cerr << "CV_QKDPROTOCOL: H_check = " << H_check
-                      << std::endl;
+            std::cerr << "CV_QKDPROTOCOL: H_check = " << H_check << std::endl;
 #endif
         }
     } else {
@@ -715,7 +734,7 @@ return more parameters for the case of CV-QKD. */
 // Returns final secret keys KA and KB.
 std::tuple<bool, double, double, double, double, double, double, int>
 cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
-                            libbase::vector<double>&& bob_measurements)
+                              libbase::vector<double>&& bob_measurements)
 {
 
     libbase::vector<bool> final_secret_key_KA;
@@ -726,29 +745,31 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
     // Calculating N_PE: the number of samples used for parameter estimation.
     // N_PE = N (number of generated states) - n (size of codeword of the
     // codec)
-    assert(N_PE == alice_measurements.size() - cdc->output_block_size() && "N_PE does not match sifted key size minus n");
+    assert(N_PE == alice_measurements.size() - cdc->output_block_size() &&
+           "N_PE does not match sifted key size minus n");
 
 #if DEBUG >= 1
-    std::cout
-        << "Length of Secret Key = " << this->len_secret_key << std::endl;
+    std::cout << "Length of Secret Key = " << this->len_secret_key << std::endl;
     std::cout
         << "CV_QKDPROTOCOL: Number of states used for Parameter Estimation = "
         << N_PE << std::endl;
 #endif
 
     // Perform split for parameter estimation.
-    auto [X_PE, Y_PE, X, Y] =
-        split(alice_measurements, bob_measurements);
+    auto [X_PE, Y_PE, X, Y] = split(alice_measurements, bob_measurements);
 
 #if DEBUG >= 1
     std::cerr << "CV_QKDPROTOCOL:  Size of X_PE and Y_PE = " << X_PE.size()
               << "\t" << Y_PE.size() << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  Size of X and Y = " << X.size()
-              << "\t" << Y.size() << std::endl << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  Size of X and Y = " << X.size() << "\t"
+              << Y.size() << std::endl
+              << std::endl;
 #endif
 
 #if DEBUG >= 1
-    std::cout << "CV_QKDPROTOCOL: Are VA_hat, VN_hat, alpha_hat calculated from parameter estimation?: " << estimate_parameters << std::endl;
+    std::cout << "CV_QKDPROTOCOL: Are VA_hat, VN_hat, alpha_hat calculated "
+                 "from parameter estimation?: "
+              << estimate_parameters << std::endl;
 #endif
 
     /*  Estimate Parameters
@@ -756,67 +777,59 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
         VA_hat, VN_hat and alpha_hat are calculated from parameter estimation.
 
         If estimate_parameters == false,
-        VA_hat, VN_hat and alpha_hat are taken directly from Bob's quantum channel.
+        VA_hat, VN_hat and alpha_hat are taken directly from Bob's quantum
+       channel.
     */
 
     double VA_hat, VN_hat, alpha_hat;
-    if(estimate_parameters)
-    {
+    if (estimate_parameters) {
 
-        // Calculate parameters from parameter estimation using Ryan's derived equations.
+        // Calculate parameters from parameter estimation using Ryan's derived
+        // equations.
         std::tie(VA_hat, VN_hat, alpha_hat) = parameter_estimation(X_PE, Y_PE);
 
 #if DEBUG >= 1
-    std::cout << "Calculate Parameters from parameter estimation: " << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  VA_hat = " << VA_hat << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  alpha_hat = " << alpha_hat << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  VN_hat = " << VN_hat << std::endl << std::endl;
+        std::cout << "Calculate Parameters from parameter estimation: "
+                  << std::endl;
+        std::cerr << "CV_QKDPROTOCOL:  VA_hat = " << VA_hat << std::endl;
+        std::cerr << "CV_QKDPROTOCOL:  alpha_hat = " << alpha_hat << std::endl;
+        std::cerr << "CV_QKDPROTOCOL:  VN_hat = " << VN_hat << std::endl
+                  << std::endl;
 #endif
-    }
-    else
-    {
+    } else {
         // Get the parameters directly from the objects.
         VA_hat = m_VA;
         alpha_hat = m_alpha;
         VN_hat = m_VN;
 
 #if DEBUG >= 1
-    std::cout << "Parameters are taken directly from objects: " << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  VA_hat = " << VA_hat << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  alpha_hat = " << alpha_hat << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  VN_hat = " << VN_hat << std::endl << std::endl;
+        std::cout << "Parameters are taken directly from objects: "
+                  << std::endl;
+        std::cerr << "CV_QKDPROTOCOL:  VA_hat = " << VA_hat << std::endl;
+        std::cerr << "CV_QKDPROTOCOL:  alpha_hat = " << alpha_hat << std::endl;
+        std::cerr << "CV_QKDPROTOCOL:  VN_hat = " << VN_hat << std::endl
+                  << std::endl;
 #endif
     }
 
     // CLI parameter of the gaussian quantum channel.
     // TO CONFIRM whether I also need to serialize this in the
     // the cvqkdprotocol.cpp as part of the switch as I did for DV-QKD.
-    double SNR_linear_est =
-        (alpha_hat * alpha_hat) * (VA_hat) / (VN_hat);
-
-    // Convert SNR to dB
-    double SNR_dB = 10.0 * std::log10(SNR_linear_est);
+    const double SNR_linear_est = (alpha_hat * alpha_hat) * (VA_hat) / (VN_hat);
 
     // Calculate Mutual Information I_AB
-    double I_AB_est = calculate_mutual_information(SNR_linear_est);
+    const double I_AB_est = calculate_mutual_information(SNR_linear_est);
 
     // Calculate Holevo Bound Chi_BE
-    double chi_BE_est = calculate_holevo_bound(VA_hat, alpha_hat, VN_hat);
-
-    // chi_be can never be negative
-    if (chi_BE_est < 0) {
-        chi_BE_est = 0; // chi can never be negative.
-    }
+    const double chi_BE_est = calculate_holevo_bound(VA_hat, alpha_hat, VN_hat);
 
 #if DEBUG >= 1
-    std::cerr << "CV_QKDPROTOCOL:  Estimated Mutual Information I_AB from PE = " << I_AB_est
-              << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  Estimated Holevo Bound Chi_BE form PE = " << chi_BE_est
-              << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  Estimated Mutual Information I_AB from PE = "
+              << I_AB_est << std::endl;
+    std::cerr << "CV_QKDPROTOCOL:  Estimated Holevo Bound Chi_BE form PE = "
+              << chi_BE_est << std::endl;
     std::cerr << "CV_QKDPROTOCOL:  SNR_linear_Est = " << SNR_linear_est
-                  << std::endl;
-    std::cerr << "CV_QKDPROTOCOL:  SNR_dB = " << SNR_dB
-                  << std::endl << std::endl;
+              << std::endl;
 #endif
 
     /* Checks whether the protocol is aborted or not to continue with the
@@ -837,10 +850,8 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
         }
 
 #if DEBUG >= 1
-        std::cerr << "CV_QKDPROTOCOL: (Alice) X = " << X
-                  << std::endl;
-        std::cerr << "CV_QKDPROTOCOL: (Bob) Y  = " << Y
-                  << std::endl;
+        std::cerr << "CV_QKDPROTOCOL: (Alice) X = " << X << std::endl;
+        std::cerr << "CV_QKDPROTOCOL: (Bob) Y  = " << Y << std::endl;
         std::cerr << "CV_QKDPROTOCOL: bob_vector_s = " << bob_vector_s
                   << std::endl;
 #endif
@@ -892,7 +903,7 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
 #endif
 
         // Set SNR_db in AWGN channel
-        demodulation_channel->set_parameter(SNR_dB);
+        demodulation_channel->set_parameter(VN_hat);
 
         // Instantiate Probability Table.
         libbase::vector<libbase::vector<double>> prob_table;
@@ -922,8 +933,8 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
         }
 
 #if DEBUG >= 1
-        std::cerr << "CV_QKDPROTOCOL: (Alice) decoded vector_s_hat = " << vector_s_hat
-                  << std::endl;
+        std::cerr << "CV_QKDPROTOCOL: (Alice) decoded vector_s_hat = "
+                  << vector_s_hat << std::endl;
         std::cerr << "CV_QKDPROTOCOL: hamming(vectors s, s_hat) = "
                   << libbase::hamming(bob_vector_s, vector_s_hat) << std::endl;
 #endif
@@ -944,15 +955,17 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
 #if DEBUG >= 1
             std::cerr << "CV_QKDPROTOCOL: H_check = " << H_check << std::endl;
 #endif
-            /* Calculate length l of final secret key directly from Parameter estimation
-            STILL TO THINK HOW WE WILL DO THIS to calculate the length of the secret key directly from the estimated values.
-            we also need to check if it is being done this way
-            // To calculate l the following are needed: R_Code, C_awgn, SNR_linear, beta, I_AB and X_BE
+            /* Calculate length l of final secret key directly from Parameter
+            estimation STILL TO THINK HOW WE WILL DO THIS to calculate the
+            length of the secret key directly from the estimated values. we also
+            need to check if it is being done this way
+            // To calculate l the following are needed: R_Code, C_awgn,
+            SNR_linear, beta, I_AB and X_BE
             // len_secret_key = calculate_secret_key_length(); */
 
 #if DEBUG >= 1
-            std::cerr << "CV_QKDPROTOCOL: len_secret_key = " << this->len_secret_key
-                      << std::endl;
+            std::cerr << "CV_QKDPROTOCOL: len_secret_key = "
+                      << this->len_secret_key << std::endl;
 #endif
 
             if (this->len_secret_key > 0) {
@@ -961,8 +974,9 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
                 // * length of final key after doing PA.
                 // * length of pre-hashed key which in this case is the size of
                 // vectors s and s_hat of size k.
-                pa_system.init(
-                    this->len_secret_key, cdc->input_block_size(), alphabet_size);
+                pa_system.init(this->len_secret_key,
+                               cdc->input_block_size(),
+                               alphabet_size);
 
                 int starting_vector_len =
                     pa_system.generate_starting_vector_length();
@@ -1020,7 +1034,14 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
 #endif
 
     // return 8 parameters to do tests for multiple SNRs or VNs
-    return {MI_Check, I_AB_est, chi_BE_est, VA_hat, m_VN, VN_hat, alpha_hat, this->len_secret_key};
+    return {MI_Check,
+            I_AB_est,
+            chi_BE_est,
+            VA_hat,
+            m_VN,
+            VN_hat,
+            alpha_hat,
+            this->len_secret_key};
 }
 
 // Returns description of the protocol
@@ -1041,7 +1062,9 @@ cvqkd_protocol::serialize(std::ostream& sout) const
     sout << N_PE << std::endl;
     sout << "# VA, VN, alpha from parameter estimation?" << std::endl;
     sout << int(estimate_parameters) << std::endl;
-    sout << "# Smoothing Parameter" << std::endl;  // Smoothing parameter bar epsilon is used to calculate the final
+    sout << "# Smoothing Parameter"
+         << std::endl; // Smoothing parameter bar epsilon is used to calculate
+                       // the final
     // length of the secret key.
     sout << smoothing_parameter << std::endl;
     sout << "# Alphabet size" << std::endl;
@@ -1075,8 +1098,11 @@ cvqkd_protocol::serialize(std::istream& sin)
 
     // check that all assumptions hold
     assertalways(alphabet_size == 2); // we only support binary for now
-    assertalways(cdc->num_inputs() == alphabet_size); // codec input has to be binary
-    assertalways(cdc->num_outputs() == embedder->num_symbols()); // codec output has to match embedder input
+    assertalways(cdc->num_inputs() ==
+                 alphabet_size); // codec input has to be binary
+    assertalways(
+        cdc->num_outputs() ==
+        embedder->num_symbols()); // codec output has to match embedder input
 
     return sin;
 }
