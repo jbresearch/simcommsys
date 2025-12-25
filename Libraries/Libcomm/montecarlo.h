@@ -55,7 +55,8 @@ private:
     // @}
     /*! \name Internal variables / settings */
     uint32_t seed; //! system initialization seed
-    int min_samples;      //!< minimum number of samples
+    uint64_t min_samples;      //!< minimum number of samples
+    uint64_t max_samples;      //!< maximum number of samples (0: no limit)
     double confidence;    //!< confidence level for computing margin of error
     double threshold; //!< threshold for convergence (interpretation depends on
                       //!< mode)
@@ -132,7 +133,7 @@ protected:
 public:
     /*! \name Constructor/destructor */
     montecarlo()
-        : min_samples(128), confidence(0.95), threshold(0.10),
+        : min_samples(128), max_samples(0), confidence(0.95), threshold(0.10),
           mode(mode_relative_error), t("montecarlo"),
           tupdate("montecarlo_update")
     {
@@ -185,13 +186,21 @@ public:
         this->seed = seed;
     }
     //! Set minimum number of samples
-    void set_min_samples(int min_samples)
+    void set_min_samples(uint64_t min_samples)
     {
         assertalways(min_samples > 0);
         libbase::trace
             << "DEBUG (montecarlo): setting minimum number of samples to "
             << min_samples << std::endl;
         this->min_samples = min_samples;
+    }
+    //! Set maximum number of samples
+    void set_max_samples(uint64_t max_samples)
+    {
+        libbase::trace
+            << "DEBUG (montecarlo): setting maximum number of samples to "
+            << max_samples << std::endl;
+        this->max_samples = max_samples;
     }
     //! Set confidence limit, say, 0.95 => 95% probability
     void set_confidence(double confidence)

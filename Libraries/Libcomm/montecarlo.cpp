@@ -165,7 +165,7 @@ montecarlo::display(const libbase::vector<double>& result,
  */
 void
 montecarlo::compute_estimate(vector<double>& result,
-                          vector<double>& errormargin) const
+                             vector<double>& errormargin) const
 {
     const double cfactor = libbase::Qinv((1.0 - confidence) / 2.0);
     // determine a new estimate
@@ -363,7 +363,7 @@ montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
         if (results_available) {
             compute_estimate(result, errormargin);
             // if we have done enough samples, check accuracy reached
-            if (system->get_samplecount() >= uint64_t(min_samples)) {
+            if (system->get_samplecount() >= min_samples) {
                 switch (mode) {
                 case mode_relative_error: {
                     // determine error margin as a fraction of result mean
@@ -399,6 +399,11 @@ montecarlo::estimate(vector<double>& result, vector<double>& errormargin)
                 default:
                     failwith("Convergence mode not supported.");
                     break;
+                }
+                // if there is a limit on number of samples, respect it
+                if (max_samples > 0 &&
+                    system->get_samplecount() >= max_samples) {
+                    converged = true;
                 }
             }
             // print something to inform the user of our progress

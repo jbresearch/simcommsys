@@ -142,7 +142,9 @@ main(int argc, char* argv[])
         "target accumulated result (i.e. result mean x sample count); "
         "overrides absolute and relative error if specified");
     desc.add_options()(
-        "min-samples", po::value<int>(), "minimum number of samples");
+        "min-samples", po::value<uint64_t>(), "minimum number of samples");
+    desc.add_options()(
+        "max-samples", po::value<uint64_t>(), "maximum number of samples");
     desc.add_options()("output-format,f",
                        po::value<std::string>()->default_value("text"),
                        "output format; use text for regular human-readable "
@@ -199,7 +201,10 @@ main(int argc, char* argv[])
         }
 
         if (vm.count("min-samples")) {
-            estimator->set_min_samples(vm["min-samples"].as<int>());
+            estimator->set_min_samples(vm["min-samples"].as<uint64_t>());
+        }
+        if (vm.count("max-samples")) {
+            estimator->set_max_samples(vm["max-samples"].as<uint64_t>());
         }
         if (vm.count("seed")) {
             estimator->set_seed(vm["seed"].as<uint32_t>());
