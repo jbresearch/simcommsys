@@ -167,7 +167,7 @@ main(int argc, char* argv[])
     desc.add_options()(
         "min-samples", po::value<uint64_t>(), "minimum number of samples");
     desc.add_options()(
-        "max-samples", po::value<uint64_t>(), "maximum number of samples");
+        "max-samples", po::value<uint64_t>(), "maximum number of samples (0: no limit)");
     desc.add_options()("seed,s",
                        po::value<uint32_t>(),
                        "system initialization seed (random if not stated)");
