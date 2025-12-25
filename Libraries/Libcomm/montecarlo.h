@@ -54,9 +54,9 @@ private:
     libbase::masterslave cluster;       //!< Master/slave interface
     // @}
     /*! \name Internal variables / settings */
-    uint32_t seed; //! system initialization seed
-    uint64_t min_samples;      //!< minimum number of samples
-    uint64_t max_samples;      //!< maximum number of samples (0: no limit)
+    uint32_t seed;        //! system initialization seed
+    uint64_t min_samples; //!< minimum number of samples
+    uint64_t max_samples; //!< maximum number of samples (0: no limit)
     double confidence;    //!< confidence level for computing margin of error
     double threshold; //!< threshold for convergence (interpretation depends on
                       //!< mode)
@@ -97,7 +97,7 @@ private:
         system->accumulate_result(sample_result, sample_count);
     }
     void compute_estimate(libbase::vector<double>& result,
-                       libbase::vector<double>& errormargin) const;
+                          libbase::vector<double>& errormargin) const;
     void initslave(std::shared_ptr<libbase::socket> s,
                    std::string systemstring);
     void initnewslaves(std::string systemstring);
@@ -200,6 +200,11 @@ public:
         libbase::trace
             << "DEBUG (montecarlo): setting maximum number of samples to "
             << max_samples << std::endl;
+        if (max_samples < min_samples) {
+            std::cerr << "WARNING (montecarlo): maximum number of samples is "
+                         "less than the minimum number, overriding"
+                      << std::endl;
+        }
         this->max_samples = max_samples;
     }
     //! Set confidence limit, say, 0.95 => 95% probability
@@ -287,10 +292,7 @@ public:
     // @}
     /*! \name Simulation results */
     //! Number of samples taken to produce the result
-    uint64_t get_samplecount() const
-    {
-        return system->get_samplecount();
-    }
+    uint64_t get_samplecount() const { return system->get_samplecount(); }
     //! Time taken to produce the result
     const libbase::timer& get_timer() const { return t; }
     // @}
