@@ -41,21 +41,24 @@ namespace libbase
 {
 
 //! Tail probability of the standard normal distribution
-inline double
-Q(double x)
+template <class T>
+inline T
+Q(T x)
 {
     return 0.5 * boost::math::erfc(x / sqrt(2.0));
 }
 
 //! Inverse tail probability of the standard normal distribution
-inline double
-Qinv(double y)
+template <class T>
+inline T
+Qinv(T y)
 {
     return sqrt(2.0) * boost::math::erfc_inv(2 * y);
 }
 
-inline double
-gauss(double x)
+template <class T>
+inline T
+gauss(T x)
 {
     return exp(-0.5 * x * x) / sqrt(2.0 * PI);
 }
