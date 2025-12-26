@@ -16,11 +16,10 @@ gaussian_quantum_channel::description() const
 std::ostream&
 gaussian_quantum_channel::serialize(std::ostream& sout) const
 {
- 
-    sout << "# Mean of the Gaussian Quantum Channel" << std::endl;
-    sout << noise_mean << std::endl;
+    sout << "# Noise mean" << std::endl;
+    sout << mean << std::endl;
     sout << "# Fading Coefficient alpha" << std::endl;
-    sout << noise_alpha << std::endl;
+    sout << alpha << std::endl;
     return sout;
 }
 
@@ -28,12 +27,9 @@ gaussian_quantum_channel::serialize(std::ostream& sout) const
 std::istream&
 gaussian_quantum_channel::serialize(std::istream& sin)
 {
-
-    // assertalways(sin.good());
-    sin >> libbase::eatcomments >> noise_mean >>
-        libbase::verify; // Mean of Noise
-    sin >> libbase::eatcomments >> noise_alpha >>
-        libbase::verify; // Fading coefficient
+    assertalways(sin.good());
+    sin >> libbase::eatcomments >> mean >> libbase::verify;
+    sin >> libbase::eatcomments >> alpha >> libbase::verify;
     return sin;
 }
 

@@ -23,43 +23,25 @@ class gaussian_quantum_channel : public quantum_channel
 {
 
 private:
-    double SNR; // Only CLI parameter of the quantum channel (linear not dB)
-    double VA; // Modulation variance of Alice that will be set by a qkd_commsys
-               // object.
-    double noise_alpha; // fading coefficient. 
-    double VN; // variance VN to generate the noisy coherent states.
-    double noise_mean; // Chosen mean of the ND to generate the noise. This is a
-                       // serialized parameter.
     std::mt19937 gen;
+    double alpha; // fading coefficient (serialized)
+    double mean;  // noise mean value (serialized)
+    double VN;    // noise variance (CLI)
 
 protected:
-    double compute_VN() // Calculates variance VN to generate the noisy coherent
-                        // states.
-    {
-        assertalways(std::isfinite(VA) && VA >= 0.0);
-        assertalways(std::isfinite(SNR) && SNR > 0.0);
-        // std::cout << "\nPrinting VN from gaussian_quantum_channel.h\n = " <<
-        // VA/SNR << std::endl;
-        return VA / SNR;
-    }
-
     template <class Obs>
     void transmit_impl(Obs& observable)
     {
-        const double noise_stddev = std::sqrt(VN);
-        std::normal_distribution<double> dist(noise_mean, noise_stddev);
+        const double stddev = std::sqrt(VN);
+        std::normal_distribution<double> dist(mean, stddev);
         const double noise = dist(gen);
         observable.set_noise(noise);
-        observable.set_alpha(noise_alpha); 
+        observable.set_alpha(alpha);
     }
 
 public:
     //! Constructor
-    gaussian_quantum_channel()
-        : SNR(0.0), VA(0.0), noise_alpha(0.0), 
-        VN(0.0), noise_mean(0.0), gen()
-    {
-    }
+    gaussian_quantum_channel() : alpha(0.0), mean(0.0), VN(0.0) {}
 
     //! Seeds the Mersenne Twister random number generator from a pseudo-random
     //! sequence
@@ -79,9 +61,8 @@ public:
     //! Set the characteristic parameters
     void set_parameters(const libbase::vector<double>& x) override
     {
-        assertalways(x.size() ==
-                     1); // Ensures all required parameters are passed
-        VN = x(0);       // Variance VN
+        assertalways(x.size() == 1);
+        VN = x(0);
         assertalways(std::isfinite(VN) && VN > 0.0);
     }
 
@@ -100,17 +81,12 @@ public:
     } // returns the number of CLI parameters
     // @}
 
-    // Overrides the base class method to return the specific fading coefficient alpha. 
-    double get_alpha() const override
-    {
-        return noise_alpha; 
-    } 
+    // Overrides the base class method to return the specific fading coefficient
+    // alpha.
+    double get_alpha() const override { return alpha; }
 
-    // Overrides the base class method to return the variance VN. 
-    double get_VN() const override
-    {
-        return VN;
-    }
+    // Overrides the base class method to return the variance VN.
+    double get_VN() const override { return VN; }
 
     // Description - Returns a short string describing the channel
     std::string description() const override;
