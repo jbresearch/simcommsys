@@ -30,7 +30,7 @@ gaussian_quantum_channel
 # Mean of the Gaussian Quantum Channel
 0.0
 # Fading Coefficient alpha
-1
+0.6
 ## Postprocessing protocol
 cvqkd_protocol
 # Version
