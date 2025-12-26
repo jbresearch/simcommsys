@@ -8,11 +8,11 @@ quantum_gaussian_source
 # Mean of Q_Mean
 0.0
 # Stddev of Q_Mean
-4.30116
+2.25
 # Mean of P_Mean
 0.0
 # Stddev of P_Mean
-4.30116
+2.25
 # Stddev of Q
 1.0
 # Stddev of P
