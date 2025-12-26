@@ -14,9 +14,9 @@ quantum_gaussian_source
 # Stddev of P_Mean
 4.30116
 # Stddev of Q
-1.0
+7.261445506922158e-18
 # Stddev of P
-1.0
+7.261445506922158e-18
 # Communication system
 qkd_commsys<gaussian_state,double,vector>
 # Version
@@ -30,7 +30,7 @@ gaussian_quantum_channel
 # Mean of the Gaussian Quantum Channel
 0.0
 # Fading Coefficient alpha
-0.1
+1.0
 ## Postprocessing protocol
 cvqkd_protocol
 # Version
