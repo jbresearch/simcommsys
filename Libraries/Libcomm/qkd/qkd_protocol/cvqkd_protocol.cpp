@@ -506,13 +506,15 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 #endif
     }
 
-    const double SNR_linear_hat = (alpha_hat * alpha_hat) * (VA_hat) / (VN_hat);
+    const double SNR_linear_hat =
+        ((alpha_hat * alpha_hat) * VA_hat) / ((alpha_hat * alpha_hat) * 1.0 + VN_hat);
 
     // Calculate Mutual Information I_AB
     const double I_AB_est = calculate_mutual_information(SNR_linear_hat);
 
     // Calculate Holevo Bound Chi_BE
-    const double chi_BE_est = calculate_holevo_bound(VA_hat, alpha_hat, VN_hat);
+    const double chi_BE_est =
+        calculate_holevo_bound(VA_hat, alpha_hat, VN_hat);
 
 #if DEBUG >= 1
     std::cerr << "CV_QKDPROTOCOL:  Estimated Mutual Information I_AB from PE = "
