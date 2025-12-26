@@ -597,7 +597,7 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 #endif
 
         // Set SNR_db in AWGN channel
-        demodulation_channel->set_parameter(VN_hat);
+        demodulation_channel->set_parameter((alpha_hat * alpha_hat) * 1.0 + VN_hat);
 
         // Instantiate Probability Table.
         libbase::vector<libbase::vector<double>> prob_table;
@@ -908,7 +908,7 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
 #endif
 
         // Set SNR_db in AWGN channel
-        demodulation_channel->set_parameter(VN_hat);
+        demodulation_channel->set_parameter((alpha_hat * alpha_hat) * 1.0 + VN_hat);
 
         // Instantiate Probability Table.
         libbase::vector<libbase::vector<double>> prob_table;
