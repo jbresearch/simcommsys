@@ -56,14 +56,13 @@ class quantum_gaussian_source : public source<gaussian_state, libbase::vector>
 {
 
 private:
+    std::mt19937 gen;
     double q_mean_mean;   // Chosen mean to generate q_mean
     double q_mean_stddev; // Chosen stddev to generate q_mean
     double p_mean_mean;   // Chosen mean to generate p_mean
     double p_mean_stddev; // Chosen stddev to generate p_mean
     double q_stddev;      // Stddev of q
     double p_stddev;      // Stddev of p
-    std::mt19937 gen;
-    // libbase::randgen gen;
 
 public:
     // Default constructor
@@ -75,7 +74,7 @@ public:
                             double p_stddev = 1.0)
         : q_mean_mean(q_mean_mean), q_mean_stddev(q_mean_stddev),
           p_mean_mean(p_mean_mean), p_mean_stddev(p_mean_stddev),
-          q_stddev(q_stddev), p_stddev(p_stddev), gen()
+          q_stddev(q_stddev), p_stddev(p_stddev)
     {
     }
 

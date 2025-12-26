@@ -23,7 +23,7 @@ class epr_beam;
 class momentum_observable : public observable<double>
 {
 private:
-    double noise;
+    double noise; // additive noise
     double alpha; // fading coefficient
 
 public:
@@ -33,19 +33,11 @@ public:
     {
     }
 
-    /* The noise and alpha are all parameters coming from the gaussian quantum channel.
-    The noise is a CLI parameter of the gaussian quantum channel whereas alpha is a
-    serialized parameter of the gaussian quantum channel.
-    */
-
     void set_noise(double noise_val) { noise = noise_val; }
 
     double get_noise() const { return noise; }
 
-    void set_alpha(double alpha_val)
-    {
-        alpha = alpha_val;
-    }
+    void set_alpha(double alpha_val) { alpha = alpha_val; }
 
     double get_alpha() const { return alpha; }
 
