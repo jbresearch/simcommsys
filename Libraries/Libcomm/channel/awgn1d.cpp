@@ -24,20 +24,50 @@
 namespace libcomm
 {
 
-const libbase::serializer awgn1d::shelper("channel", "awgn1d", awgn1d::create);
-
 // Serialization Support
 
+template <class S>
 std::ostream&
-awgn1d::serialize(std::ostream& sout) const
+awgn1d<S>::serialize(std::ostream& sout) const
 {
     return sout;
 }
 
+template <class S>
 std::istream&
-awgn1d::serialize(std::istream& sin)
+awgn1d<S>::serialize(std::istream& sin)
 {
     return sin;
 }
+
+} // namespace libcomm
+
+namespace libcomm
+{
+
+// Explicit Realizations
+#include <boost/preprocessor/seq/for_each.hpp>
+#include <boost/preprocessor/stringize.hpp>
+
+using libbase::serializer;
+
+// clang-format off
+#define REAL_TYPE_SEQ \
+   (float)(double)
+
+/* Serialization string: awgn1d<real>
+ * where:
+ *      real = float | double
+ */
+#define INSTANTIATE(r, x, type) \
+      template class awgn1d<type>; \
+      template <> \
+      const serializer awgn1d<type>::shelper( \
+            "channel", \
+            "awgn1d<" BOOST_PP_STRINGIZE(type) ">", \
+            awgn1d<type>::create);
+// clang-format on
+
+BOOST_PP_SEQ_FOR_EACH(INSTANTIATE, x, REAL_TYPE_SEQ)
 
 } // namespace libcomm

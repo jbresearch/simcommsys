@@ -12,7 +12,6 @@
 #define CVQKD_PROTOCOL_H
 
 #include "channel.h"
-#include "channel/awgn1d.h"
 #include "codec/codec_coset.h"
 #include "commsys.h"
 #include "crc/crc32.h"
@@ -70,8 +69,6 @@ protected:
     std::shared_ptr<codec_coset<libbase::vector>> cdc; //!< Error-control codec
     std::shared_ptr<block_informed_embedder<double, libbase::vector, double>>
         embedder; // Embedder
-    std::shared_ptr<channel<double>>
-        demodulation_channel; // Channel to be used for demodulation.
 
     //  Privacy Amplification System using the standard Toeplitz matrix
     pa_standard_toeplitz<bool> pa_system;

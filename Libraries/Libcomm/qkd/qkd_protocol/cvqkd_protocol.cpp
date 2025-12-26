@@ -1,4 +1,5 @@
 #include "cvqkd_protocol.h"
+#include "channel/awgn1d.h"
 #include "codec/ldpc.h"
 #include <cmath>
 #include <sstream>
@@ -585,7 +586,8 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
         /* Demodulation step to get the Probability Table for the decoder. */
 
         // Instantiate the AWGN channel object.
-        demodulation_channel = std::make_shared<libcomm::awgn1d>();
+        std::shared_ptr<channel<double>> demodulation_channel =
+            std::make_shared<awgn1d<double>>();
 
 #if DEBUG >= 1
         std::cerr << "CV_QKDPROTOCOL: demodulation_channel = "
@@ -895,7 +897,8 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
         /* Demodulation step to get the Probability Table for the decoder. */
 
         // Instantiate the AWGN channel object.
-        demodulation_channel = std::make_shared<libcomm::awgn1d>();
+        std::shared_ptr<channel<double>> demodulation_channel =
+            std::make_shared<awgn1d<double>>();
 
 #if DEBUG >= 1
         std::cerr << "CV_QKDPROTOCOL: demodulation_channel = "

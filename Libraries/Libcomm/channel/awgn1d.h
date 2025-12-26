@@ -33,20 +33,21 @@ namespace libcomm
 {
 
 /*!
- * \brief Additive White Gaussian Noise channel (scalar, 1D) double variant.
+ * \brief Additive White Gaussian Noise channel (scalar, 1D) variant.
  * \author Aaron Abela
  *
  * Expects noise variance via set_parameter(VN).
  */
-class awgn1d : public channel<double>
+template <class S>
+class awgn1d : public channel<S>
 {
     // ---- Channel parameters ----
     double sigma{0.0}; // std dev of Gaussian noise
 
 protected:
-    double corrupt(const double& s) override { return s + this->r.gval(sigma); }
+    S corrupt(const S& s) override { return s + this->r.gval(sigma); }
 
-    double pdf(const double& tx, const double& rx) const override
+    double pdf(const S& tx, const S& rx) const override
     {
         // libbase::gauss expects normalized arg
         return libbase::gauss((rx - tx) / sigma);
