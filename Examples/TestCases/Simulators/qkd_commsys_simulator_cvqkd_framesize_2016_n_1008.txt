@@ -14,9 +14,9 @@ quantum_gaussian_source
 # Stddev of P_Mean
 4.30116
 # Stddev of Q
-7.261445506922158e-18
+1.0
 # Stddev of P
-7.261445506922158e-18
+1.0
 # Communication system
 qkd_commsys<gaussian_state,double,vector>
 # Version
