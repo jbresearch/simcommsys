@@ -24,7 +24,7 @@ class momentum_observable : public observable<double>
 {
 private:
     double noise;
-    double alpha; // fading coefficient 
+    double alpha; // fading coefficient
 
 public:
     momentum_observable() : noise(0.0), alpha(0.0) {}
@@ -33,8 +33,8 @@ public:
     {
     }
 
-    /* The noise and alpha are all parameters coming from the gaussian quantum channel. 
-    The noise is a CLI parameter of the gaussian quantum channel whereas alpha is a 
+    /* The noise and alpha are all parameters coming from the gaussian quantum channel.
+    The noise is a CLI parameter of the gaussian quantum channel whereas alpha is a
     serialized parameter of the gaussian quantum channel.
     */
 
@@ -51,30 +51,8 @@ public:
 
     double measure(gaussian_state& state) const override
     {
-        // return std::sqrt(transmittance*detector_eff)*(state.get_p() + noise);
-        // // For the case 1: S_B\ =\ \sqrt\etaT\left(S_A\ \ +\ \ S_N\right):
-
         const double X = state.get_p();
-        const double g = alpha;
-        const double gX = g * X;
-        const double n = noise;
-        const double result = gX + n;
-
-        // // Debug prints
-        // std::cout << "\n**** Breakdown of values for PE step from
-        // momentum_observable.h: ****\n"; std::cout << "X = " << X << "\n";
-        // std::cout << "sqrt(eta*T) * X = " << gX << "\n";
-        // std::cout << "noise = " << n << "\n";
-        // std::cout << "result = " << result << "\n";
-
-        return result;
-
-        // return (std::sqrt(transmittance*detector_eff)*(X)) + noise; // For
-        // case 2: S_B\ =\ \sqrt\etaT\left(S_A\ \right)\ +\ S_N:
-
-        // return state.get_p() + noise; // For case 3: S_B\ =\ S_A+\ S_N
-        // return (transmittance*detector_eff)*(state.get_p() + noise); // case
-        // 7
+        return alpha * X + noise;
     }
 
     // Same as the position observable to double check with Johann if it should
