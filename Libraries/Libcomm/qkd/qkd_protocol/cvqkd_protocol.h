@@ -51,9 +51,10 @@ private:
     double m_VA = 0.0;
     double m_VN = 0.0;
     double m_alpha = 0.0;
-    double smoothing_parameter; //!< True for calculating V_A, V_N and alpha from parameter estimation.
-    bool estimate_parameters; //
-    bool MI_Check = false;  // MI check that verifies if I_AB > X_B?
+    double smoothing_parameter; //!< True for calculating V_A, V_N and alpha
+                                //!< from parameter estimation.
+    bool estimate_parameters;   //
+    bool MI_Check = false;      // MI check that verifies if I_AB > X_B?
     bool H_check = false;   // Hash check that verifies if hash_hs == hash_hsat?
     int len_secret_key = 0; // Length of final secret key
     int n_samples = 0;      // Number of samples after parameter estimation.
@@ -143,13 +144,13 @@ public:
     // Calculates VA_hat, alpha_hat and VN_hat
     std::tuple<double, double, double>
     parameter_estimation(const libbase::vector<double>& X_PE,
-                                       const libbase::vector<double>& Y_PE);
+                         const libbase::vector<double>& Y_PE);
 
     // Mutual Information for the GG02 protocol based on SNR only.
     double calculate_mutual_information(double SNR_linear);
 
     // Helper functions used to calculate the Holevo Bound.
-    // G(x) from Eq. (2.54). sTILL TO ADD REFERENCE
+    // G(x) from Eq. (2.54). STILL TO ADD REFERENCE
     inline double bosonic_entropy_G(double x)
     {
         if (x <= 0.0)
@@ -160,10 +161,10 @@ public:
     // Safe sqrt: clamp tiny negative values due to round-off
     inline double safe_sqrt(double x) { return std::sqrt(x < 0.0 ? 0.0 : x); }
 
-    // Method to calculate the Holevo Bound for the GG02 protocol based on Ryan's derived equations.
-    double calculate_holevo_bound(double VA_hat,
-                                       double alpha_hat,
-                                       double VN_hat);
+    // Method to calculate the Holevo Bound for the GG02 protocol based on
+    // Ryan's derived equations.
+    double
+    calculate_holevo_bound(double VA_hat, double alpha_hat, double VN_hat);
 
     // Calculates the L2 norm.
     static double l2(const libbase::vector<double>& v)
@@ -188,7 +189,7 @@ public:
     return more parameters for the case of CV-QKD. */
     std::tuple<bool, double, double, double, double, double, double, int>
     postprocesscv(libbase::vector<double>&& alice_measurements,
-                                libbase::vector<double>&& bob_measurements) override;
+                  libbase::vector<double>&& bob_measurements) override;
     // Description function
     std::string description() const override;
 
