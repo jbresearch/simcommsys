@@ -146,9 +146,23 @@ public:
     parameter_estimation(const libbase::vector<double>& X_PE,
                          const libbase::vector<double>& Y_PE);
 
+    /*! @brief Calculate SNR on a linear scale
+     * @param alpha fading coefficient
+     * @param VA modulation variance at source
+     * @param VN noise variance at receiver
+     *
+     * SNR (linear) is typically defined as: SNR = (alpha^2 VA) / VN
+     * However, we also need to take into account the measurement variance,
+     * which has a minimum value of 1.0 when referred to the source.
+     */
+    double calculate_snr(double alpha, double VA, double VN)
+    {
+        return ((alpha * alpha) * VA) / ((alpha * alpha) * 1.0 + VN);
+    }
+
     /**
      * @brief Calculates the Mutual Information (I_AB) between Alice and Bob
-     * @param SNR in linear not in dB.
+     * @param SNR Signal to noise ratio (linear)
      * @return double The mutual information in bits per pulse.
      *
      * It uses the Shannon-Hartley theorem adapted for the AWGN channel in the

@@ -322,7 +322,7 @@ cvqkd_protocol::calculate_secret_key_length()
     assert(smoothing_parameter > 0);
 
     // calculate linear SNR
-    const double snr_linear = (m_alpha * m_alpha * m_VA) / m_VN;
+    const double snr_linear = calculate_snr(m_alpha, m_VA, m_VN);
     // Mutual Information and Holevo Bound
     const double I_AB = 0.5 * std::log2(1.0 + snr_linear);
     const double chi_BE = calculate_holevo_bound(m_VA, m_alpha, m_VN);
@@ -465,8 +465,8 @@ cvqkd_protocol::postprocess(libbase::vector<double>&& alice_measurements,
 #endif
     }
 
-    const double SNR_linear_hat =
-        ((alpha_hat * alpha_hat) * VA_hat) / ((alpha_hat * alpha_hat) * 1.0 + VN_hat);
+    // Calculate SNR (needed for mutual information)
+    const double SNR_linear_hat = calculate_snr(alpha_hat, VA_hat, VN_hat);
 
     // Calculate Mutual Information I_AB
     const double I_AB_est = calculate_mutual_information(SNR_linear_hat);
@@ -775,10 +775,8 @@ cvqkd_protocol::postprocesscv(libbase::vector<double>&& alice_measurements,
 #endif
     }
 
-    // CLI parameter of the gaussian quantum channel.
-    // TO CONFIRM whether I also need to serialize this in the
-    // the cvqkdprotocol.cpp as part of the switch as I did for DV-QKD.
-    const double SNR_linear_est = (alpha_hat * alpha_hat) * (VA_hat) / (VN_hat);
+    // Calculate SNR (needed for mutual information)
+    const double SNR_linear_est = calculate_snr(alpha_hat, VA_hat, VN_hat);
 
     // Calculate Mutual Information I_AB
     const double I_AB_est = calculate_mutual_information(SNR_linear_est);
