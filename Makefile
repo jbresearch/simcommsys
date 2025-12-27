@@ -69,7 +69,7 @@ endif
 
 ## Build version from git
 
-export SIMCOMMSYS_VERSION := $(shell git describe --always --dirty)
+export SIMCOMMSYS_VERSION := $(shell git describe --always --dirty || cat version.txt || echo "unknown")
 
 ## Build and installations details
 
@@ -371,6 +371,9 @@ compile-commands-%:
 .DELETE_ON_ERROR:
 
 ## Manual targets
+
+version.txt:
+	@echo $(SIMCOMMSYS_VERSION) > $@
 
 $(TARGETS_MAIN) $(TARGETS_TEST):	$(TARGETS_LIBS)
 	@echo "----> Making target \"$(notdir $@)\" [$(BUILDID): $(RELEASE)]."
