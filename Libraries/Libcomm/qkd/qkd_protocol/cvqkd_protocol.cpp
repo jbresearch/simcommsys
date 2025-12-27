@@ -192,47 +192,6 @@ cvqkd_protocol::parameter_estimation(const libbase::vector<double>& X_PE,
 }
 
 /**
- * @brief Calculates the Mutual Information (I_AB) between Alice and Bob based
- * on SNR only.
- *
- * It uses the Shannon-Hartley theorem adapted for the AWGN channel in the GG02
- * protocol.
- *
- * Mathematical Model:
- * I_AB = 0.5 * log2(1 + SNR)
- *
- * Where SNR is typically defined as: SNR_linear = (alpha)^2 (VA) / VN
- * - alpha: Variance of Alice's modulation.
- * - VA: modulation variance of Alice.
- * - VN: noise variance.
- *
- * @references
- * [1] Villaseñor, Eduardo, et al. "Atmospheric effects on satellite-to-ground
- * quantum key distribution using coherent states." GLOBECOM 2020.
- * [2] Ryan's equations. Definition of SNR is based on his equation
- * @param SNR in linear not in dB.
- * @return double The mutual information in bits per pulse.
- */
-double
-cvqkd_protocol::calculate_mutual_information(double SNR_linear)
-{
-    /* References:
-    [1] Ryan's equations.
-    [2] Villaseñor, Eduardo, et al. "Atmospheric effects on satellite-to-ground
-    quantum key distribution using coherent states." GLOBECOM 2020-2020 IEEE
-    Global Communications Conference. IEEE, 2020.
-
-    Where equation to calculate I_AB = 0.5 * log_2(1 + SNR)
-    SNR is linear.
-    */
-
-    double I_AB = 0.5 * std::log2(1 + SNR_linear); // In bits/pulse
-    // I_AB_kbps = I_AB * repetition_rate;
-
-    return I_AB;
-}
-
-/**
  * @brief Calculates the Holevo Bound (Chi_BE) using Ryan's derived equations.
  *
  * This function computes the maximum information available to Eve (Holevo

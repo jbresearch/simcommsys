@@ -146,8 +146,24 @@ public:
     parameter_estimation(const libbase::vector<double>& X_PE,
                          const libbase::vector<double>& Y_PE);
 
-    // Mutual Information for the GG02 protocol based on SNR only.
-    double calculate_mutual_information(double SNR_linear);
+    /**
+     * @brief Calculates the Mutual Information (I_AB) between Alice and Bob
+     * @param SNR in linear not in dB.
+     * @return double The mutual information in bits per pulse.
+     *
+     * It uses the Shannon-Hartley theorem adapted for the AWGN channel in the
+     * GG02 protocol. Mathematical Model: I_AB = 0.5 * log2(1 + SNR)
+     *
+     * @references
+     * [1] Villaseñor, Eduardo, et al. "Atmospheric effects on
+     * satellite-to-ground quantum key distribution using coherent states."
+     * GLOBECOM 2020. [2] Ryan's equations. Definition of SNR is based on his
+     * equation
+     */
+    double calculate_mutual_information(double SNR_linear)
+    {
+        return 0.5 * std::log2(1 + SNR_linear);
+    }
 
     // Helper functions used to calculate the Holevo Bound.
     // G(x) from Eq. (2.54). STILL TO ADD REFERENCE
