@@ -69,7 +69,7 @@ endif
 
 ## Build version from git
 
-export SIMCOMMSYS_VERSION := $(shell git describe --always --dirty || cat version.txt || echo "unknown")
+export SIMCOMMSYS_VERSION := $(shell git describe --always --dirty 2>/dev/null || cat version.txt 2>/dev/null || echo "unknown")
 
 ## Build and installations details
 
