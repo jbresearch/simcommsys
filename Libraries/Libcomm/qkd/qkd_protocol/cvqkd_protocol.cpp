@@ -324,7 +324,7 @@ cvqkd_protocol::calculate_secret_key_length()
     // calculate linear SNR
     const double snr_linear = calculate_snr(m_alpha, m_VA, m_VN);
     // Mutual Information and Holevo Bound
-    const double I_AB = 0.5 * std::log2(1.0 + snr_linear);
+    const double I_AB = calculate_mutual_information(snr_linear);
     const double chi_BE = calculate_holevo_bound(m_VA, m_alpha, m_VN);
 
     /* Calculate Beta for MDR: beta = R/C(S) taken from the Quasi Cyclic
