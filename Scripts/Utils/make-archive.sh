@@ -40,7 +40,7 @@ echo "Removing git-specific files..."
 # Remove the .git directory inside the temp folder
 rm -rf "$TEMP_DIR/.git"
 # Remove .gitignore or .gitattributes if you don't want them in the archive
-rm -f "$TEMP_DIR/.git*"
+find "$TEMP_DIR" -type f -and -name '.git*' -delete
 
 echo "Creating the archive..."
 # Create the tarball
