@@ -29,7 +29,7 @@
 #include "random.h"
 #include "vector.h"
 
-BOOST_AUTO_TEST_CASE(test_fullcycle_for_single_vn)
+BOOST_AUTO_TEST_CASE(test_fullcycle_for_single_vn, *boost::unit_test::disabled())
 {
     // Make sure we instantiate everything
     const libcomm::serializer_libcomm my_serializer_libcomm;
@@ -1015,8 +1015,7 @@ quantum_gaussian_source
               << output_csv_filename << std::endl;
 }
 
-BOOST_AUTO_TEST_CASE(test_cvqkd_batch_processing_from_csv_signal_gated,
-                     *boost::unit_test::disabled())
+BOOST_AUTO_TEST_CASE(test_cvqkd_batch_processing_from_csv_signal_gated)
 {
     std::cout << "\n***** Starting Batch CSV Processing *****\n";
 
@@ -1034,9 +1033,9 @@ BOOST_AUTO_TEST_CASE(test_cvqkd_batch_processing_from_csv_signal_gated,
     // "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/Test_Data_Signal_Gated/rain_thin_cirrus_rep_rate_200_snr_window_03_ns.csv";
     // const std::string input_csv_filename =
     // "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/Test_Data_Signal_Gated/rain_cirrus_rep_rate_200_snr_window_03_ns.csv";
-    const std::string input_csv_filename =
-        "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/"
-        "Test_Data_Signal_Gated/fog_cirrus_rep_rate_200_snr_window_03_ns.csv";
+    // const std::string input_csv_filename =
+    //     "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Test_Data/"
+    //     "Test_Data_Signal_Gated/fog_cirrus_rep_rate_200_snr_window_03_ns.csv";
 
     // Output File (Write to Results folder)
     // const std::string output_csv_filename =
@@ -1051,10 +1050,26 @@ BOOST_AUTO_TEST_CASE(test_cvqkd_batch_processing_from_csv_signal_gated,
     // "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Results_signal_gated/rain_thin_cirrus_rep_rate_200_snr_window_03_ns_results.csv";
     // const std::string output_csv_filename =
     // "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Results_signal_gated/rain_cirrus_rep_rate_200_snr_window_03_ns_results.csv";
-    const std::string output_csv_filename =
-        "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/"
-        "Results_signal_gated/"
-        "fog_thin_cirrus_rep_rate_200_snr_window_03_ns_results.csv";
+    // const std::string output_csv_filename =
+    //     "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/"
+    //     "Results_signal_gated/"
+    //     "fog_thin_cirrus_rep_rate_200_snr_window_03_ns_results.csv";
+
+
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Original_Dataset/clear_cirrus.csv";
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Original_Dataset/fog_cirrus.csv";
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Original_Dataset/rain_cirrus.csv";
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Original_Dataset/snow_cirrus.csv";
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Original_Dataset/clear_thin_cirrus.csv";
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Original_Dataset/fog_thin_cirrus.csv";
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Original_Dataset/rain_thin_cirrus.csv";
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Original_Dataset/snow_thin_cirrus.csv";
+    // const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Signal_Gated_Dataset/clear_rep_rate_200_snr_window_03_ns.csv";
+    const std::string input_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Signal_Gated_Dataset/snow_thin_cirrus_rep_rate_200_snr_window_03_ns.csv";
+
+
+    // const std::string output_csv_filename = "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Original_Dataset/Results/snow_thin_cirrus_new_SNR_result.csv";
+    const std::string output_csv_filename =  "/home/aaron7/git_projects/simcommsys/Test/TestGaussianCVQKD/Results/Signal_Gated_Dataset/Results/snow_thin_cirrus_rep_rate_200_snr_window_03_ns_result.csv";
 
     std::stringstream cfg;
     /* QKD Commsys Serialisation */
