@@ -195,8 +195,8 @@ CCopts := $(CCopts) -Wno-stringop-overflow -Wno-restrict -Wno-overloaded-virtual
 CCopts := $(CCopts) -std=c++17
 # Architecture-specific options (auto-detected from build computer)
 CCopts := $(CCopts) -march=$(USE_ARCH)
-# -fPIE is required for libraries to be usable from Rust
-CCopts := $(CCopts) -fPIE
+# -fPIE -fPIC is required for libraries to be usable from Rust, Python
+CCopts := $(CCopts) -fPIE -fPIC
 
 # OMP options
 ifneq ($(USE_OMP),0)
