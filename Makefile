@@ -267,7 +267,7 @@ default:
 	@echo "   <set> = all|main|test|libs : what to build [default:all]"
 	@echo "   <release> = debug|release|profile : [default:debug+release]"
 	@echo "Master targets:"
-	@echo "   all : equivalent to install and plain-install"
+	@echo "   all : equivalent to build and plain-build"
 	@echo "   doc : compile code documentation"
 	@echo "   clean-all : removes all binaries"
 	@echo "   clean-dep : removes all dependency files"
@@ -276,7 +276,7 @@ default:
 	@echo "   showversion : outputs the version string"
 
 all:
-	@$(MAKE) install plain-install
+	@$(MAKE) build plain-build
 
 doc:
 	@$(DOXYGEN)
