@@ -27,6 +27,7 @@
 #include "vector.h"
 #include <cfloat>
 #include <cmath>
+#include <cstdint>
 
 namespace libbase
 {

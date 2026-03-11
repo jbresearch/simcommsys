@@ -24,6 +24,8 @@
 
 #include "channel.h"
 
+#include <cstdint>
+
 namespace libcomm
 {
 

@@ -29,6 +29,7 @@
 #include <typeinfo>
 #include <vector>
 #include <string>
+#include <cstdint>
 
 #include "aligned_allocator.h"
 #include "config.h"

@@ -28,6 +28,7 @@
 #include "vector.h"
 
 #include <string>
+#include <cstdint>
 
 namespace libcomm
 {

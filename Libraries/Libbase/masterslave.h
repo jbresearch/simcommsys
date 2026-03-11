@@ -29,6 +29,7 @@
 #include "vector.h"
 #include "walltimer.h"
 #include <map>
+#include <cstdint>
 
 namespace libbase
 {

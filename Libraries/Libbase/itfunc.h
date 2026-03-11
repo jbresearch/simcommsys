@@ -24,6 +24,7 @@
 
 #include "config.h"
 #include "matrix.h"
+#include <cstdint>
 #include <cmath>
 #include <cstdlib>
 #include <string>

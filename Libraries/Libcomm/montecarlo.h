@@ -32,6 +32,7 @@
 #include "truerand.h"
 #include "walltimer.h"
 #include <sstream>
+#include <cstdint>
 
 namespace libcomm
 {

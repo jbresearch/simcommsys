@@ -26,6 +26,8 @@
 #include "config.h"
 #include "randgen.h"
 
+#include <cstdint>
+
 namespace libcomm
 {
 

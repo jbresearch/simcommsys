@@ -31,6 +31,7 @@
 
 #include <iostream>
 #include <string>
+#include <cstdint>
 
 namespace libcomm
 {
@@ -84,7 +85,7 @@ protected:
     /*!
      * \brief Add the complete state of results to the accumulated set
      * \param[in] state Vector set of accumulated results
-     * 
+     *
      * TODO: modify this to include a vector of counts as well
      */
     virtual void

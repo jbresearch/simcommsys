@@ -26,7 +26,6 @@
 #include "serializer.h"
 #include "vector.h"
 #include <boost/crc.hpp>
-#include <cstdint>
 #include <type_traits>
 
 namespace libcomm
@@ -75,7 +74,7 @@ public:
         static_assert(std::is_integral<T>::value, "Type must be integral");
 
         const std::size_t n = bits01.size();
-        
+
         // Process data in 8-bit chunks (Bytes)
         for (std::size_t i = 0; i < n; i += 8) {
             unsigned char byte = 0;
@@ -90,7 +89,7 @@ public:
                 }
             }
 
-            // Feed the full byte to Boost. 
+            // Feed the full byte to Boost.
             // Because we set 'Reflect Input = true', Boost will automatically
             // process this byte LSB-first (Standard Ethernet behavior).
             crc_.process_byte(byte);

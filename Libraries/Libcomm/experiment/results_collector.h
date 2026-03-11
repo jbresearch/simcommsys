@@ -26,7 +26,9 @@
 #include "queryable.h"
 #include "serializer.h"
 #include "vector.h"
+
 #include <string>
+#include <cstdint>
 
 namespace libcomm
 {

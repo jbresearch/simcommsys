@@ -32,6 +32,7 @@
 
 #include <iostream>
 #include <list>
+#include <cstdint>
 
 namespace libcomm
 {
