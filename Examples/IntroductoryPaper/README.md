@@ -15,6 +15,7 @@ make TAG=<build-tag>
 where tag is the binary tag for your Simcommsys build. If you are building Simcommsys from source you can find this by running:
 
 ```
+make showversion
 make showbuildid
 ```
 
