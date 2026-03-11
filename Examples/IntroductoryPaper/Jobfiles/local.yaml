@@ -7,10 +7,10 @@ jobs:
     glob: Simulators/*.txt
     output_dir: Results
     param_ranges:
-      - 1.5:0.1:11.1:arithmetic
+      - arithmetic:1.5:0.1:11.1
     confidence: 0.95
     relative_error: 0.05
     floor_min: 1e-5
     # job params
-    simcommsys_tag: development
+    simcommsys_tag: v1.2.3-1052-g7f8f0a33-dirty.sierraforest-omp-mpi-gmp-cuda120
     simcommsys_type: release
