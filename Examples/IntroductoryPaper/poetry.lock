@@ -838,7 +838,7 @@ files = [
 
 [[package]]
 name = "simcommsys-utils"
-version = "0.1.0"
+version = "0.1.2"
 description = "A package that aids in building, running and plotting results from Simcommsys systems, timers and simulations."
 optional = false
 python-versions = "^3.10"
@@ -854,9 +854,9 @@ typer = "^0.12.5"
 
 [package.source]
 type = "git"
-url = "git@github.com:jbresearch/simcommsys-utils.git"
+url = "ssh://git@dsrg-ict.research.um.edu.mt:2222/simcommsys/simcommsys-utils.git"
 reference = "HEAD"
-resolved_reference = "b8b2258714dbba9deed23aa407d62969e3e7a850"
+resolved_reference = "b47974473206796672375849449f827073d0fb16"
 
 [[package]]
 name = "six"
@@ -914,4 +914,4 @@ typing-extensions = ">=4.12.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "3da87ee2237e55b77eccf64e74d0f476f45c8707e3cd068e83d8d8331f697ff2"
+content-hash = "da9afbe632b8351431f4cde453104160a1f58529dd34345b804659fa01b3cfb8"
