@@ -52,7 +52,7 @@ ifndef USE_CUDA
     # Check for min supported architecture
     ifneq ($(USE_CUDA),0)
         # Compile tools and get the highest capability of installed cards
-        $(info $(shell echo "----> Making BuildUtils." && $(MAKE) -C "BuildUtils/" build >/dev/null 2>&1))
+        $(shell echo "----> Making BuildUtils." 1>&2 && $(MAKE) -C "BuildUtils/" build >/dev/null 2>&1)
         USE_CUDA := $(shell BuildUtils/bin/getdevicearch 2>/dev/null)
         # If nothing was found
         ifeq (,$(USE_CUDA))
