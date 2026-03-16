@@ -17,8 +17,15 @@
 #
 # Master makefile
 
-### Exported variables:
+### Local variables:
 
+## Build Targets
+
+TARGETS_MAIN := $(foreach dir,$(wildcard SimCommsys/*),$(if $(wildcard $(dir)/Makefile),$(dir)))
+TARGETS_TEST := $(foreach dir,$(wildcard Test/*),$(if $(wildcard $(dir)/Makefile),$(dir)))
+TARGETS_LIBS := $(foreach dir,$(wildcard Libraries/*),$(if $(wildcard $(dir)/Makefile),$(dir)))
+
+### Exported variables:
 
 ## Control variables
 
@@ -124,11 +131,6 @@ ifeq ($(MAKELEVEL),0)
 endif
 
 
-## List of users libraries (in compilation order)
-
-LIBNAMES := base image comm
-
-
 ## Commands
 
 ifeq (,$(findstring no-print-directory,$(MAKEFLAGS)))
@@ -148,8 +150,8 @@ export DOXYGEN := doxygen
 ## Linker settings
 
 # Common options
-LDopts := $(LIBNAMES:%=-L$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
-LDopts := $(LDopts) -Wl,--start-group $(LIBNAMES:%=-l%) -Wl,--end-group
+LDopts := $(TARGETS_LIBS:%=-L$(ROOTDIR)/%/$(BUILDDIR))
+LDopts := $(LDopts) -Wl,--start-group $(TARGETS_LIBS:Libraries/Lib%=-l%) -Wl,--end-group
 LDopts := $(LDopts) -lboost_program_options
 # OMP options
 ifneq ($(USE_OMP),0)
@@ -183,8 +185,8 @@ export LDflags = $(LDflag_$(RELEASE))
 ## Compiler settings
 
 # Common options
-CCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
-CCopts := $(CCopts) $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%/$(BUILDDIR))
+CCopts := $(TARGETS_LIBS:%=-I$(ROOTDIR)/%)
+CCopts := $(CCopts) $(TARGETS_LIBS:%=-I$(ROOTDIR)/%/$(BUILDDIR))
 CCopts := $(CCopts) -Wall -Werror
 # Disable the array-bounds warning due to a GCC 11 bug with boost::multi_array<bool,>
 # TODO: remove when no longer needed
@@ -225,7 +227,7 @@ export CCflags = $(CCflag_$(RELEASE))
 ## CUDA Compiler settings
 
 # Common options
-NVCCopts := $(LIBNAMES:%=-I$(ROOTDIR)/Libraries/Lib%)
+NVCCopts := $(TARGETS_LIBS:%=-I$(ROOTDIR)/%)
 #NVCCopts := $(NVCCopts) -Xcompiler "-Wall,-Werror"
 #NVCCopts := $(NVCCopts) -Xopencc "-woffall"
 #NVCCopts := $(NVCCopts) -Xptxas "-v"
@@ -246,18 +248,10 @@ export NVCCflags := $(NVCCflag_$(RELEASE))
 export LIBflags := cr
 
 
-## User library list
+## List of library files
 
-export LIBRARIES = $(foreach name,$(LIBNAMES),$(ROOTDIR)/Libraries/Lib$(name)/$(BUILDDIR)/lib$(name).a)
+export LIBRARIES := $(foreach name,$(TARGETS_LIBS:Libraries/Lib%=%),$(ROOTDIR)/Libraries/Lib$(name)/$(BUILDDIR)/lib$(name).a)
 
-
-### Local variables:
-
-### Build Targets
-
-TARGETS_MAIN := $(foreach dir,$(wildcard SimCommsys/*),$(if $(wildcard $(dir)/Makefile),$(dir)))
-TARGETS_TEST := $(foreach dir,$(wildcard Test/*),$(if $(wildcard $(dir)/Makefile),$(dir)))
-TARGETS_LIBS = $(foreach name,$(LIBNAMES),Libraries/Lib$(name))
 
 ## Master targets
 
