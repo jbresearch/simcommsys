@@ -94,11 +94,11 @@ endif
 export ROOTDIR := $(CURDIR)
 # Folder for the build object files and binaries
 export BUILDDIR = $(RELEASE)/$(BUILDID)
-# Folder for installed binaries
-ifndef BINDIR
-    export BINDIR = ~/bin.$(shell uname -m)
-else
-    export BINDIR
+# Folder for installed binaries, must be defined for install targets
+ifneq ($(filter install% plain-install%,$(MAKECMDGOALS)),)
+    ifndef BINDIR
+        $(error BINDIR is not defined. Required for install targets)
+    endif
 endif
 
 ## User pacifier
