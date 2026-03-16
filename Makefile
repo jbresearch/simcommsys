@@ -255,8 +255,8 @@ export LIBRARIES = $(foreach name,$(LIBNAMES),$(ROOTDIR)/Libraries/Lib$(name)/$(
 
 ### Build Targets
 
-TARGETS_MAIN = $(wildcard SimCommsys/*)
-TARGETS_TEST = $(wildcard Test/*)
+TARGETS_MAIN := $(foreach dir,$(wildcard SimCommsys/*),$(if $(wildcard $(dir)/Makefile),$(dir)))
+TARGETS_TEST := $(foreach dir,$(wildcard Test/*),$(if $(wildcard $(dir)/Makefile),$(dir)))
 TARGETS_LIBS = $(foreach name,$(LIBNAMES),Libraries/Lib$(name))
 
 ## Master targets
