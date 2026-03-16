@@ -336,7 +336,6 @@ install:	install-all
 install-all:	install-all-debug install-all-release
 install-main:	install-main-debug install-main-release
 install-test:	install-test-debug install-test-release
-install-libs:	install-libs-debug install-libs-release
 
 # libs install target is explicit here to avoid duplicate making
 install-all-%:
@@ -345,8 +344,6 @@ install-main-%:
 	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_MAIN)
 install-test-%:
 	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_TEST)
-install-libs-%:
-	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_LIBS)
 
 clean:	clean-main clean-test clean-libs
 clean-main:	clean-main-release clean-main-debug
