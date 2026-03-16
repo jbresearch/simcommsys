@@ -267,7 +267,7 @@ default:
 	@echo "Where:"
 	@echo "   <plain> = plain : disable optional libraries [optional]"
 	@echo "   <cmd> = build|install|clean : build-only, install, or clean"
-	@echo "   <set> = all|main|test|libs : what to build [default:all]"
+	@echo "   <set> = all|main|test|libs : what to build [default:all=main+test]"
 	@echo "   <release> = debug|release|profile : [default:debug+release]"
 	@echo "Master targets:"
 	@echo "   all : equivalent to build and plain-build"
