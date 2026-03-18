@@ -492,7 +492,10 @@ ldpc<GF_q, real>::serialize(std::istream& sin)
             }
             assertalways(col_vals[pos_n].min() != GF_q(0));
         } else {
-            sin >> libbase::eatcomments >> col_vals[pos_n] >> libbase::verify;
+            // note: values are written as integers, not GF binary strings
+            libbase::vector<uint32_t> tmp;
+            sin >> libbase::eatcomments >> tmp >> libbase::verify;
+            col_vals[pos_n] = tmp;
             assertalways(col_vals[pos_n].min() != GF_q(0));
         }
     }
