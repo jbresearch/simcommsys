@@ -332,11 +332,11 @@ install-main:	install-main-debug install-main-release
 install-test:	install-test-debug install-test-release
 
 # libs install target is explicit here to avoid duplicate making
-install-all-%:
+install-all-%:	build-all-%
 	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_MAIN) $(TARGETS_TEST)
-install-main-%:
+install-main-%:	build-main-%
 	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_MAIN)
-install-test-%:
+install-test-%:	build-test-%
 	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_TEST)
 
 clean:	clean-main clean-test clean-libs
