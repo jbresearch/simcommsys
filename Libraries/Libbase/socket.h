@@ -102,7 +102,7 @@ public:
     select(std::list<std::shared_ptr<socket>> sl, const double timeout = 0);
     std::shared_ptr<socket> accept();
     // open connection to server
-    bool connect(std::string hostname, uint16_t port);
+    uint16_t connect(std::string hostname, uint16_t port);
     // read/write data
     ssize_t write(const void* buf, size_t len);
     ssize_t read(void* buf, size_t len);

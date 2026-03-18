@@ -209,15 +209,15 @@ socket::accept()
     return s;
 }
 
-// open connection to server
+// open connection to server, returning the local port
 
-bool
+uint16_t
 socket::connect(std::string hostname, uint16_t port)
 {
     if ((sd = (int)::socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0) {
         std::cerr << "ERROR (connect): Failed to create socket descriptor"
                   << std::endl;
-        return false;
+        return 0;
     }
 
     struct sockaddr_in sin;
@@ -229,7 +229,7 @@ socket::connect(std::string hostname, uint16_t port)
     if (!(hp = gethostbyname(hostname.c_str()))) {
         std::cerr << "ERROR (connect): Failed to resolve host address"
                   << std::endl;
-        return false;
+        return 0;
     }
 
     memcpy(&sin.sin_addr, hp->h_addr_list[0], sizeof(struct in_addr));
@@ -246,18 +246,27 @@ socket::connect(std::string hostname, uint16_t port)
         if (i == connect_tries) {
             std::cerr << "ERROR (connect): Too many connection failures"
                       << std::endl;
-            return false;
+            return 0;
         } else {
             sleep(connect_delay);
         }
     }
 
+    // determine the local port for this connection
+    struct sockaddr_in local_sin;
+    socklen_t addr_len = sizeof(local_sin);
+    if (getsockname(sd, (struct sockaddr*)&local_sin, &addr_len) != 0) {
+        std::cerr << "ERROR: Could not retrieve local port info" << std::endl;
+        return 0;
+    }
+    uint16_t local_port = ntohs(local_sin.sin_port);
+
     // TCP/IP connection has been established
-    trace << "DEBUG (connect): Connections to " << hostname << ":" << port
-          << " established" << std::endl;
+    trace << "DEBUG (connect): Connection to " << hostname << ":" << port
+          << " established from port " << local_port << std::endl;
     socket::ip = hostname;
     socket::port = port;
-    return true;
+    return local_port;
 }
 
 // read/write data

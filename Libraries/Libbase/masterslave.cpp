@@ -154,10 +154,12 @@ masterslave::connect(const std::string& hostname, const uint16_t port)
 {
     std::cerr << "Connecting to " << hostname << ":" << port << std::endl;
     master.reset(new socket);
-    if (!master->connect(hostname, port)) {
+    uint16_t local_port = master->connect(hostname, port);
+    if (!local_port) {
         std::cerr << "Connection failed, giving up." << std::endl;
         exit(1);
     }
+    std::cerr << "Connection established from port " << local_port << std::endl;
 }
 
 std::string
