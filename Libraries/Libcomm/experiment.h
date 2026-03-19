@@ -29,9 +29,9 @@
 #include "serializer.h"
 #include "vector.h"
 
+#include <cstdint>
 #include <iostream>
 #include <string>
-#include <cstdint>
 
 namespace libcomm
 {
@@ -84,12 +84,12 @@ protected:
         const libbase::vector<uint64_t>& sample_count) = 0;
     /*!
      * \brief Add the complete state of results to the accumulated set
-     * \param[in] state Vector set of accumulated results
-     *
-     * TODO: modify this to include a vector of counts as well
+     * \param[in] state_values Vector set of accumulated results
+     * \param[in] state_counts Vector set of accumulated counts
      */
     virtual void
-    derived_accumulate_state(const libbase::vector<double>& state) = 0;
+    derived_accumulate_state(const libbase::vector<double>& state_values,
+                             const libbase::vector<uint64_t>& state_counts) = 0;
     // @}
 
 public:
@@ -132,9 +132,11 @@ public:
     virtual libbase::vector<int> get_event() const = 0;
     /*!
      * \brief Get the complete state of accumulated results
-     * \param[out] state Vector set of accumulated results
+     * \param[out] state_values Vector set of accumulated results
+     * \param[out] state_counts Vector set of accumulated counts
      */
-    virtual void get_state(libbase::vector<double>& state) const = 0;
+    virtual void get_state(libbase::vector<double>& state_values,
+                           libbase::vector<uint64_t>& state_counts) const = 0;
     /*!
      * \brief Determine result estimate based on accumulated set
      * \param[out] estimate Vector containing the set of estimates
@@ -167,13 +169,15 @@ public:
     /*!
      * \brief Add the complete state of results to the accumulated set
      * \param[in] samplecount The number of samples in the accumulated set
-     * \param[in] state Vector set of accumulated results
+     * \param[in] state_values Vector set of accumulated results
+     * \param[in] state_counts Vector set of accumulated counts
      */
     void accumulate_state(uint64_t samplecount,
-                          const libbase::vector<double>& state)
+                          const libbase::vector<double>& state_values,
+                             const libbase::vector<uint64_t>& state_counts)
     {
         this->samplecount += samplecount;
-        derived_accumulate_state(state);
+        derived_accumulate_state(state_values, state_counts);
     }
     /*!
      * \brief The number of samples taken to produce the result

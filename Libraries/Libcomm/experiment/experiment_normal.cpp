@@ -20,6 +20,7 @@
  */
 
 #include "experiment_normal.h"
+#include "vectorutils.h"
 #include <limits>
 
 namespace libcomm
@@ -63,26 +64,28 @@ experiment_normal::derived_accumulate_result(
 
 void
 experiment_normal::derived_accumulate_state(
-    const libbase::vector<double>& state)
+    const libbase::vector<double>& state_values,
+    const libbase::vector<uint64_t>& state_counts)
 {
-    assert(state.size() > 0);
+    assert(state_values.size() > 0);
+    assert(state_counts.size() > 0);
     // divide state into constituent components and accumulate
-    const int n = state.size() / 2;
-    assert(state.size() == 2 * n);
-    safe_accumulate(sum, state.extract(0, n));
-    safe_accumulate(sumsq, state.extract(n, n));
+    const int n = state_counts.size();
+    assert(state_values.size() == 2 * n);
+    safe_accumulate(sum, state_values.extract(0, n));
+    safe_accumulate(sumsq, state_values.extract(n, n));
+    safe_accumulate(count, state_counts);
 }
 
 void
-experiment_normal::get_state(libbase::vector<double>& state) const
+experiment_normal::get_state(libbase::vector<double>& state_values,
+                             libbase::vector<uint64_t>& state_counts) const
 {
     assert(result_count() == sum.size());
     assert(result_count() == sumsq.size());
-    state.init(2 * result_count());
-    for (int i = 0; i < result_count(); i++) {
-        state(i) = sum(i);
-        state(result_count() + i) = sumsq(i);
-    }
+    assert(result_count() == count.size());
+    state_values = libbase::concatenate(sum, sumsq);
+    state_counts = count;
 }
 
 void

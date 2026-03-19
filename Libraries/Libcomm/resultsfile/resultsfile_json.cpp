@@ -91,7 +91,8 @@ resultsfile_json::lookforstate(std::fstream& sin)
     std::string digest;
     libbase::vector<double> parameters;
     uint64_t samplecount = 0;
-    libbase::vector<double> state;
+    libbase::vector<double> state_values;
+    libbase::vector<uint64_t> state_counts;
     // read through entire file
     libbase::trace << "DEBUG (resultsfile_json): looking for state."
                    << std::endl;
@@ -104,8 +105,10 @@ resultsfile_json::lookforstate(std::fstream& sin)
         parameters = (libbase::vector<double>)state_json["Parameters"]
                          .get<std::vector<double>>();
         samplecount = state_json["Samples"];
-        state = (libbase::vector<double>)state_json["State"]
-                    .get<std::vector<double>>();
+        state_values = (libbase::vector<double>)state_json["Values"]
+                           .get<std::vector<double>>();
+        state_counts = (libbase::vector<uint64_t>)state_json["Counts"]
+                           .get<std::vector<uint64_t>>();
     }
 
     // check that results correspond to system under simulation
@@ -113,7 +116,7 @@ resultsfile_json::lookforstate(std::fstream& sin)
         parameters.isequalto(system->get_parameters())) {
         std::cerr << "NOTICE: Reloading state with " << samplecount
                   << " samples." << std::endl;
-        system->accumulate_state(samplecount, state);
+        system->accumulate_state(samplecount, state_values, state_counts);
     } else if (!digest.empty() &&
                digest != std::string(simulator->get_sysdigest())) {
         failwith("User tried using results file for different system.");
@@ -189,8 +192,9 @@ resultsfile_json::writestate(std::fstream& sout) const
 
     libbase::trace << "DEBUG (resultsfile_json): writing state." << std::endl;
 
-    libbase::vector<double> state;
-    system->get_state(state);
+    libbase::vector<double> state_values;
+    libbase::vector<uint64_t> state_counts;
+    system->get_state(state_values, state_counts);
 
     json data = this->readjson(sout);
 
@@ -198,7 +202,8 @@ resultsfile_json::writestate(std::fstream& sout) const
         {"System", simulator->get_sysdigest()},
         {"Parameters", (std::vector<double>)system->get_parameters()},
         {"Samples", simulator->get_samplecount()},
-        {"State", (std::vector<double>)state}};
+        {"Values", (std::vector<double>)state_values},
+        {"Counts", (std::vector<uint64_t>)state_counts}};
 
     this->writejson(sout, data);
 }

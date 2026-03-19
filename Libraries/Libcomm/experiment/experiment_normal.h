@@ -52,13 +52,15 @@ protected:
     void derived_accumulate_result(
         const libbase::vector<double>& sample_result,
         const libbase::vector<uint64_t>& sample_count) override;
-    void
-    derived_accumulate_state(const libbase::vector<double>& state) override;
+    void derived_accumulate_state(
+        const libbase::vector<double>& state_values,
+        const libbase::vector<uint64_t>& state_counts) override;
     // @}
 
 public:
     // Accumulator functions
-    void get_state(libbase::vector<double>& state) const override;
+    void get_state(libbase::vector<double>& state_values,
+                   libbase::vector<uint64_t>& state_counts) const override;
     void estimate(libbase::vector<double>& estimate,
                   libbase::vector<double>& stderror) const override;
 };

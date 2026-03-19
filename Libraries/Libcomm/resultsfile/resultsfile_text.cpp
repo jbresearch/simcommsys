@@ -138,14 +138,17 @@ resultsfile_text::writestate(std::ostream& sout) const
     // Write accumulated values to file
     libbase::trace << "DEBUG (resultsfile_text): position before = "
                    << sout.tellp() << std::endl;
-    libbase::vector<double> state;
-    system->get_state(state);
+    libbase::vector<double> state_values;
+    libbase::vector<uint64_t> state_counts;
+    system->get_state(state_values, state_counts);
     sout << "## System: " << simulator->get_sysdigest() << std::endl;
     sout << "## Parameters: " << system->get_parameters().size() << '\t';
     system->get_parameters().serialize(sout, "\t");
     sout << "## Samples: " << simulator->get_samplecount() << std::endl;
-    sout << "## State: " << state.size() << '\t';
-    state.serialize(sout, "\t");
+    sout << "## Values: " << state_values.size() << '\t';
+    state_values.serialize(sout, "\t");
+    sout << "## Counts: " << state_counts.size() << '\t';
+    state_counts.serialize(sout, "\t");
     sout << std::flush;
     libbase::trace << "DEBUG (resultsfile_text): position after = "
                    << sout.tellp() << std::endl;
@@ -159,7 +162,8 @@ resultsfile_text::lookforstate(std::fstream& sin)
     std::string digest;
     libbase::vector<double> parameters;
     uint64_t samplecount = 0;
-    libbase::vector<double> state;
+    libbase::vector<double> state_values;
+    libbase::vector<uint64_t> state_counts;
     // read through entire file
     libbase::trace << "DEBUG (resultsfile_text): looking for state."
                    << std::endl;
@@ -174,8 +178,10 @@ resultsfile_text::lookforstate(std::fstream& sin)
             std::istringstream(s.substr(15)) >> parameters;
         } else if (s.substr(0, 12) == "## Samples: ") {
             std::istringstream(s.substr(12)) >> samplecount;
-        } else if (s.substr(0, 10) == "## State: ") {
-            std::istringstream(s.substr(10)) >> state;
+        } else if (s.substr(0, 11) == "## Values: ") {
+            std::istringstream(s.substr(11)) >> state_values;
+        } else if (s.substr(0, 11) == "## Counts: ") {
+            std::istringstream(s.substr(11)) >> state_counts;
         }
     }
     // reset file
@@ -185,7 +191,7 @@ resultsfile_text::lookforstate(std::fstream& sin)
         parameters.isequalto(system->get_parameters())) {
         std::cerr << "NOTICE: Reloading state with " << samplecount
                   << " samples." << std::endl;
-        system->accumulate_state(samplecount, state);
+        system->accumulate_state(samplecount, state_values, state_counts);
     }
 }
 

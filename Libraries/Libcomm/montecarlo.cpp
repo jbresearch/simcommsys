@@ -87,10 +87,12 @@ montecarlo::slave_work(void)
     cluster.send(system->get_parameters());
 
     // Send accumulated results back to master
-    libbase::vector<double> state;
-    system->get_state(state);
+    libbase::vector<double> state_values;
+    libbase::vector<uint64_t> state_counts;
+    system->get_state(state_values, state_counts);
     cluster.send(system->get_samplecount());
-    cluster.send(state);
+    cluster.send(state_values);
+    cluster.send(state_counts);
 
     // print something to inform the user of our progress
     vector<double> result, errormargin;
@@ -272,10 +274,12 @@ montecarlo::readpendingslaves()
             cluster.receive(s, simparameters);
             // set up space for results that need to be returned
             uint64_t estsamplecount = 0;
-            vector<double> eststate;
+            vector<double> eststate_values;
+            vector<uint64_t> eststate_counts;
             // get results
             cluster.receive(s, estsamplecount);
-            cluster.receive(s, eststate);
+            cluster.receive(s, eststate_values);
+            cluster.receive(s, eststate_counts);
             // check that results correspond to system under simulation
             if (std::string(sysdigest) != simdigest ||
                 simparameters.isnotequalto(system->get_parameters())) {
@@ -286,7 +290,8 @@ montecarlo::readpendingslaves()
                 continue;
             }
             // accumulate
-            system->accumulate_state(estsamplecount, eststate);
+            system->accumulate_state(
+                estsamplecount, eststate_values, eststate_counts);
             // update usage information and return flag
             cluster.updatecputime(s);
             results_available = true;
