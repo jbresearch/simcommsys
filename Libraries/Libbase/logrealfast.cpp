@@ -28,8 +28,6 @@ namespace libbase
 // 1 - Normal debug output only
 // 2 - Keep track of out-of-range values (infinity and zero)
 // 3 - Log difference values and the errors for all LUT access to a file
-// NOTE: since this is a header, it may be included in other classes as well;
-//       to avoid problems, the debug level is reset at the end of this file.
 #ifndef NDEBUG
 #    undef DEBUG
 #    define DEBUG 1
