@@ -28,11 +28,21 @@
 #include "socket.h"
 #include "vector.h"
 #include "walltimer.h"
-#include <map>
 #include <cstdint>
+#include <map>
 
 namespace libbase
 {
+
+// Determine debug level:
+// 1 - Normal debug output only
+// 2 - Track send/receive operations
+// NOTE: since this is a header, it may be included in other classes as well;
+//       to avoid problems, the debug level is reset at the end of this file.
+#ifndef NDEBUG
+#    undef DEBUG
+#    define DEBUG 1
+#endif
 
 /*!
  * \brief   Socket-based Master-Slave computation.
@@ -128,18 +138,76 @@ public:
     void fcall(const std::string& name);
     // slave -> master communication
     void send(const void* buf, const size_t len);
-    void send(const int x) { send(&x, sizeof(x)); }
-    void send(const uint64_t x) { send(&x, sizeof(x)); }
-    void send(const double x) { send(&x, sizeof(x)); }
-    void send(const vector<double>& x);
-    void send(const std::string& x);
+    template <class T>
+    void send(const T x)
+    {
+#if DEBUG >= 2
+        std::cerr << "S->M: type=" << typeid(T).name() << ", size=" << sizeof(T)
+                  << ", value=" << x << std::endl
+                  << std::flush;
+#endif
+        send(&x, sizeof(T));
+    }
+    /*! \brief Send a vector to the master
+     * \note Vector size is sent first; this makes foreknowledge of size and
+     * pre-initialization unnecessary.
+     */
+    template <class T>
+    void send(const vector<T>& x)
+    {
+#if DEBUG >= 2
+        std::cerr << "S->M: type=vector<" << typeid(T).name()
+                  << ">, size=" << x.size() << std::endl
+                  << std::flush;
+#endif
+        const int count = x.size();
+        send(count);
+        send(&x(0), sizeof(T) * count);
+    }
+    void send(const std::string& x)
+    {
+#if DEBUG >= 2
+        std::cerr << "S->M: type=string, length=" << x.length() << std::endl
+                  << std::flush;
+#endif
+        size_t len = x.length();
+        send(len);
+        send(x.c_str(), len);
+    }
     void receive(void* buf, const size_t len);
-    void receive(int& x) { receive(&x, sizeof(x)); }
-    void receive(uint64_t& x) { receive(&x, sizeof(x)); }
-    void receive(double& x) { receive(&x, sizeof(x)); }
-    void receive(vector<double>& x);
-    void receive(std::string& x);
-
+    template <class T>
+    void receive(T& x)
+    {
+#if DEBUG >= 2
+        std::cerr << "S<-M: type=" << typeid(T).name() << std::endl
+                  << std::flush;
+#endif
+        receive(&x, sizeof(T));
+    }
+    template <class T>
+    void receive(vector<T>& x)
+    {
+#if DEBUG >= 2
+        std::cerr << "S<-M: type=vector<" << typeid(T).name() << ">"
+                  << std::endl
+                  << std::flush;
+#endif
+        int count;
+        receive(count);
+        x.init(count);
+        receive(&x(0), sizeof(T) * count);
+    }
+    void receive(std::string& x)
+    {
+#if DEBUG >= 2
+        std::cerr << "S<-M: type=string" << std::endl << std::flush;
+#endif
+        size_t len;
+        receive(len);
+        std::vector<char> buf(len);
+        receive(&buf[0], len);
+        x.assign(&buf[0], len);
+    }
     // items for use by master
 private:
     std::map<std::shared_ptr<socket>, state_t> smap;
@@ -169,23 +237,35 @@ public:
     size_t getnumslaves() const { return smap.size(); }
     // master -> slave communication
     void send(std::shared_ptr<socket> s, const void* buf, const size_t len);
-    void send(std::shared_ptr<socket> s, const int x)
+    template <class T>
+    void send(std::shared_ptr<socket> s, const T x)
     {
-        send(s, &x, sizeof(x));
+#if DEBUG >= 2
+        std::cerr << "M->S: type=" << typeid(T).name() << ", size=" << sizeof(T)
+                  << ", value=" << x << std::endl
+                  << std::flush;
+#endif
+        send(s, &x, sizeof(T));
     }
-    void send(std::shared_ptr<socket> s, const double x)
+    template <class T>
+    void send(std::shared_ptr<socket> s, const vector<T>& x)
     {
-        send(s, &x, sizeof(x));
-    }
-    void send(std::shared_ptr<socket> s, const vector<double>& x)
-    {
+#if DEBUG >= 2
+        std::cerr << "M->S: type=vector<" << typeid(T).name()
+                  << ">, size=" << x.size() << std::endl
+                  << std::flush;
+#endif
         const int count = x.size();
         send(s, count);
-        send(s, &x(0), sizeof(double) * count);
+        send(s, &x(0), sizeof(T) * count);
     }
     void send(std::shared_ptr<socket> s, const std::string& x)
     {
-        int len = int(x.length());
+#if DEBUG >= 2
+        std::cerr << "M->S: type=string, length=" << x.length() << std::endl
+                  << std::flush;
+#endif
+        size_t len = x.length();
         send(s, len);
         send(s, x.c_str(), len);
     }
@@ -196,21 +276,52 @@ public:
     }
     void updatecputime(std::shared_ptr<socket> s);
     void receive(std::shared_ptr<socket> s, void* buf, const size_t len);
-    void receive(std::shared_ptr<socket> s, int& x)
+    template <class T>
+    void receive(std::shared_ptr<socket> s, T& x)
     {
-        receive(s, &x, sizeof(x));
+#if DEBUG >= 2
+        std::cerr << "M<-S: type=" << typeid(T).name() << std::endl
+                  << std::flush;
+#endif
+        receive(s, &x, sizeof(T));
     }
-    void receive(std::shared_ptr<socket> s, uint64_t& x)
+    /*! \brief Receive a vector from given slave
+     * \note Vector size is obtained first; this makes foreknowledge of size and
+     * pre-initialization unnecessary.
+     */
+    template <class T>
+    void receive(std::shared_ptr<socket> s, vector<T>& x)
     {
-        receive(s, &x, sizeof(x));
+#if DEBUG >= 2
+        std::cerr << "M<-S: type=vector<" << typeid(T).name() << ">"
+                  << std::endl
+                  << std::flush;
+#endif
+        // get vector size first
+        int count;
+        receive(s, count);
+        // initialize vector and get vector elements
+        x.init(count);
+        receive(s, &x(0), sizeof(T) * count);
     }
-    void receive(std::shared_ptr<socket> s, double& x)
+    void receive(std::shared_ptr<socket> s, std::string& x)
     {
-        receive(s, &x, sizeof(x));
+#if DEBUG >= 2
+        std::cerr << "M<-S: type=string" << std::endl << std::flush;
+#endif
+        size_t len;
+        receive(s, len);
+        std::vector<char> buf(len);
+        receive(s, &buf[0], len);
+        x.assign(&buf[0], len);
     }
-    void receive(std::shared_ptr<socket> s, vector<double>& x);
-    void receive(std::shared_ptr<socket> s, std::string& x);
 };
+
+// Reset debug level, to avoid affecting other files
+#ifndef NDEBUG
+#    undef DEBUG
+#    define DEBUG
+#endif
 
 } // namespace libbase
 

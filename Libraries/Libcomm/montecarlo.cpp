@@ -82,8 +82,8 @@ montecarlo::slave_work(void)
     }
     tslave.stop(); // to avoid expiry
 
-    // Send system digest and current parameter back to master
-    cluster.send(sysdigest);
+    // Send system digest (as a string) and current parameter back to master
+    cluster.send(std::string(sysdigest));
     cluster.send(system->get_parameters());
 
     // Send accumulated results back to master

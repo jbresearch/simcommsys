@@ -268,26 +268,6 @@ masterslave::send(const void* buf, const size_t len)
     }
 }
 
-/*! \brief Send a vector<double> to the master
- * \note Vector size is sent first; this makes foreknowledge of size and
- * pre-initialization unnecessary.
- */
-void
-masterslave::send(const vector<double>& x)
-{
-    const int count = x.size();
-    send(count);
-    send(&x(0), sizeof(double) * count);
-}
-
-void
-masterslave::send(const std::string& x)
-{
-    int len = int(x.length());
-    send(len);
-    send(x.c_str(), len);
-}
-
 void
 masterslave::receive(void* buf, const size_t len)
 {
@@ -298,25 +278,6 @@ masterslave::receive(void* buf, const size_t len)
         close();
         throw std::runtime_error(sstr.str());
     }
-}
-
-void
-masterslave::receive(vector<double>& x)
-{
-    int count;
-    receive(count);
-    x.init(count);
-    receive(&x(0), sizeof(double) * count);
-}
-
-void
-masterslave::receive(std::string& x)
-{
-    int len;
-    receive(len);
-    std::vector<char> buf(len);
-    receive(&buf[0], len);
-    x.assign(&buf[0], len);
 }
 
 // non-static items (for use by master)
@@ -545,31 +506,6 @@ masterslave::receive(std::shared_ptr<socket> s, void* buf, const size_t len)
         close(s);
         throw std::runtime_error(sstr.str());
     }
-}
-
-/*! \brief Receive a vector<double> from given slave
- * \note Vector size is obtained first; this makes foreknowledge of size and
- * pre-initialization unnecessary.
- */
-void
-masterslave::receive(std::shared_ptr<socket> s, vector<double>& x)
-{
-    // get vector size first
-    int count;
-    receive(s, count);
-    // initialize vector and get vector elements
-    x.init(count);
-    receive(s, &x(0), sizeof(double) * count);
-}
-
-void
-masterslave::receive(std::shared_ptr<socket> s, std::string& x)
-{
-    int len;
-    receive(s, len);
-    std::vector<char> buf(len);
-    receive(s, &buf[0], len);
-    x.assign(&buf[0], len);
 }
 
 } // namespace libbase
