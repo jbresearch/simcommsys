@@ -11,7 +11,8 @@ complete simulator) and a system benchmark.
 Finally, a number of shell and python scripts are provided to encapsulate
 routine use cases.
 
-Documentation is available as follows:
+# Documentation
+
 - User documentation can be found in the Wiki ([public](https://github.com/jbresearch/simcommsys/wiki) | [development](https://dsrg-ict.research.um.edu.mt/simcommsys/simcommsys/-/wikis)).
    This includes instructions for:
    - Building and installing the executables
@@ -28,7 +29,8 @@ Documentation is available as follows:
       1. Build the doxygen documentation using `make doc`
       2. Start with the main page: `doc/html/index.html`
 
-To contact us:
+# Contact us
+
 - For bug reports, use the issue tracker ([public](https://github.com/jbresearch/simcommsys/issues) | [development](https://dsrg-ict.research.um.edu.mt/simcommsys/simcommsys/-/issues)).
 - [User and developer project forums](https://groups.google.com/d/forum/simcommsys)
    - Discussions about the use of simcommsys should be tagged with the 'User' category.
