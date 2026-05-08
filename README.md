@@ -37,7 +37,7 @@ To contact us:
 
 # Copyright and license
 
-Copyright (c) 2010-2025 Johann A. Briffa
+Copyright (c) 2010-2026 Johann A. Briffa, Stephan Wesemeyer, Noel Farrugia, Aaron Abela, Mark Mizzi
 
 This file is part of SimCommSys.
 
