@@ -66,9 +66,11 @@ namespace libcomm
 {
 
 // Explicit Realizations
+#include <boost/preprocessor/seq/elem.hpp>
 #include <boost/preprocessor/seq/enum.hpp>
 #include <boost/preprocessor/seq/for_each.hpp>
 #include <boost/preprocessor/seq/for_each_product.hpp>
+#include <boost/preprocessor/stringize.hpp>
 
 using libbase::matrix;
 using libbase::serializer;
