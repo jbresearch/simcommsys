@@ -48,6 +48,7 @@ class alist
 private:
     void test_invariant() const
     {
+#ifndef NDEBUG
         assert(row_idxs.size() == row_vals.size());
         assert(col_idxs.size() == col_vals.size());
 
@@ -62,6 +63,7 @@ private:
             assert(x.size().length() > 0);
         }
         assert(row_tanner_edges == col_tanner_edges);
+#endif
     }
 
 protected:
