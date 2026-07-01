@@ -120,7 +120,7 @@ commsys_fulliter<S, C>::decode(C<int>& decoded)
         // Translate
         this->cdc->init_decoder(ptable_ext_codec);
 
-        for (int curr_cdc_iter = 0; this->cdc->num_iter(); curr_cdc_iter++) {
+        for (int curr_cdc_iter = 0; curr_cdc_iter < this->cdc->num_iter(); curr_cdc_iter++) {
             // Perform soft-output decoding
             codec_softout<C>& c = dynamic_cast<codec_softout<C>&>(*this->cdc);
             c.softdecode_iter(ri_codec, ro_codec);
