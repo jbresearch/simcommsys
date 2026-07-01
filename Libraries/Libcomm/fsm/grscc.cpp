@@ -87,7 +87,7 @@ grscc<G>::getstategen() const
         }
 
         // Successive rows describe the simple right-shift taps
-        for (int j = 1, col = 0; j < this->reg(i).size(); j++, col++) {
+        for (int j = 1; j < this->reg(i).size(); j++) {
             stategen(j - 1, ++row) = G(1);
         }
     }
