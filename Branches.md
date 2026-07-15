@@ -8,12 +8,9 @@ and the integration of work into the main branch.
 
 This is the main timeline, and represents what will in due course be published.
 
-* master-candidate
-  * tip of current development effort, soon to be merged into master;
-  * includes material from qudice and prism
-  * based on blessed/master
 * master
   * tip of development repo
+  * includes material from qudice and prism
   * based on blessed/master
 * blessed/master
   * tip of public repo
