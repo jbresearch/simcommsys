@@ -48,45 +48,52 @@ system benchmarks:
 
 # Documentation
 
-- User documentation can be found in the Wiki ([public](https://github.com/jbresearch/simcommsys/wiki) | [development](https://dsrg-ict.research.um.edu.mt/simcommsys/simcommsys/-/wikis)).
-   This includes instructions for:
-   - Building and installing the executables
-   - Setting up and running simulations
-   - Collecting and plotting results
+- User documentation can be found in the Wiki
+  ([public](https://github.com/jbresearch/simcommsys/wiki) |
+  [development](https://dsrg-ict.research.um.edu.mt/simcommsys/simcommsys/-/wikis)).
+  This includes instructions for:
+  - Building and installing the executables
+  - Setting up and running simulations
+  - Collecting and plotting results
 - Technical documentation is divided as follows:
-   - High level technical documentation can be found in the Wiki ([public](https://github.com/jbresearch/simcommsys/wiki) | [development](https://dsrg-ict.research.um.edu.mt/simcommsys/simcommsys/-/wikis)).
-      This includes:
-      - An overview of the SimCommSys framework
-      - An example extension of the framework (adding a new codec)
-   - An introduction to SimCommSys can be found in our paper:
-      [SimCommSys: Taking the errors out of error-correcting code simulations](https://jabriffa.wordpress.com/2014/06/30/journal-iet-journal-of-engineering-2/)
-   - Detailed documentation for the API can be built from the code:
-      1. Build the doxygen documentation using `make doc`
-      2. Start with the main page: `doc/html/index.html`
+  - High level technical documentation can be found in the Wiki
+    ([public](https://github.com/jbresearch/simcommsys/wiki) |
+    [development](https://dsrg-ict.research.um.edu.mt/simcommsys/simcommsys/-/wikis)).
+    This includes:
+    - An overview of the SimCommSys framework
+    - An example extension of the framework (adding a new codec)
+  - An introduction to SimCommSys can be found in our paper:
+    [SimCommSys: Taking the errors out of error-correcting code simulations](https://jabriffa.wordpress.com/2014/06/30/journal-iet-journal-of-engineering-2/)
+  - Detailed documentation for the API can be built from the code:
+    1. Build the doxygen documentation using `make doc`
+    2. Start with the main page: `doc/html/index.html`
 
 # Contact us
 
-- For bug reports, use the issue tracker ([public](https://github.com/jbresearch/simcommsys/issues) | [development](https://dsrg-ict.research.um.edu.mt/simcommsys/simcommsys/-/issues)).
+- For bug reports, use the issue tracker
+  ([public](https://github.com/jbresearch/simcommsys/issues) |
+  [development](https://dsrg-ict.research.um.edu.mt/simcommsys/simcommsys/-/issues)).
 - [User and developer project forums](https://groups.google.com/d/forum/simcommsys)
-   - Discussions about the use of simcommsys should be tagged with the 'User' category.
-   - Longer discussions about simcommsys development should be tagged with the 'Developer' category.
-
+  - Discussions about the use of simcommsys should be tagged with the 'User'
+    category.
+  - Longer discussions about simcommsys development should be tagged with the
+    'Developer' category.
 
 # Copyright and license
 
-Copyright (c) 2010-2026 Johann A. Briffa, Stephan Wesemeyer, Noel Farrugia, Aaron Abela, Mark Mizzi
+Copyright (c) 2010-2026 Johann A. Briffa, Stephan Wesemeyer, Noel Farrugia,
+Aaron Abela, Mark Mizzi
 
 This file is part of SimCommSys.
 
-SimCommSys is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+SimCommSys is free software: you can redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version.
 
-SimCommSys is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+SimCommSys is distributed in the hope that it will be useful, but WITHOUT ANY
+WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-You should have received a copy of the GNU General Public License
-along with SimCommSys.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License along with
+SimCommSys. If not, see <http://www.gnu.org/licenses/>.
