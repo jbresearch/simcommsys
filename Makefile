@@ -138,7 +138,7 @@ ifeq (,$(findstring no-print-directory,$(MAKEFLAGS)))
 endif
 export MKDIR := mkdir -p
 export RM := rm -rf
-export CP := cp
+export INSTALL := install
 export NVCC := nvcc
 export CC := gcc
 export LD := gcc
