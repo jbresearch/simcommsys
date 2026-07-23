@@ -68,7 +68,7 @@ $(TARGET):	$(OBJECTS) $(LIBRARIES)
 $(BINDIR)/%.$(SIMCOMMSYS_VERSION).$(BUILDID).$(RELEASE):	$(BUILDDIR)/%
 	@$(MKDIR) $(dir $@)
 	@echo "Installing $* [$(BUILDID): $(RELEASE)]"
-	@$(INSTALL) $< $@
+	@$(INSTALL) $(realpath $<) $@
 
 $(BUILDDIR)/%.o:	%.cu
 	@$(MKDIR) $(dir $@)
