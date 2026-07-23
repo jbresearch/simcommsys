@@ -70,12 +70,12 @@ ifndef USE_CUDA
     endif
 endif
 # Set default release to build
-ifndef RELEASE
-    export RELEASE := release
+ifndef CONFIG
+    export CONFIG := release
 endif
 # Validate release
-ifneq ($(RELEASE),$(filter $(RELEASE),release debug profile))
-    $(error Invalid release '$(RELEASE)')
+ifneq ($(CONFIG),$(filter $(CONFIG),release debug profile))
+    $(error Invalid release '$(CONFIG)')
 endif
 
 
@@ -105,7 +105,7 @@ endif
 # Root folder for package
 export ROOTDIR := $(CURDIR)
 # Folder for the build object files and binaries
-export BUILDDIR = $(RELEASE)/$(BUILDID)
+export BUILDDIR = $(CONFIG)/$(BUILDID)
 # Folder for installed binaries, must be defined for install targets
 ifneq ($(filter install% plain-install%,$(MAKECMDGOALS)),)
     ifndef BINDIR
@@ -186,7 +186,7 @@ export LDflag_debug   := $(LDopts)
 export LDflag_release := $(LDopts)
 export LDflag_profile := -pg $(LDflag_release)
 # Select the linking options to use
-export LDflags = $(LDflag_$(RELEASE))
+export LDflags = $(LDflag_$(CONFIG))
 
 
 ## Compiler settings
@@ -228,7 +228,7 @@ export CCflag_debug := -g -DDEBUG $(CCopts)
 export CCflag_release := -O3 -DNDEBUG $(CCopts)
 export CCflag_profile := -pg $(CCflag_release)
 # Select the compiler options to use
-export CCflags = $(CCflag_$(RELEASE))
+export CCflags = $(CCflag_$(CONFIG))
 
 
 ## CUDA Compiler settings
@@ -247,7 +247,7 @@ NVCCflag_debug := -O0 -g -G -DDEBUG $(NVCCopts)
 NVCCflag_release := -O3 -DNDEBUG $(NVCCopts)
 NVCCflag_profile := -pg -DPROFILE $(NVCCflag_release)
 # Select the compiler options to use
-export NVCCflags := $(NVCCflag_$(RELEASE))
+export NVCCflags := $(NVCCflag_$(CONFIG))
 
 
 ## Library builder settings
@@ -264,12 +264,12 @@ export LIBRARIES := $(foreach name,$(TARGETS_LIBS:Libraries/Lib%=%),$(ROOTDIR)/L
 
 default:
 	@echo "No default target. General targets:"
-	@echo "   <plain>-<cmd>-<set>-<release>"
+	@echo "   <plain>-<cmd>-<set>-<config>"
 	@echo "Where:"
 	@echo "   <plain> = plain : disable optional libraries [optional]"
 	@echo "   <cmd> = build|install|clean : build-only, install, or clean"
 	@echo "   <set> = all|main|test|libs : what to build [default:all=main+test]"
-	@echo "   <release> = debug|release|profile : [default:debug+release]"
+	@echo "   <config> = debug|release|profile : [default:debug+release]"
 	@echo "Master targets:"
 	@echo "   all : equivalent to build and plain-build"
 	@echo "   doc : compile code documentation"
@@ -318,20 +318,20 @@ build-libs:	build-libs-debug build-libs-release
 
 # libs build target is explicit here to avoid duplicate making
 build-all-%:
-	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_MAIN) $(TARGETS_TEST)
+	@$(MAKE) CONFIG=$* DOTARGET=build $(TARGETS_MAIN) $(TARGETS_TEST)
 build-main-%:
-	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_MAIN)
+	@$(MAKE) CONFIG=$* DOTARGET=build $(TARGETS_MAIN)
 build-test-%:
-	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_TEST)
+	@$(MAKE) CONFIG=$* DOTARGET=build $(TARGETS_TEST)
 build-libs-%:
-	@$(MAKE) RELEASE=$* DOTARGET=build $(TARGETS_LIBS)
+	@$(MAKE) CONFIG=$* DOTARGET=build $(TARGETS_LIBS)
 
 dry-run-build-main-%:
-	@$(MAKE) RELEASE=$* DOTARGET=build $(patsubst %,dry-run-%,$(TARGETS_MAIN))
+	@$(MAKE) CONFIG=$* DOTARGET=build $(patsubst %,dry-run-%,$(TARGETS_MAIN))
 dry-run-build-test-%:
-	@$(MAKE) RELEASE=$* DOTARGET=build $(patsubst %,dry-run-%,$(TARGETS_TEST))
+	@$(MAKE) CONFIG=$* DOTARGET=build $(patsubst %,dry-run-%,$(TARGETS_TEST))
 dry-run-build-libs-%:
-	@$(MAKE) RELEASE=$* DOTARGET=build $(patsubst %,dry-run-%,$(TARGETS_LIBS))
+	@$(MAKE) CONFIG=$* DOTARGET=build $(patsubst %,dry-run-%,$(TARGETS_LIBS))
 
 install:	install-all
 install-all:	install-all-debug install-all-release
@@ -340,11 +340,11 @@ install-test:	install-test-debug install-test-release
 
 # libs install target is explicit here to avoid duplicate making
 install-all-%:	build-all-%
-	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_MAIN) $(TARGETS_TEST)
+	@$(MAKE) CONFIG=$* DOTARGET=install $(TARGETS_MAIN) $(TARGETS_TEST)
 install-main-%:	build-main-%
-	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_MAIN)
+	@$(MAKE) CONFIG=$* DOTARGET=install $(TARGETS_MAIN)
 install-test-%:	build-test-%
-	@$(MAKE) RELEASE=$* DOTARGET=install $(TARGETS_TEST)
+	@$(MAKE) CONFIG=$* DOTARGET=install $(TARGETS_TEST)
 
 clean:	clean-main clean-test clean-libs
 clean-main:	clean-main-release clean-main-debug
@@ -352,11 +352,11 @@ clean-test:	clean-test-release clean-test-debug
 clean-libs:	clean-libs-release clean-libs-debug
 
 clean-main-%:
-	@$(MAKE) RELEASE=$* DOTARGET=clean $(TARGETS_MAIN)
+	@$(MAKE) CONFIG=$* DOTARGET=clean $(TARGETS_MAIN)
 clean-test-%:
-	@$(MAKE) RELEASE=$* DOTARGET=clean $(TARGETS_TEST)
+	@$(MAKE) CONFIG=$* DOTARGET=clean $(TARGETS_TEST)
 clean-libs-%:
-	@$(MAKE) RELEASE=$* DOTARGET=clean $(TARGETS_LIBS)
+	@$(MAKE) CONFIG=$* DOTARGET=clean $(TARGETS_LIBS)
 
 compile-commands-%:
 	./Scripts/Utils/mk-compile-commands.bash $*
@@ -377,19 +377,19 @@ version.txt:
 	@echo $(SIMCOMMSYS_VERSION) > $@
 
 $(TARGETS_MAIN) $(TARGETS_TEST):	$(TARGETS_LIBS)
-	@echo "----> Making target \"$(notdir $@)\" [$(BUILDID): $(RELEASE)]."
+	@echo "----> Making target \"$(notdir $@)\" [$(BUILDID): $(CONFIG)]."
 	@$(MAKE) -C "$(ROOTDIR)/$@" $(DOTARGET)
 
 $(TARGETS_LIBS):
-	@echo "----> Making library \"$(notdir $@)\" [$(BUILDID): $(RELEASE)]."
+	@echo "----> Making library \"$(notdir $@)\" [$(BUILDID): $(CONFIG)]."
 	@$(MAKE) -C "$(ROOTDIR)/$@" $(DOTARGET)
 
 $(patsubst %,dry-run-%,$(TARGETS_MAIN)) $(patsubst %,dry-run-%,$(TARGETS_TEST)):	$(patsubst %,dry-run-%,$(TARGETS_LIBS))
-	@echo "----> Dry run of making target \"$(notdir $(patsubst dry-run-%,%,$@))\" [$(BUILDID): $(RELEASE)]."
+	@echo "----> Dry run of making target \"$(notdir $(patsubst dry-run-%,%,$@))\" [$(BUILDID): $(CONFIG)]."
 	@$(MAKE) --dry-run --always-make -C "$(ROOTDIR)/$(patsubst dry-run-%,%,$@)" $(DOTARGET)
 
 $(patsubst %,dry-run-%,$(TARGETS_LIBS)):
-	@echo "----> Dry run of making library \"$(notdir $(patsubst dry-run-%,%,$@))\" [$(BUILDID): $(RELEASE)]."
+	@echo "----> Dry run of making library \"$(notdir $(patsubst dry-run-%,%,$@))\" [$(BUILDID): $(CONFIG)]."
 	@$(MAKE) --dry-run --always-make -C "$(ROOTDIR)/$(patsubst dry-run-%,%,$@)" $(DOTARGET)
 
 # Format the entire source code using clang-format

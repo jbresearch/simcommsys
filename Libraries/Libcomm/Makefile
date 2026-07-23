@@ -42,7 +42,7 @@ default:
 build:	$(LIBRARY)
 
 clean:
-	@echo "Cleaning [$(BUILDID): $(RELEASE)]"
+	@echo "Cleaning [$(BUILDID): $(CONFIG)]"
 	@$(RM) $(BUILDDIR)
 
 ## Setting targets
@@ -56,7 +56,7 @@ clean:
 # Manual targets
 
 $(LIBRARY):	$(OBJECTS)
-	@echo "Building library $* [$(BUILDID): $(RELEASE)]"
+	@echo "Building library $* [$(BUILDID): $(CONFIG)]"
 	@$(LIB) $(LIBflags) $(LIBRARY) $(OBJECTS)
 	@$(RAN) $(LIBRARY)
 
@@ -64,23 +64,23 @@ $(LIBRARY):	$(OBJECTS)
 
 $(BUILDDIR)/%.o:	%.cu
 	@$(MKDIR) $(dir $@)
-	@echo "Compiling $< [$(BUILDID): $(RELEASE)]"
+	@echo "Compiling $< [$(BUILDID): $(CONFIG)]"
 	@$(NVCC) $(NVCCflags) -c $(abspath $<) -o $(abspath $@)
 
 $(BUILDDIR)/%.o:	%.cpp
 	@$(MKDIR) $(dir $@)
-	@echo "Compiling $< [$(BUILDID): $(RELEASE)]"
+	@echo "Compiling $< [$(BUILDID): $(CONFIG)]"
 	@$(CC) $(CCflags) -c $(abspath $<) -o $(abspath $@)
 
 $(BUILDDIR)/%.d:	%.cu
 	@$(MKDIR) $(dir $@)
-	@echo "Making dependancy list for $*.o [$(BUILDID): $(RELEASE)]"
+	@echo "Making dependancy list for $*.o [$(BUILDID): $(CONFIG)]"
 	@$(NVCC) $(NVCCflags) -M -odir $(dir $@) -o $(abspath $@) $(abspath $<)
 	@sed -e 's,//,/,g' -e '\,/ , d' -e 's,$*\.o[ ]*:,$*.o $@ :,g' -i $@
 
 $(BUILDDIR)/%.d:	%.cpp
 	@$(MKDIR) $(dir $@)
-	@echo "Making dependancy list for $*.o [$(BUILDID): $(RELEASE)]"
+	@echo "Making dependancy list for $*.o [$(BUILDID): $(CONFIG)]"
 	@$(CC) $(CCflags) -M -MT$(BUILDDIR)/$*.o -MF$(abspath $@) $(abspath $<)
 	@sed 's,$*\.o[ ]*:,$*.o $@ :,g' -i $@
 

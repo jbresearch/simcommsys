@@ -32,7 +32,7 @@ endif
 DEPEND := $(OBJECTS:%.o=%.d)
 # Automatically determine the final target name
 TARGET := $(SOURCES:%.cpp=$(BUILDDIR)/%)
-FINAL := $(SOURCES:%.cpp=$(BINDIR)/%.$(SIMCOMMSYS_VERSION).$(BUILDID).$(RELEASE))
+FINAL := $(SOURCES:%.cpp=$(BINDIR)/%.$(SIMCOMMSYS_VERSION).$(BUILDID).$(CONFIG))
 
 # Master targets
 
@@ -44,7 +44,7 @@ build:	$(TARGET)
 install:	$(FINAL)
 
 clean:
-	@echo "Cleaning [$(BUILDID): $(RELEASE)]"
+	@echo "Cleaning [$(BUILDID): $(CONFIG)]"
 	@$(RM) $(BUILDDIR)
 
 ## Setting targets
@@ -60,35 +60,35 @@ clean:
 
 $(TARGET):	$(OBJECTS) $(LIBRARIES)
 	@$(MKDIR) $(dir $@)
-	@echo "Linking $(notdir $@) [$(BUILDID): $(RELEASE)]"
+	@echo "Linking $(notdir $@) [$(BUILDID): $(CONFIG)]"
 	@$(LD) -o $@ $(OBJECTS) $(LDflags)
 
 # Pattern-matched targets
 
-$(BINDIR)/%.$(SIMCOMMSYS_VERSION).$(BUILDID).$(RELEASE):	$(BUILDDIR)/%
+$(BINDIR)/%.$(SIMCOMMSYS_VERSION).$(BUILDID).$(CONFIG):	$(BUILDDIR)/%
 	@$(MKDIR) $(dir $@)
-	@echo "Installing $* [$(BUILDID): $(RELEASE)]"
+	@echo "Installing $* [$(BUILDID): $(CONFIG)]"
 	@$(INSTALL) $(realpath $<) $@
 
 $(BUILDDIR)/%.o:	%.cu
 	@$(MKDIR) $(dir $@)
-	@echo "Compiling $< [$(BUILDID): $(RELEASE)]"
+	@echo "Compiling $< [$(BUILDID): $(CONFIG)]"
 	@$(NVCC) $(NVCCflags) -c $< -o $@
 
 $(BUILDDIR)/%.o:	%.cpp
 	@$(MKDIR) $(dir $@)
-	@echo "Compiling $< [$(BUILDID): $(RELEASE)]"
+	@echo "Compiling $< [$(BUILDID): $(CONFIG)]"
 	@$(CC) $(CCflags) -c $< -o $@
 
 $(BUILDDIR)/%.d:	%.cu
 	@$(MKDIR) $(dir $@)
-	@echo "Making dependancy list for $*.o [$(BUILDID): $(RELEASE)]"
+	@echo "Making dependancy list for $*.o [$(BUILDID): $(CONFIG)]"
 	@$(NVCC) $(NVCCflags) -M -odir $(dir $@) -o $@ $<
 	@sed -e 's,//,/,g' -e '\,/ , d' -e 's,$*\.o[ ]*:,$*.o $@ :,g' -i $@
 
 $(BUILDDIR)/%.d:	%.cpp
 	@$(MKDIR) $(dir $@)
-	@echo "Making dependancy list for $*.o [$(BUILDID): $(RELEASE)]"
+	@echo "Making dependancy list for $*.o [$(BUILDID): $(CONFIG)]"
 	@$(CC) $(CCflags) -M -MT$(BUILDDIR)/$*.o -MF$@ $<
 	@sed 's,$*\.o[ ]*:,$*.o $@ :,g' -i $@
 

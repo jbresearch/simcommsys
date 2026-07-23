@@ -42,7 +42,7 @@ default:
 build:	$(LIBRARY) | $(BUILDDIR)/version.h
 
 clean:
-	@echo "Cleaning [$(BUILDID): $(RELEASE)]"
+	@echo "Cleaning [$(BUILDID): $(CONFIG)]"
 	@$(RM) $(BUILDDIR)
 
 ## Setting targets
@@ -58,16 +58,16 @@ FORCE:
 # Manual targets
 
 $(BUILDDIR)/version.h.tmp: FORCE
-	@echo "Creating $@ [$(BUILDID): $(RELEASE)]"
+	@echo "Creating $@ [$(BUILDID): $(CONFIG)]"
 	@echo "#define SIMCOMMSYS_VERSION \"$(SIMCOMMSYS_VERSION)\"" > $@
 	@echo "#define SIMCOMMSYS_BUILD \"$(BUILDID)\"" >> $@
 
 $(BUILDDIR)/version.h:	$(BUILDDIR)/version.h.tmp
-	@echo "Checking $@ [$(BUILDID): $(RELEASE)]"
-	@( cmp -s $< $@ && rm $< ) || ( mv $< $@ && echo "New version: $(SIMCOMMSYS_VERSION) [$(BUILDID): $(RELEASE)]" )
+	@echo "Checking $@ [$(BUILDID): $(CONFIG)]"
+	@( cmp -s $< $@ && rm $< ) || ( mv $< $@ && echo "New version: $(SIMCOMMSYS_VERSION) [$(BUILDID): $(CONFIG)]" )
 
 $(LIBRARY):	$(OBJECTS)
-	@echo "Building library $* [$(BUILDID): $(RELEASE)]"
+	@echo "Building library $* [$(BUILDID): $(CONFIG)]"
 	@$(LIB) $(LIBflags) $(LIBRARY) $(OBJECTS)
 	@$(RAN) $(LIBRARY)
 
@@ -75,23 +75,23 @@ $(LIBRARY):	$(OBJECTS)
 
 $(BUILDDIR)/%.o:	%.cu
 	@$(MKDIR) $(dir $@)
-	@echo "Compiling $< [$(BUILDID): $(RELEASE)]"
+	@echo "Compiling $< [$(BUILDID): $(CONFIG)]"
 	@$(NVCC) $(NVCCflags) -c $(abspath $<) -o $(abspath $@)
 
 $(BUILDDIR)/%.o:	%.cpp
 	@$(MKDIR) $(dir $@)
-	@echo "Compiling $< [$(BUILDID): $(RELEASE)]"
+	@echo "Compiling $< [$(BUILDID): $(CONFIG)]"
 	@$(CC) $(CCflags) -c $(abspath $<) -o $(abspath $@)
 
 $(BUILDDIR)/%.d:	%.cu
 	@$(MKDIR) $(dir $@)
-	@echo "Making dependancy list for $*.o [$(BUILDID): $(RELEASE)]"
+	@echo "Making dependancy list for $*.o [$(BUILDID): $(CONFIG)]"
 	@$(NVCC) $(NVCCflags) -M -odir $(dir $@) -o $(abspath $@) $(abspath $<)
 	@sed -e 's,//,/,g' -e '\,/ , d' -e 's,$*\.o[ ]*:,$*.o $@ :,g' -i $@
 
 $(BUILDDIR)/%.d:	%.cpp
 	@$(MKDIR) $(dir $@)
-	@echo "Making dependancy list for $*.o [$(BUILDID): $(RELEASE)]"
+	@echo "Making dependancy list for $*.o [$(BUILDID): $(CONFIG)]"
 	@$(CC) $(CCflags) -M -MT$(BUILDDIR)/$*.o -MF$(abspath $@) $(abspath $<)
 	@sed 's,$*\.o[ ]*:,$*.o $@ :,g' -i $@
 
