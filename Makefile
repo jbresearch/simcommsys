@@ -31,8 +31,13 @@ TARGETS_LIBS := $(foreach dir,$(wildcard Libraries/*),$(if $(wildcard $(dir)/Mak
 
 # Build Architecture
 ifndef USE_ARCH
-    export USE_ARCH := $(shell gcc -march=native -E -v - </dev/null 2>&1 |grep cc1 |xargs -n 1 |grep -- '-march' |cut -d '=' -f 2)
+    export USE_ARCH := native
 endif
+GCC_ARCH_CHECK := $(shell gcc -march=$(USE_ARCH) -E -v - </dev/null 2>&1 | grep cc1)
+ifneq ($(findstring error: bad value,$(GCC_ARCH_CHECK)),)
+    $(error Invalid architecture '$(USE_ARCH)' specified for USE_ARCH)
+endif
+override export USE_ARCH := $(shell echo '$(GCC_ARCH_CHECK)' | xargs -n 1 | grep -- '-march' | cut -d '=' -f 2)
 # OpenMP Library (0 if absent)
 ifndef USE_OMP
     export USE_OMP := 1
