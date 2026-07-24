@@ -276,6 +276,7 @@ default:
 	@echo "   clean-all : removes all binaries"
 	@echo "   clean-dep : removes all dependency files"
 	@echo "   showsettings : outputs compiler settings used"
+	@echo "   showtargets: outputs a list of all targets"
 	@echo "   showbuildid : outputs the build identifier string for the given settings"
 	@echo "   showversion : outputs the version string"
 
@@ -298,6 +299,12 @@ clean-dep:
 
 showsettings:
 	$(CC) $(CCflag_release) -Q --help=target --help=optimizers --help=warnings
+
+showtargets:
+	@echo "Targets:"
+	@echo "   Main: $(TARGETS_MAIN)"
+	@echo "   Test: $(TARGETS_TEST)"
+	@echo "   Libs: $(TARGETS_LIBS)"
 
 showbuildid:
 	@echo $(BUILDID)
