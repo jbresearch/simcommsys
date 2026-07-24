@@ -41,6 +41,8 @@ default:
 
 build:	$(LIBRARY) | $(BUILDDIR)/version.h
 
+install:	build
+
 clean:
 	@echo "Cleaning [$(BUILDID): $(CONFIG)]"
 	@$(RM) $(BUILDDIR)

@@ -41,6 +41,8 @@ default:
 
 build:	$(LIBRARY)
 
+install:	build
+
 clean:
 	@echo "Cleaning [$(BUILDID): $(CONFIG)]"
 	@$(RM) $(BUILDDIR)
