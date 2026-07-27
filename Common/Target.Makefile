@@ -47,9 +47,15 @@ clean:
 	@echo "Cleaning [$(BUILDID): $(CONFIG)]"
 	@$(RM) $(BUILDDIR)
 
+showtarget:
+	@echo $(TARGET)
+
+showfinal:
+	@echo $(FINAL)
+
 ## Setting targets
 
-.PHONY:	default build install clean
+.PHONY:	default build install clean showtarget showfinal
 
 .SUFFIXES: # Delete the default suffixes
 
