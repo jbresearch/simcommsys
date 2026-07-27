@@ -382,12 +382,13 @@ compile-commands-%:
 version.txt:
 	@echo $(SIMCOMMSYS_VERSION) > $@
 
-Include/$(BUILDDIR)/version.h.tmp: FORCE
+Include/$(BUILDDIR)/version.h.tmp:
 	@echo "Creating $@ [$(BUILDID): $(CONFIG)]"
+	@$(MKDIR) $(dir $@)
 	@echo "#define SIMCOMMSYS_VERSION \"$(SIMCOMMSYS_VERSION)\"" > $@
 	@echo "#define SIMCOMMSYS_BUILD \"$(BUILDID)\"" >> $@
 
-Include/$(BUILDDIR)/version.h:	$(BUILDDIR)/version.h.tmp
+Include/$(BUILDDIR)/version.h:	Include/$(BUILDDIR)/version.h.tmp
 	@echo "Checking $@ [$(BUILDID): $(CONFIG)]"
 	@( cmp -s $< $@ && rm $< ) || ( mv $< $@ && echo "New version: $(SIMCOMMSYS_VERSION) [$(BUILDID): $(CONFIG)]" )
 
