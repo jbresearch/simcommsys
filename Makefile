@@ -301,10 +301,9 @@ showsettings:
 	$(CC) $(CCflag_release) -Q --help=target --help=optimizers --help=warnings
 
 showtargets:
-	@echo "Targets:"
-	@echo "   Main: $(TARGETS_MAIN)"
-	@echo "   Test: $(TARGETS_TEST)"
-	@echo "   Libs: $(TARGETS_LIBS)"
+	@echo "Main: $(TARGETS_MAIN)"
+	@echo "Test: $(TARGETS_TEST)"
+	@echo "Libs: $(TARGETS_LIBS)"
 
 showbuildid:
 	@echo $(BUILDID)
