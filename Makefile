@@ -234,7 +234,8 @@ export CCflags = $(CCflag_$(CONFIG))
 ## CUDA Compiler settings
 
 # Common options
-NVCCopts := $(TARGETS_LIBS:%=-I$(ROOTDIR)/%)
+NVCCopts := -I$(ROOTDIR)/Include/$(BUILDDIR)
+NVCCopts := $(NVCCopts) $(TARGETS_LIBS:%=-I$(ROOTDIR)/%)
 #NVCCopts := $(NVCCopts) -Xcompiler "-Wall,-Werror"
 #NVCCopts := $(NVCCopts) -Xopencc "-woffall"
 #NVCCopts := $(NVCCopts) -Xptxas "-v"
