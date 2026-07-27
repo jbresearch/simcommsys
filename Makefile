@@ -192,8 +192,8 @@ export LDflags = $(LDflag_$(CONFIG))
 ## Compiler settings
 
 # Common options
-CCopts := $(TARGETS_LIBS:%=-I$(ROOTDIR)/%)
-CCopts := $(CCopts) $(TARGETS_LIBS:%=-I$(ROOTDIR)/%/$(BUILDDIR))
+CCopts := -I$(ROOTDIR)/Include/$(BUILDDIR)
+CCopts := $(CCopts) $(TARGETS_LIBS:%=-I$(ROOTDIR)/%)
 CCopts := $(CCopts) -Wall -Werror
 # Disable the array-bounds warning due to a GCC 11 bug with boost::multi_array<bool,>
 # TODO: remove when no longer needed
@@ -383,11 +383,20 @@ compile-commands-%:
 version.txt:
 	@echo $(SIMCOMMSYS_VERSION) > $@
 
-$(TARGETS_MAIN) $(TARGETS_TEST):	$(TARGETS_LIBS)
+Include/$(BUILDDIR)/version.h.tmp: FORCE
+	@echo "Creating $@ [$(BUILDID): $(CONFIG)]"
+	@echo "#define SIMCOMMSYS_VERSION \"$(SIMCOMMSYS_VERSION)\"" > $@
+	@echo "#define SIMCOMMSYS_BUILD \"$(BUILDID)\"" >> $@
+
+Include/$(BUILDDIR)/version.h:	$(BUILDDIR)/version.h.tmp
+	@echo "Checking $@ [$(BUILDID): $(CONFIG)]"
+	@( cmp -s $< $@ && rm $< ) || ( mv $< $@ && echo "New version: $(SIMCOMMSYS_VERSION) [$(BUILDID): $(CONFIG)]" )
+
+$(TARGETS_MAIN) $(TARGETS_TEST):	$(TARGETS_LIBS) | Include/$(BUILDDIR)/version.h
 	@echo "----> Making target \"$(notdir $@)\" [$(BUILDID): $(CONFIG)]."
 	@$(MAKE) -C "$(ROOTDIR)/$@" $(DOTARGET)
 
-$(TARGETS_LIBS):
+$(TARGETS_LIBS): | Include/$(BUILDDIR)/version.h
 	@echo "----> Making library \"$(notdir $@)\" [$(BUILDID): $(CONFIG)]."
 	@$(MAKE) -C "$(ROOTDIR)/$@" $(DOTARGET)
 
