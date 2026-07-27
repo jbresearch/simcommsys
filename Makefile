@@ -369,7 +369,9 @@ compile-commands-%:
 
 ## Setting targets
 
-.PHONY:	all doc build install clean showsettings showtargets showbuildid showversion $(TARGETS_MAIN) $(TARGETS_TEST) $(TARGETS_LIBS)
+FORCE:
+
+.PHONY:	FORCE all doc build install clean showsettings showtargets showbuildid showversion $(TARGETS_MAIN) $(TARGETS_TEST) $(TARGETS_LIBS)
 
 .SUFFIXES: # Delete the default suffixes
 
@@ -382,7 +384,7 @@ compile-commands-%:
 version.txt:
 	@echo $(SIMCOMMSYS_VERSION) > $@
 
-Include/$(BUILDDIR)/version.h.tmp:
+Include/$(BUILDDIR)/version.h.tmp: FORCE
 	@echo "Creating $@ [$(BUILDID): $(CONFIG)]"
 	@$(MKDIR) $(dir $@)
 	@echo "#define SIMCOMMSYS_VERSION \"$(SIMCOMMSYS_VERSION)\"" > $@
