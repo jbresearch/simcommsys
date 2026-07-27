@@ -370,7 +370,7 @@ compile-commands-%:
 
 ## Setting targets
 
-.PHONY:	all doc build install clean showsettings showbuildid showversion $(TARGETS_MAIN) $(TARGETS_TEST) $(TARGETS_LIBS)
+.PHONY:	all doc build install clean showsettings showtargets showbuildid showversion $(TARGETS_MAIN) $(TARGETS_TEST) $(TARGETS_LIBS)
 
 .SUFFIXES: # Delete the default suffixes
 
