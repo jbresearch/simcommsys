@@ -45,6 +45,7 @@ system benchmarks:
   streamlines the process of running batches of simulations, managing data
   output, and orchestrating complex experiments, making the power of the
   underlying C++ engine more accessible for rapid testing and analysis.
+  **Note** This is now the recommended way to use SimCommSys.
 
 # Documentation
 
