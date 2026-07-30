@@ -10,11 +10,10 @@ This is the main timeline, and represents what will in due course be published.
 
 - master
   - tip of development repo
-  - includes material from qudice and prism
-  - based on blessed/master
+  - based on v1.2.3
 - blessed/master
   - tip of public repo
-  - v1.2.3
+  - v2.0.0-rc1
 
 ## Current development branches
 
@@ -38,21 +37,21 @@ main contributor for the set of branches.
     - Created by Trevor
     - used by the PRISM Rust code - if this branch is integrated, the Rust
       interface will need to be updated accordingly
-    - based on blessed/master
+    - based on v1.2.3
 - Mark
   - hacks/mmiz/remove-ldpc-encoder
     - hack replacing the LDPC encoder with a random sequence generator, in order
       to allow timing simulations of the decoder with larger block sizes
     - to confirm there is nothing of value, and delete
-    - based on blessed/master, but shares history with other branches from Mark
+    - based on v1.2.3, but shares history with other branches from Mark
   - feat/more-efficient-gf-storage
     - reduces the integer size to the smallest required (rather than always
       int32)
-    - based on blessed/master, but shares history with other branches from Mark
+    - based on v1.2.3, but shares history with other branches from Mark
   - personal/mmiz/gdl-cuda-normalize-probs-kern-opt
     - shared mem optimization on normalisation kernel
     - to check with Mark, likely this is defunct and can be removed
-    - based on blessed/master, but shares history with other branches from Mark
+    - based on v1.2.3, but shares history with other branches from Mark
 - Noel - postdoc work
   - personal/aab/qkd_commsys_simulator
     - from Noel's attempt to create a QKD setup
